@@ -1217,13 +1217,22 @@ void CefRenderWidgetHostViewOSR::SendKeyEvent(
 
   if (target_host && target_host->GetView()) {
     // Direct routing requires that events go directly to the View.
-    target_host->ForwardKeyboardEventWithLatencyInfo(event, ui::LatencyInfo());
+    target_host->ForwardKeyboardEventWithLatencyInfo(event,
+                                                     CreateLatencyInfo(event));
   }
 }
 
 void CefRenderWidgetHostViewOSR::SendMouseEvent(
     const blink::WebMouseEvent& event) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::SendMouseEvent");
+
+  blink::WebMouseEvent web_event(event);
+
+  // Null timestamps can trigger debug assertions in UkmManager.
+  if (web_event.TimeStamp().is_null()) {
+    web_event.SetTimeStamp(ui::EventTimeForNow());
+  }
+
   if (!IsPopupWidget()) {
     if (browser_impl_ &&
         event.GetType() == blink::WebMouseEvent::Type::kMouseDown &&
@@ -1238,16 +1247,15 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
     if (popup_host_view_) {
       if (popup_host_view_->popup_position_.Contains(
               event.PositionInWidget().x(), event.PositionInWidget().y())) {
-        blink::WebMouseEvent popup_event(event);
-        popup_event.SetPositionInWidget(
+        web_event.SetPositionInWidget(
             event.PositionInWidget().x() -
                 popup_host_view_->popup_position_.x(),
             event.PositionInWidget().y() -
                 popup_host_view_->popup_position_.y());
-        popup_event.SetPositionInScreen(popup_event.PositionInWidget().x(),
-                                        popup_event.PositionInWidget().y());
+        web_event.SetPositionInScreen(web_event.PositionInWidget().x(),
+                                      web_event.PositionInWidget().y());
 
-        popup_host_view_->SendMouseEvent(popup_event);
+        popup_host_view_->SendMouseEvent(web_event);
         return;
       }
     } else if (!guest_host_views_.empty()) {
@@ -1260,30 +1268,30 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
             guest_host_view->render_widget_host_->GetView()->GetViewBounds();
         if (guest_bounds.Contains(event.PositionInWidget().x(),
                                   event.PositionInWidget().y())) {
-          blink::WebMouseEvent guest_event(event);
-          guest_event.SetPositionInWidget(
+          web_event.SetPositionInWidget(
               event.PositionInWidget().x() - guest_bounds.x(),
               event.PositionInWidget().y() - guest_bounds.y());
-          guest_event.SetPositionInScreen(guest_event.PositionInWidget().x(),
-                                          guest_event.PositionInWidget().y());
+          web_event.SetPositionInScreen(web_event.PositionInWidget().x(),
+                                        web_event.PositionInWidget().y());
 
-          guest_host_view->SendMouseEvent(guest_event);
+          guest_host_view->SendMouseEvent(web_event);
           return;
         }
       }
     }
   }
 
+  ui::LatencyInfo latency_info = CreateLatencyInfo(web_event);
   if (render_widget_host_ && render_widget_host_->GetView()) {
     if (ShouldRouteEvents()) {
       // RouteMouseEvent wants non-const pointer to WebMouseEvent, but it only
       // forwards it to RenderWidgetTargeter::FindTargetAndDispatch as a const
       // reference, so const_cast here is safe.
       render_widget_host_->delegate()->GetInputEventRouter()->RouteMouseEvent(
-          this, const_cast<blink::WebMouseEvent*>(&event), ui::LatencyInfo());
+          this, &web_event, latency_info);
     } else {
-      render_widget_host_->GetView()->ProcessMouseEvent(event,
-                                                        ui::LatencyInfo());
+      render_widget_host_->GetView()->ProcessMouseEvent(web_event,
+                                                        latency_info);
     }
   }
 }
@@ -1291,6 +1299,13 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
 void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
     const blink::WebMouseWheelEvent& event) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::SendMouseWheelEvent");
+
+  blink::WebMouseWheelEvent web_event(event);
+
+  // Null timestamps can trigger debug assertions in UkmManager.
+  if (web_event.TimeStamp().is_null()) {
+    web_event.SetTimeStamp(ui::EventTimeForNow());
+  }
 
   if (!IsPopupWidget()) {
     if (browser_impl_) {
@@ -1304,17 +1319,15 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
     if (popup_host_view_) {
       if (popup_host_view_->popup_position_.Contains(
               event.PositionInWidget().x(), event.PositionInWidget().y())) {
-        blink::WebMouseWheelEvent popup_mouse_wheel_event(event);
-        popup_mouse_wheel_event.SetPositionInWidget(
+        web_event.SetPositionInWidget(
             event.PositionInWidget().x() -
                 popup_host_view_->popup_position_.x(),
             event.PositionInWidget().y() -
                 popup_host_view_->popup_position_.y());
-        popup_mouse_wheel_event.SetPositionInScreen(
-            popup_mouse_wheel_event.PositionInWidget().x(),
-            popup_mouse_wheel_event.PositionInWidget().y());
+        web_event.SetPositionInScreen(web_event.PositionInWidget().x(),
+                                      web_event.PositionInWidget().y());
 
-        popup_host_view_->SendMouseWheelEvent(popup_mouse_wheel_event);
+        popup_host_view_->SendMouseWheelEvent(web_event);
         return;
       } else {
         // Scrolling outside of the popup widget so destroy it.
@@ -1335,37 +1348,32 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
             guest_host_view->render_widget_host_->GetView()->GetViewBounds();
         if (guest_bounds.Contains(event.PositionInWidget().x(),
                                   event.PositionInWidget().y())) {
-          blink::WebMouseWheelEvent guest_mouse_wheel_event(event);
-          guest_mouse_wheel_event.SetPositionInWidget(
+          web_event.SetPositionInWidget(
               event.PositionInWidget().x() - guest_bounds.x(),
               event.PositionInWidget().y() - guest_bounds.y());
-          guest_mouse_wheel_event.SetPositionInScreen(
-              guest_mouse_wheel_event.PositionInWidget().x(),
-              guest_mouse_wheel_event.PositionInWidget().y());
+          web_event.SetPositionInScreen(web_event.PositionInWidget().x(),
+                                        web_event.PositionInWidget().y());
 
-          guest_host_view->SendMouseWheelEvent(guest_mouse_wheel_event);
+          guest_host_view->SendMouseWheelEvent(web_event);
           return;
         }
       }
     }
   }
 
+  ui::LatencyInfo latency_info = CreateLatencyInfo(web_event);
   if (render_widget_host_ && render_widget_host_->GetView()) {
-    blink::WebMouseWheelEvent mouse_wheel_event(event);
-
     mouse_wheel_phase_handler_.SendWheelEndForTouchpadScrollingIfNeeded(false);
     mouse_wheel_phase_handler_.AddPhaseIfNeededAndScheduleEndEvent(
-        mouse_wheel_event, false, /*is_fling_capable=*/false);
+        web_event, false, /*is_fling_capable=*/false);
 
     if (ShouldRouteEvents()) {
       render_widget_host_->delegate()
           ->GetInputEventRouter()
-          ->RouteMouseWheelEvent(
-              this, const_cast<blink::WebMouseWheelEvent*>(&mouse_wheel_event),
-              ui::LatencyInfo());
+          ->RouteMouseWheelEvent(this, &web_event, latency_info);
     } else {
-      render_widget_host_->GetView()->ProcessMouseWheelEvent(mouse_wheel_event,
-                                                             ui::LatencyInfo());
+      render_widget_host_->GetView()->ProcessMouseWheelEvent(web_event,
+                                                             latency_info);
     }
   }
 }
@@ -1404,6 +1412,11 @@ void CefRenderWidgetHostViewOSR::SendTouchEvent(const CefTouchEvent& event) {
 
   blink::WebTouchEvent touch_event = ui::CreateWebTouchEventFromMotionEvent(
       pointer_state_, result.moved_beyond_slop_region, false);
+
+  // Null timestamps can trigger debug assertions in UkmManager.
+  if (touch_event.TimeStamp().is_null()) {
+    touch_event.SetTimeStamp(ui::EventTimeForNow());
+  }
 
   pointer_state_.CleanupRemovedTouchPoints(event);
 
