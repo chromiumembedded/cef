@@ -289,8 +289,20 @@ struct TestSetup {
     return false;
   }
 
+  bool GotAllExpectedConsoleMessages() const {
+    for (const auto& cm : console_messages) {
+      if (cm.count == 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   // Returns true if all expectations have been met.
   bool IsDone() const {
+    if (!GotAllExpectedConsoleMessages()) {
+      return false;
+    }
     ResourceList::const_iterator it = resources.begin();
     for (; it != resources.end(); ++it) {
       Resource* resource = *it;
@@ -302,6 +314,7 @@ struct TestSetup {
   }
 
   void AssertDone() const {
+    EXPECT_TRUE(GotAllExpectedConsoleMessages());
     ResourceList::const_iterator it = resources.begin();
     for (; it != resources.end(); ++it) {
       (*it)->AssertDone();
