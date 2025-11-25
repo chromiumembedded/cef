@@ -149,6 +149,7 @@ TEST(DisplayTest, Title) {
   ReleaseAndWaitForDestructor(handler);
 }
 
+#if !defined(OS_LINUX)
 namespace {
 
 const char kAutoResizeUrl[] = "https://tests-display/auto-resize.html";
@@ -243,6 +244,8 @@ class AutoResizeTestHandler : public RoutingTestHandler {
 }  // namespace
 
 // Test OnAutoResize notification.
+// Disabled on Linux because it causes DCHECK failures in the renderer process.
+// See issue #4038.
 TEST(DisplayTest, AutoResize) {
   if (!UseAlloyStyleBrowserGlobal()) {
     return;
@@ -251,6 +254,7 @@ TEST(DisplayTest, AutoResize) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
+#endif  // !defined(OS_LINUX)
 
 namespace {
 
