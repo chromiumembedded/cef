@@ -586,6 +586,9 @@ class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
       CefRefPtr<CefMenuButton> menu_button,
       const CefPoint& screen_point,
       CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) override {
+#if VERBOSE_LOGGING
+    LOG(INFO) << "OnMenuButtonPressed";
+#endif
     parent_window_ = menu_button->GetWindow();
     button_pressed_lock_ = button_pressed_lock;
 
@@ -605,10 +608,12 @@ class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
   }
 
   void OnButtonPressed(CefRefPtr<CefButton> button) override {
+#if VERBOSE_LOGGING
+    LOG(INFO) << "OnButtonPressed";
+#endif
     EXPECT_TRUE(button->GetWindow()->IsSame(popup_window_));
-    popup_window_->Close();
-    popup_window_ = nullptr;
-    button_pressed_lock_ = nullptr;
+    got_button_pressed_.yes();
+    MaybeClosePopupWindow();
   }
 
   CefRefPtr<CefWindow> GetParentWindow(CefRefPtr<CefWindow> window,
@@ -623,18 +628,39 @@ class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
   bool IsFrameless(CefRefPtr<CefWindow> window) override { return true; }
 
   void OnFocus(CefRefPtr<CefView> view) override {
-    if (popup_window_ && view->GetWindow()->IsSame(popup_window_)) {
+    const bool is_popup =
+        popup_window_ && view->GetWindow()->IsSame(popup_window_);
+#if VERBOSE_LOGGING
+    LOG(INFO) << "OnFocus is_popup=" << is_popup;
+#endif
+    if (is_popup) {
       EXPECT_TRUE(can_activate_);
       got_focus_.yes();
+      MaybeClosePopupWindow();
+    }
+  }
+
+  void OnWindowActivationChanged(CefRefPtr<CefWindow> window,
+                                 bool active) override {
+    const bool is_popup = popup_window_ && window->IsSame(popup_window_);
+#if VERBOSE_LOGGING
+    LOG(INFO) << "OnWindowActivationChanged is_popup=" << is_popup
+              << " active=" << active;
+#endif
+    if (is_popup && active) {
+      EXPECT_TRUE(can_activate_);
+      got_activation_.yes();
+      MaybeClosePopupWindow();
     }
   }
 
   void OnWindowDestroyed(CefRefPtr<CefWindow> window) override {
-    if (can_activate_) {
-      EXPECT_TRUE(got_focus_);
-    } else {
-      EXPECT_FALSE(got_focus_);
-    }
+#if VERBOSE_LOGGING
+    LOG(INFO) << "OnWindowDestroyed";
+#endif
+    EXPECT_TRUE(got_button_pressed_);
+    EXPECT_EQ(can_activate_, got_activation_);
+    EXPECT_EQ(ExpectFocus(), got_focus_);
 
     // Complete the test by closing the parent window.
     parent_window_->Close();
@@ -642,6 +668,37 @@ class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
   }
 
  private:
+  bool ExpectFocus() const {
+    if (!can_activate_) {
+      return false;
+    }
+#if defined(OS_MAC)
+    // Mac does not deliver a focus event for some reason.
+    return false;
+#else
+    return true;
+#endif
+  }
+
+  void MaybeClosePopupWindow() {
+#if VERBOSE_LOGGING
+    LOG(INFO) << "MaybeClosePopupWindow";
+#endif
+    if (!got_button_pressed_) {
+      return;
+    }
+    if (can_activate_ && !got_activation_) {
+      return;
+    }
+    if (ExpectFocus() && !got_focus_) {
+      return;
+    }
+
+    popup_window_->Close();
+    popup_window_ = nullptr;
+    button_pressed_lock_ = nullptr;
+  }
+
   const bool can_activate_;
 
   CefRefPtr<CefWindow> parent_window_;
@@ -649,6 +706,8 @@ class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
   CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock_;
 
   TrackCallback got_focus_;
+  TrackCallback got_activation_;
+  TrackCallback got_button_pressed_;
 
   IMPLEMENT_REFCOUNTING(TestMenuButtonCustomPopupDelegate);
   DISALLOW_COPY_AND_ASSIGN(TestMenuButtonCustomPopupDelegate);
