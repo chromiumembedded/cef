@@ -11,6 +11,8 @@
 
 using client::ClientAppBrowser;
 
+#define VERBOSE_LOGGING 0
+
 // Taken from:
 // https://www.iandevlin.com/blog/2012/09/html5/html5-media-and-data-uri/
 #define AUDIO_DATA                                                             \
@@ -796,7 +798,7 @@ using client::ClientAppBrowser;
 
 namespace {
 
-const int kToggleCount = 4;
+const int kToggleCount = 2;
 const int kNumChannels = 2;
 const int kSampleRate = 44100;
 const int kFramesPerBuffer = 882;  // 10ms
@@ -814,35 +816,44 @@ const char kTestHtml[] =
     "\" autoplay "
     "style=\"display:none\"></audio></body></html>";
 
+// Timeouts must exceed kCheckMissingCallbacksIntervalSeconds (5) from
+// media/audio/audio_input_device.cc.
 const char kToggleTestHtml[] =
     "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/>"
     "<script type=\"text/javascript\">"
-    "var timeouts = [150, 1950, 150, 2000, 150, 2050, 150, 2100, 150, 2200, "
-    "150];"
+    "var timeouts = [150, 5050, 5050, 5050];"
     "var count = 0;"
     "function togglePlayback(el, playing, count) {"
     "  if (playing) {"
-    // "    console.log('togglePlayback pause (' + count + ')');"
+#if VERBOSE_LOGGING
+    "    console.log('togglePlayback pause (' + count + ')');"
+#endif
     "    el.pause();"
     "  } else {"
-    // "    console.log('togglePlayback play (' + count + ')');"
+#if VERBOSE_LOGGING
+    "    console.log('togglePlayback play (' + count + ')');"
+#endif
     "    el.play();"
     "  }"
     "}"
     "function loadHandler() {"
     "  var el = document.getElementById(\"audio_output_frame\");"
     "  el.onplay = (event) => {"
-    "    var timeout = timeouts[count];"
-    // "    console.log('loadHandler onplay (' + count + ') wait ' + timeout);"
     "    if (count < timeouts.length) {"
+    "      var timeout = timeouts[count];"
+#if VERBOSE_LOGGING
+    "      console.log('loadHandler onplay (' + count + ') wait ' + timeout);"
+#endif
     "      setTimeout(togglePlayback, timeout, el, true, count);"
     "      count++;"
     "    }"
     "  };"
     "  el.onpause = (event) => {"
-    "    var timeout = timeouts[count];"
-    // "    console.log('loadHandler onpause (' + count + ') wait ' + timeout);"
     "    if (count < timeouts.length) {"
+    "      var timeout = timeouts[count];"
+#if VERBOSE_LOGGING
+    "      console.log('loadHandler onpause (' + count + ') wait ' + timeout);"
+#endif
     "      setTimeout(togglePlayback, timeout, el, false, count);"
     "      count++;"
     "    }"
@@ -1048,6 +1059,10 @@ class AudioTogglePlaybackTest : public AudioTestHandler {
   void OnAudioStreamStarted(CefRefPtr<CefBrowser> browser,
                             const CefAudioParameters& params,
                             int channels) override {
+#if VERBOSE_LOGGING
+    LOG(INFO) << "OnAudioStreamStarted count=" << start_count_;
+#endif
+
     EXPECT_TRUE(browser_->IsSame(browser));
     EXPECT_EQ(channels, kNumChannels);
     EXPECT_EQ(params.channel_layout, kChannelLayout);
@@ -1058,6 +1073,10 @@ class AudioTogglePlaybackTest : public AudioTestHandler {
   }
 
   void OnAudioStreamStopped(CefRefPtr<CefBrowser> browser) override {
+#if VERBOSE_LOGGING
+    LOG(INFO) << "OnAudioStreamStopped count=" << stop_count_;
+#endif
+
     EXPECT_EQ(start_count_, ++stop_count_);
     if (stop_count_ == kToggleCount) {
       AudioTestHandler::OnAudioStreamStopped(browser);
