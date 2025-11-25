@@ -147,61 +147,64 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host) {
                                    ->render_manager()
                                    ->current_frame_host() != host);
 
-  NotificationStateLock lock_scope(this);
-  DCHECK(browser_);
+  {
+    NotificationStateLock lock_scope(this);
+    DCHECK(browser_);
 
-  const auto it = frame_id_map_.find(global_id);
-  if (it != frame_id_map_.end()) {
-    auto info = it->second;
+    const auto it = frame_id_map_.find(global_id);
+    if (it != frame_id_map_.end()) {
+      auto info = it->second;
+
+#if DCHECK_IS_ON()
+      // Check that the frame info hasn't changed unexpectedly.
+      DCHECK_EQ(info->global_id_, global_id);
+      DCHECK_EQ(info->is_main_frame_, is_main_frame);
+#endif
+
+      // Update the associated RFH, which may have changed.
+      info->frame_->MaybeAttach(this, host);
+
+      if (info->is_speculative_ && !is_speculative) {
+        // Upgrade the frame info from speculative to non-speculative.
+        if (info->is_main_frame_) {
+          // Set the main frame object.
+          SetMainFrame(browser_, info->frame_);
+        }
+        info->is_speculative_ = false;
+      }
+      return;
+    }
+
+    auto frame_info = new FrameInfo;
+    frame_info->global_id_ = global_id;
+    frame_info->is_main_frame_ = is_main_frame;
+    frame_info->is_speculative_ = is_speculative;
+
+    // Create a new frame object.
+    frame_info->frame_ = new CefFrameHostImpl(this, host);
+    MaybeNotifyFrameCreated(frame_info->frame_);
+    if (is_main_frame && !is_speculative) {
+      SetMainFrame(browser_, frame_info->frame_);
+    }
 
 #if DCHECK_IS_ON()
     // Check that the frame info hasn't changed unexpectedly.
-    DCHECK_EQ(info->global_id_, global_id);
-    DCHECK_EQ(info->is_main_frame_, is_main_frame);
+    DCHECK(host->GetGlobalFrameToken() == *frame_info->frame_->frame_token());
+    DCHECK_EQ(frame_info->is_main_frame_, frame_info->frame_->IsMain());
 #endif
 
-    // Update the associated RFH, which may have changed.
-    info->frame_->MaybeAttach(this, host);
+    browser_->request_context()->OnRenderFrameCreated(global_id, is_main_frame);
 
-    if (info->is_speculative_ && !is_speculative) {
-      // Upgrade the frame info from speculative to non-speculative.
-      if (info->is_main_frame_) {
-        // Set the main frame object.
-        SetMainFrame(browser_, info->frame_);
-      }
-      info->is_speculative_ = false;
-    }
-    return;
+    // Populate the lookup maps.
+    frame_id_map_.insert(std::make_pair(global_id, frame_info));
+    frame_token_to_id_map_.insert(
+        std::make_pair(host->GetGlobalFrameToken(), global_id));
+
+    // And finally set the ownership.
+    frame_info_set_.insert(base::WrapUnique(frame_info));
   }
 
-  auto frame_info = new FrameInfo;
-  frame_info->global_id_ = global_id;
-  frame_info->is_main_frame_ = is_main_frame;
-  frame_info->is_speculative_ = is_speculative;
-
-  // Create a new frame object.
-  frame_info->frame_ = new CefFrameHostImpl(this, host);
-  MaybeNotifyFrameCreated(frame_info->frame_);
-  if (is_main_frame && !is_speculative) {
-    SetMainFrame(browser_, frame_info->frame_);
-  }
-
-#if DCHECK_IS_ON()
-  // Check that the frame info hasn't changed unexpectedly.
-  DCHECK(host->GetGlobalFrameToken() == *frame_info->frame_->frame_token());
-  DCHECK_EQ(frame_info->is_main_frame_, frame_info->frame_->IsMain());
-#endif
-
-  browser_->request_context()->OnRenderFrameCreated(global_id, is_main_frame);
-
-  // Populate the lookup maps.
-  frame_id_map_.insert(std::make_pair(global_id, frame_info));
-  frame_token_to_id_map_.insert(
-      std::make_pair(host->GetGlobalFrameToken(), global_id));
-
-  // And finally set the ownership.
-  frame_info_set_.insert(base::WrapUnique(frame_info));
-
+  // Don't call this under NotificationStateLockas it may cause a deadlock.
   if (is_main_frame) {
     if (auto* manager = CefBrowserInfoManager::GetInstance()) {
       manager->OnMainFrameCreated(host->GetGlobalFrameToken(),
