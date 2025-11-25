@@ -263,246 +263,220 @@ class OSRTestHandler : public RoutingTestHandler,
               << " finished=" << finished();
 #endif
 
+    // Tests that send events need to wait for element bounds to be available.
     // Only interested in the first load.
-    if (started()) {
-      return;
+    if (!started() && !got_load_end_) {
+      got_load_end_.yes();
+      MaybeContinueTest();
     }
+  }
+
+  void LoadEndStartTestAndSendEvent() {
+#if VERBOSE_DEBUGGING
+    LOG(INFO) << "LoadEndStartTestAndSendEvent";
+#endif
+
+    auto browser = GetBrowser();
 
     if (test_type_ >= OSR_TEST_POPUP_FIRST &&
         test_type_ <= OSR_TEST_POPUP_LAST) {
-      StartTest();
-      ExpandDropDown();
+      EXPECT_TRUE(StartTest());
+      // Trigger display of the select popup. This will cause PET_POPUP paint
+      // events.
+      ClickMouseOnElement(browser, "LI11select");
       return;
     }
 
     switch (test_type_) {
       case OSR_TEST_TOOLTIP:
-        if (StartTest()) {
-          MoveMouseToElement(browser, "LI10");
-        }
+        EXPECT_TRUE(StartTest());
+        MoveMouseToElement(browser, "LI10");
         break;
       case OSR_TEST_FOCUS:
-        if (StartTest()) {
-          // body.onfocus will make LI00 red
-          browser->GetHost()->SetFocus(true);
-        }
+        EXPECT_TRUE(StartTest());
+        // body.onfocus will make LI00 red
+        browser->GetHost()->SetFocus(true);
         break;
       case OSR_TEST_TAKE_FOCUS:
-        if (StartTest()) {
-          // Give focus to the last input element.
-          browser->GetMainFrame()->ExecuteJavaScript(
-              "document.getElementById('email').focus()",
-              browser->GetMainFrame()->GetURL(), 0);
+        EXPECT_TRUE(StartTest());
 
-          // Tab traversal across HTML element.
-#if defined(OS_WIN)
-          CefPostDelayedTask(TID_UI,
-                             base::BindOnce(&OSRTestHandler::SendKeyEvent, this,
-                                            browser, VK_TAB),
-                             50);
-#elif defined(OS_MAC) || defined(OS_LINUX)
-          CefPostDelayedTask(TID_UI,
-                             base::BindOnce(&OSRTestHandler::SendKeyEvent, this,
-                                            browser, kNativeKeyTab, VKEY_TAB),
-                             50);
-#else
-#error "Unsupported platform"
-#endif
-        }
+        // Give focus to the last input element.
+        // Continues when we receive the "osrfocusemail" query.
+        CefPostDelayedTask(
+            TID_UI,
+            base::BindOnce(&CefFrame::ExecuteJavaScript,
+                           browser->GetMainFrame(),
+                           "document.getElementById('email').focus()",
+                           browser->GetMainFrame()->GetURL(), 0),
+            100);
         break;
       case OSR_TEST_GOT_FOCUS:
-        if (StartTest()) {
-          browser->GetHost()->SetFocus(true);
-        }
+        EXPECT_TRUE(StartTest());
+        browser->GetHost()->SetFocus(true);
         break;
       case OSR_TEST_CURSOR:
-        if (StartTest()) {
-          MoveMouseToElement(browser, "LI02");
-        }
+        EXPECT_TRUE(StartTest());
+        MoveMouseToElement(browser, "LI02");
         break;
       case OSR_TEST_MOUSE_MOVE:
-        if (StartTest()) {
-          MoveMouseToElement(browser, "LI03");
-        }
+        EXPECT_TRUE(StartTest());
+        MoveMouseToElement(browser, "LI03");
         break;
       case OSR_TEST_CLICK_RIGHT:
       case OSR_TEST_SCREEN_POINT:
       case OSR_TEST_CONTEXT_MENU:
-        if (StartTest()) {
-          CefMouseEvent mouse_event;
-          const CefRect& expected_rect = GetElementBounds("LI04");
-          mouse_event.x = MiddleX(expected_rect);
-          mouse_event.y = MiddleY(expected_rect);
-          mouse_event.modifiers = 0;
-          SendMouseClickEvent(browser, mouse_event, MBT_RIGHT);
-        }
+        EXPECT_TRUE(StartTest());
+        ClickMouseOnElement(browser, "LI04", MBT_RIGHT);
         break;
-      case OSR_TEST_QUICK_MENU:
-        if (StartTest()) {
-          CefTouchEvent touch_event_pressed;
-          touch_event_pressed.type = CEF_TET_PRESSED;
-          const CefRect& expected_rect = GetElementBounds("quickmenu");
-          touch_event_pressed.x = MiddleX(expected_rect);
-          touch_event_pressed.y = MiddleY(expected_rect);
-          browser->GetHost()->SendTouchEvent(touch_event_pressed);
-        }
-        break;
+      case OSR_TEST_QUICK_MENU: {
+        EXPECT_TRUE(StartTest());
+
+        CefTouchEvent touch_event_pressed;
+        touch_event_pressed.type = CEF_TET_PRESSED;
+        const CefRect& expected_rect = GetElementBounds("quickmenu");
+        touch_event_pressed.x = MiddleX(expected_rect);
+        touch_event_pressed.y = MiddleY(expected_rect);
+
+        std::vector<CefTouchEvent> touch_events;
+        touch_events.push_back(touch_event_pressed);
+
+        SendTouchEvents(browser, std::move(touch_events));
+      } break;
       case OSR_TEST_CLICK_LEFT:
-        if (StartTest()) {
-          CefMouseEvent mouse_event;
-          const CefRect& expected_rect = GetElementBounds("LI00");
-          mouse_event.x = MiddleX(expected_rect);
-          mouse_event.y = MiddleY(expected_rect);
-          mouse_event.modifiers = 0;
-          SendMouseClickEvent(browser, mouse_event);
-        }
+        EXPECT_TRUE(StartTest());
+        ClickMouseOnElement(browser, "LI00");
         break;
       case OSR_TEST_DRAG_DROP_START_DRAGGING:
       case OSR_TEST_DRAG_DROP_UPDATE_CURSOR:
       case OSR_TEST_DRAG_DROP_DROP: {
+        EXPECT_TRUE(StartTest());
+
         // trigger the StartDragging event
-        if (StartTest()) {
-          // move the mouse over the element to drag
-          CefMouseEvent mouse_event;
-          const CefRect& dragdiv = GetElementBounds("dragdiv");
-          mouse_event.x = MiddleX(dragdiv);
-          mouse_event.y = MiddleY(dragdiv);
-          mouse_event.modifiers = 0;
+        // move the mouse over the element to drag
+        CefMouseEvent mouse_event;
+        const CefRect& dragdiv = GetElementBounds("dragdiv");
+        mouse_event.x = MiddleX(dragdiv);
+        mouse_event.y = MiddleY(dragdiv);
+        mouse_event.modifiers = 0;
 
-          // The div drag point must be visible.
-          EXPECT_LT(mouse_event.y, kOsrHeight);
+        // The div drag point must be visible.
+        EXPECT_LT(mouse_event.y, kOsrHeight);
 
-          browser->GetHost()->SendMouseMoveEvent(mouse_event, false);
-          // click on the element to drag
-          mouse_event.modifiers = EVENTFLAG_LEFT_MOUSE_BUTTON;
-          CefPostDelayedTask(
-              TID_UI,
-              base::BindOnce(&CefBrowserHost::SendMouseClickEvent,
-                             browser->GetHost(), mouse_event, MBT_LEFT, false,
-                             1),
-              50);
-          // move the mouse to start dragging
-          mouse_event.x -= 5;
-          mouse_event.y -= 5;
-          CefPostDelayedTask(
-              TID_UI,
-              base::BindOnce(&CefBrowserHost::SendMouseMoveEvent,
-                             browser->GetHost(), mouse_event, false),
-              100);
-        }
+        CefPostDelayedTask(
+            TID_UI,
+            base::BindOnce(&CefBrowserHost::SendMouseMoveEvent,
+                           browser->GetHost(), mouse_event, false),
+            100);
+        // click on the element to drag
+        mouse_event.modifiers = EVENTFLAG_LEFT_MOUSE_BUTTON;
+        CefPostDelayedTask(
+            TID_UI,
+            base::BindOnce(&CefBrowserHost::SendMouseClickEvent,
+                           browser->GetHost(), mouse_event, MBT_LEFT, false, 1),
+            150);
+        // move the mouse to start dragging
+        mouse_event.x -= 5;
+        mouse_event.y -= 5;
+        CefPostDelayedTask(
+            TID_UI,
+            base::BindOnce(&CefBrowserHost::SendMouseMoveEvent,
+                           browser->GetHost(), mouse_event, false),
+            200);
       } break;
       case OSR_TEST_KEY_EVENTS:
       case OSR_TEST_IME_COMMIT_TEXT:
       case OSR_TEST_IME_FINISH_COMPOSITION:
       case OSR_TEST_IME_CANCEL_COMPOSITION:
       case OSR_TEST_IME_SET_COMPOSITION:
-        if (StartTest()) {
-          // Results in a call to OnQuery.
-          FocusEditBox(browser);
-        }
+        EXPECT_TRUE(StartTest());
+        // Results in a call to OnQuery.
+        FocusEditBox(browser);
         break;
-      case OSR_TEST_TEXT_SELECTION_CHANGE: {
+      case OSR_TEST_TEXT_SELECTION_CHANGE:
+        EXPECT_TRUE(StartTest());
         // trigger the text selection changed event
-        if (StartTest()) {
-          // click inside list element so text range will be selected.
-          CefMouseEvent mouse_event;
-          const CefRect& expected_rect = GetElementBounds("LI11");
-          mouse_event.x = MiddleX(expected_rect);
-          mouse_event.y = MiddleY(expected_rect);
-          mouse_event.modifiers = 0;
-          SendMouseClickEvent(browser, mouse_event);
-        }
-      } break;
-      case OSR_TEST_VIRTUAL_KEYBOARD: {
-        if (StartTest()) {
-          CefMouseEvent mouse_event;
-          const CefRect& input = GetElementBounds("email");
-          mouse_event.x = MiddleX(input);
-          mouse_event.y = MiddleY(input);
-          mouse_event.modifiers = 0;
-          SendMouseClickEvent(browser, mouse_event);
-        }
-      } break;
+        // click inside list element so text range will be selected.
+        ClickMouseOnElement(browser, "LI11");
+        break;
+      case OSR_TEST_VIRTUAL_KEYBOARD:
+        EXPECT_TRUE(StartTest());
+        ClickMouseOnElement(browser, "email");
+        break;
       case OSR_TEST_TOUCH_START:
       case OSR_TEST_TOUCH_MOVE:
       case OSR_TEST_TOUCH_END:
       case OSR_TEST_TOUCH_CANCEL: {
+        EXPECT_TRUE(StartTest());
+
         // We trigger a valid Touch workflow sequence and close the tests
         // at seperate points for the 4 cases
-        if (StartTest()) {
-          const CefRect& touchdiv = GetElementBounds("touchdiv");
-          std::vector<CefTouchEvent> touch_events;
 
-          // click inside edit box so that text could be entered
-          CefTouchEvent touch_event1;
-          touch_event1.id = 0;
-          touch_event1.x = MiddleX(touchdiv) - 45;
-          touch_event1.y = MiddleY(touchdiv);
-          touch_event1.modifiers = 0;
-          touch_event1.type = CEF_TET_PRESSED;
-          touch_events.push_back(touch_event1);
+        const CefRect& touchdiv = GetElementBounds("touchdiv");
+        std::vector<CefTouchEvent> touch_events;
 
-          CefTouchEvent touch_event2;
-          touch_event2.id = 1;
-          touch_event2.x = MiddleX(touchdiv) + 45;
-          touch_event2.y = MiddleY(touchdiv);
-          touch_event2.modifiers = 0;
-          touch_event2.type = CEF_TET_PRESSED;
-          touch_events.push_back(touch_event2);
+        // click inside edit box so that text could be entered
+        CefTouchEvent touch_event1;
+        touch_event1.id = 0;
+        touch_event1.x = MiddleX(touchdiv) - 45;
+        touch_event1.y = MiddleY(touchdiv);
+        touch_event1.modifiers = 0;
+        touch_event1.type = CEF_TET_PRESSED;
+        touch_events.push_back(touch_event1);
 
-          if (test_type_ >= OSR_TEST_TOUCH_MOVE) {
-            // Move the Touch fingers closer
-            touch_event1.type = touch_event2.type = CEF_TET_MOVED;
-            for (size_t i = 0; i < 40; i++) {
-              touch_event1.x++;
-              touch_event2.x--;
-              touch_events.push_back(touch_event1);
-              touch_events.push_back(touch_event2);
-            }
+        CefTouchEvent touch_event2;
+        touch_event2.id = 1;
+        touch_event2.x = MiddleX(touchdiv) + 45;
+        touch_event2.y = MiddleY(touchdiv);
+        touch_event2.modifiers = 0;
+        touch_event2.type = CEF_TET_PRESSED;
+        touch_events.push_back(touch_event2);
+
+        if (test_type_ >= OSR_TEST_TOUCH_MOVE) {
+          // Move the Touch fingers closer
+          touch_event1.type = touch_event2.type = CEF_TET_MOVED;
+          for (size_t i = 0; i < 40; i++) {
+            touch_event1.x++;
+            touch_event2.x--;
+            touch_events.push_back(touch_event1);
+            touch_events.push_back(touch_event2);
           }
-
-          // Now release the Touch fingers or cancel them
-          if (test_type_ == OSR_TEST_TOUCH_CANCEL) {
-            touch_event1.type = touch_event2.type = CEF_TET_CANCELLED;
-          } else {
-            touch_event1.type = touch_event2.type = CEF_TET_RELEASED;
-          }
-          touch_events.push_back(touch_event1);
-          touch_events.push_back(touch_event2);
-
-          CefPostDelayedTask(TID_UI,
-                             base::BindOnce(&OSRTestHandler::SendTouchEvents,
-                                            this, std::move(touch_events)),
-                             100);
         }
+
+        // Now release the Touch fingers or cancel them
+        if (test_type_ == OSR_TEST_TOUCH_CANCEL) {
+          touch_event1.type = touch_event2.type = CEF_TET_CANCELLED;
+        } else {
+          touch_event1.type = touch_event2.type = CEF_TET_RELEASED;
+        }
+        touch_events.push_back(touch_event1);
+        touch_events.push_back(touch_event2);
+
+        SendTouchEvents(browser, std::move(touch_events));
       } break;
       case OSR_TEST_PEN: {
-        if (StartTest()) {
-          const CefRect& pointerdiv = GetElementBounds("pointerdiv");
-          std::vector<CefTouchEvent> touch_events;
+        EXPECT_TRUE(StartTest());
 
-          CefTouchEvent touch_event;
-          touch_event.x = MiddleX(pointerdiv) - 45;
-          touch_event.y = MiddleY(pointerdiv);
-          touch_event.type = CEF_TET_PRESSED;
-          touch_event.pointer_type = CEF_POINTER_TYPE_PEN;
+        const CefRect& pointerdiv = GetElementBounds("pointerdiv");
+        std::vector<CefTouchEvent> touch_events;
 
+        CefTouchEvent touch_event;
+        touch_event.x = MiddleX(pointerdiv) - 45;
+        touch_event.y = MiddleY(pointerdiv);
+        touch_event.type = CEF_TET_PRESSED;
+        touch_event.pointer_type = CEF_POINTER_TYPE_PEN;
+
+        touch_events.push_back(touch_event);
+
+        touch_event.type = CEF_TET_MOVED;
+        for (size_t i = 0; i < 40; i++) {
+          touch_event.x++;
           touch_events.push_back(touch_event);
-
-          touch_event.type = CEF_TET_MOVED;
-          for (size_t i = 0; i < 40; i++) {
-            touch_event.x++;
-            touch_events.push_back(touch_event);
-          }
-
-          touch_event.type = CEF_TET_RELEASED;
-          touch_events.push_back(touch_event);
-
-          CefPostDelayedTask(TID_UI,
-                             base::BindOnce(&OSRTestHandler::SendTouchEvents,
-                                            this, std::move(touch_events)),
-                             100);
         }
+
+        touch_event.type = CEF_TET_RELEASED;
+        touch_events.push_back(touch_event);
+
+        SendTouchEvents(browser, std::move(touch_events));
       } break;
       default:
         break;
@@ -519,7 +493,7 @@ class OSRTestHandler : public RoutingTestHandler,
 
     const std::string& messageStr = request;
     if (messageStr.length() > 0 && messageStr[0] == '{') {
-      return handleBoundsQuery(browser, frame, query_id, request, persistent,
+      return HandleBoundsQuery(browser, frame, query_id, request, persistent,
                                callback);
     }
 
@@ -527,10 +501,31 @@ class OSRTestHandler : public RoutingTestHandler,
     LOG(INFO) << "OnQuery message=" << messageStr;
 #endif
 
+    // NOTE: The "osrfocus" message may arrive for any test when initial
+    // focus is given to the associated edit field.
+
     switch (test_type_) {
       case OSR_TEST_FOCUS:
         if (messageStr == "osrfocus") {
           DestroySucceededTestSoon();
+        }
+        break;
+      case OSR_TEST_TAKE_FOCUS:
+        if (messageStr == "osrfocusemail") {
+          // Tab traversal across HTML element. Test completes in OnTakeFocus.
+#if defined(OS_WIN)
+          CefPostDelayedTask(TID_UI,
+                             base::BindOnce(&OSRTestHandler::SendKeyEvent, this,
+                                            browser, VK_TAB),
+                             50);
+#elif defined(OS_MAC) || defined(OS_LINUX)
+          CefPostDelayedTask(TID_UI,
+                             base::BindOnce(&OSRTestHandler::SendKeyEvent, this,
+                                            browser, kNativeKeyTab, VKEY_TAB),
+                             50);
+#else
+#error "Unsupported platform"
+#endif
         }
         break;
       case OSR_TEST_CLICK_LEFT:
@@ -600,37 +595,36 @@ class OSRTestHandler : public RoutingTestHandler,
             // The first message expected is touchstart.
             // We expect multitouch, so touches length should be 2.
             // Ignore intermediate touch start events.
-            if (messageStr == "osrtouchstart1") {
-              break;
-            }
-            EXPECT_STREQ(messageStr.c_str(), "osrtouchstart2");
-            // Close Touch Start Tests.
-            if (test_type_ == OSR_TEST_TOUCH_START) {
-              DestroySucceededTestSoon();
-              touch_state_ = CEF_TET_RELEASED;
-            } else {
-              touch_state_ = CEF_TET_PRESSED;
+            if (messageStr == "osrtouchstart2") {
+              // Close Touch Start Tests.
+              if (test_type_ == OSR_TEST_TOUCH_START) {
+                DestroySucceededTestSoon();
+                touch_state_ = CEF_TET_RELEASED;
+              } else {
+                touch_state_ = CEF_TET_PRESSED;
+              }
             }
           } break;
           case CEF_TET_PRESSED: {
             // Touch Move include the touches that changed, should be 2.
-            EXPECT_STREQ(messageStr.c_str(), "osrtouchmove2");
-            if (test_type_ == OSR_TEST_TOUCH_MOVE) {
-              DestroySucceededTestSoon();
-              touch_state_ = CEF_TET_RELEASED;
-            } else {
-              touch_state_ = CEF_TET_MOVED;
+            if (messageStr == "osrtouchmove2") {
+              if (test_type_ == OSR_TEST_TOUCH_MOVE) {
+                DestroySucceededTestSoon();
+                touch_state_ = CEF_TET_RELEASED;
+              } else {
+                touch_state_ = CEF_TET_MOVED;
+              }
             }
           } break;
           case CEF_TET_MOVED: {
             // There might be multiple touchmove events, ignore.
-            if (messageStr != "osrtouchmove2") {
-              if (test_type_ == OSR_TEST_TOUCH_END) {
-                EXPECT_STREQ(messageStr.c_str(), "osrtouchend");
+            if (test_type_ == OSR_TEST_TOUCH_END) {
+              if (messageStr == "osrtouchend") {
                 DestroySucceededTestSoon();
                 touch_state_ = CEF_TET_RELEASED;
-              } else if (test_type_ == OSR_TEST_TOUCH_CANCEL) {
-                EXPECT_STREQ(messageStr.c_str(), "osrtouchcancel");
+              }
+            } else if (test_type_ == OSR_TEST_TOUCH_CANCEL) {
+              if (messageStr == "osrtouchcancel") {
                 DestroySucceededTestSoon();
                 touch_state_ = CEF_TET_RELEASED;
               }
@@ -644,17 +638,18 @@ class OSRTestHandler : public RoutingTestHandler,
         switch (touch_state_) {
           case CEF_TET_CANCELLED:
             // The first message expected is pointerdown.
-            EXPECT_STREQ(messageStr.c_str(), "osrpointerdown pen");
-            touch_state_ = CEF_TET_PRESSED;
+            if (messageStr == "osrpointerdown pen") {
+              touch_state_ = CEF_TET_PRESSED;
+            }
             break;
           case CEF_TET_PRESSED:
-            EXPECT_STREQ(messageStr.c_str(), "osrpointermove pen");
-            touch_state_ = CEF_TET_MOVED;
+            if (messageStr == "osrpointermove pen") {
+              touch_state_ = CEF_TET_MOVED;
+            }
             break;
           case CEF_TET_MOVED:
             // There might be multiple pointermove events, ignore.
-            if (messageStr != "osrpointermove pen") {
-              EXPECT_STREQ(messageStr.c_str(), "osrpointerup pen");
+            if (messageStr == "osrpointerup pen") {
               DestroySucceededTestSoon();
             }
             break;
@@ -670,12 +665,20 @@ class OSRTestHandler : public RoutingTestHandler,
     return true;
   }
 
-  bool handleBoundsQuery(CefRefPtr<CefBrowser> browser,
+  bool HandleBoundsQuery(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
                          int64_t query_id,
                          const CefString& request,
                          bool persistent,
                          CefRefPtr<Callback> callback) {
+#if VERBOSE_DEBUGGING
+    LOG(INFO) << "HandleBoundsQuery";
+#endif
+
+    EXPECT_FALSE(started());
+    EXPECT_FALSE(got_bounds_query_);
+    got_bounds_query_.yes();
+
     CefRefPtr<CefValue> jsonObj = CefParseJSON(request, JSON_PARSER_RFC);
     if (jsonObj.get()) {
       CefRefPtr<CefDictionaryValue> dict = jsonObj->GetDictionary();
@@ -690,6 +693,7 @@ class OSRTestHandler : public RoutingTestHandler,
                          elem->GetInt("width"), elem->GetInt("height"));
           element_bounds_.insert(std::make_pair(elementId, bounds));
         }
+        MaybeContinueTest();
         return true;
       }
     }
@@ -859,13 +863,36 @@ class OSRTestHandler : public RoutingTestHandler,
     EXPECT_TRUE(browser->GetHost()->IsWindowRenderingDisabled());
 
     // start test only when painting something else then background
-    if (IsBackgroundInBuffer(
-            reinterpret_cast<const uint32_t*>(buffer), width * height,
-            test_type_ == OSR_TEST_TRANSPARENCY ? 0x00000000 : 0xFFFFFFFF)) {
+    const bool contentful = !IsBackgroundInBuffer(
+        reinterpret_cast<const uint32_t*>(buffer), width * height,
+        test_type_ == OSR_TEST_TRANSPARENCY ? 0x00000000 : 0xFFFFFFFF);
+
+#if VERBOSE_DEBUGGING
+    LOG(INFO) << "OnPaint type=" << (type == PET_POPUP ? "popup" : "view")
+              << (contentful ? " contentful" : " ignored");
+#endif
+    if (!contentful) {
       return;
     }
 
-    // Send events after the first full repaint
+    // Tests that send events need to wait for element bounds to be available.
+    // For popups, the test will start with LoadEndStartTestAndSendEvent
+    // clicking to show the popup and continue with
+    // PopupPaintContinueTestAndSendEvent. For the main view, the test will
+    // start with ViewPaintStartTestAndSendEvent.
+    if (type == PET_POPUP) {
+      if (started() && !sent_event_after_popup_paint_ &&
+          !got_popup_contentful_paint_) {
+        got_popup_contentful_paint_.yes();
+        MaybeContinueTest();
+      }
+    } else if (!started() && !got_view_contentful_paint_) {
+      got_view_contentful_paint_.yes();
+      MaybeContinueTest();
+    }
+
+    // Tests that check the paint buffer contents.
+    // DO NOT call GetElementBounds() or send events from here.
     switch (test_type_) {
       case OSR_TEST_PAINT:
         if (StartTest()) {
@@ -888,9 +915,7 @@ class OSRTestHandler : public RoutingTestHandler,
         }
         break;
       case OSR_TEST_RESIZE:
-        if (StartTest()) {
-          browser->GetHost()->WasResized();
-        } else {
+        if (StartedButNotFinished()) {
           // There may be some partial repaints before the full repaint at the
           // desired size.
           const int desired_width = GetScaledInt(kOsrWidth) * 2;
@@ -903,10 +928,8 @@ class OSRTestHandler : public RoutingTestHandler,
           }
         }
         break;
-      case OSR_TEST_INVALIDATE: {
-        if (StartTest()) {
-          browser->GetHost()->Invalidate(PET_VIEW);
-        } else {
+      case OSR_TEST_INVALIDATE:
+        if (StartedButNotFinished()) {
           EXPECT_EQ(dirtyRects.size(), 1U);
           const CefRect& expected_rect =
               GetScaledRect(CefRect(0, 0, kOsrWidth, kOsrHeight));
@@ -916,18 +939,8 @@ class OSRTestHandler : public RoutingTestHandler,
           }
         }
         break;
-      }
-      case OSR_TEST_SCROLLING: {
-        static const int deltaY = 10;
-        if (StartTest()) {
-          // scroll down once
-          CefMouseEvent mouse_event;
-          const CefRect& expected_rect = GetElementBounds("LI00");
-          mouse_event.x = MiddleX(expected_rect);
-          mouse_event.y = MiddleY(expected_rect);
-          mouse_event.modifiers = 0;
-          browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, -deltaY);
-        } else {
+      case OSR_TEST_SCROLLING:
+        if (StartedButNotFinished()) {
           EXPECT_EQ(dirtyRects.size(), 1U);
           const CefRect& expected_rect =
               GetScaledRect(CefRect(0, 0, kOsrWidth, kOsrHeight));
@@ -935,49 +948,11 @@ class OSRTestHandler : public RoutingTestHandler,
           if (dirtyRects[0] == expected_rect) {
             DestroySucceededTestSoon();
           }
-        }
-        break;
-      }
-      case OSR_TEST_POPUP_HIDE_ON_CLICK:
-        // Wait for the first popup paint to occur
-        if (type == PET_POPUP) {
-          CefMouseEvent mouse_event;
-          mouse_event.x = 1;
-          mouse_event.y = 1;
-          mouse_event.modifiers = 0;
-          SendMouseClickEvent(browser, mouse_event);
-        }
-        break;
-      case OSR_TEST_POPUP_HIDE_ON_SCROLL:
-        // Wait for the first popup paint to occur
-        if (type == PET_POPUP) {
-          CefMouseEvent mouse_event;
-          mouse_event.x = mouse_event.y = 1;
-          mouse_event.modifiers = 0;
-          browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, -10);
-        }
-        break;
-      case OSR_TEST_POPUP_HIDE_ON_BLUR:
-        // Wait for the first popup paint to occur
-        if (type == PET_POPUP) {
-          browser->GetHost()->SetFocus(false);
-        }
-        break;
-      case OSR_TEST_POPUP_HIDE_ON_ESC:
-        // Wait for the first popup paint to occur
-        if (type == PET_POPUP) {
-#if defined(OS_WIN)
-          SendKeyEvent(browser, VK_ESCAPE);
-#elif defined(OS_MAC) || defined(OS_LINUX)
-          SendKeyEvent(browser, kNativeKeyEscape, VKEY_ESCAPE);
-#else
-#error "Unsupported platform"
-#endif
         }
         break;
       case OSR_TEST_POPUP_PAINT:
         // Wait for the first popup paint to occur
-        if (type == PET_POPUP) {
+        if (type == PET_POPUP && StartedButNotFinished()) {
           EXPECT_EQ(dirtyRects.size(), 1U);
           const CefRect& expanded_select_rect =
               GetScaledRect(kExpandedSelectRect);
@@ -1008,38 +983,132 @@ class OSRTestHandler : public RoutingTestHandler,
           DestroySucceededTestSoon();
         }
         break;
-      case OSR_TEST_POPUP_SCROLL_INSIDE: {
-        static enum { Started, Scrolled } scroll_inside_state = Started;
-        // Wait for the first popup paint to occur
-        if (type == PET_POPUP) {
-          if (scroll_inside_state == Started) {
-            CefMouseEvent mouse_event;
-            mouse_event.x = MiddleX(kExpandedSelectRect);
-            mouse_event.y = MiddleY(kExpandedSelectRect);
-            mouse_event.modifiers = 0;
-            browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, -10);
-            scroll_inside_state = Scrolled;
-          } else if (scroll_inside_state == Scrolled) {
-            const CefRect& expanded_select_rect =
-                GetScaledRect(kExpandedSelectRect);
-            EXPECT_EQ(dirtyRects.size(), 1U);
+      case OSR_TEST_POPUP_SCROLL_INSIDE:
+        // Wait for the first popup paint after the scroll event.
+        if (type == PET_POPUP && StartedButNotFinished() &&
+            sent_event_after_popup_paint_) {
+          const CefRect& expanded_select_rect =
+              GetScaledRect(kExpandedSelectRect);
+          EXPECT_EQ(dirtyRects.size(), 1U);
 
-            const int scaled_int_1 = GetScaledInt(1);
-            EXPECT_NEAR(0, dirtyRects[0].x, scaled_int_1);
-            EXPECT_NEAR(0, dirtyRects[0].y, scaled_int_1);
-            if (ExpectComputedPopupSize()) {
-              EXPECT_NEAR(expanded_select_rect.width, dirtyRects[0].width,
-                          scaled_int_1 * 2);
-              EXPECT_NEAR(expanded_select_rect.height, dirtyRects[0].height,
-                          scaled_int_1 * 2);
-            } else {
-              EXPECT_GT(dirtyRects[0].width, kExpandedSelectRect.width);
-              EXPECT_GT(dirtyRects[0].height, kExpandedSelectRect.height);
-            }
-            DestroySucceededTestSoon();
+          const int scaled_int_1 = GetScaledInt(1);
+          EXPECT_NEAR(0, dirtyRects[0].x, scaled_int_1);
+          EXPECT_NEAR(0, dirtyRects[0].y, scaled_int_1);
+          if (ExpectComputedPopupSize()) {
+            EXPECT_NEAR(expanded_select_rect.width, dirtyRects[0].width,
+                        scaled_int_1 * 2);
+            EXPECT_NEAR(expanded_select_rect.height, dirtyRects[0].height,
+                        scaled_int_1 * 2);
+          } else {
+            EXPECT_GT(dirtyRects[0].width, kExpandedSelectRect.width);
+            EXPECT_GT(dirtyRects[0].height, kExpandedSelectRect.height);
           }
+          DestroySucceededTestSoon();
         }
-      } break;
+        break;
+      default:
+        break;
+    }
+  }
+
+  void ViewPaintStartTestAndSendEvent() {
+#if VERBOSE_DEBUGGING
+    LOG(INFO) << "ViewPaintStartTestAndSendEvent";
+#endif
+
+    auto browser = GetBrowser();
+
+    // Send events after the first full repaint of the main browser.
+    switch (test_type_) {
+      case OSR_TEST_RESIZE:
+        EXPECT_TRUE(StartTest());
+        browser->GetHost()->WasResized();
+        break;
+      case OSR_TEST_INVALIDATE:
+        EXPECT_TRUE(StartTest());
+        browser->GetHost()->Invalidate(PET_VIEW);
+        break;
+      case OSR_TEST_SCROLLING:
+        EXPECT_TRUE(StartTest());
+        {
+          // scroll down once
+          CefMouseEvent mouse_event;
+          const CefRect& expected_rect = GetElementBounds("LI00");
+          mouse_event.x = MiddleX(expected_rect);
+          mouse_event.y = MiddleY(expected_rect);
+          browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, -10);
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  void PopupPaintContinueTestAndSendEvent() {
+#if VERBOSE_DEBUGGING
+    LOG(INFO) << "PopupPaintContinueTestAndSendEvent";
+#endif
+
+    auto browser = GetBrowser();
+
+    // Send events after the first full repaint of the popup browser.
+    switch (test_type_) {
+      case OSR_TEST_POPUP_HIDE_ON_CLICK:
+        // Wait for the first popup paint to occur
+        EXPECT_TRUE(started());
+        if (!sent_event_after_popup_paint_) {
+          sent_event_after_popup_paint_.yes();
+          CefMouseEvent mouse_event;
+          mouse_event.x = 1;
+          mouse_event.y = 1;
+          SendMouseClickEvent(browser, mouse_event);
+        }
+        break;
+      case OSR_TEST_POPUP_HIDE_ON_SCROLL:
+        // Wait for the first popup paint to occur
+        EXPECT_TRUE(started());
+        if (!sent_event_after_popup_paint_) {
+          sent_event_after_popup_paint_.yes();
+          CefMouseEvent mouse_event;
+          mouse_event.x = 1;
+          mouse_event.y = 1;
+          browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, -10);
+        }
+        break;
+      case OSR_TEST_POPUP_HIDE_ON_BLUR:
+        // Wait for the first popup paint to occur
+        EXPECT_TRUE(started());
+        if (!sent_event_after_popup_paint_) {
+          sent_event_after_popup_paint_.yes();
+          browser->GetHost()->SetFocus(false);
+        }
+        break;
+      case OSR_TEST_POPUP_HIDE_ON_ESC:
+        // Wait for the first popup paint to occur
+        EXPECT_TRUE(started());
+        if (!sent_event_after_popup_paint_) {
+          sent_event_after_popup_paint_.yes();
+#if defined(OS_WIN)
+          SendKeyEvent(browser, VK_ESCAPE);
+#elif defined(OS_MAC) || defined(OS_LINUX)
+          SendKeyEvent(browser, kNativeKeyEscape, VKEY_ESCAPE);
+#else
+#error "Unsupported platform"
+#endif
+        }
+        break;
+      case OSR_TEST_POPUP_SCROLL_INSIDE:
+        // Wait for the first popup paint to occur
+        EXPECT_TRUE(started());
+        if (!sent_event_after_popup_paint_) {
+          sent_event_after_popup_paint_.yes();
+          CefMouseEvent mouse_event;
+          mouse_event.x = MiddleX(kExpandedSelectRect);
+          mouse_event.y = MiddleY(kExpandedSelectRect);
+          mouse_event.modifiers = 0;
+          browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, -10);
+        }
+        break;
       default:
         break;
     }
@@ -1241,6 +1310,10 @@ class OSRTestHandler : public RoutingTestHandler,
                            CefRefPtr<CefFrame> frame,
                            CefRefPtr<CefContextMenuParams> params,
                            CefRefPtr<CefMenuModel> model) override {
+#if VERBOSE_DEBUGGING
+    LOG(INFO) << "OnBeforeContextMenu started=" << started();
+#endif
+    EXPECT_UI_THREAD();
     if (!started()) {
       return;
     }
@@ -1248,10 +1321,6 @@ class OSRTestHandler : public RoutingTestHandler,
       const CefRect& expected_rect = GetElementBounds("LI04");
       EXPECT_EQ(params->GetXCoord(), MiddleX(expected_rect));
       EXPECT_EQ(params->GetYCoord(), MiddleY(expected_rect));
-      DestroySucceededTestSoon();
-    } else if (test_type_ == OSR_TEST_CONTEXT_MENU) {
-      // This test will pass if it does not crash on destruction
-      DestroySucceededTestSoon();
     }
   }
 
@@ -1260,11 +1329,13 @@ class OSRTestHandler : public RoutingTestHandler,
                       CefRefPtr<CefContextMenuParams> params,
                       CefRefPtr<CefMenuModel> model,
                       CefRefPtr<CefRunContextMenuCallback> callback) override {
+#if VERBOSE_DEBUGGING
+    LOG(INFO) << "RunContextMenu started=" << started();
+#endif
+    EXPECT_UI_THREAD();
     if (!started()) {
       return false;
     }
-
-    EXPECT_UI_THREAD();
 
     auto current_browser = GetBrowser();
     EXPECT_TRUE(current_browser->IsSame(browser));
@@ -1280,7 +1351,11 @@ class OSRTestHandler : public RoutingTestHandler,
       EXPECT_TRUE(got_quick_menu_dismissed_);
       EXPECT_EQ(2U, got_touch_handle_disabled_ct_);
       EXPECT_FALSE(got_context_menu_);
+    }
 
+    if (test_type_ == OSR_TEST_CLICK_RIGHT ||
+        test_type_ == OSR_TEST_CONTEXT_MENU ||
+        test_type_ == OSR_TEST_QUICK_MENU) {
       got_context_menu_.yes();
 
       // Got all expected callbacks.
@@ -1509,6 +1584,7 @@ class OSRTestHandler : public RoutingTestHandler,
     if (it != element_bounds_.end()) {
       return it->second;
     }
+    ADD_FAILURE() << "Missing element bounds for " << id;
     return CefRect();
   }
 
@@ -1672,11 +1748,30 @@ class OSRTestHandler : public RoutingTestHandler,
                                           replacement_range, selection_range);
   }
 
-  void SendTouchEvents(std::vector<CefTouchEvent> touch_events) {
-    auto host = GetBrowser()->GetHost();
-    for (const auto& te : touch_events) {
-      host->SendTouchEvent(te);
-    }
+  void SendTouchEvents(CefRefPtr<CefBrowser> browser,
+                       std::vector<CefTouchEvent> touch_events) {
+    // Check for failures retrieving element bounds.
+    EXPECT_GT(touch_events[0].x, 0);
+    EXPECT_GT(touch_events[0].y, 0);
+
+    // Wait a bit before sending the touch events.
+    CefPostDelayedTask(TID_UI,
+                       base::BindOnce(
+                           [](CefRefPtr<CefBrowser> browser,
+                              std::vector<CefTouchEvent> touch_events) {
+#if VERBOSE_DEBUGGING
+                             LOG(INFO) << "SendTouchEvents size="
+                                       << touch_events.size()
+                                       << " initial_x=" << touch_events[0].x
+                                       << " initial_y=" << touch_events[0].y;
+#endif
+                             auto host = browser->GetHost();
+                             for (const auto& te : touch_events) {
+                               host->SendTouchEvent(te);
+                             }
+                           },
+                           browser, std::move(touch_events)),
+                       100);
   }
 
   void MoveMouseToElement(CefRefPtr<CefBrowser> browser,
@@ -1687,6 +1782,9 @@ class OSRTestHandler : public RoutingTestHandler,
         base::BindOnce(
             [](CefRefPtr<OSRTestHandler> handler, CefRefPtr<CefBrowser> browser,
                const std::string& element_id) {
+#if VERBOSE_DEBUGGING
+              LOG(INFO) << "MoveMouseToElement element_id=" << element_id;
+#endif
               CefMouseEvent mouse_event;
               const CefRect& expected_rect =
                   handler->GetElementBounds(element_id);
@@ -1696,6 +1794,56 @@ class OSRTestHandler : public RoutingTestHandler,
             },
             CefRefPtr<OSRTestHandler>(this), browser, element_id),
         100);
+  }
+
+  void ClickMouseOnElement(
+      CefRefPtr<CefBrowser> browser,
+      const std::string& element_id,
+      cef_mouse_button_type_t mouse_button_type = MBT_LEFT) {
+    // Wait a bit before clicking the element.
+    CefPostDelayedTask(
+        TID_UI,
+        base::BindOnce(
+            [](CefRefPtr<OSRTestHandler> handler, CefRefPtr<CefBrowser> browser,
+               const std::string& element_id,
+               cef_mouse_button_type_t mouse_button_type) {
+              CefMouseEvent mouse_event;
+              const CefRect& expected_rect =
+                  handler->GetElementBounds(element_id);
+              mouse_event.x = MiddleX(expected_rect);
+              mouse_event.y = MiddleY(expected_rect);
+#if VERBOSE_DEBUGGING
+              LOG(INFO) << "ClickMouseOnElement id=" << element_id
+                        << " x=" << mouse_event.x << " y=" << mouse_event.y;
+#endif
+              SendMouseClickEvent(browser, mouse_event, mouse_button_type);
+            },
+            CefRefPtr<OSRTestHandler>(this), browser, element_id,
+            mouse_button_type),
+        100);
+  }
+
+  void MaybeContinueTest() {
+#if VERBOSE_DEBUGGING
+    LOG(INFO) << "MaybeContinueTest got_bounds_query=" << got_bounds_query_;
+#endif
+    if (!got_bounds_query_) {
+      return;
+    }
+
+    // Match the conditions on OnLoadEnd().
+    if (got_load_end_ && !started()) {
+      LoadEndStartTestAndSendEvent();
+    }
+
+    // Match the conditions in OnPaint().
+    if (got_view_contentful_paint_ && !started()) {
+      ViewPaintStartTestAndSendEvent();
+    }
+    if (got_popup_contentful_paint_ && started() &&
+        !sent_event_after_popup_paint_) {
+      PopupPaintContinueTestAndSendEvent();
+    }
   }
 
   void DestroySucceededTestSoon() {
@@ -1735,27 +1883,18 @@ class OSRTestHandler : public RoutingTestHandler,
       EXPECT_TRUE(got_quick_menu_command_);
       EXPECT_TRUE(got_quick_menu_dismissed_);
       EXPECT_EQ(2U, got_touch_handle_disabled_ct_);
-      EXPECT_TRUE(got_context_menu_);
       EXPECT_EQ(kAllTouchHandleFlags, touch_handle_flags_);
     }
 
+    if (test_type_ == OSR_TEST_CLICK_RIGHT ||
+        test_type_ == OSR_TEST_CONTEXT_MENU ||
+        test_type_ == OSR_TEST_QUICK_MENU) {
+      EXPECT_TRUE(got_context_menu_);
+    } else {
+      EXPECT_FALSE(got_context_menu_);
+    }
+
     RoutingTestHandler::DestroyTest();
-  }
-
-  void ExpandDropDown() {
-#if VERBOSE_DEBUGGING
-    LOG(INFO) << "ExpandDropDown";
-#endif
-
-    EXPECT_TRUE(started());
-    EXPECT_FALSE(finished());
-
-    const CefRect& LI11select = GetElementBounds("LI11select");
-    CefMouseEvent mouse_event;
-    mouse_event.x = MiddleX(LI11select);
-    mouse_event.y = MiddleY(LI11select);
-    mouse_event.modifiers = 0;
-    SendMouseClickEvent(GetBrowser(), mouse_event);
   }
 
   void SendKeyEvent(CefRefPtr<CefBrowser> browser,
@@ -1763,6 +1902,10 @@ class OSRTestHandler : public RoutingTestHandler,
                     unsigned int native_key_code,
 #endif
                     int key_code) {
+#if VERBOSE_DEBUGGING
+    LOG(INFO) << "SendKeyEvent key_code=" << key_code;
+#endif
+
     CefKeyEvent event;
     event.is_system_key = false;
     event.modifiers = 0;
@@ -1816,11 +1959,19 @@ class OSRTestHandler : public RoutingTestHandler,
   // it is called
   bool StartTest() {
     if (started_) {
+#if VERBOSE_DEBUGGING
+      LOG(INFO) << "StartTest returns false";
+#endif
       return false;
     }
     started_ = true;
+#if VERBOSE_DEBUGGING
+    LOG(INFO) << "StartTest returns true";
+#endif
     return true;
   }
+
+  bool StartedButNotFinished() const { return started() && !finished(); }
 
  private:
   const OSRTestType test_type_;
@@ -1829,6 +1980,12 @@ class OSRTestHandler : public RoutingTestHandler,
   bool started_ = false;
   bool finished_ = false;
   cef_touch_event_type_t touch_state_ = CEF_TET_CANCELLED;
+
+  TrackCallback got_bounds_query_;
+  TrackCallback got_load_end_;
+  TrackCallback got_view_contentful_paint_;
+  TrackCallback got_popup_contentful_paint_;
+  TrackCallback sent_event_after_popup_paint_;
 
   TrackCallback got_update_cursor_;
   TrackCallback got_navigation_focus_event_;
