@@ -15,6 +15,8 @@
 #include "tests/ceftests/views/test_window_delegate.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
+#define VERBOSE_LOGGING 0
+
 #define BUTTON_TEST(name) UI_THREAD_TEST(ViewsButtonTest, name)
 #define BUTTON_TEST_ASYNC(name) UI_THREAD_TEST_ASYNC(ViewsButtonTest, name)
 
@@ -190,6 +192,11 @@ void ClickButton(CefRefPtr<CefWindow> window, int button_id) {
   const CefPoint& click_point =
       CefPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
 
+#if VERBOSE_LOGGING
+  LOG(INFO) << "ClickButton id=" << button_id << " bounds=" << bounds.x << ","
+            << bounds.y << "," << bounds.width << "," << bounds.height
+            << " click=" << click_point.x << "," << click_point.y;
+#endif
   // Click the button.
   window->SendMouseMove(click_point.x, click_point.y);
   window->SendMouseEvents(MBT_LEFT, true, true);
@@ -317,6 +324,12 @@ void ClickMenuItem(CefRefPtr<CefMenuButton> menu_button) {
   const CefPoint& click_point =
       CefPoint(bounds.x + bounds.width + 10, bounds.y + bounds.height + 10);
 
+#if VERBOSE_LOGGING
+  LOG(INFO) << "ClickMenuItem bounds=" << bounds.x << "," << bounds.y << ","
+            << bounds.width << "," << bounds.height
+            << " click=" << click_point.x << "," << click_point.y;
+#endif
+
   // Click the menu item.
   CefRefPtr<CefWindow> window = menu_button->GetWindow();
   window->SendMouseMove(click_point.x, click_point.y);
@@ -332,6 +345,10 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
       CefRefPtr<CefMenuButton> menu_button,
       const CefPoint& screen_point,
       CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) override {
+#if VERBOSE_LOGGING
+    LOG(INFO) << "OnMenuButtonPressed";
+#endif
+
     window_ = menu_button->GetWindow();
 
     CefRefPtr<CefMenuModel> model = CefMenuModel::CreateMenuModel(this);
@@ -410,9 +427,19 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
     EXPECT_FALSE(model->SetFontListAt(4, font));
     EXPECT_FALSE(model->SetFontList(4, font));
 
+#if defined(OS_LINUX)
+    // The Chromium implementation of SendMouseEvents for Aura/Linux does not
+    // support coordinates outside of the Window. We therefore can't click the
+    // menu item like we do on other platforms. See issue #3330.
+    CefPostDelayedTask(TID_UI,
+                       base::BindOnce(&TestMenuButtonDelegate::ExecuteCommand,
+                                      this, model, kMenuItemID, EVENTFLAG_NONE),
+                       kClickDelayMS);
+#else
     // Wait a bit before trying to click the menu item.
     CefPostDelayedTask(TID_UI, base::BindOnce(ClickMenuItem, menu_button),
                        kClickDelayMS);
+#endif
 
     menu_button->ShowMenu(model, screen_point, CEF_MENU_ANCHOR_TOPLEFT);
   }
@@ -422,6 +449,10 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
   void ExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
                       int command_id,
                       cef_event_flags_t event_flags) override {
+#if VERBOSE_LOGGING
+    LOG(INFO) << "ExecuteCommand";
+#endif
+
     EXPECT_TRUE(menu_model.get());
     EXPECT_EQ(command_id, kMenuItemID);
 
