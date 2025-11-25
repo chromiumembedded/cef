@@ -455,6 +455,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
       FreeLibrary(result.module);
     } else {
+      // Save the last error before calling any other function
+      const DWORD load_error = ::GetLastError();
 #if DCHECK_IS_ON()
       const auto subst = std::to_array<std::u16string>(
           {base::WideToUTF16(dll_name),
@@ -463,10 +465,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 #endif
       const auto sha1 = CalculateFileSHA1(result.used_path);
       if (!sha1.has_value()) {
-        LOG(FATAL) << "Failed to read file: " << result.used_path.value();
+        LOG(FATAL) << "Failed to read file: " << result.used_path.value()
+                   << " with error: " << load_error;
       } else {
         LOG(FATAL) << "Failed to load " << result.used_path.value()
-                   << " with error " << ::GetLastError()
+                   << " with error: " << load_error
                    << " SHA1: " << sha1.value();
       }
     }
@@ -511,6 +514,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
                    &version_info);
 #endif
     } else {
+      // Save the last error before calling any other function
+      const DWORD proc_error = ::GetLastError();
 #if DCHECK_IS_ON()
       if (!is_sandboxed) {
         const auto subst = std::to_array<std::u16string>(
@@ -520,12 +525,19 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
         ShowError(FormatErrorString(IDS_ERROR_NO_PROC_EXPORT, subst));
       }
 #endif
-
-      LOG(FATAL) << "Failed to find " << kProcName << " in "
-                 << result.used_path.value() << " with error "
-                 << ::GetLastError();
+      const auto sha1 = CalculateFileSHA1(result.used_path);
+      if (!sha1.has_value()) {
+        LOG(FATAL) << "Failed to read file: " << result.used_path.value()
+                   << " with error: " << proc_error;
+      } else {
+        LOG(FATAL) << "Failed to find " << kProcName << " in "
+                   << result.used_path.value() << " with error: " << proc_error
+                   << " SHA1: " << sha1.value();
+      }
     }
   } else {
+    // Save the last error before calling any other function
+    const DWORD load_error = ::GetLastError();
 #if DCHECK_IS_ON()
     if (!is_sandboxed) {
       const auto subst = std::to_array<std::u16string>(
@@ -534,14 +546,13 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
       ShowError(FormatErrorString(IDS_ERROR_LOAD_FAILED, subst));
     }
 #endif
-
     const auto sha1 = CalculateFileSHA1(result.used_path);
     if (!sha1.has_value()) {
-      LOG(FATAL) << "Failed to read file: " << result.used_path.value();
+      LOG(FATAL) << "Failed to read file: " << result.used_path.value()
+                 << " with error: " << load_error;
     } else {
       LOG(FATAL) << "Failed to load " << result.used_path.value()
-                 << " with error " << ::GetLastError()
-                 << " SHA1: " << sha1.value();
+                 << " with error: " << load_error << " SHA1: " << sha1.value();
     }
   }
 
