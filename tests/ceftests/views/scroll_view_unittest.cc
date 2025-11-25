@@ -118,10 +118,10 @@ void RunScrollViewLayout(bool with_delegate, CefRefPtr<CefWindow> window) {
   const CefSize& content_panel_size = content_panel->GetSize();
   EXPECT_EQ(CefSize(kContentPanelSize, kContentPanelSize), content_panel_size);
 
+  // Platforms that support overlay scrollbars may report 0 width/height when
+  // enabled. We therefore don't verify the returned values directly.
   const int sb_height = scroll_view->GetHorizontalScrollbarHeight();
-  EXPECT_GT(sb_height, 0);
   const int sb_width = scroll_view->GetVerticalScrollbarWidth();
-  EXPECT_GT(sb_width, 0);
 
   // Verify visible content panel region.
   const CefRect& visible_rect = scroll_view->GetVisibleContentRect();
