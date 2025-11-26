@@ -241,9 +241,7 @@ if(OS_WINDOWS)
   # Enable C11 atomics support (required for stdatomic.h in MSVC).
   # Must use set_property instead of CEF_C_COMPILER_FLAGS because the Visual Studio
   # generator doesn't properly handle this flag when passed through generator expressions.
-  if(CMAKE_GENERATOR MATCHES "Visual Studio")
-    set_property(TARGET ${CEF_TARGET} APPEND PROPERTY COMPILE_OPTIONS "/experimental:c11atomics")
-  endif()
+  set_property(TARGET ${CEF_TARGET} APPEND PROPERTY COMPILE_OPTIONS "/experimental:c11atomics")
 
   # Copy binary and resource files to the target output directory.
   COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
