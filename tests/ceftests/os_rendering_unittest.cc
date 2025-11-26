@@ -40,12 +40,17 @@ const int kOsrWidth = 600;
 const int kOsrHeight = 450;
 
 // bounding client rects for edit box and navigate button
+// kExpectedSelectRectWidthVariance is the amount of variance that's allowed
+// for differences in select popup rendering style between OS versions.
 #if defined(OS_WIN)
 const CefRect kExpandedSelectRect(462, 42, 79, 408);
+const int kExpectedSelectRectWidthVariance = 0;
 #elif defined(OS_MAC)
 const CefRect kExpandedSelectRect(462, 42, 75, 408);
+const int kExpectedSelectRectWidthVariance = 4;
 #elif defined(OS_LINUX)
 const CefRect kExpandedSelectRect(462, 42, 79, 408);
+const int kExpectedSelectRectWidthVariance = 0;
 #else
 #error "Unsupported platform"
 #endif  // defined(OS_WIN)
@@ -826,7 +831,8 @@ class OSRTestHandler : public RoutingTestHandler,
         EXPECT_EQ(kExpandedSelectRect.x, rect.x);
         EXPECT_EQ(kExpandedSelectRect.y, rect.y);
         if (ExpectComputedPopupSize()) {
-          EXPECT_EQ(kExpandedSelectRect.width, rect.width);
+          EXPECT_NEAR(kExpandedSelectRect.width, rect.width,
+                      kExpectedSelectRectWidthVariance);
           EXPECT_EQ(kExpandedSelectRect.height, rect.height);
         } else {
           EXPECT_GE(rect.width, kExpandedSelectRect.width);
@@ -852,7 +858,8 @@ class OSRTestHandler : public RoutingTestHandler,
     } else if (type == PET_POPUP) {
       const CefRect& expanded_select_rect = GetScaledRect(kExpandedSelectRect);
       if (ExpectComputedPopupSize()) {
-        EXPECT_EQ(expanded_select_rect.width, width);
+        EXPECT_NEAR(expanded_select_rect.width, width,
+                    kExpectedSelectRectWidthVariance);
         EXPECT_EQ(expanded_select_rect.height, height);
       } else {
         EXPECT_GT(width, kExpandedSelectRect.width);
@@ -959,7 +966,8 @@ class OSRTestHandler : public RoutingTestHandler,
           EXPECT_EQ(0, dirtyRects[0].x);
           EXPECT_EQ(0, dirtyRects[0].y);
           if (ExpectComputedPopupSize()) {
-            EXPECT_EQ(expanded_select_rect.width, dirtyRects[0].width);
+            EXPECT_NEAR(expanded_select_rect.width, dirtyRects[0].width,
+                        kExpectedSelectRectWidthVariance);
             EXPECT_EQ(expanded_select_rect.height, dirtyRects[0].height);
           } else {
             EXPECT_GT(dirtyRects[0].width, kExpandedSelectRect.width);
@@ -974,7 +982,8 @@ class OSRTestHandler : public RoutingTestHandler,
                     *(reinterpret_cast<const uint32_t*>(buffer) + offset));
 
           if (ExpectComputedPopupSize()) {
-            EXPECT_EQ(expanded_select_rect.width, width);
+            EXPECT_NEAR(expanded_select_rect.width, width,
+                        kExpectedSelectRectWidthVariance);
             EXPECT_EQ(expanded_select_rect.height, height);
           } else {
             EXPECT_GT(width, kExpandedSelectRect.width);
@@ -996,7 +1005,7 @@ class OSRTestHandler : public RoutingTestHandler,
           EXPECT_NEAR(0, dirtyRects[0].y, scaled_int_1);
           if (ExpectComputedPopupSize()) {
             EXPECT_NEAR(expanded_select_rect.width, dirtyRects[0].width,
-                        scaled_int_1 * 2);
+                        scaled_int_1 * 2 + kExpectedSelectRectWidthVariance);
             EXPECT_NEAR(expanded_select_rect.height, dirtyRects[0].height,
                         scaled_int_1 * 2);
           } else {
