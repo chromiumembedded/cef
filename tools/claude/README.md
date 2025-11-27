@@ -54,6 +54,7 @@ This directory contains tools and instructions for using Claude Code to assist w
 - **[analyze_patch_output.py](analyze_patch_output.py)** - Analyze and format `patch_updater.py` output with file movement detection
 - **[patch_utils.py](patch_utils.py)** - Shared utilities for patch analysis tools (file movement detection)
 - **[verify_patch.py](verify_patch.py)** - Verify that regenerated patches include all changes from reject files
+- **[format_wiki.py](format_wiki.py)** - Apply Bitbucket wiki formatting guidelines to markdown files (supports wildcards)
 
 ### Test Files
 
@@ -61,6 +62,7 @@ This directory contains tools and instructions for using Claude Code to assist w
 - **[analyze_patch_output_test.py](analyze_patch_output_test.py)** - Unit tests for analyze_patch_output.py
 - **[patch_utils_test.py](patch_utils_test.py)** - Unit tests for patch_utils.py
 - **[verify_patch_test.py](verify_patch_test.py)** - Unit tests for verify_patch.py
+- **[format_wiki_test.py](format_wiki_test.py)** - Unit tests for format_wiki.py
 
 ## Common Setup
 

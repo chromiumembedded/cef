@@ -6,6 +6,40 @@ This document provides formatting guidelines for Claude agents when creating or 
 
 Bitbucket's wiki renderer has specific requirements that differ from standard Markdown. Following these rules is essential for proper rendering.
 
+## Automated Formatting Tool
+
+**Before manually applying formatting rules**, use the automated formatter to fix common issues:
+
+```bash
+# Check if file needs formatting
+python3 cef/tools/claude/format_wiki.py filename.md --check
+
+# Apply formatting automatically
+python3 cef/tools/claude/format_wiki.py filename.md --in-place
+
+# Preview changes (output to stdout)
+python3 cef/tools/claude/format_wiki.py filename.md
+```
+
+**What the tool fixes:**
+
+- Adds blank lines before lists after paragraphs/subsections
+- Fixes list indentation to 4-space multiples
+- Fixes code fence indentation in lists
+- Preserves content inside code blocks
+
+**What the tool does NOT fix:**
+
+- Wiki page links (Rule 3) - must be checked manually
+- Content-level issues (spelling, grammar, accuracy)
+- Section header hierarchy
+
+**When to use:**
+
+- After creating or editing any wiki page markdown file
+- Before final manual review and verification
+- To quickly identify formatting issues
+
 ## Core Formatting Rules
 
 ### 1. Newlines Before Lists
@@ -204,14 +238,26 @@ Explanation of concepts.
 
 ## Verification Checklist
 
-Before submitting wiki changes, verify:
+Before submitting wiki changes:
 
-- [ ] Blank lines before all top-level lists (after paragraph text)
-- [ ] NO blank lines before sub-items directly under parent items
-- [ ] All sub-items use 4-space indentation
-- [ ] All wiki links use full Bitbucket URLs
-- [ ] Code blocks use language-appropriate indentation (not forced to 4 spaces)
-- [ ] Section headers follow consistent hierarchy
+1. **Run the automated formatter:**
+
+    ```bash
+    python3 cef/tools/claude/format_wiki.py filename.md --in-place
+    ```
+
+2. **Manually verify:**
+
+    - [ ] All wiki links use full Bitbucket URLs (tool does not check this)
+    - [ ] Code blocks use language-appropriate indentation (not forced to 4 spaces)
+    - [ ] Section headers follow consistent hierarchy
+    - [ ] Content is accurate and complete
+
+3. **Automated checks (already fixed by tool):**
+
+    - [ ] Blank lines before all top-level lists (after paragraph text)
+    - [ ] NO blank lines before sub-items directly under parent items
+    - [ ] All sub-items use 4-space indentation
 
 ## User Testing Guidance
 
