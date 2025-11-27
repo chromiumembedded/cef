@@ -22,7 +22,7 @@ Your job is to fix all compile errors in the `cef/` directory so the build succe
 The CEF update process has distinct phases:
 
 1. ✓ **Patch fixing** (COMPLETED) - Updated Chromium source files to apply CEF patches
-   - See `CLAUDE_PATCH_INSTRUCTIONS.md` if patches are not yet fixed
+    - See `CLAUDE_PATCH_INSTRUCTIONS.md` if patches are not yet fixed
 2. → **Build error fixing** (CURRENT) - Update CEF source code to work with new Chromium APIs
 3. **Testing** (NEXT) - Run tests to verify functionality
 4. **Submission** (FINAL) - Submit the changes
@@ -51,6 +51,7 @@ Your task is to update CEF code in the `cef/` directory to work with these chang
 **Never assume your current directory. Always verify first.**
 
 Relative paths like `cd cef/tools/claude` behave differently depending on where you are:
+
 - From `chromium/src`: navigates to `chromium/src/cef/tools/claude` ✓
 - From `chromium/src/cef/tools`: tries to navigate to `chromium/src/cef/tools/cef/tools/claude` ✗
 
@@ -214,32 +215,32 @@ Update the CEF code to work with the new API.
 **Common fixes:**
 
 1. **Member renamed:**
-   ```cpp
-   // Old
-   params.initial_size = gfx::Size(800, 600);
+    ```cpp
+    // Old
+    params.initial_size = gfx::Size(800, 600);
 
-   // New (if renamed to 'size')
-   params.size = gfx::Size(800, 600);
-   ```
+    // New (if renamed to 'size')
+    params.size = gfx::Size(800, 600);
+    ```
 
 2. **Member removed:**
-   ```cpp
-   // Old
-   params.initial_size = gfx::Size(800, 600);
+    ```cpp
+    // Old
+    params.initial_size = gfx::Size(800, 600);
 
-   // New (if size is set differently now)
-   params.SetInitialSize(gfx::Size(800, 600));
-   // Or remove if no longer needed
-   ```
+    // New (if size is set differently now)
+    params.SetInitialSize(gfx::Size(800, 600));
+    // Or remove if no longer needed
+    ```
 
 3. **API changed:**
-   ```cpp
-   // Old
-   auto* browser = CreateBrowser(params);
+    ```cpp
+    // Old
+    auto* browser = CreateBrowser(params);
 
-   // New (if signature changed)
-   auto* browser = CreateBrowser(params, browser_context);
-   ```
+    // New (if signature changed)
+    auto* browser = CreateBrowser(params, browser_context);
+    ```
 
 See "Common Build Error Patterns" section for more examples.
 
@@ -343,13 +344,13 @@ autoninja -k 0 -C out/Debug_GN_x64 cef 2>&1 | tee cef/tools/claude/build_output.
 This can happen due to linker errors, template instantiation errors, or errors in files not in the original build output.
 
 1. **Analyze the new errors:**
-   ```bash
-   # From chromium/src/cef/tools/claude directory:
-   python3 analyze_build_output.py build_output.txt \
+    ```bash
+    # From chromium/src/cef/tools/claude directory:
+    python3 analyze_build_output.py build_output.txt \
      --old-version {old_version} \
      --new-version {new_version} \
      --no-color > build_analysis.txt
-   ```
+    ```
 
 2. **Return to Step 3** with the updated error index and repeat the process
 
@@ -363,9 +364,8 @@ Based on typical Chromium updates:
 - **API signature changes**: Moderate (5-15 minutes per error)
 - **Major API refactoring**: Complex (30+ minutes to understand and fix)
 - **Total build error fixing**: 2-6 hours typically
-
-  - Minor updates: 20-50 errors typical
-  - Major updates: 100+ errors possible
+    - Minor updates: 20-50 errors typical
+    - Major updates: 100+ errors possible
 
 Rebuild individual files frequently to track progress. Some errors will disappear as root causes are fixed.
 
@@ -858,20 +858,17 @@ The build is successful when:
 Once the build is successful, the next steps are:
 
 1. **Run CEF tests** - Verify functionality
-
-   - `ceftests` - Unit tests
-   - `cefclient` - Sample application
-   - Manual testing of key features
+    - `ceftests` - Unit tests
+    - `cefclient` - Sample application
+    - Manual testing of key features
 
 2. **Build other configurations** - If only Debug was built
-
-   - Release build
-   - Other platforms (if applicable)
+    - Release build
+    - Other platforms (if applicable)
 
 3. **Submit changes** - Create PR
-
-   - Commit message format
-   - Code review process
+    - Commit message format
+    - Code review process
 
 The user will guide you through these next steps.
 

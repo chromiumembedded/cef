@@ -118,46 +118,46 @@ Chromium is organized into major components with clear separation of concerns:
 ### Core Browser Architecture
 
 - **//chrome/**: Chrome browser application layer
-  - `//chrome/browser/`: Browser process code (UI, downloads, profiles, extensions)
-  - `//chrome/renderer/`: Renderer process code (ChromeRenderFrameObserver, etc.)
-  - `//chrome/common/`: Shared code between browser and renderer processes
+    - `//chrome/browser/`: Browser process code (UI, downloads, profiles, extensions)
+    - `//chrome/renderer/`: Renderer process code (ChromeRenderFrameObserver, etc.)
+    - `//chrome/common/`: Shared code between browser and renderer processes
 
 - **//content/**: Content API - cross-platform browser engine
-  - `//content/browser/`: Browser process implementation (navigation, security, IPC)
-  - `//content/renderer/`: Renderer process implementation (Blink integration)
-  - `//content/public/`: Public APIs for embedders like Chrome
+    - `//content/browser/`: Browser process implementation (navigation, security, IPC)
+    - `//content/renderer/`: Renderer process implementation (Blink integration)
+    - `//content/public/`: Public APIs for embedders like Chrome
 
 - **//base/**: Fundamental utilities and primitives
-  - Cross-platform abstractions for threading, files, logging, memory management
-  - Foundation for all other Chromium code
+    - Cross-platform abstractions for threading, files, logging, memory management
+    - Foundation for all other Chromium code
 
 ### UI and Platform Integration
 
 - **//ui/**: Cross-platform UI toolkit and primitives
-  - `//ui/views/`: Desktop UI framework (Windows/Linux/Mac desktop UI)
-  - `//ui/gfx/`: Graphics primitives and rendering utilities
-  - `//ui/base/`: Basic UI utilities and resource management
+    - `//ui/views/`: Desktop UI framework (Windows/Linux/Mac desktop UI)
+    - `//ui/gfx/`: Graphics primitives and rendering utilities
+    - `//ui/base/`: Basic UI utilities and resource management
 
 - **//ash/**: Chrome OS system UI (launcher, system tray, window management)
 
 ### Web Platform Implementation
 
 - **//third_party/blink/**: Web rendering engine
-  - `//third_party/blink/renderer/core/`: DOM, CSS, layout engine
-  - `//third_party/blink/renderer/platform/`: Platform abstractions for Blink
-  - Located in third_party but developed as part of Chromium
+    - `//third_party/blink/renderer/core/`: DOM, CSS, layout engine
+    - `//third_party/blink/renderer/platform/`: Platform abstractions for Blink
+    - Located in third_party but developed as part of Chromium
 
 - **//v8/**: JavaScript engine (Git submodule)
 
 ### Networking and Services
 
 - **//net/**: Cross-platform networking library
-  - HTTP/HTTPS, cookies, DNS, proxy support
-  - Can be used independently of the browser
+    - HTTP/HTTPS, cookies, DNS, proxy support
+    - Can be used independently of the browser
 
 - **//services/**: Mojo-based services architecture
-  - Process isolation and security boundaries
-  - Network service, storage service, device service, etc.
+    - Process isolation and security boundaries
+    - Network service, storage service, device service, etc.
 
 ### Platform-Specific Code
 
@@ -197,8 +197,8 @@ Communication between processes uses **Mojo IPC** (//mojo/) with strong type saf
 1. **Set up build**: `gn gen out/Default --args="..."`
 2. **Make changes**: Edit source files
 3. **Build**: `autoninja -C out/Default chrome`
-   - If encountering compile errors, fix them iteratively and rebuild
-   - Use `autoninja -k 0 -C out/Default target_name` to continue building other targets on failure
+    - If encountering compile errors, fix them iteratively and rebuild
+    - Use `autoninja -k 0 -C out/Default target_name` to continue building other targets on failure
 4. **Test**: Run relevant tests (unit_tests, browser_tests, or web tests)
 5. **Format**: `git cl format` (required)
 6. **Upload**: `git cl upload` for code review
@@ -215,6 +215,7 @@ Communication between processes uses **Mojo IPC** (//mojo/) with strong type saf
 ### Key Documentation
 
 Refer to [docs/README.md](docs/README.md) for comprehensive documentation including:
+
 - Platform-specific build instructions
 - Design documents and architecture guides  
 - Testing methodologies and best practices

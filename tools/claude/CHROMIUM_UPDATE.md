@@ -100,7 +100,6 @@ After running `patch_updater.py` and seeing failures:
     > **Note:** Use full paths from `chromium/src` when attaching files with `@` syntax.
 
 4. **Claude will:**
-
     - Analyze the failures
     - Create a TODO list of patches to fix
     - Systematically fix each patch by reading reject files
@@ -143,7 +142,6 @@ After all patches are fixed and you're ready to build:
     > **Note:** Use full paths from `chromium/src` when attaching files with `@` syntax.
 
 4. **Claude will:**
-
     - Analyze the error index
     - Create a TODO list of files to fix
     - Systematically fix each file

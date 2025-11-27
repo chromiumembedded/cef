@@ -258,14 +258,12 @@ Before submitting wiki changes:
     ```
 
 2. **Manually verify:**
-
     - [ ] All wiki links use full Bitbucket URLs (tool does not check this)
     - [ ] Code blocks use language-appropriate indentation (not forced to 4 spaces)
     - [ ] Section headers follow consistent hierarchy
     - [ ] Content is accurate and complete
 
 3. **Automated checks (already fixed by tool):**
-
     - [ ] Blank lines before all top-level lists (after paragraph text)
     - [ ] NO blank lines before sub-items directly under parent items
     - [ ] All sub-items use 4-space indentation

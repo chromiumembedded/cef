@@ -545,13 +545,13 @@ cmake --build build --target cefsimple
 
 1. Create `tests/cefsimple/my_file.h/cc`
 2. Update `tests/cefsimple/CMakeLists.txt`:
-   ```cmake
-   set(CEFSIMPLE_SRCS
+    ```cmake
+    set(CEFSIMPLE_SRCS
      ...
      my_file.cc
      my_file.h
-   )
-   ```
+    )
+    ```
 3. Reconfigure: `cmake -B build -G <generator>`
 
 **Add handler to SimpleHandler:**

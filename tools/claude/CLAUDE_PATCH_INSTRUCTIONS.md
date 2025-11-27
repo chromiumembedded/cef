@@ -41,6 +41,7 @@ CEF maintains patch files in `cef/patch/patches/` that modify Chromium source co
 **Never assume your current directory. Always verify first.**
 
 Relative paths like `cd cef/tools/claude` behave differently depending on where you are:
+
 - From `chromium/src`: navigates to `chromium/src/cef/tools/claude` ✓
 - From `chromium/src/cef/tools`: tries to navigate to `chromium/src/cef/tools/cef/tools/claude` ✗
 
@@ -274,39 +275,37 @@ Then either:
     **Complete workflow:**
 
     1. **Identify the new location:**
-
-       - Check patch_analysis.txt - it may show "→ Detected new location: {new_path}"
-       - Or run: `git log --follow --all --name-status -- {file_path}`
+        - Check patch_analysis.txt - it may show "→ Detected new location: {new_path}"
+        - Or run: `git log --follow --all --name-status -- {file_path}`
 
     2. **Read the reject file:** `cat {old_file_path}.rej`
 
     3. **Apply changes to the NEW location** (use Edit tool, apply ALL hunks)
 
     4. **Get the complete original file list:**
-
-       - Look at patch_analysis.txt under "Original files in patch (X total)"
-       - Shows which files were in the patch (✓ = applied, ✗ = failed)
-       - You need ALL of these files in your regenerated patch
+        - Look at patch_analysis.txt under "Original files in patch (X total)"
+        - Shows which files were in the patch (✓ = applied, ✗ = failed)
+        - You need ALL of these files in your regenerated patch
 
     5. **Manually regenerate the entire patch:**
-       ```bash
-       # From chromium/src directory:
-       # Build git diff command with ALL files at their current locations
-       git diff --no-prefix --relative -- \
+        ```bash
+        # From chromium/src directory:
+        # Build git diff command with ALL files at their current locations
+        git diff --no-prefix --relative -- \
          {successful_file1} \
          {successful_file2} \
          {manually_fixed_file} \
          {new_location_of_moved_file1} \
          > cef/patch/patches/{patch_name}.patch
-       ```
+        ```
 
     6. **Verify:**
-       ```bash
-       # File count should match original
-       grep "^diff --git" cef/patch/patches/{patch_name}.patch | wc -l
-       # Test it applies
-       python3 cef/tools/patch_updater.py --patch {patch_name}
-       ```
+        ```bash
+        # File count should match original
+        grep "^diff --git" cef/patch/patches/{patch_name}.patch | wc -l
+        # Test it applies
+        python3 cef/tools/patch_updater.py --patch {patch_name}
+        ```
 
     **Important:**
 
@@ -491,9 +490,8 @@ Based on typical Chromium updates:
 - **Simple patches** (context shifts, minor refactoring): few minutes each (mostly automatic)
 - **Complex patches** (file moves, major refactors, API changes): 15-30 minutes each (may require user guidance/correction)
 - **Total patch fixing**: 1-3 hours typically
-
-  - Minor updates: Usually < 10 patches fail
-  - Major updates: Can be 10-20+ patches
+    - Minor updates: Usually < 10 patches fail
+    - Major updates: Can be 10-20+ patches
 
 Work systematically and don't rush. Understanding the Chromium changes is more important than speed.
 
@@ -756,16 +754,14 @@ Patches are successfully updated when:
 Once all patches apply successfully, the next steps are:
 
 1. **Build CEF** - Patches are fixed, but there may be compile errors
-
-   - Use: `autoninja -k 0 -C out/Debug_GN_x64 cef` (from chromium/src)
-   - If .gn files changed, run `cef/create_debug.bat` (Windows) or `./cef/create_debug.sh` (Linux/Mac) first
+    - Use: `autoninja -k 0 -C out/Debug_GN_x64 cef` (from chromium/src)
+    - If .gn files changed, run `cef/create_debug.bat` (Windows) or `./cef/create_debug.sh` (Linux/Mac) first
 
 2. **Fix compile errors** - Update CEF code in `cef/` directory to work with new Chromium
-
-   - This is a **separate task** with different instructions
-   - See: `CLAUDE_BUILD_INSTRUCTIONS.md` for the build error fixing phase
-   - Only modify files in the `cef/` directory during this phase
-   - During patch fixing, you only modified Chromium files (outside `cef/`)
+    - This is a **separate task** with different instructions
+    - See: `CLAUDE_BUILD_INSTRUCTIONS.md` for the build error fixing phase
+    - Only modify files in the `cef/` directory during this phase
+    - During patch fixing, you only modified Chromium files (outside `cef/`)
 
 3. **Run tests** - Verify functionality still works
 4. **Submit changes** - Create PR with the updated patches
@@ -864,33 +860,33 @@ Moving to patch 2/9: views_widget
 **Solution:** Manually regenerate the patch with correct file paths:
 
 1. Check what files are currently in the patch:
-   ```bash
-   grep "^diff --git" cef/patch/patches/{patch_name}.patch
-   ```
+    ```bash
+    grep "^diff --git" cef/patch/patches/{patch_name}.patch
+    ```
 
 2. Check what files you've actually modified:
-   ```bash
-   git diff --name-only | grep {relevant_pattern}
-   ```
+    ```bash
+    git diff --name-only | grep {relevant_pattern}
+    ```
 
 3. Create new patch with correct paths:
-   ```bash
-   # From chromium/src directory:
-   # List ALL files that should be in the patch
-   git diff --no-prefix --relative {file1} {file2} {file3} ... > /tmp/temp.patch
+    ```bash
+    # From chromium/src directory:
+    # List ALL files that should be in the patch
+    git diff --no-prefix --relative {file1} {file2} {file3} ... > /tmp/temp.patch
 
-   # Back up the old patch
-   cp cef/patch/patches/{patch_name}.patch cef/patch/patches/{patch_name}.patch.bak
+    # Back up the old patch
+    cp cef/patch/patches/{patch_name}.patch cef/patch/patches/{patch_name}.patch.bak
 
-   # Replace with new patch
-   cp /tmp/temp.patch cef/patch/patches/{patch_name}.patch
-   ```
+    # Replace with new patch
+    cp /tmp/temp.patch cef/patch/patches/{patch_name}.patch
+    ```
 
 4. Verify it works:
-   ```bash
-   cd cef/tools
-   python3 patch_updater.py --patch {patch_name}
-   ```
+    ```bash
+    cd cef/tools
+    python3 patch_updater.py --patch {patch_name}
+    ```
 
 ## Testing Patches (Optional)
 
