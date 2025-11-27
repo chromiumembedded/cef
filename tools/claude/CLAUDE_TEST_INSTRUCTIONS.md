@@ -1061,55 +1061,19 @@ Actual: 404
 
 ## Platform-Specific Notes
 
-### Windows
-
-```bash
-# Use .exe extension
-out\Debug_GN_x64\ceftests.exe --gtest_filter="StringTest.*"
-
-# Sandbox enabled by default
-# May need --no-sandbox if setup fails
-```
+**See Step 2 for platform-specific executable paths.**
 
 ### macOS
 
-```bash
-# MUST use .app bundle path
-./out/Debug_GN_arm64/ceftests.app/Contents/MacOS/ceftests --use-views
-
-# Views support has limitations (Issue #3188)
-# Some Views tests may be flaky
-```
+- **Views support has limitations (Issue #3188)** - Some Views tests may be flaky
+- **MUST use .app bundle path** - Direct binary path will not work
 
 ### Linux
 
-```bash
-# Headless execution (CI/CD)
-xvfb-run out/Debug_GN_x64/ceftests --no-sandbox
-
-# May need --no-sandbox depending on system
-```
+- **Headless execution** - Use `xvfb-run` for CI/CD environments
+- **Sandbox** - May need `--no-sandbox` depending on system configuration
 
 ## Test Execution Best Practices
-
-**During development:**
-
-```bash
-# Quick: Run only tests you're working on
-ceftests --gtest_filter="MyFeatureTest.*"
-
-# Complete: Run all tests before committing
-ceftests
-```
-
-**For CI/CD:**
-
-```bash
-# Exclude known flaky tests
-ceftests --gtest_filter="-AudioOutputTest.*:MediaAccessTest.*"
-
-# See ChromiumUpdate.md for latest recommended filters
-```
 
 **Test organization:**
 
@@ -1117,7 +1081,6 @@ ceftests --gtest_filter="-AudioOutputTest.*:MediaAccessTest.*"
 - Use descriptive names: `NavigationTest.LoadURLRedirect` not `Test1`
 - Keep tests independent - don't rely on execution order
 - **Never add global state** - use instance variables in test handlers instead
-- Always call `DestroyTest()` to clean up resources
 - Document complex test flows with comments
 
 **Modifying existing tests:**
@@ -1128,6 +1091,13 @@ When modifying an existing test file:
 - **Follow existing test design** - use the same test handler patterns, helper functions, and assertion styles
 - **Don't refactor unnecessarily** - make minimal changes needed for your modification
 - Read other tests in the same file to understand the established patterns
+
+**Running on CI/CD:**
+
+```bash
+# Exclude known flaky tests - see ChromiumUpdate.md for latest filters
+ceftests --gtest_filter="-AudioOutputTest.*:MediaAccessTest.*"
+```
 
 ## Communication Guidelines
 
