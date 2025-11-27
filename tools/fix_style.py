@@ -9,10 +9,11 @@ import os, re, sys
 from clang_util import clang_format
 from file_util import eval_file, get_files, read_file, write_file
 from git_util import get_changed_files
+from wiki_format_util import wiki_format
 from yapf_util import yapf_format
 
 # File extensions that can be formatted.
-DEFAULT_LINT_WHITELIST_REGEX = r"(.*\.cpp|.*\.cc|.*\.c|.*\.h|.*\.java|.*\.mm|.*\.m|.*\.py)$"
+DEFAULT_LINT_WHITELIST_REGEX = r"(.*\.cpp|.*\.cc|.*\.c|.*\.h|.*\.java|.*\.mm|.*\.m|.*\.py|.*\.md)$"
 DEFAULT_LINT_BLACKLIST_REGEX = r"$^"
 
 # Directories containing these path components will be ignored.
@@ -57,9 +58,13 @@ def update_file(filename):
     msg(filename, "empty")
     return
 
-  if os.path.splitext(filename)[1] == ".py":
+  ext = os.path.splitext(filename)[1]
+  if ext == ".py":
     # Format Python files using YAPF.
     newcontents = yapf_format(filename, oldcontents)
+  elif ext == ".md":
+    # Format Markdown files using wiki formatter.
+    newcontents = wiki_format(filename, oldcontents)
   else:
     # Format C/C++/ObjC/Java files using clang-format.
     newcontents = clang_format(filename, oldcontents)
@@ -127,7 +132,8 @@ def fix_style(filenames, white_list=None, black_list=None):
 if __name__ == "__main__":
   if len(sys.argv) == 1:
     print("Usage: %s [file-path|git-hash|unstaged|staged] ...\n" % sys.argv[0])
-    print(" Format C, C++ and ObjC files using Chromium's clang-format style.")
+    print(" Format C/C++/ObjC files (clang-format), Python files (yapf),")
+    print(" and Markdown files (wiki formatter).")
     print("\nOptions:")
     print(" file-path\tProcess the specified file or directory.")
     print(" \t\tDirectories will be processed recursively.")

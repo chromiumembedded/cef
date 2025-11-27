@@ -54,7 +54,7 @@ This directory contains tools and instructions for using Claude Code to assist w
 - **[analyze_patch_output.py](analyze_patch_output.py)** - Analyze and format `patch_updater.py` output with file movement detection
 - **[patch_utils.py](patch_utils.py)** - Shared utilities for patch analysis tools (file movement detection)
 - **[verify_patch.py](verify_patch.py)** - Verify that regenerated patches include all changes from reject files
-- **[format_wiki.py](format_wiki.py)** - Apply Bitbucket wiki formatting guidelines to markdown files (supports wildcards)
+- **[format_wiki.py](format_wiki.py)** - Apply Bitbucket wiki formatting guidelines to markdown files (supports wildcards; also integrated into `../fix_style.py`)
 
 ### Test Files
 
@@ -74,6 +74,28 @@ python3 setup_claude.py
 ```
 
 This copies `CLAUDE.md` to the project root (`chromium/src/CLAUDE.md`), enabling Claude Code to understand the Chromium/CEF codebase structure.
+
+## Formatting Files
+
+The `fix_style.py` tool in `//cef/tools/` formats C/C++, Python, and Markdown files:
+
+```bash
+# From chromium/src/cef/tools directory:
+
+# Format single markdown file
+python3 fix_style.py claude/CLAUDE_TEST_INSTRUCTIONS.md
+
+# Format all CLAUDE instruction files
+python3 fix_style.py claude/CLAUDE_*.md
+
+# Format all markdown files in claude directory
+python3 fix_style.py claude/*.md
+
+# Format all staged files (including markdown)
+python3 fix_style.py staged
+```
+
+The markdown formatter applies [Bitbucket wiki formatting guidelines](CLAUDE_WIKI_INSTRUCTIONS.md) (blank lines before lists, 4-space indentation, etc.).
 
 ## Tips for Working with Claude Code
 

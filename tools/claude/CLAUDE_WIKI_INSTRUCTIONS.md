@@ -8,7 +8,17 @@ Bitbucket's wiki renderer has specific requirements that differ from standard Ma
 
 ## Automated Formatting Tool
 
-**Before manually applying formatting rules**, use the automated formatter to fix common issues:
+**Before manually applying formatting rules**, use the automated formatter to fix common issues.
+
+**Option 1: Using fix_style.py (recommended):**
+
+```bash
+# From chromium/src/cef/tools directory
+python3 fix_style.py claude/CLAUDE_*.md
+python3 fix_style.py claude/specific_file.md
+```
+
+**Option 2: Using format_wiki.py directly:**
 
 ```bash
 # Check if file needs formatting
@@ -243,7 +253,8 @@ Before submitting wiki changes:
 1. **Run the automated formatter:**
 
     ```bash
-    python3 cef/tools/claude/format_wiki.py filename.md --in-place
+    # From chromium/src/cef/tools directory
+    python3 fix_style.py claude/filename.md
     ```
 
 2. **Manually verify:**
