@@ -90,6 +90,8 @@ class WikiFormatter:
         i = 0
         in_code_block = False
         opening_fence_indent = 0  # Track ORIGINAL opening fence indentation
+        expected_content_indent = 0  # Track expected content indentation (fence after fix)
+        content_indent_delta = 0  # Delta to apply to all content lines in this block
         while i < len(lines):
             line = lines[i]
             next_line = lines[i + 1] if i + 1 < len(lines) else None
@@ -115,14 +117,30 @@ class WikiFormatter:
                     # Remember ORIGINAL indent (before any fixing)
                     opening_fence_indent = fence_indent
 
-            # Skip formatting list/paragraph rules inside code blocks
-            # But still process code fences themselves for indentation
+            # Validate and fix content indentation inside code blocks
             if in_code_block and not is_code_fence:
-                formatted_lines.append(line)
+                if line.strip():  # Only process non-empty lines
+                    # If we haven't calculated the delta yet, check the first content line
+                    if content_indent_delta == 0:
+                        current_indent = len(line) - len(line.lstrip())
+                        if current_indent < expected_content_indent:
+                            # First content line is under-indented, calculate delta
+                            content_indent_delta = expected_content_indent - current_indent
+
+                    # Apply the delta to maintain relative indentation
+                    if content_indent_delta > 0:
+                        adjusted_line = (' ' * content_indent_delta) + line
+                        formatted_lines.append(adjusted_line)
+                    else:
+                        # No adjustment needed
+                        formatted_lines.append(line)
+                else:
+                    # Empty line, preserve as-is
+                    formatted_lines.append(line)
                 i += 1
                 continue
 
-            # Toggle code block state after processing the fence
+            # Process code fences and track expected content indentation
             if is_code_fence:
                 # Fix code fence indentation
                 fixed_line, indentation_issue = self._fix_list_indentation(line, i)
@@ -131,6 +149,17 @@ class WikiFormatter:
                     formatted_lines.append(fixed_line)
                 else:
                     formatted_lines.append(line)
+                    fixed_line = line
+
+                # Set expected content indentation based on fence
+                if not in_code_block:
+                    # Opening fence - set expected content indent and reset delta
+                    fence_match_fixed = self.CODE_FENCE_PATTERN.match(fixed_line)
+                    expected_content_indent = len(fence_match_fixed.group(1))
+                    content_indent_delta = 0
+                else:
+                    # Closing fence - reset delta for next block
+                    content_indent_delta = 0
 
                 # Toggle state
                 in_code_block = not in_code_block
@@ -161,10 +190,14 @@ class WikiFormatter:
 
             i += 1
 
+        # Determine if any changes were made by comparing output to input
+        original_lines = content.split('\n')
+        changes_made = (formatted_lines != original_lines)
+
         result = FormatResult(
             formatted_lines=formatted_lines,
             issues=self.issues,
-            changes_made=len(self.issues) > 0
+            changes_made=changes_made
         )
         return result
 

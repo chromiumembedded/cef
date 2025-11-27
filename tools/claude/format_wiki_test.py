@@ -210,9 +210,10 @@ class TestCodeFenceIndentation(unittest.TestCase):
    ```"""
         result = self.formatter.format_file(content)
 
+        # Both fence and content should be adjusted from 3→4 spaces
         expected = """1. Step one
     ```cpp
-   code_here();
+    code_here();
     ```"""
         self.assertEqual('\n'.join(result.formatted_lines), expected)
         self.assertEqual(len(result.issues), 2)  # Opening and closing fence
@@ -351,22 +352,67 @@ Tests:
         self.assertEqual('\n'.join(result.formatted_lines), content)
         self.assertFalse(result.changes_made)
 
-    def test_skip_indented_code_in_code_blocks(self):
-        """Test that indentation inside code blocks is preserved"""
+    def test_fix_underindented_code_content(self):
+        """Test that under-indented code content is fixed to match fence"""
         content = """1. Step one
     ```cpp
   bad_indent();
     ```"""
         result = self.formatter.format_file(content)
 
-        # Code fence should be fixed, but content inside preserved
+        # Content at 2 spaces should be adjusted to match fence at 4 spaces
         expected = """1. Step one
     ```cpp
-  bad_indent();
+    bad_indent();
     ```"""
         self.assertEqual('\n'.join(result.formatted_lines), expected)
-        # No changes because code fence is already at 4 spaces
+        # Changes made to fix under-indented content
+        self.assertTrue(result.changes_made)
+
+    def test_preserve_code_internal_indentation(self):
+        """Test that proper code indentation (function bodies, nested blocks) is preserved"""
+        content = """1. Example code:
+    ```cpp
+    void MyFunction() {
+      int x = 5;
+      if (x > 0) {
+        DoSomething();
+      }
+    }
+    ```"""
+        result = self.formatter.format_file(content)
+
+        # Code fence is already at 4 spaces, content starts at 4 spaces
+        # Internal indentation (6 spaces, 8 spaces) should be preserved
+        self.assertEqual('\n'.join(result.formatted_lines), content)
         self.assertFalse(result.changes_made)
+
+    def test_fix_underindented_code_with_internal_structure(self):
+        """Test fixing under-indented code while preserving internal structure"""
+        content = """1. Example:
+    ```cpp
+  void MyFunction() {
+    int x = 5;
+    if (x > 0) {
+      DoSomething();
+    }
+  }
+    ```"""
+        result = self.formatter.format_file(content)
+
+        # Base indent should be fixed from 2→4 spaces
+        # Internal structure should be preserved (relative indentation maintained)
+        expected = """1. Example:
+    ```cpp
+    void MyFunction() {
+      int x = 5;
+      if (x > 0) {
+        DoSomething();
+      }
+    }
+    ```"""
+        self.assertEqual('\n'.join(result.formatted_lines), expected)
+        self.assertTrue(result.changes_made)
 
     def test_nested_code_fences_in_markdown_block(self):
         """Test that code fences shown as examples inside markdown blocks are preserved"""
