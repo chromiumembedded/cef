@@ -97,6 +97,23 @@ class TestBlankLineBeforeLists(unittest.TestCase):
         self.assertEqual('\n'.join(result.formatted_lines), content)
         self.assertFalse(result.changes_made)
 
+    def test_remove_blank_line_before_nested_item(self):
+        """Test removing blank line between parent and nested list item"""
+        content = """- Parent item
+
+    - Nested sub-item
+    - Another nested item"""
+        result = self.formatter.format_file(content)
+
+        # Blank line should be removed to preserve nesting
+        expected = """- Parent item
+    - Nested sub-item
+    - Another nested item"""
+        self.assertEqual('\n'.join(result.formatted_lines), expected)
+        self.assertEqual(len(result.issues), 1)
+        self.assertEqual(result.issues[0].issue_type, 'blank_line_breaks_nesting')
+        self.assertTrue(result.changes_made)
+
     def test_nested_list_with_paragraph(self):
         """Test nested list after indented paragraph needs blank line"""
         content = """1. Parent item

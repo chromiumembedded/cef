@@ -180,6 +180,24 @@ class WikiFormatter:
                     i += 1
                     continue
 
+            # Rule 1.5: Remove blank line between parent list item and nested sub-item
+            if not line.strip():  # Current line is blank
+                prev_line = formatted_lines[-1] if formatted_lines else ''
+                if next_line and self._is_list_start(prev_line) and self._is_list_start(next_line):
+                    # Check if next line is nested (more indented than previous)
+                    prev_indent = self._get_list_indent(prev_line)
+                    next_indent = self._get_list_indent(next_line)
+                    if next_indent > prev_indent:
+                        # This blank line breaks nesting, skip it
+                        self._add_issue(
+                            i,
+                            'blank_line_breaks_nesting',
+                            'Blank line between parent and nested list item',
+                            line
+                        )
+                        i += 1
+                        continue
+
             # Rule 2: Fix list indentation to 4 spaces
             fixed_line, indentation_issue = self._fix_list_indentation(line, i)
             if indentation_issue:
@@ -205,6 +223,16 @@ class WikiFormatter:
         """Check if line is the start of a list (bullet or numbered)."""
         return (self.LIST_ITEM_PATTERN.match(line) is not None or
                 self.NUMBERED_LIST_PATTERN.match(line) is not None)
+
+    def _get_list_indent(self, line: str) -> int:
+        """Get the indentation level of a list item in spaces."""
+        if not self._is_list_start(line):
+            return 0
+        # Match either bullet or numbered list
+        match = self.LIST_ITEM_PATTERN.match(line) or self.NUMBERED_LIST_PATTERN.match(line)
+        if match:
+            return len(match.group(1))
+        return 0
 
     def _needs_blank_line_before_list(self, prev_line: str, list_line: str) -> bool:
         """
