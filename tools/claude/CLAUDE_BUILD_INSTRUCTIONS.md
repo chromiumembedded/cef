@@ -94,7 +94,7 @@ cef\create_debug.bat
 ./cef/create_debug.sh
 ```
 
-**Do NOT run `gn clean` or similar commands** - this causes unnecessary rebuilds.
+**Do NOT run `gn clean` or similar commands** - this causes unnecessary rebuilds. During the fixing phase, rebuild individual files (`.o` targets) to verify fixes quickly, not the entire `cef` target until all files compile.
 
 ### Step 2: Run Initial Build
 
@@ -119,11 +119,16 @@ autoninja -k 0 -C out/Debug_GN_x64 cef 2>&1 | tee cef/tools/claude/build_output.
 
 ### Step 3: Analyze Build Errors
 
-**Option A: Use the analyzer script (recommended):**
+**RECOMMENDED: Use the analyzer script**
 
-The user will typically provide a `build_analysis.txt` file created with `analyze_build_output.py`.
+The user will typically provide a `build_analysis.txt` file created with `analyze_build_output.py`. This file contains:
 
-**If the user did NOT provide `build_analysis.txt`**, you should create it:
+- Concise error index sorted by file
+- Line number references to `build_output.txt` for full error details
+- Build targets for rebuilding individual files
+- Clear workflow instructions
+
+**If the user did NOT provide `build_analysis.txt`**, create it:
 ```bash
 # From chromium/src/cef/tools/claude directory:
 python3 analyze_build_output.py build_output.txt \
@@ -131,13 +136,6 @@ python3 analyze_build_output.py build_output.txt \
   --new-version {new_version} \
   --no-color > build_analysis.txt
 ```
-
-The `build_analysis.txt` file contains:
-
-- Concise error index sorted by file
-- Line number references to `build_output.txt` for full error details
-- Build targets for rebuilding individual files
-- Clear workflow instructions
 
 **Example format:**
 ```
@@ -149,24 +147,9 @@ The `build_analysis.txt` file contains:
 
 Use this index to create your TODO list. Read the referenced lines in `build_output.txt` for complete error details.
 
-**Option B: Parse raw build output:**
+**Alternative: Parse raw build output manually**
 
-If not using the analyzer, parse the build output manually. Focus on:
-
-- **File path** - Which file has the error
-- **Line number** - Where the error is
-- **Error message** - What's wrong
-
-**Create a TODO list** of all unique errors (not repetitions):
-
-```
-TODO:
-1. Fix error in cef/libcef/browser/browser_host_impl.cc:123
-   - Error: 'CreateParams' has no member named 'initial_size'
-2. Fix error in cef/libcef/renderer/render_frame_observer.cc:456
-   - Error: 'OnDidFinishLoad' is not a member of 'ContentRendererClient'
-...
-```
+If not using the analyzer, focus on extracting file paths, line numbers, and error messages, then create a TODO list of all unique errors.
 
 ### Step 4: Fix Each Error
 
@@ -322,8 +305,6 @@ The 'initial_size' member was removed, and size is now set via SetBounds().
 
 ### Step 7: Final Verification
 
-**IMPORTANT:** Only proceed to this step AFTER all individual files compile successfully.
-
 Once all individual files compile without errors, rebuild the entire `cef` target to ensure success:
 
 ```bash
@@ -356,18 +337,9 @@ This can happen due to linker errors, template instantiation errors, or errors i
 
 3. **Report to user** if the errors are significantly different from the original set
 
-## Time Expectations
+## Build Error Expectations
 
-Based on typical Chromium updates:
-
-- **Missing includes**: Usually quick (1-2 minutes per file)
-- **API signature changes**: Moderate (5-15 minutes per error)
-- **Major API refactoring**: Complex (30+ minutes to understand and fix)
-- **Total build error fixing**: 2-6 hours typically
-    - Minor updates: 20-50 errors typical
-    - Major updates: 100+ errors possible
-
-Rebuild individual files frequently to track progress. Some errors will disappear as root causes are fixed.
+The number of errors typically ranges from 20-50 for minor updates to 100+ for major updates. Work systematically through each error, and rebuild individual files frequently to track progress—some errors will disappear as root causes are fixed.
 
 ## Common Build Error Patterns
 
@@ -921,15 +893,13 @@ The user will guide you through these next steps.
 
 ## Important Reminders
 
-1. **ALWAYS run `pwd` before using `cd` or relative paths** - Never assume your current directory location. Verify first, then navigate.
-2. **Only modify CEF code** - Files in `cef/` directory only
-3. **No patch changes** - Patches were fixed in previous phase
-4. **Build individual files frequently** - After every fix or small batch of fixes (rebuild just those files, not entire `cef` target)
-5. **Ask for help** - After 3 attempts or 5 minutes on same error
-6. **Track progress** - Keep TODO list updated
-7. **Report regularly** - User needs to know status
-8. **Stay organized** - Group similar errors, work systematically
-9. **Final rebuild only after all files compile** - Rebuild entire `cef` target only when ALL individual files build successfully
+1. **ALWAYS verify your current directory with `pwd`** - Before using `cd` or relative paths (see "CRITICAL: Working Directory Awareness")
+2. **Only modify CEF code** - Files in `cef/` directory only (see "Files You Can Modify")
+3. **Patches already fixed** - This is the build error phase; patch phase was completed earlier (see "What Phase Is This?")
+4. **Rebuild individual files frequently** - After every fix or small batch of fixes. Only rebuild the entire `cef` target after ALL individual files compile successfully (see Step 4D "Rebuild to Verify")
+5. **Ask for help when stuck** - After 3 attempts or if unable to resolve within a reasonable time (see Step 6 "Handle Difficult Errors")
+6. **Track progress** - Keep TODO list updated and report regularly to the user
+7. **Stay organized** - Group similar errors, work systematically (see "Iteration Strategy")
 
 ---
 
