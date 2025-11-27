@@ -25,6 +25,15 @@ This directory contains tools and instructions for using Claude Code to assist w
 - Network request interception
 - Popup window customization
 
+**Are you writing or debugging CEF unit tests?**
+
+→ See [CLAUDE_TEST_INSTRUCTIONS.md](CLAUDE_TEST_INSTRUCTIONS.md) for working with ceftests:
+
+- Running existing unit tests
+- Creating new tests for CEF features
+- Debugging test failures and flakiness
+- Using TestHandler, RoutingTestHandler, and TestServer
+
 ## Files in This Directory
 
 ### Documentation
@@ -34,6 +43,7 @@ This directory contains tools and instructions for using Claude Code to assist w
 - **[CLAUDE_PATCH_INSTRUCTIONS.md](CLAUDE_PATCH_INSTRUCTIONS.md)** - Detailed instructions for Claude agents fixing patch failures
 - **[CLAUDE_BUILD_INSTRUCTIONS.md](CLAUDE_BUILD_INSTRUCTIONS.md)** - Detailed instructions for Claude agents fixing build errors
 - **[CLAUDE_CLIENT_INSTRUCTIONS.md](CLAUDE_CLIENT_INSTRUCTIONS.md)** - Detailed instructions for Claude agents implementing features in CEF applications
+- **[CLAUDE_TEST_INSTRUCTIONS.md](CLAUDE_TEST_INSTRUCTIONS.md)** - Detailed instructions for Claude agents creating and running CEF unit tests
 - **[CLAUDE_WIKI_INSTRUCTIONS.md](CLAUDE_WIKI_INSTRUCTIONS.md)** - Bitbucket wiki formatting guidelines for Claude agents
 - **[CLAUDE.md](CLAUDE.md)** - General Claude Code instructions for Chromium/CEF codebase
 - **[README.md](README.md)** - This file
@@ -89,6 +99,7 @@ Use `@filename` to attach files Claude should read:
 - `@cef/tools/claude/patch_analysis.txt` - Analyzed patch output
 - `@cef/tools/claude/build_analysis.txt` - Analyzed build output
 - `@cef/tools/claude/CLAUDE_CLIENT_INSTRUCTIONS.md` - Client development guide
+- `@cef/tools/claude/CLAUDE_TEST_INSTRUCTIONS.md` - CEF unit testing guide
 
 **Tip:** In large directory structures like `chromium/src`, the `@` syntax can be slow. Use `//` syntax for workspace-relative paths instead (e.g., `//cef/tools/claude/patch_analysis.txt`).
 
@@ -104,12 +115,23 @@ Don't interrupt mid-stream unless necessary. Claude will:
 ### 4. Use Incremental Prompts
 
 For large tasks, you can guide Claude incrementally:
+
+**For Chromium updates:**
 ```
 1. "Start fixing patches using @CLAUDE_PATCH_INSTRUCTIONS.md"
 2. [Claude works for a while]
 3. "Good progress. Continue with the remaining patches."
 4. [Claude finishes]
 5. "Now let's fix build errors using @CLAUDE_BUILD_INSTRUCTIONS.md"
+```
+
+**For unit testing:**
+```
+1. "Create tests for the new feature using @CLAUDE_TEST_INSTRUCTIONS.md"
+2. [Claude creates tests]
+3. "Run the tests and fix any failures"
+4. [Claude debugs and fixes]
+5. "Good, now verify they work in both Chrome and Alloy styles"
 ```
 
 ### 5. Ask for Summaries
@@ -149,8 +171,8 @@ Then share the analysis files with Claude.
 
 ### For Issues with Tools
 
-- Check [CHROMIUM_UPDATE.md](CHROMIUM_UPDATE.md) or [CLIENT_DEVELOPMENT.md](CLIENT_DEVELOPMENT.md) for usage examples
-- Read the instruction files ([CLAUDE_PATCH_INSTRUCTIONS.md](CLAUDE_PATCH_INSTRUCTIONS.md), [CLAUDE_BUILD_INSTRUCTIONS.md](CLAUDE_BUILD_INSTRUCTIONS.md), [CLAUDE_CLIENT_INSTRUCTIONS.md](CLAUDE_CLIENT_INSTRUCTIONS.md))
+- Check [CHROMIUM_UPDATE.md](CHROMIUM_UPDATE.md), [CLIENT_DEVELOPMENT.md](CLIENT_DEVELOPMENT.md), or [CLAUDE_TEST_INSTRUCTIONS.md](CLAUDE_TEST_INSTRUCTIONS.md) for usage examples
+- Read the instruction files ([CLAUDE_PATCH_INSTRUCTIONS.md](CLAUDE_PATCH_INSTRUCTIONS.md), [CLAUDE_BUILD_INSTRUCTIONS.md](CLAUDE_BUILD_INSTRUCTIONS.md), [CLAUDE_CLIENT_INSTRUCTIONS.md](CLAUDE_CLIENT_INSTRUCTIONS.md), [CLAUDE_TEST_INSTRUCTIONS.md](CLAUDE_TEST_INSTRUCTIONS.md))
 - Check analyzer script help: `python3 analyze_patch_output.py --help`
 
 ### For Issues with CEF
@@ -169,9 +191,9 @@ Then share the analysis files with Claude.
 
 If you improve these tools or instructions:
 
-1. Test with a real Chromium update or client development task
+1. Test with a real Chromium update, client development task, or unit testing workflow
 2. Document what you changed and why
-3. Update the appropriate guide ([CHROMIUM_UPDATE.md](CHROMIUM_UPDATE.md) or [CLIENT_DEVELOPMENT.md](CLIENT_DEVELOPMENT.md))
+3. Update the appropriate guide ([CHROMIUM_UPDATE.md](CHROMIUM_UPDATE.md), [CLIENT_DEVELOPMENT.md](CLIENT_DEVELOPMENT.md), or [CLAUDE_TEST_INSTRUCTIONS.md](CLAUDE_TEST_INSTRUCTIONS.md))
 4. Share improvements with the CEF community
 
 ## License
