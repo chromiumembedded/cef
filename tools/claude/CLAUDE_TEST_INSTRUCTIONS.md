@@ -558,6 +558,212 @@ MY_TEST_GROUP(Second, SECOND)
 - `TEST_RC_MODE_GLOBAL_WITH_HANDLER` - Global with handler
 - `TEST_RC_MODE_CUSTOM_WITH_HANDLER` - Custom context (in-memory or on-disk)
 
+### Test Type 6: Process-Level Handler Tests
+
+For browser or renderer process-level features, use **ClientApp delegates**. These provide global process-level hooks (not per-browser instance like TestHandler).
+
+**When to use:**
+
+- Renderer process features (JavaScript execution, DOM manipulation, V8 bindings)
+- Browser process initialization/configuration (preferences, schemes)
+- Process message handling between browser and renderer
+- Global lifecycle events (context initialization, process shutdown)
+
+**ClientAppBrowser::Delegate** - Browser process hooks:
+
+```cpp
+#include "tests/shared/browser/client_app_browser.h"
+
+namespace {
+
+class MyBrowserDelegate : public client::ClientAppBrowser::Delegate {
+ public:
+  MyBrowserDelegate() = default;
+
+  void OnBeforeCommandLineProcessing(
+      CefRefPtr<client::ClientAppBrowser> app,
+      CefRefPtr<CefCommandLine> command_line) override {
+    // Called early in browser process startup
+    // Configure browser behavior via command-line switches
+    command_line->AppendSwitchWithValue("autoplay-policy",
+                                        "no-user-gesture-required");
+  }
+
+  void OnContextInitialized(CefRefPtr<client::ClientAppBrowser> app) override {
+    // Called after browser context is initialized
+    // Configure global preferences for test requirements
+    CefRefPtr<CefValue> value = CefValue::Create();
+    value->SetBool(false);
+    CefString error;
+    bool result = CefRequestContext::GetGlobalContext()->SetPreference(
+        "profile.mixed_forms_warnings", value, error);
+    CHECK(result) << error.ToString();
+  }
+
+  // Other browser-side hooks available:
+  // - OnRegisterCustomPreferences() - Register custom preferences
+  // - OnAlreadyRunningAppRelaunch() - Handle app relaunch
+  // - GetDefaultClient() - Provide default CefClient
+
+ private:
+  IMPLEMENT_REFCOUNTING(MyBrowserDelegate);
+  DISALLOW_COPY_AND_ASSIGN(MyBrowserDelegate);
+};
+
+}  // namespace
+
+// Registration function - called from client_app_delegates.cc
+void CreateMyBrowserDelegate(client::ClientAppBrowser::DelegateSet& delegates) {
+  delegates.insert(new MyBrowserDelegate);
+}
+```
+
+**ClientAppRenderer::Delegate** - Renderer process hooks:
+
+```cpp
+#include "tests/shared/renderer/client_app_renderer.h"
+
+namespace {
+
+class MyRendererDelegate : public client::ClientAppRenderer::Delegate {
+ public:
+  MyRendererDelegate() = default;
+
+  bool OnProcessMessageReceived(
+      CefRefPtr<client::ClientAppRenderer> app,
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefProcessId source_process,
+      CefRefPtr<CefProcessMessage> message) override {
+    if (message->GetName() == "MyTest.UniqueMessage") {
+      // Handle process message from browser
+      // Perform renderer-side operations
+      return true;  // Message handled
+    }
+    return false;  // Message not handled
+  }
+
+  // Other renderer-side hooks available:
+  // - OnWebKitInitialized() - V8/Blink initialization
+  // - OnBrowserCreated() - Browser created in renderer
+  // - OnBrowserDestroyed() - Browser destroyed in renderer
+  // - OnContextCreated() - JavaScript context created
+  // - OnContextReleased() - JavaScript context released
+  // - OnUncaughtException() - Uncaught JavaScript exception
+  // - OnFocusedNodeChanged() - DOM node focus changed
+  // - GetLoadHandler() - Provide load handler
+
+ private:
+  IMPLEMENT_REFCOUNTING(MyRendererDelegate);
+  DISALLOW_COPY_AND_ASSIGN(MyRendererDelegate);
+};
+
+}  // namespace
+
+// Registration function - called from client_app_delegates.cc
+void CreateMyRendererDelegate(client::ClientAppRenderer::DelegateSet& delegates) {
+  delegates.insert(new MyRendererDelegate);
+}
+```
+
+**CRITICAL: Delegate Scope and Isolation**
+
+Delegates are registered **globally** and called for **ALL tests** in the process, not just your specific test. This is fundamentally different from TestHandler which is scoped to a single test.
+
+**To avoid interfering with other tests:**
+
+1. **Use unique identifiers** - Message names, URLs, scheme names must be unique
+    - ✅ Good: `"MyFeatureTest.ProcessMessage"`, `"myfeature://unique"`
+    - ❌ Bad: `"test_message"`, `"custom://test"` (too generic, will conflict)
+
+2. **Configure test mode via extra_info** - Best practice for renderer delegates:
+    ```cpp
+    // In TestHandler (browser process):
+    void RunTest() override {
+      CefRefPtr<CefDictionaryValue> extra_info = CefDictionaryValue::Create();
+      extra_info->SetInt("my-test-mode", MY_SPECIFIC_TEST_MODE);
+
+      AddResource(kTestUrl, kTestHtml, "text/html");
+      CreateBrowser(kTestUrl, nullptr, extra_info);
+      SetTestTimeout();
+    }
+
+    // In Renderer Delegate:
+    void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
+                          CefRefPtr<CefBrowser> browser,
+                          CefRefPtr<CefDictionaryValue> extra_info) override {
+      // Check if this browser instance is for YOUR test
+      if (extra_info && extra_info->HasKey("my-test-mode")) {
+        test_mode_ = extra_info->GetInt("my-test-mode");
+        // Configure test-specific behavior
+      }
+    }
+
+    // In other delegate methods:
+    void OnContextCreated(...) override {
+      if (test_mode_ != MY_SPECIFIC_TEST_MODE) {
+        return;  // Not our test
+      }
+      // Execute test-specific logic
+    }
+    ```
+
+3. **Check conditions before executing** - Only execute logic when conditions match your test
+    - Always check for unique identifiers (message names, URLs, test modes) before executing
+    - Return `false` for unhandled events to let other delegates process them
+    - Return `true` only when you've handled the event
+    - See `OnProcessMessageReceived` example above for the pattern
+
+**Registration in client_app_delegates.cc:**
+
+After creating your delegate, register it in `cef/tests/ceftests/client_app_delegates.cc`:
+
+```cpp
+// Add extern declaration
+void CreateBrowserDelegates(ClientAppBrowser::DelegateSet& delegates) {
+  // ... existing delegates ...
+
+  // Add your browser delegate
+  extern void CreateMyBrowserDelegate(ClientAppBrowser::DelegateSet& delegates);
+  CreateMyBrowserDelegate(delegates);
+}
+
+void CreateRenderDelegates(ClientAppRenderer::DelegateSet& delegates) {
+  // ... existing delegates ...
+
+  // Add your renderer delegate
+  extern void CreateMyRendererDelegate(ClientAppRenderer::DelegateSet& delegates);
+  CreateMyRendererDelegate(delegates);
+}
+```
+
+**Combining with TestHandler:**
+
+Often you'll use both - delegate for process-level hooks and TestHandler for test execution:
+
+- **TestHandler** (browser process) creates the browser, sends messages, verifies results
+- **Delegate** (renderer process) receives messages, executes renderer-side logic
+- Communication via `CefProcessMessage` with unique message names
+- Delegate checks message name before executing to avoid interfering with other tests
+
+**Key differences from TestHandler:**
+
+| Feature | ClientApp Delegate | TestHandler |
+|---------|-------------------|-------------|
+| Scope | Process-level (global) | Browser instance |
+| Lifetime | Entire process | Single test |
+| Called for | **ALL tests in process** | **Only the specific test** |
+| Use case | Renderer hooks, global config | Browser testing, navigation |
+| Registration | client_app_delegates.cc | No registration needed |
+| Isolation | Must check unique identifiers | Automatically isolated |
+
+**See:**
+
+- `cef/tests/ceftests/cors_unittest.cc` - ClientAppBrowser::Delegate example (CorsBrowserTest)
+- `cef/tests/ceftests/thread_unittest.cc` - ClientAppRenderer::Delegate example (RenderThreadRendererTest)
+- `cef/tests/ceftests/v8_unittest.cc` - OnBrowserCreated with extra_info pattern for test mode configuration
+- `cef/tests/ceftests/client_app_delegates.cc` - Registration mechanism
+
 ### Add Test File to Build
 
 ```python
