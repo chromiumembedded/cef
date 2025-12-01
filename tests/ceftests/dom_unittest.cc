@@ -372,8 +372,182 @@ TEST(DOMTest, Modify) {
   ReleaseAndWaitForDestructor(handler);
 }
 
+// Test OnFocusedNodeChanged callback
+namespace {
+
+const char kFocusedNodeTestUrl[] = "https://tests/DOMTest.FocusedNode";
+const char kFocusedNodeTestMsg[] = "DOMTest.FocusedNode";
+
+// Renderer side test for OnFocusedNodeChanged
+class FocusedNodeRendererTest : public ClientAppRenderer::Delegate,
+                                public CefLoadHandler {
+ public:
+  FocusedNodeRendererTest() = default;
+
+  void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
+                        CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefDictionaryValue> extra_info) override {
+    if (extra_info && extra_info->HasKey(kFocusedNodeTestMsg)) {
+      run_test_ = true;
+    }
+  }
+
+  CefRefPtr<CefLoadHandler> GetLoadHandler(
+      CefRefPtr<ClientAppRenderer> app) override {
+    if (run_test_) {
+      return this;
+    }
+    return nullptr;
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    if (!run_test_ || !frame->IsMain()) {
+      return;
+    }
+
+    // Start the focus test by focusing on the first input
+    frame->ExecuteJavaScript("document.getElementById('input1').focus();",
+                             frame->GetURL(), 0);
+  }
+
+  void OnFocusedNodeChanged(CefRefPtr<ClientAppRenderer> app,
+                            CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefDOMNode> node) override {
+    if (!run_test_) {
+      return;
+    }
+
+    std::string node_id;
+    if (node) {
+      if (node->IsElement()) {
+        node_id = node->GetElementAttribute("id");
+      }
+    }
+
+    // Track the focus changes
+    if (node_id == "input1") {
+      got_input1_focus_ = true;
+      // Focus the textarea next
+      browser->GetMainFrame()->ExecuteJavaScript(
+          "document.getElementById('textarea1').focus();",
+          browser->GetMainFrame()->GetURL(), 0);
+    } else if (node_id == "textarea1") {
+      got_textarea_focus_ = true;
+      // Focus the button next
+      browser->GetMainFrame()->ExecuteJavaScript(
+          "document.getElementById('button1').focus();",
+          browser->GetMainFrame()->GetURL(), 0);
+    } else if (node_id == "button1") {
+      got_button_focus_ = true;
+      // Remove focus from all elements
+      browser->GetMainFrame()->ExecuteJavaScript(
+          "document.activeElement.blur();", browser->GetMainFrame()->GetURL(),
+          0);
+    } else if (!node) {
+      // Focus was removed (node is nullptr)
+      got_blur_ = true;
+      // All tests complete, send results to browser process
+      SendTestResults(browser);
+    }
+  }
+
+  void SendTestResults(CefRefPtr<CefBrowser> browser) {
+    EXPECT_TRUE(got_input1_focus_);
+    EXPECT_TRUE(got_textarea_focus_);
+    EXPECT_TRUE(got_button_focus_);
+    EXPECT_TRUE(got_blur_);
+
+    bool success = got_input1_focus_ && got_textarea_focus_ &&
+                   got_button_focus_ && got_blur_;
+
+    CefRefPtr<CefProcessMessage> message =
+        CefProcessMessage::Create(kFocusedNodeTestMsg);
+    message->GetArgumentList()->SetBool(0, success);
+    browser->GetMainFrame()->SendProcessMessage(PID_BROWSER, message);
+  }
+
+ private:
+  bool run_test_ = false;
+  bool got_input1_focus_ = false;
+  bool got_textarea_focus_ = false;
+  bool got_button_focus_ = false;
+  bool got_blur_ = false;
+
+  IMPLEMENT_REFCOUNTING(FocusedNodeRendererTest);
+  DISALLOW_COPY_AND_ASSIGN(FocusedNodeRendererTest);
+};
+
+// Browser side test handler
+class FocusedNodeTestHandler : public TestHandler {
+ public:
+  FocusedNodeTestHandler() = default;
+
+  void RunTest() override {
+    const std::string html =
+        "<html>"
+        "<head><title>Focused Node Test</title></head>"
+        "<body>"
+        "<input id='input1' type='text' value='Input 1'>"
+        "<textarea id='textarea1'>Textarea 1</textarea>"
+        "<button id='button1'>Button 1</button>"
+        "</body>"
+        "</html>";
+
+    AddResource(kFocusedNodeTestUrl, html, "text/html");
+
+    CefRefPtr<CefDictionaryValue> extra_info = CefDictionaryValue::Create();
+    extra_info->SetBool(kFocusedNodeTestMsg, true);
+
+    CreateBrowser(kFocusedNodeTestUrl, nullptr, extra_info);
+    SetTestTimeout();
+  }
+
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
+    if (message->GetName() == kFocusedNodeTestMsg) {
+      got_message_.yes();
+
+      if (message->GetArgumentList()->GetBool(0)) {
+        got_success_.yes();
+      }
+
+      DestroyTest();
+      return true;
+    }
+
+    return false;
+  }
+
+  void DestroyTest() override {
+    EXPECT_TRUE(got_message_);
+    EXPECT_TRUE(got_success_);
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  TrackCallback got_message_;
+  TrackCallback got_success_;
+
+  IMPLEMENT_REFCOUNTING(FocusedNodeTestHandler);
+  DISALLOW_COPY_AND_ASSIGN(FocusedNodeTestHandler);
+};
+
+}  // namespace
+
+TEST(DOMTest, OnFocusedNodeChanged) {
+  CefRefPtr<FocusedNodeTestHandler> handler = new FocusedNodeTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
 // Entry point for creating DOM renderer test objects.
 // Called from client_app_delegates.cc.
 void CreateDOMRendererTests(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new DOMRendererTest);
+  delegates.insert(new FocusedNodeRendererTest);
 }
