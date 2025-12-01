@@ -25,7 +25,7 @@ if sys.version_info.major != 3:
   sys.stderr.write('Python3 is required!')
   sys.exit(1)
 
-from urllib.request import FancyURLopener, urlopen
+from urllib.request import urlopen
 
 ##
 # Default URLs.
@@ -314,12 +314,11 @@ def download_and_extract(src, target, strip_components=0, sha256_hash=''):
   if src[:4] == 'http':
     # Attempt to download a URL.
     msg('Downloading %s' % src)
-    opener = FancyURLopener({})
-    response = opener.open(src)
 
     temporary = True
     handle, archive_path = tempfile.mkstemp(suffix=extension)
-    os.write(handle, response.read())
+    with urlopen(src) as response:
+      os.write(handle, response.read())
     os.close(handle)
   elif os.path.exists(src):
     # Use a local file.
