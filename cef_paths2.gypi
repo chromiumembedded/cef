@@ -560,6 +560,7 @@
       'tests/ceftests/download_unittest.cc',
       'tests/ceftests/draggable_regions_unittest.cc',
       'tests/ceftests/file_util_unittest.cc',
+      'tests/ceftests/find_handler_unittest.cc',
       'tests/ceftests/frame_handler_unittest.cc',
       'tests/ceftests/frame_unittest.cc',
       'tests/ceftests/hsts_redirect_unittest.cc',
