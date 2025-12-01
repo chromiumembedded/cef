@@ -534,6 +534,137 @@ TEST(RequestHandlerTest, NotificationsCrossOriginDelayedBrowser) {
   RunNetNotifyTest(NNTT_DELAYED_BROWSER, false);
 }
 
+// Test OnRenderViewReady callback
+namespace {
+
+const char kRenderViewReadyUrl[] = "https://tests-rvr.test/page.html";
+const char kRenderViewReadyHtml[] =
+    "<html><body><h1>Render View Ready Test</h1></body></html>";
+
+class RenderViewReadyTestHandler : public TestHandler {
+ public:
+  RenderViewReadyTestHandler() = default;
+
+  void RunTest() override {
+    AddResource(kRenderViewReadyUrl, kRenderViewReadyHtml, "text/html");
+    CreateBrowser(kRenderViewReadyUrl);
+    SetTestTimeout();
+  }
+
+  void OnRenderViewReady(CefRefPtr<CefBrowser> browser) override {
+    got_render_view_ready_.yes();
+    EXPECT_TRUE(browser.get());
+    EXPECT_TRUE(browser->GetMainFrame().get());
+    EXPECT_TRUE(browser->GetMainFrame()->IsMain());
+  }
+
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
+    got_load_start_.yes();
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    got_load_end_.yes();
+    EXPECT_TRUE(got_render_view_ready_)
+        << "OnRenderViewReady should be called before OnLoadEnd";
+    DestroyTest();
+  }
+
+  void DestroyTest() override {
+    EXPECT_TRUE(got_render_view_ready_);
+    EXPECT_TRUE(got_load_start_);
+    EXPECT_TRUE(got_load_end_);
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  TrackCallback got_render_view_ready_;
+  TrackCallback got_load_start_;
+  TrackCallback got_load_end_;
+  IMPLEMENT_REFCOUNTING(RenderViewReadyTestHandler);
+  DISALLOW_COPY_AND_ASSIGN(RenderViewReadyTestHandler);
+};
+
+}  // namespace
+
+TEST(RequestHandlerTest, OnRenderViewReady) {
+  CefRefPtr<RenderViewReadyTestHandler> handler =
+      new RenderViewReadyTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Test OnDocumentAvailableInMainFrame callback
+namespace {
+
+const char kDocAvailableUrl[] = "https://tests-doc.test/page.html";
+const char kDocAvailableHtml[] =
+    "<html>"
+    "<head><script>console.log('document ready');</script></head>"
+    "<body><div id='content'>Document Available Test</div></body>"
+    "</html>";
+
+class DocumentAvailableTestHandler : public TestHandler {
+ public:
+  DocumentAvailableTestHandler() = default;
+
+  void RunTest() override {
+    AddResource(kDocAvailableUrl, kDocAvailableHtml, "text/html");
+    CreateBrowser(kDocAvailableUrl);
+    SetTestTimeout();
+  }
+
+  void OnDocumentAvailableInMainFrame(CefRefPtr<CefBrowser> browser) override {
+    got_document_available_.yes();
+    EXPECT_TRUE(browser.get());
+    EXPECT_TRUE(browser->GetMainFrame().get());
+    EXPECT_TRUE(browser->GetMainFrame()->IsMain());
+    CefString url = browser->GetMainFrame()->GetURL();
+    EXPECT_STREQ(kDocAvailableUrl, url.ToString().c_str());
+  }
+
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
+    got_load_start_.yes();
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    got_load_end_.yes();
+    EXPECT_TRUE(got_document_available_)
+        << "OnDocumentAvailableInMainFrame should be called before OnLoadEnd";
+    DestroyTest();
+  }
+
+  void DestroyTest() override {
+    EXPECT_TRUE(got_document_available_);
+    EXPECT_TRUE(got_load_start_);
+    EXPECT_TRUE(got_load_end_);
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  TrackCallback got_document_available_;
+  TrackCallback got_load_start_;
+  TrackCallback got_load_end_;
+  IMPLEMENT_REFCOUNTING(DocumentAvailableTestHandler);
+  DISALLOW_COPY_AND_ASSIGN(DocumentAvailableTestHandler);
+};
+
+}  // namespace
+
+TEST(RequestHandlerTest, OnDocumentAvailableInMainFrame) {
+  CefRefPtr<DocumentAvailableTestHandler> handler =
+      new DocumentAvailableTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
 // Entry point for creating request handler renderer test objects.
 // Called from client_app_delegates.cc.
 void CreateRequestHandlerRendererTests(
