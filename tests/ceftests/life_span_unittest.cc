@@ -390,3 +390,162 @@ TEST(LifeSpanTest, OnUnloadDisallow) {
 
   ReleaseAndWaitForDestructor(handler);
 }
+
+namespace {
+
+const char kDevToolsTestUrl[] = "https://tests-devtools/test.html";
+const cef_color_t kDevToolsBackgroundColor = CefColorSetARGB(255, 128, 64, 32);
+
+// Test OnBeforeDevToolsPopup callback
+class DevToolsPopupTestHandler : public TestHandler {
+ public:
+  DevToolsPopupTestHandler() = default;
+
+  void RunTest() override {
+    const std::string html =
+        "<html>"
+        "<head><title>DevTools Test</title></head>"
+        "<body><h1>DevTools Popup Test</h1></body>"
+        "</html>";
+
+    AddResource(kDevToolsTestUrl, html, "text/html");
+    CreateBrowser(kDevToolsTestUrl);
+    SetTestTimeout();
+  }
+
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
+    TestHandler::OnAfterCreated(browser);
+
+    if (!main_browser_) {
+      // First browser created is the main browser
+      got_main_after_created_.yes();
+      main_browser_ = browser;
+    } else {
+      // Second browser is the DevTools browser
+      EXPECT_FALSE(got_devtools_after_created_);
+      got_devtools_after_created_.yes();
+      EXPECT_TRUE(browser->IsPopup());
+      devtools_browser_ = browser;
+    }
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    if (!frame->IsMain()) {
+      return;
+    }
+
+    if (browser->IsSame(main_browser_)) {
+      EXPECT_FALSE(got_main_load_end_);
+      got_main_load_end_.yes();
+
+      // Open DevTools after main browser loads
+      CefWindowInfo windowInfo;
+      CefBrowserSettings settings;
+
+#if defined(OS_WIN)
+      windowInfo.SetAsPopup(nullptr, "DevTools");
+#endif
+
+      // Set a custom background color to verify it's passed to the callback
+      settings.background_color = kDevToolsBackgroundColor;
+
+      main_browser_->GetHost()->ShowDevTools(windowInfo, this, settings,
+                                             CefPoint());
+    } else if (devtools_browser_ && browser->IsSame(devtools_browser_)) {
+      EXPECT_FALSE(got_devtools_load_end_);
+      got_devtools_load_end_.yes();
+
+      // Close DevTools browser after it loads
+      CefPostTask(TID_UI, base::BindOnce(
+                              &DevToolsPopupTestHandler::CloseDevTools, this));
+    }
+  }
+
+  void OnBeforeDevToolsPopup(CefRefPtr<CefBrowser> browser,
+                             CefWindowInfo& windowInfo,
+                             CefRefPtr<CefClient>& client,
+                             CefBrowserSettings& settings,
+                             CefRefPtr<CefDictionaryValue>& extra_info,
+                             bool* use_default_window) override {
+    EXPECT_FALSE(got_before_devtools_popup_);
+    got_before_devtools_popup_.yes();
+
+    EXPECT_TRUE(browser.get());
+    EXPECT_TRUE(browser->IsSame(main_browser_));
+    EXPECT_EQ(client.get(), this);
+    EXPECT_TRUE(use_default_window);
+
+    // Verify settings passed to ShowDevTools are received in the callback
+    EXPECT_EQ(settings.background_color, kDevToolsBackgroundColor);
+  }
+
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
+    if (devtools_browser_ && browser->IsSame(devtools_browser_)) {
+      got_devtools_before_close_.yes();
+      devtools_browser_ = nullptr;
+
+      // Close the main browser after DevTools is closed
+      CefPostTask(
+          TID_UI,
+          base::BindOnce(&DevToolsPopupTestHandler::CloseMainBrowser, this));
+    } else if (browser->IsSame(main_browser_)) {
+      got_main_before_close_.yes();
+      main_browser_ = nullptr;
+
+      // Test is complete after main browser closes
+      DestroyTest();
+    }
+    TestHandler::OnBeforeClose(browser);
+  }
+
+  void DestroyTest() override {
+    EXPECT_TRUE(got_main_after_created_);
+    EXPECT_TRUE(got_main_load_end_);
+    EXPECT_TRUE(got_before_devtools_popup_);
+    EXPECT_TRUE(got_devtools_after_created_);
+    EXPECT_TRUE(got_devtools_load_end_);
+    EXPECT_TRUE(got_devtools_before_close_);
+    EXPECT_TRUE(got_main_before_close_);
+
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  void CloseDevTools() {
+    if (devtools_browser_) {
+      devtools_browser_->GetHost()->CloseBrowser(false);
+    }
+  }
+
+  void CloseMainBrowser() {
+    if (main_browser_) {
+      main_browser_->GetHost()->CloseBrowser(false);
+    }
+  }
+
+  CefRefPtr<CefBrowser> main_browser_;
+  CefRefPtr<CefBrowser> devtools_browser_;
+
+  TrackCallback got_main_after_created_;
+  TrackCallback got_main_load_end_;
+  TrackCallback got_before_devtools_popup_;
+  TrackCallback got_devtools_after_created_;
+  TrackCallback got_devtools_load_end_;
+  TrackCallback got_devtools_before_close_;
+  TrackCallback got_main_before_close_;
+
+  IMPLEMENT_REFCOUNTING(DevToolsPopupTestHandler);
+  DISALLOW_COPY_AND_ASSIGN(DevToolsPopupTestHandler);
+};
+
+}  // namespace
+
+// This works with both Chrome and Alloy style main browsers because the
+// DevTools popup is always Chrome style.
+TEST(LifeSpanTest, OnBeforeDevToolsPopup) {
+  CefRefPtr<DevToolsPopupTestHandler> handler = new DevToolsPopupTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
