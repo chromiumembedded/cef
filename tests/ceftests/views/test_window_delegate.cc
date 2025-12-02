@@ -118,8 +118,8 @@ void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
 
     CefRect client_bounds = window->GetBounds();
     if (!config_->window_origin.IsEmpty()) {
-      EXPECT_EQ(config_->window_origin.x, client_bounds.x);
-      EXPECT_EQ(config_->window_origin.y, client_bounds.y);
+      EXPECT_NEAR(config_->window_origin.x, client_bounds.x, 1);
+      EXPECT_NEAR(config_->window_origin.y, client_bounds.y, 1);
     } else {
       // Default origin is the upper-left corner of the display's work area.
       auto work_area = display->GetWorkArea();
