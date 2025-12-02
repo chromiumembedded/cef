@@ -195,52 +195,6 @@ void CefBrowserPlatformDelegateAlloy::ConfigureAutoResize() {
   }
 }
 
-void CefBrowserPlatformDelegateAlloy::Find(const CefString& searchText,
-                                           bool forward,
-                                           bool matchCase,
-                                           bool findNext) {
-  if (!web_contents_) {
-    return;
-  }
-
-  find_in_page::FindTabHelper::FromWebContents(web_contents_)
-      ->StartFinding(searchText.ToString16(), forward, matchCase, findNext,
-                     /*run_synchronously_for_testing=*/false);
-}
-
-void CefBrowserPlatformDelegateAlloy::StopFinding(bool clearSelection) {
-  if (!web_contents_) {
-    return;
-  }
-
-  last_search_result_ = find_in_page::FindNotificationDetails();
-  find_in_page::FindTabHelper::FromWebContents(web_contents_)
-      ->StopFinding(clearSelection ? find_in_page::SelectionAction::kClear
-                                   : find_in_page::SelectionAction::kKeep);
-}
-
-bool CefBrowserPlatformDelegateAlloy::HandleFindReply(
-    int request_id,
-    int number_of_matches,
-    const gfx::Rect& selection_rect,
-    int active_match_ordinal,
-    bool final_update) {
-  if (!web_contents_) {
-    return false;
-  }
-
-  auto find_in_page =
-      find_in_page::FindTabHelper::FromWebContents(web_contents_);
-
-  find_in_page->HandleFindReply(request_id, number_of_matches, selection_rect,
-                                active_match_ordinal, final_update);
-  if (!(find_in_page->find_result() == last_search_result_)) {
-    last_search_result_ = find_in_page->find_result();
-    return true;
-  }
-  return false;
-}
-
 base::RepeatingClosure
 CefBrowserPlatformDelegateAlloy::GetBoundsChangedCallback() {
   if (web_contents_dialog_helper_) {

@@ -23,6 +23,7 @@
 #include "cef/libcef/browser/javascript_dialog_manager.h"
 #include "cef/libcef/browser/media_stream_registrar.h"
 #include "cef/libcef/browser/request_context_impl.h"
+#include "components/find_in_page/find_notification_details.h"
 
 class RenderViewContextMenuObserver;
 
@@ -236,6 +237,11 @@ class CefBrowserHostBase : public CefBrowserHost,
   void PrintToPDF(const CefString& path,
                   const CefPdfPrintSettings& settings,
                   CefRefPtr<CefPdfPrintCallback> callback) override;
+  void Find(const CefString& searchText,
+            bool forward,
+            bool matchCase,
+            bool findNext) override;
+  void StopFinding(bool clearSelection) override;
   void ShowDevTools(const CefWindowInfo& windowInfo,
                     CefRefPtr<CefClient> client,
                     const CefBrowserSettings& settings,
@@ -341,6 +347,17 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Called from AlloyBrowserHostImpl::GetJavaScriptDialogManager and
   // ChromeBrowserDelegate::GetJavaScriptDialogManager.
   content::JavaScriptDialogManager* GetJavaScriptDialogManager();
+
+  // Called from CefBrowserContentsDelegate::FindReply.
+  bool HandleFindReply(int request_id,
+                       int number_of_matches,
+                       const gfx::Rect& selection_rect,
+                       int active_match_ordinal,
+                       bool final_update);
+
+  const find_in_page::FindNotificationDetails& last_search_result() const {
+    return last_search_result_;
+  }
 
   // Called from CefBrowserInfoManager::MaybeAllowNavigation.
   virtual bool MaybeAllowNavigation(content::RenderFrameHost* opener,
@@ -462,6 +479,10 @@ class CefBrowserHostBase : public CefBrowserHost,
 
   // Used for creating and managing JavaScript dialogs.
   std::unique_ptr<CefJavaScriptDialogManager> javascript_dialog_manager_;
+
+  // The last find result. This object contains details about the number of
+  // matches, the find selection rectangle, etc.
+  find_in_page::FindNotificationDetails last_search_result_;
 
   // Volatile state accessed from multiple threads. All access must be protected
   // by |state_lock_|.

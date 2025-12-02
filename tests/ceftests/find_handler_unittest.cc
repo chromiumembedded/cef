@@ -7,7 +7,6 @@
 #include "include/base/cef_callback.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
-#include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -311,11 +310,6 @@ class FindStopTestHandler : public FindTestHandler {
 }  // namespace
 
 TEST(FindHandlerTest, SingleMatch) {
-  // Test not supported with Chrome style browser.
-  if (!UseAlloyStyleBrowserGlobal()) {
-    return;
-  }
-
   CefRefPtr<FindSingleMatchTestHandler> handler =
       new FindSingleMatchTestHandler();
   handler->ExecuteTest();
@@ -323,11 +317,6 @@ TEST(FindHandlerTest, SingleMatch) {
 }
 
 TEST(FindHandlerTest, MultipleMatches) {
-  // Test not supported with Chrome style browser.
-  if (!UseAlloyStyleBrowserGlobal()) {
-    return;
-  }
-
   CefRefPtr<FindMultipleMatchTestHandler> handler =
       new FindMultipleMatchTestHandler();
   handler->ExecuteTest();
@@ -335,22 +324,12 @@ TEST(FindHandlerTest, MultipleMatches) {
 }
 
 TEST(FindHandlerTest, NoMatch) {
-  // Test not supported with Chrome style browser.
-  if (!UseAlloyStyleBrowserGlobal()) {
-    return;
-  }
-
   CefRefPtr<FindNoMatchTestHandler> handler = new FindNoMatchTestHandler();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(FindHandlerTest, CaseSensitive) {
-  // Test not supported with Chrome style browser.
-  if (!UseAlloyStyleBrowserGlobal()) {
-    return;
-  }
-
   CefRefPtr<FindCaseSensitiveTestHandler> handler =
       new FindCaseSensitiveTestHandler();
   handler->ExecuteTest();
@@ -358,11 +337,6 @@ TEST(FindHandlerTest, CaseSensitive) {
 }
 
 TEST(FindHandlerTest, CaseInsensitive) {
-  // Test not supported with Chrome style browser.
-  if (!UseAlloyStyleBrowserGlobal()) {
-    return;
-  }
-
   CefRefPtr<FindCaseInsensitiveTestHandler> handler =
       new FindCaseInsensitiveTestHandler();
   handler->ExecuteTest();
@@ -370,11 +344,6 @@ TEST(FindHandlerTest, CaseInsensitive) {
 }
 
 TEST(FindHandlerTest, StopFinding) {
-  // Test not supported with Chrome style browser.
-  if (!UseAlloyStyleBrowserGlobal()) {
-    return;
-  }
-
   CefRefPtr<FindStopTestHandler> handler = new FindStopTestHandler();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);

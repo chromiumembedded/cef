@@ -23,6 +23,8 @@
 #include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "components/favicon/core/favicon_url.h"
+#include "components/find_in_page/find_tab_helper.h"
+#include "components/find_in_page/find_types.h"
 #include "components/spellcheck/common/spellcheck_features.h"
 #include "components/zoom/page_zoom.h"
 #include "components/zoom/zoom_controller.h"
@@ -627,6 +629,45 @@ void CefBrowserHostBase::PrintToPDF(const CefString& path,
   }
 
   print_util::PrintToPDF(web_contents, path, settings, callback);
+}
+
+void CefBrowserHostBase::Find(const CefString& searchText,
+                              bool forward,
+                              bool matchCase,
+                              bool findNext) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefBrowserHostBase::Find, this, searchText,
+                                 forward, matchCase, findNext));
+    return;
+  }
+
+  auto web_contents = GetWebContents();
+  if (!web_contents) {
+    return;
+  }
+
+  find_in_page::FindTabHelper::FromWebContents(web_contents)
+      ->StartFinding(searchText.ToString16(), forward, matchCase, findNext,
+                     /*run_synchronously_for_testing=*/false);
+}
+
+void CefBrowserHostBase::StopFinding(bool clearSelection) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostBase::StopFinding,
+                                          this, clearSelection));
+    return;
+  }
+
+  auto web_contents = GetWebContents();
+  if (!web_contents) {
+    return;
+  }
+
+  last_search_result_ = find_in_page::FindNotificationDetails();
+  find_in_page::FindTabHelper::FromWebContents(web_contents)
+      ->StopFinding(clearSelection ? find_in_page::SelectionAction::kClear
+                                   : find_in_page::SelectionAction::kKeep);
 }
 
 void CefBrowserHostBase::ShowDevTools(const CefWindowInfo& windowInfo,
@@ -1361,6 +1402,28 @@ CefBrowserHostBase::GetJavaScriptDialogManager() {
         std::make_unique<CefJavaScriptDialogManager>(this);
   }
   return javascript_dialog_manager_.get();
+}
+
+bool CefBrowserHostBase::HandleFindReply(int request_id,
+                                         int number_of_matches,
+                                         const gfx::Rect& selection_rect,
+                                         int active_match_ordinal,
+                                         bool final_update) {
+  auto web_contents = GetWebContents();
+  if (!web_contents) {
+    return false;
+  }
+
+  auto find_in_page =
+      find_in_page::FindTabHelper::FromWebContents(web_contents);
+
+  find_in_page->HandleFindReply(request_id, number_of_matches, selection_rect,
+                                active_match_ordinal, final_update);
+  if (!(find_in_page->find_result() == last_search_result_)) {
+    last_search_result_ = find_in_page->find_result();
+    return true;
+  }
+  return false;
 }
 
 bool CefBrowserHostBase::MaybeAllowNavigation(

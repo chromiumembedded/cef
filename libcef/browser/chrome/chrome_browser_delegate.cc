@@ -484,6 +484,18 @@ bool ChromeBrowserDelegate::TakeFocus(content::WebContents* source,
   return false;
 }
 
+void ChromeBrowserDelegate::FindReply(content::WebContents* web_contents,
+                                      int request_id,
+                                      int number_of_matches,
+                                      const gfx::Rect& selection_rect,
+                                      int active_match_ordinal,
+                                      bool final_update) {
+  if (auto delegate = GetDelegateForWebContents(web_contents)) {
+    delegate->FindReply(web_contents, request_id, number_of_matches,
+                        selection_rect, active_match_ordinal, final_update);
+  }
+}
+
 void ChromeBrowserDelegate::WindowFullscreenStateChanged() {
   // Use a synchronous callback for notification on Windows/Linux. MacOS gets
   // notified asynchronously via CefNativeWidgetMac callbacks.

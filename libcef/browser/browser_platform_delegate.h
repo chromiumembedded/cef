@@ -365,11 +365,6 @@ class CefBrowserPlatformDelegate {
                                     const CefSize& max_size);
   virtual void SetAccessibilityState(cef_state_t accessibility_state);
   virtual bool IsPrintPreviewSupported() const;
-  virtual void Find(const CefString& searchText,
-                    bool forward,
-                    bool matchCase,
-                    bool findNext);
-  virtual void StopFinding(bool clearSelection);
 
   virtual bool IsMovePictureInPictureEnabled() const;
 

@@ -231,17 +231,6 @@ CefWindowHandle ChromeBrowserHostImpl::GetOpenerWindowHandle() {
   return kNullWindowHandle;
 }
 
-void ChromeBrowserHostImpl::Find(const CefString& searchText,
-                                 bool forward,
-                                 bool matchCase,
-                                 bool findNext) {
-  NOTIMPLEMENTED();
-}
-
-void ChromeBrowserHostImpl::StopFinding(bool clearSelection) {
-  NOTIMPLEMENTED();
-}
-
 void ChromeBrowserHostImpl::WasResized() {
   NOTIMPLEMENTED();
 }

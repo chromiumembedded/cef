@@ -659,6 +659,34 @@ bool CefBrowserContentsDelegate::TakeFocus(content::WebContents* source,
   return false;
 }
 
+void CefBrowserContentsDelegate::FindReply(content::WebContents* web_contents,
+                                           int request_id,
+                                           int number_of_matches,
+                                           const gfx::Rect& selection_rect,
+                                           int active_match_ordinal,
+                                           bool final_update) {
+  auto browser_host = browser_info_->browser();
+  if (!browser_host) {
+    return;
+  }
+
+  if (browser_host->HandleFindReply(request_id, number_of_matches,
+                                    selection_rect, active_match_ordinal,
+                                    final_update)) {
+    if (auto c = client()) {
+      if (auto handler = c->GetFindHandler()) {
+        const auto& details = browser_host->last_search_result();
+        CefRect rect(details.selection_rect().x(), details.selection_rect().y(),
+                     details.selection_rect().width(),
+                     details.selection_rect().height());
+        handler->OnFindResult(
+            browser(), details.request_id(), details.number_of_matches(), rect,
+            details.active_match_ordinal(), details.final_update());
+      }
+    }
+  }
+}
+
 void CefBrowserContentsDelegate::WebContentsDestroyed() {
   auto wc = web_contents();
   ObserveWebContents(nullptr);

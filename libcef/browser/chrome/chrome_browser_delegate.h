@@ -131,6 +131,12 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
       const std::vector<blink::mojom::DraggableRegionPtr>& regions,
       content::WebContents* contents) override;
   bool TakeFocus(content::WebContents* source, bool reverse) override;
+  void FindReply(content::WebContents* web_contents,
+                 int request_id,
+                 int number_of_matches,
+                 const gfx::Rect& selection_rect,
+                 int active_match_ordinal,
+                 bool final_update) override;
 
   Browser* browser() const { return browser_; }
 

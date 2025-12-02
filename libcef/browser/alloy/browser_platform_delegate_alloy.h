@@ -46,22 +46,6 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   void SetAutoResizeEnabled(bool enabled,
                             const CefSize& min_size,
                             const CefSize& max_size) override;
-  void Find(const CefString& searchText,
-            bool forward,
-            bool matchCase,
-            bool findNext) override;
-  void StopFinding(bool clearSelection) override;
-
-  // Called from AlloyBrowserHostImpl::FindReply().
-  bool HandleFindReply(int request_id,
-                       int number_of_matches,
-                       const gfx::Rect& selection_rect,
-                       int active_match_ordinal,
-                       bool final_update);
-
-  const find_in_page::FindNotificationDetails& last_search_result() const {
-    return last_search_result_;
-  }
 
  protected:
   CefBrowserPlatformDelegateAlloy();

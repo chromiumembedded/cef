@@ -331,34 +331,6 @@ CefWindowHandle AlloyBrowserHostImpl::GetOpenerWindowHandle() {
   return opener_window_handle_;
 }
 
-void AlloyBrowserHostImpl::Find(const CefString& searchText,
-                                bool forward,
-                                bool matchCase,
-                                bool findNext) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::BindOnce(&AlloyBrowserHostImpl::Find, this, searchText,
-                                 forward, matchCase, findNext));
-    return;
-  }
-
-  if (platform_delegate_) {
-    platform_delegate_->Find(searchText, forward, matchCase, findNext);
-  }
-}
-
-void AlloyBrowserHostImpl::StopFinding(bool clearSelection) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(&AlloyBrowserHostImpl::StopFinding,
-                                          this, clearSelection));
-    return;
-  }
-
-  if (platform_delegate_) {
-    platform_delegate_->StopFinding(clearSelection);
-  }
-}
-
 void AlloyBrowserHostImpl::SetAutoResizeEnabled(bool enabled,
                                                 const CefSize& min_size,
                                                 const CefSize& max_size) {
@@ -661,23 +633,9 @@ void AlloyBrowserHostImpl::FindReply(content::WebContents* web_contents,
                                      const gfx::Rect& selection_rect,
                                      int active_match_ordinal,
                                      bool final_update) {
-  auto alloy_delegate =
-      static_cast<CefBrowserPlatformDelegateAlloy*>(platform_delegate());
-  if (alloy_delegate->HandleFindReply(request_id, number_of_matches,
-                                      selection_rect, active_match_ordinal,
-                                      final_update)) {
-    if (client_) {
-      if (auto handler = client_->GetFindHandler()) {
-        const auto& details = alloy_delegate->last_search_result();
-        CefRect rect(details.selection_rect().x(), details.selection_rect().y(),
-                     details.selection_rect().width(),
-                     details.selection_rect().height());
-        handler->OnFindResult(
-            this, details.request_id(), details.number_of_matches(), rect,
-            details.active_match_ordinal(), details.final_update());
-      }
-    }
-  }
+  contents_delegate_.FindReply(web_contents, request_id, number_of_matches,
+                               selection_rect, active_match_ordinal,
+                               final_update);
 }
 
 void AlloyBrowserHostImpl::ImeSetComposition(

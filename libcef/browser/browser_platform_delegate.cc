@@ -579,17 +579,6 @@ cef::BrowserConfig CefBrowserPlatformDelegate::GetBrowserConfig() const {
           IsMovePictureInPictureEnabled()};
 }
 
-void CefBrowserPlatformDelegate::Find(const CefString& searchText,
-                                      bool forward,
-                                      bool matchCase,
-                                      bool findNext) {
-  NOTIMPLEMENTED();
-}
-
-void CefBrowserPlatformDelegate::StopFinding(bool clearSelection) {
-  NOTIMPLEMENTED();
-}
-
 // static
 int CefBrowserPlatformDelegate::TranslateWebEventModifiers(
     uint32_t cef_modifiers) {
