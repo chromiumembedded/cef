@@ -158,7 +158,7 @@ index b96bea1dd71935e9ccea93cbc811e274286b5189..6bf3911968f47b4d38300eedfcd9c97a
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index e550b21eba674396ba97b9ec21535964502d1b36..55f744d4a59079cf56e202c0ad1f8287e3576680 100644
+index e550b21eba674396ba97b9ec21535964502d1b36..f22c1fa058374fe0db189791c9e75202f4ecec3b 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -301,6 +301,25 @@
@@ -467,16 +467,26 @@ index e550b21eba674396ba97b9ec21535964502d1b36..55f744d4a59079cf56e202c0ad1f8287
  }
  
  bool Browser::IsFullscreenForTabOrPending(const WebContents* web_contents) {
-@@ -2801,6 +2933,8 @@ void Browser::FindReply(WebContents* web_contents,
+@@ -2801,6 +2933,18 @@ void Browser::FindReply(WebContents* web_contents,
    find_tab_helper->HandleFindReply(request_id, number_of_matches,
                                     selection_rect, active_match_ordinal,
                                     final_update);
 +  CALL_CEF_DELEGATE(FindReply, web_contents, request_id, number_of_matches,
 +                    selection_rect, active_match_ordinal, final_update);
++}
++
++void Browser::UpdatePreferredSize(WebContents* source,
++                                  const gfx::Size& pref_size) {
++  CALL_CEF_DELEGATE(UpdatePreferredSize, source, pref_size);
++}
++
++void Browser::ResizeDueToAutoResize(WebContents* source,
++                                    const gfx::Size& new_size) {
++  CALL_CEF_DELEGATE(ResizeDueToAutoResize, source, new_size);
  }
  
  void Browser::RequestPointerLock(WebContents* web_contents,
-@@ -2846,6 +2980,16 @@ void Browser::RequestMediaAccessPermission(
+@@ -2846,6 +2990,16 @@ void Browser::RequestMediaAccessPermission(
      content::WebContents* web_contents,
      const content::MediaStreamRequest& request,
      content::MediaResponseCallback callback) {
@@ -493,7 +503,7 @@ index e550b21eba674396ba97b9ec21535964502d1b36..55f744d4a59079cf56e202c0ad1f8287
    const extensions::Extension* extension =
        GetExtensionForOrigin(profile_, request.security_origin);
    MediaCaptureDevicesDispatcher::GetInstance()->ProcessMediaAccessRequest(
-@@ -3399,9 +3543,11 @@ void Browser::OnFileSelectedFromDialog(const GURL& url) {
+@@ -3399,9 +3553,11 @@ void Browser::OnFileSelectedFromDialog(const GURL& url) {
  // Browser, Getters for UI (private):
  
  std::vector<StatusBubble*> Browser::GetStatusBubbles() {
@@ -506,7 +516,7 @@ index e550b21eba674396ba97b9ec21535964502d1b36..55f744d4a59079cf56e202c0ad1f8287
    }
  
    // We hide the status bar for web apps windows as this matches native
-@@ -3410,6 +3556,12 @@ std::vector<StatusBubble*> Browser::GetStatusBubbles() {
+@@ -3410,6 +3566,12 @@ std::vector<StatusBubble*> Browser::GetStatusBubbles() {
    auto* const app_browser_controller = GetAppBrowserController();
    if (app_browser_controller &&
        !app_browser_controller->HasMinimalUiButtons()) {
@@ -519,7 +529,7 @@ index e550b21eba674396ba97b9ec21535964502d1b36..55f744d4a59079cf56e202c0ad1f8287
      return {};
    }
  
-@@ -3569,6 +3721,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
+@@ -3569,6 +3731,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
      BookmarkTabHelper::FromWebContents(web_contents)->RemoveObserver(this);
      web_contents_collection_.StopObserving(web_contents);
    }
@@ -528,7 +538,7 @@ index e550b21eba674396ba97b9ec21535964502d1b36..55f744d4a59079cf56e202c0ad1f8287
  }
  
  void Browser::TabDetachedAtImpl(content::WebContents* contents,
-@@ -3732,6 +3886,14 @@ bool Browser::PictureInPictureBrowserSupportsWindowFeature(
+@@ -3732,6 +3896,14 @@ bool Browser::PictureInPictureBrowserSupportsWindowFeature(
  
  bool Browser::SupportsWindowFeatureImpl(WindowFeature feature,
                                          bool check_can_support) const {
@@ -544,7 +554,7 @@ index e550b21eba674396ba97b9ec21535964502d1b36..55f744d4a59079cf56e202c0ad1f8287
      case TYPE_NORMAL:
        return NormalBrowserSupportsWindowFeature(feature, check_can_support);
 diff --git chrome/browser/ui/browser.h chrome/browser/ui/browser.h
-index e0d63627518a5e0e1bdef510f3c0d849db4cc0d8..1984f74b9cfaff0993b23e3d391ff7f295a25458 100644
+index e0d63627518a5e0e1bdef510f3c0d849db4cc0d8..5130d2ede531d2d26af3a59650caaf9b740188e3 100644
 --- chrome/browser/ui/browser.h
 +++ chrome/browser/ui/browser.h
 @@ -23,6 +23,7 @@
@@ -637,7 +647,18 @@ index e0d63627518a5e0e1bdef510f3c0d849db4cc0d8..1984f74b9cfaff0993b23e3d391ff7f2
    bool DidAddMessageToConsole(content::WebContents* source,
                                blink::mojom::ConsoleMessageLevel log_level,
                                const std::u16string& message,
-@@ -1266,6 +1300,10 @@ class Browser : public TabStripModelObserver,
+@@ -1004,6 +1038,10 @@ class Browser : public TabStripModelObserver,
+                  const gfx::Rect& selection_rect,
+                  int active_match_ordinal,
+                  bool final_update) override;
++  void UpdatePreferredSize(content::WebContents* source,
++                           const gfx::Size& pref_size) override;
++  void ResizeDueToAutoResize(content::WebContents* source,
++                             const gfx::Size& new_size) override;
+   void RequestPointerLock(content::WebContents* web_contents,
+                           bool user_gesture,
+                           bool last_unlocked_by_target) override;
+@@ -1266,6 +1304,10 @@ class Browser : public TabStripModelObserver,
    // The active state of this browser.
    bool is_active_ = false;
  
@@ -648,7 +669,7 @@ index e0d63627518a5e0e1bdef510f3c0d849db4cc0d8..1984f74b9cfaff0993b23e3d391ff7f2
    std::unique_ptr<TabStripModelDelegate> const tab_strip_model_delegate_;
    std::unique_ptr<TabStripModel> const tab_strip_model_;
  
-@@ -1330,6 +1368,8 @@ class Browser : public TabStripModelObserver,
+@@ -1330,6 +1372,8 @@ class Browser : public TabStripModelObserver,
    const std::string initial_workspace_;
    bool initial_visible_on_all_workspaces_state_;
  

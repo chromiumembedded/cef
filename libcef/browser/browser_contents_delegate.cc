@@ -386,6 +386,10 @@ void CefBrowserContentsDelegate::RenderWidgetCreated(
 void CefBrowserContentsDelegate::RenderViewReady() {
   platform_delegate()->RenderViewReady();
 
+  if (auto browser_host = browser_info_->browser()) {
+    browser_host->ConfigureAutoResize();
+  }
+
   if (auto c = client()) {
     if (auto handler = c->GetRequestHandler()) {
       handler->OnRenderViewReady(browser());
@@ -685,6 +689,33 @@ void CefBrowserContentsDelegate::FindReply(content::WebContents* web_contents,
       }
     }
   }
+}
+
+void CefBrowserContentsDelegate::UpdatePreferredSize(
+    content::WebContents* source,
+    const gfx::Size& pref_size) {
+#if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
+  CEF_REQUIRE_UIT();
+  if (auto platform_delegate = this->platform_delegate()) {
+    platform_delegate->SizeTo(pref_size.width(), pref_size.height());
+  }
+#endif
+}
+
+void CefBrowserContentsDelegate::ResizeDueToAutoResize(
+    content::WebContents* source,
+    const gfx::Size& new_size) {
+  if (auto c = client()) {
+    if (auto handler = c->GetDisplayHandler()) {
+      if (handler->OnAutoResize(browser(),
+                                CefSize(new_size.width(), new_size.height()))) {
+        return;
+      }
+    }
+  }
+
+  // Default handling: update preferred size.
+  UpdatePreferredSize(source, new_size);
 }
 
 void CefBrowserContentsDelegate::WebContentsDestroyed() {

@@ -824,6 +824,50 @@ CefRefPtr<CefNavigationEntry> CefBrowserHostBase::GetVisibleNavigationEntry() {
   return new CefNavigationEntryImpl(entry);
 }
 
+void CefBrowserHostBase::SetAutoResizeEnabled(bool enabled,
+                                              const CefSize& min_size,
+                                              const CefSize& max_size) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT, base::BindOnce(&CefBrowserHostBase::SetAutoResizeEnabled, this,
+                                enabled, min_size, max_size));
+    return;
+  }
+
+  if (enabled == auto_resize_.has_value()) {
+    return;
+  }
+
+  if (enabled) {
+    auto_resize_ =
+        AutoResizeConstraints{gfx::Size(min_size.width, min_size.height),
+                              gfx::Size(max_size.width, max_size.height)};
+  } else {
+    auto_resize_.reset();
+  }
+  ConfigureAutoResize();
+}
+
+void CefBrowserHostBase::ConfigureAutoResize() {
+  CEF_REQUIRE_UIT();
+
+  auto* web_contents = GetWebContents();
+  if (!web_contents) {
+    return;
+  }
+
+  auto* view = web_contents->GetRenderWidgetHostView();
+  if (!view) {
+    return;
+  }
+
+  if (auto_resize_) {
+    view->EnableAutoResize(auto_resize_->min, auto_resize_->max);
+  } else {
+    view->DisableAutoResize(gfx::Size());
+  }
+}
+
 void CefBrowserHostBase::SetAudioMuted(bool mute) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostBase::SetAudioMuted,

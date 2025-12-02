@@ -33,7 +33,6 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
                       const blink::mojom::WindowFeatures& window_features,
                       bool user_gesture,
                       bool* was_blocked) override;
-  void RenderViewReady() override;
   void BrowserCreated(CefBrowserHostBase* browser) override;
   void BrowserDestroyed(CefBrowserHostBase* browser) override;
   web_modal::WebContentsModalDialogHost* GetWebContentsModalDialogHost()
@@ -43,9 +42,6 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   void NotifyMoveOrResizeStarted() override;
 #endif
   bool IsAlloyStyle() const override { return true; }
-  void SetAutoResizeEnabled(bool enabled,
-                            const CefSize& min_size,
-                            const CefSize& max_size) override;
 
  protected:
   CefBrowserPlatformDelegateAlloy();
@@ -57,8 +53,6 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
 
  private:
   void SetOwnedWebContents(content::WebContents* owned_contents);
-
-  void ConfigureAutoResize();
 
   // Attach all the associated helpers that are needed for the WebContents. It
   // is safe to call this on a WebContents that was already attached.
@@ -76,11 +70,6 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   // The last find result. This object contains details about the number of
   // matches, the find selection rectangle, etc.
   find_in_page::FindNotificationDetails last_search_result_;
-
-  // Used with auto-resize.
-  bool auto_resize_enabled_ = false;
-  gfx::Size auto_resize_min_;
-  gfx::Size auto_resize_max_;
 
   // True if this is the primary platform delegate, in which case it will
   // register WebContents delegate/observers.

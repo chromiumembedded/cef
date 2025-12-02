@@ -496,6 +496,20 @@ void ChromeBrowserDelegate::FindReply(content::WebContents* web_contents,
   }
 }
 
+void ChromeBrowserDelegate::UpdatePreferredSize(content::WebContents* source,
+                                                const gfx::Size& pref_size) {
+  if (auto delegate = GetDelegateForWebContents(source)) {
+    delegate->UpdatePreferredSize(source, pref_size);
+  }
+}
+
+void ChromeBrowserDelegate::ResizeDueToAutoResize(content::WebContents* source,
+                                                  const gfx::Size& new_size) {
+  if (auto delegate = GetDelegateForWebContents(source)) {
+    delegate->ResizeDueToAutoResize(source, new_size);
+  }
+}
+
 void ChromeBrowserDelegate::WindowFullscreenStateChanged() {
   // Use a synchronous callback for notification on Windows/Linux. MacOS gets
   // notified asynchronously via CefNativeWidgetMac callbacks.

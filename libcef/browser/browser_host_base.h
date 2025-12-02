@@ -268,6 +268,9 @@ class CefBrowserHostBase : public CefBrowserHost,
   void GetNavigationEntries(CefRefPtr<CefNavigationEntryVisitor> visitor,
                             bool current_only) override;
   CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() override;
+  void SetAutoResizeEnabled(bool enabled,
+                            const CefSize& min_size,
+                            const CefSize& max_size) override;
   void SetAudioMuted(bool mute) override;
   bool IsAudioMuted() override;
   void NotifyMoveOrResizeStarted() override;
@@ -347,6 +350,10 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Called from AlloyBrowserHostImpl::GetJavaScriptDialogManager and
   // ChromeBrowserDelegate::GetJavaScriptDialogManager.
   content::JavaScriptDialogManager* GetJavaScriptDialogManager();
+
+  // Called from SetAutoResizeEnabled and
+  // CefBrowserContentsDelegate::RenderViewReady.
+  void ConfigureAutoResize();
 
   // Called from CefBrowserContentsDelegate::FindReply.
   bool HandleFindReply(int request_id,
@@ -503,6 +510,13 @@ class CefBrowserHostBase : public CefBrowserHost,
   std::unique_ptr<CefMediaStreamRegistrar> media_stream_registrar_;
 
   int next_popup_id_ = 1;
+
+  // Auto-resize constraints. Set if auto-resize is enabled.
+  struct AutoResizeConstraints {
+    gfx::Size min;
+    gfx::Size max;
+  };
+  std::optional<AutoResizeConstraints> auto_resize_;
 
  private:
   IMPLEMENT_REFCOUNTING(CefBrowserHostBase);

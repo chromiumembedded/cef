@@ -103,9 +103,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   void DragTargetDrop(const CefMouseEvent& event) override;
   void DragSourceSystemDragEnded() override;
   void DragSourceEndedAt(int x, int y, DragOperationsMask op) override;
-  void SetAutoResizeEnabled(bool enabled,
-                            const CefSize& min_size,
-                            const CefSize& max_size) override;
   bool CanExecuteChromeCommand(int command_id) override;
   void ExecuteChromeCommand(int command_id,
                             cef_window_open_disposition_t disposition) override;

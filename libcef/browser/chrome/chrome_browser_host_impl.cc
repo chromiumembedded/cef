@@ -312,12 +312,6 @@ void ChromeBrowserHostImpl::DragSourceEndedAt(int x,
   NOTIMPLEMENTED();
 }
 
-void ChromeBrowserHostImpl::SetAutoResizeEnabled(bool enabled,
-                                                 const CefSize& min_size,
-                                                 const CefSize& max_size) {
-  NOTIMPLEMENTED();
-}
-
 bool ChromeBrowserHostImpl::CanExecuteChromeCommand(int command_id) {
   // Verify that this method is being called on the UI thread.
   if (!CEF_CURRENTLY_ON_UIT()) {

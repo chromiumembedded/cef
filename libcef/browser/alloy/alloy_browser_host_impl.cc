@@ -331,21 +331,6 @@ CefWindowHandle AlloyBrowserHostImpl::GetOpenerWindowHandle() {
   return opener_window_handle_;
 }
 
-void AlloyBrowserHostImpl::SetAutoResizeEnabled(bool enabled,
-                                                const CefSize& min_size,
-                                                const CefSize& max_size) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::BindOnce(&AlloyBrowserHostImpl::SetAutoResizeEnabled,
-                                 this, enabled, min_size, max_size));
-    return;
-  }
-
-  if (platform_delegate_) {
-    platform_delegate_->SetAutoResizeEnabled(enabled, min_size, max_size);
-  }
-}
-
 bool AlloyBrowserHostImpl::CanExecuteChromeCommand(int command_id) {
   return false;
 }
@@ -1125,27 +1110,12 @@ bool AlloyBrowserHostImpl::ShowContextMenu(
 
 void AlloyBrowserHostImpl::UpdatePreferredSize(content::WebContents* source,
                                                const gfx::Size& pref_size) {
-#if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
-  CEF_REQUIRE_UIT();
-  if (platform_delegate_) {
-    platform_delegate_->SizeTo(pref_size.width(), pref_size.height());
-  }
-#endif
+  contents_delegate_.UpdatePreferredSize(source, pref_size);
 }
 
 void AlloyBrowserHostImpl::ResizeDueToAutoResize(content::WebContents* source,
                                                  const gfx::Size& new_size) {
-  CEF_REQUIRE_UIT();
-
-  if (client_) {
-    CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
-    if (handler && handler->OnAutoResize(
-                       this, CefSize(new_size.width(), new_size.height()))) {
-      return;
-    }
-  }
-
-  UpdatePreferredSize(source, new_size);
+  contents_delegate_.ResizeDueToAutoResize(source, new_size);
 }
 
 void AlloyBrowserHostImpl::RequestMediaAccessPermission(

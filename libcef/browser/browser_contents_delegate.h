@@ -156,6 +156,10 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
                  const gfx::Rect& selection_rect,
                  int active_match_ordinal,
                  bool final_update) override;
+  void UpdatePreferredSize(content::WebContents* source,
+                           const gfx::Size& pref_size) override;
+  void ResizeDueToAutoResize(content::WebContents* source,
+                             const gfx::Size& new_size) override;
   void WebContentsDestroyed() override;
 
   // Accessors for state information. Changes will be signaled to

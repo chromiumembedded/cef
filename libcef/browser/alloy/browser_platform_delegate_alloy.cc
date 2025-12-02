@@ -96,10 +96,6 @@ void CefBrowserPlatformDelegateAlloy::AddNewContents(
   }
 }
 
-void CefBrowserPlatformDelegateAlloy::RenderViewReady() {
-  ConfigureAutoResize();
-}
-
 void CefBrowserPlatformDelegateAlloy::BrowserCreated(
     CefBrowserHostBase* browser) {
   CefBrowserPlatformDelegate::BrowserCreated(browser);
@@ -163,37 +159,6 @@ void CefBrowserPlatformDelegateAlloy::NotifyMoveOrResizeStarted() {
   }
 }
 #endif
-
-void CefBrowserPlatformDelegateAlloy::SetAutoResizeEnabled(
-    bool enabled,
-    const CefSize& min_size,
-    const CefSize& max_size) {
-  if (enabled == auto_resize_enabled_) {
-    return;
-  }
-
-  auto_resize_enabled_ = enabled;
-  if (enabled) {
-    auto_resize_min_ = gfx::Size(min_size.width, min_size.height);
-    auto_resize_max_ = gfx::Size(max_size.width, max_size.height);
-  } else {
-    auto_resize_min_ = auto_resize_max_ = gfx::Size();
-  }
-  ConfigureAutoResize();
-}
-
-void CefBrowserPlatformDelegateAlloy::ConfigureAutoResize() {
-  if (!web_contents_ || !web_contents_->GetRenderWidgetHostView()) {
-    return;
-  }
-
-  if (auto_resize_enabled_) {
-    web_contents_->GetRenderWidgetHostView()->EnableAutoResize(
-        auto_resize_min_, auto_resize_max_);
-  } else {
-    web_contents_->GetRenderWidgetHostView()->DisableAutoResize(gfx::Size());
-  }
-}
 
 base::RepeatingClosure
 CefBrowserPlatformDelegateAlloy::GetBoundsChangedCallback() {

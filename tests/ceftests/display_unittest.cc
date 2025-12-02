@@ -247,9 +247,6 @@ class AutoResizeTestHandler : public RoutingTestHandler {
 // Disabled on Linux because it causes DCHECK failures in the renderer process.
 // See issue #4038.
 TEST(DisplayTest, AutoResize) {
-  if (!UseAlloyStyleBrowserGlobal()) {
-    return;
-  }
   CefRefPtr<AutoResizeTestHandler> handler = new AutoResizeTestHandler();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);

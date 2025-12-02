@@ -360,9 +360,6 @@ class CefBrowserPlatformDelegate {
   virtual gfx::Size GetMaximumDialogSize();
 
   // See CefBrowserHost documentation.
-  virtual void SetAutoResizeEnabled(bool enabled,
-                                    const CefSize& min_size,
-                                    const CefSize& max_size);
   virtual void SetAccessibilityState(cef_state_t accessibility_state);
   virtual bool IsPrintPreviewSupported() const;
 
