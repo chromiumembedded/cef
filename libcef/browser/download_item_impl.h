@@ -28,6 +28,7 @@ class CefDownloadItemImpl
   bool IsComplete() override;
   bool IsCanceled() override;
   bool IsInterrupted() override;
+  bool IsPaused() override;
   cef_download_interrupt_reason_t GetInterruptReason() override;
   int64_t GetCurrentSpeed() override;
   int GetPercentComplete() override;

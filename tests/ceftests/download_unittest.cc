@@ -620,3 +620,244 @@ DOWNLOAD_TEST_GROUP(Navigated, NAVIGATED)
 
 // Test where the download is still pending when the browser is destroyed.
 DOWNLOAD_TEST_GROUP(Pending, PENDING)
+
+namespace {
+
+// Test handler for Pause/Resume functionality
+class DownloadPauseResumeTestHandler : public TestHandler {
+ public:
+  DownloadPauseResumeTestHandler() = default;
+
+  void RunTest() override {
+    // Create a new temporary directory.
+    EXPECT_TRUE(temp_dir_.CreateUniqueTempDir());
+    test_path_ =
+        client::file_util::JoinPath(temp_dir_.GetPath(), kTestFileName);
+
+    // Use an in-memory request context to avoid caching the download between
+    // test runs.
+    CreateTestRequestContext(
+        TEST_RC_MODE_CUSTOM_WITH_HANDLER, /*cache_path=*/"",
+        base::BindOnce(&DownloadPauseResumeTestHandler::RunTestContinue, this));
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  void RunTestContinue(CefRefPtr<CefRequestContext> request_context) {
+    EXPECT_UI_THREAD();
+    EXPECT_TRUE(request_context);
+
+    request_context_ = request_context;
+
+    // Use a delay callback to slow down the download, giving us time to pause
+    // and resume it.
+    DelayCallbackVendor delay_callback_vendor = base::BindRepeating(
+        [](CefRefPtr<DownloadPauseResumeTestHandler> self) {
+          return base::BindOnce(
+              &DownloadPauseResumeTestHandler::OnDelayCallback, self);
+        },
+        CefRefPtr<DownloadPauseResumeTestHandler>(this));
+
+    CefRefPtr<CefSchemeHandlerFactory> scheme_factory =
+        new DownloadSchemeHandlerFactory(delay_callback_vendor,
+                                         &got_download_request_);
+
+    request_context->RegisterSchemeHandlerFactory("https", kTestDomain,
+                                                  scheme_factory);
+
+    AddResource(kTestStartUrl, "<html><body>Download Test</body></html>",
+                "text/html");
+    CreateBrowser(kTestStartUrl, request_context);
+  }
+
+  CefRefPtr<CefDownloadHandler> GetDownloadHandler() override { return this; }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    // Start the download programmatically
+    browser->GetHost()->StartDownload(kTestDownloadUrl);
+  }
+
+  bool OnBeforeDownload(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefDownloadItem> download_item,
+      const CefString& suggested_name,
+      CefRefPtr<CefBeforeDownloadCallback> callback) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    EXPECT_FALSE(got_on_before_download_);
+    got_on_before_download_.yes();
+
+    EXPECT_TRUE(browser->IsSame(GetBrowser()));
+    EXPECT_STREQ(kTestDownloadUrl, download_item->GetURL().ToString().c_str());
+    EXPECT_STREQ(kTestFileName, suggested_name.ToString().c_str());
+
+    download_id_ = download_item->GetId();
+    EXPECT_LT(0U, download_id_);
+
+    // Continue the download
+    callback->Continue(test_path_, false);
+
+    // Immediately pause the download (it hasn't started receiving data yet)
+    // This will be saved as the callback from the first OnDownloadUpdated
+    return true;
+  }
+
+  void OnDownloadUpdated(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefDownloadItem> download_item,
+                         CefRefPtr<CefDownloadItemCallback> callback) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+
+    got_on_download_updated_.yes();
+
+    EXPECT_TRUE(browser->IsSame(GetBrowser()));
+    EXPECT_TRUE(download_item.get());
+    EXPECT_TRUE(callback.get());
+
+    if (got_on_before_download_) {
+      EXPECT_EQ(download_id_, download_item->GetId());
+    }
+
+    // Pause on the very first OnDownloadUpdated call, before any bytes received
+    if (!got_paused_ && download_item->IsInProgress()) {
+      got_paused_.yes();
+      callback->Pause();
+
+      // Resume after a short delay
+      CefPostDelayedTask(
+          TID_UI,
+          base::BindOnce(&DownloadPauseResumeTestHandler::ResumeDownload, this,
+                         callback),
+          50);
+      return;
+    }
+
+    // Wait for the download to actually be paused before continuing
+    if (got_paused_ && !got_paused_confirmed_ && download_item->IsPaused()) {
+      got_paused_confirmed_.yes();
+      // Continue the delayed download now that pause has taken effect.
+      ContinueDelayedDownloadIfReady();
+      return;
+    }
+
+    // Check if download completed after resume
+    if (download_item->IsComplete()) {
+      got_download_complete_.yes();
+
+      EXPECT_FALSE(download_item->IsInProgress());
+      EXPECT_FALSE(download_item->IsCanceled());
+      EXPECT_EQ(100, download_item->GetPercentComplete());
+      EXPECT_EQ(static_cast<int64_t>(sizeof(kTestContent) - 1),
+                download_item->GetReceivedBytes());
+      EXPECT_EQ(static_cast<int64_t>(sizeof(kTestContent) - 1),
+                download_item->GetTotalBytes());
+      EXPECT_STREQ(test_path_.c_str(),
+                   download_item->GetFullPath().ToString().c_str());
+
+      DestroyTest();
+    }
+  }
+
+  void VerifyResultsOnFileThread() {
+    EXPECT_TRUE(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
+
+    // Verify the file contents.
+    std::string contents;
+    EXPECT_TRUE(client::file_util::ReadFileToString(test_path_, &contents));
+    EXPECT_STREQ(kTestContent, contents.c_str());
+
+    EXPECT_TRUE(temp_dir_.Delete());
+    EXPECT_TRUE(temp_dir_.IsEmpty());
+
+    CefPostTask(
+        TID_UI,
+        base::BindOnce(&DownloadPauseResumeTestHandler::DestroyTest, this));
+  }
+
+  void DestroyTest() override {
+    if (!verified_results_ && !temp_dir_.IsEmpty()) {
+      // Avoid an endless failure loop.
+      verified_results_ = true;
+      // Clean up temp_dir_ on the FILE thread before destroying the test.
+      CefPostTask(
+          TID_FILE_USER_VISIBLE,
+          base::BindOnce(
+              &DownloadPauseResumeTestHandler::VerifyResultsOnFileThread,
+              this));
+      return;
+    }
+
+    EXPECT_TRUE(request_context_);
+    request_context_->RegisterSchemeHandlerFactory("https", kTestDomain,
+                                                   nullptr);
+    request_context_ = nullptr;
+
+    EXPECT_TRUE(got_on_before_download_);
+    EXPECT_TRUE(got_on_download_updated_);
+    EXPECT_TRUE(got_paused_);
+    EXPECT_TRUE(got_paused_confirmed_);
+    EXPECT_TRUE(got_resumed_);
+    EXPECT_TRUE(got_download_complete_);
+
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  // Callback from the scheme handler to delay the download response.
+  void OnDelayCallback(base::OnceClosure callback) {
+    if (!CefCurrentlyOn(TID_UI)) {
+      CefPostTask(TID_UI, base::BindOnce(
+                              &DownloadPauseResumeTestHandler::OnDelayCallback,
+                              this, std::move(callback)));
+      return;
+    }
+
+    // Store the callback and wait for the pause to be initiated before
+    // continuing the download.
+    delay_callback_ = std::move(callback);
+    ContinueDelayedDownloadIfReady();
+  }
+
+  void ContinueDelayedDownloadIfReady() {
+    // Continue the download once we've confirmed the pause has taken effect.
+    if (got_paused_confirmed_ && !delay_callback_.is_null()) {
+      std::move(delay_callback_).Run();
+    }
+  }
+
+  void ResumeDownload(CefRefPtr<CefDownloadItemCallback> callback) {
+    got_resumed_.yes();
+    callback->Resume();
+  }
+
+  CefRefPtr<CefRequestContext> request_context_;
+  CefScopedTempDir temp_dir_;
+  std::string test_path_;
+  uint32_t download_id_ = 0;
+  bool verified_results_ = false;
+
+  // Used to delay the download response until pause is initiated.
+  base::OnceClosure delay_callback_;
+
+  TrackCallback got_download_request_;
+  TrackCallback got_on_before_download_;
+  TrackCallback got_on_download_updated_;
+  TrackCallback got_paused_;
+  TrackCallback got_paused_confirmed_;
+  TrackCallback got_resumed_;
+  TrackCallback got_download_complete_;
+
+  IMPLEMENT_REFCOUNTING(DownloadPauseResumeTestHandler);
+  DISALLOW_COPY_AND_ASSIGN(DownloadPauseResumeTestHandler);
+};
+
+}  // namespace
+
+// Test pause and resume functionality.
+TEST(DownloadTest, PauseResume) {
+  CefRefPtr<DownloadPauseResumeTestHandler> handler =
+      new DownloadPauseResumeTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}

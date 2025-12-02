@@ -43,6 +43,11 @@ bool CefDownloadItemImpl::IsInterrupted() {
   return const_value().GetState() == download::DownloadItem::INTERRUPTED;
 }
 
+bool CefDownloadItemImpl::IsPaused() {
+  CEF_VALUE_VERIFY_RETURN(false, false);
+  return const_value().IsPaused();
+}
+
 cef_download_interrupt_reason_t CefDownloadItemImpl::GetInterruptReason() {
   CEF_VALUE_VERIFY_RETURN(false, CEF_DOWNLOAD_INTERRUPT_REASON_NONE);
   return static_cast<cef_download_interrupt_reason_t>(

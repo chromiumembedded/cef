@@ -247,6 +247,16 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
     if (manager_) {
       DownloadItem* item = manager_->GetDownload(download_id_);
       if (item && item->GetState() == DownloadItem::IN_PROGRESS) {
+        // Verify the download has a full path, which indicates it's truly in
+        // IN_PROGRESS_INTERNAL state (not TARGET_PENDING_INTERNAL which also
+        // maps to external IN_PROGRESS state).
+        if (item->GetFullPath().empty()) {
+          // Still in TARGET_PENDING_INTERNAL, retry later.
+          CEF_POST_TASK(
+              CEF_UIT,
+              base::BindOnce(&CefDownloadItemCallbackImpl::DoPause, this));
+          return;
+        }
         item->Pause();
       }
     }
@@ -260,6 +270,15 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
     if (manager_) {
       DownloadItem* item = manager_->GetDownload(download_id_);
       if (item && item->CanResume()) {
+        // Verify the download has a full path if it's in IN_PROGRESS state.
+        if (item->GetState() == DownloadItem::IN_PROGRESS &&
+            item->GetFullPath().empty()) {
+          // Still in TARGET_PENDING_INTERNAL, retry later.
+          CEF_POST_TASK(
+              CEF_UIT,
+              base::BindOnce(&CefDownloadItemCallbackImpl::DoResume, this));
+          return;
+        }
         item->Resume(true);
       }
     }
