@@ -34,18 +34,28 @@ This directory contains tools and instructions for using Claude Code to assist w
 - Debugging test failures and flakiness
 - Using TestHandler, RoutingTestHandler, and TestServer
 
+**Are you developing libcef internals (CEF implementation code)?**
+
+→ See [CLAUDE_LIBCEF_INSTRUCTIONS.md](CLAUDE_LIBCEF_INSTRUCTIONS.md) for libcef development patterns:
+
+- Adding new CEF APIs with proper versioning
+- Implementing WebContentsDelegate callbacks
+- Working with Chrome and Alloy browser styles
+- Finding and fixing NOTIMPLEMENTED() stubs
+
 ## Files in This Directory
 
 ### Documentation
 
 - **[CHROMIUM_UPDATE.md](CHROMIUM_UPDATE.md)** - Complete guide for updating CEF to new Chromium versions
-- **[CLIENT_DEVELOPMENT.md](CLIENT_DEVELOPMENT.md)** - Complete guide for CEF client application development
-- **[CLAUDE_PATCH_INSTRUCTIONS.md](CLAUDE_PATCH_INSTRUCTIONS.md)** - Detailed instructions for Claude agents fixing patch failures
+- **[CLAUDE.md](CLAUDE.md)** - General Claude Code instructions for Chromium/CEF codebase
 - **[CLAUDE_BUILD_INSTRUCTIONS.md](CLAUDE_BUILD_INSTRUCTIONS.md)** - Detailed instructions for Claude agents fixing build errors
 - **[CLAUDE_CLIENT_INSTRUCTIONS.md](CLAUDE_CLIENT_INSTRUCTIONS.md)** - Detailed instructions for Claude agents implementing features in CEF applications
+- **[CLAUDE_LIBCEF_INSTRUCTIONS.md](CLAUDE_LIBCEF_INSTRUCTIONS.md)** - Detailed instructions for Claude agents developing libcef internals (API versioning, WebContentsDelegate)
+- **[CLAUDE_PATCH_INSTRUCTIONS.md](CLAUDE_PATCH_INSTRUCTIONS.md)** - Detailed instructions for Claude agents fixing patch failures
 - **[CLAUDE_TEST_INSTRUCTIONS.md](CLAUDE_TEST_INSTRUCTIONS.md)** - Detailed instructions for Claude agents creating and running CEF unit tests
 - **[CLAUDE_WIKI_INSTRUCTIONS.md](CLAUDE_WIKI_INSTRUCTIONS.md)** - Bitbucket wiki formatting guidelines for Claude agents
-- **[CLAUDE.md](CLAUDE.md)** - General Claude Code instructions for Chromium/CEF codebase
+- **[CLIENT_DEVELOPMENT.md](CLIENT_DEVELOPMENT.md)** - Complete guide for CEF client application development
 - **[README.md](README.md)** - This file
 
 ### Python Tools
@@ -195,8 +205,7 @@ Then share the analysis files with Claude.
 
 ### For Issues with Tools
 
-- Check [CHROMIUM_UPDATE.md](CHROMIUM_UPDATE.md), [CLIENT_DEVELOPMENT.md](CLIENT_DEVELOPMENT.md), or [CLAUDE_TEST_INSTRUCTIONS.md](CLAUDE_TEST_INSTRUCTIONS.md) for usage examples
-- Read the instruction files ([CLAUDE_PATCH_INSTRUCTIONS.md](CLAUDE_PATCH_INSTRUCTIONS.md), [CLAUDE_BUILD_INSTRUCTIONS.md](CLAUDE_BUILD_INSTRUCTIONS.md), [CLAUDE_CLIENT_INSTRUCTIONS.md](CLAUDE_CLIENT_INSTRUCTIONS.md), [CLAUDE_TEST_INSTRUCTIONS.md](CLAUDE_TEST_INSTRUCTIONS.md))
+- Check the guide files and instruction files listed above for usage examples
 - Check analyzer script help: `python3 analyze_patch_output.py --help`
 
 ### For Issues with CEF
