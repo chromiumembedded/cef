@@ -26,6 +26,7 @@ def write_note(type, note):
   sys.stdout.write(separator)
   sys.stdout.write('!!!! %s: %s\n' % (type, note))
   sys.stdout.write(separator)
+  sys.stdout.flush()
 
 
 def apply_patch_file(patch_file, patch_dir):
@@ -60,7 +61,7 @@ def apply_patch_config():
 
   # Parse the configuration file.
   scope = {}
-  exec (compile(open(config_file, "rb").read(), config_file, 'exec'), scope)
+  exec(compile(open(config_file, "rb").read(), config_file, 'exec'), scope)
   patches = scope["patches"]
 
   results = {'apply': [], 'skip': [], 'fail': []}
@@ -87,6 +88,7 @@ def apply_patch_config():
 
   sys.stdout.write('\n%d patches total (%d applied, %d skipped, %d failed)\n' % \
       (len(patches), len(results['apply']), len(results['skip']), len(results['fail'])))
+  sys.stdout.flush()
 
   if len(results['fail']) > 0:
     sys.stdout.write('\n')

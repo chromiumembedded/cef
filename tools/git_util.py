@@ -122,6 +122,7 @@ def write_indented_output(output):
     if len(line) == 0:
       continue
     sys.stdout.write('\t%s\n' % line)
+  sys.stdout.flush()
 
 
 def _patch_apply_patch_string(patch_dir, patch_string):
@@ -133,6 +134,7 @@ def _patch_apply_patch_string(patch_dir, patch_string):
   result = exec_cmd(cmd, patch_dir, patch_string)
   if result['ret'] == 0:
     sys.stdout.write('... already applied (skipping).\n')
+    sys.stdout.flush()
     return 'skip'
 
   # Apply the patch file.
@@ -141,8 +143,10 @@ def _patch_apply_patch_string(patch_dir, patch_string):
   write_indented_output(result['out'])
   if result['ret'] == 0:
     sys.stdout.write('... successfully applied.\n')
+    sys.stdout.flush()
     return 'apply'
   sys.stdout.write('... failed to apply:\n')
+  sys.stdout.flush()
   write_indented_output(result['err'])
   return 'fail'
 
@@ -151,6 +155,7 @@ def git_apply_patch_file(patch_path, patch_dir):
   """ Apply |patch_path| to files in |patch_dir|. """
   patch_name = os.path.basename(patch_path)
   sys.stdout.write('\nApply %s in %s\n' % (patch_name, patch_dir))
+  sys.stdout.flush()
 
   if not os.path.isfile(patch_path):
     sys.stdout.write('... patch file does not exist.\n')
@@ -179,6 +184,7 @@ def git_apply_patch_file(patch_path, patch_dir):
   result = exec_cmd(cmd, patch_dir, patch_string)
   if result['err'].find('error:') < 0:
     sys.stdout.write('... already applied (skipping).\n')
+    sys.stdout.flush()
     return 'skip'
 
   # Normal check to see if the patch can be applied cleanly.
@@ -195,7 +201,9 @@ def git_apply_patch_file(patch_path, patch_dir):
   result = exec_cmd(cmd, patch_dir, patch_string)
   if result['err'] == '':
     sys.stdout.write('... successfully applied.\n')
+    sys.stdout.flush()
   else:
     sys.stdout.write('... successfully applied (with warnings):\n')
+    sys.stdout.flush()
     write_indented_output(result['err'].replace('<stdin>', patch_name))
   return 'apply'
