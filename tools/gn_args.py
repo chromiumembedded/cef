@@ -302,6 +302,10 @@ def GetRecommendedDefaultArgs():
       # Disable downgrade processing/restart with the Chrome runtime.
       # https://github.com/chromiumembedded/cef/issues/3608
       'enable_downgrade_processing': False,
+
+      # Disable Gemini integration which only works in branded Google Chrome.
+      # https://github.com/chromiumembedded/cef/issues/3982
+      'enable_glic': False,
   }
 
   if platform == 'windows' or platform == 'mac':
