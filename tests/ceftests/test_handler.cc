@@ -584,14 +584,23 @@ void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
 void TestHandler::CreateBrowser(const CefString& url,
                                 CefRefPtr<CefRequestContext> request_context,
                                 CefRefPtr<CefDictionaryValue> extra_info) {
+  CefBrowserSettings settings;
+  CreateBrowserWithSettings(url, settings, request_context, extra_info);
+}
+
+void TestHandler::CreateBrowserWithSettings(
+    const CefString& url,
+    const CefBrowserSettings& settings,
+    CefRefPtr<CefRequestContext> request_context,
+    CefRefPtr<CefDictionaryValue> extra_info) {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::BindOnce(&TestHandler::CreateBrowser, this, url,
-                                       request_context, extra_info));
+    CefPostTask(TID_UI,
+                base::BindOnce(&TestHandler::CreateBrowserWithSettings, this,
+                               url, settings, request_context, extra_info));
     return;
   }
 
   CefWindowInfo windowInfo;
-  CefBrowserSettings settings;
 
   if (use_views_) {
     // Create the BrowserView.

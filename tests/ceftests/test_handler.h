@@ -238,6 +238,12 @@ class TestHandler : public CefClient,
   void CreateBrowser(const CefString& url,
                      CefRefPtr<CefRequestContext> request_context = nullptr,
                      CefRefPtr<CefDictionaryValue> extra_info = nullptr);
+  void CreateBrowserWithSettings(
+      const CefString& url,
+      const CefBrowserSettings& settings,
+      CefRefPtr<CefRequestContext> request_context = nullptr,
+      CefRefPtr<CefDictionaryValue> extra_info = nullptr);
+
   static void CloseBrowser(CefRefPtr<CefBrowser> browser, bool force_close);
 
   void AddResource(const std::string& url,

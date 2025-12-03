@@ -276,8 +276,13 @@ void CefBrowserHostBase::InitializeBrowser() {
   CEF_REQUIRE_UIT();
 
   // Associate the WebContents with this browser object.
-  DCHECK(GetWebContents());
+  auto* web_contents = GetWebContents();
+  DCHECK(web_contents);
   WebContentsUserDataAdapter::Register(this);
+
+  // Trigger a web preferences update now that the browser is attached.
+  // This ensures that OverrideWebPreferences can access browser settings.
+  web_contents->NotifyPreferencesChanged();
 }
 
 void CefBrowserHostBase::DestroyWebContents(
