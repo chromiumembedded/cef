@@ -583,6 +583,12 @@ def GetConfigArgs(args, is_debug, cpu):
         # debug dangling pointers. This requires PA-E.
         add_args['enable_backup_ref_ptr_instance_tracer'] = True
 
+    # Disable GWP-ASAN on macOS Debug builds to avoid static initialization
+    # deadlock on application start. See https://crbug.com/465497430
+    if platform == 'mac' and is_debug:
+      add_args['enable_gwp_asan_malloc'] = False
+      add_args['enable_gwp_asan_partitionalloc'] = False
+
   result = MergeDicts(args, add_args, {
       'is_debug': is_debug,
       'target_cpu': cpu,
