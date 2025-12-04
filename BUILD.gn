@@ -851,6 +851,7 @@ source_set("libcef_static") {
     "libcef/common/task_runner_impl.h",
     "libcef/common/task_runner_manager.cc",
     "libcef/common/task_runner_manager.h",
+    "libcef/common/task_util.h",
     "libcef/common/thread_impl.cc",
     "libcef/common/thread_impl.h",
     "libcef/common/time_impl.cc",

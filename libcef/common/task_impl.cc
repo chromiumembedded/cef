@@ -8,6 +8,7 @@
 #include "base/time/time.h"
 #include "cef/include/cef_task.h"
 #include "cef/libcef/common/task_runner_impl.h"
+#include "cef/libcef/common/task_util.h"
 
 bool CefCurrentlyOn(CefThreadId threadId) {
   scoped_refptr<base::SequencedTaskRunner> task_runner =
@@ -46,3 +47,19 @@ bool CefPostDelayedTask(CefThreadId threadId,
   LOG(WARNING) << "No task runner for threadId " << threadId;
   return false;
 }
+
+namespace cef {
+
+bool CurrentlyOnThread(CefThreadId thread_id) {
+  scoped_refptr<base::SequencedTaskRunner> task_runner =
+      CefTaskRunnerImpl::GetTaskRunner(thread_id);
+  if (task_runner.get()) {
+    return task_runner->RunsTasksInCurrentSequence();
+  }
+
+  // Return false silently when task runners are not initialized (before
+  // CefInitialize). This avoids logging that cannot be configured.
+  return false;
+}
+
+}  // namespace cef

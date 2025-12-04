@@ -6,12 +6,13 @@
 
 #include "base/notreached.h"
 #include "base/time/time.h"
-#include "cef/include/cef_task.h"
+#include "cef/libcef/common/task_util.h"
 
 namespace {
 
 bool AllowWait() {
-  if (CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO)) {
+  // Use internal variant that doesn't log before CefInitialize.
+  if (cef::CurrentlyOnThread(TID_UI) || cef::CurrentlyOnThread(TID_IO)) {
     DCHECK(false) << "waiting is not allowed on the current thread";
     return false;
   }

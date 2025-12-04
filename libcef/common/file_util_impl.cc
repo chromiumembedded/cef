@@ -6,13 +6,14 @@
 #include "base/files/file_util.h"
 #include "base/logging.h"
 #include "cef/include/cef_file_util.h"
-#include "cef/include/cef_task.h"
+#include "cef/libcef/common/task_util.h"
 #include "third_party/zlib/google/zip.h"
 
 namespace {
 
 bool AllowFileIO() {
-  if (CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO)) {
+  // Use internal variant that doesn't log before CefInitialize.
+  if (cef::CurrentlyOnThread(TID_UI) || cef::CurrentlyOnThread(TID_IO)) {
     DCHECK(false) << "file IO is not allowed on the current thread";
     return false;
   }
