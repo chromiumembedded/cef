@@ -153,10 +153,10 @@ class CefRenderHandler : public virtual CefBaseRefCounted {
   /// |type| indicates whether the element is the view or the popup widget.
   /// |dirtyRects| contains the set of rectangles in pixel coordinates that need
   /// to be repainted. |info| contains the shared handle; on Windows it is a
-  /// HANDLE to a texture that can be opened with D3D11 OpenSharedResource, on
-  /// macOS it is an IOSurface pointer that can be opened with Metal or OpenGL,
-  /// and on Linux it contains several planes, each with an fd to the underlying
-  /// system native buffer.
+  /// HANDLE to a texture that can be opened with D3D11 OpenSharedResource1 or
+  /// D3D12 OpenSharedHandle, on macOS it is an IOSurface pointer that can be
+  /// opened with Metal or OpenGL, and on Linux it contains several planes, each
+  /// with an fd to the underlying system native buffer.
   ///
   /// The underlying implementation uses a pool to deliver frames. As a result,
   /// the handle may differ every frame depending on how many frames are
