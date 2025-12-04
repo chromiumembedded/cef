@@ -124,6 +124,21 @@ void SendMouseClickEvent(CefRefPtr<CefBrowser> browser,
                          const CefMouseEvent& mouse_event,
                          cef_mouse_button_type_t mouse_button_type = MBT_LEFT);
 
+// Send a mouse click event using JavaScript injection instead of synthetic
+// input events. This is more reliable on headless systems. Simulates clicking
+// the element at the specified coordinates with the given button and modifiers.
+// Uses CefExecuteJavaScriptWithUserGestureForTests to ensure the click is
+// treated as a trusted user interaction (required for triggering user-gesture-
+// gated features like downloads, popups, and permission prompts).
+// NOTE: Should only be used for simple DOM-level clicks. Do NOT use for testing
+// browser-level interactions like middle-click navigation, ctrl+click, right-
+// click context menus, etc., as these are intercepted by the browser before
+// reaching the DOM and cannot be properly simulated via JavaScript.
+void SendJavaScriptClickEvent(
+    CefRefPtr<CefBrowser> browser,
+    const CefMouseEvent& mouse_event,
+    cef_mouse_button_type_t mouse_button_type = MBT_LEFT);
+
 // Allow |parent_url| to create popups that bypass the popup blocker. If
 // |parent_url| is empty the default value will be configured.
 void GrantPopupPermission(CefRefPtr<CefRequestContext> request_context,

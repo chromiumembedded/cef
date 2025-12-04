@@ -562,7 +562,7 @@ class DownloadTestHandler : public TestHandler {
     mouse_event.x = 20;
     mouse_event.y = 20;
     mouse_event.modifiers = modifiers;
-    SendMouseClickEvent(browser, mouse_event);
+    SendJavaScriptClickEvent(browser, mouse_event);
   }
 
   const TestMode test_mode_;

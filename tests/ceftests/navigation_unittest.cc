@@ -1879,7 +1879,14 @@ class LoadNavTestHandler : public TestHandler {
 
         cef_mouse_button_type_t button_type =
             (mode_ == MIDDLE_CLICK ? MBT_MIDDLE : MBT_LEFT);
-        SendMouseClickEvent(browser, mouse_event, button_type);
+        // Use synthetic mouse events for middle-click and ctrl+click to test
+        // actual browser navigation behavior. Only use JavaScript clicks for
+        // simple left-clicks.
+        if (mode_ == LEFT_CLICK) {
+          SendJavaScriptClickEvent(browser, mouse_event, button_type);
+        } else {
+          SendMouseClickEvent(browser, mouse_event, button_type);
+        }
       }
 
       if (cancel_in_open_url_) {

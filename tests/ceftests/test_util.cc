@@ -12,6 +12,7 @@
 #include "include/cef_base.h"
 #include "include/cef_command_line.h"
 #include "include/cef_request_context_handler.h"
+#include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -404,6 +405,79 @@ void SendMouseClickEvent(CefRefPtr<CefBrowser> browser,
                      base::BindOnce(&CefBrowserHost::SendMouseClickEvent, host,
                                     mouse_event, mouse_button_type, true, 1),
                      100);
+}
+
+void SendJavaScriptClickEvent(CefRefPtr<CefBrowser> browser,
+                              const CefMouseEvent& mouse_event,
+                              cef_mouse_button_type_t mouse_button_type) {
+  // Map CEF mouse button type to JavaScript MouseEvent button property
+  // (0 = left, 1 = middle, 2 = right)
+  int button = 0;
+  int buttons = 1;  // Bitmask of buttons pressed during the event
+  switch (mouse_button_type) {
+    case MBT_LEFT:
+      button = 0;
+      buttons = 1;
+      break;
+    case MBT_MIDDLE:
+      button = 1;
+      buttons = 4;
+      break;
+    case MBT_RIGHT:
+      button = 2;
+      buttons = 2;
+      break;
+  }
+
+  // Map CEF modifiers to JavaScript event modifiers
+  bool ctrl_key = (mouse_event.modifiers & EVENTFLAG_CONTROL_DOWN) != 0;
+  bool shift_key = (mouse_event.modifiers & EVENTFLAG_SHIFT_DOWN) != 0;
+  bool alt_key = (mouse_event.modifiers & EVENTFLAG_ALT_DOWN) != 0;
+  bool meta_key = (mouse_event.modifiers & EVENTFLAG_COMMAND_DOWN) != 0;
+
+  // Build JavaScript to find the element at coordinates and dispatch click
+  std::string script =
+      "(function() {"
+      "  var element = document.elementFromPoint(" +
+      std::to_string(mouse_event.x) + ", " + std::to_string(mouse_event.y) +
+      ");"
+      "  if (!element) {"
+      "    console.error('No element found at coordinates');"
+      "    return false;"
+      "  }"
+      "  var event = new MouseEvent('click', {"
+      "    view: window,"
+      "    bubbles: true,"
+      "    cancelable: true,"
+      "    button: " +
+      std::to_string(button) +
+      ","
+      "    buttons: " +
+      std::to_string(buttons) +
+      ","
+      "    clientX: " +
+      std::to_string(mouse_event.x) +
+      ","
+      "    clientY: " +
+      std::to_string(mouse_event.y) +
+      ","
+      "    ctrlKey: " +
+      std::string(ctrl_key ? "true" : "false") +
+      ","
+      "    shiftKey: " +
+      std::string(shift_key ? "true" : "false") +
+      ","
+      "    altKey: " +
+      std::string(alt_key ? "true" : "false") +
+      ","
+      "    metaKey: " +
+      std::string(meta_key ? "true" : "false") +
+      "  });"
+      "  element.dispatchEvent(event);"
+      "  return true;"
+      "})();";
+
+  CefExecuteJavaScriptWithUserGestureForTests(browser->GetMainFrame(), script);
 }
 
 void GrantPopupPermission(CefRefPtr<CefRequestContext> request_context,

@@ -360,7 +360,7 @@ class PopupTestHandler : public TestHandler {
       mouse_event.x = 20;
       mouse_event.y = 20;
       mouse_event.modifiers = 0;
-      SendMouseClickEvent(browser, mouse_event);
+      SendJavaScriptClickEvent(browser, mouse_event);
     } else {
       ADD_FAILURE();  // Not reached.
     }

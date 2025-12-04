@@ -265,7 +265,7 @@ class PermissionPromptTestHandler : public TestHandler,
     CefMouseEvent mouse_event;
     mouse_event.x = 20;
     mouse_event.y = 20;
-    SendMouseClickEvent(browser, mouse_event);
+    SendJavaScriptClickEvent(browser, mouse_event);
   }
 
   CefRefPtr<CefDictionaryValue> ParseURLData(const std::string& url) {
