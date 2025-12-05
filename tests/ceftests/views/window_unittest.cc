@@ -761,3 +761,359 @@ WINDOW_OVERLAY_TEST(DestroyBeforeWindowShow)
 WINDOW_OVERLAY_TEST(DestroyBeforeWindowShowAndAddAgain)
 WINDOW_OVERLAY_TEST(DestroyAfterWindowShow)
 WINDOW_OVERLAY_TEST(DestroyAfterWindowShowAndAddAgain)
+
+// Test multiple overlays with different docking modes.
+namespace {
+
+void RunWindowOverlayMultipleDockingModes(CefRefPtr<CefWindow> window) {
+  // Helper to create a simple test view.
+  auto CreateTestView = []() {
+    auto panel = CefPanel::CreatePanel(nullptr);
+    // Set a preferred size for the panel.
+    CefBoxLayoutSettings layout_settings;
+    layout_settings.minimum_cross_axis_size = 50;
+    auto layout = panel->SetToBoxLayout(layout_settings);
+    return panel;
+  };
+
+  window->Show();
+
+  // Test each docking mode.
+  struct DockingModeTest {
+    cef_docking_mode_t mode;
+    const char* name;
+  };
+
+  const DockingModeTest modes[] = {
+      {CEF_DOCKING_MODE_TOP_LEFT, "TOP_LEFT"},
+      {CEF_DOCKING_MODE_TOP_RIGHT, "TOP_RIGHT"},
+      {CEF_DOCKING_MODE_BOTTOM_LEFT, "BOTTOM_LEFT"},
+      {CEF_DOCKING_MODE_BOTTOM_RIGHT, "BOTTOM_RIGHT"},
+      {CEF_DOCKING_MODE_CUSTOM, "CUSTOM"},
+  };
+
+  std::vector<CefRefPtr<CefOverlayController>> controllers;
+
+  for (const auto& test : modes) {
+    auto view = CreateTestView();
+    auto controller =
+        window->AddOverlayView(view, test.mode, /*can_activate=*/false);
+    EXPECT_TRUE(controller.get())
+        << "Failed to create overlay for " << test.name;
+    EXPECT_TRUE(controller->IsValid()) << test.name;
+    EXPECT_EQ(test.mode, controller->GetDockingMode()) << test.name;
+    EXPECT_TRUE(controller->GetWindow()->IsSame(window)) << test.name;
+    EXPECT_TRUE(controller->GetContentsView()->IsSame(view)) << test.name;
+
+    // Initially not visible.
+    EXPECT_FALSE(controller->IsVisible()) << test.name;
+    EXPECT_FALSE(controller->IsDrawn()) << test.name;
+
+    // Make visible.
+    controller->SetVisible(true);
+    EXPECT_TRUE(controller->IsVisible()) << test.name;
+    EXPECT_TRUE(controller->IsDrawn()) << test.name;
+
+    controllers.push_back(controller);
+  }
+
+  // Clean up controllers.
+  for (auto& controller : controllers) {
+    controller->Destroy();
+  }
+}
+
+void WindowOverlayMultipleDockingModesImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created =
+      base::BindOnce(RunWindowOverlayMultipleDockingModes);
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+
+}  // namespace
+
+WINDOW_TEST_ASYNC(WindowOverlayMultipleDockingModes)
+
+// Test overlay bounds/position/size manipulation with CUSTOM docking mode.
+namespace {
+
+void RunWindowOverlayCustomBounds(CefRefPtr<CefWindow> window) {
+  auto view = CefPanel::CreatePanel(nullptr);
+  auto controller = window->AddOverlayView(view, CEF_DOCKING_MODE_CUSTOM,
+                                           /*can_activate=*/false);
+  EXPECT_TRUE(controller->IsValid());
+  EXPECT_EQ(CEF_DOCKING_MODE_CUSTOM, controller->GetDockingMode());
+
+  window->Show();
+  controller->SetVisible(true);
+
+  // Test SetBounds.
+  CefRect test_bounds(10, 20, 100, 50);
+  controller->SetBounds(test_bounds);
+  CefRect actual_bounds = controller->GetBounds();
+  EXPECT_EQ(test_bounds.x, actual_bounds.x);
+  EXPECT_EQ(test_bounds.y, actual_bounds.y);
+  EXPECT_EQ(test_bounds.width, actual_bounds.width);
+  EXPECT_EQ(test_bounds.height, actual_bounds.height);
+
+  // Test SetPosition.
+  CefPoint test_position(50, 60);
+  controller->SetPosition(test_position);
+  CefPoint actual_position = controller->GetPosition();
+  EXPECT_EQ(test_position.x, actual_position.x);
+  EXPECT_EQ(test_position.y, actual_position.y);
+  // Size should remain the same.
+  CefSize actual_size = controller->GetSize();
+  EXPECT_EQ(test_bounds.width, actual_size.width);
+  EXPECT_EQ(test_bounds.height, actual_size.height);
+
+  // Test SetSize.
+  CefSize test_size(150, 75);
+  controller->SetSize(test_size);
+  actual_size = controller->GetSize();
+  EXPECT_EQ(test_size.width, actual_size.width);
+  EXPECT_EQ(test_size.height, actual_size.height);
+  // Position should remain the same.
+  actual_position = controller->GetPosition();
+  EXPECT_EQ(test_position.x, actual_position.x);
+  EXPECT_EQ(test_position.y, actual_position.y);
+
+  // Test GetBoundsInScreen returns valid bounds.
+  CefRect screen_bounds = controller->GetBoundsInScreen();
+  EXPECT_GT(screen_bounds.width, 0);
+  EXPECT_GT(screen_bounds.height, 0);
+
+  controller->Destroy();
+}
+
+void WindowOverlayCustomBoundsImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowOverlayCustomBounds);
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+
+}  // namespace
+
+WINDOW_TEST_ASYNC(WindowOverlayCustomBounds)
+
+// Test overlay insets with non-CUSTOM docking modes.
+namespace {
+
+void RunWindowOverlayInsets(CefRefPtr<CefWindow> window) {
+  auto view = CefPanel::CreatePanel(nullptr);
+  // Set a preferred size for the panel.
+  CefBoxLayoutSettings layout_settings;
+  layout_settings.minimum_cross_axis_size = 50;
+  view->SetToBoxLayout(layout_settings);
+
+  auto controller = window->AddOverlayView(view, CEF_DOCKING_MODE_TOP_LEFT,
+                                           /*can_activate=*/false);
+  EXPECT_TRUE(controller->IsValid());
+
+  window->Show();
+  controller->SetVisible(true);
+
+  // Test that insets can be set and retrieved.
+  CefInsets test_insets;
+  test_insets.top = 10;
+  test_insets.left = 20;
+  test_insets.bottom = 5;
+  test_insets.right = 15;
+  controller->SetInsets(test_insets);
+
+  // Verify insets were set.
+  CefInsets actual_insets = controller->GetInsets();
+  EXPECT_EQ(test_insets.top, actual_insets.top);
+  EXPECT_EQ(test_insets.left, actual_insets.left);
+  EXPECT_EQ(test_insets.bottom, actual_insets.bottom);
+  EXPECT_EQ(test_insets.right, actual_insets.right);
+
+  // Test changing insets.
+  CefInsets new_insets;
+  new_insets.top = 5;
+  new_insets.left = 10;
+  new_insets.bottom = 15;
+  new_insets.right = 20;
+  controller->SetInsets(new_insets);
+
+  actual_insets = controller->GetInsets();
+  EXPECT_EQ(new_insets.top, actual_insets.top);
+  EXPECT_EQ(new_insets.left, actual_insets.left);
+  EXPECT_EQ(new_insets.bottom, actual_insets.bottom);
+  EXPECT_EQ(new_insets.right, actual_insets.right);
+
+  controller->Destroy();
+}
+
+void WindowOverlayInsetsImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowOverlayInsets);
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+
+}  // namespace
+
+WINDOW_TEST_ASYNC(WindowOverlayInsets)
+
+// Test overlay visibility changes.
+namespace {
+
+void RunWindowOverlayVisibility(CefRefPtr<CefWindow> window) {
+  auto view = CefPanel::CreatePanel(nullptr);
+  auto controller = window->AddOverlayView(view, CEF_DOCKING_MODE_TOP_LEFT,
+                                           /*can_activate=*/false);
+  EXPECT_TRUE(controller->IsValid());
+
+  window->Show();
+
+  // Initially not visible.
+  EXPECT_FALSE(controller->IsVisible());
+  EXPECT_FALSE(controller->IsDrawn());
+
+  // Show the overlay.
+  controller->SetVisible(true);
+  EXPECT_TRUE(controller->IsVisible());
+  EXPECT_TRUE(controller->IsDrawn());
+
+  // Hide the overlay.
+  controller->SetVisible(false);
+  EXPECT_FALSE(controller->IsVisible());
+  EXPECT_FALSE(controller->IsDrawn());
+
+  // Show again.
+  controller->SetVisible(true);
+  EXPECT_TRUE(controller->IsVisible());
+  EXPECT_TRUE(controller->IsDrawn());
+
+  controller->Destroy();
+}
+
+void WindowOverlayVisibilityImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowOverlayVisibility);
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+
+}  // namespace
+
+WINDOW_TEST_ASYNC(WindowOverlayVisibility)
+
+// Test overlay SizeToPreferredSize.
+namespace {
+
+class OverlaySizeToPreferredSizeTestPanelDelegate : public CefPanelDelegate {
+ public:
+  explicit OverlaySizeToPreferredSizeTestPanelDelegate(const CefSize& size)
+      : preferred_size_(size) {}
+
+  CefSize GetPreferredSize(CefRefPtr<CefView> view) override {
+    return preferred_size_;
+  }
+
+ private:
+  const CefSize preferred_size_;
+
+  IMPLEMENT_REFCOUNTING(OverlaySizeToPreferredSizeTestPanelDelegate);
+  DISALLOW_COPY_AND_ASSIGN(OverlaySizeToPreferredSizeTestPanelDelegate);
+};
+
+void RunWindowOverlaySizeToPreferredSize(CefRefPtr<CefWindow> window) {
+  CefSize preferred_size(100, 50);
+  auto delegate =
+      new OverlaySizeToPreferredSizeTestPanelDelegate(preferred_size);
+  auto view = CefPanel::CreatePanel(delegate);
+
+  auto controller = window->AddOverlayView(view, CEF_DOCKING_MODE_CUSTOM,
+                                           /*can_activate=*/false);
+  EXPECT_TRUE(controller->IsValid());
+
+  window->Show();
+  controller->SetVisible(true);
+
+  // Overlay should initially be sized to preferred size.
+  CefSize initial_size = controller->GetSize();
+  EXPECT_EQ(preferred_size.width, initial_size.width);
+  EXPECT_EQ(preferred_size.height, initial_size.height);
+
+  // Manually resize to a different size using SetSize (only works with
+  // CUSTOM docking mode).
+  CefSize custom_size(200, 100);
+  controller->SetSize(custom_size);
+  CefSize after_resize = controller->GetSize();
+  EXPECT_EQ(custom_size.width, after_resize.width);
+  EXPECT_EQ(custom_size.height, after_resize.height);
+
+  // Call SizeToPreferredSize to resize back to preferred size.
+  controller->SizeToPreferredSize();
+
+  // Verify the overlay was resized back to the preferred size.
+  CefSize actual_size = controller->GetSize();
+  EXPECT_EQ(preferred_size.width, actual_size.width);
+  EXPECT_EQ(preferred_size.height, actual_size.height);
+
+  // Test with a different preferred size using a new overlay.
+  CefSize new_preferred_size(150, 75);
+  auto delegate2 =
+      new OverlaySizeToPreferredSizeTestPanelDelegate(new_preferred_size);
+  auto view2 = CefPanel::CreatePanel(delegate2);
+  auto controller2 = window->AddOverlayView(view2, CEF_DOCKING_MODE_CUSTOM,
+                                            /*can_activate=*/false);
+  controller2->SetVisible(true);
+
+  // Should be sized to its preferred size initially.
+  actual_size = controller2->GetSize();
+  EXPECT_EQ(new_preferred_size.width, actual_size.width);
+  EXPECT_EQ(new_preferred_size.height, actual_size.height);
+
+  controller->Destroy();
+  controller2->Destroy();
+}
+
+void WindowOverlaySizeToPreferredSizeImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created =
+      base::BindOnce(RunWindowOverlaySizeToPreferredSize);
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+
+}  // namespace
+
+WINDOW_TEST_ASYNC(WindowOverlaySizeToPreferredSize)
+
+// Test overlay IsSame method.
+namespace {
+
+void RunWindowOverlayIsSame(CefRefPtr<CefWindow> window) {
+  window->Show();
+
+  auto view = CefPanel::CreatePanel(nullptr);
+  auto controller1 = window->AddOverlayView(view, CEF_DOCKING_MODE_TOP_LEFT,
+                                            /*can_activate=*/false);
+
+  // Same controller should return true for IsSame with itself.
+  EXPECT_TRUE(controller1->IsSame(controller1));
+
+  // Different controller should return false.
+  auto view2 = CefPanel::CreatePanel(nullptr);
+  auto controller2 = window->AddOverlayView(view2, CEF_DOCKING_MODE_TOP_RIGHT,
+                                            /*can_activate=*/false);
+
+  EXPECT_FALSE(controller1->IsSame(controller2));
+  EXPECT_FALSE(controller2->IsSame(controller1));
+
+  // Verify each controller is the same as itself.
+  EXPECT_TRUE(controller2->IsSame(controller2));
+
+  controller1->Destroy();
+  controller2->Destroy();
+}
+
+void WindowOverlayIsSameImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowOverlayIsSame);
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+
+}  // namespace
+
+WINDOW_TEST_ASYNC(WindowOverlayIsSame)
