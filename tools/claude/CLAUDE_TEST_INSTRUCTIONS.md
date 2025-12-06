@@ -764,6 +764,242 @@ Often you'll use both - delegate for process-level hooks and TestHandler for tes
 - `cef/tests/ceftests/v8_unittest.cc` - OnBrowserCreated with extra_info pattern for test mode configuration
 - `cef/tests/ceftests/client_app_delegates.cc` - Registration mechanism
 
+### Test Type 7: Views Framework Tests
+
+For Views-specific UI testing (windows, controls, layout), use async UI tests with `CefWaitableEvent`. These do NOT use the `TestHandler::ExecuteTest()` pattern.
+
+**Two approaches:**
+
+1. **Simple views tests (buttons, textfields, panels)**: Use `TestWindowDelegate::RunTest()` helper
+2. **BrowserView tests**: Create custom handler and delegate (see pattern below)
+
+#### Option 1: Using TestWindowDelegate Helper
+
+For testing views/controls without browsers (buttons, textfields, layout, etc.):
+
+```cpp
+#include "tests/ceftests/views/test_window_delegate.h"
+
+#define MY_VIEW_TEST_ASYNC(name) \
+  UI_THREAD_TEST_ASYNC(MyViewTest, name)
+
+namespace {
+
+void RunMyTest(CefRefPtr<CefWindow> window) {
+  // Create and test your views
+  CefRefPtr<CefButton> button = CefButton::CreateButton(...);
+  window->AddChildView(button);
+  window->Layout();
+
+  // Test assertions
+  EXPECT_TRUE(button->IsVisible());
+
+  // Window will be closed automatically
+}
+
+void MyTestImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunMyTest);
+  config->close_window = true;  // Auto-close after callback (default)
+  config->frameless = false;     // Framed window (default)
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+
+}  // namespace
+
+// Test registration (outside namespace)
+MY_VIEW_TEST_ASYNC(MyTest)
+```
+
+**Config options:**
+
+- `on_window_created` - Called when window is created (run test logic here)
+- `on_window_destroyed` - Called when window is destroyed
+- `on_accelerator` - Handle keyboard shortcuts
+- `on_key_event` - Handle key events
+- `close_window` - Auto-close window after `on_window_created` (default: true)
+- `frameless` - Create frameless window (default: false)
+- `window_size` - Initial window size (default: 400x400)
+- `initial_show_state` - Window show state (default: normal)
+
+**When to use:** Button clicks, textfield input, panel layout, scroll views, etc.
+
+**Reference:** `cef/tests/ceftests/views/button_unittest.cc`, `textfield_unittest.cc`
+
+#### Option 2: Custom Handler and Delegate Pattern
+
+For BrowserView tests or complex window management:
+
+**Pattern:**
+
+```cpp
+#define MY_VIEW_TEST_ASYNC(name) \
+  UI_THREAD_TEST_ASYNC(MyViewTest, name)
+
+namespace {
+
+class MyViewTestHandler : public TestHandler {
+ public:
+  using OnCompleteCallback = base::OnceCallback<void(bool success)>;
+
+  explicit MyViewTestHandler(int expected_browser_count)
+      : expected_browser_count_(expected_browser_count) {
+    SetDestroyTestExpected(false);  // Not using ExecuteTest()
+    SetUseViews(true);
+    SetTestTimeout();
+  }
+
+  void RunTest() override {}  // Not used
+
+  void SetOnComplete(OnCompleteCallback callback) {
+    on_complete_ = std::move(callback);
+  }
+
+  void ClearCallbacks() { on_complete_.Reset(); }
+
+  void DestroyTest() override {
+    ADD_FAILURE() << "Test timeout";
+    if (on_complete_) {
+      std::move(on_complete_).Run(false);  // false = timeout
+    }
+  }
+
+ private:
+  // Call from internal test logic when complete (e.g., OnLoadEnd, OnButtonClick)
+  void OnTestComplete() {
+    if (on_complete_) {
+      CefPostTask(TID_UI, base::BindOnce(std::move(on_complete_), true));
+    }
+  }
+
+  const int expected_browser_count_;  // Use to track loaded browsers in OnLoadEnd
+  OnCompleteCallback on_complete_;
+  IMPLEMENT_REFCOUNTING(MyViewTestHandler);
+  DISALLOW_COPY_AND_ASSIGN(MyViewTestHandler);
+};
+
+// For BrowserView tests, also implement CefBrowserViewDelegate
+class MyViewDelegate : public CefWindowDelegate,
+                        public CefBrowserViewDelegate {
+ public:
+  MyViewDelegate(CefRefPtr<MyViewTestHandler> handler,
+                 CefRefPtr<CefWaitableEvent> event,
+                 int expected_browser_count)
+      : handler_(handler),
+        event_(event),
+        expected_browser_count_(expected_browser_count) {}
+
+  void OnWindowCreated(CefRefPtr<CefWindow> window) override {
+    window_ = window;
+    // Create and configure views/BrowserViews
+    window_->Show();
+  }
+
+  bool CanClose(CefRefPtr<CefWindow> window) override {
+    // IMPORTANT: Implement TryCloseBrowser() logic here
+    // See browser_view_unittest.cc for the correct pattern
+    // Must call TryCloseBrowser() and handle cleanup properly
+    return true;
+  }
+
+  void OnWindowDestroyed(CefRefPtr<CefWindow> window) override {
+    // Verify expected browsers were created and destroyed
+    EXPECT_EQ(expected_browser_count_, browser_created_count_);
+    EXPECT_EQ(expected_browser_count_, browser_destroyed_count_);
+
+    handler_->ClearCallbacks();  // Break reference cycle
+    event_->Signal();  // Release test
+  }
+
+  // CefBrowserViewDelegate methods (for BrowserView tests):
+  void OnBrowserCreated(CefRefPtr<CefBrowserView> browser_view,
+                        CefRefPtr<CefBrowser> browser) override {
+    browser_created_count_++;
+    // Notify TestHandler for accounting
+    handler_->OnWindowCreated(browser->GetIdentifier());
+  }
+
+  void OnBrowserDestroyed(CefRefPtr<CefBrowserView> browser_view,
+                          CefRefPtr<CefBrowser> browser) override {
+    browser_destroyed_count_++;
+    // Notify TestHandler for accounting
+    handler_->OnWindowDestroyed(browser->GetIdentifier());
+
+    // After each browser is destroyed, try closing the window.
+    // CanClose will check if all remaining browsers are ready.
+    if (window_) {
+      window_->Close();
+    }
+  }
+
+  CefRefPtr<CefWindow> window() const { return window_; }
+
+ private:
+  CefRefPtr<MyViewTestHandler> handler_;
+  CefRefPtr<CefWaitableEvent> event_;
+  CefRefPtr<CefWindow> window_;
+  const int expected_browser_count_;
+  int browser_created_count_ = 0;
+  int browser_destroyed_count_ = 0;
+  IMPLEMENT_REFCOUNTING(MyViewDelegate);
+  DISALLOW_COPY_AND_ASSIGN(MyViewDelegate);
+};
+
+void MyTestImpl(CefRefPtr<CefWaitableEvent> event) {
+  const int expected_browser_count = 1;
+  CefRefPtr<MyViewTestHandler> handler =
+      new MyViewTestHandler(expected_browser_count);
+  CefRefPtr<MyViewDelegate> delegate =
+      new MyViewDelegate(handler, event, expected_browser_count);
+
+  // Completion callback: called when browsers finish loading (or on timeout)
+  // Can perform additional test operations here before closing window
+  // Example: Move BrowserView between child/overlay, simulate user input, etc.
+  handler->SetOnComplete(base::BindOnce(
+      [](CefRefPtr<MyViewDelegate> delegate, bool success) {
+        // For simple tests, just close immediately
+        delegate->window()->Close();
+
+        // For complex tests, continue testing after load:
+        // if (success) {
+        //   PerformAdditionalTestSteps(delegate);
+        // } else {
+        //   delegate->window()->Close();
+        // }
+      },
+      delegate));
+
+  CefWindow::CreateTopLevelWindow(delegate);
+}
+
+}  // namespace
+
+// Test registration (outside namespace)
+MY_VIEW_TEST_ASYNC(MyTest)
+```
+
+**When to use:** BrowserView lifecycle, multiple browsers, overlay controllers, or tests requiring TestHandler functionality (OnLoadEnd, message routing, etc.)
+
+**Key differences from TestHandler tests:**
+
+- Call `SetDestroyTestExpected(false)` - not using `ExecuteTest()` pattern
+- Use `OnceCallback<void(bool success)>` for completion (true = success, false = timeout)
+- Signal `event` in `OnWindowDestroyed()` to release test
+- Call `handler_->ClearCallbacks()` in `OnWindowDestroyed()` to break reference cycle (delegate → handler → callback → delegate)
+
+**IMPORTANT:** Browser/window close lifecycle is complex. **Read `cef/tests/ceftests/views/browser_view_unittest.cc` thoroughly** to understand:
+
+- `CanClose()` implementation with `TryCloseBrowser()`
+- `OnBeforeClose()` handling and cleanup sequencing
+- Proper ordering of browser close vs window close
+- Reference counting and circular reference management
+- The pattern for when browsers should be destroyed before closing the window
+
+**Summary:**
+
+- Use `TestWindowDelegate::RunTest()` for simple view/control tests
+- Use custom handler/delegate for BrowserView tests or when you need TestHandler features
+
 ### Add Test File to Build
 
 ```python
