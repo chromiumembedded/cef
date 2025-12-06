@@ -640,6 +640,7 @@
       'tests/ceftests/v8_unittest.cc',
       'tests/ceftests/values_unittest.cc',
       'tests/ceftests/version_unittest.cc',
+      'tests/ceftests/views/browser_view_unittest.cc',
       'tests/ceftests/views/button_unittest.cc',
       'tests/ceftests/views/panel_unittest.cc',
       'tests/ceftests/views/scroll_view_unittest.cc',
