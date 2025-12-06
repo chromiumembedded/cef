@@ -995,11 +995,6 @@ MY_VIEW_TEST_ASYNC(MyTest)
 - Reference counting and circular reference management
 - The pattern for when browsers should be destroyed before closing the window
 
-**Summary:**
-
-- Use `TestWindowDelegate::RunTest()` for simple view/control tests
-- Use custom handler/delegate for BrowserView tests or when you need TestHandler features
-
 ### Add Test File to Build
 
 ```python
