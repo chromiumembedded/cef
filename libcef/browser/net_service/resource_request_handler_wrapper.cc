@@ -231,8 +231,11 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   // Holds state information for InterceptedRequestHandlerWrapper. State is
   // initialized on the UI thread and later passed to the *Wrapper object on
   // the IO thread.
-  struct InitState {
+  class InitState {
+   public:
     InitState() = default;
+    InitState(const InitState&) = delete;
+    InitState& operator=(const InitState&) = delete;
 
     ~InitState() {
       if (destruction_observer_) {
@@ -297,6 +300,13 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                          std::move(destruction_observer_)));
     }
 
+    const CefRefPtr<CefFrame>& GetFrame() {
+      MaybeChangeMainFrame();
+      return frame_;
+    }
+
+    void ResetFrame() { frame_.reset(); }
+
     static void DeleteDestructionObserverOnUIThread(
         std::unique_ptr<DestructionObserver> observer) {}
 
@@ -306,7 +316,6 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     bool initialized_ = false;
 
     CefRefPtr<CefBrowserHostBase> browser_;
-    CefRefPtr<CefFrame> frame_;
     scoped_refptr<CefIOThreadState> iothread_state_;
     CefBrowserContext::CookieableSchemes cookieable_schemes_;
     content::GlobalRenderFrameHostId global_id_;
@@ -327,6 +336,23 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     // Used to receive destruction notification.
     std::unique_ptr<DestructionObserver> destruction_observer_;
+
+   private:
+    void MaybeChangeMainFrame() {
+      // WebContents may have additional main frames for prerendered pages,
+      // bfcached pages, etc. Requests may start in a prerendered "about:blank"
+      // frame, and we may need to switch such requests to active main frames
+      // with proper origin urls.
+      if (!browser_ || !frame_ || !frame_->IsMain()) {
+        return;
+      }
+      // May return nullptr during browser initialization/destruction.
+      if (auto main_frame = browser_->GetMainFrame()) {
+        frame_ = main_frame;
+      }
+    }
+
+    CefRefPtr<CefFrame> frame_;
   };
 
   // Manages InterceptedRequestHandlerWrapper initialization. The *Wrapper
@@ -521,7 +547,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                          std::make_unique<PendingRequest>(
                              request_id, request, request_was_redirected,
                              std::move(callback), std::move(cancel_callback)),
-                         init_state_->frame_,
+                         init_state_->GetFrame(),
                          init_state_->browser_context_getter_,
                          weak_ptr_factory_.GetWeakPtr()));
       return;
@@ -578,7 +604,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     if (handler) {
       state->cookie_filter_ = handler->GetCookieAccessFilter(
-          init_state_->browser_, init_state_->frame_, requestPtr.get());
+          init_state_->browser_, init_state_->GetFrame(), requestPtr.get());
     }
 
     auto exec_callback =
@@ -645,7 +671,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     CefCookie cef_cookie;
     if (net_service::MakeCefCookie(cookie, cef_cookie)) {
       *allow = state->cookie_filter_->CanSendCookie(
-          init_state_->browser_, init_state_->frame_,
+          init_state_->browser_, init_state_->GetFrame(),
           state->pending_request_.get(), cef_cookie);
     }
   }
@@ -713,7 +739,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
               weak_ptr_factory_.GetWeakPtr(), request_id, std::move(callback)));
 
       cef_return_value_t retval = state->handler_->OnBeforeResourceLoad(
-          init_state_->browser_, init_state_->frame_,
+          init_state_->browser_, init_state_->GetFrame(),
           state->pending_request_.get(), callbackPtr.get());
       if (retval != RV_CONTINUE_ASYNC) {
         if (retval == RV_CONTINUE) {
@@ -783,13 +809,13 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     if (state->handler_) {
       // Does the client want to handle the request?
       resource_handler = state->handler_->GetResourceHandler(
-          init_state_->browser_, init_state_->frame_,
+          init_state_->browser_, init_state_->GetFrame(),
           state->pending_request_.get());
     }
     if (!resource_handler && state->scheme_factory_) {
       // Does the scheme factory want to handle the request?
       resource_handler = state->scheme_factory_->Create(
-          init_state_->browser_, init_state_->frame_,
+          init_state_->browser_, init_state_->GetFrame(),
           std::string(state->request_->url.scheme()),
           state->pending_request_.get());
     }
@@ -889,7 +915,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     CefString oldUrl = newUrl;
     bool url_changed = false;
     state->handler_->OnResourceRedirect(
-        init_state_->browser_, init_state_->frame_,
+        init_state_->browser_, init_state_->GetFrame(),
         state->pending_request_.get(), state->pending_response_.get(), newUrl);
     if (newUrl != oldUrl) {
       // Also support relative URLs.
@@ -926,7 +952,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     GURL new_url;
 
     if (state->handler_->OnResourceResponse(
-            init_state_->browser_, init_state_->frame_,
+            init_state_->browser_, init_state_->GetFrame(),
             state->pending_request_.get(), state->pending_response_.get())) {
       // The request may have been modified.
       const auto changes = state->pending_request_->GetChanges();
@@ -1015,7 +1041,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     CefCookie cef_cookie;
     if (net_service::MakeCefCookie(cookie, cef_cookie)) {
       *allow = state->cookie_filter_->CanSaveCookie(
-          init_state_->browser_, init_state_->frame_,
+          init_state_->browser_, init_state_->GetFrame(),
           state->pending_request_.get(), state->pending_response_.get(),
           cef_cookie);
     }
@@ -1043,7 +1069,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     if (state->handler_) {
       auto filter = state->handler_->GetResourceResponseFilter(
-          init_state_->browser_, init_state_->frame_,
+          init_state_->browser_, init_state_->GetFrame(),
           state->pending_request_.get(), state->pending_response_.get());
       if (filter) {
         return CreateResponseFilterHandler(
@@ -1115,7 +1141,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
           is_external) {
         bool allow_os_execution = false;
         state->handler_->OnProtocolExecution(
-            init_state_->browser_, init_state_->frame_,
+            init_state_->browser_, init_state_->GetFrame(),
             state->pending_request_.get(), allow_os_execution);
         if (allow_os_execution && init_state_->unhandled_request_callback_) {
           handled_externally = true;
@@ -1151,7 +1177,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     state->pending_response_->SetReadOnly(true);
 
     state->handler_->OnResourceLoadComplete(
-        init_state_->browser_, init_state_->frame_,
+        init_state_->browser_, init_state_->GetFrame(),
         state->pending_request_.get(), state->pending_response_.get(),
         status.error_code == 0 ? UR_SUCCESS : UR_FAILED,
         status.encoded_body_length);
@@ -1176,7 +1202,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
           requestPtr = MakeRequest(request, request_id, true);
 
           handler = request_handler->GetResourceRequestHandler(
-              init_state_->browser_, init_state_->frame_, requestPtr.get(),
+              init_state_->browser_, init_state_->GetFrame(), requestPtr.get(),
               init_state_->is_navigation_, init_state_->is_download_,
               init_state_->request_initiator_, *intercept_only);
         }
@@ -1194,7 +1220,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
         }
 
         handler = context_handler->GetResourceRequestHandler(
-            init_state_->browser_, init_state_->frame_, requestPtr.get(),
+            init_state_->browser_, init_state_->GetFrame(), requestPtr.get(),
             init_state_->is_navigation_, init_state_->is_download_,
             init_state_->request_initiator_, *intercept_only);
       }
@@ -1260,7 +1286,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     if (init_state_->browser_) {
       // Clear objects that reference the browser.
       init_state_->browser_ = nullptr;
-      init_state_->frame_ = nullptr;
+      init_state_->ResetFrame();
     }
 
     // Execute cancel callbacks and delete pending and in-progress requests.
