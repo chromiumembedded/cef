@@ -540,6 +540,13 @@ bool ViewsWindow::AllowMoveForPictureInPicture(
 }
 #endif
 
+#if CEF_API_ADDED(CEF_NEXT)
+bool ViewsWindow::AllowPictureInPictureWithoutUserActivation(
+    CefRefPtr<CefBrowserView> browser_view) {
+  return allow_pip_without_user_activation_;
+}
+#endif
+
 cef_runtime_style_t ViewsWindow::GetBrowserRuntimeStyle() {
   if (use_alloy_style_) {
     return CEF_RUNTIME_STYLE_ALLOY;
@@ -1171,6 +1178,8 @@ ViewsWindow::ViewsWindow(WindowType type,
       command_line->HasSwitch(switches::kUseWindowModalDialog);
   hide_pip_frame_ = command_line->HasSwitch(switches::kHidePipFrame);
   move_pip_enabled_ = command_line->HasSwitch(switches::kMovePipEnabled);
+  allow_pip_without_user_activation_ =
+      command_line->HasSwitch(switches::kPipNoUserActivationEnabled);
 }
 
 void ViewsWindow::SetBrowserView(CefRefPtr<CefBrowserView> browser_view) {

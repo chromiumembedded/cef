@@ -364,6 +364,7 @@ class CefBrowserPlatformDelegate {
   virtual bool IsPrintPreviewSupported() const;
 
   virtual bool IsMovePictureInPictureEnabled() const;
+  virtual bool AllowPictureInPictureWithoutUserActivation() const;
 
   // CefBrowser configuration determined prior to CefBrowserHost creation and
   // passed to the renderer process via the GetNewBrowserInfo Mojo request.

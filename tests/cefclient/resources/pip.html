@@ -1,0 +1,197 @@
+<html>
+
+<head>
+  <title>Document Picture-in-Picture Test</title>
+  <style>
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background-color: white;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .control-panel {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #f0f0f0;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #delayedPipBtn {
+      background-color: #2196F3;
+    }
+
+    #delayedPipBtn:hover {
+      background-color: #0b7dda;
+    }
+
+    .status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    .status.success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .status.error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Document Picture-in-Picture Test</h2>
+  <p><strong>Note:</strong> The "Open PiP Delayed" button is expected to fail without user activation.
+    To bypass this requirement, launch cefclient with <code>--pip-no-user-activation-enabled</code> flag.</p>
+
+  <div class="control-panel">
+    <button id="togglePipBtn" onclick="togglePip()">Open PiP</button>
+    <button id="delayedPipBtn" onclick="openPipDelayed()">Open PiP Delayed</button>
+    <div id="status" class="status" style="display: none;"></div>
+  </div>
+
+  <script>
+    let pipWindow = null;
+    let delayedOpenTimeout = null;
+
+    function showStatus(message, isError = false) {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = message;
+      statusEl.className = 'status ' + (isError ? 'error' : 'success');
+      statusEl.style.display = 'block';
+    }
+
+    async function openPip() {
+      try {
+        if (!('documentPictureInPicture' in window)) {
+          showStatus('Document Picture-in-Picture API is not supported', true);
+          return;
+        }
+
+        pipWindow = await documentPictureInPicture.requestWindow({
+          width: 400,
+          height: 300
+        });
+
+        const pipDoc = pipWindow.document;
+
+        const styleEl = pipDoc.createElement('style');
+        styleEl.textContent = `
+          body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+          }
+          .content {
+            text-align: center;
+            padding: 20px;
+          }
+          h1 {
+            color: #333;
+            margin-bottom: 20px;
+          }
+          button {
+            padding: 10px 20px;
+            font-size: 14px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+          }
+          button:hover {
+            background-color: #45a049;
+          }
+        `;
+        pipDoc.head.appendChild(styleEl);
+
+        const contentEl = pipDoc.createElement('div');
+        contentEl.className = 'content';
+        contentEl.innerHTML = `
+          <h1>PiP Window</h1>
+          <p>Test Content</p>
+          <button onclick="window.close()">Close</button>
+        `;
+        pipDoc.body.appendChild(contentEl);
+
+        document.getElementById('togglePipBtn').textContent = 'Close PiP Window';
+        showStatus('PiP window opened');
+
+        pipWindow.addEventListener('pagehide', () => {
+          pipWindow = null;
+          document.getElementById('togglePipBtn').textContent = 'Open PiP Window';
+        });
+
+      } catch (error) {
+        showStatus('Error: ' + error.message, true);
+        console.error('PiP Error:', error);
+      }
+    }
+
+    function closePip() {
+      if (pipWindow && !pipWindow.closed) {
+        pipWindow.close();
+        pipWindow = null;
+      }
+    }
+
+    function togglePip() {
+      if (pipWindow && !pipWindow.closed) {
+        closePip();
+      } else {
+        openPip();
+      }
+    }
+
+    function openPipDelayed() {
+      if (delayedOpenTimeout) {
+        clearTimeout(delayedOpenTimeout);
+      }
+
+      showStatus('PiP window will open in 10 seconds...');
+
+      delayedOpenTimeout = setTimeout(() => {
+        delayedOpenTimeout = null;
+
+        if (!pipWindow || pipWindow.closed) {
+          openPip();
+        }
+      }, 10000);
+    }
+
+    window.addEventListener('beforeunload', () => {
+      if (delayedOpenTimeout) {
+        clearTimeout(delayedOpenTimeout);
+      }
+      closePip();
+    });
+  </script>
+</body>
+
+</html>

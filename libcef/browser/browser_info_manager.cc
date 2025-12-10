@@ -790,6 +790,8 @@ void CefBrowserInfoManager::SendNewBrowserInfoResponse(
     config->print_preview_enabled =
         browser_info->config().print_preview_enabled;
     config->move_pip_enabled = browser_info->config().move_pip_enabled;
+    config->allow_pip_without_user_activation =
+        browser_info->config().allow_pip_without_user_activation;
     params->config = std::move(config);
 
     auto extra_info = browser_info->extra_info();

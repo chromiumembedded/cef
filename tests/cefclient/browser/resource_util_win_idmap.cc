@@ -31,6 +31,7 @@ int GetResourceId(const char* resource_name) {
                       {"pdf.pdf", IDS_PDF_PDF},
                       {"performance.html", IDS_PERFORMANCE_HTML},
                       {"performance2.html", IDS_PERFORMANCE2_HTML},
+                      {"pip.html", IDS_PIP_HTML},
                       {"preferences.html", IDS_PREFERENCES_HTML},
                       {"response_filter.html", IDS_RESPONSE_FILTER_HTML},
                       {"server.html", IDS_SERVER_HTML},

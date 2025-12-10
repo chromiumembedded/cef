@@ -141,6 +141,17 @@ bool CefBrowserPlatformDelegateChromeViews::IsMovePictureInPictureEnabled()
   return false;
 }
 
+bool CefBrowserPlatformDelegateChromeViews::
+    AllowPictureInPictureWithoutUserActivation() const {
+  if (CEF_API_IS_ADDED(CEF_NEXT) && browser_view_) {
+    if (auto* delegate = browser_view_->delegate()) {
+      return delegate->AllowPictureInPictureWithoutUserActivation(
+          browser_view_.get());
+    }
+  }
+  return false;
+}
+
 CefWindowImpl* CefBrowserPlatformDelegateChromeViews::GetWindowImpl() const {
   if (auto* widget = GetWindowWidget()) {
     CefRefPtr<CefWindow> window = view_util::GetWindowFor(widget);

@@ -15,6 +15,7 @@ struct BrowserConfig {
   bool is_windowless;
   bool print_preview_enabled;
   bool move_pip_enabled;
+  bool allow_pip_without_user_activation;
 };
 
 }  // namespace cef

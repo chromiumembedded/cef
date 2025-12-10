@@ -307,9 +307,10 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
   }
 
   if (params->config) {
-    config = cef::BrowserConfig{params->config->is_windowless,
-                                params->config->print_preview_enabled,
-                                params->config->move_pip_enabled};
+    config = cef::BrowserConfig{
+        params->config->is_windowless, params->config->print_preview_enabled,
+        params->config->move_pip_enabled,
+        params->config->allow_pip_without_user_activation};
   }
 
   if (params->is_excluded || params->browser_id < 0) {

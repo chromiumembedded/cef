@@ -142,6 +142,18 @@ class CefBrowserViewDelegate : public CefViewDelegate {
   }
 #endif
 
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// Return true to allow opening Document picture-in-picture without
+  /// user activation. Default is false (user activation required).
+  ///
+  /*--cef(added=next)--*/
+  virtual bool AllowPictureInPictureWithoutUserActivation(
+      CefRefPtr<CefBrowserView> browser_view) {
+    return false;
+  }
+#endif
+
   ///
   /// Called when |browser_view| receives a gesture command. Return true to
   /// handle (or disable) a |gesture_command| or false to propagate the gesture

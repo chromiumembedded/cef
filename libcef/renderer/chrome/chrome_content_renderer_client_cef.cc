@@ -121,4 +121,6 @@ void ChromeContentRendererClientCef::OnBrowserCreated(
   blink_glue::SetUseExternalPopupMenus(web_view, !config.is_windowless);
 #endif
   web_view->SetMovePictureInPictureEnabled(config.move_pip_enabled);
+  web_view->SetAllowPictureInPictureWithoutUserActivation(
+      config.allow_pip_without_user_activation);
 }

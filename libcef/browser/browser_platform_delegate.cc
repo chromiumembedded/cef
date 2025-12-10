@@ -568,9 +568,15 @@ bool CefBrowserPlatformDelegate::IsMovePictureInPictureEnabled() const {
   return false;
 }
 
+bool CefBrowserPlatformDelegate::AllowPictureInPictureWithoutUserActivation()
+    const {
+  return false;
+}
+
 cef::BrowserConfig CefBrowserPlatformDelegate::GetBrowserConfig() const {
   return {IsWindowless(), IsPrintPreviewSupported(),
-          IsMovePictureInPictureEnabled()};
+          IsMovePictureInPictureEnabled(),
+          AllowPictureInPictureWithoutUserActivation()};
 }
 
 // static

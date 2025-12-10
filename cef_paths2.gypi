@@ -351,6 +351,7 @@
       'tests/cefclient/resources/other_tests.html',
       'tests/cefclient/resources/performance.html',
       'tests/cefclient/resources/performance2.html',
+      'tests/cefclient/resources/pip.html',
       'tests/cefclient/resources/preferences.html',
       'tests/cefclient/resources/response_filter.html',
       'tests/cefclient/resources/server.html',

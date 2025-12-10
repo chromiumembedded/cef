@@ -55,6 +55,7 @@ const char kUseWindowModalDialog[] = "use-window-modal-dialog";
 const char kUseBottomControls[] = "use-bottom-controls";
 const char kHidePipFrame[] = "hide-pip-frame";
 const char kMovePipEnabled[] = "move-pip-enabled";
+const char kPipNoUserActivationEnabled[] = "pip-no-user-activation-enabled";
 const char kHideChromeBubbles[] = "hide-chrome-bubbles";
 const char kHideWindowOnClose[] = "hide-window-on-close";
 const char kAcceptsFirstMouse[] = "accepts-first-mouse";

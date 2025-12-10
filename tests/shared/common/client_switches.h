@@ -49,6 +49,7 @@ extern const char kUseWindowModalDialog[];
 extern const char kUseBottomControls[];
 extern const char kHidePipFrame[];
 extern const char kMovePipEnabled[];
+extern const char kPipNoUserActivationEnabled[];
 extern const char kHideChromeBubbles[];
 extern const char kHideWindowOnClose[];
 extern const char kAcceptsFirstMouse[];

@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 11a31c9ed26b5abde0ea812eae6b219340ed711c..d999a75b68b1d59a736482e5f3bfd23144b0a212 100644
+index 11a31c9ed26b5abde0ea812eae6b219340ed711c..656ebba200e43e652b07d63881e6c88a21932f55 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -480,6 +480,11 @@ class BLINK_EXPORT WebView {
+@@ -480,6 +480,16 @@ class BLINK_EXPORT WebView {
    // for testing.
    virtual std::optional<NoiseToken> CanvasNoiseTokenForTesting() = 0;
  
@@ -11,14 +11,19 @@ index 11a31c9ed26b5abde0ea812eae6b219340ed711c..d999a75b68b1d59a736482e5f3bfd231
 +  virtual void SetMovePictureInPictureEnabled(bool enabled) = 0;
 +  virtual bool MovePictureInPictureEnabled() const = 0;
 +
++  // Sets whether to allow opening Document picture-in-picture windows without
++  // user activation. Defaults to false (user activation required).
++  virtual void SetAllowPictureInPictureWithoutUserActivation(bool allow) = 0;
++  virtual bool AllowPictureInPictureWithoutUserActivation() const = 0;
++
   protected:
    ~WebView() = default;
  };
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 5dd87ed6a78156cf7d1fc130fc2db6b399227d76..50d601cdc558bb6218720cf6e510dcb99510417a 100644
+index 5dd87ed6a78156cf7d1fc130fc2db6b399227d76..697e73a339406279043670a031304aafe532eada 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
-@@ -328,6 +328,13 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -328,6 +328,20 @@ class CORE_EXPORT WebViewImpl final : public WebView,
  
    std::optional<NoiseToken> CanvasNoiseTokenForTesting() override;
  
@@ -29,14 +34,22 @@ index 5dd87ed6a78156cf7d1fc130fc2db6b399227d76..50d601cdc558bb6218720cf6e510dcb9
 +    return move_pip_enabled_;
 +  }
 +
++  void SetAllowPictureInPictureWithoutUserActivation(bool allow) override {
++    allow_pip_without_user_activation_ = allow;
++  }
++  bool AllowPictureInPictureWithoutUserActivation() const override {
++    return allow_pip_without_user_activation_;
++  }
++
    void DispatchPersistedPageshow(base::TimeTicks navigation_start);
    void DispatchPagehide(mojom::blink::PagehideDispatch pagehide_dispatch);
    void HookBackForwardCacheEviction(bool hook);
-@@ -1020,6 +1027,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -1020,6 +1034,9 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    // CSS property.
    bool supports_draggable_regions_ = false;
  
 +  bool move_pip_enabled_ = false;
++  bool allow_pip_without_user_activation_ = false;
 +
    // All the registered observers.
    base::ObserverList<WebViewObserver> observers_;
@@ -141,3 +154,36 @@ index 6af684082a3f7b894be9fd5f321a7a025bbad14e..c3e4166572a2a118aefaa4e4a17c67e2
    // Records this window's Storage Access API status. It cannot be downgraded.
    net::StorageAccessApiStatus storage_access_api_status_ =
        net::StorageAccessApiStatus::kNone;
+diff --git third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
+index 12d793161d71deb8ba4997ff214a3a4291e67ec2..6ef1e2fbaf36f3717bdd8b38b5fe3f9a2d95168b 100644
+--- third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
++++ third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
+@@ -15,6 +15,7 @@
+ #include "third_party/blink/public/platform/browser_interface_broker_proxy.h"
+ #include "third_party/blink/public/platform/web_media_player.h"
+ #include "third_party/blink/public/web/web_picture_in_picture_window_options.h"
++#include "third_party/blink/public/web/web_view.h"
+ #include "third_party/blink/renderer/bindings/core/v8/script_controller.h"
+ #include "third_party/blink/renderer/bindings/core/v8/script_promise_resolver.h"
+ #include "third_party/blink/renderer/bindings/core/v8/v8_binding_for_core.h"
+@@ -25,6 +26,7 @@
+ #include "third_party/blink/renderer/core/dom/events/event.h"
+ #include "third_party/blink/renderer/core/frame/local_frame.h"
+ #include "third_party/blink/renderer/core/frame/settings.h"
++#include "third_party/blink/renderer/core/frame/web_local_frame_impl.h"
+ #include "third_party/blink/renderer/core/fullscreen/fullscreen.h"
+ #include "third_party/blink/renderer/core/html/media/html_media_element.h"
+ #include "third_party/blink/renderer/core/html/media/html_video_element.h"
+@@ -380,7 +382,11 @@ void PictureInPictureControllerImpl::CreateDocumentPictureInPictureWindow(
+     LocalDOMWindow& opener,
+     DocumentPictureInPictureOptions* options,
+     ScriptPromiseResolver<DOMWindow>* resolver) {
+-  if (!LocalFrame::ConsumeTransientUserActivation(opener.GetFrame())) {
++  bool allow_without_activation = WebLocalFrameImpl::FromFrame(opener.GetFrame())
++                                      ->View()
++                                      ->AllowPictureInPictureWithoutUserActivation();
++  if (!allow_without_activation &&
++      !LocalFrame::ConsumeTransientUserActivation(opener.GetFrame())) {
+     resolver->RejectWithDOMException(DOMExceptionCode::kNotAllowedError,
+                                      "Document PiP requires user activation");
+     return;
