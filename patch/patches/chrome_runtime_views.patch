@@ -200,7 +200,7 @@ index b0658fdc10557144ebdbab8784f49fc521b41881..47393d17e01c5538ac76bc242956ab0b
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 90b8dbac885c1145265ed75faa878feacd0fd207..d3e8cf6c931b1f9ad82bbbb3a07bde4a9bbbb945 100644
+index 7208db413af13eef59171426c50ae6214990e95c..90909e815fb977984ce94e3a3d6108133b6788ac 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -837,13 +837,23 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
@@ -435,7 +435,7 @@ index 90b8dbac885c1145265ed75faa878feacd0fd207..d3e8cf6c931b1f9ad82bbbb3a07bde4a
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
    }
  
-@@ -5033,7 +5133,9 @@ void BrowserView::Layout(PassKey) {
+@@ -5034,7 +5134,9 @@ void BrowserView::Layout(PassKey) {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -446,7 +446,7 @@ index 90b8dbac885c1145265ed75faa878feacd0fd207..d3e8cf6c931b1f9ad82bbbb3a07bde4a
    GetFrameView()->UpdateMinimumSize();
  
    // Some of the situations when the BrowserView is laid out are:
-@@ -5102,6 +5204,12 @@ void BrowserView::AddedToWidget() {
+@@ -5103,6 +5205,12 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->GetProfile());
  #endif
  
@@ -459,7 +459,7 @@ index 90b8dbac885c1145265ed75faa878feacd0fd207..d3e8cf6c931b1f9ad82bbbb3a07bde4a
    toolbar_->Init();
  
    UpdateTabSearchBubbleHost();
-@@ -5184,12 +5292,6 @@ void BrowserView::AddedToWidget() {
+@@ -5185,12 +5293,6 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -472,7 +472,7 @@ index 90b8dbac885c1145265ed75faa878feacd0fd207..d3e8cf6c931b1f9ad82bbbb3a07bde4a
  #if !BUILDFLAG(IS_CHROMEOS)
    browser_->GetFeatures().download_toolbar_ui_controller()->Init();
  #endif
-@@ -5223,6 +5325,13 @@ void BrowserView::AddedToWidget() {
+@@ -5224,6 +5326,13 @@ void BrowserView::AddedToWidget() {
                  weak_ptr_factory_.GetWeakPtr()));
    }
  
