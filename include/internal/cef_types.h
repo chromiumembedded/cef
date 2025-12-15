@@ -3661,6 +3661,11 @@ typedef enum {
 #if CEF_API_ADDED(14000)
   CEF_CPAIT_AI_MODE,
 #endif
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CPAIT_READING_MODE,
+  CEF_CPAIT_CONTEXTUAL_SIDE_PANEL,
+  CEF_CPAIT_JS_OPTIMIZATIONS,
+#endif
   CEF_CPAIT_NUM_VALUES,
 } cef_chrome_page_action_icon_type_t;
 

@@ -212,10 +212,10 @@ index cc25afde6afb9027efaed4ef8d23046433231305..8fb54dc6040bb9f2f2bb322204798abf
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
  
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index 30b7e26cf48af97da712b6c5a70bc5453518fdd5..0920cf9e7dd401fd7dc1f657a40c42f8544c609f 100644
+index 1b7eb9149208de6104c613a0f7c6f38214e2a050..2f3953f5f731dc337de2edafdc4ae02ef81fe6b1 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
-@@ -90,10 +90,12 @@ DialogDelegate::DialogDelegate() {
+@@ -100,10 +100,12 @@ DialogDelegate::DialogDelegate() {
  // static
  Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
                                             gfx::NativeWindow context,
@@ -230,7 +230,7 @@ index 30b7e26cf48af97da712b6c5a70bc5453518fdd5..0920cf9e7dd401fd7dc1f657a40c42f8
    widget->Init(std::move(params));
    return widget;
  }
-@@ -102,15 +104,17 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
+@@ -112,15 +114,17 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
  Widget* DialogDelegate::CreateDialogWidget(
      std::unique_ptr<WidgetDelegate> delegate,
      gfx::NativeWindow context,
@@ -252,7 +252,7 @@ index 30b7e26cf48af97da712b6c5a70bc5453518fdd5..0920cf9e7dd401fd7dc1f657a40c42f8
  #else
    return true;
  #endif
-@@ -121,7 +125,8 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -131,7 +135,8 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
      WidgetDelegate* delegate,
      gfx::NativeWindow context,
      gfx::NativeView parent,
@@ -262,7 +262,7 @@ index 30b7e26cf48af97da712b6c5a70bc5453518fdd5..0920cf9e7dd401fd7dc1f657a40c42f8
    DialogDelegate* dialog = delegate->AsDialogDelegate();
  
    views::Widget::InitParams params(
-@@ -131,7 +136,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -141,7 +146,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
    params.bounds = bounds;
  
    if (dialog) {
@@ -271,7 +271,7 @@ index 30b7e26cf48af97da712b6c5a70bc5453518fdd5..0920cf9e7dd401fd7dc1f657a40c42f8
    }
  
    if (!dialog || dialog->use_custom_frame()) {
-@@ -145,6 +150,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -155,6 +160,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
    }
    params.context = context;
    params.parent = parent;
@@ -280,10 +280,10 @@ index 30b7e26cf48af97da712b6c5a70bc5453518fdd5..0920cf9e7dd401fd7dc1f657a40c42f8
    // Web-modal (ui::mojom::ModalType::kChild) dialogs with parents are marked as
    // child widgets to prevent top-level window behavior (independent movement,
 diff --git ui/views/window/dialog_delegate.h ui/views/window/dialog_delegate.h
-index 1aaa5fde0467ae4093e26a39d3fdf2f8550fc071..67f18e49b038864f5a065f6c1faa6c074e14a08e 100644
+index 762697ceaea10cbde9649128eb54cf888873b1c4..c02d4889509266521a0900457b064332c616fbf9 100644
 --- ui/views/window/dialog_delegate.h
 +++ ui/views/window/dialog_delegate.h
-@@ -308,13 +308,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
+@@ -309,13 +309,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
    // WidgetDelegate::SetOwnedByWidget().
    static Widget* CreateDialogWidget(std::unique_ptr<WidgetDelegate> delegate,
                                      gfx::NativeWindow context,
@@ -305,7 +305,7 @@ index 1aaa5fde0467ae4093e26a39d3fdf2f8550fc071..67f18e49b038864f5a065f6c1faa6c07
  
    // Returns the dialog widget InitParams for a given |context| or |parent|.
    // If |bounds| is not empty, used to initially place the dialog, otherwise
-@@ -322,7 +327,9 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
+@@ -323,7 +328,9 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
    static Widget::InitParams GetDialogWidgetInitParams(WidgetDelegate* delegate,
                                                        gfx::NativeWindow context,
                                                        gfx::NativeView parent,

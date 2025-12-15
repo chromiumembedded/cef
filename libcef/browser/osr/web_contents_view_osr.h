@@ -49,6 +49,8 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   void FocusThroughTabTraversal(bool reverse) override {}
   content::DropData* GetDropData() const override { return nullptr; }
   gfx::Rect GetViewBounds() const override;
+  void Resize(const gfx::Rect& new_bounds) override;
+  gfx::Size GetSize() const override;
   void CreateView(gfx::NativeView context) override {}
   content::RenderWidgetHostViewBase* CreateViewForWidget(
       content::RenderWidgetHost* render_widget_host) override;

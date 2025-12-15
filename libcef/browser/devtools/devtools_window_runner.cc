@@ -38,8 +38,9 @@ void CefDevToolsWindowRunner::ShowDevTools(
     DevToolsWindow::InspectElement(web_contents->GetPrimaryMainFrame(),
                                    inspect_element_at.x, inspect_element_at.y);
   } else {
-    DevToolsWindow::OpenDevToolsWindow(web_contents, profile,
-                                       DevToolsOpenedByAction::kUnknown);
+    DevToolsWindow::OpenDevToolsWindow(
+        web_contents, profile, DevToolsOpenedByAction::kUnknown,
+        content::DevToolsManagerDelegate::DevToolsOptions());
   }
 
   // The DevTools browser host should now exist.

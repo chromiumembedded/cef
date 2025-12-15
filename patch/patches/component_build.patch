@@ -1,8 +1,8 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index e0a6a54e56e8780a360b1e98465bdee074c55218..51a7398652f146a543bc59c0fda1013f9092a907 100644
+index 313dd723e360c80bd837107afb4051542b6ab73d..15f025e8153cf246605bd0aeb9f7083326a0890d 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
-@@ -151,7 +151,7 @@ bool ApplyUserAgentMetadataOverrides(
+@@ -150,7 +150,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
      std::optional<blink::UserAgentMetadata>* override_out);
  
@@ -12,7 +12,7 @@ index e0a6a54e56e8780a360b1e98465bdee074c55218..51a7398652f146a543bc59c0fda1013f
  
   public:
 diff --git content/browser/renderer_host/input/mouse_wheel_phase_handler.h content/browser/renderer_host/input/mouse_wheel_phase_handler.h
-index 21d404b905170cd92bc10cc74b2faabb09f6c68a..89b915a4795b0449de7b88f023789281d23efd84 100644
+index 9c6e2f83d387c32c73b2c0850151fcd9747b83fc..cb7e04e798a09c525326994365409ebacca88339 100644
 --- content/browser/renderer_host/input/mouse_wheel_phase_handler.h
 +++ content/browser/renderer_host/input/mouse_wheel_phase_handler.h
 @@ -9,6 +9,7 @@
@@ -22,15 +22,6 @@ index 21d404b905170cd92bc10cc74b2faabb09f6c68a..89b915a4795b0449de7b88f023789281
 +#include "content/common/content_export.h"
  #include "third_party/blink/public/common/input/web_mouse_wheel_event.h"
  #include "third_party/blink/public/mojom/input/input_event_result.mojom-shared.h"
- 
-@@ -51,7 +52,7 @@ enum class FirstScrollUpdateAckState {
- // The MouseWheelPhaseHandler is responsible for adding the proper phase to
- // wheel events. Phase information is necessary for wheel scrolling since it
- // shows the start and end of a scrolling sequence.
--class MouseWheelPhaseHandler {
-+class CONTENT_EXPORT MouseWheelPhaseHandler {
-  public:
-   MouseWheelPhaseHandler(RenderWidgetHostViewBase* const host_view);
  
 diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
 index 09d80f2ba678df9ab1b9b2b74ad66d4546036fb2..5dbff44c280a145c65146279a971620fc18db54c 100644
@@ -55,7 +46,7 @@ index 09d80f2ba678df9ab1b9b2b74ad66d4546036fb2..5dbff44c280a145c65146279a971620f
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index b2a24d33534d808da83585007f5d9e9ecac9930c..8300ea3a2ca61d420f1f9f8b57f5d1c5c4fd69d1 100644
+index b229de2731dc6a86b9909322c0d0e94e8f2e7eb7..1d55f8ee98f93d77252badbb9fc8f67078c0907f 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -3,6 +3,7 @@

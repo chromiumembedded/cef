@@ -678,7 +678,7 @@ void StreamReaderURLLoader::HeadersComplete(int orig_status_code,
 
   if (header_client_.is_bound()) {
     header_client_->OnHeadersReceived(
-        headers->raw_headers(), net::IPEndPoint(),
+        headers->raw_headers(), net::IPEndPoint(), std::nullopt,
         base::BindOnce(&StreamReaderURLLoader::ContinueWithResponseHeaders,
                        weak_factory_.GetWeakPtr(),
                        std::move(pending_response)));

@@ -10,7 +10,6 @@
 #include "base/strings/utf_string_conversions.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/common/net/scheme_registration.h"
-#include "content/browser/resource_context_impl.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/global_routing_id.h"
 #include "url/gurl.h"

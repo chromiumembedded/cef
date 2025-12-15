@@ -13,10 +13,10 @@ index a968ee6b9c938ec2fb7a58d1fcc16bc1b1c4032b..d858daeed2b58c8d4be124341a961a99
        endpoint->task_runner()->PostTask(
            FROM_HERE,
 diff --git mojo/public/cpp/bindings/associated_receiver.h mojo/public/cpp/bindings/associated_receiver.h
-index 76065029e088c48b7c43433e562c13d286b7aafa..73a4eb914dca1055dfc65ab56ed74e6271180824 100644
+index 919882257b0aa62059d3f223004062a6057e626c..25d67998530aee7f367a7324a1bcad6aa931f231 100644
 --- mojo/public/cpp/bindings/associated_receiver.h
 +++ mojo/public/cpp/bindings/associated_receiver.h
-@@ -46,6 +46,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) AssociatedReceiverBase {
+@@ -48,6 +48,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) AssociatedReceiverBase {
    void set_disconnect_handler(base::OnceClosure error_handler);
    void set_disconnect_with_reason_handler(
        ConnectionErrorWithReasonCallback error_handler);
@@ -25,7 +25,7 @@ index 76065029e088c48b7c43433e562c13d286b7aafa..73a4eb914dca1055dfc65ab56ed74e62
    void reset_on_disconnect();
  
    bool is_bound() const { return !!endpoint_client_; }
-@@ -158,6 +160,7 @@ class AssociatedReceiver : public internal::AssociatedReceiverBase {
+@@ -160,6 +162,7 @@ class AssociatedReceiver : public internal::AssociatedReceiverBase {
    // Like above but when invoked |handler| will receive additional metadata
    // about why the remote endpoint was closed, if provided.
    using AssociatedReceiverBase::set_disconnect_with_reason_handler;
@@ -197,7 +197,7 @@ index fe6e2ffc665aa6f1943305158eb419fccefd5b13..88136f347303632c24e4faeb5e4ec2b2
      // No more messages on the pipe and the peer is closed.
      HandleError(false /* force_pipe_reset */, false /* force_async_handler */);
 diff --git mojo/public/cpp/bindings/lib/interface_endpoint_client.cc mojo/public/cpp/bindings/lib/interface_endpoint_client.cc
-index 780a605aeb3c4f7bd94f2f4696ef5ae47c69dd82..1c76d8051bdd9364bcf85e2269b114024aac53a8 100644
+index 0e38cf45fce595b9b746dd4ef087919e81eea053..46b418d820b3fe9fa4f509d4f941cb77eb005c7d 100644
 --- mojo/public/cpp/bindings/lib/interface_endpoint_client.cc
 +++ mojo/public/cpp/bindings/lib/interface_endpoint_client.cc
 @@ -738,7 +738,8 @@ bool InterfaceEndpointClient::HandleIncomingMessage(Message* message) {

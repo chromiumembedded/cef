@@ -67,7 +67,9 @@ net::CookieOptions GetCookieOptions(const network::ResourceRequest& request,
         net::cookie_util::ComputeSameSiteContextForRequest(
             request.method, url_chain, request.site_for_cookies,
             request.request_initiator, is_main_frame_navigation,
-            should_treat_as_first_party));
+            should_treat_as_first_party,
+            request.destination ==
+                network::mojom::RequestDestination::kWebIdentity));
   } else {
     // Match the logic from
     // URLRequestHttpJob::SaveCookiesAndNotifyHeadersComplete.

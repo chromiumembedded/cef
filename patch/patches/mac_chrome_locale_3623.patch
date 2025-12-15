@@ -1,8 +1,8 @@
 diff --git chrome/browser/chrome_resource_bundle_helper.cc chrome/browser/chrome_resource_bundle_helper.cc
-index f36b6d7094a4fa41bf14f45fc9c9704f759c4f79..ca4d9bd387ce174d7848732b99c627a9d50b8092 100644
+index a6886e3c0f3a096900f0760ed00fad1087aabb54..235035919bde235325e5729055cb29facc3e6de7 100644
 --- chrome/browser/chrome_resource_bundle_helper.cc
 +++ chrome/browser/chrome_resource_bundle_helper.cc
-@@ -62,8 +62,10 @@ extern void InitializeLocalState(
+@@ -61,8 +61,10 @@ extern void InitializeLocalState(
  
  // Initializes the shared instance of ResourceBundle and returns the application
  // locale. An empty |actual_locale| value indicates failure.
@@ -15,7 +15,7 @@ index f36b6d7094a4fa41bf14f45fc9c9704f759c4f79..ca4d9bd387ce174d7848732b99c627a9
  #if BUILDFLAG(IS_ANDROID)
    // In order for DetectAndSetLoadNonWebViewLocalePaks() to work ResourceBundle
    // must not have been created yet.
-@@ -71,23 +73,16 @@ std::string InitResourceBundleAndDetermineLocale(PrefService* local_state,
+@@ -70,23 +72,16 @@ std::string InitResourceBundleAndDetermineLocale(PrefService* local_state,
    ui::DetectAndSetLoadNonWebViewLocalePaks();
  #endif
  
@@ -42,7 +42,7 @@ index f36b6d7094a4fa41bf14f45fc9c9704f759c4f79..ca4d9bd387ce174d7848732b99c627a9
    CHECK(!actual_locale.empty())
        << "Locale could not be found for " << preferred_locale;
  
-@@ -120,6 +115,7 @@ std::string InitResourceBundleAndDetermineLocale(PrefService* local_state,
+@@ -119,6 +114,7 @@ std::string InitResourceBundleAndDetermineLocale(PrefService* local_state,
  
  std::string LoadLocalState(
      ChromeFeatureListCreator* chrome_feature_list_creator,
@@ -50,7 +50,7 @@ index f36b6d7094a4fa41bf14f45fc9c9704f759c4f79..ca4d9bd387ce174d7848732b99c627a9
      bool is_running_tests) {
    base::FilePath user_data_dir;
    if (!base::PathService::Get(chrome::DIR_USER_DATA, &user_data_dir))
-@@ -131,5 +127,6 @@ std::string LoadLocalState(
+@@ -130,5 +126,6 @@ std::string LoadLocalState(
        new ChromeCommandLinePrefStore(base::CommandLine::ForCurrentProcess()));
  
    return InitResourceBundleAndDetermineLocale(
@@ -97,10 +97,10 @@ index aa43742055b04c70bcb60bd21f61897b3c6b79a6..e84f21ab963ccf6e54afcb659f5ceccd
    // it will get the locale that should be used potentially from other sources,
    // depending on the platform (e.g. the OS locale on Mac).
 diff --git ui/base/l10n/l10n_util.cc ui/base/l10n/l10n_util.cc
-index f663b95cd465c6e1d2dc327fbd1e1d85662d038b..5327afbfd6a5dba073c1d860909926ea8306667b 100644
+index 96e225be0b291866214a68524d686141ace75457..5a8cb777690af3c37751d29ca67894e0737d0445 100644
 --- ui/base/l10n/l10n_util.cc
 +++ ui/base/l10n/l10n_util.cc
-@@ -494,25 +494,7 @@ std::optional<std::string> CheckAndResolveLocale(std::string_view locale,
+@@ -493,25 +493,7 @@ std::optional<std::string> CheckAndResolveLocale(std::string_view locale,
    return std::nullopt;
  }
  
@@ -127,7 +127,7 @@ index f663b95cd465c6e1d2dc327fbd1e1d85662d038b..5327afbfd6a5dba073c1d860909926ea
    std::vector<std::string> candidates;
  
    // We only use --lang and the app pref on Windows.  On Linux, we only
-@@ -578,15 +560,6 @@ std::string GetApplicationLocaleInternalNonMac(std::string_view pref_locale) {
+@@ -577,15 +559,6 @@ std::string GetApplicationLocaleInternalNonMac(std::string_view pref_locale) {
  
    return std::string();
  }

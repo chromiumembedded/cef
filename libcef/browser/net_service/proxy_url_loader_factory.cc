@@ -5,11 +5,14 @@
 
 #include "cef/libcef/browser/net_service/proxy_url_loader_factory.h"
 
+#include <map>
+#include <memory>
 #include <tuple>
 
 #include "base/barrier_closure.h"
 #include "base/command_line.h"
 #include "base/memory/raw_ptr.h"
+#include "base/no_destructor.h"
 #include "base/strings/string_number_conversions.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/origin_whitelist_impl.h"
@@ -20,7 +23,6 @@
 #include "components/safe_browsing/core/common/safebrowsing_constants.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/render_frame_host.h"
-#include "content/public/browser/resource_context.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/referrer.h"
 #include "mojo/public/cpp/base/big_buffer.h"
@@ -37,8 +39,102 @@ namespace net_service {
 
 namespace {
 
-// User data key for ResourceContextData.
-const void* const kResourceContextUserDataKey = &kResourceContextUserDataKey;
+//==============================
+// ContextIdManager
+//==============================
+
+// Manages the mapping from BrowserContext* to ContextId. All methods must be
+// called on the UI thread. This class ensures that:
+// 1. Each BrowserContext gets a unique, never-reused ID
+// 2. IDs are invalidated when a BrowserContext is destroyed
+// 3. No raw BrowserContext pointers are passed to the IO thread
+class ContextIdManager {
+ public:
+  ContextIdManager(const ContextIdManager&) = delete;
+  ContextIdManager& operator=(const ContextIdManager&) = delete;
+
+  static ContextIdManager& GetInstance() {
+    static base::NoDestructor<ContextIdManager> instance;
+    return *instance;
+  }
+
+  // Gets or creates a ContextId for the given BrowserContext.
+  ContextId GetContextId(content::BrowserContext* browser_context) {
+    CEF_REQUIRE_UIT();
+    DCHECK(browser_context);
+
+    // Perform insertion or lookup as a single operation.
+    auto [it, inserted] = context_to_id_.try_emplace(browser_context, next_id_);
+    if (inserted) {
+      ++next_id_;
+    }
+    return it->second;
+  }
+
+  // Invalidates the ContextId for the given BrowserContext and returns
+  // the ID that was associated with it (or kInvalidContextId if none).
+  ContextId InvalidateContextId(content::BrowserContext* browser_context) {
+    CEF_REQUIRE_UIT();
+    DCHECK(browser_context);
+
+    auto it = context_to_id_.find(browser_context);
+    if (it != context_to_id_.end()) {
+      ContextId id = it->second;
+      context_to_id_.erase(it);
+      return id;
+    }
+    return kInvalidContextId;
+  }
+
+ private:
+  friend class base::NoDestructor<ContextIdManager>;
+
+  ContextIdManager() = default;
+  ~ContextIdManager() = default;
+
+  ContextId next_id_ = 1;
+  std::map<raw_ptr<content::BrowserContext>, ContextId> context_to_id_;
+};
+
+// Global map to track proxies per ContextId.
+// Access only on the IO thread.
+using ProxyMap = std::map<ContextId,
+                          std::set<std::unique_ptr<ProxyURLLoaderFactory>,
+                                   base::UniquePtrComparator>>;
+
+ProxyMap& GetProxyMap() {
+  CEF_REQUIRE_IOT();
+  static base::NoDestructor<ProxyMap> proxy_map;
+  return *proxy_map;
+}
+
+void AddProxyToMap(ContextId context_id,
+                   std::unique_ptr<ProxyURLLoaderFactory> proxy) {
+  CEF_REQUIRE_IOT();
+  if (context_id == kInvalidContextId) {
+    // Context was invalidated before we could add the proxy.
+    // unique_ptr will delete proxy when it goes out of scope.
+    return;
+  }
+  GetProxyMap()[context_id].insert(std::move(proxy));
+}
+
+void RemoveProxyFromMap(ContextId context_id, ProxyURLLoaderFactory* proxy) {
+  CEF_REQUIRE_IOT();
+  DCHECK_NE(context_id, kInvalidContextId);
+  auto& proxy_map = GetProxyMap();
+  auto it = proxy_map.find(context_id);
+  if (it != proxy_map.end()) {
+    auto& proxies = it->second;
+    auto proxy_it = proxies.find(proxy);
+    if (proxy_it != proxies.end()) {
+      proxies.erase(proxy_it);
+      if (proxies.empty()) {
+        proxy_map.erase(it);
+      }
+    }
+  }
+}
 
 std::optional<std::string> GetHeaderString(
     const net::HttpResponseHeaders* headers,
@@ -47,15 +143,6 @@ std::optional<std::string> GetHeaderString(
     return headers->GetNormalizedHeader(header_name);
   }
   return std::nullopt;
-}
-
-void CreateProxyHelper(
-    content::WebContents::Getter web_contents_getter,
-    mojo::PendingReceiver<network::mojom::URLLoaderFactory> loader_receiver,
-    std::unique_ptr<InterceptedRequestHandler> request_handler) {
-  ProxyURLLoaderFactory::CreateProxy(web_contents_getter,
-                                     std::move(loader_receiver),
-                                     std::move(request_handler));
 }
 
 bool DisableRequestHandlingForTesting() {
@@ -83,83 +170,24 @@ network::mojom::FetchResponseType CalculateResponseTainting(
 
 }  // namespace
 
-// Owns all of the ProxyURLLoaderFactorys for a given BrowserContext. Since
-// these live on the IO thread this is done indirectly through the
-// ResourceContext.
-class ResourceContextData : public base::SupportsUserData::Data {
- public:
-  ResourceContextData(const ResourceContextData&) = delete;
-  ResourceContextData& operator=(const ResourceContextData&) = delete;
-
-  ~ResourceContextData() override = default;
-
-  static void AddProxyOnUIThread(
-      ProxyURLLoaderFactory* proxy,
-      content::WebContents::Getter web_contents_getter) {
-    CEF_REQUIRE_UIT();
-
-    content::WebContents* web_contents = web_contents_getter.Run();
-
-    // Maybe the browser was destroyed while AddProxyOnUIThread was pending.
-    if (!web_contents) {
-      // Delete on the IO thread as expected by mojo bindings.
-      content::BrowserThread::GetTaskRunnerForThread(CEF_IOT)->DeleteSoon(
-          FROM_HERE, proxy);
-      return;
-    }
-
-    content::BrowserContext* browser_context =
-        web_contents->GetBrowserContext();
-    DCHECK(browser_context);
-
-    content::ResourceContext* resource_context =
-        browser_context->GetResourceContext();
-    DCHECK(resource_context);
-
-    CEF_POST_TASK(CEF_IOT, base::BindOnce(ResourceContextData::AddProxy,
-                                          base::Unretained(proxy),
-                                          base::Unretained(resource_context)));
+void ClearProxiesForContextId(ContextId context_id) {
+  CEF_REQUIRE_IOT();
+  if (context_id == kInvalidContextId) {
+    return;
   }
-
-  static void AddProxy(ProxyURLLoaderFactory* proxy,
-                       content::ResourceContext* resource_context) {
-    CEF_REQUIRE_IOT();
-
-    // Maybe the proxy was destroyed while AddProxyOnUIThread was pending.
-    if (proxy->destroyed_) {
-      delete proxy;
-      return;
+  auto& proxy_map = GetProxyMap();
+  auto it = proxy_map.find(context_id);
+  if (it != proxy_map.end()) {
+    // Reset disconnect callbacks before destroying the proxies to prevent
+    // them from trying to remove themselves from the map during destruction.
+    auto& proxies = it->second;
+    for (const auto& proxy : proxies) {
+      proxy->SetDisconnectCallback(base::DoNothing());
     }
-
-    auto* self = static_cast<ResourceContextData*>(
-        resource_context->GetUserData(kResourceContextUserDataKey));
-    if (!self) {
-      self = new ResourceContextData();
-      resource_context->SetUserData(kResourceContextUserDataKey,
-                                    base::WrapUnique(self));
-    }
-
-    proxy->SetDisconnectCallback(base::BindOnce(
-        &ResourceContextData::RemoveProxy, self->weak_factory_.GetWeakPtr()));
-    self->proxies_.emplace(base::WrapUnique(proxy));
+    // Clear the set, which will delete all proxies for this context.
+    proxy_map.erase(it);
   }
-
- private:
-  void RemoveProxy(ProxyURLLoaderFactory* proxy) {
-    CEF_REQUIRE_IOT();
-
-    auto it = proxies_.find(proxy);
-    DCHECK(it != proxies_.end());
-    proxies_.erase(it);
-  }
-
-  ResourceContextData() : weak_factory_(this) {}
-
-  std::set<std::unique_ptr<ProxyURLLoaderFactory>, base::UniquePtrComparator>
-      proxies_;
-
-  base::WeakPtrFactory<ResourceContextData> weak_factory_;
-};
+}
 
 // CORS preflight requests are handled in the network process, so we just need
 // to continue all of the callbacks and then delete ourself.
@@ -185,6 +213,7 @@ class CorsPreflightRequest : public network::mojom::TrustedHeaderClient {
 
   void OnHeadersReceived(const std::string& headers,
                          const net::IPEndPoint& remote_endpoint,
+                         const std::optional<net::SSLInfo>& ssl_info,
                          OnHeadersReceivedCallback callback) override {
     std::move(callback).Run(net::OK, headers, /*redirect_url=*/GURL());
     OnDestroy();
@@ -239,6 +268,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
                            OnBeforeSendHeadersCallback callback) override;
   void OnHeadersReceived(const std::string& headers,
                          const net::IPEndPoint& remote_endpoint,
+                         const std::optional<net::SSLInfo>& ssl_info,
                          OnHeadersReceivedCallback callback) override;
 
   // mojom::URLLoaderClient methods:
@@ -589,6 +619,7 @@ void InterceptedRequest::OnBeforeSendHeaders(
 void InterceptedRequest::OnHeadersReceived(
     const std::string& headers,
     const net::IPEndPoint& remote_endpoint,
+    const std::optional<net::SSLInfo>& ssl_info,
     OnHeadersReceivedCallback callback) {
   if (!current_request_uses_header_client_) {
     std::move(callback).Run(net::OK, std::nullopt, GURL());
@@ -1341,20 +1372,28 @@ void ProxyURLLoaderFactory::CreateOnIOThread(
     mojo::PendingRemote<network::mojom::URLLoaderFactory> target_factory,
     mojo::PendingReceiver<network::mojom::TrustedURLLoaderHeaderClient>
         header_client_receiver,
-    content::ResourceContext* resource_context,
+    ContextId context_id,
     std::unique_ptr<InterceptedRequestHandler> request_handler) {
   CEF_REQUIRE_IOT();
-  auto proxy = new ProxyURLLoaderFactory(
+  auto proxy = base::WrapUnique(new ProxyURLLoaderFactory(
       std::move(factory_receiver), std::move(target_factory),
-      std::move(header_client_receiver), std::move(request_handler));
-  ResourceContextData::AddProxy(proxy, resource_context);
+      std::move(header_client_receiver), std::move(request_handler)));
+
+  // Set disconnect callback to remove proxy from map when disconnected.
+  proxy->SetDisconnectCallback(base::BindOnce(
+      [](ContextId context_id, ProxyURLLoaderFactory* proxy) {
+        RemoveProxyFromMap(context_id, proxy);
+      },
+      context_id));
+
+  // Add proxy to global map.
+  AddProxyToMap(context_id, std::move(proxy));
 }
 
 void ProxyURLLoaderFactory::SetDisconnectCallback(
     DisconnectCallback on_disconnect) {
   CEF_REQUIRE_IOT();
   DCHECK(!destroyed_);
-  DCHECK(!on_disconnect_);
   on_disconnect_ = std::move(on_disconnect);
 }
 
@@ -1376,41 +1415,89 @@ void ProxyURLLoaderFactory::CreateProxy(
     header_client_receiver = header_client->InitWithNewPipeAndPassReceiver();
   }
 
-  content::ResourceContext* resource_context =
-      browser_context->GetResourceContext();
-  DCHECK(resource_context);
+  // Get the ContextId on the UI thread while BrowserContext is known valid.
+  ContextId context_id =
+      ContextIdManager::GetInstance().GetContextId(browser_context);
 
-  CEF_POST_TASK(
-      CEF_IOT,
-      base::BindOnce(
-          &ProxyURLLoaderFactory::CreateOnIOThread, std::move(factory_receiver),
-          std::move(target_factory_remote), std::move(header_client_receiver),
-          base::Unretained(resource_context), std::move(request_handler)));
+  CEF_POST_TASK(CEF_IOT,
+                base::BindOnce(&ProxyURLLoaderFactory::CreateOnIOThread,
+                               std::move(factory_receiver),
+                               std::move(target_factory_remote),
+                               std::move(header_client_receiver), context_id,
+                               std::move(request_handler)));
 }
 
 // static
-void ProxyURLLoaderFactory::CreateProxy(
+void ProxyURLLoaderFactory::ClearProxiesForBrowserContextAsync(
+    content::BrowserContext* browser_context) {
+  CEF_REQUIRE_UIT();
+
+  // Invalidate the context ID first. This prevents any pending CreateProxy
+  // calls from adding new proxies for this context, since they will now
+  // get kInvalidContextId when they try to look up the ID.
+  ContextId context_id =
+      ContextIdManager::GetInstance().InvalidateContextId(browser_context);
+
+  if (context_id != kInvalidContextId) {
+    CEF_POST_TASK(CEF_IOT,
+                  base::BindOnce(&ClearProxiesForContextId, context_id));
+  }
+}
+
+// static
+void ProxyURLLoaderFactory::CreateProxyForWebContents(
     content::WebContents::Getter web_contents_getter,
     mojo::PendingReceiver<network::mojom::URLLoaderFactory> loader_receiver,
     std::unique_ptr<InterceptedRequestHandler> request_handler) {
   DCHECK(request_handler);
 
-  if (!CEF_CURRENTLY_ON_IOT()) {
+  // Always go to UI thread first to get the context_id while BrowserContext
+  // is known to be valid.
+  if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(
-        CEF_IOT,
-        base::BindOnce(CreateProxyHelper, web_contents_getter,
-                       std::move(loader_receiver), std::move(request_handler)));
+        CEF_UIT,
+        base::BindOnce(&ProxyURLLoaderFactory::CreateProxyForWebContents,
+                       web_contents_getter, std::move(loader_receiver),
+                       std::move(request_handler)));
     return;
   }
 
-  auto proxy = new ProxyURLLoaderFactory(
-      std::move(loader_receiver),
-      mojo::PendingRemote<network::mojom::URLLoaderFactory>(),
-      mojo::PendingReceiver<network::mojom::TrustedURLLoaderHeaderClient>(),
-      std::move(request_handler));
-  CEF_POST_TASK(CEF_UIT,
-                base::BindOnce(ResourceContextData::AddProxyOnUIThread,
-                               base::Unretained(proxy), web_contents_getter));
+  CEF_REQUIRE_UIT();
+  content::WebContents* web_contents = web_contents_getter.Run();
+  if (!web_contents) {
+    // WebContents is gone, don't create proxy.
+    return;
+  }
+
+  content::BrowserContext* browser_context = web_contents->GetBrowserContext();
+  ContextId context_id =
+      ContextIdManager::GetInstance().GetContextId(browser_context);
+
+  // Create the proxy on the IO thread with the context_id already known.
+  CEF_POST_TASK(
+      CEF_IOT,
+      base::BindOnce(
+          [](mojo::PendingReceiver<network::mojom::URLLoaderFactory>
+                 loader_receiver,
+             std::unique_ptr<InterceptedRequestHandler> request_handler,
+             ContextId context_id) {
+            CEF_REQUIRE_IOT();
+            auto proxy = base::WrapUnique(new ProxyURLLoaderFactory(
+                std::move(loader_receiver),
+                mojo::PendingRemote<network::mojom::URLLoaderFactory>(),
+                mojo::PendingReceiver<
+                    network::mojom::TrustedURLLoaderHeaderClient>(),
+                std::move(request_handler)));
+
+            proxy->SetDisconnectCallback(base::BindOnce(
+                [](ContextId context_id, ProxyURLLoaderFactory* proxy) {
+                  RemoveProxyFromMap(context_id, proxy);
+                },
+                context_id));
+
+            AddProxyToMap(context_id, std::move(proxy));
+          },
+          std::move(loader_receiver), std::move(request_handler), context_id));
 }
 
 void ProxyURLLoaderFactory::CreateLoaderAndStart(

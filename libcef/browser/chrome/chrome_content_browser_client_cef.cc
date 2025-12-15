@@ -586,7 +586,7 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
                           sandbox_flags, request, initiating_origin,
                           std::move(weak_initiator_document), isolation_info));
 
-  net_service::ProxyURLLoaderFactory::CreateProxy(
+  net_service::ProxyURLLoaderFactory::CreateProxyForWebContents(
       web_contents_getter, std::move(receiver), std::move(request_handler));
   return true;
 }

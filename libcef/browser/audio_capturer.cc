@@ -9,6 +9,7 @@
 #include "cef/libcef/browser/audio_loopback_stream_creator.h"
 #include "components/mirroring/service/captured_audio_input.h"
 #include "media/audio/audio_input_device.h"
+#include "media/base/audio_bus.h"
 
 namespace {
 

@@ -377,7 +377,7 @@ bool ChromeBrowserHostImpl::Navigate(const content::OpenURLParams& params) {
 
     nav_params.tabstrip_add_types = AddTabTypes::ADD_NONE;
     if (params.user_gesture) {
-      nav_params.window_action = NavigateParams::SHOW_WINDOW;
+      nav_params.window_action = NavigateParams::WindowAction::kShowWindow;
     }
     ::Navigate(&nav_params);
     return true;

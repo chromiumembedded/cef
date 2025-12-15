@@ -1,5 +1,5 @@
 diff --git ui/gtk/gtk_ui.cc ui/gtk/gtk_ui.cc
-index 2ce6823729f80b81a9723f4a5af8d057a66860a8..df29c90001de6689f1f9bc9f03e1cc1bace86911 100644
+index 8107269697ac82ba1ce5855dce00f6a4ac0699aa..f01fa1459fb3476ad2877240895a0db62b1a7d0d 100644
 --- ui/gtk/gtk_ui.cc
 +++ ui/gtk/gtk_ui.cc
 @@ -31,6 +31,7 @@
@@ -10,7 +10,7 @@ index 2ce6823729f80b81a9723f4a5af8d057a66860a8..df29c90001de6689f1f9bc9f03e1cc1b
  #include "chrome/browser/themes/theme_properties.h"  // nogncheck
  #include "third_party/skia/include/core/SkBitmap.h"
  #include "third_party/skia/include/core/SkColor.h"
-@@ -363,10 +364,15 @@ bool GtkUi::Initialize() {
+@@ -364,10 +365,15 @@ bool GtkUi::Initialize() {
    };
  
    GtkSettings* settings = gtk_settings_get_default();
@@ -27,7 +27,7 @@ index 2ce6823729f80b81a9723f4a5af8d057a66860a8..df29c90001de6689f1f9bc9f03e1cc1b
            &GtkUi::OnCursorThemeNameChanged);
    connect(settings, "notify::gtk-cursor-theme-size",
 diff --git ui/ozone/platform/x11/ozone_platform_x11.cc ui/ozone/platform/x11/ozone_platform_x11.cc
-index 866de2d89143078a040d37ee393fbf64c1b94504..f707a8567808951d1967e10e2f5ede5d4e6e5e3e 100644
+index 9bafe26292b92ef628471970bd9c690edd308bd1..28a6172e3b732e87161792d0eb0800179267230f 100644
 --- ui/ozone/platform/x11/ozone_platform_x11.cc
 +++ ui/ozone/platform/x11/ozone_platform_x11.cc
 @@ -64,6 +64,8 @@ namespace ui {
@@ -39,7 +39,7 @@ index 866de2d89143078a040d37ee393fbf64c1b94504..f707a8567808951d1967e10e2f5ede5d
  // Singleton OzonePlatform implementation for X11 platform.
  class OzonePlatformX11 : public OzonePlatform,
                           public OSExchangeDataProviderFactoryOzone {
-@@ -276,7 +278,15 @@ class OzonePlatformX11 : public OzonePlatform,
+@@ -273,7 +275,15 @@ class OzonePlatformX11 : public OzonePlatform,
      TouchFactory::SetTouchDeviceListFromCommandLine();
  
  #if BUILDFLAG(USE_GTK)
@@ -56,7 +56,7 @@ index 866de2d89143078a040d37ee393fbf64c1b94504..f707a8567808951d1967e10e2f5ede5d
  #endif
  
      menu_utils_ = std::make_unique<X11MenuUtils>();
-@@ -375,4 +385,8 @@ OzonePlatform* CreateOzonePlatformX11() {
+@@ -372,4 +382,8 @@ OzonePlatform* CreateOzonePlatformX11() {
    return new OzonePlatformX11;
  }
  

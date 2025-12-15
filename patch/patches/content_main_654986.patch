@@ -108,18 +108,18 @@ index 47ffb24940071be6f3747a85022a2b226ae8b63b..7d89f8606b37761649e44bfabff5f7a2
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 86bb51dbba93f87b09b5c0003e9d700a277615dc..29d97c19b689935c78c4abc74f6bf4325ec45592 100644
+index 277cf9a9179e3539b2f2d0ab24fba2ece4b9b274..c90260aa68b46b126d5394de694a7cd4afad45cf 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -51,6 +51,7 @@
+@@ -50,6 +50,7 @@
  #include "base/task/thread_pool/thread_pool_instance.h"
  #include "base/threading/hang_watcher.h"
  #include "base/threading/platform_thread.h"
 +#include "base/threading/thread_restrictions.h"
+ #include "base/time/default_clock.h"
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
- #include "build/branding_buildflags.h"
-@@ -964,18 +965,12 @@ int ContentMainRunnerImpl::Initialize(ContentMainParams params) {
+@@ -965,18 +966,12 @@ int ContentMainRunnerImpl::Initialize(ContentMainParams params) {
        }));
  
  #if !defined(OFFICIAL_BUILD) || BUILDFLAG(CHROME_FOR_TESTING)
@@ -139,7 +139,7 @@ index 86bb51dbba93f87b09b5c0003e9d700a277615dc..29d97c19b689935c78c4abc74f6bf432
      base::debug::EnableInProcessStackDumping();
    }
  
-@@ -1329,6 +1324,12 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1336,6 +1331,12 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

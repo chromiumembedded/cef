@@ -91,6 +91,15 @@ gfx::Rect CefWebContentsViewOSR::GetViewBounds() const {
   return view ? view->GetViewBounds() : gfx::Rect();
 }
 
+void CefWebContentsViewOSR::Resize(const gfx::Rect& new_bounds) {
+  // For OSR, resizing is handled via the RenderWidgetHostView.
+  // The bounds are managed externally by the embedder.
+}
+
+gfx::Size CefWebContentsViewOSR::GetSize() const {
+  return GetViewBounds().size();
+}
+
 content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
     content::RenderWidgetHost* render_widget_host) {
   if (render_widget_host->GetView()) {

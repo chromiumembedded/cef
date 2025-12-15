@@ -1,8 +1,8 @@
 diff --git base/logging.cc base/logging.cc
-index dd46cccf28eeffa9aa59e1b99b97b24fbecbcbce..83e93d999f9abc592a1a29230ef86dfdc92c9ff5 100644
+index 1a4944f54cf37f32f74791d8b55929e563b0dde7..a24f5a47e43dceed17e4b71c0b3fc586ae6b0852 100644
 --- base/logging.cc
 +++ base/logging.cc
-@@ -425,7 +425,30 @@ void WriteToFd(int fd, const char* data, size_t length) {
+@@ -426,7 +426,30 @@ void WriteToFd(int fd, const char* data, size_t length) {
    }
  }
  
@@ -33,7 +33,7 @@ index dd46cccf28eeffa9aa59e1b99b97b24fbecbcbce..83e93d999f9abc592a1a29230ef86dfd
    // In case of an out-of-memory condition, this code could be reentered when
    // constructing and storing the key. Using a static is not thread-safe, but if
    // multiple threads are in the process of a fatal crash at the same time, this
-@@ -495,6 +518,11 @@ bool BaseInitLoggingImpl(const LoggingSettings& settings) {
+@@ -496,6 +519,11 @@ bool BaseInitLoggingImpl(const LoggingSettings& settings) {
    g_log_format = settings.log_format;
  #endif
  
@@ -46,10 +46,10 @@ index dd46cccf28eeffa9aa59e1b99b97b24fbecbcbce..83e93d999f9abc592a1a29230ef86dfd
  
    g_logging_destination = settings.logging_dest;
 diff --git base/logging.h base/logging.h
-index 440fa5ebf331028bed8fa135b7c45531be62b5a4..13ebd3b37f07db791e7876971bc402bb819e0b17 100644
+index 2d72f112e9b9f4612e96d9ec26040f8230932c18..0274e4addbada7875138f5e8bbef7aa5cdba7bf6 100644
 --- base/logging.h
 +++ base/logging.h
-@@ -613,6 +613,7 @@ class BASE_EXPORT LogMessage {
+@@ -537,6 +537,7 @@ class BASE_EXPORT LogMessage {
    std::string str() const { return stream_.str(); }
    const char* file() const { return file_; }
    int line() const { return line_; }

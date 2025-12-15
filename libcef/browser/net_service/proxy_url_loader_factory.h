@@ -21,14 +21,16 @@
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "services/network/public/mojom/url_loader_factory.mojom.h"
 
-namespace content {
-class ResourceContext;
-}
-
 namespace net_service {
 
 class InterceptedRequest;
-class ResourceContextData;
+class ProxyURLLoaderFactory;
+
+// Unique identifier for a BrowserContext, used to safely track proxies across
+// threads without risk of pointer reuse (ABA problem). IDs are generated on
+// the UI thread and are never reused.
+using ContextId = uint64_t;
+constexpr ContextId kInvalidContextId = 0;
 
 // Implement this interface to to evaluate requests. All methods are called on
 // the IO thread, and all callbacks must be executed on the IO thread.
@@ -152,11 +154,24 @@ class ProxyURLLoaderFactory
           header_client,
       std::unique_ptr<InterceptedRequestHandler> request_handler);
 
-  // Create a proxy object on the IO thread.
-  static void CreateProxy(
+  // Create a proxy object on the IO thread for a WebContents.
+  static void CreateProxyForWebContents(
       content::WebContents::Getter web_contents_getter,
       mojo::PendingReceiver<network::mojom::URLLoaderFactory> loader_request,
       std::unique_ptr<InterceptedRequestHandler> request_handler);
+
+  // Called from CefBrowserContext::Shutdown to clear all proxies associated
+  // with a BrowserContext before it is destroyed. Must be called on the UI
+  // thread, will post to IO thread to do the actual cleanup.
+  static void ClearProxiesForBrowserContextAsync(
+      content::BrowserContext* browser_context);
+
+  using DisconnectCallback = base::OnceCallback<void(ProxyURLLoaderFactory*)>;
+
+  // Set a callback to be invoked when this factory is disconnected. The
+  // callback will be invoked with |this| as the argument, and is responsible
+  // for deleting |this|.
+  void SetDisconnectCallback(DisconnectCallback on_disconnect);
 
   // mojom::URLLoaderFactory methods:
   void CreateLoaderAndStart(
@@ -182,7 +197,6 @@ class ProxyURLLoaderFactory
 
  private:
   friend class InterceptedRequest;
-  friend class ResourceContextData;
 
   ProxyURLLoaderFactory(
       mojo::PendingReceiver<network::mojom::URLLoaderFactory> factory_receiver,
@@ -198,11 +212,8 @@ class ProxyURLLoaderFactory
           target_factory_remote,
       mojo::PendingReceiver<network::mojom::TrustedURLLoaderHeaderClient>
           header_client_receiver,
-      content::ResourceContext* resource_context,
+      ContextId context_id,
       std::unique_ptr<InterceptedRequestHandler> request_handler);
-
-  using DisconnectCallback = base::OnceCallback<void(ProxyURLLoaderFactory*)>;
-  void SetDisconnectCallback(DisconnectCallback on_disconnect);
 
   void OnTargetFactoryError();
   void OnProxyBindingError();

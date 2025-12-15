@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index ee07da0b3073fa15f66058bdd06cd8bce6f46c6e..ad597b837a1495676a6d91033f29e66424dbc594 100644
+index ffe4cdcc2720dfebac7220971ad6ae5e699139b4..15a458891c3bccd41c4bde168e8569d6a0335858 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -859,6 +859,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -866,6 +866,11 @@ class BLINK_PLATFORM_EXPORT Platform {
    // calling an OOM.
    virtual void OnV8HeapLastResortGC() {}
  

@@ -42,7 +42,7 @@ index e83735211e30a77ef1bc82b6a252da02a18626fc..d328c3de6901dca94301c76913bb1c8c
    if (print_dialog_) {
      // PrintDialogGtk::UpdateSettings() calls InitWithSettings() so settings_ will
 diff --git ui/linux/BUILD.gn ui/linux/BUILD.gn
-index 1bcb283a806263397b0f30d7d955239692e4ee46..e152affd46fbf5783c7506d6844b204f14a79656 100644
+index 267de0acbaf5a01f0b9aa5c456e90e32721a31cd..ce4f0836692a292fb9c768124a63ff468ced225b 100644
 --- ui/linux/BUILD.gn
 +++ ui/linux/BUILD.gn
 @@ -3,6 +3,7 @@
@@ -53,7 +53,7 @@ index 1bcb283a806263397b0f30d7d955239692e4ee46..e152affd46fbf5783c7506d6844b204f
  import("//ui/qt/qt.gni")
  
  assert(is_linux)
-@@ -34,6 +35,11 @@ component("linux_ui") {
+@@ -35,6 +36,11 @@ component("linux_ui") {
      "//ui/display/types",
      "//ui/gfx/geometry",
    ]
@@ -66,10 +66,10 @@ index 1bcb283a806263397b0f30d7d955239692e4ee46..e152affd46fbf5783c7506d6844b204f
  }
  
 diff --git ui/linux/linux_ui.cc ui/linux/linux_ui.cc
-index d41d350bca4bf1664970a1881141d316affe875d..729546b0069f20c2b160857d28fcdc5b7a4f905e 100644
+index 13bc34539823f91770f2aa45bb1b2d852bd39075..6e7d729ce561619bb9f8444db8793ba93d860f3f 100644
 --- ui/linux/linux_ui.cc
 +++ ui/linux/linux_ui.cc
-@@ -19,11 +19,29 @@ namespace ui {
+@@ -20,11 +20,29 @@ namespace ui {
  namespace {
  
  LinuxUi* g_linux_ui = nullptr;
@@ -100,7 +100,7 @@ index d41d350bca4bf1664970a1881141d316affe875d..729546b0069f20c2b160857d28fcdc5b
  }
  
 diff --git ui/linux/linux_ui.h ui/linux/linux_ui.h
-index 13a03faae0fceb60365ba01bbd3d80cbb1d32f53..0122add333840ab531bb1284cacb647941c00e81 100644
+index 6679d98793f741a8138bcfde21acae9893fabeec..64eab490bf7936cac2aa18003b722a29b9f2de6a 100644
 --- ui/linux/linux_ui.h
 +++ ui/linux/linux_ui.h
 @@ -20,6 +20,10 @@
@@ -114,7 +114,7 @@ index 13a03faae0fceb60365ba01bbd3d80cbb1d32f53..0122add333840ab531bb1284cacb6479
  // The main entrypoint into Linux toolkit specific code. GTK/QT code should only
  // be executed behind this interface.
  
-@@ -58,9 +62,27 @@ class WindowButtonOrderObserver;
+@@ -59,9 +63,27 @@ class WindowButtonOrderObserver;
  class WindowFrameProvider;
  enum class TextEditCommand;
  
@@ -143,7 +143,7 @@ index 13a03faae0fceb60365ba01bbd3d80cbb1d32f53..0122add333840ab531bb1284cacb6479
   public:
    // Describes the window management actions that could be taken in response to
    // a middle click in the non client area.
-@@ -144,14 +166,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
+@@ -150,14 +172,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
    // Returns a map of KeyboardEvent code to KeyboardEvent key values.
    virtual base::flat_map<std::string, std::string> GetKeyboardLayoutMap() = 0;
  

@@ -32,6 +32,7 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
+#include "ipc/constants.mojom.h"
 #include "net/base/load_flags.h"
 #include "net/http/http_status_code.h"
 #include "third_party/blink/public/mojom/loader/resource_load_info.mojom-shared.h"
@@ -1333,7 +1334,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
   // Default to handlers for the same process in case |frame| doesn't have an
   // associated CefBrowserHost.
   content::GlobalRenderFrameHostId global_id(render_process_id,
-                                             MSG_ROUTING_NONE);
+                                             IPC::mojom::kRoutingIdNone);
 
   // |frame| may be nullptr for service worker requests.
   if (frame) {
@@ -1408,7 +1409,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
   // TODO: Change to content::ChildProcessId usage once supported by
   // GlobalRenderFrameHostId. See https://crbug.com/379869738.
   content::GlobalRenderFrameHostId global_id(
-      frame->GetProcess()->GetDeprecatedID(), MSG_ROUTING_NONE);
+      frame->GetProcess()->GetDeprecatedID(), IPC::mojom::kRoutingIdNone);
 
   browserPtr = CefBrowserHostBase::GetBrowserForHost(frame);
   if (browserPtr) {

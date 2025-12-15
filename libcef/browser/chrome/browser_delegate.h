@@ -146,7 +146,8 @@ class BrowserDelegate : public content::WebContentsDelegate {
   }
 
   // Optionally override support for the specified window feature of type
-  // Browser::WindowFeature.
+  // Browser::WindowFeature (passed as underlying int to avoid circular
+  // include).
   virtual std::optional<bool> SupportsWindowFeature(int feature) const {
     return std::nullopt;
   }

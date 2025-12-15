@@ -1,5 +1,5 @@
 diff --git gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc
-index 157a7e3a7cf9d07b41e386d56b85cf185a53957b..e6e0290f1b32d5b7408bd9653cedffa46a306b0c 100644
+index 93fca64b215fb2f9170fcf5883cfed29ec3f5f69..866514729d9cdbe9ffb68dc0f96c7689a58cea55 100644
 --- gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc
 +++ gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc
 @@ -381,7 +381,8 @@ gfx::GpuMemoryBufferHandle D3DImageBackingFactory::CreateGpuMemoryBufferHandle(

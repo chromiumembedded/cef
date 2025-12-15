@@ -1,5 +1,5 @@
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 1df40f07d9eca4400185be33c15036266eebcc45..74a553dfe0e528aa99bd5fb7a2ace11a1887fcd9 100644
+index fd937f5ec7a7eeec64f2ab6205bf639e630d7aaf..5f04fac8895c65d67a44a2c453525c73cd03bf77 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
 @@ -55,6 +55,7 @@
@@ -10,7 +10,7 @@ index 1df40f07d9eca4400185be33c15036266eebcc45..74a553dfe0e528aa99bd5fb7a2ace11a
  #include <utility>
  #include <vector>
  
-@@ -674,6 +675,50 @@ void CookieMonster::SetCookieableSchemes(
+@@ -675,6 +676,50 @@ void CookieMonster::SetCookieableSchemes(
    MaybeRunCookieCallback(std::move(callback), true);
  }
  
@@ -62,10 +62,10 @@ index 1df40f07d9eca4400185be33c15036266eebcc45..74a553dfe0e528aa99bd5fb7a2ace11a
  void CookieMonster::SetPersistSessionCookies(bool persist_session_cookies) {
    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 diff --git net/cookies/cookie_monster.h net/cookies/cookie_monster.h
-index 8abe173e60d5b9bf712698ea95c11ae304f53c16..bd0a292dd1704715a80954c7aa4bf0ca8094f729 100644
+index a08ccecc05e965bdcba50a5f2f3b2b715133cbe1..f3809fcd3e0ee62f140877d1bd415e799d16c9e7 100644
 --- net/cookies/cookie_monster.h
 +++ net/cookies/cookie_monster.h
-@@ -238,6 +238,10 @@ class NET_EXPORT CookieMonster : public CookieStore {
+@@ -239,6 +239,10 @@ class NET_EXPORT CookieMonster : public CookieStore {
    CookieChangeDispatcher& GetChangeDispatcher() override;
    void SetCookieableSchemes(std::vector<std::string> schemes,
                              SetCookieableSchemesCallback callback) override;
@@ -122,10 +122,10 @@ index 3ecc53285b872e1eab24e6ef8ab522063d2c4ed1..e6a14a3f4a41e0353b2b490a24c9a0e3
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 71cef856b5d4311124bc8bf30bf6c0f73b990b13..7475c4fcdfdcfad0c4fb267fbbb0603c7d521488 100644
+index 48d5d5c0eb741ea1bb9b1f25233574716a77b49a..2ca5a9d7261107e1d039effa7f4d6a351bcca539 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2911,22 +2911,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2890,22 +2890,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
              pref_service.get(), network_service_->network_quality_estimator());
    }
  
@@ -169,10 +169,10 @@ index 71cef856b5d4311124bc8bf30bf6c0f73b990b13..7475c4fcdfdcfad0c4fb267fbbb0603c
    base::FilePath transport_security_persister_file_name;
    if (GetFullDataFilePath(params_->file_paths,
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index f6f90744b2faab08fd44f7b0ecc9c271abf62813..fe0574e7b72b2a2e578f7c13f86e7ec23f6b5ebf 100644
+index 709aae5568b73df28282dec1d0a87ca4a0cb054c..06ba6bfd507110222be5d2e059245282ec508abb 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -369,6 +369,9 @@ struct NetworkContextParams {
+@@ -362,6 +362,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

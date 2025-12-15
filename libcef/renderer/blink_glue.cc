@@ -322,7 +322,7 @@ void SetUseExternalPopupMenus(blink::WebView* view, bool value) {
   static_cast<blink::WebViewImpl*>(view)
       ->GetPage()
       ->GetChromeClient()
-      .SetUseExternalPopupMenusForTesting(value);
+      .SetUseExternalPopupMenus(value);
 }
 
 }  // namespace blink_glue

@@ -89,10 +89,10 @@ ToolbarView* ChromeBrowserView::OverrideCreateToolbar() {
     std::optional<ToolbarView::DisplayMode> display_mode;
     switch (toolbar_type) {
       case CEF_CTT_NORMAL:
-        display_mode = ToolbarView::DisplayMode::NORMAL;
+        display_mode = ToolbarView::DisplayMode::kNormal;
         break;
       case CEF_CTT_LOCATION:
-        display_mode = ToolbarView::DisplayMode::LOCATION;
+        display_mode = ToolbarView::DisplayMode::kLocation;
         break;
       default:
         break;

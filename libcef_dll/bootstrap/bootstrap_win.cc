@@ -312,7 +312,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   install_static::InitializeFromPrimaryModule();
   SignalInitializeCrashReporting();
   if (IsBrowserProcess()) {
-    chrome::DisableDelayLoadFailureHooksForMainExecutable();
+    DisableDelayLoadFailureHooksForMainExecutable();
   }
 
   // Done here to ensure that OOMs that happen early in process initialization

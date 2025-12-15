@@ -13,6 +13,7 @@
 #include "base/logging.h"
 #include "content/public/browser/child_process_host.h"
 #include "content/public/browser/global_routing_id.h"
+#include "ipc/constants.mojom.h"
 #include "ipc/ipc_message.h"
 
 namespace content {
@@ -30,7 +31,7 @@ inline bool IsValidChildId(int child_id) {
 
 // Returns true if |frame_routing_id| is valid.
 inline bool IsValidRoutingId(int frame_routing_id) {
-  return frame_routing_id != MSG_ROUTING_NONE;
+  return frame_routing_id != IPC::mojom::kRoutingIdNone;
 }
 
 // Returns true if |global_id| is valid.

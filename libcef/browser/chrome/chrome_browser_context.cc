@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "base/threading/thread_restrictions.h"
+#include "cef/libcef/browser/net_service/proxy_url_loader_factory.h"
 #include "cef/libcef/browser/prefs/browser_prefs.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "chrome/browser/browser_process.h"
@@ -131,6 +132,9 @@ void ChromeBrowserContext::Shutdown() {
   // |g_browser_process| may be nullptr during shutdown.
   if (g_browser_process) {
     if (should_destroy_) {
+      net_service::ProxyURLLoaderFactory::ClearProxiesForBrowserContextAsync(
+          profile_);
+
       GetPrimaryUserProfile()->DestroyOffTheRecordProfile(
           profile_.ExtractAsDangling());
     } else if (profile_) {
@@ -213,6 +217,10 @@ void ChromeBrowserContext::ProfileCreated(CreateStatus status,
 void ChromeBrowserContext::OnProfileWillBeDestroyed(Profile* profile) {
   CHECK_EQ(profile_, profile);
   profile_->RemoveObserver(this);
+
+  net_service::ProxyURLLoaderFactory::ClearProxiesForBrowserContextAsync(
+      profile_);
+
   profile_ = nullptr;
   destroyed_ = true;
 }

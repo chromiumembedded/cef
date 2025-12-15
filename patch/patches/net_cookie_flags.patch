@@ -11,10 +11,10 @@ index c10df92f30b1292a8243f376025e81afcefba78d..59e6208b3954635076022807edfc9a30
 +
  // See note at top of file about why adding LoadFlags is often a bad idea.
 diff --git net/url_request/url_request_http_job.cc net/url_request/url_request_http_job.cc
-index f02b9cc7669d20882e52ef497e83b2a2f37aa9a4..238caa30ec2e32f9b8689d4f8208b92f502bf5be 100644
+index 6537c74f5812f0d24bf8b31b7093822201b82a70..2ace801880fb99ce6b638d3b835f7b44a1bea889 100644
 --- net/url_request/url_request_http_job.cc
 +++ net/url_request/url_request_http_job.cc
-@@ -2216,7 +2216,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
+@@ -2185,7 +2185,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
    // Read cookies whenever allow_credentials() is true, even if the PrivacyMode
    // is being overridden by NetworkDelegate and will eventually block them, as
    // blocked cookies still need to be logged in that case.
@@ -25,10 +25,10 @@ index f02b9cc7669d20882e52ef497e83b2a2f37aa9a4..238caa30ec2e32f9b8689d4f8208b92f
  
  bool URLRequestHttpJob::ShouldRecordPartitionedCookieUsage() const {
 diff --git services/network/cors/cors_url_loader_factory.cc services/network/cors/cors_url_loader_factory.cc
-index d50de805cddfd5d0f987ec5cf82039eec29280a3..b3ffa8203a6d8cd7a00a61996ffeb43f9b399cc9 100644
+index 0fa4c9ccd9c596c46fef491d0693e61211e44422..797115b0711feac887f31969ed5714e03066af59 100644
 --- services/network/cors/cors_url_loader_factory.cc
 +++ services/network/cors/cors_url_loader_factory.cc
-@@ -649,7 +649,8 @@ bool CorsURLLoaderFactory::IsValidRequest(const ResourceRequest& request,
+@@ -660,7 +660,8 @@ bool CorsURLLoaderFactory::IsValidRequest(const ResourceRequest& request,
            net::LOAD_DISABLE_CACHE | net::LOAD_PREFETCH |
            net::LOAD_IGNORE_LIMITS | net::LOAD_DO_NOT_USE_EMBEDDED_IDENTITY |
            net::LOAD_SUPPORT_ASYNC_REVALIDATION |
@@ -39,7 +39,7 @@ index d50de805cddfd5d0f987ec5cf82039eec29280a3..b3ffa8203a6d8cd7a00a61996ffeb43f
            "CorsURLLoaderFactory: Untrusted caller using restricted load flag");
        return false;
 diff --git services/network/public/cpp/resource_request.cc services/network/public/cpp/resource_request.cc
-index 4c6da7daa167e8e687d43b6c59948fdc694052f7..d18d000347d559c146e6f273223f77f3fa5e3c31 100644
+index dd0ebad1fdcadab06b25df192a85153d1e65e141..cb7b39406e974ea3e271520351f99cbc996b486a 100644
 --- services/network/public/cpp/resource_request.cc
 +++ services/network/public/cpp/resource_request.cc
 @@ -374,7 +374,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {

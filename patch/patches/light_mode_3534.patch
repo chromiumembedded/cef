@@ -91,10 +91,10 @@ index e09cf382304fa258f3d8bca4fae116301076a011..3331c751bd8d6f909c575d6efccc9401
  
  NativeTheme::PreferredContrast NativeTheme::CalculatePreferredContrast() const {
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index d8c168edc6c92c8094bb37e4ac1eb703d9d1dc85..ef1373c4d9a224db0b31cbd3ea5566b6a372b6d7 100644
+index 8e2849fc1e17fc55ad146134b7031538337c1f5c..624fff276fd4648e5d61aa05b6df55bab5ed0545 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
-@@ -531,13 +531,16 @@ class COMPONENT_EXPORT(NATIVE_THEME) NativeTheme {
+@@ -534,13 +534,16 @@ class COMPONENT_EXPORT(NATIVE_THEME) NativeTheme {
      caret_blink_interval_ = caret_blink_interval;
    }
  

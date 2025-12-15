@@ -627,6 +627,10 @@ void CefRenderWidgetHostViewOSR::ResetFallbackToFirstNavigationSurface() {
   }
 }
 
+void CefRenderWidgetHostViewOSR::OnUnconfirmedTapConvertedToTap() {
+  gesture_provider_.OnUnconfirmedTapConvertedToTap();
+}
+
 void CefRenderWidgetHostViewOSR::InitAsPopup(
     content::RenderWidgetHostView* parent_host_view,
     const gfx::Rect& bounds,

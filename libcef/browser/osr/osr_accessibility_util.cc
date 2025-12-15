@@ -369,12 +369,10 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXNodeData& node) {
                 func);
 
   // Poupulate Bool Attributes.
-  if (node.bool_attributes) {
-    node.bool_attributes->ForEach(
-        [&func](ax::mojom::BoolAttribute attr, bool value) {
-          func(std::make_pair(attr, value));
-        });
-  }
+  node.bool_attributes.ForEach(
+      [&func](ax::mojom::BoolAttribute attr, bool value) {
+        func(std::make_pair(attr, value));
+      });
 
   // Populate int list attributes.
   std::for_each(node.intlist_attributes.begin(), node.intlist_attributes.end(),

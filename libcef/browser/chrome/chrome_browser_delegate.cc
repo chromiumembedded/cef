@@ -439,7 +439,8 @@ std::optional<bool> ChromeBrowserDelegate::SupportsWindowFeature(
     int feature) const {
   // Override the default value from
   // Browser::PictureInPictureBrowserSupportsWindowFeature.
-  if (feature == Browser::FEATURE_TITLEBAR &&
+  if (static_cast<Browser::WindowFeature>(feature) ==
+          Browser::WindowFeature::kFeatureTitleBar &&
       browser_->is_type_picture_in_picture()) {
     // Return false to hide titlebar and enable draggable regions.
     return !SupportsFramelessPictureInPicture();
