@@ -383,7 +383,7 @@ typedef enum {
   /// `net::features::kTpcdMetadataGrants` is enabled.
   CEF_CONTENT_SETTING_TYPE_TPCD_METADATA_GRANTS,
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14400)
   CEF_CONTENT_SETTING_TYPE_TPCD_TRIAL_DEPRECATED,
 #else
   /// Content Setting for 3PC accesses granted via 3PC deprecation trial.

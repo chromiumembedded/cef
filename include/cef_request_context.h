@@ -212,12 +212,12 @@ class CefRequestContext : public CefPreferenceManager {
   virtual void ClearCertificateExceptions(
       CefRefPtr<CefCompletionCallback> callback) = 0;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14400)
   ///
   /// Clears the HTTP cache. If |callback| is non-NULL it will be executed on
   /// the UI thread after completion.
   ///
-  /*--cef(added=next,optional_param=callback)--*/
+  /*--cef(added=14400,optional_param=callback)--*/
   virtual void ClearHttpCache(CefRefPtr<CefCompletionCallback> callback) = 0;
 #endif
 

@@ -142,12 +142,12 @@ class CefBrowserViewDelegate : public CefViewDelegate {
   }
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14400)
   ///
   /// Return true to allow opening Document picture-in-picture without
   /// user activation. Default is false (user activation required).
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=14400)--*/
   virtual bool AllowPictureInPictureWithoutUserActivation(
       CefRefPtr<CefBrowserView> browser_view) {
     return false;

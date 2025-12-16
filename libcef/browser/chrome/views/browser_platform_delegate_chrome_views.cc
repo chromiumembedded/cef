@@ -143,7 +143,7 @@ bool CefBrowserPlatformDelegateChromeViews::IsMovePictureInPictureEnabled()
 
 bool CefBrowserPlatformDelegateChromeViews::
     AllowPictureInPictureWithoutUserActivation() const {
-  if (CEF_API_IS_ADDED(CEF_NEXT) && browser_view_) {
+  if (CEF_API_IS_ADDED(14400) && browser_view_) {
     if (auto* delegate = browser_view_->delegate()) {
       return delegate->AllowPictureInPictureWithoutUserActivation(
           browser_view_.get());

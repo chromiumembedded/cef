@@ -149,7 +149,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool AllowMoveForPictureInPicture(
       CefRefPtr<CefBrowserView> browser_view) override;
 #endif
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14400)
   bool AllowPictureInPictureWithoutUserActivation(
       CefRefPtr<CefBrowserView> browser_view) override;
 #endif

@@ -540,7 +540,7 @@ bool ViewsWindow::AllowMoveForPictureInPicture(
 }
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14400)
 bool ViewsWindow::AllowPictureInPictureWithoutUserActivation(
     CefRefPtr<CefBrowserView> browser_view) {
   return allow_pip_without_user_activation_;
