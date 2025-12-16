@@ -1,0 +1,135 @@
+diff --git net/base/reconnect_notifier.cc net/base/reconnect_notifier.cc
+index dfc539f0c498ea46ccd60cacb48beaa413fb799b..23f8fc8ba5e2a36ef8ac27ba273319028a656607 100644
+--- net/base/reconnect_notifier.cc
++++ net/base/reconnect_notifier.cc
+@@ -23,6 +23,11 @@ void ConnectionChangeNotifier::Observer::OnAttach(
+   notifier_ = notifier;
+ }
+ 
++base::WeakPtr<ConnectionChangeNotifier::Observer>
++ConnectionChangeNotifier::Observer::GetWeakPtr() {
++  return weak_factory_.GetWeakPtr();
++}
++
+ void ConnectionChangeNotifier::OnSessionClosed() {
+   observer_list_.Notify(&ConnectionChangeNotifier::Observer::OnSessionClosed);
+ }
+diff --git net/base/reconnect_notifier.h net/base/reconnect_notifier.h
+index 587fb6df6436183dc0ff251793dd92fa838ac8dd..fc57c04ab942b989d131f6b61f4369a6faeec5dd 100644
+--- net/base/reconnect_notifier.h
++++ net/base/reconnect_notifier.h
+@@ -11,6 +11,7 @@
+ #include <set>
+ 
+ #include "base/functional/callback.h"
++#include "base/memory/weak_ptr.h"
+ #include "base/observer_list.h"
+ #include "base/observer_list_types.h"
+ #include "net/base/net_export.h"
+@@ -57,6 +58,8 @@ class NET_EXPORT ConnectionChangeNotifier {
+     // Notify on a network change event.
+     virtual void OnNetworkEvent(NetworkChangeEvent event) = 0;
+ 
++    base::WeakPtr<Observer> GetWeakPtr();
++
+    private:
+     friend class ConnectionChangeNotifier;
+ 
+@@ -66,6 +69,8 @@ class NET_EXPORT ConnectionChangeNotifier {
+     void OnAttach(base::WeakPtr<ConnectionChangeNotifier> notifier);
+ 
+     base::WeakPtr<ConnectionChangeNotifier> notifier_;
++
++    base::WeakPtrFactory<Observer> weak_factory_{this};
+   };
+ 
+   ConnectionChangeNotifier();
+@@ -143,8 +148,7 @@ struct NET_EXPORT ConnectionManagementConfig {
+   std::optional<ConnectionKeepAliveConfig> keep_alive_config;
+ 
+   // A reference to the `ConnectionChangeNotifier::Observer`.
+-  raw_ptr<ConnectionChangeNotifier::Observer> connection_change_observer =
+-      nullptr;
++  base::WeakPtr<ConnectionChangeNotifier::Observer> connection_change_observer;
+ };
+ 
+ }  // namespace net
+diff --git net/quic/quic_session_pool.cc net/quic/quic_session_pool.cc
+index d3c38d1ff35b12204830709024cec50d2cc900b0..53b87eb0cbf33d76b6a0b163094c7fed25c04c48 100644
+--- net/quic/quic_session_pool.cc
++++ net/quic/quic_session_pool.cc
+@@ -825,7 +825,7 @@ int QuicSessionPool::RequestSession(
+             std::make_unique<ConnectionChangeNotifier>();
+       }
+       connection_change_notifier_[session_key]->AddObserver(
+-          management_config->connection_change_observer);
++          management_config->connection_change_observer.get());
+     }
+   }
+ 
+diff --git net/quic/quic_session_pool_test.cc net/quic/quic_session_pool_test.cc
+index 0bd11c5784d368ab2f8cceca002b8a2549290dc9..745858dd6faff67b621fcc86264d8553d2b3a602 100644
+--- net/quic/quic_session_pool_test.cc
++++ net/quic/quic_session_pool_test.cc
+@@ -14867,7 +14867,7 @@ TEST_P(QuicSessionPoolTest, NotifyConnectionChangeOnSessionClose) {
+   // Build request with the ConnectionChangeObserver.
+   auto connection_management_config = ConnectionManagementConfig();
+   connection_management_config.connection_change_observer =
+-      connection_change_observer_.get();
++      connection_change_observer_->GetWeakPtr();
+   builder.connection_management_config =
+       std::move(connection_management_config);
+   EXPECT_EQ(ERR_IO_PENDING, builder.CallRequest());
+@@ -14912,7 +14912,7 @@ TEST_P(QuicSessionPoolTest, NotifyConnectionChangeOnConnectionFailure) {
+   // Build request with the ConnectionChangeObserver.
+   auto connection_management_config = ConnectionManagementConfig();
+   connection_management_config.connection_change_observer =
+-      connection_change_observer_.get();
++      connection_change_observer_->GetWeakPtr();
+   builder.connection_management_config =
+       std::move(connection_management_config);
+ 
+@@ -14957,7 +14957,7 @@ TEST_P(QuicSessionPoolTest, NotifyConnectionChangeOnNetworkChangeEvent) {
+   // Build request with the ConnectionChangeObserver.
+   auto connection_management_config = ConnectionManagementConfig();
+   connection_management_config.connection_change_observer =
+-      connection_change_observer_.get();
++      connection_change_observer_->GetWeakPtr();
+   builder.connection_management_config =
+       std::move(connection_management_config);
+   EXPECT_EQ(ERR_IO_PENDING, builder.CallRequest());
+diff --git net/spdy/spdy_session_pool.cc net/spdy/spdy_session_pool.cc
+index 6d82b39811388f5afd6624061d27e67c4f9c7428..0328f28eb164fe7d2dd9ac49ce8c0e62ad6ee88e 100644
+--- net/spdy/spdy_session_pool.cc
++++ net/spdy/spdy_session_pool.cc
+@@ -952,7 +952,7 @@ void SpdySessionPool::AddConnectionManagementConfig(
+           std::make_unique<ConnectionChangeNotifier>();
+     }
+     connection_change_notifier_map_[key]->AddObserver(
+-        connection_management_config.connection_change_observer);
++        connection_management_config.connection_change_observer.get());
+   }
+ }
+ 
+diff --git net/spdy/spdy_session_pool_unittest.cc net/spdy/spdy_session_pool_unittest.cc
+index 5c89c1aaf8e6b324b19b6e2d39daa913d0c74f85..891ec50be0ac2f474e7bd5e3def229272a39dddc 100644
+--- net/spdy/spdy_session_pool_unittest.cc
++++ net/spdy/spdy_session_pool_unittest.cc
+@@ -2139,7 +2139,7 @@ TEST_F(SpdySessionPoolTest, NotifyConnectionChangeOnSessionClose) {
+   base::WeakPtr<SpdySession> session;
+   auto connection_management_config = ConnectionManagementConfig();
+   connection_management_config.connection_change_observer =
+-      connection_change_observer.get();
++      connection_change_observer->GetWeakPtr();
+   rv = spdy_session_pool_->CreateAvailableSessionFromSocketHandle(
+       test_key, std::move(connection), net_log,
+       MultiplexedSessionCreationInitiator::kUnknown, &session,
+@@ -2227,7 +2227,7 @@ TEST_F(SpdySessionPoolTest, NotifyConnectionChangeOnConnectionFailure) {
+   base::WeakPtr<SpdySession> session;
+   auto connection_management_config = ConnectionManagementConfig();
+   connection_management_config.connection_change_observer =
+-      connection_change_observer.get();
++      connection_change_observer->GetWeakPtr();
+   rv = spdy_session_pool_->CreateAvailableSessionFromSocketHandle(
+       test_key, std::move(connection), net_log,
+       MultiplexedSessionCreationInitiator::kUnknown, &session,

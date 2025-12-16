@@ -122,10 +122,19 @@ index 3ecc53285b872e1eab24e6ef8ab522063d2c4ed1..e6a14a3f4a41e0353b2b490a24c9a0e3
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 48d5d5c0eb741ea1bb9b1f25233574716a77b49a..2ca5a9d7261107e1d039effa7f4d6a351bcca539 100644
+index 48d5d5c0eb741ea1bb9b1f25233574716a77b49a..36c67ccc24e56849008c5078283984e392374ea7 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2890,22 +2890,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2391,7 +2391,7 @@ void NetworkContext::PreconnectSockets(
+           std::move(connection_change_observer_client), this);
+ 
+       request_info.connection_management_config->connection_change_observer =
+-          change_observer.get();
++          change_observer->GetWeakPtr();
+       connection_change_observers_.insert(std::move(change_observer));
+     }
+   }
+@@ -2890,23 +2890,27 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
              pref_service.get(), network_service_->network_quality_estimator());
    }
  
@@ -142,9 +151,6 @@ index 48d5d5c0eb741ea1bb9b1f25233574716a77b49a..2ca5a9d7261107e1d039effa7f4d6a35
 -    if (params_->persist_session_cookies) {
 -      cookie_store->SetPersistSessionCookies(true);
 -    }
--
--    builder.SetCookieStore(std::move(cookie_store));
--  }
 +  // If the pref service was registered and initialized use it.
 +  // If not, use nullptr to indicate prefs aren't available.
 +  std::unique_ptr<net::CookieMonster> cookie_store =
@@ -157,17 +163,19 @@ index 48d5d5c0eb741ea1bb9b1f25233574716a77b49a..2ca5a9d7261107e1d039effa7f4d6a35
 +  if (session_cleanup_cookie_store && params_->persist_session_cookies) {
 +    cookie_store->SetPersistSessionCookies(true);
 +  }
-+
+ 
+-    builder.SetCookieStore(std::move(cookie_store));
 +  if (params_->cookieable_schemes.has_value()) {
 +    cookie_store->SetCookieableSchemes(
 +        *params_->cookieable_schemes,
 +        net::CookieStore::SetCookieableSchemesCallback());
-+  }
-+
-+  builder.SetCookieStore(std::move(cookie_store));
+   }
  
++  builder.SetCookieStore(std::move(cookie_store));
++
    base::FilePath transport_security_persister_file_name;
    if (GetFullDataFilePath(params_->file_paths,
+                           &network::mojom::NetworkContextFilePaths::
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
 index 709aae5568b73df28282dec1d0a87ca4a0cb054c..06ba6bfd507110222be5d2e059245282ec508abb 100644
 --- services/network/public/mojom/network_context.mojom
