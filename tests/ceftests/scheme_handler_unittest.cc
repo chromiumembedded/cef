@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
+#include <sstream>
 #include <vector>
 
 #include "include/base/cef_callback.h"
@@ -13,6 +14,7 @@
 #include "include/cef_scheme.h"
 #include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_suite.h"
 #include "tests/ceftests/test_util.h"
@@ -2681,6 +2683,196 @@ TEST(SchemeHandlerTest, AcceptLanguage) {
   EXPECT_TRUE(test_results.git_exit_success);
 
   ClearTestSchemes(&test_results);
+}
+
+namespace {
+
+// Test that CefSchemeHandlerFactory::Create receives the correct frame URL
+// for sub-resource requests. This is a regression test for issue #4034 where
+// frame->GetUrl() returned "about:blank" instead of the actual frame URL
+// during resource loading.
+class FrameUrlTestSchemeHandlerFactory : public CefSchemeHandlerFactory {
+ public:
+  explicit FrameUrlTestSchemeHandlerFactory(
+      const std::string& expected_frame_url,
+      const std::string& main_html,
+      const std::string& sub_html,
+      const std::string& sub_url,
+      TrackCallback* got_factory_create_for_main,
+      TrackCallback* got_factory_create_for_sub,
+      TrackCallback* got_correct_frame_url_for_sub)
+      : expected_frame_url_(expected_frame_url),
+        main_html_(main_html),
+        sub_html_(sub_html),
+        sub_url_(sub_url),
+        got_factory_create_for_main_(got_factory_create_for_main),
+        got_factory_create_for_sub_(got_factory_create_for_sub),
+        got_correct_frame_url_for_sub_(got_correct_frame_url_for_sub) {}
+
+  CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
+                                       CefRefPtr<CefFrame> frame,
+                                       const CefString& scheme_name,
+                                       CefRefPtr<CefRequest> request) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+
+    const std::string& url = request->GetURL();
+    const std::string& frame_url = frame ? frame->GetURL().ToString() : "";
+
+    if (url == expected_frame_url_) {
+      // This is the main page request.
+      got_factory_create_for_main_->yes();
+      return new CefStreamResourceHandler(
+          200, "OK", "text/html", CefResponse::HeaderMap(),
+          CefStreamReader::CreateForData(
+              static_cast<void*>(const_cast<char*>(main_html_.data())),
+              main_html_.size()));
+    } else if (url == sub_url_) {
+      // This is the sub-resource request.
+      got_factory_create_for_sub_->yes();
+
+      // Verify that frame->GetUrl() returns the main page URL, not
+      // "about:blank". This is the core fix verified by issue #4034.
+      if (frame_url == expected_frame_url_) {
+        got_correct_frame_url_for_sub_->yes();
+      } else {
+        ADD_FAILURE() << "Expected frame URL: " << expected_frame_url_
+                      << ", got: " << frame_url;
+      }
+
+      // Return a simple response for the sub-resource.
+      return new CefStreamResourceHandler(
+          200, "OK", "text/html", CefResponse::HeaderMap(),
+          CefStreamReader::CreateForData(
+              static_cast<void*>(const_cast<char*>(sub_html_.data())),
+              sub_html_.size()));
+    }
+
+    return nullptr;
+  }
+
+ private:
+  const std::string expected_frame_url_;
+  const std::string main_html_;
+  const std::string sub_html_;
+  const std::string sub_url_;
+  TrackCallback* const got_factory_create_for_main_;
+  TrackCallback* const got_factory_create_for_sub_;
+  TrackCallback* const got_correct_frame_url_for_sub_;
+
+  IMPLEMENT_REFCOUNTING(FrameUrlTestSchemeHandlerFactory);
+  DISALLOW_COPY_AND_ASSIGN(FrameUrlTestSchemeHandlerFactory);
+};
+
+class FrameUrlTestHandler : public TestHandler {
+ public:
+  FrameUrlTestHandler() = default;
+
+  void RunTest() override {
+    // Main page URL.
+    main_url_ = "customstd://test/main.html";
+    // Sub-resource URL that will be fetched via XHR.
+    sub_url_ = "customstd://test/sub.html";
+
+    // HTML for main page - uses XHR to request the sub-resource.
+    // After the XHR completes, it navigates to an exit URL.
+    std::stringstream ss;
+    ss << "<html><head></head><body>"
+       << "<script>"
+       << "var xhr = new XMLHttpRequest();"
+       << "xhr.open('GET', '" << sub_url_ << "', true);"
+       << "xhr.onload = function() {"
+       << "  if (xhr.status === 200) {"
+       << "    document.location = 'https://tests/exit?result=SUCCESS';"
+       << "  } else {"
+       << "    document.location = 'https://tests/exit?result=FAILURE';"
+       << "  }"
+       << "};"
+       << "xhr.onerror = function() {"
+       << "  document.location = 'https://tests/exit?result=FAILURE';"
+       << "};"
+       << "xhr.send();"
+       << "</script>"
+       << "</body></html>";
+    main_html_ = ss.str();
+
+    // Simple content for sub-resource.
+    sub_html_ = "SUB_RESOURCE_CONTENT";
+
+    // Register the custom scheme handler factory.
+    CefRefPtr<FrameUrlTestSchemeHandlerFactory> factory =
+        new FrameUrlTestSchemeHandlerFactory(
+            main_url_, main_html_, sub_html_, sub_url_,
+            &got_factory_create_for_main_, &got_factory_create_for_sub_,
+            &got_correct_frame_url_for_sub_);
+
+    EXPECT_TRUE(CefRegisterSchemeHandlerFactory("customstd", "test", factory));
+    WaitForIOThread();
+
+    // Create browser to load the main page.
+    CreateBrowser(main_url_);
+
+    SetTestTimeout();
+  }
+
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefCallback> callback) override {
+    const std::string& url = request->GetURL();
+
+    // Cancel exit URL requests and complete the test.
+    if (url.find("https://tests/exit") != std::string::npos) {
+      if (url.find("SUCCESS") != std::string::npos) {
+        got_exit_success_.yes();
+      }
+      DestroyTest();
+      return RV_CANCEL;
+    }
+
+    return RV_CONTINUE;
+  }
+
+  void DestroyTest() override {
+    // Verify all expected callbacks were triggered.
+    EXPECT_TRUE(got_factory_create_for_main_);
+    EXPECT_TRUE(got_factory_create_for_sub_);
+    EXPECT_TRUE(got_correct_frame_url_for_sub_);
+    EXPECT_TRUE(got_exit_success_);
+
+    TestHandler::DestroyTest();
+  }
+
+  void ClearSchemeFactory() {
+    // Unregister the scheme handler factory.
+    EXPECT_TRUE(CefRegisterSchemeHandlerFactory("customstd", "test", nullptr));
+    WaitForIOThread();
+  }
+
+ private:
+  std::string main_url_;
+  std::string sub_url_;
+  std::string main_html_;
+  std::string sub_html_;
+
+  TrackCallback got_factory_create_for_main_;
+  TrackCallback got_factory_create_for_sub_;
+  TrackCallback got_correct_frame_url_for_sub_;
+  TrackCallback got_exit_success_;
+
+  IMPLEMENT_REFCOUNTING(FrameUrlTestHandler);
+  DISALLOW_COPY_AND_ASSIGN(FrameUrlTestHandler);
+};
+
+}  // namespace
+
+// Test that CefSchemeHandlerFactory::Create receives the correct frame URL
+// for sub-resource requests (fixes issue #4034).
+TEST(SchemeHandlerTest, FactoryCreateFrameUrl) {
+  CefRefPtr<FrameUrlTestHandler> handler = new FrameUrlTestHandler();
+  handler->ExecuteTest();
+  handler->ClearSchemeFactory();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Entry point for registering custom schemes.
