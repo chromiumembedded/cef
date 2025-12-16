@@ -102,10 +102,11 @@ class BuildOutputAnalyzer:
         for line_idx, line in enumerate(lines, 1):
             # Match error lines in both Unix and Windows formats:
             # Unix:    file:line:col: error: message
+            # Unix:    file:line:col: fatal error: message
             # Windows: file(line,col): error: message
-            error_match = re.match(r'^([^:]+):(\d+):(?:\d+:)? error: (.+)$', line)
+            error_match = re.match(r'^([^:]+):(\d+):(?:\d+:)? (?:fatal )?error: (.+)$', line)
             if not error_match:
-                error_match = re.match(r'^([^(]+)\((\d+),(?:\d+)\): error: (.+)$', line)
+                error_match = re.match(r'^([^(]+)\((\d+),(?:\d+)\): (?:fatal )?error: (.+)$', line)
 
             if error_match:
                 file_path = error_match.group(1)
