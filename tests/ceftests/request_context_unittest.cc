@@ -135,6 +135,9 @@ TEST(RequestContextTest, BasicCreateSharedGlobal) {
   EXPECT_TRUE(context1->IsSharingWith(context2));
 }
 
+#if 0
+// This test causes a PaymentsAutofillTable::FromWebDatabase crash on Linux.
+// See https://crbug.com/416755456
 TEST(RequestContextTest, BasicCreateSharedOnDisk) {
   CefScopedTempDir tempdir;
   EXPECT_TRUE(tempdir.CreateUniqueTempDirUnderPath(
@@ -195,6 +198,7 @@ TEST(RequestContextTest, BasicCreateSharedOnDisk) {
   EXPECT_TRUE(context2->IsSharingWith(context4));
   EXPECT_TRUE(context3->IsSharingWith(context4));
 }
+#endif
 
 namespace {
 

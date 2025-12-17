@@ -184,26 +184,32 @@ void ChromeBrowserContext::ProfileCreated(CreateStatus status,
   }
 
   if (status == CreateStatus::kInitialized) {
-    CHECK(profile_);
+    // |profile_| may be nullptr if initialization failed.
+    // See ProfileManager::OnProfileCreationFinished.
+    if (profile_) {
+      // Must set |profile_| before Init() calls
+      // ChromeContentBrowserClientCef::ConfigureNetworkContextParams so that
+      // CefBrowserContext::FromBrowserContext can find us.
+      if (otr_profile) {
+        otr_profile->Init();
+        parent_profile->NotifyOffTheRecordProfileCreated(otr_profile);
+      }
 
-    // Must set |profile_| before Init() calls
-    // ChromeContentBrowserClientCef::ConfigureNetworkContextParams so that
-    // CefBrowserContext::FromBrowserContext can find us.
-    if (otr_profile) {
-      otr_profile->Init();
-      parent_profile->NotifyOffTheRecordProfileCreated(otr_profile);
+      if (!profile_->IsOffTheRecord()) {
+        // Configure the desired profile restore behavior for the next
+        // application restart (checked via
+        // ProfileImpl::ShouldRestoreOldSessionCookies).
+        profile_->GetPrefs()->SetInteger(
+            prefs::kRestoreOnStartup,
+            !!settings_.persist_session_cookies
+                ? SessionStartupPref::kPrefValueLast
+                : SessionStartupPref::kPrefValueNewTab);
+      }
+
+      browser_prefs::SetInitialProfilePrefs(profile_);
+    } else {
+      destroyed_ = true;
     }
-
-    if (!profile_->IsOffTheRecord()) {
-      // Configure the desired profile restore behavior for the next application
-      // restart (checked via ProfileImpl::ShouldRestoreOldSessionCookies).
-      profile_->GetPrefs()->SetInteger(
-          prefs::kRestoreOnStartup, !!settings_.persist_session_cookies
-                                        ? SessionStartupPref::kPrefValueLast
-                                        : SessionStartupPref::kPrefValueNewTab);
-    }
-
-    browser_prefs::SetInitialProfilePrefs(profile_);
 
     if (!init_callbacks_.empty()) {
       for (auto& callback : init_callbacks_) {
