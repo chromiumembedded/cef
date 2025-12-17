@@ -336,6 +336,8 @@ def GetRecommendedDefaultArgs():
     # Set the blink TLS model to local-dynamic.
     # https://github.com/chromiumembedded/cef/issues/3803#issuecomment-2980423520
     result['blink_heap_inside_shared_library'] = True
+    result['use_ozone'] = True
+    result['ozone_platform'] = 'auto'
 
   # This file may exist when building using a source tarball.
   tarball_args_file = os.path.join(src_dir, 'tarball_args.gn')
