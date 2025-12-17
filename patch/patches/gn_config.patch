@@ -12,10 +12,10 @@ index ae58a0b0a64ae1fdb3f9cd8587041d71a121c6b9..35e01ee64e5d75496b687870abb6a42d
  
        "//google_apis/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index f86761b03e76d5f352fd1fa72e850f7f3723fa86..26e13b359379d12550070dfc4bf861f2337311a9 100644
+index 39acc6fbd46d88f7b2b42160d71ab3a30fc1bf77..052809d5b10350f440cfe8ec6a1417b31e4aa7d6 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -21,6 +21,7 @@ import("//build/config/ui.gni")
+@@ -20,6 +20,7 @@ import("//build/config/ui.gni")
  import("//build/gn_logs.gni")
  import("//build/toolchain/rbe.gni")
  import("//build/util/generate_wrapper.gni")
@@ -23,7 +23,7 @@ index f86761b03e76d5f352fd1fa72e850f7f3723fa86..26e13b359379d12550070dfc4bf861f2
  import("//chrome/browser/buildflags.gni")
  import("//chrome/enterprise_companion/buildflags.gni")
  import("//components/enterprise/buildflags/buildflags.gni")
-@@ -285,6 +286,10 @@ group("gn_all") {
+@@ -284,6 +285,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -102,7 +102,7 @@ index df7f468e9557a87019ee5796addaf661e3e47d00..fa83cf04fd97542805cb4b72eeb237bf
        sources += [
          "$root_gen_dir/chrome/extensions_resources.pak",
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index 03fad836d3ee83e643dbe9cd5d0f2426aacfab97..e21ec561beddeb43bbcf93ad127fa82089836c9e 100644
+index 634e679b83a3a95388b22defe329a4ff2ee64527..64d6fe37af571f4239de7de0740dce784ae0cb86 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -4,6 +4,7 @@
