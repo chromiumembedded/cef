@@ -632,10 +632,10 @@ index 64d07b209f72fc593c861d84d2baf0ca52ce9aed..d6a6b1d7be329733d85483688f1648a9
    // Deactivates the widget, making the next window in the Z order the active
    // window.
 diff --git ui/views/widget/widget_delegate.h ui/views/widget/widget_delegate.h
-index 7695f926b19cc81dfce9995a4ebac9dd50782ec0..e89dd5bb40961cd9f9b31aa52f395a0a3f2771a7 100644
+index 0315a1fac360ecea54cf8c5c065e777508193169..a6938af0e8cfa413121ca8303399267a417af398 100644
 --- ui/views/widget/widget_delegate.h
 +++ ui/views/widget/widget_delegate.h
-@@ -791,6 +791,10 @@ class VIEWS_EXPORT WidgetDelegate {
+@@ -786,6 +786,10 @@ class VIEWS_EXPORT WidgetDelegate {
    // Returns true if the title text should be centered.
    bool ShouldCenterWindowTitleText() const;
  

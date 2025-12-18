@@ -452,7 +452,7 @@ index 339cd970e716158faf7973fc0ce72d9aac532e27..6684175f4812b0573c7e5c71ba0bf1dc
  
  void MaybeBlockDynamicCodeForBrowserProcess() {
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 6788652c5836bc1756cc9cd71149c3c50fce7b03..37d0b5d0e1c0c1a67516ea965ab729d17dd45c5f 100644
+index 900df063b86fa756af8cbe8d4296cbe966dc631d..5e9554fe49e728b287181a1377c99dc651b24c5d 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -52,6 +52,7 @@
@@ -484,7 +484,7 @@ index 6788652c5836bc1756cc9cd71149c3c50fce7b03..37d0b5d0e1c0c1a67516ea965ab729d1
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -4912,9 +4920,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -4917,9 +4925,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -496,7 +496,7 @@ index 6788652c5836bc1756cc9cd71149c3c50fce7b03..37d0b5d0e1c0c1a67516ea965ab729d1
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -6587,7 +6597,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -6592,7 +6602,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
    }
  }
  
@@ -505,7 +505,7 @@ index 6788652c5836bc1756cc9cd71149c3c50fce7b03..37d0b5d0e1c0c1a67516ea965ab729d1
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -6605,6 +6615,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -6610,6 +6620,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -514,7 +514,7 @@ index 6788652c5836bc1756cc9cd71149c3c50fce7b03..37d0b5d0e1c0c1a67516ea965ab729d1
  }
  
  std::vector<base::FilePath>
-@@ -7896,11 +7908,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -7901,11 +7913,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -528,7 +528,7 @@ index 6788652c5836bc1756cc9cd71149c3c50fce7b03..37d0b5d0e1c0c1a67516ea965ab729d1
            FROM_HERE, keepalive_deadline_ - now,
            base::BindOnce(
                &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -7922,7 +7934,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -7927,7 +7939,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -538,7 +538,7 @@ index 6788652c5836bc1756cc9cd71149c3c50fce7b03..37d0b5d0e1c0c1a67516ea965ab729d1
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -8101,7 +8114,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -8106,7 +8119,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -579,7 +579,7 @@ index 7580b555ed1b927873b156d3ab949fcbe4ec758e..2934a8b045af6333e1c28954b152390a
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 99f76bc507e985ac79cb687781ff81ccbd8354f7..b014156e4ee28df876f3a67a07cc310ba2060fc1 100644
+index 2c7878aec4a53a5791b12441df2e12df735aa589..e214d664c0d7591ca7fffc5dd016df5fed53d9b5 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -17,6 +17,7 @@
@@ -613,7 +613,7 @@ index 99f76bc507e985ac79cb687781ff81ccbd8354f7..b014156e4ee28df876f3a67a07cc310b
  }
  
  // Register prefs applicable to all profiles.
-@@ -2079,6 +2089,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -2080,6 +2090,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
                                const std::string& locale) {
    RegisterProfilePrefs(registry, locale);
  
