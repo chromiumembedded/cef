@@ -1166,10 +1166,10 @@ void InterceptedRequest::OnProcessRequestHeaders(
       id_, request_, redirect_url, modified_headers, removed_headers);
 
   if (!modified_headers->IsEmpty() || !removed_headers->empty()) {
-    request_.headers.MergeFrom(*modified_headers);
     for (const std::string& name : *removed_headers) {
       request_.headers.RemoveHeader(name);
     }
+    request_.headers.MergeFrom(*modified_headers);
   }
 }
 
