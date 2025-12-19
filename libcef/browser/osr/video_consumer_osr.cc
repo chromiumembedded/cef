@@ -168,14 +168,16 @@ void CefVideoConsumerOSR::OnFrameCaptured(
 
 #if BUILDFLAG(IS_WIN)
     auto& gmb_handle = data->get_gpu_memory_buffer_handle();
-    cef_accelerated_paint_info_t paint_info;
+    cef_accelerated_paint_info_t paint_info = {
+        sizeof(cef_accelerated_paint_info_t)};
     paint_info.extra = extra;
     paint_info.shared_texture_handle = gmb_handle.dxgi_handle().buffer_handle();
     paint_info.format = pixel_format;
     view_->OnAcceleratedPaint(damage_rect, info->coded_size, paint_info);
 #elif BUILDFLAG(IS_APPLE)
     auto& gmb_handle = data->get_gpu_memory_buffer_handle();
-    cef_accelerated_paint_info_t paint_info;
+    cef_accelerated_paint_info_t paint_info = {
+        sizeof(cef_accelerated_paint_info_t)};
     paint_info.extra = extra;
     paint_info.shared_texture_io_surface = gmb_handle.io_surface().get();
     paint_info.format = pixel_format;
@@ -185,7 +187,8 @@ void CefVideoConsumerOSR::OnFrameCaptured(
     auto& native_pixmap = gmb_handle.native_pixmap_handle();
     CHECK(native_pixmap.planes.size() <= kAcceleratedPaintMaxPlanes);
 
-    cef_accelerated_paint_info_t paint_info;
+    cef_accelerated_paint_info_t paint_info = {
+        sizeof(cef_accelerated_paint_info_t)};
     paint_info.extra = extra;
     paint_info.plane_count = native_pixmap.planes.size();
     paint_info.modifier = native_pixmap.modifier;
