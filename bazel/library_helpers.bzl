@@ -62,24 +62,24 @@ def declare_cc_library(copts=[], local_defines=[], **kwargs):
         **kwargs
     )
 
-def declare_objc_library(copts=[], enable_cxx17=True, **kwargs):
+def declare_objc_library(copts=[], enable_cxx20=True, **kwargs):
     """
     objc_library wrapper that applies common copts.
 
     Args:
         copts: Additional compiler options to add.
-        enable_cxx17: If True (default), adds -std=c++17 for Objective-C++ (.mm) files.
+        enable_cxx20: If True (default), adds -std=c++20 for Objective-C++ (.mm) files.
                      Set to False for pure Objective-C (.m) files that should not use C++ standard.
         **kwargs: Additional arguments passed to objc_library.
     """
     # NOTE: objc_library does not support local_defines on MacOS, so on
     # that platform we put the defines in copts instead.
 
-    # Add C++17 standard for Objective-C++ files on macOS (default behavior)
+    # Add C++20 standard for Objective-C++ files on macOS (default behavior)
     # This allows .mm files to properly parse C++ headers while allowing
     # pure .m files to opt out when needed.
     cxx_standard = select({
-        "@platforms//os:macos": ["-std=c++17"] if enable_cxx17 else [],
+        "@platforms//os:macos": ["-std=c++20"] if enable_cxx20 else [],
         "//conditions:default": [],
     })
 

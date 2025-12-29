@@ -67,7 +67,7 @@ if(OS_WINDOWS)
   # Remove C++ standard flag since this is a C-only target.
   # The Visual Studio generator sets both <LanguageStandard> and <LanguageStandard_C>
   # properties, and <LanguageStandard> takes precedence when compiling C files.
-  list(REMOVE_ITEM CEF_CXX_COMPILER_FLAGS "/std:c++17")
+  list(REMOVE_ITEM CEF_CXX_COMPILER_FLAGS "/std:c++20")
 endif()
 
 

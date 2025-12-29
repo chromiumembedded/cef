@@ -12,11 +12,11 @@ build --enable_platform_specific_config
 # Common configuration.
 #
 
-# Build with C++17.
-# See also the enable_cxx17 argument to declare_objc_library()
-build:linux --cxxopt='-std=c++17'
-build:macos --cxxopt='-std=c++17'
-build:windows --cxxopt='/std:c++17'
+# Build with C++20.
+# See also the enable_cxx20 argument to declare_objc_library()
+build:linux --cxxopt='-std=c++20'
+build:macos --cxxopt='-std=c++20'
+build:windows --cxxopt='/std:c++20'
 
 #
 # Windows configuration.
