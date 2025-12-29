@@ -177,25 +177,6 @@ const char* log_severity_name(int severity) {
 }
 
 #if defined(OS_WIN)
-std::string WideToUTF8(const std::wstring& wstr) {
-  if (wstr.empty()) {
-    return {};
-  }
-  int size = WideCharToMultiByte(CP_UTF8, 0, wstr.data(),
-                                 static_cast<int>(wstr.size()), nullptr, 0,
-                                 nullptr, nullptr);
-  if (size <= 0) {
-    return {};
-  }
-  std::string utf8(size, '\0');
-  if (WideCharToMultiByte(CP_UTF8, 0, wstr.data(),
-                          static_cast<int>(wstr.size()), &utf8[0], size,
-                          nullptr, nullptr) != size) {
-    return {};
-  }
-  return utf8;
-}
-
 #if !defined(NDEBUG)
 bool IsUser32AndGdi32Available() {
   static const bool is_user32_and_gdi32_available = [] {
@@ -563,12 +544,101 @@ ErrnoLogMessage::~ErrnoLogMessage() {
 }
 #endif  // OS_WIN
 
+namespace internal {
+
+#if defined(OS_WIN)
+std::string WideToUTF8Impl(const wchar_t* data, size_t length) {
+  if (length == 0) {
+    return {};
+  }
+  int size = WideCharToMultiByte(CP_UTF8, 0, data, static_cast<int>(length),
+                                 nullptr, 0, nullptr, nullptr);
+  if (size <= 0) {
+    return {};
+  }
+  std::string utf8(size, '\0');
+  if (WideCharToMultiByte(CP_UTF8, 0, data, static_cast<int>(length), &utf8[0],
+                          size, nullptr, nullptr) != size) {
+    return {};
+  }
+  return utf8;
+}
+
+std::string WideToUTF8(std::wstring_view wstr) {
+  return WideToUTF8Impl(wstr.data(), wstr.size());
+}
+
+std::string UTF16ToUTF8(std::u16string_view str16) {
+  // On Windows, char16_t and wchar_t are both 16-bit, so we can cast.
+  return WideToUTF8Impl(reinterpret_cast<const wchar_t*>(str16.data()),
+                        str16.size());
+}
+#else   // !defined(OS_WIN)
+// The standard library's <codecvt> header (with std::codecvt_utf8_utf16 and
+// std::wstring_convert) was deprecated in C++17 and is scheduled for removal
+// in C++26. Use a manual implementation until C++26 is available, at which
+// time std::text_encoding should be provided as a replacement.
+std::string UTF16ToUTF8(std::u16string_view str16) {
+  std::string utf8;
+  // Worst case: 3 UTF-8 bytes per UTF-16 code unit (BMP characters use 1 code
+  // unit and up to 3 bytes; supplementary characters use 2 code units and 4
+  // bytes, so the 3:1 ratio is still safe).
+  utf8.reserve(str16.size() * 3);
+
+  for (size_t i = 0; i < str16.size(); ++i) {
+    char32_t codepoint;
+    char16_t ch = str16[i];
+
+    // Check for surrogate pair.
+    if (ch >= 0xD800 && ch <= 0xDBFF && i + 1 < str16.size()) {
+      char16_t ch2 = str16[i + 1];
+      if (ch2 >= 0xDC00 && ch2 <= 0xDFFF) {
+        // Valid surrogate pair.
+        codepoint = 0x10000 + ((ch - 0xD800) << 10) + (ch2 - 0xDC00);
+        ++i;
+      } else {
+        // Invalid surrogate, use replacement character.
+        codepoint = 0xFFFD;
+      }
+    } else if (ch >= 0xDC00 && ch <= 0xDFFF) {
+      // Lone low surrogate, use replacement character.
+      codepoint = 0xFFFD;
+    } else {
+      codepoint = ch;
+    }
+
+    // Encode as UTF-8.
+    if (codepoint < 0x80) {
+      utf8.push_back(static_cast<char>(codepoint));
+    } else if (codepoint < 0x800) {
+      utf8.push_back(static_cast<char>(0xC0 | (codepoint >> 6)));
+      utf8.push_back(static_cast<char>(0x80 | (codepoint & 0x3F)));
+    } else if (codepoint < 0x10000) {
+      utf8.push_back(static_cast<char>(0xE0 | (codepoint >> 12)));
+      utf8.push_back(static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F)));
+      utf8.push_back(static_cast<char>(0x80 | (codepoint & 0x3F)));
+    } else {
+      utf8.push_back(static_cast<char>(0xF0 | (codepoint >> 18)));
+      utf8.push_back(static_cast<char>(0x80 | ((codepoint >> 12) & 0x3F)));
+      utf8.push_back(static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F)));
+      utf8.push_back(static_cast<char>(0x80 | (codepoint & 0x3F)));
+    }
+  }
+
+  return utf8;
+}
+#endif  // !defined(OS_WIN)
+
+}  // namespace internal
 }  // namespace logging
 }  // namespace cef
 
 #if defined(OS_WIN)
-std::ostream& operator<<(std::ostream& out, const std::wstring& wstr) {
-  out << cef::logging::WideToUTF8(wstr);
-  return out;
+std::ostream& operator<<(std::ostream& out, std::wstring_view wstr) {
+  return out << cef::logging::internal::WideToUTF8(wstr);
 }
-#endif  // defined(OS_WIN)
+#endif
+
+std::ostream& operator<<(std::ostream& out, std::u16string_view str16) {
+  return out << cef::logging::internal::UTF16ToUTF8(str16);
+}

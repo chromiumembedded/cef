@@ -3,8 +3,10 @@
 // can be found in the LICENSE file.
 
 #include <map>
+#include <string_view>
 #include <vector>
 
+#include "include/base/cef_logging.h"
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_string_list.h"
 #include "include/internal/cef_string_map.h"
@@ -483,3 +485,54 @@ TEST(StringTest, Ownership) {
   EXPECT_STREQ(test_cstr, str3.c_str());
   EXPECT_EQ(str3_str, str3.c_str());
 }
+
+// Test UTF16ToUTF8 conversion.
+TEST(StringTest, UTF16ToUTF8) {
+  using cef::logging::internal::UTF16ToUTF8;
+
+  // Empty string.
+  EXPECT_EQ("", UTF16ToUTF8(u""));
+  EXPECT_EQ("", UTF16ToUTF8(std::u16string_view()));
+
+  // ASCII string.
+  EXPECT_EQ("Hello", UTF16ToUTF8(u"Hello"));
+
+  // 2-byte UTF-8 characters (U+0080 to U+07FF).
+  // U+00E9 = é (LATIN SMALL LETTER E WITH ACUTE)
+  EXPECT_EQ("caf\xC3\xA9", UTF16ToUTF8(u"caf\u00E9"));
+
+  // 3-byte UTF-8 characters (U+0800 to U+FFFF).
+  // U+4E2D = 中 (CJK character)
+  EXPECT_EQ("\xE4\xB8\xAD\xE6\x96\x87", UTF16ToUTF8(u"\u4E2D\u6587"));
+
+  // 4-byte UTF-8 characters via surrogate pairs (U+10000 and above).
+  // U+1F600 = 😀 (GRINNING FACE) = surrogate pair D83D DE00
+  EXPECT_EQ("\xF0\x9F\x98\x80", UTF16ToUTF8(u"\U0001F600"));
+
+  // Mixed content.
+  EXPECT_EQ("Hello \xE4\xB8\x96\xE7\x95\x8C \xF0\x9F\x98\x80",
+            UTF16ToUTF8(u"Hello \u4E16\u754C \U0001F600"));
+}
+
+#if defined(OS_WIN)
+// Test WideToUTF8 conversion (Windows only).
+TEST(StringTest, WideToUTF8) {
+  using cef::logging::internal::WideToUTF8;
+
+  // Empty string.
+  EXPECT_EQ("", WideToUTF8(L""));
+  EXPECT_EQ("", WideToUTF8(std::wstring_view()));
+
+  // ASCII string.
+  EXPECT_EQ("Hello", WideToUTF8(L"Hello"));
+
+  // 2-byte UTF-8 characters.
+  EXPECT_EQ("caf\xC3\xA9", WideToUTF8(L"caf\u00E9"));
+
+  // 3-byte UTF-8 characters.
+  EXPECT_EQ("\xE4\xB8\xAD\xE6\x96\x87", WideToUTF8(L"\u4E2D\u6587"));
+
+  // 4-byte UTF-8 characters via surrogate pairs.
+  EXPECT_EQ("\xF0\x9F\x98\x80", WideToUTF8(L"\U0001F600"));
+}
+#endif  // defined(OS_WIN)

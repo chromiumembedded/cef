@@ -182,6 +182,7 @@
 #include <cstring>
 #include <sstream>
 #include <string>
+#include <string_view>
 
 #include "include/base/cef_build.h"
 #include "include/internal/cef_logging_internal.h"
@@ -802,24 +803,45 @@ class ErrnoLogMessage {
 };
 #endif  // OS_WIN
 
+namespace internal {
+
+// UTF conversion functions implemented without libcef binary dependencies. Used
+// by ostream operator<< overloads below.
+#if defined(OS_WIN)
+std::string WideToUTF8(std::wstring_view wstr);
+#endif
+std::string UTF16ToUTF8(std::u16string_view str16);
+
+}  // namespace internal
 }  // namespace logging
 }  // namespace cef
 
-#if defined(OS_WIN)
 // These functions are provided as a convenience for logging, which is where we
 // use streams (it is against Google style to use streams in other places). It
 // is designed to allow you to emit non-ASCII Unicode strings to the log file,
 // which is normally ASCII. It is relatively slow, so try not to use it for
 // common cases. Non-ASCII characters will be converted to UTF-8 by these
-// operators.
-std::ostream& operator<<(std::ostream& out, const std::wstring& wstr);
+// operators. Based on base/strings/utf_ostream_operators.h.
+#if defined(OS_WIN)
+std::ostream& operator<<(std::ostream& out, std::wstring_view wstr);
 inline std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
-  return operator<<(out, std::wstring(wstr));
+  return out << (wstr ? std::wstring_view(wstr) : std::wstring_view());
 }
-inline std::ostream& operator<<(std::ostream& out, const char16_t* wstr) {
-  return operator<<(out, reinterpret_cast<const wchar_t*>(wstr));
+inline std::ostream& operator<<(std::ostream& out, const std::wstring& wstr) {
+  return out << std::wstring_view(wstr);
 }
 #endif  // defined(OS_WIN)
+
+// C++20 explicitly deleted the ostream operator<< overloads for UTF
+// conversions, so we provide them here.
+std::ostream& operator<<(std::ostream& out, std::u16string_view str16);
+inline std::ostream& operator<<(std::ostream& out, const char16_t* str16) {
+  return out << (str16 ? std::u16string_view(str16) : std::u16string_view());
+}
+inline std::ostream& operator<<(std::ostream& out,
+                                const std::u16string& str16) {
+  return out << std::u16string_view(str16);
+}
 
 // The NOTIMPLEMENTED() macro annotates codepaths which have
 // not been implemented yet.
