@@ -2336,6 +2336,7 @@ if (is_mac) {
     helper_deps = [
       ":libcef_dll_wrapper",
       ":gtest_teamcity",
+      "//testing/gmock",
       "//testing/gtest",
     ]
     helper_frameworks = [
@@ -2362,6 +2363,7 @@ if (is_mac) {
       ":ceftests_resources_bundle_data_english",
       ":ceftests_xibs",
       ":gtest_teamcity",
+      "//testing/gmock",
       "//testing/gtest",
     ]
     frameworks = [
@@ -2837,6 +2839,7 @@ if (is_mac) {
       ":libcef",
       ":libcef_dll_wrapper",
       ":gtest_teamcity",
+      "//testing/gmock",
       "//testing/gtest",
     ]
 
@@ -2916,6 +2919,7 @@ if (is_mac) {
         ":libcef",
         ":libcef_dll_wrapper",
         ":gtest_teamcity",
+        "//testing/gmock",
         "//testing/gtest",
       ]
 

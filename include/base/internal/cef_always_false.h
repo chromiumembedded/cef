@@ -1,4 +1,5 @@
-// Copyright (c) 2012 Google Inc. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. Portions copyright (c) 2022
+// Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -27,27 +28,32 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Do not include this header file directly. Use base/memory/scoped_policy.h
-// instead.
+// This file provides AlwaysFalse<> for use with static_assert() in templates.
+// Chromium removed this file in favor of bare static_assert(false) which is
+// supported in C++23 and as a defect report back to C++11 in newer compilers.
+// CEF retains this for compatibility with older compilers in standalone mode.
 
-#ifndef CEF_INCLUDE_BASE_INTERNAL_CEF_SCOPED_POLICY_H_
-#define CEF_INCLUDE_BASE_INTERNAL_CEF_SCOPED_POLICY_H_
+#ifndef CEF_INCLUDE_BASE_INTERNAL_CEF_ALWAYS_FALSE_H_
+#define CEF_INCLUDE_BASE_INTERNAL_CEF_ALWAYS_FALSE_H_
+#pragma once
 
-namespace base {
-namespace scoped_policy {
+#if !defined(USING_CHROMIUM_INCLUDES)
+// The following is substantially similar to the Chromium implementation
+// prior to its removal. This is only needed for CEF standalone builds.
 
-// Defines the ownership policy for a scoped object.
-enum OwnershipPolicy {
-  // The scoped object takes ownership of an object by taking over an existing
-  // ownership claim.
-  ASSUME,
+namespace cef_internal {
 
-  // The scoped object will retain the object and any initial ownership is
-  // not changed.
-  RETAIN
+template <typename... Args>
+struct AlwaysFalseHelper {
+  static constexpr bool kValue = false;
 };
 
-}  // namespace scoped_policy
-}  // namespace base
+}  // namespace cef_internal
 
-#endif  // CEF_INCLUDE_BASE_INTERNAL_CEF_SCOPED_POLICY_H_
+template <typename... Args>
+inline constexpr bool AlwaysFalse =
+    cef_internal::AlwaysFalseHelper<Args...>::kValue;
+
+#endif  // !USING_CHROMIUM_INCLUDES
+
+#endif  // CEF_INCLUDE_BASE_INTERNAL_CEF_ALWAYS_FALSE_H_

@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Marshall A. Greenblatt. Portions copyright (c) 2011
+// Copyright (c) 2024 Marshall A. Greenblatt. Portions copyright (c) 2024
 // Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,63 +28,50 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// base::AutoReset<> is useful for setting a variable to a new value only within
-// a particular scope. An base::AutoReset<> object resets a variable to its
-// original value upon destruction, making it an alternative to writing
-// "var = false;" or "var = old_val;" at all of a block's exit points.
-//
-// This should be obvious, but note that an base::AutoReset<> instance should
-// have a shorter lifetime than its scoped_variable, to prevent invalid memory
-// writes when the base::AutoReset<> object is destroyed.
-
-#ifndef CEF_INCLUDE_BASE_CEF_AUTO_RESET_H_
-#define CEF_INCLUDE_BASE_CEF_AUTO_RESET_H_
+#ifndef CEF_INCLUDE_BASE_CEF_TO_ADDRESS_H_
+#define CEF_INCLUDE_BASE_CEF_TO_ADDRESS_H_
 #pragma once
 
 #if defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
-#include "base/auto_reset.h"
+#include "base/types/to_address.h"
 #else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
 
-#include <utility>
+#include <memory>
+#include <type_traits>
 
+// SFINAE-compatible wrapper for `std::to_address()`.
+//
+// The standard does not require `std::to_address()` to be SFINAE-compatible
+// when code attempts instantiation with non-pointer-like types, and libstdc++'s
+// implementation hard errors. For the sake of templated code that wants simple,
+// unified handling, CEF instead uses this wrapper, which provides that
+// guarantee. This allows code to use "`to_address()` would be valid here" as a
+// constraint to detect pointer-like types.
 namespace base {
 
+/// Note that calling `std::to_address()` with a function pointer renders the
+/// program ill-formed.
 template <typename T>
-class AutoReset {
- public:
-  template <typename U>
-  AutoReset(T* scoped_variable, U&& new_value)
-      : scoped_variable_(scoped_variable),
-        original_value_(
-            std::exchange(*scoped_variable_, std::forward<U>(new_value))) {}
+  requires(!std::is_function_v<T>)
+constexpr T* to_address(T* p) noexcept {
+  return p;
+}
 
-  AutoReset(AutoReset&& other)
-      : scoped_variable_(std::exchange(other.scoped_variable_, nullptr)),
-        original_value_(std::move(other.original_value_)) {}
-
-  AutoReset& operator=(AutoReset&& rhs) {
-    scoped_variable_ = std::exchange(rhs.scoped_variable_, nullptr);
-    original_value_ = std::move(rhs.original_value_);
-    return *this;
-  }
-
-  ~AutoReset() {
-    if (scoped_variable_) {
-      *scoped_variable_ = std::move(original_value_);
-    }
-  }
-
- private:
-  T* scoped_variable_;
-  T original_value_;
-};
+/// These constraints cover the cases where `std::to_address()`'s fancy pointer
+/// overload is well-specified.
+template <typename P>
+  requires requires(const P& p) { std::pointer_traits<P>::to_address(p); } ||
+           requires(const P& p) { p.operator->(); }
+constexpr auto to_address(const P& p) noexcept {
+  return std::to_address(p);
+}
 
 }  // namespace base
 
 #endif  // !USING_CHROMIUM_INCLUDES
 
-#endif  // CEF_INCLUDE_BASE_CEF_AUTO_RESET_H_
+#endif  // CEF_INCLUDE_BASE_CEF_TO_ADDRESS_H_

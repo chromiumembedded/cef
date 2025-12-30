@@ -1,4 +1,5 @@
-// Copyright (c) 2013 Google Inc. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. Portions copyright (c) 2024
+// Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -27,41 +28,31 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Do not include this header file directly. Use base/mac/scoped_block.h
-// instead.
+#ifndef CEF_INCLUDE_BASE_CEF_IS_COMPLETE_H_
+#define CEF_INCLUDE_BASE_CEF_IS_COMPLETE_H_
+#pragma once
 
-#ifndef CEF_INCLUDE_BASE_INTERNAL_CEF_SCOPED_BLOCK_MAC_H_
-#define CEF_INCLUDE_BASE_INTERNAL_CEF_SCOPED_BLOCK_MAC_H_
+#if defined(USING_CHROMIUM_INCLUDES)
+// When building CEF include the Chromium header directly.
+#include "base/types/is_complete.h"
+#else  // !USING_CHROMIUM_INCLUDES
+// The following is substantially similar to the Chromium implementation.
+// If the Chromium implementation diverges the below implementation should be
+// updated to match.
 
-#include <Block.h>
-
-#include "include/base/cef_scoped_typeref_mac.h"
-
-#if defined(__has_feature) && __has_feature(objc_arc)
-#error \
-    "Cannot include include/base/internal/cef_scoped_block_mac.h in file built with ARC."
-#endif
+#include <type_traits>
 
 namespace base {
-namespace mac {
 
-namespace cef_internal {
+/// True if `T` is completely defined.
+template <typename T>
+concept IsComplete = requires { sizeof(T); } ||
+                     // Function types must be included explicitly since you
+                     // cannot apply `sizeof()` to a function type.
+                     std::is_function_v<std::remove_cvref_t<T>>;
 
-template <typename B>
-struct ScopedBlockTraits {
-  static B InvalidValue() { return nullptr; }
-  static B Retain(B block) { return Block_copy(block); }
-  static void Release(B block) { Block_release(block); }
-};
-
-}  // namespace cef_internal
-
-// ScopedBlock<> is patterned after ScopedCFTypeRef<>, but uses Block_copy() and
-// Block_release() instead of CFRetain() and CFRelease().
-template <typename B>
-using ScopedBlock = ScopedTypeRef<B, cef_internal::ScopedBlockTraits<B>>;
-
-}  // namespace mac
 }  // namespace base
 
-#endif  // CEF_INCLUDE_BASE_INTERNAL_CEF_SCOPED_BLOCK_MAC_H_
+#endif  // !USING_CHROMIUM_INCLUDES
+
+#endif  // CEF_INCLUDE_BASE_CEF_IS_COMPLETE_H_

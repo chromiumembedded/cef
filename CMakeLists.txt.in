@@ -11,8 +11,8 @@
 # CMake-generated project formats that have been tested with this CEF binary
 # distribution include:
 #
-# Linux:      Ninja, GCC 7.5.0+, Unix Makefiles
-# MacOS:      Ninja, Xcode 13.3 to 16.4
+# Linux:      Ninja, GCC 10+, Unix Makefiles
+# MacOS:      Ninja, Xcode 16+
 # Windows:    Ninja, Visual Studio 2022
 #
 # Ninja is a cross-platform open-source tool for running fast builds using
@@ -38,9 +38,11 @@
 #
 # - CMake version 3.21 or newer.
 #
+# - Compiler with C++20 support (-std=c++20).
+#
 # - Linux requirements:
-#   Currently supported distributions include Debian 10 (Buster), Ubuntu 18
-#   (Bionic Beaver), and related. Ubuntu 18.04 64-bit with GCC 7.5.0+ is
+#   Currently supported distributions include Debian 12 (Bookworm), Ubuntu 22
+#   (Jammy Jellyfish), and related. Ubuntu 22.04 64-bit with GCC 10+ is
 #   recommended. Newer versions will likely also work but may not have been
 #   tested.
 #   Required packages include:
@@ -48,9 +50,9 @@
 #     libgtk3.0-dev     (required by the cefclient target only)
 #
 # - MacOS requirements:
-#   Xcode 13.5 to 16.4 building on MacOS 12.0 (Monterey) or newer. The Xcode
-#   command-line tools must also be installed. Newer Xcode versions may not have
-#   been been tested and are not recommended.
+#   Xcode 16+ building on MacOS 14.5 (Sonoma) or newer. The Xcode command-line
+#   tools must also be installed. Xcode versions newer than this binary
+#   distribution may not have been tested and are not recommended.
 #
 # - Windows requirements:
 #   Visual Studio 2022 building on Windows 10 or newer. Windows 10/11 64-bit is

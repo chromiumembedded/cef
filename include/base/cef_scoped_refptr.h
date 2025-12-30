@@ -42,10 +42,13 @@
 
 #include <stddef.h>
 
+#include <compare>
+#include <concepts>
 #include <iosfwd>
 #include <type_traits>
 #include <utility>
 
+#include "include/base/cef_compiler_specific.h"
 #include "include/base/cef_logging.h"
 
 template <class T>
@@ -57,17 +60,12 @@ template <class, typename>
 class RefCounted;
 template <class, typename>
 class RefCountedThreadSafe;
+template <class>
+class RefCountedDeleteOnSequence;
 class SequencedTaskRunner;
-class WrappedPromise;
 
 template <typename T>
 scoped_refptr<T> AdoptRef(T* t);
-
-namespace internal {
-
-class BasePromise;
-
-}  // namespace internal
 
 namespace cef_subtle {
 
@@ -75,24 +73,78 @@ enum AdoptRefTag { kAdoptRefTag };
 enum StartRefCountFromZeroTag { kStartRefCountFromZeroTag };
 enum StartRefCountFromOneTag { kStartRefCountFromOneTag };
 
+template <typename TagType>
+struct RefCountPreferenceTagTraits;
+
+template <>
+struct RefCountPreferenceTagTraits<StartRefCountFromZeroTag> {
+  static constexpr StartRefCountFromZeroTag kTag = kStartRefCountFromZeroTag;
+};
+
+template <>
+struct RefCountPreferenceTagTraits<StartRefCountFromOneTag> {
+  static constexpr StartRefCountFromOneTag kTag = kStartRefCountFromOneTag;
+};
+
+template <typename T, typename Tag = typename T::RefCountPreferenceTag>
+constexpr Tag GetRefCountPreference() {
+  return RefCountPreferenceTagTraits<Tag>::kTag;
+}
+
+// scoped_refptr<T> is typically used with one of several RefCounted<T> base
+// classes or with custom AddRef and Release methods. These overloads dispatch
+// on which was used.
+
 template <typename T, typename U, typename V>
 constexpr bool IsRefCountPreferenceOverridden(const T*,
                                               const RefCounted<U, V>*) {
-  return !std::is_same<std::decay_t<decltype(T::kRefCountPreference)>,
-                       std::decay_t<decltype(U::kRefCountPreference)>>::value;
+  return !std::same_as<std::decay_t<decltype(GetRefCountPreference<T>())>,
+                       std::decay_t<decltype(GetRefCountPreference<U>())>>;
 }
 
 template <typename T, typename U, typename V>
 constexpr bool IsRefCountPreferenceOverridden(
     const T*,
     const RefCountedThreadSafe<U, V>*) {
-  return !std::is_same<std::decay_t<decltype(T::kRefCountPreference)>,
-                       std::decay_t<decltype(U::kRefCountPreference)>>::value;
+  return !std::same_as<std::decay_t<decltype(GetRefCountPreference<T>())>,
+                       std::decay_t<decltype(GetRefCountPreference<U>())>>;
+}
+
+template <typename T, typename U>
+constexpr bool IsRefCountPreferenceOverridden(
+    const T*,
+    const RefCountedDeleteOnSequence<U>*) {
+  return !std::same_as<std::decay_t<decltype(GetRefCountPreference<T>())>,
+                       std::decay_t<decltype(GetRefCountPreference<U>())>>;
 }
 
 constexpr bool IsRefCountPreferenceOverridden(...) {
   return false;
 }
+
+template <typename T, typename U, typename V>
+constexpr void AssertRefCountBaseMatches(const T*, const RefCounted<U, V>*) {
+  static_assert(std::derived_from<T, U>,
+                "T implements RefCounted<U>, but U is not a base of T.");
+}
+
+template <typename T, typename U, typename V>
+constexpr void AssertRefCountBaseMatches(const T*,
+                                         const RefCountedThreadSafe<U, V>*) {
+  static_assert(
+      std::derived_from<T, U>,
+      "T implements RefCountedThreadSafe<U>, but U is not a base of T.");
+}
+
+template <typename T, typename U>
+constexpr void AssertRefCountBaseMatches(const T*,
+                                         const RefCountedDeleteOnSequence<U>*) {
+  static_assert(
+      std::derived_from<T, U>,
+      "T implements RefCountedDeleteOnSequence<U>, but U is not a base of T.");
+}
+
+constexpr void AssertRefCountBaseMatches(...) {}
 
 }  // namespace cef_subtle
 
@@ -101,8 +153,8 @@ constexpr bool IsRefCountPreferenceOverridden(...) {
 // from 1 instead of 0.
 template <typename T>
 scoped_refptr<T> AdoptRef(T* obj) {
-  using Tag = std::decay_t<decltype(T::kRefCountPreference)>;
-  static_assert(std::is_same<cef_subtle::StartRefCountFromOneTag, Tag>::value,
+  using Tag = std::decay_t<decltype(cef_subtle::GetRefCountPreference<T>())>;
+  static_assert(std::same_as<cef_subtle::StartRefCountFromOneTag, Tag>,
                 "Use AdoptRef only if the reference count starts from one.");
 
   DCHECK(obj);
@@ -130,7 +182,8 @@ scoped_refptr<T> AdoptRefIfNeeded(T* obj, StartRefCountFromOneTag) {
 template <typename T, typename... Args>
 scoped_refptr<T> MakeRefCounted(Args&&... args) {
   T* obj = new T(std::forward<Args>(args)...);
-  return cef_subtle::AdoptRefIfNeeded(obj, T::kRefCountPreference);
+  return cef_subtle::AdoptRefIfNeeded(obj,
+                                      cef_subtle::GetRefCountPreference<T>());
 }
 
 // Takes an instance of T, which is a ref counted type, and wraps the object
@@ -146,7 +199,7 @@ scoped_refptr<T> WrapRefCounted(T* t) {
 /// A smart pointer class for reference counted objects.  Use this class instead
 /// of calling AddRef and Release manually on a reference counted object to
 /// avoid common memory leaks caused by forgetting to Release an object
-/// reference. Sample usage:
+/// reference.  Sample usage:
 ///
 /// <pre>
 ///   class MyFoo : public RefCounted<MyFoo> {
@@ -239,9 +292,8 @@ class TRIVIAL_ABI scoped_refptr {
   scoped_refptr(const scoped_refptr& r) : scoped_refptr(r.ptr_) {}
 
   // Copy conversion constructor.
-  template <typename U,
-            typename = typename std::enable_if<
-                std::is_convertible<U*, T*>::value>::type>
+  template <typename U>
+    requires(std::convertible_to<U*, T*>)
   scoped_refptr(const scoped_refptr<U>& r) : scoped_refptr(r.ptr_) {}
 
   // Move constructor. This is required in addition to the move conversion
@@ -249,9 +301,8 @@ class TRIVIAL_ABI scoped_refptr {
   scoped_refptr(scoped_refptr&& r) noexcept : ptr_(r.ptr_) { r.ptr_ = nullptr; }
 
   // Move conversion constructor.
-  template <typename U,
-            typename = typename std::enable_if<
-                std::is_convertible<U*, T*>::value>::type>
+  template <typename U>
+    requires(std::convertible_to<U*, T*>)
   scoped_refptr(scoped_refptr<U>&& r) noexcept : ptr_(r.ptr_) {
     r.ptr_ = nullptr;
   }
@@ -305,18 +356,31 @@ class TRIVIAL_ABI scoped_refptr {
   explicit operator bool() const { return ptr_ != nullptr; }
 
   template <typename U>
-  bool operator==(const scoped_refptr<U>& rhs) const {
-    return ptr_ == rhs.get();
+  friend bool operator==(const scoped_refptr<T>& lhs,
+                         const scoped_refptr<U>& rhs) {
+    return lhs.ptr_ == rhs.ptr_;
+  }
+
+  // This operator is an optimization to avoid implicitly constructing a
+  // scoped_refptr<U> when comparing scoped_refptr against raw pointer. If the
+  // implicit conversion is ever removed this operator can also be removed.
+  template <typename U>
+  friend bool operator==(const scoped_refptr<T>& lhs, const U* rhs) {
+    return lhs.ptr_ == rhs;
+  }
+
+  friend bool operator==(const scoped_refptr<T>& lhs, std::nullptr_t null) {
+    return !static_cast<bool>(lhs);
   }
 
   template <typename U>
-  bool operator!=(const scoped_refptr<U>& rhs) const {
-    return !operator==(rhs);
+  friend auto operator<=>(const scoped_refptr<T>& lhs,
+                          const scoped_refptr<U>& rhs) {
+    return lhs.ptr_ <=> rhs.ptr_;
   }
 
-  template <typename U>
-  bool operator<(const scoped_refptr<U>& rhs) const {
-    return ptr_ < rhs.get();
+  friend auto operator<=>(const scoped_refptr<T>& lhs, std::nullptr_t null) {
+    return lhs.ptr_ <=> static_cast<T*>(nullptr);
   }
 
  protected:
@@ -326,11 +390,6 @@ class TRIVIAL_ABI scoped_refptr {
   template <typename U>
   friend scoped_refptr<U> base::AdoptRef(U*);
   friend class ::base::SequencedTaskRunner;
-
-  // Friend access so these classes can use the constructor below as part of a
-  // binary size optimization.
-  friend class ::base::internal::BasePromise;
-  friend class ::base::WrappedPromise;
 
   scoped_refptr(T* p, base::cef_subtle::AdoptRefTag) : ptr_(p) {}
 
@@ -356,53 +415,15 @@ T* scoped_refptr<T>::release() {
 // static
 template <typename T>
 void scoped_refptr<T>::AddRef(T* ptr) {
+  base::cef_subtle::AssertRefCountBaseMatches(ptr, ptr);
   ptr->AddRef();
 }
 
 // static
 template <typename T>
 void scoped_refptr<T>::Release(T* ptr) {
+  base::cef_subtle::AssertRefCountBaseMatches(ptr, ptr);
   ptr->Release();
-}
-
-template <typename T, typename U>
-bool operator==(const scoped_refptr<T>& lhs, const U* rhs) {
-  return lhs.get() == rhs;
-}
-
-template <typename T, typename U>
-bool operator==(const T* lhs, const scoped_refptr<U>& rhs) {
-  return lhs == rhs.get();
-}
-
-template <typename T>
-bool operator==(const scoped_refptr<T>& lhs, std::nullptr_t null) {
-  return !static_cast<bool>(lhs);
-}
-
-template <typename T>
-bool operator==(std::nullptr_t null, const scoped_refptr<T>& rhs) {
-  return !static_cast<bool>(rhs);
-}
-
-template <typename T, typename U>
-bool operator!=(const scoped_refptr<T>& lhs, const U* rhs) {
-  return !operator==(lhs, rhs);
-}
-
-template <typename T, typename U>
-bool operator!=(const T* lhs, const scoped_refptr<U>& rhs) {
-  return !operator==(lhs, rhs);
-}
-
-template <typename T>
-bool operator!=(const scoped_refptr<T>& lhs, std::nullptr_t null) {
-  return !operator==(lhs, null);
-}
-
-template <typename T>
-bool operator!=(std::nullptr_t null, const scoped_refptr<T>& rhs) {
-  return !operator==(null, rhs);
 }
 
 template <typename T>

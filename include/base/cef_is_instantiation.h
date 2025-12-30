@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Marshall A. Greenblatt. Portions copyright (c) 2011
+// Copyright (c) 2023 Marshall A. Greenblatt. Portions copyright (c) 2023
 // Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,62 +28,46 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Do not include this header file directly. Use base/cef_lock.h instead.
-
-#ifndef CEF_INCLUDE_BASE_INTERNAL_CEF_LOCK_IMPL_H_
-#define CEF_INCLUDE_BASE_INTERNAL_CEF_LOCK_IMPL_H_
+#ifndef CEF_INCLUDE_BASE_CEF_IS_INSTANTIATION_H_
+#define CEF_INCLUDE_BASE_CEF_IS_INSTANTIATION_H_
 #pragma once
 
-#include "include/base/cef_build.h"
+#if defined(USING_CHROMIUM_INCLUDES)
+// When building CEF include the Chromium header directly.
+#include "base/types/is_instantiation.h"
+#else  // !USING_CHROMIUM_INCLUDES
+// The following is substantially similar to the Chromium implementation.
+// If the Chromium implementation diverges the below implementation should be
+// updated to match.
 
-#if defined(OS_WIN)
-#include <windows.h>
-#elif defined(OS_POSIX)
-#include <pthread.h>
-#endif
+#include <type_traits>
 
 namespace base {
 namespace cef_internal {
 
-// This class implements the underlying platform-specific spin-lock mechanism
-// used for the Lock class.  Most users should not use LockImpl directly, but
-// should instead use Lock.
-class LockImpl {
- public:
-#if defined(OS_WIN)
-  typedef CRITICAL_SECTION NativeHandle;
-#elif defined(OS_POSIX)
-  typedef pthread_mutex_t NativeHandle;
-#endif
+// True if and only if `T` is `C<Types...>` for some set of types, i.e. `T` is
+// an instantiation of the template `C`.
+//
+// This is false by default. We specialize it to true below for pairs of
+// arguments that satisfy the condition.
+template <typename T, template <typename...> class C>
+inline constexpr bool is_instantiation_v = false;
 
-  LockImpl();
-
-  LockImpl(const LockImpl&) = delete;
-  LockImpl& operator=(const LockImpl&) = delete;
-
-  ~LockImpl();
-
-  // If the lock is not held, take it and return true.  If the lock is already
-  // held by something else, immediately return false.
-  bool Try();
-
-  // Take the lock, blocking until it is available if necessary.
-  void Lock();
-
-  // Release the lock.  This must only be called by the lock's holder: after
-  // a successful call to Try, or a call to Lock.
-  void Unlock();
-
-  // Return the native underlying lock.
-  // TODO(awalker): refactor lock and condition variables so that this is
-  // unnecessary.
-  NativeHandle* native_handle() { return &native_handle_; }
-
- private:
-  NativeHandle native_handle_;
-};
+template <template <typename...> class C, typename... Ts>
+inline constexpr bool is_instantiation_v<C<Ts...>, C> = true;
 
 }  // namespace cef_internal
+
+/// True if and only if the type `T` is an instantiation of the template `C`
+/// with some set of type arguments.
+///
+/// Note that there is no allowance for reference or const/volatile qualifiers;
+/// if these are a concern you probably want to feed through `std::decay_t<T>`.
+template <typename T, template <typename...> class C>
+concept is_instantiation = cef_internal::is_instantiation_v<T, C>;
+
 }  // namespace base
 
-#endif  // CEF_INCLUDE_BASE_INTERNAL_CEF_LOCK_IMPL_H_
+#endif  // !USING_CHROMIUM_INCLUDES
+
+#endif  // CEF_INCLUDE_BASE_CEF_IS_INSTANTIATION_H_

@@ -43,12 +43,22 @@ This directory contains tools and instructions for using Claude Code to assist w
 - Working with Chrome and Alloy browser styles
 - Finding and fixing NOTIMPLEMENTED() stubs
 
+**Are you syncing CEF base headers with Chromium?**
+
+→ See [CLAUDE_BASE_SYNC_INSTRUCTIONS.md](CLAUDE_BASE_SYNC_INSTRUCTIONS.md) for synchronizing `cef/include/base/` headers:
+
+- CEF-specific modifications (namespaces, includes, platform macros)
+- Files to sync vs files to preserve
+- Handling C++23 reverts
+- Step-by-step sync process
+
 ## Files in This Directory
 
 ### Documentation
 
 - **[CHROMIUM_UPDATE.md](CHROMIUM_UPDATE.md)** - Complete guide for updating CEF to new Chromium versions
 - **[CLAUDE.md](CLAUDE.md)** - General Claude Code instructions for Chromium/CEF codebase
+- **[CLAUDE_BASE_SYNC_INSTRUCTIONS.md](CLAUDE_BASE_SYNC_INSTRUCTIONS.md)** - Instructions for syncing CEF base headers with Chromium
 - **[CLAUDE_BUILD_INSTRUCTIONS.md](CLAUDE_BUILD_INSTRUCTIONS.md)** - Detailed instructions for Claude agents fixing build errors
 - **[CLAUDE_CLIENT_INSTRUCTIONS.md](CLAUDE_CLIENT_INSTRUCTIONS.md)** - Detailed instructions for Claude agents implementing features in CEF applications
 - **[CLAUDE_LIBCEF_INSTRUCTIONS.md](CLAUDE_LIBCEF_INSTRUCTIONS.md)** - Detailed instructions for Claude agents developing libcef internals (API versioning, WebContentsDelegate)

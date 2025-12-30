@@ -87,8 +87,8 @@ if(OS_LINUX)
   # Executable target.
   add_executable(${CEF_TARGET} ${UNITTESTS_SRCS} ${UNITTESTS_RESOURCES_SRCS})
   SET_EXECUTABLE_TARGET_PROPERTIES(${CEF_TARGET})
-  add_dependencies(${CEF_TARGET} libcef_dll_wrapper cef_gtest)
-  target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper cef_gtest ${CEF_STANDARD_LIBS})
+  add_dependencies(${CEF_TARGET} libcef_dll_wrapper cef_gmock cef_gtest)
+  target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper cef_gmock cef_gtest ${CEF_STANDARD_LIBS})
 
   # Set rpath so that libraries can be placed next to the executable.
   set_target_properties(${CEF_TARGET} PROPERTIES INSTALL_RPATH "$ORIGIN")
@@ -139,8 +139,8 @@ if(OS_MAC)
   # Main app bundle target.
   add_executable(${CEF_TARGET} MACOSX_BUNDLE ${UNITTESTS_RESOURCES_SRCS} ${UNITTESTS_SRCS})
   SET_EXECUTABLE_TARGET_PROPERTIES(${CEF_TARGET})
-  add_dependencies(${CEF_TARGET} libcef_dll_wrapper cef_gtest)
-  target_link_libraries(${CEF_TARGET} libcef_dll_wrapper cef_gtest ${CEF_STANDARD_LIBS})
+  add_dependencies(${CEF_TARGET} libcef_dll_wrapper cef_gmock cef_gtest)
+  target_link_libraries(${CEF_TARGET} libcef_dll_wrapper cef_gmock cef_gtest ${CEF_STANDARD_LIBS})
   set_target_properties(${CEF_TARGET} PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/mac/Info.plist.in
     )
@@ -174,8 +174,8 @@ if(OS_MAC)
     # Create Helper executable target.
     add_executable(${_helper_target} MACOSX_BUNDLE ${UNITTESTS_HELPER_SRCS})
     SET_EXECUTABLE_TARGET_PROPERTIES(${_helper_target})
-    add_dependencies(${_helper_target} libcef_dll_wrapper cef_gtest)
-    target_link_libraries(${_helper_target} libcef_dll_wrapper cef_gtest ${CEF_STANDARD_LIBS})
+    add_dependencies(${_helper_target} libcef_dll_wrapper cef_gmock cef_gtest)
+    target_link_libraries(${_helper_target} libcef_dll_wrapper cef_gmock cef_gtest ${CEF_STANDARD_LIBS})
     set_target_properties(${_helper_target} PROPERTIES
       MACOSX_BUNDLE_INFO_PLIST ${_helper_info_plist}
       OUTPUT_NAME ${_helper_output_name}
@@ -240,8 +240,8 @@ if(OS_WINDOWS)
     ADD_WINDOWS_MANIFEST("${CMAKE_CURRENT_SOURCE_DIR}/win" "${CEF_TARGET}" "exe")
   endif()
 
-  add_dependencies(${CEF_TARGET} libcef_dll_wrapper cef_gtest)
-  target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper cef_gtest ${CEF_STANDARD_LIBS})
+  add_dependencies(${CEF_TARGET} libcef_dll_wrapper cef_gmock cef_gtest)
+  target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper cef_gmock cef_gtest ${CEF_STANDARD_LIBS})
 
   # Copy CEF binary and resource files to the target output directory.
   COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")

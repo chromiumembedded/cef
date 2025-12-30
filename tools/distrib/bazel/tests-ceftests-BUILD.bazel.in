@@ -60,6 +60,7 @@ declare_objc_library(
     ],
     deps = [
         "//:cef_wrapper",
+        "//tests/gmock",
         "//tests/gtest",
         "//tests/shared:BrowserLibMacCefTests",
     ],
@@ -73,6 +74,7 @@ declare_objc_library(
     ],
     deps = [
         "//:cef_wrapper",
+        "//tests/gmock",
         "//tests/gtest",
         "//tests/shared:RendererLibMacCefTests",
     ],

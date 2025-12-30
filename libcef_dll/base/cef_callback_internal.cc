@@ -1,4 +1,4 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Copyright 2012 The Chromium Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,22 +6,16 @@
 
 #include "include/base/cef_logging.h"
 
-namespace base {
-namespace cef_internal {
+namespace base::cef_internal {
 
 namespace {
 
 bool QueryCancellationTraitsForNonCancellables(
     const BindStateBase*,
     BindStateBase::CancellationQueryMode mode) {
-  switch (mode) {
-    case BindStateBase::IS_CANCELLED:
-      return false;
-    case BindStateBase::MAYBE_VALID:
-      return true;
-  }
-  DCHECK(false);
-  return false;
+  // Non-cancellables are never cancelled and always valid, which means the
+  // response for each mode is the same as its underlying value.
+  return static_cast<bool>(mode);
 }
 
 }  // namespace
@@ -31,71 +25,40 @@ void BindStateBaseRefCountTraits::Destruct(const BindStateBase* bind_state) {
 }
 
 BindStateBase::BindStateBase(InvokeFuncStorage polymorphic_invoke,
-                             void (*destructor)(const BindStateBase*))
+                             DestructorPtr destructor)
     : BindStateBase(polymorphic_invoke,
                     destructor,
                     &QueryCancellationTraitsForNonCancellables) {}
 
 BindStateBase::BindStateBase(
     InvokeFuncStorage polymorphic_invoke,
-    void (*destructor)(const BindStateBase*),
-    bool (*query_cancellation_traits)(const BindStateBase*,
-                                      CancellationQueryMode))
+    DestructorPtr destructor,
+    QueryCancellationTraitsPtr query_cancellation_traits)
     : polymorphic_invoke_(polymorphic_invoke),
       destructor_(destructor),
       query_cancellation_traits_(query_cancellation_traits) {}
 
-CallbackBase& CallbackBase::operator=(CallbackBase&& c) noexcept = default;
-CallbackBase::CallbackBase(const CallbackBaseCopyable& c)
-    : bind_state_(c.bind_state_) {}
+BindStateHolder& BindStateHolder::operator=(BindStateHolder&&) noexcept =
+    default;
 
-CallbackBase& CallbackBase::operator=(const CallbackBaseCopyable& c) {
-  bind_state_ = c.bind_state_;
-  return *this;
-}
+BindStateHolder::BindStateHolder(const BindStateHolder&) = default;
 
-CallbackBase::CallbackBase(CallbackBaseCopyable&& c) noexcept
-    : bind_state_(std::move(c.bind_state_)) {}
+BindStateHolder& BindStateHolder::operator=(const BindStateHolder&) = default;
 
-CallbackBase& CallbackBase::operator=(CallbackBaseCopyable&& c) noexcept {
-  bind_state_ = std::move(c.bind_state_);
-  return *this;
-}
+BindStateHolder::~BindStateHolder() = default;
 
-void CallbackBase::Reset() {
-  // NULL the bind_state_ last, since it may be holding the last ref to whatever
-  // object owns us, and we may be deleted after that.
+void BindStateHolder::Reset() {
   bind_state_ = nullptr;
 }
 
-bool CallbackBase::IsCancelled() const {
+bool BindStateHolder::IsCancelled() const {
   DCHECK(bind_state_);
   return bind_state_->IsCancelled();
 }
 
-bool CallbackBase::MaybeValid() const {
+bool BindStateHolder::MaybeValid() const {
   DCHECK(bind_state_);
   return bind_state_->MaybeValid();
 }
 
-bool CallbackBase::EqualsInternal(const CallbackBase& other) const {
-  return bind_state_ == other.bind_state_;
-}
-
-CallbackBase::~CallbackBase() = default;
-
-CallbackBaseCopyable::CallbackBaseCopyable(const CallbackBaseCopyable& c) {
-  bind_state_ = c.bind_state_;
-}
-
-CallbackBaseCopyable& CallbackBaseCopyable::operator=(
-    const CallbackBaseCopyable& c) {
-  bind_state_ = c.bind_state_;
-  return *this;
-}
-
-CallbackBaseCopyable& CallbackBaseCopyable::operator=(
-    CallbackBaseCopyable&& c) noexcept = default;
-
-}  // namespace cef_internal
-}  // namespace base
+}  // namespace base::cef_internal

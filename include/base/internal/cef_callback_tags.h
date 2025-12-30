@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Marshall A. Greenblatt. Portions copyright (c) 2011
+// Copyright (c) 2025 Marshall A. Greenblatt. Portions copyright (c) 2022
 // Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,62 +28,47 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Do not include this header file directly. Use base/cef_lock.h instead.
+// This defines helpful tags for dealing with Callbacks. Those tags can be used
+// to construct special callbacks. This lives in its own file to avoid circular
+// dependencies.
 
-#ifndef CEF_INCLUDE_BASE_INTERNAL_CEF_LOCK_IMPL_H_
-#define CEF_INCLUDE_BASE_INTERNAL_CEF_LOCK_IMPL_H_
+#ifndef CEF_INCLUDE_BASE_INTERNAL_CEF_CALLBACK_TAGS_H_
+#define CEF_INCLUDE_BASE_INTERNAL_CEF_CALLBACK_TAGS_H_
 #pragma once
 
-#include "include/base/cef_build.h"
+#if defined(USING_CHROMIUM_INCLUDES)
+// When building CEF include the Chromium header directly.
+#include "base/functional/callback_tags.h"
+#else  // !USING_CHROMIUM_INCLUDES
+// The following is substantially similar to the Chromium implementation.
+// If the Chromium implementation diverges the below implementation should be
+// updated to match.
 
-#if defined(OS_WIN)
-#include <windows.h>
-#elif defined(OS_POSIX)
-#include <pthread.h>
-#endif
+#include <tuple>
+#include <utility>
 
-namespace base {
-namespace cef_internal {
+namespace base::cef_internal {
 
-// This class implements the underlying platform-specific spin-lock mechanism
-// used for the Lock class.  Most users should not use LockImpl directly, but
-// should instead use Lock.
-class LockImpl {
- public:
-#if defined(OS_WIN)
-  typedef CRITICAL_SECTION NativeHandle;
-#elif defined(OS_POSIX)
-  typedef pthread_mutex_t NativeHandle;
-#endif
-
-  LockImpl();
-
-  LockImpl(const LockImpl&) = delete;
-  LockImpl& operator=(const LockImpl&) = delete;
-
-  ~LockImpl();
-
-  // If the lock is not held, take it and return true.  If the lock is already
-  // held by something else, immediately return false.
-  bool Try();
-
-  // Take the lock, blocking until it is available if necessary.
-  void Lock();
-
-  // Release the lock.  This must only be called by the lock's holder: after
-  // a successful call to Try, or a call to Lock.
-  void Unlock();
-
-  // Return the native underlying lock.
-  // TODO(awalker): refactor lock and condition variables so that this is
-  // unnecessary.
-  NativeHandle* native_handle() { return &native_handle_; }
-
- private:
-  NativeHandle native_handle_;
+struct NullCallbackTag {
+  template <typename Signature>
+  struct WithSignature {};
 };
 
-}  // namespace cef_internal
-}  // namespace base
+struct DoNothingCallbackTag {
+  template <typename Signature>
+  struct WithSignature {};
 
-#endif  // CEF_INCLUDE_BASE_INTERNAL_CEF_LOCK_IMPL_H_
+  template <typename... BoundArgs>
+  struct WithBoundArguments {
+    std::tuple<BoundArgs...> bound_args;
+
+    constexpr explicit WithBoundArguments(BoundArgs... args)
+        : bound_args(std::forward<BoundArgs>(args)...) {}
+  };
+};
+
+}  // namespace base::cef_internal
+
+#endif  // !USING_CHROMIUM_INCLUDES
+
+#endif  // CEF_INCLUDE_BASE_INTERNAL_CEF_CALLBACK_TAGS_H_

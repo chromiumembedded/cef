@@ -1,4 +1,5 @@
-// Copyright (c) 2012 Google Inc. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. Portions copyright (c) 2012
+// Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -35,8 +36,21 @@
 
 #ifndef CEF_INCLUDE_BASE_INTERNAL_CEF_CALLBACK_INTERNAL_H_
 #define CEF_INCLUDE_BASE_INTERNAL_CEF_CALLBACK_INTERNAL_H_
+#pragma once
+
+#if defined(USING_CHROMIUM_INCLUDES)
+// When building CEF include the Chromium header directly.
+#include "base/functional/callback_internal.h"
+#else  // !USING_CHROMIUM_INCLUDES
+// The following is substantially similar to the Chromium implementation.
+// If the Chromium implementation diverges the below implementation should be
+// updated to match.
+
+#include <type_traits>
+#include <utility>
 
 #include "include/base/cef_callback_forward.h"
+#include "include/base/cef_compiler_specific.h"
 #include "include/base/cef_ref_counted.h"
 
 namespace base {
@@ -46,24 +60,20 @@ struct FakeBindState;
 namespace cef_internal {
 
 class BindStateBase;
-class FinallyExecutorCommon;
-class ThenAndCatchExecutorCommon;
 
-template <typename ReturnType>
-class PostTaskExecutor;
-
-template <typename Functor, typename... BoundArgs>
+template <bool is_method,
+          bool is_nullable,
+          bool is_callback,
+          typename Functor,
+          typename... BoundArgs>
 struct BindState;
-
-class CallbackBase;
-class CallbackBaseCopyable;
 
 struct BindStateBaseRefCountTraits {
   static void Destruct(const BindStateBase*);
 };
 
 template <typename T>
-using PassingType = std::conditional_t<std::is_scalar<T>::value, T, T&&>;
+using PassingType = std::conditional_t<std::is_scalar_v<T>, T, T&&>;
 
 // BindStateBase is used to provide an opaque handle that the Callback
 // class can use to represent a function object with bound arguments.  It
@@ -80,9 +90,12 @@ class BindStateBase
  public:
   REQUIRE_ADOPTION_FOR_REFCOUNTED_TYPE();
 
-  enum CancellationQueryMode {
-    IS_CANCELLED,
-    MAYBE_VALID,
+  // What kind of cancellation query the call to the cancellation traits is
+  // making. This enum could be removed, at the cost of storing an extra
+  // function pointer.
+  enum class CancellationQueryMode : bool {
+    kIsCancelled = false,
+    kMaybeValid = true,
   };
 
   using InvokeFuncStorage = void (*)();
@@ -91,32 +104,37 @@ class BindStateBase
   BindStateBase& operator=(const BindStateBase&) = delete;
 
  private:
-  BindStateBase(InvokeFuncStorage polymorphic_invoke,
-                void (*destructor)(const BindStateBase*));
-  BindStateBase(InvokeFuncStorage polymorphic_invoke,
-                void (*destructor)(const BindStateBase*),
-                bool (*query_cancellation_traits)(const BindStateBase*,
-                                                  CancellationQueryMode mode));
+  using DestructorPtr = void (*)(const BindStateBase*);
+  using QueryCancellationTraitsPtr = bool (*)(const BindStateBase*,
+                                              CancellationQueryMode mode);
 
+  BindStateBase(InvokeFuncStorage polymorphic_invoke, DestructorPtr destructor);
+  BindStateBase(InvokeFuncStorage polymorphic_invoke,
+                DestructorPtr destructor,
+                QueryCancellationTraitsPtr query_cancellation_traits);
   ~BindStateBase() = default;
 
   friend struct BindStateBaseRefCountTraits;
   friend class RefCountedThreadSafe<BindStateBase, BindStateBaseRefCountTraits>;
 
-  friend class CallbackBase;
-  friend class CallbackBaseCopyable;
+  friend class BindStateHolder;
 
   // Allowlist subclasses that access the destructor of BindStateBase.
-  template <typename Functor, typename... BoundArgs>
+  template <bool is_method,
+            bool is_nullable,
+            bool is_callback,
+            typename Functor,
+            typename... BoundArgs>
   friend struct BindState;
   friend struct ::base::FakeBindState;
 
   bool IsCancelled() const {
-    return query_cancellation_traits_(this, IS_CANCELLED);
+    return query_cancellation_traits_(this,
+                                      CancellationQueryMode::kIsCancelled);
   }
 
   bool MaybeValid() const {
-    return query_cancellation_traits_(this, MAYBE_VALID);
+    return query_cancellation_traits_(this, CancellationQueryMode::kMaybeValid);
   }
 
   // In C++, it is safe to cast function pointers to function pointers of
@@ -126,94 +144,69 @@ class BindStateBase
   InvokeFuncStorage polymorphic_invoke_;
 
   // Pointer to a function that will properly destroy |this|.
-  void (*destructor_)(const BindStateBase*);
-  bool (*query_cancellation_traits_)(const BindStateBase*,
-                                     CancellationQueryMode mode);
+  DestructorPtr destructor_;
+  QueryCancellationTraitsPtr query_cancellation_traits_;
 };
 
-// Holds the Callback methods that don't require specialization to reduce
-// template bloat.
-// CallbackBase<MoveOnly> is a direct base class of MoveOnly callbacks, and
-// CallbackBase<Copyable> uses CallbackBase<MoveOnly> for its implementation.
-class CallbackBase {
+// Minimal wrapper around a `scoped_refptr<BindStateBase>`. It allows more
+// expensive operations (such as ones that destroy `BindStateBase` or manipulate
+// refcounts) to be defined out-of-line to reduce binary size.
+class TRIVIAL_ABI BindStateHolder {
  public:
-  inline CallbackBase(CallbackBase&& c) noexcept;
-  CallbackBase& operator=(CallbackBase&& c) noexcept;
+  using InvokeFuncStorage = BindStateBase::InvokeFuncStorage;
 
-  explicit CallbackBase(const CallbackBaseCopyable& c);
-  CallbackBase& operator=(const CallbackBaseCopyable& c);
+  // Used to construct a null callback.
+  inline constexpr BindStateHolder() noexcept;
 
-  explicit CallbackBase(CallbackBaseCopyable&& c) noexcept;
-  CallbackBase& operator=(CallbackBaseCopyable&& c) noexcept;
+  // Used to construct a callback by `base::BindOnce()`/`base::BindRepeating().
+  inline explicit BindStateHolder(BindStateBase* bind_state);
 
-  // Returns true if Callback is null (doesn't refer to anything).
+  // BindStateHolder is always copyable so it can be used by `OnceCallback` and
+  // `RepeatingCallback`. `OnceCallback` restricts copies so a `BindStateHolder`
+  // used with a `OnceCallback will never be copied.
+  BindStateHolder(const BindStateHolder&);
+  BindStateHolder& operator=(const BindStateHolder&);
+
+  // Subtle: since `this` is marked as TRIVIAL_ABI, the move operations must
+  // leave a moved-from `BindStateHolder` in a trivially destructible state.
+  inline BindStateHolder(BindStateHolder&&) noexcept;
+  BindStateHolder& operator=(BindStateHolder&&) noexcept;
+
+  ~BindStateHolder();
+
   bool is_null() const { return !bind_state_; }
   explicit operator bool() const { return !is_null(); }
 
-  // Returns true if the callback invocation will be nop due to an cancellation.
-  // It's invalid to call this on uninitialized callback.
-  //
-  // Must be called on the Callback's destination sequence.
   bool IsCancelled() const;
-
-  // If this returns false, the callback invocation will be a nop due to a
-  // cancellation. This may(!) still return true, even on a cancelled callback.
-  //
-  // This function is thread-safe.
   bool MaybeValid() const;
 
-  // Returns the Callback into an uninitialized state.
   void Reset();
 
- protected:
-  friend class FinallyExecutorCommon;
-  friend class ThenAndCatchExecutorCommon;
+  friend bool operator==(const BindStateHolder&,
+                         const BindStateHolder&) = default;
 
-  template <typename ReturnType>
-  friend class PostTaskExecutor;
-
-  using InvokeFuncStorage = BindStateBase::InvokeFuncStorage;
-
-  // Returns true if this callback equals |other|. |other| may be null.
-  bool EqualsInternal(const CallbackBase& other) const;
-
-  constexpr inline CallbackBase();
-
-  // Allow initializing of |bind_state_| via the constructor to avoid default
-  // initialization of the scoped_refptr.
-  explicit inline CallbackBase(BindStateBase* bind_state);
+  const scoped_refptr<BindStateBase>& bind_state() const { return bind_state_; }
 
   InvokeFuncStorage polymorphic_invoke() const {
     return bind_state_->polymorphic_invoke_;
   }
 
-  // Force the destructor to be instantiated inside this translation unit so
-  // that our subclasses will not get inlined versions.  Avoids more template
-  // bloat.
-  ~CallbackBase();
-
+ private:
   scoped_refptr<BindStateBase> bind_state_;
 };
 
-constexpr CallbackBase::CallbackBase() = default;
-CallbackBase::CallbackBase(CallbackBase&&) noexcept = default;
-CallbackBase::CallbackBase(BindStateBase* bind_state)
+constexpr BindStateHolder::BindStateHolder() noexcept = default;
+
+// TODO(dcheng): Try plumbing a scoped_refptr all the way through, since
+// scoped_refptr is marked as TRIVIAL_ABI.
+BindStateHolder::BindStateHolder(BindStateBase* bind_state)
     : bind_state_(AdoptRef(bind_state)) {}
 
-// CallbackBase<Copyable> is a direct base class of Copyable Callbacks.
-class CallbackBaseCopyable : public CallbackBase {
- public:
-  CallbackBaseCopyable(const CallbackBaseCopyable& c);
-  CallbackBaseCopyable(CallbackBaseCopyable&& c) noexcept = default;
-  CallbackBaseCopyable& operator=(const CallbackBaseCopyable& c);
-  CallbackBaseCopyable& operator=(CallbackBaseCopyable&& c) noexcept;
-
- protected:
-  constexpr CallbackBaseCopyable() = default;
-  explicit CallbackBaseCopyable(BindStateBase* bind_state)
-      : CallbackBase(bind_state) {}
-  ~CallbackBaseCopyable() = default;
-};
+// Unlike the copy constructor, copy assignment operator, and move assignment
+// operator, the move constructor is defaulted in the header because it
+// generates minimal code: move construction does not change any refcounts, nor
+// does it potentially destroy `BindStateBase`.
+BindStateHolder::BindStateHolder(BindStateHolder&&) noexcept = default;
 
 // Helpers for the `Then()` implementation.
 template <typename OriginalCallback, typename ThenCallback>
@@ -221,55 +214,89 @@ struct ThenHelper;
 
 // Specialization when original callback returns `void`.
 template <template <typename> class OriginalCallback,
-          template <typename>
-          class ThenCallback,
+          template <typename> class ThenCallback,
           typename... OriginalArgs,
           typename ThenR,
           typename... ThenArgs>
 struct ThenHelper<OriginalCallback<void(OriginalArgs...)>,
                   ThenCallback<ThenR(ThenArgs...)>> {
-  static_assert(sizeof...(ThenArgs) == 0,
-                "|then| callback cannot accept parameters if |this| has a "
-                "void return type.");
+ private:
+  // For context on this "templated struct with a lambda that asserts" pattern,
+  // see comments in `Invoker<>`.
+  template <bool v = sizeof...(ThenArgs) == 0>
+  struct CorrectNumberOfArgs {
+    static constexpr bool value = [] {
+      static_assert(v,
+                    "|then| callback cannot accept parameters if |this| has a "
+                    "void return type.");
+      return v;
+    }();
+  };
 
+ public:
   static auto CreateTrampoline() {
     return [](OriginalCallback<void(OriginalArgs...)> c1,
-              ThenCallback<ThenR(ThenArgs...)> c2, OriginalArgs... c1_args) {
-      std::move(c1).Run(std::forward<OriginalArgs>(c1_args)...);
-      return std::move(c2).Run();
+              ThenCallback<ThenR(ThenArgs...)> c2,
+              OriginalArgs... c1_args) -> ThenR {
+      if constexpr (CorrectNumberOfArgs<>::value) {
+        std::move(c1).Run(std::forward<OriginalArgs>(c1_args)...);
+        return std::move(c2).Run();
+      }
     };
   }
 };
 
 // Specialization when original callback returns a non-void type.
 template <template <typename> class OriginalCallback,
-          template <typename>
-          class ThenCallback,
+          template <typename> class ThenCallback,
           typename OriginalR,
           typename... OriginalArgs,
           typename ThenR,
           typename... ThenArgs>
 struct ThenHelper<OriginalCallback<OriginalR(OriginalArgs...)>,
                   ThenCallback<ThenR(ThenArgs...)>> {
-  static_assert(sizeof...(ThenArgs) == 1,
-                "|then| callback must accept exactly one parameter if |this| "
-                "has a non-void return type.");
-  // TODO(dcheng): This should probably check is_convertible as well (same with
-  // `AssertBindArgsValidity`).
-  static_assert(std::is_constructible<ThenArgs..., OriginalR&&>::value,
-                "|then| callback's parameter must be constructible from "
-                "return type of |this|.");
+ private:
+  template <bool v = sizeof...(ThenArgs) == 1>
+  struct CorrectNumberOfArgs {
+    static constexpr bool value = [] {
+      static_assert(
+          v,
+          "|then| callback must accept exactly one parameter if |this| has a "
+          "non-void return type.");
+      return v;
+    }();
+  };
 
+  template <bool v =
+                // TODO(dcheng): This should probably check is_convertible as
+                // well (same with `AssertBindArgsValidity`).
+            std::is_constructible_v<ThenArgs..., OriginalR&&>>
+  struct ArgsAreConvertible {
+    static constexpr bool value = [] {
+      static_assert(v,
+                    "|then| callback's parameter must be constructible from "
+                    "return type of |this|.");
+      return v;
+    }();
+  };
+
+ public:
   static auto CreateTrampoline() {
     return [](OriginalCallback<OriginalR(OriginalArgs...)> c1,
-              ThenCallback<ThenR(ThenArgs...)> c2, OriginalArgs... c1_args) {
-      return std::move(c2).Run(
-          std::move(c1).Run(std::forward<OriginalArgs>(c1_args)...));
+              ThenCallback<ThenR(ThenArgs...)> c2,
+              OriginalArgs... c1_args) -> ThenR {
+      if constexpr (std::conjunction_v<CorrectNumberOfArgs<>,
+                                       ArgsAreConvertible<>>) {
+        return std::move(c2).Run(
+            std::move(c1).Run(std::forward<OriginalArgs>(c1_args)...));
+      }
     };
   }
 };
 
 }  // namespace cef_internal
 }  // namespace base
+
+#endif  // !USING_CHROMIUM_INCLUDES
 
 #endif  // CEF_INCLUDE_BASE_INTERNAL_CEF_CALLBACK_INTERNAL_H_

@@ -45,6 +45,7 @@ declare_exe(
          "-Wno-comments",
     ],
     deps = [
+        "//tests/gmock",
         "//tests/gtest",
         # Declared in the top-level WORKSPACE file.
         "@glib2//:lib",

@@ -59,12 +59,6 @@
 /// for the full documentation.
 ///
 
-// Implementation notes
-//
-// If you're reading the implementation, before proceeding further, you should
-// read the top comment of base/internal/cef_bind_internal.h for a definition
-// of common terms and concepts.
-
 #ifndef CEF_INCLUDE_BASE_CEF_BIND_H_
 #define CEF_INCLUDE_BASE_CEF_BIND_H_
 #pragma once
@@ -86,9 +80,10 @@
 #include "include/base/cef_compiler_specific.h"
 #include "include/base/internal/cef_bind_internal.h"
 
-#if defined(OS_APPLE) && !HAS_FEATURE(objc_arc)
-#include "include/base/internal/cef_scoped_block_mac.h"
-#endif
+// Implementation notes:
+// If you're reading the implementation, before proceeding further, you should
+// read the top comment of include/base/internal/cef_bind_internal.h for a
+// definition of common terms and concepts.
 
 namespace base {
 
@@ -96,65 +91,50 @@ namespace base {
 /// Bind as OnceCallback.
 ///
 template <typename Functor, typename... Args>
-inline OnceCallback<cef_internal::MakeUnboundRunType<Functor, Args...>>
-BindOnce(Functor&& functor, Args&&... args) {
-  static_assert(!cef_internal::IsOnceCallback<std::decay_t<Functor>>() ||
-                    (std::is_rvalue_reference<Functor&&>() &&
-                     !std::is_const<std::remove_reference_t<Functor>>()),
-                "BindOnce requires non-const rvalue for OnceCallback binding."
-                " I.e.: base::BindOnce(std::move(callback)).");
-  static_assert(
-      std::conjunction<cef_internal::AssertBindArgIsNotBasePassed<
-          std::decay_t<Args>>...>::value,
-      "Use std::move() instead of base::Passed() with base::BindOnce()");
-
-  return cef_internal::BindImpl<OnceCallback>(std::forward<Functor>(functor),
-                                              std::forward<Args>(args)...);
+inline auto BindOnce(Functor&& functor, Args&&... args) {
+  return cef_internal::BindHelper<OnceCallback>::Bind(
+      std::forward<Functor>(functor), std::forward<Args>(args)...);
 }
 
 ///
 /// Bind as RepeatingCallback.
 ///
 template <typename Functor, typename... Args>
-inline RepeatingCallback<cef_internal::MakeUnboundRunType<Functor, Args...>>
-BindRepeating(Functor&& functor, Args&&... args) {
-  static_assert(
-      !cef_internal::IsOnceCallback<std::decay_t<Functor>>(),
-      "BindRepeating cannot bind OnceCallback. Use BindOnce with std::move().");
-
-  return cef_internal::BindImpl<RepeatingCallback>(
+inline auto BindRepeating(Functor&& functor, Args&&... args) {
+  return cef_internal::BindHelper<RepeatingCallback>::Bind(
       std::forward<Functor>(functor), std::forward<Args>(args)...);
 }
 
-///
-/// Special cases for binding to a base::Callback without extra bound arguments.
-/// We CHECK() the validity of callback to guard against null pointers
-/// accidentally ending up in posted tasks, causing hard-to-debug crashes.
-///
-template <typename Signature>
-OnceCallback<Signature> BindOnce(OnceCallback<Signature> callback) {
-  CHECK(callback);
-  return callback;
-}
-
-template <typename Signature>
-OnceCallback<Signature> BindOnce(RepeatingCallback<Signature> callback) {
-  CHECK(callback);
-  return callback;
-}
-
-template <typename Signature>
-RepeatingCallback<Signature> BindRepeating(
-    RepeatingCallback<Signature> callback) {
-  CHECK(callback);
-  return callback;
-}
+// Overloads to allow nicer compile errors when attempting to pass the address
+// an overloaded function to `BindOnce()` or `BindRepeating()`. Otherwise, clang
+// provides only the error message "no matching function [...] candidate
+// template ignored: couldn't infer template argument 'Functor'", with no
+// reference to the fact that `&` is being used on an overloaded function.
+//
+// These overloads to provide better error messages will never be selected
+// unless template type deduction fails because of how overload resolution
+// works; per [over.ics.rank/2.2]:
+//
+//   When comparing the basic forms of implicit conversion sequences (as defined
+//   in [over.best.ics])
+//   - a standard conversion sequence is a better conversion sequence than a
+//     user-defined conversion sequence or an ellipsis conversion sequence, and
+//   - a user-defined conversion sequence is a better conversion sequence than
+//     an ellipsis conversion sequence.
+//
+// So these overloads will only be selected as a last resort iff template type
+// deduction fails.
+BindFailedCheckPreviousErrors BindOnce(...);
+BindFailedCheckPreviousErrors BindRepeating(...);
 
 ///
 /// Unretained() allows binding a non-refcounted class, and to disable
-/// refcounting on arguments that are refcounted objects.
+/// refcounting on arguments that are refcounted.
 ///
-/// EXAMPLE OF Unretained():
+/// CEF simplified: no dangling pointer detection (UnsafeDangling,
+/// UnsafeDanglingUntriaged removed).
+///
+/// Example of Unretained() usage:
 ///
 /// <pre>
 ///   class Foo {
@@ -325,8 +305,10 @@ cef_internal::OwnedRefWrapper<std::decay_t<T>> OwnedRef(T&& t) {
 /// first via use of enable_if, and the second takes a T* which will not bind to
 /// T&.
 ///
-template <typename T,
-          std::enable_if_t<!std::is_lvalue_reference<T>::value>* = nullptr>
+/// DEPRECATED - Do not use in new code. See https://crbug.com/1326449
+///
+template <typename T>
+  requires(!std::is_lvalue_reference_v<T>)
 inline cef_internal::PassedWrapper<T> Passed(T&& scoper) {
   return cef_internal::PassedWrapper<T>(std::move(scoper));
 }
@@ -358,30 +340,6 @@ template <typename T>
 inline cef_internal::IgnoreResultHelper<T> IgnoreResult(T data) {
   return cef_internal::IgnoreResultHelper<T>(std::move(data));
 }
-
-#if defined(OS_APPLE) && !HAS_FEATURE(objc_arc)
-
-///
-/// RetainBlock() is used to adapt an Objective-C block when Automated Reference
-/// Counting (ARC) is disabled. This is unnecessary when ARC is enabled, as the
-/// BindOnce and BindRepeating already support blocks then.
-///
-/// EXAMPLE OF RetainBlock():
-///
-/// <pre>
-///   // Wrap the block and bind it to a callback.
-///   OnceCallback<void(int)> cb =
-///       BindOnce(RetainBlock(^(int n) { NSLog(@"%d", n); }));
-///   std::move(cb).Run(1);  // Logs "1".
-/// </pre>
-///
-template <typename R, typename... Args>
-base::mac::ScopedBlock<R (^)(Args...)> RetainBlock(R (^block)(Args...)) {
-  return base::mac::ScopedBlock<R (^)(Args...)>(block,
-                                                base::scoped_policy::RETAIN);
-}
-
-#endif  // defined(OS_APPLE) && !HAS_FEATURE(objc_arc)
 
 }  // namespace base
 

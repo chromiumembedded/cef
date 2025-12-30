@@ -1,4 +1,5 @@
-// Copyright (c) 2011 Google Inc. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. Portions copyright (c) 2011
+// Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -30,8 +31,9 @@
 // Do not include this header file directly. Use base/cef_thread_checker.h
 // instead.
 
-#ifndef CEF_INCLUDE_BASE_INTERNAL_THREAD_CHECKER_IMPL_H_
-#define CEF_INCLUDE_BASE_INTERNAL_THREAD_CHECKER_IMPL_H_
+#ifndef CEF_INCLUDE_BASE_INTERNAL_CEF_THREAD_CHECKER_IMPL_H_
+#define CEF_INCLUDE_BASE_INTERNAL_CEF_THREAD_CHECKER_IMPL_H_
+#pragma once
 
 #include "include/base/cef_lock.h"
 #include "include/base/cef_platform_thread.h"
@@ -69,4 +71,4 @@ class ThreadCheckerImpl {
 }  // namespace cef_internal
 }  // namespace base
 
-#endif  // CEF_INCLUDE_BASE_INTERNAL_THREAD_CHECKER_IMPL_H_
+#endif  // CEF_INCLUDE_BASE_INTERNAL_CEF_THREAD_CHECKER_IMPL_H_

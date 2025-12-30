@@ -38,6 +38,7 @@ declare_dll(
         "//tests/shared:SrcsWin",
     ],
     deps = [
+        "//tests/gmock",
         "//tests/gtest",
     ],
     rc_file = "{}.rc".format(PRODUCT_NAME),
@@ -73,6 +74,7 @@ declare_dll(
 #         "//tests/shared:SrcsWin",
 #     ],
 #     deps = [
+#         "//tests/gmock",
 #         "//tests/gtest",
 #     ],
 #     rc_file = "{}.rc".format(PRODUCT_NAME),
