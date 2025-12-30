@@ -745,7 +745,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Exception> exception;
     EXPECT_TRUE(context->Eval(test, CefString(), 0, retval, exception));
     if (exception.get()) {
-      ADD_FAILURE() << exception->GetMessage().c_str();
+      ADD_FAILURE() << exception->GetMessage();
     }
 
     EXPECT_EQ(static_data[0], 19);
@@ -1786,7 +1786,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
     if (exception.get()) {
-      ADD_FAILURE() << exception->GetMessage().c_str();
+      ADD_FAILURE() << exception->GetMessage();
     }
 
     CefRefPtr<CefV8Value> newval = object->GetValue(kName);
@@ -1825,7 +1825,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
     if (exception.get()) {
-      ADD_FAILURE() << exception->GetMessage().c_str();
+      ADD_FAILURE() << exception->GetMessage();
     }
 
     CefRefPtr<CefV8Value> newval = object->GetValue(kName);
@@ -1870,7 +1870,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
     if (exception.get()) {
-      ADD_FAILURE() << exception->GetMessage().c_str();
+      ADD_FAILURE() << exception->GetMessage();
     }
 
     CefRefPtr<CefV8Value> newval = obj1->GetValue(kArgName);
@@ -1915,7 +1915,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
     if (exception.get()) {
-      ADD_FAILURE() << exception->GetMessage().c_str();
+      ADD_FAILURE() << exception->GetMessage();
     }
 
     CefRefPtr<CefV8Value> newval = obj1->GetValue(kArgName);
@@ -1957,7 +1957,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
     if (exception.get()) {
-      ADD_FAILURE() << exception->GetMessage().c_str();
+      ADD_FAILURE() << exception->GetMessage();
     }
 
     CefRefPtr<CefV8Value> newval = object->GetValue(kName);
@@ -1999,7 +1999,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
     if (exception.get()) {
-      ADD_FAILURE() << exception->GetMessage().c_str();
+      ADD_FAILURE() << exception->GetMessage();
     }
 
     CefRefPtr<CefV8Value> newval = object->GetValue(kName);
@@ -2692,7 +2692,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
         context->Eval("(document.getElementById('result').innerHTML)",
                       CefString(), 0, retval, exception);
     if (exception.get()) {
-      ADD_FAILURE() << exception->GetMessage().c_str();
+      ADD_FAILURE() << exception->GetMessage();
       EXPECT_FALSE(success);
     }
 
@@ -2716,7 +2716,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
         context->Eval("(document.getElementById('result').innerHTML)",
                       CefString(), 0, retval, exception);
     if (exception.get()) {
-      ADD_FAILURE() << exception->GetMessage().c_str();
+      ADD_FAILURE() << exception->GetMessage();
       EXPECT_FALSE(success);
     }
 
@@ -2741,7 +2741,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
         "document.getElementById('f').contentWindow.v8_context_entered_test()",
         CefString(), 0, retval, exception));
     if (exception.get()) {
-      ADD_FAILURE() << exception->GetMessage().c_str();
+      ADD_FAILURE() << exception->GetMessage();
     }
 
     EXPECT_TRUE(retval.get());

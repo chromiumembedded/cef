@@ -243,7 +243,7 @@ class TestDOMVisitor : public CefDOMVisitor {
     EXPECT_TRUE(context->Eval("window.devicePixelRatio", CefString(), 0, retval,
                               exception));
     if (exception) {
-      ADD_FAILURE() << exception->GetMessage().c_str();
+      ADD_FAILURE() << exception->GetMessage();
       return 1.0;
     }
 
