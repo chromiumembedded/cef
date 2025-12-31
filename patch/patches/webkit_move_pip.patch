@@ -1,3 +1,85 @@
+diff --git chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
+index 3deb4b529e36ea9e28bc67de49edeeb23b679079..f5415498bbfb078d25ca86df18fda2a1a703d1a8 100644
+--- chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
++++ chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
+@@ -438,7 +438,8 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
+     // Ignore the result if we're asked to do so.  Note that we still have to
+     // ask the cache, so that it's set up to accept position updates later for
+     // this request.
+-    if (cached_window_bounds && !pip_options.prefer_initial_window_placement) {
++    if (cached_window_bounds && !pip_options.prefer_initial_window_placement &&
++        !pip_options.initial_position.has_value()) {
+       // Cache hit!  Just return it as the window bounds.
+       return *cached_window_bounds;
+     }
+@@ -492,6 +493,11 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
+   }
+ #endif
+   // Position the window.
++  if (pip_options.initial_position.has_value()) {
++    window_bounds.set_origin(pip_options.initial_position.value());
++    return window_bounds;
++  }
++
+   int window_diff_width = work_area.right() - window_bounds.width();
+   int window_diff_height = work_area.bottom() - window_bounds.height();
+ 
+diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
+index 5924b040292f3542ae3dd5bc60561024423d02c3..8c3f6e091d3370d15c2074df675c809951871a1a 100644
+--- content/renderer/render_frame_impl.cc
++++ content/renderer/render_frame_impl.cc
+@@ -6711,6 +6711,7 @@ WebView* RenderFrameImpl::CreateNewWindow(
+         pip_options->disallow_return_to_opener;
+     pip_mojom_opts->prefer_initial_window_placement =
+         pip_options->prefer_initial_window_placement;
++    pip_mojom_opts->initial_position = pip_options->initial_position;
+     params->pip_options = std::move(pip_mojom_opts);
+   }
+ 
+diff --git third_party/blink/public/mojom/picture_in_picture_window_options/picture_in_picture_window_options.mojom third_party/blink/public/mojom/picture_in_picture_window_options/picture_in_picture_window_options.mojom
+index 0a10dd95413ad7fc333eec91c866d73339dd8c11..da8bfd878d4fc1bddf287d02adceaee26893e125 100644
+--- third_party/blink/public/mojom/picture_in_picture_window_options/picture_in_picture_window_options.mojom
++++ third_party/blink/public/mojom/picture_in_picture_window_options/picture_in_picture_window_options.mojom
+@@ -4,6 +4,8 @@
+ 
+ module blink.mojom;
+ 
++import "ui/gfx/geometry/mojom/geometry.mojom";
++
+ struct PictureInPictureWindowOptions {
+   // The requested width for the picture-in-picture window to be initially sized
+   // to.
+@@ -21,4 +23,7 @@ struct PictureInPictureWindowOptions {
+   // When true, don't try to re-use the previous window bounds from the
+   // bounds cache.  Instead, just use the default position and size.
+   bool prefer_initial_window_placement;
++
++  // CEF extension
++  gfx.mojom.Point? initial_position;
+ };
+diff --git third_party/blink/public/web/web_picture_in_picture_window_options.h third_party/blink/public/web/web_picture_in_picture_window_options.h
+index f3a5b90b3bb119558da1d9c56a73675c9f32cefd..f61d59723e808e074c3fb02d0515d54f702b13bd 100644
+--- third_party/blink/public/web/web_picture_in_picture_window_options.h
++++ third_party/blink/public/web/web_picture_in_picture_window_options.h
+@@ -6,6 +6,9 @@
+ #define THIRD_PARTY_BLINK_PUBLIC_WEB_WEB_PICTURE_IN_PICTURE_WINDOW_OPTIONS_H_
+ 
+ #include <cstdint>
++#include <optional>
++
++#include "ui/gfx/geometry/point.h"
+ 
+ namespace blink {
+ 
+@@ -14,6 +17,8 @@ struct WebPictureInPictureWindowOptions {
+   uint64_t height = 0;
+   bool disallow_return_to_opener = false;
+   bool prefer_initial_window_placement = false;
++  // CEF extension
++  std::optional<gfx::Point> initial_position;
+ };
+ 
+ }  // namespace blink
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
 index 932658273154ef2e022358e493a8e7c00c86e732..6a1b5bbe94772a947ac8055e4e0971f7b3e166e1 100644
 --- third_party/blink/public/web/web_view.h
@@ -19,6 +101,21 @@ index 932658273154ef2e022358e493a8e7c00c86e732..6a1b5bbe94772a947ac8055e4e0971f7
   protected:
    ~WebView() = default;
  };
+diff --git third_party/blink/renderer/bindings/generated_in_modules.gni third_party/blink/renderer/bindings/generated_in_modules.gni
+index 9010e57196d67be649bc614e320daf142f1e4605..17f65463f2b4a3a4429fce5aa6fb44840f04f850 100644
+--- third_party/blink/renderer/bindings/generated_in_modules.gni
++++ third_party/blink/renderer/bindings/generated_in_modules.gni
+@@ -392,6 +392,10 @@ generated_dictionary_sources_in_modules = [
+   "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_directory_picker_options.h",
+   "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_display_media_stream_options.cc",
+   "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_display_media_stream_options.h",
++  "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_document_picture_in_picture_cef_options.cc",
++  "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_document_picture_in_picture_cef_options.h",
++  "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_document_picture_in_picture_position.cc",
++  "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_document_picture_in_picture_position.h",
+   "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_document_picture_in_picture_event_init.cc",
+   "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_document_picture_in_picture_event_init.h",
+   "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_document_picture_in_picture_options.cc",
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
 index aecdcea36ed0a502a9da68e871e0ee86040b4350..58c0cc64a99f2ca1a7b3d44f9838c6deac1e5610 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
@@ -154,11 +251,35 @@ index 16a6e112e835ee681b3d48f9a06075411859a9a0..de2b2fde092a346e29505798f24d1086
    // Records this window's Storage Access API status. It cannot be downgraded.
    net::StorageAccessApiStatus storage_access_api_status_ =
        net::StorageAccessApiStatus::kNone;
+diff --git third_party/blink/renderer/modules/document_picture_in_picture/document_picture_in_picture_options.idl third_party/blink/renderer/modules/document_picture_in_picture/document_picture_in_picture_options.idl
+index de4f0294a2f7ea20517c71cad3d17fb0f1975211..0dece67fa25c58985f736315c43300775874db20 100644
+--- third_party/blink/renderer/modules/document_picture_in_picture/document_picture_in_picture_options.idl
++++ third_party/blink/renderer/modules/document_picture_in_picture/document_picture_in_picture_options.idl
+@@ -4,9 +4,19 @@
+ 
+ // https://wicg.github.io/document-picture-in-picture/#dictdef-documentpictureinpictureoptions
+ 
++dictionary DocumentPictureInPicturePosition {
++  required long x;
++  required long y;
++};
++
++dictionary DocumentPictureInPictureCefOptions {
++  DocumentPictureInPicturePosition position;
++};
++
+ dictionary DocumentPictureInPictureOptions {
+   [EnforceRange] unsigned long long width = 0;
+   [EnforceRange] unsigned long long height = 0;
+   boolean disallowReturnToOpener = false;
+   [RuntimeEnabled=DocumentPictureInPicturePreferInitialPlacement] boolean preferInitialWindowPlacement = false;
++  [RuntimeEnabled=DocumentPictureInPictureCefOptions] DocumentPictureInPictureCefOptions cefOptions;
+ };
 diff --git third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
-index f92ba860d3d3d52e84f1c5692a54eb3eeeff2699..6f8d1b5aa96bc12c25e2a6f3f655a1d8537e7cb9 100644
+index f92ba860d3d3d52e84f1c5692a54eb3eeeff2699..48201fc6e4d3ec3eb2242fc1cb9f3d4eb974b6f2 100644
 --- third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
 +++ third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
-@@ -15,6 +15,7 @@
+@@ -15,16 +15,20 @@
  #include "third_party/blink/public/platform/browser_interface_broker_proxy.h"
  #include "third_party/blink/public/platform/web_media_player.h"
  #include "third_party/blink/public/web/web_picture_in_picture_window_options.h"
@@ -166,7 +287,12 @@ index f92ba860d3d3d52e84f1c5692a54eb3eeeff2699..6f8d1b5aa96bc12c25e2a6f3f655a1d8
  #include "third_party/blink/renderer/bindings/core/v8/script_controller.h"
  #include "third_party/blink/renderer/bindings/core/v8/script_promise_resolver.h"
  #include "third_party/blink/renderer/bindings/core/v8/v8_binding_for_core.h"
-@@ -25,6 +26,7 @@
+ #include "third_party/blink/renderer/bindings/core/v8/v8_throw_dom_exception.h"
++#include "third_party/blink/renderer/bindings/modules/v8/v8_document_picture_in_picture_cef_options.h"
+ #include "third_party/blink/renderer/bindings/modules/v8/v8_document_picture_in_picture_options.h"
++#include "third_party/blink/renderer/bindings/modules/v8/v8_document_picture_in_picture_position.h"
+ #include "third_party/blink/renderer/core/dom/document.h"
+ #include "third_party/blink/renderer/core/dom/dom_exception.h"
  #include "third_party/blink/renderer/core/dom/events/event.h"
  #include "third_party/blink/renderer/core/frame/local_frame.h"
  #include "third_party/blink/renderer/core/frame/settings.h"
@@ -174,16 +300,56 @@ index f92ba860d3d3d52e84f1c5692a54eb3eeeff2699..6f8d1b5aa96bc12c25e2a6f3f655a1d8
  #include "third_party/blink/renderer/core/fullscreen/fullscreen.h"
  #include "third_party/blink/renderer/core/html/media/html_media_element.h"
  #include "third_party/blink/renderer/core/html/media/html_video_element.h"
-@@ -382,7 +384,11 @@ void PictureInPictureControllerImpl::CreateDocumentPictureInPictureWindow(
+@@ -37,6 +41,7 @@
+ #include "third_party/blink/renderer/platform/weborigin/scheme_registry.h"
+ #include "third_party/blink/renderer/platform/widget/frame_widget.h"
+ #include "third_party/blink/renderer/platform/wtf/functional.h"
++#include "ui/gfx/geometry/point.h"
+ 
+ namespace blink {
+ 
+@@ -382,7 +387,12 @@ void PictureInPictureControllerImpl::CreateDocumentPictureInPictureWindow(
      LocalDOMWindow& opener,
      DocumentPictureInPictureOptions* options,
      ScriptPromiseResolver<DOMWindow>* resolver) {
 -  if (!LocalFrame::ConsumeTransientUserActivation(opener.GetFrame())) {
-+  bool allow_without_activation = WebLocalFrameImpl::FromFrame(opener.GetFrame())
-+                                      ->View()
-+                                      ->AllowPictureInPictureWithoutUserActivation();
++  auto* opener_frame_view =
++      WebLocalFrameImpl::FromFrame(opener.GetFrame())->View();
++  bool allow_without_activation =
++      opener_frame_view->AllowPictureInPictureWithoutUserActivation();
 +  if (!allow_without_activation &&
 +      !LocalFrame::ConsumeTransientUserActivation(opener.GetFrame())) {
      resolver->RejectWithDOMException(DOMExceptionCode::kNotAllowedError,
                                       "Document PiP requires user activation");
      return;
+@@ -395,6 +405,11 @@ void PictureInPictureControllerImpl::CreateDocumentPictureInPictureWindow(
+   web_options.prefer_initial_window_placement =
+       options->preferInitialWindowPlacement();
+ 
++  if (options->hasCefOptions() && options->cefOptions()->hasPosition()) {
++    const auto* position = options->cefOptions()->position();
++    web_options.initial_position = gfx::Point(position->x(), position->y());
++  }
++
+   // If either width or height is specified, then both must be specified.
+   if (web_options.width > 0 && web_options.height == 0) {
+     resolver->RejectWithRangeError(
+diff --git third_party/blink/renderer/platform/runtime_enabled_features.override.json5 third_party/blink/renderer/platform/runtime_enabled_features.override.json5
+index 43cfe5a54118d60898fb4f6bfbcae7ec3a96c53d..2d80c0463e2774ce5a1189348814289e5a837d16 100644
+--- third_party/blink/renderer/platform/runtime_enabled_features.override.json5
++++ third_party/blink/renderer/platform/runtime_enabled_features.override.json5
+@@ -46,5 +46,13 @@
+ 
+   data: [
+     // Entries go here.
++    // Enables cefOptions for Document PiP to specify initial window position
++    {
++      name: "DocumentPictureInPictureCefOptions",
++      status: {
++        "Android": "",
++        "default": "",
++      },
++    },
+   ]
+ }
+\ No newline at end of file

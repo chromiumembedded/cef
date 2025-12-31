@@ -43,6 +43,30 @@
       background-color: #0b7dda;
     }
 
+    .input-group {
+      display: inline-block;
+      margin-right: 15px;
+    }
+
+    .input-group label {
+      margin-right: 5px;
+      font-weight: bold;
+    }
+
+    .input-group input {
+      width: 80px;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .position-controls {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #ddd;
+    }
+
     .status {
       margin-top: 10px;
       padding: 10px;
@@ -65,10 +89,22 @@
   <h2>Document Picture-in-Picture Test</h2>
   <p><strong>Note:</strong> The "Open PiP Delayed" button is expected to fail without user activation.
     To bypass this requirement, launch cefclient with <code>--pip-no-user-activation-enabled</code> flag.</p>
+  <p><strong>Note:</strong> Custom X/Y position requires <code>--enable-blink-features=DocumentPictureInPictureCefOptions</code> flag.</p>
 
   <div class="control-panel">
     <button id="togglePipBtn" onclick="togglePip()">Open PiP</button>
     <button id="delayedPipBtn" onclick="openPipDelayed()">Open PiP Delayed</button>
+    <div class="position-controls">
+      <div class="input-group">
+        <label for="posX">X:</label>
+        <input type="number" id="posX" placeholder="auto">
+      </div>
+      <div class="input-group">
+        <label for="posY">Y:</label>
+        <input type="number" id="posY" placeholder="auto">
+      </div>
+      <small>Leave empty for default positioning</small>
+    </div>
     <div id="status" class="status" style="display: none;"></div>
   </div>
 
@@ -83,6 +119,27 @@
       statusEl.style.display = 'block';
     }
 
+    function getRequestOptions() {
+      const options = {
+        width: 400,
+        height: 300
+      };
+
+      // CEF extension: add position if x and y are specified
+      const posX = document.getElementById('posX').value;
+      const posY = document.getElementById('posY').value;
+      if (posX !== '' && posY !== '') {
+        options.cefOptions = {
+          position: {
+            x: parseInt(posX, 10),
+            y: parseInt(posY, 10)
+          }
+        };
+      }
+
+      return options;
+    }
+
     async function openPip() {
       try {
         if (!('documentPictureInPicture' in window)) {
@@ -90,10 +147,7 @@
           return;
         }
 
-        pipWindow = await documentPictureInPicture.requestWindow({
-          width: 400,
-          height: 300
-        });
+        pipWindow = await documentPictureInPicture.requestWindow(getRequestOptions());
 
         const pipDoc = pipWindow.document;
 
