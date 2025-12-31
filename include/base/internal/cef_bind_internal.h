@@ -408,6 +408,14 @@ template <typename R, typename... Args>
 inline constexpr bool IsObjCArcBlockPointer<R (^)(Args...)> = true;
 #endif
 
+// Helper concept to check if Functor is invocable with BoundArgs.
+// Extracted from HasOverloadedCallOp to avoid nested `requires requires`
+// which triggers an internal compiler error in GCC 10.
+template <typename Functor, typename... BoundArgs>
+concept IsInvocableWithBoundArgs = requires(Functor&& f, BoundArgs&&... args) {
+  std::forward<Functor>(f)(std::forward<BoundArgs>(args)...);
+};
+
 // True when `Functor` has an overloaded `operator()()` that can be invoked with
 // the provided `BoundArgs`.
 //
@@ -416,9 +424,7 @@ inline constexpr bool IsObjCArcBlockPointer<R (^)(Args...)> = true;
 template <typename Functor, typename... BoundArgs>
 concept HasOverloadedCallOp = requires {
   // The functor must be invocable with the bound args.
-  requires requires(Functor&& f, BoundArgs&&... args) {
-    std::forward<Functor>(f)(std::forward<BoundArgs>(args)...);
-  };
+  requires IsInvocableWithBoundArgs<Functor, BoundArgs...>;
   // Now exclude invocables that are not cases of overloaded `operator()()`s:
   // * `operator()()` exists, but isn't overloaded
   requires !HasNonOverloadedCallOp<std::decay_t<Functor>>;
