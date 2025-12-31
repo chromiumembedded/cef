@@ -350,10 +350,22 @@ struct ExtractCallableRunTypeImpl;
     using Type = R(Args...);                                          \
   }
 
+// MSVC warns about calling a macro with empty arguments (C4003). This is valid
+// C++11 and later, but we suppress the warning to avoid treating it as an
+// error.
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4003)
+#endif
+
 BIND_INTERNAL_EXTRACT_CALLABLE_RUN_TYPE_WITH_QUALS();
 BIND_INTERNAL_EXTRACT_CALLABLE_RUN_TYPE_WITH_QUALS(const);
 BIND_INTERNAL_EXTRACT_CALLABLE_RUN_TYPE_WITH_QUALS(noexcept);
 BIND_INTERNAL_EXTRACT_CALLABLE_RUN_TYPE_WITH_QUALS(const noexcept);
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 #undef BIND_INTERNAL_EXTRACT_CALLABLE_RUN_TYPE_WITH_QUALS
 
@@ -586,10 +598,18 @@ BIND_INTERNAL_DECAYED_FUNCTOR_TRAITS_WITH_CONST_AND_QUALS(const, noexcept);
       : public DecayedFunctorTraits<R (Receiver::*)(Args...) quals,     \
                                     BoundArgs...> {}
 
+// MSVC warns about calling a macro with empty arguments (C4003). This is valid
+// C++11 and later, but we suppress the warning to avoid treating it as an
+// error.
+#pragma warning(push)
+#pragma warning(disable : 4003)
+
 BIND_INTERNAL_DECAYED_FUNCTOR_TRAITS_STDCALL_WITH_QUALS();
 BIND_INTERNAL_DECAYED_FUNCTOR_TRAITS_STDCALL_WITH_QUALS(const);
 BIND_INTERNAL_DECAYED_FUNCTOR_TRAITS_STDCALL_WITH_QUALS(noexcept);
 BIND_INTERNAL_DECAYED_FUNCTOR_TRAITS_STDCALL_WITH_QUALS(const noexcept);
+
+#pragma warning(pop)
 
 #undef BIND_INTERNAL_DECAYED_FUNCTOR_TRAITS_STDCALL_WITH_QUALS
 
