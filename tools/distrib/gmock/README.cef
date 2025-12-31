@@ -1,0 +1,19 @@
+Name: Google C++ Mocking Framework
+Short Name: gmock
+URL: https://github.com/google/googletest
+License: BSD (see LICENSE file)
+
+Description:
+Fused (single header/source file) version of GoogleMock. Generated dynamically
+by make_distrib.py using the fuse_gmock_files.py script (recovered from
+googletest commit 58937787 and stored at cef/tools/fuse_gmock_files.py).
+
+The fused files are generated at distribution time from the Chromium source at:
+  third_party/googletest/src/googlemock/
+
+To manually regenerate fused files (for testing):
+  cd /path/to/chromium/src
+  python3 cef/tools/fuse_gmock_files.py /tmp/gmock_output
+
+Local Modifications:
+None.

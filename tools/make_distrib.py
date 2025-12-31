@@ -10,6 +10,8 @@ from clang_util import clang_format_inplace
 from date_util import *
 from exec_util import exec_cmd
 from file_util import *
+import fuse_gtest_files
+import fuse_gmock_files
 import git_util as git
 from io import open
 from make_cmake import process_cmake_template
@@ -20,6 +22,7 @@ import shlex
 import subprocess
 import sys
 import tarfile
+import tempfile
 import zipfile
 
 
@@ -184,40 +187,105 @@ def create_readme():
 
 
 def copy_gtest(tests_dir):
-  """ Copy GTest files to the expected directory structure. """
+  """ Generate fused GTest files and copy to the expected directory structure. """
   if not options.quiet:
-    sys.stdout.write('Building gtest directory structure.\n')
+    sys.stdout.write('Generating fused gtest files.\n')
 
-  src_gtest_dir = os.path.join(cef_dir, 'tools', 'distrib', 'gtest')
   target_gtest_dir = os.path.join(tests_dir, 'gtest')
 
-  # gtest header file at tests/gtest/include/gtest/gtest.h
-  target_gtest_header_dir = os.path.join(target_gtest_dir, 'include', 'gtest')
-  make_dir(target_gtest_header_dir, options.quiet)
-  copy_file(
-      os.path.join(src_gtest_dir, 'gtest.h'), target_gtest_header_dir,
-      options.quiet)
+  # Create include/gtest directory for the fused header
+  target_gtest_include_dir = os.path.join(target_gtest_dir, 'include')
+  make_dir(os.path.join(target_gtest_include_dir, 'gtest'), options.quiet)
 
-  # gtest source file at tests/gtest/src/gtest-all.cc
-  target_gtest_cpp_dir = os.path.join(target_gtest_dir, 'src')
-  make_dir(target_gtest_cpp_dir, options.quiet)
-  copy_file(
-      os.path.join(src_gtest_dir, 'gtest-all.cc'), target_gtest_cpp_dir,
-      options.quiet)
+  # Create src directory for the fused source
+  target_gtest_src_dir = os.path.join(target_gtest_dir, 'src')
+  make_dir(target_gtest_src_dir, options.quiet)
 
-  # gtest LICENSE file at tests/gtest/LICENSE
-  copy_file(
-      os.path.join(src_gtest_dir, 'LICENSE'), target_gtest_dir, options.quiet)
+  # Generate fused gtest.h and gtest-all.cc using the fuse script.
+  # FuseGTest generates files at: output_dir/gtest/gtest.h and output_dir/gtest/gtest-all.cc
+  # We generate to a temp structure and then move to our desired layout.
+  with tempfile.TemporaryDirectory() as temp_dir:
+    fuse_gtest_files.FuseGTest(fuse_gtest_files.DEFAULT_GTEST_ROOT_DIR,
+                               temp_dir)
+    # Move generated files to target locations
+    copy_file(
+        os.path.join(temp_dir, 'gtest', 'gtest.h'),
+        os.path.join(target_gtest_include_dir, 'gtest', 'gtest.h'),
+        options.quiet)
+    copy_file(
+        os.path.join(temp_dir, 'gtest', 'gtest-all.cc'),
+        os.path.join(target_gtest_src_dir, 'gtest-all.cc'), options.quiet)
+
+  # gtest LICENSE file at tests/gtest/LICENSE (from googletest source)
+  googletest_license = os.path.join(src_dir, 'third_party', 'googletest', 'src',
+                                    'LICENSE')
+  copy_file(googletest_license, target_gtest_dir, options.quiet)
 
   # CEF README file at tests/gtest/README.cef
   copy_file(
-      os.path.join(src_gtest_dir, 'README.cef'),
+      os.path.join(cef_dir, 'tools', 'distrib', 'gtest', 'README.cef'),
       os.path.join(target_gtest_dir, 'README.cef'), options.quiet)
 
   # Copy tests/gtest/teamcity files
   copy_dir(
       os.path.join(cef_dir, 'tests', 'gtest', 'teamcity'),
       os.path.join(target_gtest_dir, 'teamcity'), options.quiet)
+
+
+def copy_gmock(tests_dir):
+  """ Generate fused GMock files and copy to the expected directory structure. """
+  if not options.quiet:
+    sys.stdout.write('Generating fused gmock files.\n')
+
+  target_gmock_dir = os.path.join(tests_dir, 'gmock')
+
+  # Create include/gmock directory for the fused header
+  target_gmock_include_dir = os.path.join(target_gmock_dir, 'include')
+  make_dir(os.path.join(target_gmock_include_dir, 'gmock'), options.quiet)
+
+  # Create src directory for the fused source
+  target_gmock_src_dir = os.path.join(target_gmock_dir, 'src')
+  make_dir(target_gmock_src_dir, options.quiet)
+
+  # Generate fused gmock.h using the fuse script.
+  # FuseGMockH generates file at: output_dir/gmock/gmock.h
+  gmock_h_path = os.path.join(target_gmock_include_dir, 'gmock', 'gmock.h')
+  with tempfile.TemporaryDirectory() as temp_dir:
+    # Create the gmock subdirectory for the header
+    os.makedirs(os.path.join(temp_dir, 'gmock'))
+    fuse_gmock_files.FuseGMockH(fuse_gmock_files.DEFAULT_GMOCK_ROOT_DIR,
+                                temp_dir)
+    copy_file(
+        os.path.join(temp_dir, 'gmock', 'gmock.h'), gmock_h_path, options.quiet)
+
+  # Fix the gtest include path in gmock.h for the binary distribution.
+  # The fused gmock.h uses '#include "gtest/gtest.h"' but in the binary
+  # distribution we need '#include "tests/gtest/include/gtest/gtest.h"'.
+  data = read_file(gmock_h_path)
+  data = data.replace('#include "gtest/gtest.h"',
+                      '#include "tests/gtest/include/gtest/gtest.h"')
+  write_file(gmock_h_path, data)
+  if not options.quiet:
+    sys.stdout.write('Fixed gtest include path in %s.\n' % gmock_h_path)
+
+  # Generate fused gmock-all.cc (gmock only, not combined with gtest).
+  # We use FuseGMockAllCcToFile which generates just the gmock source.
+  gmock_all_path = os.path.join(target_gmock_src_dir, 'gmock-all.cc')
+  with open(gmock_all_path, 'w') as output_file:
+    fuse_gmock_files.FuseGMockAllCcToFile(
+        fuse_gmock_files.DEFAULT_GMOCK_ROOT_DIR, output_file)
+  if not options.quiet:
+    sys.stdout.write('Writing %s.\n' % gmock_all_path)
+
+  # gmock LICENSE file at tests/gmock/LICENSE (from googletest source - same license)
+  googletest_license = os.path.join(src_dir, 'third_party', 'googletest', 'src',
+                                    'LICENSE')
+  copy_file(googletest_license, target_gmock_dir, options.quiet)
+
+  # CEF README file at tests/gmock/README.cef
+  copy_file(
+      os.path.join(cef_dir, 'tools', 'distrib', 'gmock', 'README.cef'),
+      os.path.join(target_gmock_dir, 'README.cef'), options.quiet)
 
 
 def transfer_doxyfile(dst_dir, quiet):
@@ -1010,6 +1078,9 @@ if mode == 'standard':
   # copy GTest files
   copy_gtest(tests_dir)
 
+  # copy GMock files
+  copy_gmock(tests_dir)
+
   # process cmake templates
   if not options.ozone:
     process_cmake_template(os.path.join(cef_dir, 'tests', 'cefclient', 'CMakeLists.txt.in'), \
@@ -1023,6 +1094,9 @@ if mode == 'standard':
                          variables, options.quiet)
   process_cmake_template(os.path.join(cef_dir, 'tests', 'gtest', 'CMakeLists.txt.in'), \
                          os.path.join(tests_dir, 'gtest', 'CMakeLists.txt'), \
+                         variables, options.quiet)
+  process_cmake_template(os.path.join(cef_dir, 'tests', 'gmock', 'CMakeLists.txt.in'), \
+                         os.path.join(tests_dir, 'gmock', 'CMakeLists.txt'), \
                          variables, options.quiet)
   process_cmake_template(os.path.join(cef_dir, 'tests', 'ceftests', 'CMakeLists.txt.in'), \
                          os.path.join(ceftests_dir, 'CMakeLists.txt'), \
@@ -1211,7 +1285,8 @@ elif platform == 'windows':
     transfer_gypi_files(cef_dir, cef_paths2['cefsimple_capi_sources_win'] +
                         cef_paths2['cefsimple_capi_sources_resources_win'] +
                         cef_paths2['cefsimple_capi_sources_resources_win_rc'],
-                        'tests/cefsimple_capi/', cefsimple_capi_dir, options.quiet)
+                        'tests/cefsimple_capi/', cefsimple_capi_dir,
+                        options.quiet)
 
     # transfer ceftests files
     transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_win'] +
