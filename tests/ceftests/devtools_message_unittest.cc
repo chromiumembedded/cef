@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
-#include <sstream>
+#include <format>
 
 #include "include/base/cef_callback.h"
 #include "include/base/cef_callback_helpers.h"
@@ -193,15 +193,16 @@ class DevToolsMessageTestHandler : public TestHandler {
 
     int message_id = next_message_id_++;
 
-    std::stringstream message;
-    message << "{\"id\":" << message_id << ",\"method\":\"" << method << "\"";
+    std::string message;
     if (!params.empty()) {
-      message << ",\"params\":" << params;
+      message = std::format(R"({{"id":{},"method":"{}","params":{}}})",
+                            message_id, method, params);
+    } else {
+      message = std::format(R"({{"id":{},"method":"{}"}})", message_id, method);
     }
-    message << "}";
 
     // Set expected result state.
-    pending_message_ = message.str();
+    pending_message_ = message;
     pending_result_next_ = std::move(next_step);
     pending_result_ = {message_id, expected_success, expected_result};
 
@@ -276,13 +277,12 @@ class DevToolsMessageTestHandler : public TestHandler {
     pending_event_next_ =
         base::BindOnce(&DevToolsMessageTestHandler::AfterNavigate, this);
 
-    std::stringstream params;
-    params << "{\"url\":\"" << kTestUrl2 << "\"}";
+    std::string params = std::format(R"({{"url":"{}"}})", kTestUrl2);
 
     // STEP 3: Page domain notifications are enabled. Now start a new
     // navigation (but do nothing on method result) and wait for the
     // "Page.frameNavigated" event.
-    ExecuteMethod("Page.navigate", params.str(), base::DoNothing(),
+    ExecuteMethod("Page.navigate", params, base::DoNothing(),
                   /*expected_result=*/"{\"frameId\":");
   }
 

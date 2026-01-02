@@ -5,7 +5,7 @@
 #include "tests/cefclient/browser/response_filter_test.h"
 
 #include <algorithm>
-#include <sstream>
+#include <format>
 #include <string>
 
 #include "include/base/cef_logging.h"
@@ -93,9 +93,8 @@ class FindReplaceResponseFilter : public CefResponseFilter {
         // Matched the next character in the find string.
         if (++find_match_offset_ == find_size) {
           // Complete match of the find string. Write the replace string.
-          std::stringstream ss;
-          ss << ++replace_count_ << ". " << kReplaceString;
-          const std::string& replace_str = ss.str();
+          const std::string replace_str =
+              std::format("{}. {}", ++replace_count_, kReplaceString);
           Write(replace_str.c_str(), replace_str.size(), WRITE_PARAMS);
 
           // Start over looking for a match.

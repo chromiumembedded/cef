@@ -4,7 +4,7 @@
 
 #include "tests/ceftests/test_server_observer.h"
 
-#include <sstream>
+#include <format>
 
 #include "include/cef_command_line.h"
 #include "include/cef_task.h"
@@ -198,12 +198,12 @@ void RunHelperMultiple(bool https_server) {
   const size_t size = std::size(states);
 
   for (size_t i = 0; i < size; ++i) {
-    std::stringstream ss;
-    ss << "/TestServerTest.ObserverHelperMultiple" << i;
     auto done_callback =
         base::BindOnce(SignalIfDone, event, base::Unretained(&count), size);
     states[i].https_server = https_server;
-    CreateObserverOnUIThread(&states[i], ss.str(), std::move(done_callback));
+    CreateObserverOnUIThread(
+        &states[i], std::format("/TestServerTest.ObserverHelperMultiple{}", i),
+        std::move(done_callback));
   }
 
   Wait(event);

@@ -7,8 +7,8 @@
 #include <mach-o/dyld.h>
 #include <stdio.h>
 
+#include <format>
 #include <memory>
-#include <sstream>
 
 #include "include/cef_sandbox_mac.h"
 
@@ -39,9 +39,7 @@ std::string GetLibraryPath() {
   }
 
   // Append the relative path to the library.
-  std::stringstream ss;
-  ss << parent_dir << "/" << kLibraryPath;
-  return ss.str();
+  return std::format("{}/{}", parent_dir, kLibraryPath);
 }
 
 void* LoadLibrary(const char* path) {

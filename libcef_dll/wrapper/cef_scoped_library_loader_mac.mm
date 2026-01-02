@@ -6,8 +6,8 @@
 #include <mach-o/dyld.h>
 #include <stdio.h>
 
+#include <format>
 #include <memory>
-#include <sstream>
 
 #include "include/wrapper/cef_library_loader.h"
 
@@ -38,10 +38,9 @@ std::string GetFrameworkPath(bool helper) {
   }
 
   // Append the relative path to the framework.
-  std::stringstream ss;
-  ss << parent_dir << "/" << (helper ? kPathFromHelperExe : kPathFromMainExe)
-     << "/" << kFrameworkPath;
-  return ss.str();
+  return std::format("{}/{}/{}", parent_dir,
+                     helper ? kPathFromHelperExe : kPathFromMainExe,
+                     kFrameworkPath);
 }
 
 }  // namespace

@@ -2,6 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <string>
+
 #include "include/cef_dom.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -293,18 +295,18 @@ class TestDOMHandler : public TestHandler {
 
   void RunTest() override {
     // Specified values are in CSS pixels.
-    std::stringstream mainHtml;
-    mainHtml << "<html>"
-                "<head><title>The Title</title></head>"
-                "<body>"
-                "<h1>Hello From<br class=\"some_class\"/ id=\"some_id\"/>"
-                "Main Frame</h1>"
-                "<div id=\"sized_element\" style=\"width: 50px; height: 25px; "
-                "position: fixed; top: 100px; left: 150px;\"/>"
-                "</body>"
-                "</html>";
+    std::string mainHtml =
+        "<html>"
+        "<head><title>The Title</title></head>"
+        "<body>"
+        "<h1>Hello From<br class=\"some_class\"/ id=\"some_id\"/>"
+        "Main Frame</h1>"
+        "<div id=\"sized_element\" style=\"width: 50px; height: 25px; "
+        "position: fixed; top: 100px; left: 150px;\"/>"
+        "</body>"
+        "</html>";
 
-    AddResource(kTestUrl, mainHtml.str(), "text/html");
+    AddResource(kTestUrl, mainHtml, "text/html");
     CreateBrowser(kTestUrl);
 
     // Time out the test after a reasonable period of time.

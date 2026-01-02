@@ -4,7 +4,7 @@
 
 #include "tests/cefclient/browser/preferences_test.h"
 
-#include <sstream>
+#include <format>
 #include <string>
 #include <vector>
 
@@ -162,15 +162,14 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     // Create a message that accurately represents the result.
     std::string message;
     if (!changed_names.empty()) {
-      std::stringstream ss;
-      ss << "Successfully changed " << changed_names.size() << " preferences; ";
+      message = std::format("Successfully changed {} preferences; ",
+                            changed_names.size());
       for (size_t i = 0; i < changed_names.size(); ++i) {
-        ss << changed_names[i];
+        message += changed_names[i];
         if (i < changed_names.size() - 1) {
-          ss << ", ";
+          message += ", ";
         }
       }
-      message = ss.str();
     }
 
     if (!success) {

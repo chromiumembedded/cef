@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include <sstream>
+#include <string>
 
 #include "base/base64.h"
 #include "base/strings/escape.h"
@@ -67,29 +67,32 @@ bool CefCreateURL(const CefURLParts& parts, CefString& url) {
   if (!spec.empty()) {
     gurl = GURL(spec);
   } else if (!scheme.empty() && !host.empty()) {
-    std::stringstream ss;
-    ss << scheme << "://";
+    std::string url_str = scheme + "://";
     if (!username.empty()) {
-      ss << username;
+      url_str += username;
       if (!password.empty()) {
-        ss << ":" << password;
+        url_str += ':';
+        url_str += password;
       }
-      ss << "@";
+      url_str += '@';
     }
-    ss << host;
+    url_str += host;
     if (!port.empty()) {
-      ss << ":" << port;
+      url_str += ':';
+      url_str += port;
     }
     if (!path.empty()) {
-      ss << path;
+      url_str += path;
     }
     if (!query.empty()) {
-      ss << "?" << query;
+      url_str += '?';
+      url_str += query;
     }
     if (!fragment.empty()) {
-      ss << "#" << fragment;
+      url_str += '#';
+      url_str += fragment;
     }
-    gurl = GURL(ss.str());
+    gurl = GURL(url_str);
   }
 
   if (gurl.is_valid()) {

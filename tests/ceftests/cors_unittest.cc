@@ -3,8 +3,9 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
+#include <format>
 #include <set>
-#include <sstream>
+#include <string_view>
 #include <vector>
 
 #include "include/base/cef_callback.h"
@@ -69,10 +70,9 @@ std::string GetOrigin(HandlerType handler) {
       // TODO: Only call test_server::GetOrigin() after test server
       // initialization.
       if (!kUseHttpsServerScheme) {
-        std::stringstream ss;
-        ss << "http://" << test_server::kHttpServerAddress << ":"
-           << test_server::kHttpServerPort;
-        return ss.str();
+        return std::format("http://{}:{}",
+                           std::string_view(test_server::kHttpServerAddress),
+                           test_server::kHttpServerPort);
       }
       return test_server::GetOrigin(kUseHttpsServerScheme);
     case HandlerType::HTTP_SCHEME:

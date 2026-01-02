@@ -2,7 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include <sstream>
+#include <format>
+#include <iterator>
+#include <string>
 
 #include "include/base/cef_callback.h"
 #include "include/cef_task.h"
@@ -1777,14 +1779,14 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     object->SetValue(kName, CefV8Value::CreateInt(kVal1),
                      V8_PROPERTY_ATTRIBUTE_NONE);
 
-    std::stringstream test;
-    test << "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n"
-         << "window." << kName << " = " << kVal2 << ";";
+    std::string test =
+        std::format("if (window.{} != {}) throw 'Fail';\nwindow.{} = {};",
+                    kName, kVal1, kName, kVal2);
 
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
+    EXPECT_TRUE(context->Eval(test, CefString(), 0, retval, exception));
     if (exception.get()) {
       ADD_FAILURE() << exception->GetMessage().c_str();
     }
@@ -1816,14 +1818,14 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     object->SetValue(kName, CefV8Value::CreateInt(kVal1),
                      V8_PROPERTY_ATTRIBUTE_READONLY);
 
-    std::stringstream test;
-    test << "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n"
-         << "window." << kName << " = " << kVal2 << ";";
+    std::string test =
+        std::format("if (window.{} != {}) throw 'Fail';\nwindow.{} = {};",
+                    kName, kVal1, kName, kVal2);
 
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
+    EXPECT_TRUE(context->Eval(test, CefString(), 0, retval, exception));
     if (exception.get()) {
       ADD_FAILURE() << exception->GetMessage().c_str();
     }
@@ -1857,18 +1859,13 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     obj1->SetValue(kArgName, CefV8Value::CreateInt(0),
                    V8_PROPERTY_ATTRIBUTE_NONE);
 
-    std::stringstream test;
-    test << "for (var i in window." << kObjName
-         << ") {\n"
-            "window."
-         << kObjName
-         << "[i]++;\n"
-            "}";
+    std::string test = std::format(
+        "for (var i in window.{}) {{\nwindow.{}[i]++;\n}}", kObjName, kObjName);
 
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
+    EXPECT_TRUE(context->Eval(test, CefString(), 0, retval, exception));
     if (exception.get()) {
       ADD_FAILURE() << exception->GetMessage().c_str();
     }
@@ -1902,18 +1899,13 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     obj1->SetValue(kArgName, CefV8Value::CreateInt(0),
                    V8_PROPERTY_ATTRIBUTE_DONTENUM);
 
-    std::stringstream test;
-    test << "for (var i in window." << kObjName
-         << ") {\n"
-            "window."
-         << kObjName
-         << "[i]++;\n"
-            "}";
+    std::string test = std::format(
+        "for (var i in window.{}) {{\nwindow.{}[i]++;\n}}", kObjName, kObjName);
 
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
+    EXPECT_TRUE(context->Eval(test, CefString(), 0, retval, exception));
     if (exception.get()) {
       ADD_FAILURE() << exception->GetMessage().c_str();
     }
@@ -1945,17 +1937,15 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     object->SetValue(kName, CefV8Value::CreateInt(kVal1),
                      V8_PROPERTY_ATTRIBUTE_NONE);
 
-    std::stringstream test;
-    test << "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n"
-         << "window." << kName << " = " << kVal2
-         << ";\n"
-            "delete window."
-         << kName << ";";
+    std::string test = std::format(
+        "if (window.{} != {}) throw 'Fail';\nwindow.{} = {};\ndelete "
+        "window.{};",
+        kName, kVal1, kName, kVal2, kName);
 
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
+    EXPECT_TRUE(context->Eval(test, CefString(), 0, retval, exception));
     if (exception.get()) {
       ADD_FAILURE() << exception->GetMessage().c_str();
     }
@@ -1987,17 +1977,15 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     object->SetValue(kName, CefV8Value::CreateInt(kVal1),
                      V8_PROPERTY_ATTRIBUTE_DONTDELETE);
 
-    std::stringstream test;
-    test << "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n"
-         << "window." << kName << " = " << kVal2
-         << ";\n"
-            "delete window."
-         << kName << ";";
+    std::string test = std::format(
+        "if (window.{} != {}) throw 'Fail';\nwindow.{} = {};\ndelete "
+        "window.{};",
+        kName, kVal1, kName, kVal2, kName);
 
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
+    EXPECT_TRUE(context->Eval(test, CefString(), 0, retval, exception));
     if (exception.get()) {
       ADD_FAILURE() << exception->GetMessage().c_str();
     }
@@ -2535,11 +2523,10 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    std::stringstream test;
-    test << "window." << kPromiseName << ".then(" << kResolveName << ").catch("
-         << kRejectName << ")";
+    std::string test = std::format("window.{}.then({}).catch({})", kPromiseName,
+                                   kResolveName, kRejectName);
 
-    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
+    EXPECT_TRUE(context->Eval(test, CefString(), 0, retval, exception));
     EXPECT_TRUE(retval.get());
     EXPECT_TRUE(retval->IsPromise());
     EXPECT_FALSE(exception.get());
@@ -2632,11 +2619,10 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    std::stringstream test;
-    test << "window." << kPromiseName << ".then(" << kResolveName << ").catch("
-         << kRejectName << ")";
+    std::string test = std::format("window.{}.then({}).catch({})", kPromiseName,
+                                   kResolveName, kRejectName);
 
-    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
+    EXPECT_TRUE(context->Eval(test, CefString(), 0, retval, exception));
     EXPECT_TRUE(retval.get());
     EXPECT_TRUE(retval->IsPromise());
     EXPECT_FALSE(exception.get());
@@ -3092,19 +3078,18 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       EXPECT_TRUE(test_context_->IsSame(context));
       EXPECT_STREQ("Uncaught ReferenceError: asd is not defined",
                    exception->GetMessage().ToString().c_str());
-      std::ostringstream stackFormatted;
+      std::string stackFormatted;
       for (int i = 0; i < stackTrace->GetFrameCount(); ++i) {
-        stackFormatted << "at "
-                       << stackTrace->GetFrame(i)->GetFunctionName().ToString()
-                       << "() in "
-                       << stackTrace->GetFrame(i)->GetScriptName().ToString()
-                       << " on line "
-                       << stackTrace->GetFrame(i)->GetLineNumber() << "\n";
+        stackFormatted +=
+            std::format("at {}() in {} on line {}\n",
+                        stackTrace->GetFrame(i)->GetFunctionName().ToString(),
+                        stackTrace->GetFrame(i)->GetScriptName().ToString(),
+                        stackTrace->GetFrame(i)->GetLineNumber());
       }
       const char* stackFormattedShouldBe =
           "at test2() in https://tests/V8Test.OnUncaughtException on line 3\n"
           "at test() in https://tests/V8Test.OnUncaughtException on line 2\n";
-      EXPECT_STREQ(stackFormattedShouldBe, stackFormatted.str().c_str());
+      EXPECT_STREQ(stackFormattedShouldBe, stackFormatted.c_str());
       DestroyTest();
     }
   }
