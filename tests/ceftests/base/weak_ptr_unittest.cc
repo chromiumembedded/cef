@@ -750,6 +750,11 @@ TEST(WeakPtrTest, ConstUpCast) {
       !std::is_constructible_v<WeakPtr<Target>, WeakPtr<const Target>>);
 }
 
+// Note: This test uses EXPECT_EQ to compare const char* pointers, which relies
+// on string pooling to merge identical string literals to the same address.
+// On Windows/MSVC, this requires the /GF compiler flag (enabled in CEF's
+// cmake/cef_variables.cmake.in and bazel/win/variables.bzl). GCC and Clang
+// enable string merging by default via -fmerge-constants.
 TEST(WeakPtrTest, ConstGetWeakPtr) {
   struct TestTarget {
     const char* Method() const { return "const method"; }

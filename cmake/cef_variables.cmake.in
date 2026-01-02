@@ -403,6 +403,7 @@ if(OS_WINDOWS)
   list(APPEND CEF_COMPILER_FLAGS
     /MP           # Multiprocess compilation
     /Gy           # Enable function-level linking
+    /GF           # Enable string pooling
     /GR-          # Disable run-time type information
     /W4           # Warning level 4
     /WX           # Treat warnings as errors
@@ -424,7 +425,6 @@ if(OS_WINDOWS)
   list(APPEND CEF_COMPILER_FLAGS_RELEASE
     /O2           # Optimize for maximum speed
     /Ob2          # Inline any suitable function
-    /GF           # Enable string pooling
     )
   list(APPEND CEF_CXX_COMPILER_FLAGS
     /std:c++20    # Use the C++20 language standard

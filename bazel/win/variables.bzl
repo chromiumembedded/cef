@@ -155,6 +155,7 @@ COMMON_LINKOPTS = [
 #
 
 COMMON_COPTS = [
+    "/GF",  # Enable string pooling
 ]
 
 COMMON_COPTS_DEBUG = [
