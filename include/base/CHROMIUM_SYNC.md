@@ -95,3 +95,64 @@ of Chromium's SequenceChecker:
 - `BASE_EXPORT` - Not needed for header-only standalone use
 - `SafeRef` - Chromium-specific safety wrapper
 - `FunctionRef` - Not ported to CEF standalone
+
+## Compiler-Specific Fixes (see #3611)
+
+These fixes address issues when building with GCC/MSVC in standalone mode.
+Chromium's clang-based build doesn't encounter these issues.
+
+### MSVC C4003 warning for empty macro arguments
+- File: `internal/cef_bind_internal.h`
+- Suppress MSVC warning C4003 "not enough arguments for function-like macro
+  invocation" around macro calls with empty arguments. This is valid C++11+
+  syntax but MSVC warns about it, causing build failures when warnings are
+  treated as errors.
+
+### GCC 10 internal compiler error with nested requires
+- File: `internal/cef_bind_internal.h`
+- Extract the nested `requires requires` expression in `HasOverloadedCallOp`
+  into a separate helper concept `IsInvocableWithBoundArgs`. GCC 10 has
+  incomplete C++20 support and crashes with an ICE in `tsubst_pack_expansion`
+  when processing nested requires expressions.
+
+### GCC protected member access in friend template functions
+- File: `cef_scoped_refptr.h`
+- The friend template comparison operators (`operator==` and `operator<=>`)
+  were accessing `rhs.ptr_` directly. When comparing `scoped_refptr<T>` with
+  `scoped_refptr<U>` (different types), the friend function is only a friend
+  of `scoped_refptr<T>`, not `scoped_refptr<U>`. GCC correctly rejects this
+  as `ptr_` is protected. Use `get()` for the rhs operand.
+
+### MSVC eager template instantiation in if constexpr
+- File: `tests/ceftests/base/test_bind.h`
+- MSVC eagerly instantiates nested class templates during outer class
+  instantiation, even when they're in a not-taken `if constexpr` branch.
+  Replace the nested struct pattern with simple `constexpr bool` members
+  and move the `static_assert` directly into the else branch.
+
+## Unit Tests
+
+Unit tests for the base headers are in `cef/tests/ceftests/base/`. These are ported
+from Chromium's corresponding unit tests. Each test file contains a Chromium commit
+hash in its header indicating the version it was ported from.
+
+### Test File Mapping
+
+| CEF Test File | Chromium Source |
+|---------------|-----------------|
+| `tests/ceftests/base/callback_helpers_unittest.cc` | `base/functional/callback_helpers_unittest.cc` |
+| `tests/ceftests/base/callback_unittest.cc` | `base/functional/callback_unittest.cc` |
+| `tests/ceftests/base/bind_unittest.cc` | `base/functional/bind_unittest.cc` |
+| `tests/ceftests/base/ref_counted_unittest.cc` | `base/memory/ref_counted_unittest.cc` |
+| `tests/ceftests/base/weak_ptr_unittest.cc` | `base/memory/weak_ptr_unittest.cc` |
+| `tests/ceftests/base/lock_unittest.cc` | `base/synchronization/lock_unittest.cc` |
+| `tests/ceftests/base/atomic_flag_unittest.cc` | `base/synchronization/atomic_flag_unittest.cc` |
+| `tests/ceftests/base/is_complete_unittest.cc` | `base/types/is_complete_unittest.cc` |
+| `tests/ceftests/base/is_instantiation_unittest.cc` | `base/types/is_instantiation_unittest.cc` |
+| `tests/ceftests/base/to_address_unittest.cc` | `base/types/to_address_unittest.cc` |
+
+### Test Helper Files
+
+| CEF File | Chromium Source |
+|----------|-----------------|
+| `tests/ceftests/base/test_bind.h` | `base/test/bind.h` |
