@@ -38,19 +38,11 @@ struct BindLambdaForTestingHelper<Lambda, R(Args...)> {
  private:
   using F = std::decay_t<Lambda>;
 
-  // For context on this "templated struct with a lambda that asserts" pattern,
-  // see comments in `Invoker<>`.
-  template <bool v = std::is_rvalue_reference_v<Lambda&&> &&
-                     !std::is_const_v<std::remove_reference_t<Lambda>>>
-  struct IsNonConstRvalueRef {
-    static constexpr bool value = [] {
-      static_assert(
-          v,
-          "BindLambdaForTesting() requires non-const rvalue for mutable lambda "
-          "binding, i.e. base::BindLambdaForTesting(std::move(lambda)).");
-      return v;
-    }();
-  };
+  static constexpr bool kIsConstCallOperator =
+      kHasConstCallOperator<decltype(&F::operator()), R, F, Args...>;
+  static constexpr bool kIsNonConstRvalueRef =
+      std::is_rvalue_reference_v<Lambda&&> &&
+      !std::is_const_v<std::remove_reference_t<Lambda>>;
 
   static R Run(const F& f, Args... args) {
     return f(std::forward<Args>(args)...);
@@ -62,16 +54,19 @@ struct BindLambdaForTestingHelper<Lambda, R(Args...)> {
 
  public:
   static auto BindLambdaForTesting(Lambda&& lambda) {
-    if constexpr (kHasConstCallOperator<decltype(&F::operator()), R, F,
-                                        Args...>) {
+    if constexpr (kIsConstCallOperator) {
       // If blink::BindRepeating is available, and a callback argument is in
       // the blink namespace, then this call is ambiguous without the full
       // namespace path.
       return ::base::BindRepeating(&Run, std::forward<Lambda>(lambda));
-    } else if constexpr (IsNonConstRvalueRef<>::value) {
+    } else {
       // Since a mutable lambda potentially can invalidate its state after being
       // run once, this method returns a `OnceCallback` instead of a
       // `RepeatingCallback`.
+      static_assert(
+          kIsNonConstRvalueRef,
+          "BindLambdaForTesting() requires non-const rvalue for mutable lambda "
+          "binding, i.e. base::BindLambdaForTesting(std::move(lambda)).");
       return BindOnce(&RunOnce, std::move(lambda));
     }
   }
