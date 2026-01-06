@@ -130,6 +130,17 @@ Chromium's clang-based build doesn't encounter these issues.
   Replace the nested struct pattern with simple `constexpr bool` members
   and move the `static_assert` directly into the else branch.
 
+### GCC 10 std::pointer_traits static_assert in requires clause
+- File: `cef_to_address.h`
+- On GCC 10's libstdc++, instantiating `std::pointer_traits<P>` for
+  non-pointer-like types (e.g., `int`, enum classes, structs without
+  `operator->()`) triggers a `static_assert` that cannot be caught by
+  SFINAE or `requires` clauses. The Chromium implementation checks
+  `std::pointer_traits<P>::to_address(p)` in a `requires` clause, which
+  causes the static_assert to fire before substitution failure can occur.
+  Fix by checking for `P::element_type` or `p.operator->()` instead, and
+  using `if constexpr` in the function body to dispatch appropriately.
+
 ## Unit Tests
 
 Unit tests for the base headers are in `cef/tests/ceftests/base/`. These are ported

@@ -63,11 +63,22 @@ constexpr T* to_address(T* p) noexcept {
 
 /// These constraints cover the cases where `std::to_address()`'s fancy pointer
 /// overload is well-specified.
+///
+/// Note: We check for P::element_type or operator->() instead of directly
+/// checking std::pointer_traits<P>::to_address(p) because on GCC 10's
+/// libstdc++, instantiating std::pointer_traits<P> for non-pointer-like
+/// types triggers a static_assert that cannot be caught by SFINAE/requires.
 template <typename P>
-  requires requires(const P& p) { std::pointer_traits<P>::to_address(p); } ||
+  requires requires { typename P::element_type; } ||
            requires(const P& p) { p.operator->(); }
 constexpr auto to_address(const P& p) noexcept {
-  return std::to_address(p);
+  if constexpr (requires { typename P::element_type; }) {
+    // Type has element_type, so std::pointer_traits<P> is well-formed.
+    return std::to_address(p);
+  } else {
+    // Type only has operator->(), recurse on its return type.
+    return base::to_address(p.operator->());
+  }
 }
 
 }  // namespace base
