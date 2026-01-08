@@ -25,10 +25,10 @@ index 3deb4b529e36ea9e28bc67de49edeeb23b679079..f5415498bbfb078d25ca86df18fda2a1
    int window_diff_height = work_area.bottom() - window_bounds.height();
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 5924b040292f3542ae3dd5bc60561024423d02c3..8c3f6e091d3370d15c2074df675c809951871a1a 100644
+index 2a4b9b2a535f2b8d563e57b8a4325086ffe32ad3..78d934835cbd3bdf4e25e7ff05ef843cedf1c0d0 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -6711,6 +6711,7 @@ WebView* RenderFrameImpl::CreateNewWindow(
+@@ -6764,6 +6764,7 @@ WebView* RenderFrameImpl::CreateNewWindow(
          pip_options->disallow_return_to_opener;
      pip_mojom_opts->prefer_initial_window_placement =
          pip_options->prefer_initial_window_placement;
