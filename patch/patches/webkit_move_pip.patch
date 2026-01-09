@@ -25,19 +25,20 @@ index 3deb4b529e36ea9e28bc67de49edeeb23b679079..f5415498bbfb078d25ca86df18fda2a1
    int window_diff_height = work_area.bottom() - window_bounds.height();
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 2a4b9b2a535f2b8d563e57b8a4325086ffe32ad3..78d934835cbd3bdf4e25e7ff05ef843cedf1c0d0 100644
+index 2a4b9b2a535f2b8d563e57b8a4325086ffe32ad3..123e93bfba8bc17650ccee8a552f36a586c8eb49 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -6764,6 +6764,7 @@ WebView* RenderFrameImpl::CreateNewWindow(
+@@ -6764,6 +6764,8 @@ WebView* RenderFrameImpl::CreateNewWindow(
          pip_options->disallow_return_to_opener;
      pip_mojom_opts->prefer_initial_window_placement =
          pip_options->prefer_initial_window_placement;
 +    pip_mojom_opts->initial_position = pip_options->initial_position;
++    pip_mojom_opts->resizable = pip_options->resizable;
      params->pip_options = std::move(pip_mojom_opts);
    }
  
 diff --git third_party/blink/public/mojom/picture_in_picture_window_options/picture_in_picture_window_options.mojom third_party/blink/public/mojom/picture_in_picture_window_options/picture_in_picture_window_options.mojom
-index 0a10dd95413ad7fc333eec91c866d73339dd8c11..da8bfd878d4fc1bddf287d02adceaee26893e125 100644
+index 0a10dd95413ad7fc333eec91c866d73339dd8c11..72495326c304f46d91de3e7f911a2e2a2467e8e1 100644
 --- third_party/blink/public/mojom/picture_in_picture_window_options/picture_in_picture_window_options.mojom
 +++ third_party/blink/public/mojom/picture_in_picture_window_options/picture_in_picture_window_options.mojom
 @@ -4,6 +4,8 @@
@@ -49,16 +50,17 @@ index 0a10dd95413ad7fc333eec91c866d73339dd8c11..da8bfd878d4fc1bddf287d02adceaee2
  struct PictureInPictureWindowOptions {
    // The requested width for the picture-in-picture window to be initially sized
    // to.
-@@ -21,4 +23,7 @@ struct PictureInPictureWindowOptions {
+@@ -21,4 +23,8 @@ struct PictureInPictureWindowOptions {
    // When true, don't try to re-use the previous window bounds from the
    // bounds cache.  Instead, just use the default position and size.
    bool prefer_initial_window_placement;
 +
 +  // CEF extension
 +  gfx.mojom.Point? initial_position;
++  bool resizable = true;
  };
 diff --git third_party/blink/public/web/web_picture_in_picture_window_options.h third_party/blink/public/web/web_picture_in_picture_window_options.h
-index f3a5b90b3bb119558da1d9c56a73675c9f32cefd..f61d59723e808e074c3fb02d0515d54f702b13bd 100644
+index f3a5b90b3bb119558da1d9c56a73675c9f32cefd..53c5c690bcf2b6af49d44945e93df58bf3b9f5b4 100644
 --- third_party/blink/public/web/web_picture_in_picture_window_options.h
 +++ third_party/blink/public/web/web_picture_in_picture_window_options.h
 @@ -6,6 +6,9 @@
@@ -71,12 +73,13 @@ index f3a5b90b3bb119558da1d9c56a73675c9f32cefd..f61d59723e808e074c3fb02d0515d54f
  
  namespace blink {
  
-@@ -14,6 +17,8 @@ struct WebPictureInPictureWindowOptions {
+@@ -14,6 +17,9 @@ struct WebPictureInPictureWindowOptions {
    uint64_t height = 0;
    bool disallow_return_to_opener = false;
    bool prefer_initial_window_placement = false;
 +  // CEF extension
 +  std::optional<gfx::Point> initial_position;
++  bool resizable = true;
  };
  
  }  // namespace blink
@@ -252,10 +255,10 @@ index 16a6e112e835ee681b3d48f9a06075411859a9a0..de2b2fde092a346e29505798f24d1086
    net::StorageAccessApiStatus storage_access_api_status_ =
        net::StorageAccessApiStatus::kNone;
 diff --git third_party/blink/renderer/modules/document_picture_in_picture/document_picture_in_picture_options.idl third_party/blink/renderer/modules/document_picture_in_picture/document_picture_in_picture_options.idl
-index de4f0294a2f7ea20517c71cad3d17fb0f1975211..0dece67fa25c58985f736315c43300775874db20 100644
+index de4f0294a2f7ea20517c71cad3d17fb0f1975211..8fa3befaf1d90d20ffe819ed09667511be1b8cf9 100644
 --- third_party/blink/renderer/modules/document_picture_in_picture/document_picture_in_picture_options.idl
 +++ third_party/blink/renderer/modules/document_picture_in_picture/document_picture_in_picture_options.idl
-@@ -4,9 +4,19 @@
+@@ -4,9 +4,20 @@
  
  // https://wicg.github.io/document-picture-in-picture/#dictdef-documentpictureinpictureoptions
  
@@ -266,6 +269,7 @@ index de4f0294a2f7ea20517c71cad3d17fb0f1975211..0dece67fa25c58985f736315c4330077
 +
 +dictionary DocumentPictureInPictureCefOptions {
 +  DocumentPictureInPicturePosition position;
++  boolean resizable = true;
 +};
 +
  dictionary DocumentPictureInPictureOptions {
@@ -276,7 +280,7 @@ index de4f0294a2f7ea20517c71cad3d17fb0f1975211..0dece67fa25c58985f736315c4330077
 +  [RuntimeEnabled=DocumentPictureInPictureCefOptions] DocumentPictureInPictureCefOptions cefOptions;
  };
 diff --git third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
-index f92ba860d3d3d52e84f1c5692a54eb3eeeff2699..48201fc6e4d3ec3eb2242fc1cb9f3d4eb974b6f2 100644
+index f92ba860d3d3d52e84f1c5692a54eb3eeeff2699..a1c863bb7c92fff4fd4a8c6beeb7fb165689aaa9 100644
 --- third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
 +++ third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
 @@ -15,16 +15,20 @@
@@ -322,13 +326,19 @@ index f92ba860d3d3d52e84f1c5692a54eb3eeeff2699..48201fc6e4d3ec3eb2242fc1cb9f3d4e
      resolver->RejectWithDOMException(DOMExceptionCode::kNotAllowedError,
                                       "Document PiP requires user activation");
      return;
-@@ -395,6 +405,11 @@ void PictureInPictureControllerImpl::CreateDocumentPictureInPictureWindow(
+@@ -395,6 +405,17 @@ void PictureInPictureControllerImpl::CreateDocumentPictureInPictureWindow(
    web_options.prefer_initial_window_placement =
        options->preferInitialWindowPlacement();
  
-+  if (options->hasCefOptions() && options->cefOptions()->hasPosition()) {
-+    const auto* position = options->cefOptions()->position();
-+    web_options.initial_position = gfx::Point(position->x(), position->y());
++  if (options->hasCefOptions()) {
++    const auto* cef_options = options->cefOptions();
++    if (cef_options->hasPosition()) {
++      const auto* position = cef_options->position();
++      web_options.initial_position = gfx::Point(position->x(), position->y());
++    }
++    if (cef_options->hasResizable()) {
++      web_options.resizable = cef_options->resizable();
++    }
 +  }
 +
    // If either width or height is specified, then both must be specified.

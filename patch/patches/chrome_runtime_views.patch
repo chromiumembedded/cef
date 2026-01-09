@@ -201,7 +201,7 @@ index 673a1bf2acb2467aa3ac5746c4d6193fba8487f2..121986d07d325c7d628c431733a104a8
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index d0cac58da0356babfb5adc80032675d790e779ec..d297a63dde989c7ef42671c9291b933cf5f42396 100644
+index d0cac58da0356babfb5adc80032675d790e779ec..3b22a9debe2a8aa77f4d31b07913fd532d5a62be 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -844,13 +844,23 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
@@ -229,6 +229,15 @@ index d0cac58da0356babfb5adc80032675d790e779ec..d297a63dde989c7ef42671c9291b933c
    SetShowIcon(::ShouldShowWindowIcon(
        browser_.get(), AppUsesWindowControlsOverlay(), AppUsesTabbed()));
  
+@@ -865,7 +875,7 @@ BrowserView::BrowserView(Browser* browser)
+     SetCanMinimize(false);
+     SetCanMaximize(false);
+     SetCanFullscreen(false);
+-    SetCanResize(true);
++    SetCanResize(browser_->create_params().can_resize);
+   } else {
+     SetCanResize(browser_->create_params().can_resize);
+     SetCanMaximize(browser_->create_params().can_maximize);
 @@ -920,8 +930,15 @@ BrowserView::BrowserView(Browser* browser)
    contents_container->SetLayoutManager(std::make_unique<ContentsLayoutManager>(
        contents_view, lens_overlay_view_));

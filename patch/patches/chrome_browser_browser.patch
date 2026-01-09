@@ -714,7 +714,7 @@ index 8382dc841e8ed262da7fe60905631d0db4c4c7fc..cf5ab70fc582f303f275b6aff31a3eb6
               : nullptr;
  }
 diff --git chrome/browser/ui/browser_navigator.cc chrome/browser/ui/browser_navigator.cc
-index 090c52c00dcf445b638e0041f0c355fc17d79a57..0f3cb5328701c69cbee8179615c437938df375e5 100644
+index 090c52c00dcf445b638e0041f0c355fc17d79a57..af757a8a759533cea523c3eb44e876964dab6021 100644
 --- chrome/browser/ui/browser_navigator.cc
 +++ chrome/browser/ui/browser_navigator.cc
 @@ -32,6 +32,7 @@
@@ -725,10 +725,12 @@ index 090c52c00dcf445b638e0041f0c355fc17d79a57..0f3cb5328701c69cbee8179615c43793
  #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
  #include "chrome/browser/ui/incognito_allowed_url.h"
  #include "chrome/browser/ui/location_bar/location_bar.h"
-@@ -265,6 +266,10 @@ std::tuple<BrowserWindowInterface*, int> GetBrowserAndTabForDisposition(
+@@ -265,6 +266,12 @@ std::tuple<BrowserWindowInterface*, int> GetBrowserAndTabForDisposition(
  
        browser_params.pip_options = pip_options;
  
++      browser_params.can_resize = pip_options->resizable;
++
 +#if BUILDFLAG(ENABLE_CEF)
 +      browser_params.opener = params.browser;
 +#endif
@@ -736,7 +738,7 @@ index 090c52c00dcf445b638e0041f0c355fc17d79a57..0f3cb5328701c69cbee8179615c43793
        const ui::BaseWindow* const browser_window = params.browser->GetWindow();
        const gfx::NativeWindow native_window =
            browser_window ? browser_window->GetNativeWindow()
-@@ -503,7 +508,13 @@ std::unique_ptr<content::WebContents> CreateTargetContents(
+@@ -503,7 +510,13 @@ std::unique_ptr<content::WebContents> CreateTargetContents(
    }
  #endif
  
@@ -751,7 +753,7 @@ index 090c52c00dcf445b638e0041f0c355fc17d79a57..0f3cb5328701c69cbee8179615c43793
  }
  
  }  // namespace
-@@ -837,6 +848,11 @@ base::WeakPtr<content::NavigationHandle> Navigate(NavigateParams* params) {
+@@ -837,6 +850,11 @@ base::WeakPtr<content::NavigationHandle> Navigate(NavigateParams* params) {
      // navigation happens in a different tab to the link click.
      apps::SetLinkCapturingSourceDisposition(tab_to_insert->GetContents(),
                                              params->disposition);

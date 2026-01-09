@@ -94,6 +94,9 @@
   <div class="control-panel">
     <button id="togglePipBtn" onclick="togglePip()">Open PiP</button>
     <button id="delayedPipBtn" onclick="openPipDelayed()">Open PiP Delayed</button>
+    <label for="resizable" style="margin-left: 10px;">
+      <input type="checkbox" id="resizable" checked> Resizable
+    </label>
     <div class="position-controls">
       <div class="input-group">
         <label for="posX">X:</label>
@@ -120,21 +123,19 @@
     }
 
     function getRequestOptions() {
-      const options = {
-        width: 400,
-        height: 300
-      };
-
-      // CEF extension: add position if x and y are specified
       const posX = document.getElementById('posX').value;
       const posY = document.getElementById('posY').value;
+
+      const options = {
+        width: 400,
+        height: 300,
+        cefOptions: {
+          resizable: document.getElementById('resizable').checked
+        }
+      };
+
       if (posX !== '' && posY !== '') {
-        options.cefOptions = {
-          position: {
-            x: parseInt(posX, 10),
-            y: parseInt(posY, 10)
-          }
-        };
+        options.cefOptions.position = { x: parseInt(posX, 10), y: parseInt(posY, 10) };
       }
 
       return options;
