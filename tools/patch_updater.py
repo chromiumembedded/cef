@@ -320,9 +320,9 @@ for patch in patches:
         msg('Converting to Posix line endings for %s' % patch_file)
         result['out'] = result['out'].replace("\r\n", "\n")
 
-      f = open(patch_file, 'w', encoding='utf-8')
-      f.write(result['out'])
-      f.close()
+      # Use newline='\n' to prevent Python from converting \n to \r\n on Windows
+      with open(patch_file, 'w', encoding='utf-8', newline='\n') as f:
+        f.write(result['out'])
   else:
     raise Exception('Patch file does not exist: %s' % patch_file)
 
