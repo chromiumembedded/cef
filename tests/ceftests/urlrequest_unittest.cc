@@ -3,9 +3,9 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
+#include <format>
 #include <map>
 #include <memory>
-#include <sstream>
 #include <vector>
 
 #include "include/base/cef_callback.h"
@@ -345,9 +345,7 @@ std::string GetRequestScheme(bool server_backend) {
 std::string GetRequestHost(bool server_backend, bool with_port) {
   if (server_backend) {
     if (with_port) {
-      std::stringstream ss;
-      ss << kRequestAddressServer << ":" << kRequestPortServer;
-      return ss.str();
+      return std::format("{}:{}", kRequestAddressServer, kRequestPortServer);
     } else {
       return kRequestAddressServer;
     }
@@ -542,9 +540,9 @@ void GetNormalResponse(const RequestRunSettings* settings,
   settings->response->GetHeaderMap(headerMap);
 
   if (settings->expect_save_cookie) {
-    std::stringstream ss;
-    ss << kRequestSaveCookieName << "=" << "save-cookie-value";
-    headerMap.insert(std::make_pair("Set-Cookie", ss.str()));
+    headerMap.insert(std::make_pair(
+        "Set-Cookie",
+        std::format("{}=save-cookie-value", kRequestSaveCookieName)));
   }
 
   response->SetHeaderMap(headerMap);

@@ -2,11 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <format>
 #include <list>
 #include <map>
 #include <memory>
 #include <set>
-#include <sstream>
 
 #include "include/base/cef_callback.h"
 #include "include/base/cef_ref_counted.h"
@@ -27,10 +27,8 @@ const uint16_t kTestServerPort = 8099;
 const int kTestTimeout = 5000;
 
 std::string GetTestServerOrigin(bool is_websocket) {
-  std::stringstream ss;
-  ss << (is_websocket ? "ws://" : "http://") << kTestServerAddress << ":"
-     << kTestServerPort;
-  return ss.str();
+  return std::format("{}://{}:{}", is_websocket ? "ws" : "http",
+                     kTestServerAddress, kTestServerPort);
 }
 
 // Handles the test server. Used for both HTTP and WebSocket tests.
@@ -1334,12 +1332,8 @@ class EchoWebSocketTestHandler : public WebSocketTestHandler {
         in_parallel_(in_parallel) {}
 
   std::string GetClientHtml() override {
-    std::stringstream ss;
-    ss << connection_ct_;
-    std::string cct_str = ss.str();
-    ss.str("");
-    ss << message_ct_;
-    std::string mct_str = ss.str();
+    std::string cct_str = std::to_string(connection_ct_);
+    std::string mct_str = std::to_string(message_ct_);
 
     // clang-format off
     return

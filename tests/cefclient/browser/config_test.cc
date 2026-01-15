@@ -5,7 +5,6 @@
 #include "tests/cefclient/browser/config_test.h"
 
 #include <map>
-#include <sstream>
 #include <string>
 #include <vector>
 

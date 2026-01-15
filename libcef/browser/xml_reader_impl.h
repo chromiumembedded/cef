@@ -8,7 +8,7 @@
 
 #include <libxml/xmlreader.h>
 
-#include <sstream>
+#include <string>
 
 #include "base/threading/platform_thread.h"
 #include "cef/include/cef_xml_reader.h"
@@ -67,7 +67,7 @@ class CefXmlReaderImpl : public CefXmlReader {
   base::PlatformThreadId supported_thread_id_;
   CefRefPtr<CefStreamReader> stream_;
   xmlTextReaderPtr reader_ = nullptr;
-  std::stringstream error_buf_;
+  std::string error_buf_;
 
   IMPLEMENT_REFCOUNTING(CefXmlReaderImpl);
 };

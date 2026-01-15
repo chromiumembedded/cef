@@ -5,9 +5,10 @@
 #include "tests/cefclient/browser/test_runner.h"
 
 #include <algorithm>
+#include <format>
+#include <iterator>
 #include <map>
 #include <set>
-#include <sstream>
 #include <string>
 
 #include "include/base/cef_callback.h"
@@ -66,10 +67,10 @@ void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
     void Visit(const CefString& string) override {
       std::string source = AsciiStrReplace(string, "<", "&lt;");
       source = AsciiStrReplace(source, ">", "&gt;");
-      std::stringstream ss;
-      ss << "<html><body bgcolor=\"white\">Source:<pre>" << source
-         << "</pre></body></html>";
-      LoadStringResourcePage(browser_, kTestGetSourcePage, ss.str());
+      auto html = std::format(
+          R"html(<html><body bgcolor="white">Source:<pre>{}</pre></body></html>)html",
+          source);
+      LoadStringResourcePage(browser_, kTestGetSourcePage, html);
     }
 
    private:
@@ -87,10 +88,10 @@ void RunGetTextTest(CefRefPtr<CefBrowser> browser) {
     void Visit(const CefString& string) override {
       std::string text = AsciiStrReplace(string, "<", "&lt;");
       text = AsciiStrReplace(text, ">", "&gt;");
-      std::stringstream ss;
-      ss << "<html><body bgcolor=\"white\">Text:<pre>" << text
-         << "</pre></body></html>";
-      LoadStringResourcePage(browser_, kTestGetTextPage, ss.str());
+      auto html = std::format(
+          R"html(<html><body bgcolor="white">Text:<pre>{}</pre></body></html>)html",
+          text);
+      LoadStringResourcePage(browser_, kTestGetTextPage, html);
     }
 
    private:
@@ -255,11 +256,8 @@ void PromptFPS(CefRefPtr<CefBrowser> browser) {
     return;
   }
 
-  // Format the default value string.
-  std::stringstream ss;
-  ss << browser->GetHost()->GetWindowlessFrameRate();
-
-  Prompt(browser, kPromptFPS, "Enter FPS", ss.str());
+  Prompt(browser, kPromptFPS, "Enter FPS",
+         std::to_string(browser->GetHost()->GetWindowlessFrameRate()));
 }
 
 void PromptDSF(CefRefPtr<CefBrowser> browser) {
@@ -269,12 +267,9 @@ void PromptDSF(CefRefPtr<CefBrowser> browser) {
     return;
   }
 
-  // Format the default value string.
-  std::stringstream ss;
-  ss << *RootWindow::GetForBrowser(browser->GetIdentifier())
-             ->GetDeviceScaleFactor();
-
-  Prompt(browser, kPromptDSF, "Enter Device Scale Factor", ss.str());
+  Prompt(browser, kPromptDSF, "Enter Device Scale Factor",
+         std::to_string(*RootWindow::GetForBrowser(browser->GetIdentifier())
+                             ->GetDeviceScaleFactor()));
 }
 
 void BeginTracing() {
@@ -606,19 +601,19 @@ void RunTest(CefRefPtr<CefBrowser> browser, int id) {
 }
 
 std::string DumpRequestContents(CefRefPtr<CefRequest> request) {
-  std::stringstream ss;
+  std::string result;
+  result.reserve(512);
 
-  ss << "URL: " << std::string(request->GetURL());
-  ss << "\nMethod: " << std::string(request->GetMethod());
+  std::format_to(std::back_inserter(result), "URL: {}\nMethod: {}",
+                 request->GetURL().ToString(), request->GetMethod().ToString());
 
   CefRequest::HeaderMap headerMap;
   request->GetHeaderMap(headerMap);
   if (headerMap.size() > 0) {
-    ss << "\nHeaders:";
-    CefRequest::HeaderMap::const_iterator it = headerMap.begin();
-    for (; it != headerMap.end(); ++it) {
-      ss << "\n\t" << std::string((*it).first) << ": "
-         << std::string((*it).second);
+    result += "\nHeaders:";
+    for (const auto& header : headerMap) {
+      std::format_to(std::back_inserter(result), "\n\t{}: {}",
+                     header.first.ToString(), header.second.ToString());
     }
   }
 
@@ -627,32 +622,30 @@ std::string DumpRequestContents(CefRefPtr<CefRequest> request) {
     CefPostData::ElementVector elements;
     postData->GetElements(elements);
     if (elements.size() > 0) {
-      ss << "\nPost Data:";
-      CefRefPtr<CefPostDataElement> element;
-      CefPostData::ElementVector::const_iterator it = elements.begin();
-      for (; it != elements.end(); ++it) {
-        element = (*it);
+      result += "\nPost Data:";
+      for (const auto& element : elements) {
         if (element->GetType() == PDE_TYPE_BYTES) {
           // the element is composed of bytes
-          ss << "\n\tBytes: ";
+          result += "\n\tBytes: ";
           if (element->GetBytesCount() == 0) {
-            ss << "(empty)";
+            result += "(empty)";
           } else {
             // retrieve the data.
             size_t size = element->GetBytesCount();
             char* bytes = new char[size];
             element->GetBytes(size, bytes);
-            ss << std::string(bytes, size);
+            result += std::string(bytes, size);
             delete[] bytes;
           }
         } else if (element->GetType() == PDE_TYPE_FILE) {
-          ss << "\n\tFile: " << std::string(element->GetFile());
+          std::format_to(std::back_inserter(result), "\n\tFile: {}",
+                         element->GetFile().ToString());
         }
       }
     }
   }
 
-  return ss.str();
+  return result;
 }
 
 CefRefPtr<CefStreamReader> GetDumpResponse(

@@ -26,9 +26,7 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
   std::string GetMainHTML() override {
     std::string html;
 
-    std::stringstream ss;
-    ss << kSingleQueryErrorCode;
-    const std::string& errorCodeStr = ss.str();
+    const std::string errorCodeStr = std::to_string(kSingleQueryErrorCode);
 
     html =
         "<html><body><script>\n"
@@ -278,12 +276,9 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
   std::string GetMainHTML() override {
     std::string html;
 
-    std::stringstream ss;
-    ss << kSinglePersistentQueryResponseCount;
-    const std::string& responseCountStr = ss.str();
-    ss.str("");
-    ss << kSingleQueryErrorCode;
-    const std::string& errorCodeStr = ss.str();
+    const std::string responseCountStr =
+        std::to_string(kSinglePersistentQueryResponseCount);
+    const std::string errorCodeStr = std::to_string(kSingleQueryErrorCode);
 
     html =
         "<html><body><script>\n"

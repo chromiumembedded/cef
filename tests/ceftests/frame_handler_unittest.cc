@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
+#include <format>
 #include <limits>
 #include <map>
 #include <memory>
 #include <queue>
 #include <set>
-#include <sstream>
 #include <string>
 
 #include "include/base/cef_callback.h"
@@ -104,10 +104,8 @@ struct FrameStatus {
     const int expected_ct = is_temporary_ ? 0 : expected_query_ct_;
 #if VERBOSE_DEBUGGING
     if (msg) {
-      std::stringstream ss;
-      ss << ident_str_ << "(expected=" << expected_ct
-         << " delivered=" << delivered_query_ct_ << ")";
-      *msg += ss.str();
+      *msg += std::format("{}(expected={} delivered={})", ident_str_,
+                          expected_ct, delivered_query_ct_);
     }
 #endif
     return delivered_query_ct_ == expected_ct;
@@ -124,16 +122,15 @@ struct FrameStatus {
   bool IsLoaded(std::string* msg = nullptr) const {
 #if VERBOSE_DEBUGGING
     if (msg) {
-      std::stringstream ss;
-      ss << ident_str_ << "(";
+      *msg += ident_str_ + "(";
       for (int i = 0; i <= LOAD_END; ++i) {
-        ss << GetCallbackName(i) << "=" << got_callback_[i];
+        *msg += std::format("{}={}", GetCallbackName(i),
+                            static_cast<bool>(got_callback_[i]));
         if (i < LOAD_END) {
-          ss << " ";
+          *msg += " ";
         }
       }
-      ss << ")";
-      *msg += ss.str();
+      *msg += ")";
     }
 #endif
     return got_callback_[LOAD_END];
@@ -165,11 +162,10 @@ struct FrameStatus {
   std::string GetDebugString(bool dump_state = false) const {
     std::string result = debug_info_ + ident_str_;
     if (dump_state) {
-      std::stringstream ss;
-      ss << "\nis_main=" << is_main_ << "\nis_first_main=" << is_first_main_
-         << "\nis_last_main=" << is_last_main_
-         << "\nis_temporary=" << is_temporary_;
-      result += ss.str();
+      result += std::format(
+          "\nis_main={}\nis_first_main={}\nis_last_main={}"
+          "\nis_temporary={}",
+          is_main_, is_first_main_, is_last_main_, is_temporary_);
     }
     return result;
   }
@@ -913,14 +909,13 @@ class NavigateOrderMainTestHandler : public OrderMainTestHandler {
   }
 
   std::string GetURLForNav(int nav, const std::string& suffix = "") const {
-    std::stringstream ss;
     if (cross_origin_) {
-      ss << kOrderMainUrlPrefix << nav << "/cross-origin" << suffix << ".html";
+      return std::format("{}{}/cross-origin{}.html", kOrderMainUrlPrefix, nav,
+                         suffix);
     } else {
-      ss << kOrderMainUrlPrefix << "/" << nav << "same-origin" << suffix
-         << ".html";
+      return std::format("{}/{}same-origin{}.html", kOrderMainUrlPrefix, nav,
+                         suffix);
     }
-    return ss.str();
   }
 
  private:
@@ -1003,10 +998,8 @@ class FrameStatusMap {
     if (size() != expected_frame_ct_) {
 #if VERBOSE_DEBUGGING
       if (msg) {
-        std::stringstream ss;
-        ss << " SUB COUNT MISMATCH! size=" << size()
-           << " expected=" << expected_frame_ct_;
-        *msg += ss.str();
+        *msg += std::format(" SUB COUNT MISMATCH! size={} expected={}", size(),
+                            expected_frame_ct_);
       }
 #endif
       return false;
@@ -1031,10 +1024,8 @@ class FrameStatusMap {
     if (size() != expected_frame_ct_) {
 #if VERBOSE_DEBUGGING
       if (msg) {
-        std::stringstream ss;
-        ss << " SUB COUNT MISMATCH! size=" << size()
-           << " expected=" << expected_frame_ct_;
-        *msg += ss.str();
+        *msg += std::format(" SUB COUNT MISMATCH! size={} expected={}", size(),
+                            expected_frame_ct_);
       }
 #endif
       return false;
@@ -1497,15 +1488,13 @@ class CrossOriginOrderSubTestHandler : public OrderSubTestHandler {
 
  protected:
   std::string GetSubURL1ForNav(int nav) const override {
-    std::stringstream ss;
-    ss << kOrderMainUrlPrefix << nav << "-sub1/sub-cross-origin.html";
-    return ss.str();
+    return std::format("{}{}-sub1/sub-cross-origin.html", kOrderMainUrlPrefix,
+                       nav);
   }
 
   std::string GetSubURL2ForNav(int nav) const override {
-    std::stringstream ss;
-    ss << kOrderMainUrlPrefix << nav << "-sub2/sub-cross-origin.html";
-    return ss.str();
+    return std::format("{}{}-sub2/sub-cross-origin.html", kOrderMainUrlPrefix,
+                       nav);
   }
 
   void VerifyTestResults() override {

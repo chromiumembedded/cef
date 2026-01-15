@@ -4,8 +4,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <format>
 #include <memory>
-#include <sstream>
 #include <string>
 
 #include "include/base/cef_callback.h"
@@ -2219,33 +2219,26 @@ class SubresourceResponseTest : public RoutingTestHandler {
   }
 
   std::string GetMainResponseBody() const {
-    std::stringstream html;
-    html << "<html><head>";
-
+    std::string content;
     if (subframe_) {
       const std::string& url = GetSubURL();
-      html << "<iframe src=\"" << url << "\"></iframe>";
+      content = std::format(R"(<iframe src="{}"></iframe>)", url);
     } else {
       const std::string& url = GetStartupURL();
-      html << "<script type=\"text/javascript\" src=\"" << url
-           << "\"></script>";
+      content = std::format(
+          R"(<script type="text/javascript" src="{}"></script>)", url);
     }
-
-    html << "</head><body><p>Main</p></body></html>";
-    return html.str();
+    return std::format("<html><head>{}</head><body><p>Main</p></body></html>",
+                       content);
   }
 
   std::string GetSubResponseBody() const {
     EXPECT_TRUE(subframe_);
 
-    std::stringstream html;
-    html << "<html><head>";
-
     const std::string& url = GetStartupURL();
-    html << "<script type=\"text/javascript\" src=\"" << url << "\"></script>";
-
-    html << "</head><body><p>Sub</p></body></html>";
-    return html.str();
+    return std::format(
+        R"(<html><head><script type="text/javascript" src="{}"></script></head><body><p>Sub</p></body></html>)",
+        url);
   }
 
   std::string GetResponseBody() const {
@@ -2776,14 +2769,10 @@ class RedirectResponseTest : public TestHandler {
 
  private:
   std::string GetHtml() const {
-    std::stringstream html;
-    html << "<html><head>";
-
     const std::string& url = resource_test_->start_url();
-    html << "<script type=\"text/javascript\" src=\"" << url << "\"></script>";
-
-    html << "</head><body><p>Main</p></body></html>";
-    return html.str();
+    return std::format(
+        R"(<html><head><script type="text/javascript" src="{}"></script></head><body><p>Main</p></body></html>)",
+        url);
   }
 
   class ResourceTest {

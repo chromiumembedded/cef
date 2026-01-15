@@ -4,8 +4,8 @@
 
 #include "tests/ceftests/test_handler.h"
 
+#include <format>
 #include <memory>
-#include <sstream>
 
 #include "include/base/cef_callback.h"
 #include "include/base/cef_logging.h"
@@ -440,9 +440,7 @@ void TestHandler::OnClosed(int browser_id, NotifyType type) {
 
 std::string TestHandler::MakeDebugStringPrefix() const {
 #if VERBOSE_DEBUGGING
-  std::stringstream ss;
-  ss << "TestHandler [0x" << std::hex << this << "]: ";
-  return ss.str();
+  return std::format("TestHandler [{}]: ", static_cast<const void*>(this));
 #else
   return std::string();
 #endif

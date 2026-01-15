@@ -4,7 +4,8 @@
 
 #include "include/wrapper/cef_xml_object.h"
 
-#include <sstream>
+#include <format>
+#include <string>
 
 #include "include/base/cef_logging.h"
 #include "include/cef_stream.h"
@@ -34,7 +35,7 @@ class CefXmlObjectLoader {
       CefXmlObject::ObjectVector queue;
       int cur_depth, value_depth = -1;
       CefXmlReader::NodeType cur_type;
-      std::stringstream cur_value;
+      std::string cur_value;
       bool last_has_ns = false;
 
       queue.push_back(root_object_);
@@ -50,20 +51,19 @@ class CefXmlObjectLoader {
         if (cur_type == XML_NODE_ELEMENT_START) {
           if (cur_depth == value_depth) {
             // Add to the current value.
-            cur_value << std::string(reader->GetOuterXml());
+            cur_value += std::string(reader->GetOuterXml());
             continue;
           } else if (last_has_ns && reader->GetPrefix().empty()) {
             if (!cur_object->HasChildren()) {
               // Start a new value because the last element has a namespace and
               // this element does not.
               value_depth = cur_depth;
-              cur_value << std::string(reader->GetOuterXml());
+              cur_value += std::string(reader->GetOuterXml());
             } else {
               // Value following a child element is not allowed.
-              std::stringstream ss;
-              ss << "Value following child element, line "
-                 << reader->GetLineNumber();
-              load_error_ = ss.str();
+              load_error_ =
+                  std::format("Value following child element, line {}",
+                              reader->GetLineNumber());
               ret = false;
               break;
             }
@@ -95,8 +95,8 @@ class CefXmlObjectLoader {
             continue;
           } else if (cur_depth < value_depth) {
             // Done with parsing the value portion of the current element.
-            cur_object->SetValue(cur_value.str());
-            cur_value.str("");
+            cur_object->SetValue(cur_value);
+            cur_value.clear();
             value_depth = -1;
           }
 
@@ -108,11 +108,9 @@ class CefXmlObjectLoader {
             // Open tag without close tag or close tag without open tag should
             // never occur (the parser catches this error).
             DCHECK(false);
-            std::stringstream ss;
-            ss << "Mismatched end tag for "
-               << std::string(cur_object->GetName()) << ", line "
-               << reader->GetLineNumber();
-            load_error_ = ss.str();
+            load_error_ = std::format("Mismatched end tag for {}, line {}",
+                                      std::string(cur_object->GetName()),
+                                      reader->GetLineNumber());
             ret = false;
             break;
           }
@@ -123,17 +121,15 @@ class CefXmlObjectLoader {
                    cur_type == XML_NODE_ENTITY_REFERENCE) {
           if (cur_depth == value_depth) {
             // Add to the current value.
-            cur_value << std::string(reader->GetValue());
+            cur_value += std::string(reader->GetValue());
           } else if (!cur_object->HasChildren()) {
             // Start a new value.
             value_depth = cur_depth;
-            cur_value << std::string(reader->GetValue());
+            cur_value += std::string(reader->GetValue());
           } else {
             // Value following a child element is not allowed.
-            std::stringstream ss;
-            ss << "Value following child element, line "
-               << reader->GetLineNumber();
-            load_error_ = ss.str();
+            load_error_ = std::format("Value following child element, line {}",
+                                      reader->GetLineNumber());
             ret = false;
             break;
           }

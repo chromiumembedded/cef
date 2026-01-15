@@ -4,8 +4,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <format>
 #include <memory>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -48,13 +48,11 @@ class NetNotifyTestHandler : public TestHandler {
         same_origin_(same_origin) {}
 
   void SetupTest() override {
-    std::stringstream ss;
-    ss << kNetNotifyOrigin1 << "nav1.html?t=" << test_type_;
-    url1_ = ss.str();
-    ss.str("");
-    ss << (same_origin_ ? kNetNotifyOrigin1 : kNetNotifyOrigin2)
-       << "nav2.html?t=" << test_type_;
-    url2_ = ss.str();
+    url1_ = std::format("{}nav1.html?t={}", kNetNotifyOrigin1,
+                        static_cast<int>(test_type_));
+    url2_ = std::format("{}nav2.html?t={}",
+                        same_origin_ ? kNetNotifyOrigin1 : kNetNotifyOrigin2,
+                        static_cast<int>(test_type_));
 
     const std::string& resource1 =
         "<html>"

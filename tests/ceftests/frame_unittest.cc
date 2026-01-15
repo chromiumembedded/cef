@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <format>
 #include <memory>
 
 #include "include/base/cef_callback.h"
@@ -1146,9 +1147,7 @@ class FrameNavExpectationsRendererMultiNav
 
 // Create a URL containing the nav number.
 std::string GetMultiNavURL(const std::string& origin, int nav) {
-  std::stringstream ss;
-  ss << origin << "nav" << nav << ".html";
-  return ss.str();
+  return std::format("{}nav{}.html", origin, nav);
 }
 
 // Extract the nav number from the URL.
@@ -1829,18 +1828,16 @@ class FrameNavExpectationsBrowserTestNestedIframes
         return "<html><body>Nav2<iframe src=\"" + GetMultiNavURL(origin_, 2) +
                "\"></body></html>";
       case 2: {
-        // Frame 2. Contains an named iframe created via javascript.
-        std::stringstream ss;
-        // clang-format off
-        ss << "<html><script>"
-           << "  function createFrame() {"
-           << "    var f = document.createElement('iframe');"
-           << "    f.name = 'nav3';"
-           << "    f.src = '" << GetMultiNavURL(origin_, 3) << "';"
-           << "    document.body.appendChild(f);"
-           << "  }</script><body onload=\"createFrame()\">Nav3</body></html>";
-        // clang-format on
-        return ss.str();
+        // Frame 2. Contains a named iframe created via javascript.
+        return std::format(
+            R"html(<html><script>
+  function createFrame() {{
+    var f = document.createElement('iframe');
+    f.name = 'nav3';
+    f.src = '{}';
+    document.body.appendChild(f);
+  }}</script><body onload="createFrame()">Nav3</body></html>)html",
+            GetMultiNavURL(origin_, 3));
       }
       case 3:
         // Frame 3.

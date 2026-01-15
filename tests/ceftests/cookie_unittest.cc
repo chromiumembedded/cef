@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <format>
 #include <vector>
 
 #include "include/base/cef_callback.h"
@@ -332,7 +333,6 @@ void TestInvalidCookie(CefRefPtr<CefCookieManager> manager,
 
 void TestMultipleCookies(CefRefPtr<CefCookieManager> manager,
                          CefRefPtr<CefWaitableEvent> event) {
-  std::stringstream ss;
   int i;
 
   CookieVector cookies;
@@ -343,12 +343,8 @@ void TestMultipleCookies(CefRefPtr<CefCookieManager> manager,
   for (i = 0; i < kNumCookies; i++) {
     CefCookie cookie;
 
-    ss << "my_cookie" << i;
-    CefString(&cookie.name).FromASCII(ss.str().c_str());
-    ss.str("");
-    ss << "My Value " << i;
-    CefString(&cookie.value).FromASCII(ss.str().c_str());
-    ss.str("");
+    CefString(&cookie.name).FromASCII(std::format("my_cookie{}", i).c_str());
+    CefString(&cookie.value).FromASCII(std::format("My Value {}", i).c_str());
 
     cookies.push_back(cookie);
   }
@@ -366,12 +362,8 @@ void TestMultipleCookies(CefRefPtr<CefCookieManager> manager,
   for (i = 0; it != cookies.end(); ++it, ++i) {
     const CefCookie& cookie = *it;
 
-    ss << "my_cookie" << i;
-    EXPECT_EQ(CefString(&cookie.name), ss.str());
-    ss.str("");
-    ss << "My Value " << i;
-    EXPECT_EQ(CefString(&cookie.value), ss.str());
-    ss.str("");
+    EXPECT_EQ(CefString(&cookie.name), std::format("my_cookie{}", i));
+    EXPECT_EQ(CefString(&cookie.value), std::format("My Value {}", i));
   }
 
   cookies.clear();
@@ -405,12 +397,8 @@ void TestMultipleCookies(CefRefPtr<CefCookieManager> manager,
   for (i = 0; i < kNumCookies; i++) {
     CefCookie cookie;
 
-    ss << "my_cookie" << i;
-    CefString(&cookie.name).FromASCII(ss.str().c_str());
-    ss.str("");
-    ss << "My Value " << i;
-    CefString(&cookie.value).FromASCII(ss.str().c_str());
-    ss.str("");
+    CefString(&cookie.name).FromASCII(std::format("my_cookie{}", i).c_str());
+    CefString(&cookie.value).FromASCII(std::format("My Value {}", i).c_str());
 
     cookies.push_back(cookie);
   }
@@ -1077,9 +1065,7 @@ std::string GetCookieAccessOrigin(const std::string& scheme,
     return test_server::GetOrigin(kUseHttpsServerScheme);
   }
 
-  std::stringstream ss;
-  ss << scheme << "://" << kCookieAccessDomain;
-  return ss.str();
+  return std::format("{}://{}", scheme, kCookieAccessDomain);
 }
 
 std::string GetCookieAccessUrl1(const std::string& scheme,

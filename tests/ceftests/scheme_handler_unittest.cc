@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
-#include <sstream>
+#include <format>
 #include <vector>
 
 #include "include/base/cef_callback.h"
@@ -708,51 +708,50 @@ void SetUpXHR(TestResults* test_results, const XHRTestSettings& settings) {
   }
 
   test_results->url = settings.url;
-  std::stringstream ss;
-  ss << "<html><head>"
-        "<script language=\"JavaScript\">"
-        "function onResult(val) {"
-        "  document.location = \"https://tests/exit?result=\"+val;"
-        "}"
-        "function execXMLHttpRequest() {";
+  std::string xhr_code;
   if (settings.synchronous) {
-    ss << "var result = 'FAILURE';"
-          "try {"
-          "  xhr = new XMLHttpRequest();"
-          "  xhr.open(\"GET\", \""
-       << request_url.c_str()
-       << "\", false);"
-          "  xhr.send();"
-          "  result = xhr.responseText;"
-          "} catch(e) {}"
-          "onResult(result)";
+    xhr_code = std::format(
+        R"js(var result = 'FAILURE';
+try {{
+  xhr = new XMLHttpRequest();
+  xhr.open("GET", "{}", false);
+  xhr.send();
+  result = xhr.responseText;
+}} catch(e) {{}}
+onResult(result))js",
+        request_url);
   } else {
-    ss << "xhr = new XMLHttpRequest();"
-          "xhr.open(\"GET\", \""
-       << request_url.c_str()
-       << "\", true);"
-          "xhr.onload = function(e) {"
-          "  if (xhr.readyState === 4) {"
-          "    if (xhr.status === 200) {"
-          "      onResult(xhr.responseText);"
-          "    } else {"
-          "      console.log('XMLHttpRequest failed with status ' + "
-          "xhr.status);"
-          "      onResult('FAILURE');"
-          "    }"
-          "  }"
-          "};"
-          "xhr.onerror = function(e) {"
-          "  onResult('FAILURE');"
-          "};"
-          "xhr.send()";
+    xhr_code = std::format(
+        R"js(xhr = new XMLHttpRequest();
+xhr.open("GET", "{}", true);
+xhr.onload = function(e) {{
+  if (xhr.readyState === 4) {{
+    if (xhr.status === 200) {{
+      onResult(xhr.responseText);
+    }} else {{
+      console.log('XMLHttpRequest failed with status ' + xhr.status);
+      onResult('FAILURE');
+    }}
+  }}
+}};
+xhr.onerror = function(e) {{
+  onResult('FAILURE');
+}};
+xhr.send())js",
+        request_url);
   }
-  ss << "}"
-        "</script>"
-        "</head><body onload=\"execXMLHttpRequest();\">"
-        "Running execXMLHttpRequest..."
-        "</body></html>";
-  test_results->html = ss.str();
+  test_results->html = std::format(
+      R"html(<html><head>
+<script language="JavaScript">
+function onResult(val) {{
+  document.location = "https://tests/exit?result="+val;
+}}
+function execXMLHttpRequest() {{{}}}
+</script>
+</head><body onload="execXMLHttpRequest();">
+Running execXMLHttpRequest...
+</body></html>)html",
+      xhr_code);
 
   test_results->exit_url = "https://tests/exit";
 }
@@ -780,34 +779,33 @@ void SetUpFetch(TestResults* test_results, const FetchTestSettings& settings) {
   }
 
   test_results->url = settings.url;
-  std::stringstream ss;
-  ss << "<html><head>"
-        "<script language=\"JavaScript\">"
-        "function onResult(val) {"
-        "  document.location = \"https://tests/exit?result=\"+val;"
-        "}"
-        "function execFetchHttpRequest() {";
-  ss << "fetch('" << request_url.c_str()
-     << "')"
-        ".then(function(response) {"
-        "  if (response.status === 200) {"
-        "      response.text().then(function(text) {"
-        "          onResult(text);"
-        "      }).catch(function(e) {"
-        "          onResult('FAILURE');        "
-        "      });"
-        "  } else {"
-        "      onResult('FAILURE');"
-        "  }"
-        "}).catch(function(e) {"
-        "  onResult('FAILURE');"
-        "});"
-     << "}"
-        "</script>"
-        "</head><body onload=\"execFetchHttpRequest();\">"
-        "Running execFetchHttpRequest..."
-        "</body></html>";
-  test_results->html = ss.str();
+  test_results->html = std::format(
+      R"html(<html><head>
+<script language="JavaScript">
+function onResult(val) {{
+  document.location = "https://tests/exit?result="+val;
+}}
+function execFetchHttpRequest() {{
+fetch('{}')
+.then(function(response) {{
+  if (response.status === 200) {{
+      response.text().then(function(text) {{
+          onResult(text);
+      }}).catch(function(e) {{
+          onResult('FAILURE');
+      }});
+  }} else {{
+      onResult('FAILURE');
+  }}
+}}).catch(function(e) {{
+  onResult('FAILURE');
+}});
+}}
+</script>
+</head><body onload="execFetchHttpRequest();">
+Running execFetchHttpRequest...
+</body></html>)html",
+      request_url);
 
   test_results->exit_url = "https://tests/exit";
 }  // namespace
@@ -821,54 +819,49 @@ void SetUpXSS(TestResults* test_results,
   // 3. |sub_url| tries to call a JS function in |url|.
   // 4. |url| tries to call a JS function in |sub_url|.
 
-  std::stringstream ss;
   std::string domain_line;
   if (!domain.empty()) {
-    domain_line = "document.domain = '" + domain + "';";
+    domain_line = std::format("document.domain = '{}';", domain);
     if (url.find("http") == 0 && sub_url.find("http") == 0) {
       test_results->needs_same_origin_policy_relaxation = true;
     }
   }
 
   test_results->sub_url = sub_url;
-  ss << "<html><head>"
-        "<script language=\"JavaScript\">"
-     << domain_line
-     << "function getResult() {"
-        "  return 'SUCCESS';"
-        "}"
-        "function execXSSRequest() {"
-        "  var result = 'FAILURE';"
-        "  try {"
-        "    result = parent.getResult();"
-        "  } catch(e) { console.log(e.stack); }"
-        "  document.location = \"https://tests/exit?result=\"+result;"
-        "}"
-        "</script>"
-        "</head><body onload=\"execXSSRequest();\">"
-        "Running execXSSRequest..."
-        "</body></html>";
-  test_results->sub_html = ss.str();
+  test_results->sub_html = std::format(
+      R"html(<html><head>
+<script language="JavaScript">
+{}function getResult() {{
+  return 'SUCCESS';
+}}
+function execXSSRequest() {{
+  var result = 'FAILURE';
+  try {{
+    result = parent.getResult();
+  }} catch(e) {{ console.log(e.stack); }}
+  document.location = "https://tests/exit?result="+result;
+}}
+</script>
+</head><body onload="execXSSRequest();">
+Running execXSSRequest...
+</body></html>)html",
+      domain_line);
 
   test_results->url = url;
-  ss.str("");
-  ss << "<html><head>"
-        "<script language=\"JavaScript\">"
-     << domain_line
-     << ""
-        "function getResult() {"
-        "  try {"
-        "    return document.getElementById('s').contentWindow.getResult();"
-        "  } catch(e) { console.log(e.stack); }"
-        "  return 'FAILURE';"
-        "}"
-        "</script>"
-        "</head><body>"
-        "<iframe src=\""
-     << sub_url.c_str()
-     << "\" id=\"s\">"
-        "</body></html>";
-  test_results->html = ss.str();
+  test_results->html = std::format(
+      R"html(<html><head>
+<script language="JavaScript">
+{}function getResult() {{
+  try {{
+    return document.getElementById('s').contentWindow.getResult();
+  }} catch(e) {{ console.log(e.stack); }}
+  return 'FAILURE';
+}}
+</script>
+</head><body>
+<iframe src="{}" id="s">
+</body></html>)html",
+      domain_line, sub_url);
 
   test_results->exit_url = "https://tests/exit";
 }
@@ -2775,25 +2768,25 @@ class FrameUrlTestHandler : public TestHandler {
 
     // HTML for main page - uses XHR to request the sub-resource.
     // After the XHR completes, it navigates to an exit URL.
-    std::stringstream ss;
-    ss << "<html><head></head><body>"
-       << "<script>"
-       << "var xhr = new XMLHttpRequest();"
-       << "xhr.open('GET', '" << sub_url_ << "', true);"
-       << "xhr.onload = function() {"
-       << "  if (xhr.status === 200) {"
-       << "    document.location = 'https://tests/exit?result=SUCCESS';"
-       << "  } else {"
-       << "    document.location = 'https://tests/exit?result=FAILURE';"
-       << "  }"
-       << "};"
-       << "xhr.onerror = function() {"
-       << "  document.location = 'https://tests/exit?result=FAILURE';"
-       << "};"
-       << "xhr.send();"
-       << "</script>"
-       << "</body></html>";
-    main_html_ = ss.str();
+    main_html_ = std::format(
+        R"html(<html><head></head><body>
+<script>
+var xhr = new XMLHttpRequest();
+xhr.open('GET', '{}', true);
+xhr.onload = function() {{
+  if (xhr.status === 200) {{
+    document.location = 'https://tests/exit?result=SUCCESS';
+  }} else {{
+    document.location = 'https://tests/exit?result=FAILURE';
+  }}
+}};
+xhr.onerror = function() {{
+  document.location = 'https://tests/exit?result=FAILURE';
+}};
+xhr.send();
+</script>
+</body></html>)html",
+        sub_url_);
 
     // Simple content for sub-resource.
     sub_html_ = "SUB_RESOURCE_CONTENT";

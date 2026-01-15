@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <format>
 #include <memory>
 #include <vector>
 
@@ -1049,15 +1050,13 @@ TEST(ResourceManagerTest, ManyRequests) {
   state.expected_message_ct_ = 50U;
 
   // Build a page with lots of iframes.
-  std::stringstream ss;
-  ss << "<html><body>";
+  std::string html = "<html><body>";
   for (size_t i = 0U; i < state.expected_message_ct_; ++i) {
-    ss << "<iframe src=\"" << kBaseUrl << (i * 10) << "\"></iframe>";
+    html += std::format(R"(<iframe src="{}{}"></iframe>)", kBaseUrl, i * 10);
   }
-  ss << "</body></html>";
+  html += "</body></html>";
 
-  state.manager_->AddContentProvider(kUrl, ss.str(), "text/html", 0,
-                                     std::string());
+  state.manager_->AddContentProvider(kUrl, html, "text/html", 0, std::string());
   state.manager_->AddProvider(new EchoProvider(kBaseUrl), 0, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
@@ -1075,9 +1074,7 @@ TEST(ResourceManagerTest, ManyRequests) {
 
   // Requests should complete in order due to the delay.
   for (size_t i = 0; i < state.messages_.size(); ++i) {
-    ss.str("");
-    ss << kBaseUrl << (i * 10);
-    EXPECT_EQ(ss.str(), state.messages_[i]);
+    EXPECT_EQ(std::format("{}{}", kBaseUrl, i * 10), state.messages_[i]);
   }
 }
 

@@ -4,7 +4,7 @@
 
 #include "tests/cefsimple/simple_handler.h"
 
-#include <sstream>
+#include <format>
 #include <string>
 
 #include "include/base/cef_callback.h"
@@ -122,13 +122,12 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
   }
 
   // Display a load error message using a data: URI.
-  std::stringstream ss;
-  ss << "<html><body bgcolor=\"white\">"
-        "<h2>Failed to load URL "
-     << std::string(failedUrl) << " with error " << std::string(errorText)
-     << " (" << errorCode << ").</h2></body></html>";
+  auto html = std::format(
+      R"html(<html><body bgcolor="white">
+<h2>Failed to load URL {} with error {} ({}).</h2></body></html>)html",
+      failedUrl.ToString(), errorText.ToString(), static_cast<int>(errorCode));
 
-  frame->LoadURL(GetDataURI(ss.str(), "text/html"));
+  frame->LoadURL(GetDataURI(html, "text/html"));
 }
 
 void SimpleHandler::ShowMainWindow() {

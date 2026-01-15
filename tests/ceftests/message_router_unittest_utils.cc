@@ -4,6 +4,8 @@
 
 #include "tests/ceftests/message_router_unittest_utils.h"
 
+#include <format>
+
 extern const char kJSQueryFunc[] = "mrtQuery";
 extern const char kJSQueryCancelFunc[] = "mrtQueryCancel";
 
@@ -74,10 +76,9 @@ bool MRRenderDelegate::V8HandlerImpl::Execute(const CefString& name,
     }
 
     if (expected_count != actual_count) {
-      std::stringstream ss;
-      ss << message_name << " failed (line " << line_no << "); expected "
-         << expected_count << ", got " << actual_count;
-      exception = ss.str();
+      exception =
+          std::format("{} failed (line {}); expected {}, got {}", message_name,
+                      line_no, expected_count, actual_count);
     }
   }
 

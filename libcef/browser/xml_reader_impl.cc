@@ -4,6 +4,8 @@
 
 #include "cef/libcef/browser/xml_reader_impl.h"
 
+#include <format>
+
 #include "base/logging.h"
 #include "base/notreached.h"
 #include "cef/include/cef_stream.h"
@@ -62,13 +64,13 @@ void XMLCALL xml_error_callback(void* arg,
     error_str.resize(error_str.length() - 1);
   }
 
-  std::stringstream ss;
-  ss << error_str << ", line " << xmlTextReaderLocatorLineNumber(locator);
+  auto formatted_error = std::format("{}, line {}", error_str,
+                                     xmlTextReaderLocatorLineNumber(locator));
 
-  LOG(INFO) << ss.str();
+  LOG(INFO) << formatted_error;
 
   CefRefPtr<CefXmlReaderImpl> impl(static_cast<CefXmlReaderImpl*>(arg));
-  impl->AppendError(ss.str());
+  impl->AppendError(formatted_error);
 }
 
 /**
@@ -90,13 +92,12 @@ void XMLCALL xml_structured_error_callback(void* userData,
     error_str.resize(error_str.length() - 1);
   }
 
-  std::stringstream ss;
-  ss << error_str << ", line " << error->line;
+  auto formatted_error = std::format("{}, line {}", error_str, error->line);
 
-  LOG(INFO) << ss.str();
+  LOG(INFO) << formatted_error;
 
   CefRefPtr<CefXmlReaderImpl> impl(static_cast<CefXmlReaderImpl*>(userData));
-  impl->AppendError(ss.str());
+  impl->AppendError(formatted_error);
 }
 
 CefString xmlCharToString(const xmlChar* xmlStr, bool free) {
@@ -205,7 +206,7 @@ bool CefXmlReaderImpl::HasError() {
     return false;
   }
 
-  return !error_buf_.str().empty();
+  return !error_buf_.empty();
 }
 
 CefString CefXmlReaderImpl::GetError() {
@@ -213,7 +214,7 @@ CefString CefXmlReaderImpl::GetError() {
     return CefString();
   }
 
-  return error_buf_.str();
+  return error_buf_;
 }
 
 CefXmlReader::NodeType CefXmlReaderImpl::GetType() {
@@ -476,10 +477,10 @@ bool CefXmlReaderImpl::MoveToCarryingElement() {
 }
 
 void CefXmlReaderImpl::AppendError(const CefString& error_str) {
-  if (!error_buf_.str().empty()) {
-    error_buf_ << L"\n";
+  if (!error_buf_.empty()) {
+    error_buf_ += '\n';
   }
-  error_buf_ << error_str.ToString();
+  error_buf_ += error_str.ToString();
 }
 
 bool CefXmlReaderImpl::VerifyContext() {
