@@ -1,8 +1,8 @@
 diff --git ui/gtk/gtk_ui.cc ui/gtk/gtk_ui.cc
-index 8107269697ac82ba1ce5855dce00f6a4ac0699aa..f01fa1459fb3476ad2877240895a0db62b1a7d0d 100644
+index e886c405cb352097b5ada7049f971f85557e0481..3a53b2a4c38bddb9c89c39ac29993c5b9ed77a74 100644
 --- ui/gtk/gtk_ui.cc
 +++ ui/gtk/gtk_ui.cc
-@@ -31,6 +31,7 @@
+@@ -30,6 +30,7 @@
  #include "base/observer_list.h"
  #include "base/strings/string_number_conversions.h"
  #include "base/strings/string_split.h"
@@ -10,7 +10,7 @@ index 8107269697ac82ba1ce5855dce00f6a4ac0699aa..f01fa1459fb3476ad2877240895a0db6
  #include "chrome/browser/themes/theme_properties.h"  // nogncheck
  #include "third_party/skia/include/core/SkBitmap.h"
  #include "third_party/skia/include/core/SkColor.h"
-@@ -364,10 +365,15 @@ bool GtkUi::Initialize() {
+@@ -345,10 +346,15 @@ bool GtkUi::Initialize() {
    };
  
    GtkSettings* settings = gtk_settings_get_default();
@@ -27,7 +27,7 @@ index 8107269697ac82ba1ce5855dce00f6a4ac0699aa..f01fa1459fb3476ad2877240895a0db6
            &GtkUi::OnCursorThemeNameChanged);
    connect(settings, "notify::gtk-cursor-theme-size",
 diff --git ui/ozone/platform/x11/ozone_platform_x11.cc ui/ozone/platform/x11/ozone_platform_x11.cc
-index 9bafe26292b92ef628471970bd9c690edd308bd1..28a6172e3b732e87161792d0eb0800179267230f 100644
+index 71924ab2d033bf65dd6353f80827d702a6093520..35cba0f7bf420cd3d955a4ce13c739ff46223ab9 100644
 --- ui/ozone/platform/x11/ozone_platform_x11.cc
 +++ ui/ozone/platform/x11/ozone_platform_x11.cc
 @@ -64,6 +64,8 @@ namespace ui {

@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_MANAGER_H_
 
 #include "cef/libcef/common/mojom/cef.mojom.h"
+#include "content/public/browser/child_process_id.h"
 #include "mojo/public/cpp/bindings/remote.h"
 #include "services/service_manager/public/cpp/binder_registry.h"
 
@@ -19,7 +20,7 @@ class RenderProcessHost;
 
 class CefBrowserManager : public cef::mojom::BrowserManager {
  public:
-  explicit CefBrowserManager(int render_process_id);
+  explicit CefBrowserManager(content::ChildProcessId render_process_id);
 
   CefBrowserManager(const CefBrowserManager&) = delete;
   CefBrowserManager& operator=(const CefBrowserManager&) = delete;
@@ -50,7 +51,7 @@ class CefBrowserManager : public cef::mojom::BrowserManager {
       cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback) override;
 
   // The process ID of the renderer.
-  const int render_process_id_;
+  const content::ChildProcessId render_process_id_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_MANAGER_H_

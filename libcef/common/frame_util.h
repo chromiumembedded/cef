@@ -12,6 +12,7 @@
 
 #include "base/logging.h"
 #include "content/public/browser/child_process_host.h"
+#include "content/public/browser/child_process_id.h"
 #include "content/public/browser/global_routing_id.h"
 #include "ipc/constants.mojom.h"
 #include "ipc/ipc_message.h"
@@ -27,6 +28,13 @@ inline bool IsValidChildId(int child_id) {
   // See comments in ChildProcessHostImpl::GenerateChildProcessUniqueId().
   return child_id != content::ChildProcessHost::kInvalidUniqueID &&
          child_id != 0;
+}
+
+// Returns true if |child_id| is valid (ChildProcessId overload).
+// ChildProcessId considers both -1 (kInvalidChildProcessUniqueId) and 0 as
+// invalid, matching the int overload's checks.
+inline bool IsValidChildId(content::ChildProcessId child_id) {
+  return !child_id.is_null();
 }
 
 // Returns true if |frame_routing_id| is valid.

@@ -570,6 +570,16 @@ typedef enum {
   CEF_CONTENT_SETTING_TYPE_SUSPICIOUS_NOTIFICATION_SHOW_ORIGINAL,
 #endif
 
+#if CEF_API_ADDED(CEF_NEXT)
+  /// Content setting for whether the site is allowed to make local network
+  /// requests. Split from LOCAL_NETWORK_ACCESS.
+  CEF_CONTENT_SETTING_TYPE_LOCAL_NETWORK,
+
+  /// Content setting for whether the site is allowed to make loopback network
+  /// requests. Split from LOCAL_NETWORK_ACCESS.
+  CEF_CONTENT_SETTING_TYPE_LOOPBACK_NETWORK,
+#endif
+
   CEF_CONTENT_SETTING_TYPE_NUM_VALUES,
 } cef_content_setting_types_t;
 

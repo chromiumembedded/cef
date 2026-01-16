@@ -32,12 +32,12 @@ index daecebb5070705c1eb5281a3a7df4ace6b89c119..aed51c2e6b06e3527bd6c2003e4b6a82
    return (dark_mode_support.allow_dark_mode_for_app ||
            dark_mode_support.set_preferred_app_mode) &&
 diff --git chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-index 8eca0f15ad724bfe7b3f83b361984f581f79c347..214eb82df050d5b41efffb8aef44d8ba71e785ae 100644
+index 39a20bbee6076b206033ed495152903624e3f35a..0c00b8de9bf5cc7ac1509466ff182d59c47a2d2c 100644
 --- chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 +++ chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-@@ -58,7 +58,10 @@ void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
-     ui::CursorFactory::GetInstance()->ObserveThemeChanges();
-   }
+@@ -67,7 +67,10 @@ void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
+ #endif
+ 
  #if BUILDFLAG(USE_DBUS)
 -  dark_mode_manager_ = std::make_unique<ui::DarkModeManagerLinux>();
 +  if (!ui::NativeTheme::IsForcedDarkMode() &&

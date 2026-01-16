@@ -1,46 +1,18 @@
 diff --git printing/printing_context_linux.cc printing/printing_context_linux.cc
-index e83735211e30a77ef1bc82b6a252da02a18626fc..d328c3de6901dca94301c76913bb1c8c6d7479c4 100644
+index 5c555d8768e2a1d9e6ac86fc9392420a42f5193d..9d343a47c7896569b3ba4de67fbed50e3007be0c 100644
 --- printing/printing_context_linux.cc
 +++ printing/printing_context_linux.cc
-@@ -69,11 +69,11 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {
-   ResetSettings();
- 
- #if BUILDFLAG(IS_LINUX)
--  if (!ui::LinuxUi::instance())
-+  if (!ui::PrintingContextLinuxDelegate::instance())
-     return mojom::ResultCode::kSuccess;
- 
-   if (!print_dialog_)
--    print_dialog_ = ui::LinuxUi::instance()->CreatePrintDialog(this);
-+    print_dialog_ = ui::PrintingContextLinuxDelegate::instance()->CreatePrintDialog(this);
- 
-   if (print_dialog_) {
-     print_dialog_->UseDefaultSettings();
-@@ -85,8 +85,8 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {
+@@ -88,8 +88,8 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {
+ }
  
  gfx::Size PrintingContextLinux::GetPdfPaperSizeDeviceUnits() {
- #if BUILDFLAG(IS_LINUX)
--  if (ui::LinuxUi::instance())
+-  if (ui::LinuxUi::instance()) {
 -    return ui::LinuxUi::instance()->GetPdfPaperSize(this);
-+  if (ui::PrintingContextLinuxDelegate::instance())
++  if (ui::PrintingContextLinuxDelegate::instance()) {
 +    return ui::PrintingContextLinuxDelegate::instance()->GetPdfPaperSize(this);
- #endif
+   }
  
    return gfx::Size();
-@@ -98,11 +98,11 @@ mojom::ResultCode PrintingContextLinux::UpdatePrinterSettings(
-   DCHECK(!in_print_job_);
- 
- #if BUILDFLAG(IS_LINUX)
--  if (!ui::LinuxUi::instance())
-+  if (!ui::PrintingContextLinuxDelegate::instance())
-     return mojom::ResultCode::kSuccess;
- 
-   if (!print_dialog_)
--    print_dialog_ = ui::LinuxUi::instance()->CreatePrintDialog(this);
-+    print_dialog_ = ui::PrintingContextLinuxDelegate::instance()->CreatePrintDialog(this);
- 
-   if (print_dialog_) {
-     // PrintDialogGtk::UpdateSettings() calls InitWithSettings() so settings_ will
 diff --git ui/linux/BUILD.gn ui/linux/BUILD.gn
 index 267de0acbaf5a01f0b9aa5c456e90e32721a31cd..ce4f0836692a292fb9c768124a63ff468ced225b 100644
 --- ui/linux/BUILD.gn
@@ -66,10 +38,10 @@ index 267de0acbaf5a01f0b9aa5c456e90e32721a31cd..ce4f0836692a292fb9c768124a63ff46
  }
  
 diff --git ui/linux/linux_ui.cc ui/linux/linux_ui.cc
-index 13bc34539823f91770f2aa45bb1b2d852bd39075..6e7d729ce561619bb9f8444db8793ba93d860f3f 100644
+index 4c86d688230bdca3611fd1a1454390b30cb57dbe..88b706bffb1605835710fb54375aa752839ff7d6 100644
 --- ui/linux/linux_ui.cc
 +++ ui/linux/linux_ui.cc
-@@ -20,11 +20,29 @@ namespace ui {
+@@ -21,11 +21,29 @@ namespace ui {
  namespace {
  
  LinuxUi* g_linux_ui = nullptr;
@@ -100,7 +72,7 @@ index 13bc34539823f91770f2aa45bb1b2d852bd39075..6e7d729ce561619bb9f8444db8793ba9
  }
  
 diff --git ui/linux/linux_ui.h ui/linux/linux_ui.h
-index 6679d98793f741a8138bcfde21acae9893fabeec..64eab490bf7936cac2aa18003b722a29b9f2de6a 100644
+index 737739af638a50fef2a4e431847a2fb02cd46663..04fdba8d30263aa5071925c55cadb2729a646fef 100644
 --- ui/linux/linux_ui.h
 +++ ui/linux/linux_ui.h
 @@ -20,6 +20,10 @@
@@ -122,7 +94,7 @@ index 6679d98793f741a8138bcfde21acae9893fabeec..64eab490bf7936cac2aa18003b722a29
 + public:
 +  virtual ~PrintingContextLinuxDelegate() = default;
 +
-+  virtual printing::PrintDialogLinuxInterface* CreatePrintDialog(
++  virtual std::unique_ptr<printing::PrintDialogLinuxInterface> CreatePrintDialog(
 +      printing::PrintingContextLinux* context) = 0;
 +
 +  virtual gfx::Size GetPdfPaperSize(printing::PrintingContextLinux* context) = 0;
@@ -141,15 +113,15 @@ index 6679d98793f741a8138bcfde21acae9893fabeec..64eab490bf7936cac2aa18003b722a29
 +#endif
 + {
   public:
-   // Describes the window management actions that could be taken in response to
-   // a middle click in the non client area.
-@@ -150,14 +172,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
+   // 8px is the default value in GTK for how far the mouse needs to move before
+   // a drag begins.
+@@ -154,14 +176,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
    // Returns a map of KeyboardEvent code to KeyboardEvent key values.
    virtual base::flat_map<std::string, std::string> GetKeyboardLayoutMap() = 0;
  
 -#if BUILDFLAG(ENABLE_PRINTING)
--  virtual printing::PrintDialogLinuxInterface* CreatePrintDialog(
--      printing::PrintingContextLinux* context) = 0;
+-  virtual std::unique_ptr<printing::PrintDialogLinuxInterface>
+-  CreatePrintDialog(printing::PrintingContextLinux* context) = 0;
 -
 -  virtual gfx::Size GetPdfPaperSize(
 -      printing::PrintingContextLinux* context) = 0;

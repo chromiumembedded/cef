@@ -1,5 +1,5 @@
 diff --git chrome/browser/printing/printer_query.cc chrome/browser/printing/printer_query.cc
-index 20bbbeddd18ef26b68defcdbd4a7c62706c43d0b..de91dc4c66fe67fe9e9e9dbe1e8d9875934f1e8a 100644
+index c31c873db21ef06b6d0f19c789c9a097f3cfeb2b..866592264593af06fd0ea334218d9d6108a7f1ee 100644
 --- chrome/browser/printing/printer_query.cc
 +++ chrome/browser/printing/printer_query.cc
 @@ -125,6 +125,7 @@ PrinterQuery::PrinterQuery(content::GlobalRenderFrameHostId rfh_id)
@@ -11,29 +11,40 @@ index 20bbbeddd18ef26b68defcdbd4a7c62706c43d0b..de91dc4c66fe67fe9e9e9dbe1e8d9875
  
  PrinterQuery::~PrinterQuery() {
 diff --git printing/printing_context.h printing/printing_context.h
-index 2f34f45aaf89e6f4600be1d2b8444c636b0cc83f..6443da7efb92ffb745fadd2645a78f424db5150d 100644
+index 2f34f45aaf89e6f4600be1d2b8444c636b0cc83f..c869ed85686b0ab1e55198fbedf8918bdcd4a063 100644
 --- printing/printing_context.h
 +++ printing/printing_context.h
-@@ -217,6 +217,13 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {
+@@ -12,6 +12,7 @@
+ #include "base/memory/raw_ptr.h"
+ #include "base/values.h"
+ #include "build/build_config.h"
++#include "content/public/browser/child_process_id.h"
+ #include "printing/buildflags/buildflags.h"
+ #include "printing/mojom/print.mojom.h"
+ #include "printing/native_drawing_context.h"
+@@ -217,6 +218,16 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {
    void SetJobId(int job_id);
  #endif
  
-+  void set_render_ids(int render_process_id, int render_frame_id) {
++  void set_render_ids(content::ChildProcessId render_process_id,
++                      int render_frame_id) {
 +    render_process_id_ = render_process_id;
 +    render_frame_id_ = render_frame_id;
 +  }
-+  int render_process_id() const { return render_process_id_; }
++  content::ChildProcessId render_process_id() const {
++    return render_process_id_;
++  }
 +  int render_frame_id() const { return render_frame_id_; }
 +
   protected:
    PrintingContext(Delegate* delegate,
                    OutOfProcessBehavior out_of_process_behavior);
-@@ -251,6 +258,10 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {
+@@ -251,6 +262,10 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {
    // management.
    int job_id_ = kNoPrintJobId;
  
 +  // Routing IDs for the frame that owns this object.
-+  int render_process_id_ = 0;
++  content::ChildProcessId render_process_id_;
 +  int render_frame_id_ = 0;
 +
   private:

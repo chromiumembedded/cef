@@ -33,75 +33,51 @@ index ca334639932840c3e0164e82247319649e5ec24c..4eaa739f00442e98716ebcc0ecb053b4
  }
  
  std::unique_ptr<WebViewGuestDelegate>
-diff --git chrome/browser/extensions/api/tabs/tabs_api_non_android.cc chrome/browser/extensions/api/tabs/tabs_api_non_android.cc
-index 52d32453933018880b8c7bf2253d7f28997bcceb..43113863ce4eb414e49082afc67e4ea10f4eb183 100644
---- chrome/browser/extensions/api/tabs/tabs_api_non_android.cc
-+++ chrome/browser/extensions/api/tabs/tabs_api_non_android.cc
-@@ -877,11 +877,10 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
+index 493d3a69a7b1be096db52be41439304b26a090fd..d0773fadd841dc4762d9bc951066b58cb6c68882 100644
+--- chrome/browser/extensions/api/tabs/tabs_api.cc
++++ chrome/browser/extensions/api/tabs/tabs_api.cc
+@@ -2119,15 +2119,13 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  
    // tabs_internal::GetTabById may return a null window for prerender tabs.
 -  if (!window || !window->SupportsTabs()) {
 -    return RespondNow(Error(ExtensionTabUtil::kNoCurrentWindowError));
+-  }
+-
+-  // TODO(https://crbug.com/447211263): Support on desktop android.
 +  TabStripModel* tab_strip = nullptr;
 +  if (window && window->SupportsTabs()) {
-+    tab_strip = window->GetBrowser()->tab_strip_model();
-   }
++    // TODO(https://crbug.com/447211263): Support on desktop android.
+ #if !BUILDFLAG(IS_ANDROID)
 -  Browser* browser = window->GetBrowser();
 -  TabStripModel* tab_strip = browser->tab_strip_model();
++    tab_strip = window->GetBrowser()->tab_strip_model();
+ #endif
++  }
  
    // Cache the original web contents.
    content::WebContents* original_contents = contents;
-@@ -903,7 +902,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
-         kCannotUpdateMuteCaptured, base::NumberToString(tab_id))));
+@@ -2184,7 +2182,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
- 
--  if (params->update_properties.opener_tab_id) {
-+  if (tab_strip && params->update_properties.opener_tab_id) {
-     int opener_id = *params->update_properties.opener_tab_id;
-     WebContents* opener_contents = nullptr;
-     if (opener_id == tab_id) {
-@@ -938,7 +937,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
-         ->SetAutoDiscardable(state);
-   }
+ #endif
  
 -  if (params->update_properties.pinned) {
 +  if (tab_strip && params->update_properties.pinned) {
      // Bug fix for crbug.com/1197888. Don't let the extension update the tab if
      // the user is dragging tabs.
      if (!ExtensionTabUtil::IsTabStripEditable()) {
-@@ -959,7 +958,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2208,7 +2206,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
--    if (browser->profile()->IsIncognitoProfile() &&
+-    if (window->profile()->IsIncognitoProfile() &&
 +    auto* profile = Profile::FromBrowserContext(browser_context());
 +    if (profile->IsIncognitoProfile() &&
          !IsURLAllowedInIncognito(GURL(updated_url))) {
        return RespondNow(Error(ErrorUtils::FormatErrorMessage(
            tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
-@@ -977,9 +977,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
- 
- #if BUILDFLAG(FULL_SAFE_BROWSING)
-     tabs_internal::NotifyExtensionTelemetry(
--        Profile::FromBrowserContext(browser_context()), extension(),
--        safe_browsing::TabsApiInfo::UPDATE, current_url, updated_url,
--        js_callstack());
-+        profile, extension(), safe_browsing::TabsApiInfo::UPDATE, current_url,
-+        updated_url, js_callstack());
- #endif
-   }
- 
-@@ -1039,7 +1038,7 @@ bool TabsUpdateFunction::UpdateActiveTab(
-     return false;
-   }
- 
--  if (tab_strip->active_index() != tab_index) {
-+  if (tab_strip && tab_strip->active_index() != tab_index) {
-     tab_strip->ActivateTabAt(tab_index);
-     DCHECK_EQ(contents, tab_strip->GetActiveWebContents());
-   }
-@@ -1063,9 +1062,9 @@ bool TabsUpdateFunction::UpdateHighlightedTab(
+@@ -2312,9 +2311,9 @@ bool TabsUpdateFunction::UpdateHighlightedTab(
      return false;
    }
  
@@ -114,18 +90,18 @@ index 52d32453933018880b8c7bf2253d7f28997bcceb..43113863ce4eb414e49082afc67e4ea1
    }
    return true;
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
-index 490b333d9fea964bc0bcf4ac64a32e6e410b186b..7983d0b1fca7a47b7163cffd6ac0ceb3715f97a0 100644
+index 7e5d7a19679af97e27f6c3833fea3ffb965c519d..6c7017ae2746da37925d9c31deedcffa58b99c06 100644
 --- chrome/browser/extensions/extension_tab_util.cc
 +++ chrome/browser/extensions/extension_tab_util.cc
-@@ -64,6 +64,7 @@
+@@ -68,6 +68,7 @@
+ #include "chrome/browser/ui/android/tab_model/tab_model.h"
  #include "chrome/browser/ui/android/tab_model/tab_model_list.h"
  #else
- #include "base/types/expected_macros.h"
 +#include "cef/libcef/features/features.h"
- #include "chrome/browser/renderer_host/chrome_navigation_ui_data.h"
  #include "chrome/browser/resource_coordinator/tab_lifecycle_unit_external.h"
- #include "chrome/browser/tab_group_sync/tab_group_sync_service_factory.h"
-@@ -89,6 +90,10 @@
+ #include "chrome/browser/ui/browser.h"                             // nogncheck
+ #include "chrome/browser/ui/browser_finder.h"                      // nogncheck
+@@ -87,6 +88,10 @@
  
  static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
  
@@ -136,7 +112,7 @@ index 490b333d9fea964bc0bcf4ac64a32e6e410b186b..7983d0b1fca7a47b7163cffd6ac0ceb3
  using content::NavigationEntry;
  using content::WebContents;
  using extensions::mojom::APIPermissionID;
-@@ -903,6 +908,15 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
+@@ -716,6 +721,15 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
      }
    }
  #endif  // BUILDFLAG(IS_ANDROID)

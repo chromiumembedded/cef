@@ -254,6 +254,8 @@ class CefTestServerImpl::Context {
   EmbeddedTestServerHandle test_server_handle_;
 };
 
+CefTestServerImpl::~CefTestServerImpl() = default;
+
 bool CefTestServerImpl::Start(uint16_t port,
                               bool https_server,
                               cef_test_cert_type_t https_cert_type,

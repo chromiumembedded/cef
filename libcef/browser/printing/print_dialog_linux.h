@@ -34,7 +34,7 @@ class CefPrintingContextLinuxDelegate
   CefPrintingContextLinuxDelegate& operator=(
       const CefPrintingContextLinuxDelegate&) = delete;
 
-  printing::PrintDialogLinuxInterface* CreatePrintDialog(
+  std::unique_ptr<printing::PrintDialogLinuxInterface> CreatePrintDialog(
       printing::PrintingContextLinux* context) override;
   gfx::Size GetPdfPaperSize(printing::PrintingContextLinux* context) override;
 
@@ -66,7 +66,7 @@ class CefPrintDialogLinux : public printing::PrintDialogLinuxInterface,
       PrintingContextLinux::PrintSettingsCallback callback) override;
   void PrintDocument(const printing::MetafilePlayer& metafile,
                      const std::u16string& document_name) override;
-  void ReleaseDialog() override;
+  void ReleaseDialog();
 
  private:
   friend class base::DeleteHelper<CefPrintDialogLinux>;

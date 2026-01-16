@@ -14,7 +14,7 @@ index 326da3a5dee4f598527d8ad722f452fdfba9ff02..f22b4aecb3130b6a8f96df6b2301909f
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index c63def4f8bb82c2d76e58b26821b87443f30c97a..3b145cb43dd36feb35218aec5020fb7000af8ff1 100644
+index d252c882b70153f568cbe68f881056c232ffe118..ac6394ff72fbddaa1036775a995a790148800ecd 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
 @@ -94,6 +94,7 @@ std::set<content::BrowserContext*>& GetProfileInstances() {
@@ -85,10 +85,10 @@ index e5b6826b553a16e6c6933cd81733a0d63e459570..48ce19c4cbd75656a2314ba749c4ea54
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index ab155d50897649746f17cd239f1fbe8646a8f942..aadda2ef3043999a712e3df5fb27d7d08ae34299 100644
+index 8981bef78da4f234bb261c66d8e1fe5a149ea94c..00bb5fcb5e009eeaef61d60f1563a9eda17146bd 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -40,6 +40,7 @@
+@@ -39,6 +39,7 @@
  #include "base/version.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -96,7 +96,7 @@ index ab155d50897649746f17cd239f1fbe8646a8f942..aadda2ef3043999a712e3df5fb27d7d0
  #include "chrome/browser/background/background_contents_service_factory.h"
  #include "chrome/browser/background_fetch/background_fetch_delegate_factory.h"
  #include "chrome/browser/background_fetch/background_fetch_delegate_impl.h"
-@@ -232,6 +233,10 @@
+@@ -231,6 +232,10 @@
  #include "chrome/browser/background/extensions/background_mode_manager.h"
  #endif
  
@@ -107,7 +107,7 @@ index ab155d50897649746f17cd239f1fbe8646a8f942..aadda2ef3043999a712e3df5fb27d7d0
  #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
  #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"
  #include "chrome/browser/extensions/extension_special_storage_policy.h"
-@@ -271,6 +276,12 @@ class ScopedAllowBlockingForProfile : public base::ScopedAllowBlocking {};
+@@ -270,6 +275,12 @@ class ScopedAllowBlockingForProfile : public base::ScopedAllowBlocking {};
  
  namespace {
  
@@ -120,7 +120,7 @@ index ab155d50897649746f17cd239f1fbe8646a8f942..aadda2ef3043999a712e3df5fb27d7d0
  #if BUILDFLAG(ENABLE_SESSION_SERVICE)
  // Delay before we explicitly create the SessionService.
  static constexpr base::TimeDelta kCreateSessionServiceDelay =
-@@ -997,7 +1008,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -998,7 +1009,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -131,7 +131,7 @@ index ab155d50897649746f17cd239f1fbe8646a8f942..aadda2ef3043999a712e3df5fb27d7d0
  
    return raw_otr_profile;
  }
-@@ -1319,6 +1332,12 @@ ProfileImpl::GetStorageNotificationService() {
+@@ -1320,6 +1333,12 @@ ProfileImpl::GetStorageNotificationService() {
  #if BUILDFLAG(IS_ANDROID)
    return nullptr;
  #else

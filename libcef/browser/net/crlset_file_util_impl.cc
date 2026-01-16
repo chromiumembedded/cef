@@ -3,6 +3,7 @@
 // be found in the LICENSE file.
 
 #include "base/files/file_util.h"
+#include "base/functional/callback_helpers.h"
 #include "base/logging.h"
 #include "cef/include/cef_file_util.h"
 #include "cef/libcef/browser/context.h"

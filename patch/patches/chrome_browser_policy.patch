@@ -1,5 +1,5 @@
 diff --git chrome/browser/policy/browser_dm_token_storage_linux.cc chrome/browser/policy/browser_dm_token_storage_linux.cc
-index bb3500ca7a211b9055b78b2d8965eaeb2948ffaa..524ba414101d7ade63e50a3bb81724b2f1455d5d 100644
+index a7a7a3a167bce56952b713f2e7987de34ed37c16..432a0c418a54ed7fa1f65e894d0fcec71ea27f35 100644
 --- chrome/browser/policy/browser_dm_token_storage_linux.cc
 +++ chrome/browser/policy/browser_dm_token_storage_linux.cc
 @@ -22,6 +22,7 @@
@@ -33,7 +33,7 @@ index bb3500ca7a211b9055b78b2d8965eaeb2948ffaa..524ba414101d7ade63e50a3bb81724b2
    }
  
 diff --git chrome/browser/policy/browser_dm_token_storage_mac.mm chrome/browser/policy/browser_dm_token_storage_mac.mm
-index 29fe1f4a6789638efda2fde78272f71f3f25f5e3..4dcb52a84d1f5d6e7a3e03c37399bb5cb1740a33 100644
+index 0c39d3482ad535fbaf791d5486a850d7b19a0dc0..766216b44000ce75a43a1ca919b1ddff7e4ac01a 100644
 --- chrome/browser/policy/browser_dm_token_storage_mac.mm
 +++ chrome/browser/policy/browser_dm_token_storage_mac.mm
 @@ -26,6 +26,7 @@
@@ -56,7 +56,7 @@ index 29fe1f4a6789638efda2fde78272f71f3f25f5e3..4dcb52a84d1f5d6e7a3e03c37399bb5c
  constexpr char kEnrollmentTokenMetricsName[] =
      "Enterprise.CloudManagementEnrollmentTokenLocation.Mac";
  
-@@ -117,16 +113,23 @@ bool DeleteDMTokenFromAppDataDir(const std::string& client_id) {
+@@ -118,16 +114,23 @@ bool DeleteDMTokenFromAppDataDir(const std::string& client_id) {
  // Get the enrollment token from policy file: /Library/com.google.Chrome.plist.
  // Return true if policy is set, otherwise false.
  bool GetEnrollmentTokenFromPolicy(std::string* enrollment_token) {
@@ -82,7 +82,7 @@ index 29fe1f4a6789638efda2fde78272f71f3f25f5e3..4dcb52a84d1f5d6e7a3e03c37399bb5c
      return false;
    }
    CFStringRef value_string = base::apple::CFCast<CFStringRef>(value.get());
-@@ -152,12 +155,19 @@ bool GetEnrollmentTokenFromFile(std::string* enrollment_token) {
+@@ -153,12 +156,19 @@ bool GetEnrollmentTokenFromFile(std::string* enrollment_token) {
  }
  
  std::optional<bool> IsEnrollmentMandatoryByPolicy() {
@@ -105,7 +105,7 @@ index 29fe1f4a6789638efda2fde78272f71f3f25f5e3..4dcb52a84d1f5d6e7a3e03c37399bb5c
    }
  
 diff --git chrome/browser/policy/chrome_browser_policy_connector.cc chrome/browser/policy/chrome_browser_policy_connector.cc
-index db7a940bf9ad7165b508e0e2f3f857ddc4165503..669b9ba79784c6b70548e22fd191847ed13ed7ad 100644
+index 5a5b10673c41dafa7cc9072973953aa1af339a82..0ffcbe93967863c713da5f2b72af65c17a1323af 100644
 --- chrome/browser/policy/chrome_browser_policy_connector.cc
 +++ chrome/browser/policy/chrome_browser_policy_connector.cc
 @@ -12,10 +12,13 @@

@@ -10,12 +10,9 @@
 #include <memory>
 
 #include "base/task/single_thread_task_runner.h"
+#include "base/threading/thread.h"
 #include "cef/include/cef_server.h"
 #include "net/server/http_server.h"
-
-namespace base {
-class Thread;
-}
 
 class CefServerImpl : public CefServer, public net::HttpServer::Delegate {
  public:

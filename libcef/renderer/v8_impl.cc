@@ -546,7 +546,7 @@ void AccessorNameGetterCallbackImpl(
   v8::Isolate* isolate = info.GetIsolate();
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
 
-  v8::Local<v8::Object> obj = info.This();
+  v8::Local<v8::Object> obj = info.HolderV2();
 
   CefRefPtr<CefV8Accessor> accessorPtr;
 
@@ -590,7 +590,7 @@ void AccessorNameSetterCallbackImpl(
   v8::Isolate* isolate = info.GetIsolate();
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
 
-  v8::Local<v8::Object> obj = info.This();
+  v8::Local<v8::Object> obj = info.HolderV2();
 
   CefRefPtr<CefV8Accessor> accessorPtr;
 
@@ -635,7 +635,7 @@ v8::Intercepted InterceptorGetterCallbackImpl(
   v8::Isolate* isolate = info.GetIsolate();
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
 
-  v8::Handle<v8::Object> obj = info.This();
+  v8::Handle<v8::Object> obj = info.HolderV2();
   CefRefPtr<CefV8Interceptor> interceptorPtr;
 
   V8TrackObject* tracker = V8TrackObject::Unwrap(context, obj);
@@ -672,7 +672,7 @@ v8::Intercepted InterceptorSetterCallbackImpl(
     const v8::PropertyCallbackInfo<void>& info) {
   v8::Isolate* isolate = info.GetIsolate();
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
-  v8::Handle<v8::Object> obj = info.This();
+  v8::Handle<v8::Object> obj = info.HolderV2();
   CefRefPtr<CefV8Interceptor> interceptorPtr;
 
   V8TrackObject* tracker = V8TrackObject::Unwrap(context, obj);

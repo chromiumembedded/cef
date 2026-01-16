@@ -248,6 +248,10 @@ cef_permission_request_types_t GetCefRequestType(
       return CEF_PERMISSION_TYPE_FILE_SYSTEM_ACCESS;
     case permissions::RequestType::kLocalNetworkAccess:
       return CEF_PERMISSION_TYPE_LOCAL_NETWORK_ACCESS;
+    case permissions::RequestType::kLocalNetwork:
+      return CEF_PERMISSION_TYPE_LOCAL_NETWORK;
+    case permissions::RequestType::kLoopbackNetwork:
+      return CEF_PERMISSION_TYPE_LOOPBACK_NETWORK;
   }
 
   DCHECK(false);

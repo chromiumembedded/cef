@@ -845,7 +845,7 @@ void CefRequestContextImpl::ClearCertificateExceptionsInternal(
   content::SSLHostStateDelegate* ssl_delegate =
       browser_context->AsBrowserContext()->GetSSLHostStateDelegate();
   if (ssl_delegate) {
-    ssl_delegate->Clear(base::NullCallback());
+    ssl_delegate->Clear(base::RepeatingCallback<bool(const std::string&)>());
   }
 
   if (callback) {

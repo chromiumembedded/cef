@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 4f2d6e9a048883d5be25ff28fbc7f71e35659807..91219f74a3faa407f713fe480018eb1b23ba82b6 100644
+index c0551950d0463d2162a935fd9fc409e48f8432a9..c580d546e392b62513b160c78f45f40df7a087ae 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -10,7 +10,7 @@ index 4f2d6e9a048883d5be25ff28fbc7f71e35659807..91219f74a3faa407f713fe480018eb1b
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -358,8 +359,6 @@ static_library("browser") {
+@@ -353,8 +354,6 @@ static_library("browser") {
      "data_sharing/data_sharing_navigation_utils.h",
      "data_sharing/data_sharing_service_factory.cc",
      "data_sharing/data_sharing_service_factory.h",
@@ -19,7 +19,7 @@ index 4f2d6e9a048883d5be25ff28fbc7f71e35659807..91219f74a3faa407f713fe480018eb1b
      "data_sharing/personal_collaboration_data/personal_collaboration_data_service_factory.cc",
      "data_sharing/personal_collaboration_data/personal_collaboration_data_service_factory.h",
      "defaults.cc",
-@@ -1827,6 +1826,7 @@ static_library("browser") {
+@@ -1784,6 +1783,7 @@ static_library("browser") {
      "//build/config/compiler:compiler_buildflags",
      "//build/config/linux/dbus:buildflags",
      "//cc",
@@ -27,7 +27,7 @@ index 4f2d6e9a048883d5be25ff28fbc7f71e35659807..91219f74a3faa407f713fe480018eb1b
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2655,6 +2655,10 @@ static_library("browser") {
+@@ -2617,6 +2617,10 @@ static_library("browser") {
      sources += [ "net/net_error_diagnostics_dialog_stub.cc" ]
    }
  

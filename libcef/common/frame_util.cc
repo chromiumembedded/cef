@@ -66,7 +66,7 @@ std::string MakeFrameIdentifier(
 
 std::string GetFrameDebugString(
     const content::GlobalRenderFrameHostId& global_id) {
-  return base::StringPrintf("[%d,%d]", global_id.child_id,
+  return base::StringPrintf("[%d,%d]", global_id.child_id.GetUnsafeValue(),
                             global_id.frame_routing_id);
 }
 

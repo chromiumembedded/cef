@@ -153,13 +153,11 @@ bool CefXmlReaderImpl::Initialize(CefRefPtr<CefStreamReader> stream,
   }
 
   // Create the input buffer.
-  xmlParserInputBufferPtr input_buffer = xmlAllocParserInputBuffer(enc);
+  xmlParserInputBufferPtr input_buffer = xmlParserInputBufferCreateIO(
+      xml_read_callback, nullptr, stream.get(), enc);
   if (!input_buffer) {
     return false;
   }
-
-  input_buffer->context = stream.get();
-  input_buffer->readcallback = xml_read_callback;
 
   // Create the text reader.
   std::string uriStr = URI;

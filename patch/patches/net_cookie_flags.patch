@@ -11,10 +11,10 @@ index c10df92f30b1292a8243f376025e81afcefba78d..59e6208b3954635076022807edfc9a30
 +
  // See note at top of file about why adding LoadFlags is often a bad idea.
 diff --git net/url_request/url_request_http_job.cc net/url_request/url_request_http_job.cc
-index 6537c74f5812f0d24bf8b31b7093822201b82a70..2ace801880fb99ce6b638d3b835f7b44a1bea889 100644
+index 335902144d6d1e9c3ad18c41cd617c565201f94e..f0cce4090dfe1c630a909a9b2351aceb906eeace 100644
 --- net/url_request/url_request_http_job.cc
 +++ net/url_request/url_request_http_job.cc
-@@ -2185,7 +2185,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
+@@ -2071,7 +2071,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
    // Read cookies whenever allow_credentials() is true, even if the PrivacyMode
    // is being overridden by NetworkDelegate and will eventually block them, as
    // blocked cookies still need to be logged in that case.

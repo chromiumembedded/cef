@@ -13,6 +13,7 @@
 class CefTestServerImpl : public CefTestServer {
  public:
   CefTestServerImpl() = default;
+  ~CefTestServerImpl() override;
 
   CefTestServerImpl(const CefTestServerImpl&) = delete;
   CefTestServerImpl& operator=(const CefTestServerImpl&) = delete;

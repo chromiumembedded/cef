@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/web/web_element.h third_party/blink/public/web/web_element.h
-index e44549b6a1449419c766934abb8c5e856cde6897..d4c01fe19228e46a858af7a6f8fc13d2ebad86d5 100644
+index c7d018849a6c0ed6f954abef5642495b16a6c3b6..807d37585aff03f00238b24a3952720c390a0149 100644
 --- third_party/blink/public/web/web_element.h
 +++ third_party/blink/public/web/web_element.h
-@@ -83,6 +83,9 @@ class BLINK_EXPORT WebElement : public WebNode {
+@@ -86,6 +86,9 @@ class BLINK_EXPORT WebElement : public WebNode {
    WebString TextContent() const;
    WebString TextContentAbridged(unsigned int max_length) const;
    WebString InnerHTML() const;

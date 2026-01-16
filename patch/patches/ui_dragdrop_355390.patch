@@ -1,8 +1,8 @@
 diff --git ui/base/x/x11_os_exchange_data_provider.cc ui/base/x/x11_os_exchange_data_provider.cc
-index 2f1430d55f0e61ec450a13c4fc1db870fa95ea9c..b9bdd71d62f4739e1126541636880d954526552d 100644
+index 29e2fdda19fba3db8e452569ffbb78bbc670b0f6..5acdbd3a1d71780aeb90523e693b5ea20a13d106 100644
 --- ui/base/x/x11_os_exchange_data_provider.cc
 +++ ui/base/x/x11_os_exchange_data_provider.cc
-@@ -166,7 +166,8 @@ void XOSExchangeDataProvider::SetURL(const GURL& url,
+@@ -167,7 +167,8 @@ void XOSExchangeDataProvider::SetURLs(
      format_map_.Insert(x11::GetAtom(kMimeTypeMozillaUrl), mem);
  
      // Set a string fallback as well.

@@ -3849,6 +3849,10 @@ typedef enum {
 #if CEF_API_ADDED(13600)
   CEF_PERMISSION_TYPE_LOCAL_NETWORK_ACCESS = 1 << 25,
 #endif
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_PERMISSION_TYPE_LOCAL_NETWORK = 1 << 26,
+  CEF_PERMISSION_TYPE_LOOPBACK_NETWORK = 1 << 27,
+#endif
 } cef_permission_request_types_t;
 
 ///

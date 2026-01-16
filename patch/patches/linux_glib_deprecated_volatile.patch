@@ -14,7 +14,7 @@ index 54d483d6b3f1a56573e21b1f873b8dee8fc25a0f..c8d7e4e2ae9a6bb5e9b0a3d81b089274
    }
  }
 diff --git ui/gtk/BUILD.gn ui/gtk/BUILD.gn
-index 967f63763bb92d6080f007405bed3e9cafd59ab5..f15f04d0d063fe4aa4ab39606136c7d102e43728 100644
+index ec1e229d4974c8985d5e13d60be7fd6f680f1f84..faf4cc3eb01e345b702f1a24d116dba4445b9cdf 100644
 --- ui/gtk/BUILD.gn
 +++ ui/gtk/BUILD.gn
 @@ -184,4 +184,8 @@ component("gtk") {

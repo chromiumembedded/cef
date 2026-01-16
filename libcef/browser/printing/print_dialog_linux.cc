@@ -12,6 +12,7 @@
 #include "base/functional/bind.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
+#include "base/memory/ptr_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
 #include "cef/libcef/browser/browser_host_base.h"
@@ -38,8 +39,9 @@ CefRefPtr<CefBrowserHostBase> GetBrowserForContext(
     return nullptr;
   }
 
-  return CefBrowserHostBase::GetBrowserForGlobalId(frame_util::MakeGlobalId(
-      context->render_process_id(), context->render_frame_id()));
+  return CefBrowserHostBase::GetBrowserForGlobalId(
+      content::GlobalRenderFrameHostId(context->render_process_id(),
+                                       context->render_frame_id()));
 }
 
 CefRefPtr<CefPrintHandler> GetPrintHandlerForBrowser(
@@ -126,12 +128,12 @@ class CefPrintJobCallbackImpl : public CefPrintJobCallback {
 
 CefPrintingContextLinuxDelegate::CefPrintingContextLinuxDelegate() = default;
 
-printing::PrintDialogLinuxInterface*
+std::unique_ptr<printing::PrintDialogLinuxInterface>
 CefPrintingContextLinuxDelegate::CreatePrintDialog(
     printing::PrintingContextLinux* context) {
   CEF_REQUIRE_UIT();
 
-  printing::PrintDialogLinuxInterface* interface = nullptr;
+  std::unique_ptr<printing::PrintDialogLinuxInterface> interface;
 
   auto browser = GetBrowserForContext(context);
   if (!browser) {
@@ -146,7 +148,8 @@ CefPrintingContextLinuxDelegate::CreatePrintDialog(
       DCHECK(interface);
     }
   } else {
-    interface = new CefPrintDialogLinux(context, browser, handler);
+    interface = base::WrapUnique<printing::PrintDialogLinuxInterface>(
+        new CefPrintDialogLinux(context, browser, handler));
   }
 
   if (!interface) {

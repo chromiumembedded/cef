@@ -47,7 +47,8 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
     content::devtools_instrumentation::WillCreateURLLoaderFactoryParams::
         ForFrame(static_cast<content::RenderFrameHostImpl*>(render_frame_host))
             .Run(/*is_navigation=*/false, /*is_download=*/false,
-                 factory_builder, /*factory_override=*/nullptr);
+                 factory_builder, /*factory_override=*/nullptr,
+                 /*header_client=*/nullptr);
   }
 
   auto browser_client = CefAppManager::Get()->GetContentClient()->browser();

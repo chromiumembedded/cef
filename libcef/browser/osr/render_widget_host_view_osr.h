@@ -174,8 +174,8 @@ class CefRenderWidgetHostViewOSR
   void CopyFromSurface(
       const gfx::Rect& src_rect,
       const gfx::Size& output_size,
-      base::OnceCallback<void(const viz::CopyOutputBitmapWithMetadata&)>
-          callback) override;
+      base::OnceCallback<void(const content::CopyFromSurfaceResult&)> callback)
+      override;
   display::ScreenInfos GetNewScreenInfosForUpdate() override;
   void TransformPointToRootSurface(gfx::PointF* point) override;
   gfx::Rect GetBoundsInRootWindow() override;

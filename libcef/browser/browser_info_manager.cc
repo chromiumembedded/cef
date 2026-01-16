@@ -637,10 +637,8 @@ void CefBrowserInfoManager::RenderProcessHostDestroyed(
 
   host->RemoveObserver(this);
 
-  // TODO: Change to content::ChildProcessId usage once supported by
-  // GlobalRenderFrameHostToken. See https://crbug.com/379869738.
-  const int render_process_id = host->GetDeprecatedID();
-  DCHECK_GT(render_process_id, 0);
+  const content::ChildProcessId render_process_id = host->GetID();
+  DCHECK(!render_process_id.is_null());
 
   // Remove all pending requests that reference the destroyed host.
   {
@@ -650,7 +648,9 @@ void CefBrowserInfoManager::RenderProcessHostDestroyed(
         pending_new_browser_info_map_.begin();
     while (it != pending_new_browser_info_map_.end()) {
       const auto& info = it->second;
-      if (info->global_token.child_id == render_process_id) {
+      // TODO(crbug.com/379869738): Remove GetUnsafeValue() once
+      // GlobalRenderFrameHostToken is migrated to use ChildProcessId.
+      if (info->global_token.child_id == render_process_id.GetUnsafeValue()) {
         CancelNewBrowserInfoResponse(info.get());
         it = pending_new_browser_info_map_.erase(it);
       } else {

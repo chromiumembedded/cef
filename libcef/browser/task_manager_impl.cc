@@ -123,11 +123,14 @@ bool CefTaskManagerImpl::GetTaskInfo(int64_t task_id, CefTaskInfo& info) {
     info.cpu_usage = 0.0;
   }
   info.number_of_processors = base::SysInfo::NumberOfProcessors();
-  info.memory = task_manager_->GetMemoryFootprintUsage(task_id).InBytes();
+  const auto memory_usage = task_manager_->GetMemoryFootprintUsage(task_id);
+  info.memory = memory_usage.has_value() ? memory_usage->InBytes() : 0;
 
   bool has_duplicates = false;
+  const auto gpu_memory_usage =
+      task_manager_->GetGpuMemoryUsage(task_id, &has_duplicates);
   info.gpu_memory =
-      task_manager_->GetGpuMemoryUsage(task_id, &has_duplicates).InBytes();
+      gpu_memory_usage.has_value() ? gpu_memory_usage->InBytes() : 0;
   info.is_gpu_memory_inflated = has_duplicates;
   return true;
 }

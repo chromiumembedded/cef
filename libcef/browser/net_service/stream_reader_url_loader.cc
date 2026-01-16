@@ -638,8 +638,8 @@ void StreamReaderURLLoader::HeadersComplete(int orig_status_code,
   DCHECK(thread_checker_.CalledOnValidThread());
 
   int status_code = orig_status_code;
-  std::string status_text =
-      net::GetHttpReasonPhrase(static_cast<net::HttpStatusCode>(status_code));
+  std::string status_text(
+      net::GetHttpReasonPhrase(static_cast<net::HttpStatusCode>(status_code)));
   std::string mime_type, charset;
   int64_t content_length = expected_content_length;
   ResourceResponse::HeaderMap extra_headers;

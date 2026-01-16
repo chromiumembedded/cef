@@ -24,7 +24,7 @@ gfx::Rect ChromeBrowserFrameView::GetBoundsForWebAppFrameToolbar(
 }
 
 int ChromeBrowserFrameView::GetTopInset(bool restored) const {
-  return browser_view()->y();
+  return GetBrowserView()->y();
 }
 
 const views::Widget* ChromeBrowserFrameView::GetWidget() const {

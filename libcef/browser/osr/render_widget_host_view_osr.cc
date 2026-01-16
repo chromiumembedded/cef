@@ -745,8 +745,7 @@ uint32_t CefRenderWidgetHostViewOSR::GetCaptureSequenceNumber() const {
 void CefRenderWidgetHostViewOSR::CopyFromSurface(
     const gfx::Rect& src_rect,
     const gfx::Size& output_size,
-    base::OnceCallback<void(const viz::CopyOutputBitmapWithMetadata&)>
-        callback) {
+    base::OnceCallback<void(const content::CopyFromSurfaceResult&)> callback) {
   if (delegated_frame_host_) {
     delegated_frame_host_->CopyFromCompositingSurface(src_rect, output_size,
                                                       std::move(callback));

@@ -1,5 +1,5 @@
 diff --git third_party/libxml/BUILD.gn third_party/libxml/BUILD.gn
-index 5780cb8336be31a37baf365b655dc142158d6b05..a00143646bf6e70784244dc8fba7eb53c576ca41 100644
+index 890afc0e83a926d1c9c08c34da54556699110691..a470d9a527d9421db90d4cd60af9d310dd5536e2 100644
 --- third_party/libxml/BUILD.gn
 +++ third_party/libxml/BUILD.gn
 @@ -143,6 +143,7 @@ static_library("libxml") {

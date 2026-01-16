@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/navigation_throttle_registry_impl.cc content/browser/renderer_host/navigation_throttle_registry_impl.cc
-index ba0968b663f3a59064829ae2738c5b59646b2670..2dba274a0ec6ac85b098c5a73cb103e0f0193954 100644
+index 7f082d845e3891154bed9ef5f3c69b0384da8cd0..ebcb7eba73f8f3037ca902636250fae325c4d520 100644
 --- content/browser/renderer_host/navigation_throttle_registry_impl.cc
 +++ content/browser/renderer_host/navigation_throttle_registry_impl.cc
-@@ -261,11 +261,16 @@ NavigationHandle& NavigationThrottleRegistryImpl::GetNavigationHandle() {
+@@ -269,12 +269,17 @@ NavigationHandle& NavigationThrottleRegistryImpl::GetNavigationHandle() {
  }
  
  void NavigationThrottleRegistryImpl::AddThrottle(
@@ -12,6 +12,7 @@ index ba0968b663f3a59064829ae2738c5b59646b2670..2dba274a0ec6ac85b098c5a73cb103e0
    CHECK(navigation_throttle);
    TRACE_EVENT1("navigation", "NavigationThrottleRegistryImpl::AddThrottle",
                 "navigation_throttle", navigation_throttle->GetNameForLogging());
+   CHECK(!navigation_request_->IsInitialWebUISyncNavigation());
 -  throttles_.push_back(std::move(navigation_throttle));
 +  if (first) {
 +    throttles_.emplace(throttles_.begin(), std::move(navigation_throttle));
@@ -22,7 +23,7 @@ index ba0968b663f3a59064829ae2738c5b59646b2670..2dba274a0ec6ac85b098c5a73cb103e0
  
  bool NavigationThrottleRegistryImpl::HasThrottle(const std::string& name) {
 diff --git content/browser/renderer_host/navigation_throttle_registry_impl.h content/browser/renderer_host/navigation_throttle_registry_impl.h
-index 9887ba175cef06096205b5d17be8df1f7b45e139..c9ee6fd29bf03dbcc72b48e902bc3e9a86619e70 100644
+index b59d2f39b1b587b64130a248ad93a0b613b9e859..a102685b7d5c7171c4531e942b6ab10039e6ee41 100644
 --- content/browser/renderer_host/navigation_throttle_registry_impl.h
 +++ content/browser/renderer_host/navigation_throttle_registry_impl.h
 @@ -135,7 +135,8 @@ class CONTENT_EXPORT NavigationThrottleRegistryImpl

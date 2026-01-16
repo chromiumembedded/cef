@@ -66,7 +66,7 @@ index 8af69cac78b7488d28f1f05ccb174793fe5148cd..9f74e511c263d147b5fbe81fe100d217
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index da33fa857f85484853d14f24d0601f4c284fd67a..f6ee55c54d6f573c46cebb9fc52a8fcf59eb0b2a 100644
+index 42eb89bca0a2ea0785d21b6a72e5ece3d5859c21..4467d03ed31764e7c893bf7efbddecbb492bd9fc 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -276,6 +276,8 @@ viz_component("service") {
@@ -187,7 +187,7 @@ index b5154321105f08335b67ad2d552afa61337a4976..66048e7ca6a149c267debe333976178c
  
    TRACE_EVENT_BEGIN("viz", "SoftwareOutputDeviceWinProxy::Draw",
 diff --git components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
-index d8f845998240032f668324665d61b2efd60c0e1c..978fbcf6bb8529381f988b9104459a9bcbd754ea 100644
+index 6608224b2901e8785b6bb88b8d220d3a1d35c389..7f8ae14aa715f2b926612db9a57ae0a791dd69a8 100644
 --- components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
 +++ components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
 @@ -131,7 +131,8 @@ RootCompositorFrameSinkImpl::Create(
@@ -229,10 +229,10 @@ index 399fba1a3d4e601dc2cdd5f1f4def8b7fd7a3011..e784943296025be191918397b3f4164e
    gpu::SyncPointManager* GetSyncPointManager() override;
    gpu::Scheduler* GetGpuScheduler() override;
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 43d29976d8bd42d3ee6857db7d61f31c26795848..c3be4f8e990ba113774b9d28cf385d706c821ce0 100644
+index 8eb6ce27082c858283f56cc67f4f3012d4a624c2..18aa4f3bb21226f42f3af779e9b299272a1a6779 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -381,8 +381,15 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -406,8 +406,15 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    mojo::AssociatedRemote<viz::mojom::DisplayPrivate> display_private;
    root_params->display_private =
        display_private.BindNewEndpointAndPassReceiver();
@@ -251,7 +251,7 @@ index 43d29976d8bd42d3ee6857db7d61f31c26795848..c3be4f8e990ba113774b9d28cf385d70
        compositor_data.display_client->GetBoundRemote(resize_task_runner_);
    mojo::AssociatedRemote<viz::mojom::ExternalBeginFrameController>
 diff --git mojo/public/cpp/bindings/sync_call_restrictions.h mojo/public/cpp/bindings/sync_call_restrictions.h
-index c608918dfbf9afe4ca94f4b5b3a67dfc68ce1d73..49012891abbf6bfd4282607224334f633a62ed44 100644
+index 9addccb41bff12965c7038b994cdf865b9d9bf99..badcfdf774a0343daae5dbc228517ac31ee8712a 100644
 --- mojo/public/cpp/bindings/sync_call_restrictions.h
 +++ mojo/public/cpp/bindings/sync_call_restrictions.h
 @@ -41,6 +41,7 @@ class Compositor;
@@ -261,8 +261,8 @@ index c608918dfbf9afe4ca94f4b5b3a67dfc68ce1d73..49012891abbf6bfd4282607224334f63
 +class GpuDisplayProvider;
  class GpuHostImpl;
  class HostFrameSinkManager;
- class HostGpuMemoryBufferManager;
-@@ -111,6 +112,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
+ }  // namespace viz
+@@ -110,6 +111,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
    // SynchronousCompositorHost is used for Android webview.
    friend class content::SynchronousCompositorHost;
    friend class mojo::ScopedAllowSyncCallForTesting;
@@ -284,7 +284,7 @@ index 78a96bff9ba9e24dababf758ba38f9b430b39a14..7b46e68f52e3c13f731ce48670600442
  
    // Sends the created child window to the browser process so that it can be
 diff --git services/viz/privileged/mojom/compositing/frame_sink_manager.mojom services/viz/privileged/mojom/compositing/frame_sink_manager.mojom
-index e440ae1c216333afe1d90114d48a3bf7f39cf41f..6fd653152a5da896c0a30e9db3b39efff53e03cd 100644
+index 454c1872d6c247687a73391c57007f8ca74725ea..98983b5f07fd112240c2090bc5e81a25df0c36c8 100644
 --- services/viz/privileged/mojom/compositing/frame_sink_manager.mojom
 +++ services/viz/privileged/mojom/compositing/frame_sink_manager.mojom
 @@ -62,6 +62,8 @@ struct RootCompositorFrameSinkParams {

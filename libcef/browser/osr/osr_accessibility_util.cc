@@ -81,6 +81,7 @@ struct PopulateAxNodeAttributes {
       case ax::mojom::IntAttribute::kNone:
       case ax::mojom::IntAttribute::kMaxLength:
       case ax::mojom::IntAttribute::kPaintOrder:
+      case ax::mojom::IntAttribute::kCommittedTextLength:
         break;
       case ax::mojom::IntAttribute::kScrollX:
       case ax::mojom::IntAttribute::kScrollXMin:

@@ -275,7 +275,8 @@ void CefServerImpl::SendHttp500Response(int connection_id,
     return;
   }
 
-  server_->Send500(connection_id, error_message, MISSING_TRAFFIC_ANNOTATION);
+  server_->Send500(connection_id, error_message.ToString(),
+                   MISSING_TRAFFIC_ANNOTATION);
   server_->Close(connection_id);
 }
 
@@ -311,10 +312,11 @@ void CefServerImpl::SendHttpResponse(int connection_id,
 
   HeaderMap::const_iterator it = extra_headers.begin();
   for (; it != extra_headers.end(); ++it) {
-    response.AddHeader(it->first, it->second);
+    response.AddHeader(it->first.ToString(), it->second.ToString());
   }
 
-  response.AddHeader(net::HttpRequestHeaders::kContentType, content_type);
+  response.AddHeader(net::HttpRequestHeaders::kContentType,
+                     content_type.ToString());
   if (content_length >= 0) {
     response.AddHeader(
         net::HttpRequestHeaders::kContentLength,
@@ -421,7 +423,7 @@ void CefServerImpl::SendHttp200ResponseInternal(
     return;
   }
 
-  server_->Send200(connection_id, *data, content_type,
+  server_->Send200(connection_id, *data, content_type.ToString(),
                    MISSING_TRAFFIC_ANNOTATION);
   server_->Close(connection_id);
 }

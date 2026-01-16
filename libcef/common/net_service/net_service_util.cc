@@ -83,7 +83,7 @@ std::string MakeStatusLine(int status_code,
   status.append(" ");
 
   if (status_text.empty()) {
-    const std::string& text =
+    std::string_view text =
         net::GetHttpReasonPhrase(static_cast<net::HttpStatusCode>(status_code));
     DCHECK(!text.empty());
     status.append(text);

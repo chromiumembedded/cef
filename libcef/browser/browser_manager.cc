@@ -12,7 +12,7 @@
 #include "mojo/public/cpp/bindings/self_owned_receiver.h"
 #include "services/service_manager/public/cpp/binder_registry.h"
 
-CefBrowserManager::CefBrowserManager(int render_process_id)
+CefBrowserManager::CefBrowserManager(content::ChildProcessId render_process_id)
     : render_process_id_(render_process_id) {}
 
 CefBrowserManager::~CefBrowserManager() = default;
@@ -22,16 +22,14 @@ void CefBrowserManager::ExposeInterfacesToRenderer(
     service_manager::BinderRegistry* registry,
     blink::AssociatedInterfaceRegistry* associated_registry,
     content::RenderProcessHost* host) {
-  // TODO: Change to content::ChildProcessId usage once supported by
-  // GlobalRenderFrameHostToken. See https://crbug.com/379869738.
   registry->AddInterface<cef::mojom::BrowserManager>(base::BindRepeating(
-      [](int render_process_id,
+      [](content::ChildProcessId render_process_id,
          mojo::PendingReceiver<cef::mojom::BrowserManager> receiver) {
         mojo::MakeSelfOwnedReceiver(
             std::make_unique<CefBrowserManager>(render_process_id),
             std::move(receiver));
       },
-      host->GetDeprecatedID()));
+      host->GetID()));
 }
 
 // static
@@ -53,8 +51,10 @@ void CefBrowserManager::GetNewRenderThreadInfo(
 void CefBrowserManager::GetNewBrowserInfo(
     const blink::LocalFrameToken& render_frame_token,
     cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback) {
+  // TODO(crbug.com/379869738): Remove GetUnsafeValue() once
+  // GlobalRenderFrameHostToken is migrated to use ChildProcessId.
   CefBrowserInfoManager::GetInstance()->OnGetNewBrowserInfo(
-      content::GlobalRenderFrameHostToken(render_process_id_,
+      content::GlobalRenderFrameHostToken(render_process_id_.GetUnsafeValue(),
                                           render_frame_token),
       std::move(callback));
 }

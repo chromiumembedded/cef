@@ -1,5 +1,5 @@
 diff --git chrome/common/features.gni chrome/common/features.gni
-index 782b20d85af314a3a7c8306789679ea73c336008..58d7fb0c8cab32c8cc9d9ca3559c5bc693d998f8 100644
+index 5b8e39bf107fa593c91507d0696378c1db8f84b8..0f668692d8ef4261fa74e35a0bcd8824768f55c3 100644
 --- chrome/common/features.gni
 +++ chrome/common/features.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -19,7 +19,7 @@ index 782b20d85af314a3a7c8306789679ea73c336008..58d7fb0c8cab32c8cc9d9ca3559c5bc6
  
    # Platforms for which Chrome supports a certificate management UI that
    # shows the Chrome Root Store. This is specific to the v2 UI that is
-@@ -66,11 +67,13 @@ declare_args() {
+@@ -77,11 +78,13 @@ declare_args() {
    # optimize_webui was moved to ui/base/ui_features.gni
  }
  

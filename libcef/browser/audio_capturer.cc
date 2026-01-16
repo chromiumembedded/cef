@@ -107,7 +107,7 @@ void CefAudioCapturer::Capture(const media::AudioBus* source,
   DCHECK(channels == channels_);
   DCHECK(channels <= static_cast<int>(data.size()));
   for (int c = 0; c < channels; ++c) {
-    data[c] = source->channel_span(c).data();
+    data[c] = source->channel(c).data();
   }
   base::TimeDelta pts = audio_capture_time - base::TimeTicks::UnixEpoch();
   audio_handler_->OnAudioStreamPacket(browser_, data.data(), source->frames(),

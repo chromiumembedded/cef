@@ -123,10 +123,10 @@ index 5f5e671978830a0d9044a4c9ec68ba40a5323228..802171258704046336f151a6b72d2e71
                                       params.Clone());
  }
 diff --git chrome/browser/file_select_helper.h chrome/browser/file_select_helper.h
-index 8b5ef4d32ddc686c430fcc49b2e3c2bf53a7046e..7681ef7eaceb682d5ba78eb92c47474802e2005b 100644
+index 58b1bfe937a9845a9d38ace4b1c5959fcbea8f64..bdb90fcea53823878d2b0d82528df9a8e7161ae8 100644
 --- chrome/browser/file_select_helper.h
 +++ chrome/browser/file_select_helper.h
-@@ -65,7 +65,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -64,7 +64,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    static void RunFileChooser(
        content::RenderFrameHost* render_frame_host,
        scoped_refptr<content::FileSelectListener> listener,
@@ -136,7 +136,7 @@ index 8b5ef4d32ddc686c430fcc49b2e3c2bf53a7046e..7681ef7eaceb682d5ba78eb92c474748
  
    // Enumerates all the files in directory.
    static void EnumerateDirectory(
-@@ -330,6 +331,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -329,6 +330,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    std::unique_ptr<ScopedTuckPictureInPicture> scoped_tuck_picture_in_picture_;
  #endif  // !BUILDFLAG(IS_ANDROID)
  
