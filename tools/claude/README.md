@@ -57,7 +57,7 @@ This directory contains tools and instructions for using Claude Code to assist w
 ### Documentation
 
 - **[CHROMIUM_UPDATE.md](CHROMIUM_UPDATE.md)** - Complete guide for updating CEF to new Chromium versions
-- **[CLAUDE.md](CLAUDE.md)** - General Claude Code instructions for Chromium/CEF codebase
+- **[CLAUDE.md.in](CLAUDE.md.in)** - Template for root CLAUDE.md (copied by setup_claude.py)
 - **[CLAUDE_BASE_SYNC_INSTRUCTIONS.md](CLAUDE_BASE_SYNC_INSTRUCTIONS.md)** - Instructions for syncing CEF base headers with Chromium
 - **[CLAUDE_BUILD_INSTRUCTIONS.md](CLAUDE_BUILD_INSTRUCTIONS.md)** - Detailed instructions for Claude agents fixing build errors
 - **[CLAUDE_CLIENT_INSTRUCTIONS.md](CLAUDE_CLIENT_INSTRUCTIONS.md)** - Detailed instructions for Claude agents implementing features in CEF applications
@@ -93,7 +93,7 @@ cd chromium/src/cef/tools
 python3 setup_claude.py
 ```
 
-This copies `CLAUDE.md` to the project root (`chromium/src/CLAUDE.md`), enabling Claude Code to understand the Chromium/CEF codebase structure.
+This copies `CLAUDE.md.in` to the project root as `chromium/src/CLAUDE.md`, enabling Claude Code to understand the Chromium/CEF codebase structure.
 
 ## Formatting Files
 

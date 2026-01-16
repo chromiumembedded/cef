@@ -30,21 +30,6 @@ CEF maintains patch files in `cef/patch/patches/` that modify Chromium source co
 4. You resave the updated patches
 5. Repeat until all patches apply cleanly
 
-## CRITICAL: Working Directory Awareness
-
-**BEFORE running ANY command with `cd` or relative paths:**
-
-1. ✓ **Check current directory:** `pwd`
-2. ✓ **Determine the correct path** from your current location
-3. ✓ **Execute the command** with the correct path
-
-**Never assume your current directory. Always verify first.**
-
-Relative paths like `cd cef/tools/claude` behave differently depending on where you are:
-
-- From `chromium/src`: navigates to `chromium/src/cef/tools/claude` ✓
-- From `chromium/src/cef/tools`: tries to navigate to `chromium/src/cef/tools/cef/tools/claude` ✗
-
 ## Step-by-Step Workflow
 
 ### Step 1: Analyze the Patch Output
@@ -157,30 +142,6 @@ grep "^@@" {file_path}.rej | wc -l
 ```
 
 **CRITICAL:** You must apply **ALL** failed hunks, not just some of them. Count the hunks and check them off as you apply each one.
-
-**Reject File Format (Unified Diff):**
-```
---- chrome/browser/ui/views/find_bar_host.cc
-+++ chrome/browser/ui/views/find_bar_host.cc
-@@ -614,6 +614,14 @@ gfx::Rect FindBarHost::GetDialogPosition(...)
-   gfx::Rect find_bar_bounds = browser_view_->GetFindBarBoundingBox();
-+
-+#if BUILDFLAG(ENABLE_CEF)
-+  if (browser_view_->browser() && browser_view_->browser()->cef_delegate()) {
-+    browser_view_->browser()->cef_delegate()->UpdateFindBarBoundingBox(
-+        &find_bar_bounds);
-+  }
-+#endif
-+
-   if (find_bar_bounds.IsEmpty()) {
-```
-
-**Interpretation:**
-
-- Lines with no prefix = context (unchanged code)
-- Lines with `+` = changes CEF wants to add
-- Lines with `-` = changes CEF wants to remove
-- `@@ -614,6 +614,14 @@` = hunk location and size
 
 #### B. Understand What Changed in Chromium
 
@@ -339,45 +300,6 @@ This will:
 - Update line numbers and offsets
 - Validate the patch can now be applied
 
-**1.5 Format the manually edited files:**
-
-After manually editing files but before resaving the patch, run the code formatter on supported file types:
-
-**Supported file types** (auto-formattable with `git cl format`):
-
-- C/C++/Objective-C++: `.cc`, `.cpp`, `.c`, `.h`, `.hpp`, `.mm`
-- Python: `.py`
-- Java: `.java`
-
-**Unsupported file types** (must manually match existing style):
-
-- GN build files: `.gn`, `BUILD.gn`
-- Mojo files: `.mojom`
-- Shell scripts, text files, etc.
-
-```bash
-# From chromium/src directory:
-# Format only the C++/Python/Java file(s) you manually edited
-git cl format {file_path}
-
-# If you manually edited multiple formattable files for this patch:
-git cl format {file_path1} {file_path2}
-```
-
-**IMPORTANT:**
-
-- Only format files you manually edited, not all changed files
-- Only use `git cl format` on supported file types
-- For .gn, .mojom, and other unsupported types, carefully match existing indentation and style manually
-
-Review the formatting changes:
-
-```bash
-git diff {file_path}
-```
-
-If the formatter made changes, they should be minimal (line wrapping, spacing). If it makes large changes, verify your manual edits are still correct.
-
 **2. REQUIRED: Verify File Coverage**
 
 Run verify_patch.py to ensure all failed files are included in the regenerated patch:
@@ -482,18 +404,6 @@ python3 analyze_patch_output.py patch_output.txt \
 - All patches now apply cleanly to Chromium {new_version}
 - Ready to proceed to Phase 2: Build Error Fixing (see CLAUDE_BUILD_INSTRUCTIONS.md)
 - Report completion to the user with summary statistics
-
-## Time Expectations
-
-Based on typical Chromium updates:
-
-- **Simple patches** (context shifts, minor refactoring): few minutes each (mostly automatic)
-- **Complex patches** (file moves, major refactors, API changes): 15-30 minutes each (may require user guidance/correction)
-- **Total patch fixing**: 1-3 hours typically
-    - Minor updates: Usually < 10 patches fail
-    - Major updates: Can be 10-20+ patches
-
-Work systematically and don't rush. Understanding the Chromium changes is more important than speed.
 
 ## Common Patch Failure Patterns
 
@@ -619,80 +529,6 @@ Work systematically and don't rush. Understanding the Chromium changes is more i
 7. **Preserve CEF intent** - understand what the patch is trying to accomplish, not just mechanically apply it
 8. **Preserve code style** - Match the existing file's line wrapping, indentation, and formatting style. Run `git cl format {file_path}` on manually edited C++/Python/Java files before resaving. For .gn and .mojom files, manually match the existing style.
 
-## Helper Commands Reference
-
-### Analyze patch output:
-```bash
-# From chromium/src/cef/tools/claude directory:
-python3 analyze_patch_output.py {output_file} \
-  --old-version {old_version} --new-version {new_version}
-```
-
-### View reject file:
-```bash
-# From chromium/src directory:
-cat {file_path}.rej
-```
-
-### See what changed in Chromium:
-```bash
-# From chromium/src directory:
-git diff --no-prefix \
-  refs/tags/{old_version}...refs/tags/{new_version} -- {file_path}
-```
-
-### Investigate missing file:
-```bash
-# From chromium/src directory:
-# See what happened (shows renames, deletions, etc.)
-git log --full-history -1 --stat -- {file_path}
-
-# Or view full commit details
-git show {commit_hash}
-```
-
-### Resave individual patch:
-```bash
-# From chromium/src/cef/tools directory:
-python3 patch_updater.py --resave --patch {patch_name}
-```
-
-### Verify file coverage (REQUIRED after resave):
-```bash
-# From chromium/src/cef/tools/claude directory:
-python3 verify_patch.py patch_output.txt --patch {patch_name} \
-  --old-version {old_version} --new-version {new_version}
-```
-
-### Resave all patches:
-```bash
-# From chromium/src/cef/tools directory:
-python3 patch_updater.py --resave
-```
-
-### Verify all patches apply:
-```bash
-# From chromium/src/cef/tools directory:
-python3 patch_updater.py
-```
-
-### Add files to existing patch:
-```bash
-# From chromium/src/cef/tools directory:
-python3 patch_updater.py --resave --patch {name} --add {path1} --add {path2}
-
-# Note: This often fails when files were moved/renamed.
-# If it fails, manually regenerate the patch instead (see troubleshooting section)
-```
-
-### Create new patch file:
-```bash
-# From chromium/src directory:
-git diff --no-prefix --relative {path1} {path2} > {name}.patch
-# Copy to cef/patch/patches/{name}.patch
-# Add entry to cef/patch/patch.cfg
-```
-
 ## Communication Guidelines
 
 ### Report Progress
@@ -771,40 +607,6 @@ The user will guide you through these next steps. Each phase has its own instruc
 ## Next Phase
 
 After all patches are successfully fixed, proceed to the build error fixing phase using the instructions in `CLAUDE_BUILD_INSTRUCTIONS.md`.
-
-## Example Session
-
-```
-User: Please update patches from 139.0.7258.0 to 140.0.7339.0
-
-Claude: I'll help update the CEF patches. First, let me analyze the patch_updater.py
-output to understand what failed.
-
-[Analyzes output]
-
-I found 9 failed patches affecting 20 files. Here's my plan:
-
-TODO:
-1. Fix runhooks (1 file)
-2. Fix views_widget (1 file)
-3. Fix chrome_runtime (1 file)
-... (6 more)
-
-Starting with patch 1/9: runhooks
-
-[Reads reject file]
-[Checks Chromium changes]
-[Applies manual fix]
-[Resaves patch]
-[Verifies file coverage with verify_patch.py]
-[Verifies content changes]
-
-✓ Fixed runhooks successfully - all files included, all changes applied
-
-Moving to patch 2/9: views_widget
-
-[Continues systematically...]
-```
 
 ## Tips for Efficiency
 

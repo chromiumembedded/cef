@@ -6,6 +6,49 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Chromium is an open-source browser project that forms the foundation for Google Chrome and many other browsers. This codebase contains the full Chromium browser implementation, including the rendering engine (Blink), JavaScript engine (V8), networking stack, and platform-specific implementations across Windows, macOS, Linux, Android, iOS, and Chrome OS.
 
+## CEF (Chromium Embedded Framework)
+
+CEF is embedded in this Chromium checkout at `cef/`. It provides a framework for embedding Chromium-based browsers in other applications.
+
+### CEF Build Commands
+
+```bash
+# Generate CEF build files (from chromium/src/cef)
+./create_debug.sh    # Linux/Mac
+create_debug.bat     # Windows
+
+# Find available build directories (from chromium/src)
+ls out/ | grep GN           # e.g., Debug_GN_x64, Debug_GN_arm64, Release_GN_x64
+
+# Build all CEF targets (from chromium/src, replace Debug_GN_x64 with your build dir)
+autoninja -C out/Debug_GN_x64 cef
+
+# Or build specific targets individually
+autoninja -C out/Debug_GN_x64 cefclient   # Sample browser application
+autoninja -C out/Debug_GN_x64 cefsimple   # Minimal example
+autoninja -C out/Debug_GN_x64 ceftests    # Unit tests
+
+# Run CEF tests
+out/Debug_GN_x64/ceftests
+```
+
+### CEF Directory Structure
+
+- **cef/libcef/** - CEF library implementation
+- **cef/include/** - Public CEF API headers
+- **cef/tests/** - CEF test applications and unit tests
+- **cef/patch/** - Patches applied to Chromium source files
+
+### CEF Development Workflows
+
+For detailed instructions, see `cef/tools/claude/README.md`:
+
+- **Initial setup** - Creating build directories and generating project files
+- **Chromium updates** - Fixing patches and build errors when updating to new Chromium versions
+- **Client development** - Building applications using CEF binary distributions
+- **Unit testing** - Writing and debugging CEF tests
+- **libcef development** - Implementing CEF internals and APIs
+
 ## Build System
 
 Chromium uses **GN (Generate Ninja)** as its meta-build system and **Ninja** as the actual build system:
@@ -40,12 +83,6 @@ blink_symbol_level = 0         # Disable Blink debug symbols
 v8_symbol_level = 0           # Disable V8 debug symbols
 enable_nacl = false           # Disable Native Client
 target_cpu = "x86"            # 32-bit build (may be faster)
-```
-
-For Google employees with remote execution:
-```gn
-use_remoteexec = true
-use_siso = true
 ```
 
 ## Testing

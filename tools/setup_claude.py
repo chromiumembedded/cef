@@ -69,8 +69,8 @@ codebase.
 
   change_ct = 0
 
-  # Copy CLAUDE.md from cef/tools/claude/ to project root
-  claude_md_src = os.path.join(in_dir, 'CLAUDE.md')
+  # Copy CLAUDE.md.in from cef/tools/claude/ to project root as CLAUDE.md
+  claude_md_src = os.path.join(in_dir, 'CLAUDE.md.in')
   claude_md_dst = os.path.join(src_dir, 'CLAUDE.md')
 
   if not os.path.isfile(claude_md_src):

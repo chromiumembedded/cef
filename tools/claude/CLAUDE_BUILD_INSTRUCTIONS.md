@@ -40,21 +40,6 @@ During the Chromium update, APIs changed:
 
 Your task is to update CEF code in the `cef/` directory to work with these changes.
 
-## CRITICAL: Working Directory Awareness
-
-**BEFORE running ANY command with `cd` or relative paths:**
-
-1. ✓ **Check current directory:** `pwd`
-2. ✓ **Determine the correct path** from your current location
-3. ✓ **Execute the command** with the correct path
-
-**Never assume your current directory. Always verify first.**
-
-Relative paths like `cd cef/tools/claude` behave differently depending on where you are:
-
-- From `chromium/src`: navigates to `chromium/src/cef/tools/claude` ✓
-- From `chromium/src/cef/tools`: tries to navigate to `chromium/src/cef/tools/cef/tools/claude` ✗
-
 ## Important Constraints
 
 ### Files You Can Modify
@@ -105,13 +90,7 @@ Establish a baseline by running the build and capturing output:
 autoninja -k 0 -C out/Debug_GN_x64 cef 2>&1 | tee cef/tools/claude/build_output.txt
 ```
 
-**Command explanation:**
-
-- `autoninja` - Parallel build tool (faster than ninja)
-- `-k 0` - Continue building other targets on error (don't stop at first failure)
-- `-C out/Debug_GN_x64` - Build directory (replace with your actual output directory)
-- `cef` - Target to build
-- `2>&1 | tee` - Capture both stdout and stderr to file while showing in terminal
+The `-k 0` flag continues building on errors so you can see all failures at once.
 
 **Expected result:** Build will fail with compile errors. This is normal.
 
@@ -755,66 +734,9 @@ Some errors cause other errors. Fix the first error, rebuild that file, and many
 
 ## Communication Guidelines
 
-### Report Progress Regularly
-
-Every 5-10 errors fixed or every 10 minutes:
-
-```
-Progress Update:
-✓ Fixed 15 errors (45 remaining)
-✓ All missing include errors resolved
-→ Currently fixing API signature changes in browser code
-
-Recent fixes:
-- Added #include for WebContents in 8 files
-- Updated CreateParams usage to new API
-- Fixed NavigationThrottle registry migration
-```
-
-### Report When Stuck
-
-After 3 failed attempts on a single error:
-
-```
-⚠ Need assistance with error
-
-**File:** cef/libcef/browser/browser_host_impl.cc
-**Line:** 123
-**Error:** [full error message]
-
-**Chromium change:** [what you discovered]
-
-**Attempted fixes:**
-1. [what you tried]
-2. [what you tried]
-3. [what you tried]
-
-**Question:** [specific question]
-```
-
-### Final Report
-
-When build succeeds:
-
-```
-✓ BUILD SUCCESSFUL
-
-Summary:
-- Total errors fixed: 87
-- Files modified: 34
-- Build time: 4m 32s
-
-Major changes:
-- Updated all NavigationThrottle code to use registry API (12 files)
-- Migrated to new CreateParams structure (8 files)
-- Added missing includes throughout codebase (23 files)
-- Updated deprecated API usage (15 instances)
-
-Build command used:
-autoninja -k 0 -C out/Debug_GN_x64 cef
-
-Ready for testing phase.
-```
+- **Report progress regularly** - Update the user every 5-10 errors fixed
+- **Ask for help when stuck** - After 3 failed attempts on a single error, provide the file, line, error message, what you tried, and a specific question
+- **Summarize on completion** - Report total errors fixed, files modified, and major categories of changes
 
 ## Success Criteria
 
@@ -893,13 +815,11 @@ The user will guide you through these next steps.
 
 ## Important Reminders
 
-1. **ALWAYS verify your current directory with `pwd`** - Before using `cd` or relative paths (see "CRITICAL: Working Directory Awareness")
-2. **Only modify CEF code** - Files in `cef/` directory only (see "Files You Can Modify")
-3. **Patches already fixed** - This is the build error phase; patch phase was completed earlier (see "What Phase Is This?")
-4. **Rebuild individual files frequently** - After every fix or small batch of fixes. Only rebuild the entire `cef` target after ALL individual files compile successfully (see Step 4D "Rebuild to Verify")
-5. **Ask for help when stuck** - After 3 attempts or if unable to resolve within a reasonable time (see Step 6 "Handle Difficult Errors")
-6. **Track progress** - Keep TODO list updated and report regularly to the user
-7. **Stay organized** - Group similar errors, work systematically (see "Iteration Strategy")
+1. **Only modify CEF code** - Files in `cef/` directory only
+2. **Patches already fixed** - This is the build error phase; patch phase was completed earlier
+3. **Rebuild individual files frequently** - After every fix, rebuild the `.o` file. Only rebuild entire `cef` target after ALL files compile
+4. **Ask for help when stuck** - After 3 attempts on a single error
+5. **Track progress** - Keep TODO list updated and report regularly
 
 ---
 
