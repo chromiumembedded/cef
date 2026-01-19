@@ -23,7 +23,6 @@
 #include "cef/libcef/renderer/chrome/chrome_content_renderer_client_cef.h"
 #include "chrome/browser/metrics/chrome_feature_list_creator.h"
 #include "chrome/browser/policy/chrome_browser_policy_connector.h"
-#include "chrome/browser/ui/ui_features.h"
 #include "chrome/common/chrome_features.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -353,8 +352,6 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
 #endif  // BUILDFLAG(IS_WIN)
 
     // Disable features that crash during Chrome browser initialization.
-    // -- Split Screen support. See issue #3980.
-    DisableFeatureByDefault(features::kSideBySide, disable_features);
     // -- "Gemini in Chrome" Actor UI support. See issue #3982.
     DisableFeatureByDefault(features::kGlicActorUi, disable_features);
     // -- "Search with Google Lens" support.
