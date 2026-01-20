@@ -551,7 +551,7 @@ void CefFileDialogManager::SelectFileDoneByDelegateCallback(
 
   // The listener may already be gone. This can occur if the client holds a
   // RunFileChooserCallback past the call to SelectFileListenerDestroyed().
-  if (active_listeners_.find(listener) == active_listeners_.end()) {
+  if (!active_listeners_.contains(listener)) {
     return;
   }
 

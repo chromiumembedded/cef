@@ -150,8 +150,7 @@ scoped_refptr<net::HttpResponseHeaders> MakeResponseHeaders(
     if (!set_headers_lowercase.empty()) {
       // Check if the header has already been set.
       const std::string& name_lowercase = base::ToLowerASCII(pair.first);
-      if (set_headers_lowercase.find(name_lowercase) !=
-          set_headers_lowercase.end()) {
+      if (set_headers_lowercase.contains(name_lowercase)) {
         if (allow_existing_header_override) {
           headers->RemoveHeader(pair.first);
         } else {

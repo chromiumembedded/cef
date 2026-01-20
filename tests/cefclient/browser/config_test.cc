@@ -276,8 +276,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
                           int64_t query_id,
                           CefRefPtr<Callback> callback) {
     const int browser_id = browser->GetIdentifier();
-    if (subscription_state_map_.find(browser_id) !=
-        subscription_state_map_.end()) {
+    if (subscription_state_map_.contains(browser_id)) {
       // An subscription already exists for this browser.
       return false;
     }

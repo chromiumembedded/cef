@@ -215,7 +215,7 @@ bool CefServerImpl::HasConnection() {
 
 bool CefServerImpl::IsValidConnection(int connection_id) {
   CEF_REQUIRE_HT_RETURN(false);
-  return connection_info_map_.find(connection_id) != connection_info_map_.end();
+  return connection_info_map_.contains(connection_id);
 }
 
 void CefServerImpl::SendHttp200Response(int connection_id,

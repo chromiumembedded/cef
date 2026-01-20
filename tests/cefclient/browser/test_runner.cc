@@ -468,7 +468,7 @@ class StringResourceProvider : public CefResourceManager::Provider {
     }
 
     const std::string& page = url.substr(strlen(kTestOrigin));
-    if (pages_.find(page) == pages_.end()) {
+    if (!pages_.contains(page)) {
       // Not handled by this provider.
       return false;
     }
