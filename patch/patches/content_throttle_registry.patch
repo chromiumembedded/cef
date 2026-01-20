@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/navigation_throttle_registry_impl.cc content/browser/renderer_host/navigation_throttle_registry_impl.cc
-index 7f082d845e3891154bed9ef5f3c69b0384da8cd0..ebcb7eba73f8f3037ca902636250fae325c4d520 100644
+index 714a7dec13e55bd82b3b89f82fe6341444325829..4f310ab77d64203e5f16b1500082965ca1722ba0 100644
 --- content/browser/renderer_host/navigation_throttle_registry_impl.cc
 +++ content/browser/renderer_host/navigation_throttle_registry_impl.cc
-@@ -269,12 +269,17 @@ NavigationHandle& NavigationThrottleRegistryImpl::GetNavigationHandle() {
+@@ -270,12 +270,17 @@ NavigationHandle& NavigationThrottleRegistryImpl::GetNavigationHandle() {
  }
  
  void NavigationThrottleRegistryImpl::AddThrottle(
@@ -23,7 +23,7 @@ index 7f082d845e3891154bed9ef5f3c69b0384da8cd0..ebcb7eba73f8f3037ca902636250fae3
  
  bool NavigationThrottleRegistryImpl::HasThrottle(const std::string& name) {
 diff --git content/browser/renderer_host/navigation_throttle_registry_impl.h content/browser/renderer_host/navigation_throttle_registry_impl.h
-index b59d2f39b1b587b64130a248ad93a0b613b9e859..a102685b7d5c7171c4531e942b6ab10039e6ee41 100644
+index 41ea3fbafd0b757dabc3f51d59edaea6e5e6d789..4b0bf132a5b5aad85cae5dbc3fefb7b0f1b0d2f0 100644
 --- content/browser/renderer_host/navigation_throttle_registry_impl.h
 +++ content/browser/renderer_host/navigation_throttle_registry_impl.h
 @@ -135,7 +135,8 @@ class CONTENT_EXPORT NavigationThrottleRegistryImpl
