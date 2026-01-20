@@ -369,8 +369,7 @@ void TestHandler::OnCreated(int browser_id,
                             bool views_hosted) {
   CHECK(use_views_ || !views_hosted);
 
-  const bool has_value =
-      browser_status_map_.find(browser_id) != browser_status_map_.end();
+  const bool has_value = browser_status_map_.contains(browser_id);
 
   auto& browser_status = browser_status_map_[browser_id];
   if (has_value) {

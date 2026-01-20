@@ -30,7 +30,7 @@ bool CefSchemeRegistrarImpl::AddCustomScheme(const CefString& scheme_name,
                                              int options) {
   const std::string& scheme = base::ToLowerASCII(scheme_name.ToString());
   if (scheme::IsInternalHandledScheme(scheme) ||
-      registered_schemes_.find(scheme) != registered_schemes_.end()) {
+      registered_schemes_.contains(scheme)) {
     return false;
   }
 

@@ -477,8 +477,7 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
 #endif
     } else if (current_section == kCrashKeysSection) {
       // Skip duplicate definitions.
-      if (!crash_keys_.empty() &&
-          crash_keys_.find(name_str) != crash_keys_.end()) {
+      if (!crash_keys_.empty() && crash_keys_.contains(name_str)) {
         continue;
       }
 

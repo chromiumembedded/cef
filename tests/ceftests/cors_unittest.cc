@@ -258,7 +258,7 @@ struct TestSetup {
       Resource* resource = *it;
       if (resource->GetPathURL() == path_url &&
           (resource->method.empty() ||
-           matching_methods.find(resource->method) != matching_methods.end())) {
+           matching_methods.contains(resource->method))) {
         return resource;
       }
     }

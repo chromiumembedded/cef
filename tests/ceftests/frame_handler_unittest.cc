@@ -958,7 +958,7 @@ class FrameStatusMap {
   ~FrameStatusMap() { EXPECT_TRUE(frame_map_.empty()); }
 
   bool Contains(CefRefPtr<CefFrame> frame) const {
-    return frame_map_.find(frame->GetIdentifier()) != frame_map_.end();
+    return frame_map_.contains(frame->GetIdentifier());
   }
 
   FrameStatus* CreateFrameStatus(CefRefPtr<CefFrame> frame) {
@@ -1458,9 +1458,8 @@ class CrossOriginOrderSubTestHandler : public OrderSubTestHandler {
                       CefRefPtr<CefFrame> frame) override {
     OrderSubTestHandler::OnFrameCreated(browser, frame);
 
-    if (!frame->IsMain() &&
-        loaded_frame_child_ids_.find(ExtractChildId(frame->GetIdentifier())) !=
-            loaded_frame_child_ids_.end()) {
+    if (!frame->IsMain() && loaded_frame_child_ids_.contains(
+                                ExtractChildId(frame->GetIdentifier()))) {
       // Mark sub-frames in the same process as a loaded frame as temporary.
       // See below comments in OnFrameDestroyed.
       auto map = GetFrameMap(frame);

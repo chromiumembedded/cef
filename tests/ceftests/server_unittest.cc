@@ -343,7 +343,7 @@ class TestServerHandler : public CefServerHandler {
   }
 
   bool VerifyConnection(int connection_id) {
-    return connection_id_set_.find(connection_id) != connection_id_set_.end();
+    return connection_id_set_.contains(connection_id);
   }
 
   bool VerifyRequest(CefRefPtr<CefRequest> request, bool is_websocket) {

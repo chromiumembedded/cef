@@ -129,7 +129,7 @@ void CefValueController::AddDependency(void* parent, void* child) {
     DependencySet set;
     set.insert(child);
     dependency_map_.insert(std::make_pair(parent, set));
-  } else if (it->second.find(child) == it->second.end()) {
+  } else if (!it->second.contains(child)) {
     // Update existing set.
     it->second.insert(child);
   }
@@ -212,7 +212,7 @@ void CefValueController::TakeFrom(CefValueController* other) {
         // Evaluate each child.
         DependencySet::iterator it_other_set = it_other->second.begin();
         for (; it_other_set != it_other->second.end(); ++it_other_set) {
-          if (it_me->second.find(*it_other_set) == it_me->second.end()) {
+          if (!it_me->second.contains(*it_other_set)) {
             it_me->second.insert(*it_other_set);
           }
         }

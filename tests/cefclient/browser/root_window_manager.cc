@@ -314,8 +314,7 @@ void RootWindowManager::OnAbortOrClosePopup(int opener_browser_id,
 
   // Close all other associated popups if the opener is closing. These popups
   // don't have a RootWindow (e.g. when running with `--use-default-popup`).
-  if (popup_id < 0 && other_browser_owners_.find(opener_browser_id) !=
-                          other_browser_owners_.end()) {
+  if (popup_id < 0 && other_browser_owners_.contains(opener_browser_id)) {
     // Use a copy as the original set may be modified in OtherBrowserClosed
     // while iterating.
     auto set = other_browser_owners_[opener_browser_id];
