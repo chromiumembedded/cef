@@ -830,11 +830,7 @@ class MultiQueryManager {
     return SplitIDString(result, value, index);
   }
 
-  std::string GetIntString(int val) const {
-    std::stringstream ss;
-    ss << val;
-    return ss.str();
-  }
+  std::string GetIntString(int val) const { return std::to_string(val); }
 
   int GetIDFromIndex(int index) const { return id_offset_ + index; }
   int GetIndexFromID(int id) const { return id - id_offset_; }
@@ -1250,9 +1246,7 @@ class MultiQueryMultiHandlerTestHandler : public SingleLoadTestHandler,
 
    private:
     static std::string HandledRequest(int index) {
-      std::stringstream ss;
-      ss << kMultiQueryRequest << ":" << index;
-      return ss.str();
+      return std::string(kMultiQueryRequest) + ":" + std::to_string(index);
     }
 
     MultiQueryMultiHandlerTestHandler* test_handler_;

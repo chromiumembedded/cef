@@ -6,8 +6,6 @@
 #define CEF_LIBCEF_BROWSER_ZIP_READER_IMPL_H_
 #pragma once
 
-#include <sstream>
-
 #include "base/threading/platform_thread.h"
 #include "cef/include/cef_zip_reader.h"
 #include "third_party/zlib/contrib/minizip/unzip.h"

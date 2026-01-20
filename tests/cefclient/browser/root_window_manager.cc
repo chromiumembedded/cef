@@ -4,7 +4,7 @@
 
 #include "tests/cefclient/browser/root_window_manager.h"
 
-#include <sstream>
+#include <format>
 
 #include "include/base/cef_callback.h"
 #include "include/base/cef_logging.h"
@@ -369,10 +369,10 @@ CefRefPtr<CefRequestContext> RootWindowManager::CreateRequestContext(
       } else {
         // Give each browser a unique cache path. This will create completely
         // isolated context objects.
-        std::stringstream ss;
-        ss << command_line->GetSwitchValue(switches::kCachePath).ToString()
-           << file_util::kPathSep << time(nullptr);
-        CefString(&settings.cache_path) = ss.str();
+        CefString(&settings.cache_path) = std::format(
+            "{}{}{}",
+            command_line->GetSwitchValue(switches::kCachePath).ToString(),
+            file_util::kPathSep, time(nullptr));
       }
     }
 

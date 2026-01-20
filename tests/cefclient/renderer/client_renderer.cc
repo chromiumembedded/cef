@@ -4,7 +4,6 @@
 
 #include "tests/cefclient/renderer/client_renderer.h"
 
-#include <sstream>
 #include <string>
 
 #include "include/cef_crash_util.h"

@@ -7,8 +7,8 @@
 #include <stdio.h>
 
 #include <algorithm>
-#include <iomanip>
-#include <sstream>
+#include <format>
+#include <iterator>
 #include <string>
 
 #include "include/base/cef_callback.h"
@@ -93,12 +93,8 @@ std::string GetTimeString(const CefTime& value) {
     month = "Invalid";
   }
 
-  std::stringstream ss;
-  ss << month << " " << value.day_of_month << ", " << value.year << " "
-     << std::setfill('0') << std::setw(2) << value.hour << ":"
-     << std::setfill('0') << std::setw(2) << value.minute << ":"
-     << std::setfill('0') << std::setw(2) << value.second;
-  return ss.str();
+  return std::format("{} {}, {} {:02}:{:02}:{:02}", month, value.day_of_month,
+                     value.year, value.hour, value.minute, value.second);
 }
 
 std::string GetTimeString(const CefBaseTime& value) {
@@ -195,27 +191,31 @@ std::string GetCertificateInformation(CefRefPtr<CefX509Certificate> cert,
 
   // Build a table showing certificate information. Various types of invalid
   // certificates can be tested using https://badssl.com/.
-  std::stringstream ss;
-  ss << "<h3>X.509 Certificate Information:</h3>"
-        "<table border=1><tr><th>Field</th><th>Value</th></tr>";
+  std::string result;
+  result.reserve(2048);
+
+  result +=
+      "<h3>X.509 Certificate Information:</h3>"
+      "<table border=1><tr><th>Field</th><th>Value</th></tr>";
 
   if (certstatus != CERT_STATUS_NONE) {
-    ss << "<tr><td>Status</td><td>" << GetCertStatusString(certstatus)
-       << "</td></tr>";
+    std::format_to(std::back_inserter(result),
+                   "<tr><td>Status</td><td>{}</td></tr>",
+                   GetCertStatusString(certstatus));
   }
 
-  ss << "<tr><td>Subject</td><td>"
-     << (subject.get() ? subject->GetDisplayName().ToString() : "&nbsp;")
-     << "</td></tr>"
-        "<tr><td>Issuer</td><td>"
-     << (issuer.get() ? issuer->GetDisplayName().ToString() : "&nbsp;")
-     << "</td></tr>"
-        "<tr><td>Serial #*</td><td>"
-     << GetBinaryString(cert->GetSerialNumber()) << "</td></tr>"
-     << "<tr><td>Valid Start</td><td>" << GetTimeString(cert->GetValidStart())
-     << "</td></tr>"
-        "<tr><td>Valid Expiry</td><td>"
-     << GetTimeString(cert->GetValidExpiry()) << "</td></tr>";
+  std::format_to(
+      std::back_inserter(result),
+      "<tr><td>Subject</td><td>{}</td></tr>"
+      "<tr><td>Issuer</td><td>{}</td></tr>"
+      "<tr><td>Serial #*</td><td>{}</td></tr>"
+      "<tr><td>Valid Start</td><td>{}</td></tr>"
+      "<tr><td>Valid Expiry</td><td>{}</td></tr>",
+      (subject.get() ? subject->GetDisplayName().ToString() : "&nbsp;"),
+      (issuer.get() ? issuer->GetDisplayName().ToString() : "&nbsp;"),
+      GetBinaryString(cert->GetSerialNumber()),
+      GetTimeString(cert->GetValidStart()),
+      GetTimeString(cert->GetValidExpiry()));
 
   CefX509Certificate::IssuerChainBinaryList der_chain_list;
   CefX509Certificate::IssuerChainBinaryList pem_chain_list;
@@ -227,17 +227,15 @@ std::string GetCertificateInformation(CefRefPtr<CefX509Certificate> cert,
   pem_chain_list.insert(pem_chain_list.begin(), cert->GetPEMEncoded());
 
   for (size_t i = 0U; i < der_chain_list.size(); ++i) {
-    ss << "<tr><td>DER Encoded*</td>"
-          "<td style=\"max-width:800px;overflow:scroll;\">"
-       << GetBinaryString(der_chain_list[i])
-       << "</td></tr>"
-          "<tr><td>PEM Encoded*</td>"
-          "<td style=\"max-width:800px;overflow:scroll;\">"
-       << GetBinaryString(pem_chain_list[i]) << "</td></tr>";
+    std::format_to(
+        std::back_inserter(result),
+        R"(<tr><td>DER Encoded*</td><td style="max-width:800px;overflow:scroll;">{}</td></tr>)"
+        R"(<tr><td>PEM Encoded*</td><td style="max-width:800px;overflow:scroll;">{}</td></tr>)",
+        GetBinaryString(der_chain_list[i]), GetBinaryString(pem_chain_list[i]));
   }
 
-  ss << "</table> * Displayed value is base64 encoded.";
-  return ss.str();
+  result += "</table> * Displayed value is base64 encoded.";
+  return result;
 }
 
 void OnTestProcessMessageReceived(
@@ -817,29 +815,29 @@ bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
 
   FILE* file = fopen(console_log_file_.c_str(), "a");
   if (file) {
-    std::stringstream ss;
-    ss << "Level: ";
+    const char* level_str = nullptr;
     switch (level) {
       case LOGSEVERITY_DEBUG:
-        ss << "Debug" << NEWLINE;
+        level_str = "Debug";
         break;
       case LOGSEVERITY_INFO:
-        ss << "Info" << NEWLINE;
+        level_str = "Info";
         break;
       case LOGSEVERITY_WARNING:
-        ss << "Warn" << NEWLINE;
+        level_str = "Warn";
         break;
       case LOGSEVERITY_ERROR:
-        ss << "Error" << NEWLINE;
+        level_str = "Error";
         break;
       default:
         NOTREACHED();
         break;
     }
-    ss << "Message: " << message.ToString() << NEWLINE
-       << "Source: " << source.ToString() << NEWLINE << "Line: " << line
-       << NEWLINE << "-----------------------" << NEWLINE;
-    fputs(ss.str().c_str(), file);
+    auto log_entry = std::format(
+        "Level: {}" NEWLINE "Message: {}" NEWLINE "Source: {}" NEWLINE
+        "Line: {}" NEWLINE "-----------------------" NEWLINE,
+        level_str, message.ToString(), source.ToString(), line);
+    fputs(log_entry.c_str(), file);
     fclose(file);
   }
 
@@ -1309,7 +1307,6 @@ bool ClientHandler::HasSSLInformation(CefRefPtr<CefBrowser> browser) {
 }
 
 void ClientHandler::ShowSSLInformation(CefRefPtr<CefBrowser> browser) {
-  std::stringstream ss;
   CefRefPtr<CefNavigationEntry> nav =
       browser->GetHost()->GetVisibleNavigationEntry();
   if (!nav) {
@@ -1321,39 +1318,45 @@ void ClientHandler::ShowSSLInformation(CefRefPtr<CefBrowser> browser) {
     return;
   }
 
-  ss << "<html><head><title>SSL Information</title></head>"
-        "<body bgcolor=\"white\">"
-        "<h3>SSL Connection</h3>"
-     << "<table border=1><tr><th>Field</th><th>Value</th></tr>";
+  std::string result;
+  result.reserve(4096);
+
+  result +=
+      R"html(<html><head><title>SSL Information</title></head>
+<body bgcolor="white">
+<h3>SSL Connection</h3>
+<table border=1><tr><th>Field</th><th>Value</th></tr>)html";
 
   CefURLParts urlparts;
   if (CefParseURL(nav->GetURL(), urlparts)) {
     CefString port(&urlparts.port);
-    ss << "<tr><td>Server</td><td>" << CefString(&urlparts.host).ToString();
+    std::format_to(std::back_inserter(result), "<tr><td>Server</td><td>{}",
+                   CefString(&urlparts.host).ToString());
     if (!port.empty()) {
-      ss << ":" << port.ToString();
+      std::format_to(std::back_inserter(result), ":{}", port.ToString());
     }
-    ss << "</td></tr>";
+    result += "</td></tr>";
   }
 
-  ss << "<tr><td>SSL Version</td><td>"
-     << GetSSLVersionString(ssl->GetSSLVersion()) << "</td></tr>";
-  ss << "<tr><td>Content Status</td><td>"
-     << GetContentStatusString(ssl->GetContentStatus()) << "</td></tr>";
+  std::format_to(std::back_inserter(result),
+                 "<tr><td>SSL Version</td><td>{}</td></tr>"
+                 "<tr><td>Content Status</td><td>{}</td></tr>",
+                 GetSSLVersionString(ssl->GetSSLVersion()),
+                 GetContentStatusString(ssl->GetContentStatus()));
 
-  ss << "</table>";
+  result += "</table>";
 
   CefRefPtr<CefX509Certificate> cert = ssl->GetX509Certificate();
   if (cert.get()) {
-    ss << GetCertificateInformation(cert, ssl->GetCertStatus());
+    result += GetCertificateInformation(cert, ssl->GetCertStatus());
   }
 
-  ss << "</body></html>";
+  result += "</body></html>";
 
   auto config = std::make_unique<RootWindowConfig>();
   config->with_controls = false;
   config->with_osr = is_osr_;
-  config->url = test_runner::GetDataURI(ss.str(), "text/html");
+  config->url = test_runner::GetDataURI(result, "text/html");
   MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
       std::move(config));
 }

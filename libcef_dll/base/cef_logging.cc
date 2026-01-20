@@ -24,9 +24,9 @@
 #include <mach/mach_time.h>
 #endif
 
-#include <iomanip>
+#include <format>
 #include <iostream>
-#include <sstream>
+#include <string>
 
 #include "include/base/cef_immediate_crash.h"
 
@@ -334,31 +334,30 @@ void ScopedEarlySupport::log(const char* file,
                            std::min(std::size_t{6}, strlen(file)))
                      : file;
 
-  std::stringstream stream;
-
-  stream << '[';
+  std::string log_line = "[";
   if (config.log_prefix) {
-    stream << config.log_prefix << ':';
+    log_line += config.log_prefix;
+    log_line += ':';
   }
   if (config.log_process_id) {
 #if defined(OS_WIN)
-    stream << ::GetCurrentProcessId() << ':';
+    log_line += std::format("{}:", ::GetCurrentProcessId());
 #elif defined(OS_POSIX)
-    stream << getpid() << ':';
+    log_line += std::format("{}:", getpid());
 #else
 #error Unsupported platform
 #endif
   }
   if (config.log_thread_id) {
 #if defined(OS_WIN)
-    stream << ::GetCurrentThreadId() << ':';
+    log_line += std::format("{}:", ::GetCurrentThreadId());
 #elif defined(OS_APPLE)
     uint64_t tid;
     if (pthread_threadid_np(nullptr, &tid) == 0) {
-      stream << tid << ':';
+      log_line += std::format("{}:", tid);
     }
 #elif defined(OS_POSIX)
-    stream << pthread_self() << ':';
+    log_line += std::format("{}:", pthread_self());
 #else
 #error Unsupported platform
 #endif
@@ -367,11 +366,10 @@ void ScopedEarlySupport::log(const char* file,
 #if defined(OS_WIN)
     SYSTEMTIME local_time;
     GetLocalTime(&local_time);
-    stream << std::setfill('0') << std::setw(2) << local_time.wMonth
-           << std::setw(2) << local_time.wDay << '/' << std::setw(2)
-           << local_time.wHour << std::setw(2) << local_time.wMinute
-           << std::setw(2) << local_time.wSecond << '.' << std::setw(3)
-           << local_time.wMilliseconds << ':';
+    log_line +=
+        std::format("{:02}{:02}/{:02}{:02}{:02}.{:03}:", local_time.wMonth,
+                    local_time.wDay, local_time.wHour, local_time.wMinute,
+                    local_time.wSecond, local_time.wMilliseconds);
 #elif defined(OS_POSIX)
     timeval tv;
     gettimeofday(&tv, nullptr);
@@ -379,26 +377,23 @@ void ScopedEarlySupport::log(const char* file,
     struct tm local_time;
     localtime_r(&t, &local_time);
     struct tm* tm_time = &local_time;
-    stream << std::setfill('0') << std::setw(2) << 1 + tm_time->tm_mon
-           << std::setw(2) << tm_time->tm_mday << '/' << std::setw(2)
-           << tm_time->tm_hour << std::setw(2) << tm_time->tm_min
-           << std::setw(2) << tm_time->tm_sec << '.' << std::setw(6)
-           << tv.tv_usec << ':';
+    log_line +=
+        std::format("{:02}{:02}/{:02}{:02}{:02}.{:06}:", 1 + tm_time->tm_mon,
+                    tm_time->tm_mday, tm_time->tm_hour, tm_time->tm_min,
+                    tm_time->tm_sec, tv.tv_usec);
 #else
 #error Unsupported platform
 #endif
   }
   if (config.log_tickcount) {
-    stream << TickCount() << ':';
+    log_line += std::format("{}:", TickCount());
   }
   if (severity >= 0) {
-    stream << log_severity_name(severity);
+    log_line += log_severity_name(severity);
   } else {
-    stream << "VERBOSE" << -severity;
+    log_line += std::format("VERBOSE{}", -severity);
   }
-  stream << ":" << filename << ":" << line << "] " << message;
-
-  const std::string& log_line = stream.str();
+  log_line += std::format(":{}:{}] {}", filename, line, message);
 
   if (!config.formatted_log_handler ||
       !config.formatted_log_handler(log_line.c_str())) {
@@ -502,17 +497,15 @@ std::string SystemErrorCodeToString(SystemErrorCode error_code) {
   DWORD flags = FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
   DWORD len = FormatMessageA(flags, NULL, error_code, 0, msgbuf,
                              static_cast<DWORD>(std::size(msgbuf)), NULL);
-  std::stringstream ss;
   if (len) {
     std::string s(msgbuf);
     // Messages returned by system end with line breaks.
     s.erase(std::remove_if(s.begin(), s.end(), ::isspace), s.end());
-    ss << s << " (0x" << std::hex << error_code << ")";
+    return std::format("{} ({:#x})", s, error_code);
   } else {
-    ss << "Error (0x" << std::hex << GetLastError()
-       << ") while retrieving error. (0x" << error_code << ")";
+    return std::format("Error ({:#x}) while retrieving error. ({:#x})",
+                       GetLastError(), error_code);
   }
-  return ss.str();
 }
 #elif defined(OS_POSIX)
 std::string SystemErrorCodeToString(SystemErrorCode error_code) {

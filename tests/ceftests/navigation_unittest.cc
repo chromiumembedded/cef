@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
+#include <format>
 #include <list>
 
 #include "include/base/cef_callback.h"
@@ -2257,9 +2258,7 @@ class PopupSimultaneousTestHandler : public TestHandler {
       if (same_url_) {
         popup_url_[i] = std::string(kSimultPopupPopupUrl) + ".html";
       } else {
-        std::stringstream ss;
-        ss << kSimultPopupPopupUrl << i << ".html";
-        popup_url_[i] = ss.str();
+        popup_url_[i] = std::format("{}{}.html", kSimultPopupPopupUrl, i);
       }
       main_html += "window.open('" + popup_url_[i] + "');\n";
       AddResource(popup_url_[i], "<html>Popup " + popup_url_[i] + "</html>",
