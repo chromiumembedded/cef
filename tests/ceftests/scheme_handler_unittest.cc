@@ -832,7 +832,7 @@ void SetUpXSS(TestResults* test_results,
   std::string domain_line;
   if (!domain.empty()) {
     domain_line = "document.domain = '" + domain + "';";
-    if (url.find("http") == 0 && sub_url.find("http") == 0) {
+    if (url.starts_with("http") && sub_url.starts_with("http")) {
       test_results->needs_same_origin_policy_relaxation = true;
     }
   }

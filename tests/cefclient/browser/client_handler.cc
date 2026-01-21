@@ -1170,7 +1170,7 @@ bool ClientHandler::OnCertificateError(CefRefPtr<CefBrowser> browser,
   CEF_REQUIRE_UI_THREAD();
 
   if (cert_error == ERR_CERT_COMMON_NAME_INVALID &&
-      request_url.ToString().find("https://www.magpcss.com/") == 0U) {
+      request_url.ToString().starts_with("https://www.magpcss.com/")) {
     // Allow magpcss.com to load despite having a certificate common name of
     // magpcss.org.
     callback->Continue();
@@ -1274,7 +1274,7 @@ void ClientHandler::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
   std::string urlStr = request->GetURL();
 
   // Allow OS execution of Spotify URIs.
-  if (urlStr.find("spotify:") == 0) {
+  if (urlStr.starts_with("spotify:")) {
     allow_os_execution = true;
   }
 }

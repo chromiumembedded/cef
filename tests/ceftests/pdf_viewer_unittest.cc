@@ -91,7 +91,7 @@ class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
                  int httpStatusCode) override {
     bool is_pdf1 = false;
     const std::string& url = frame->GetURL();
-    if (url == "about:blank" || url.find("chrome-extension://") == 0) {
+    if (url == "about:blank" || url.starts_with("chrome-extension://")) {
       return;
     }
 
