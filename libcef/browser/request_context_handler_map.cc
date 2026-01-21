@@ -40,9 +40,9 @@ CefRefPtr<CefRequestContextHandler> CefRequestContextHandlerMap::GetHandler(
 
   if (frame_util::IsValidChildId(global_id.child_id) && !require_frame_match) {
     // Choose an arbitrary handler for the same process.
-    for (auto& kv : render_id_handler_map_) {
-      if (kv.first.child_id == global_id.child_id) {
-        return kv.second;
+    for (auto& [key, value] : render_id_handler_map_) {
+      if (key.child_id == global_id.child_id) {
+        return value;
       }
     }
   }

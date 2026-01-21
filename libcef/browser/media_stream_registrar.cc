@@ -86,8 +86,8 @@ void CefMediaStreamRegistrar::UnregisterMediaStream(const std::string& label) {
 void CefMediaStreamRegistrar::NotifyMediaStreamChange() {
   bool video = false;
   bool audio = false;
-  for (const auto& media_stream : registered_streams_) {
-    const auto& info = media_stream.second;
+  for (const auto& [key, value] : registered_streams_) {
+    const auto& info = value;
     if (!video) {
       video = info.video;
     }

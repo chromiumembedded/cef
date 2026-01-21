@@ -502,9 +502,9 @@ void CefWindowImpl::OnWindowViewDeleted() {
 
 // Will only be called if CanHandleAccelerators() returns true.
 bool CefWindowImpl::AcceleratorPressed(const ui::Accelerator& accelerator) {
-  for (const auto& entry : accelerator_map_) {
-    if (entry.second == accelerator) {
-      return delegate()->OnAccelerator(this, entry.first);
+  for (const auto& [key, value] : accelerator_map_) {
+    if (value == accelerator) {
+      return delegate()->OnAccelerator(this, key);
     }
   }
   return false;

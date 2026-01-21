@@ -17,10 +17,7 @@ namespace HttpHeaderUtils {
 std::string GenerateHeaders(const HeaderMap& map) {
   std::string headers;
 
-  for (const auto& header : map) {
-    const CefString& key = header.first;
-    const CefString& value = header.second;
-
+  for (const auto& [key, value] : map) {
     if (!key.empty()) {
       // Delimit with "\r\n".
       if (!headers.empty()) {

@@ -503,8 +503,8 @@ class ResourceResponseWrapper : public ResourceResponse {
 
     CefResponse::HeaderMap headerMap;
     response->GetHeaderMap(headerMap);
-    for (const auto& value : headerMap) {
-      extra_headers->insert(std::make_pair(value.first, value.second));
+    for (const auto& [key, value] : headerMap) {
+      extra_headers->insert(std::make_pair(key, value));
     }
   }
 
