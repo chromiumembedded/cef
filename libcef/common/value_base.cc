@@ -36,7 +36,7 @@ void CefValueController::AddReference(void* value, Object* object) {
   DCHECK(owner_value_);
 
   // Values should only be added once.
-  DCHECK(reference_map_.find(value) == reference_map_.end());
+  DCHECK(!reference_map_.contains(value));
   DCHECK(value != owner_value_);
 
   reference_map_.insert(std::make_pair(value, object));
@@ -193,7 +193,7 @@ void CefValueController::TakeFrom(CefValueController* other) {
     ReferenceMap::iterator it = other->reference_map_.begin();
     for (; it != other->reference_map_.end(); ++it) {
       // References should only be added once.
-      DCHECK(reference_map_.find(it->first) == reference_map_.end());
+      DCHECK(!reference_map_.contains(it->first));
       reference_map_.insert(std::make_pair(it->first, it->second));
     }
     other->reference_map_.clear();
@@ -235,7 +235,7 @@ void CefValueController::Swap(void* old_value, void* new_value) {
     ReferenceMap::iterator it = reference_map_.find(old_value);
     if (it != reference_map_.end()) {
       // References should only be added once.
-      DCHECK(reference_map_.find(new_value) == reference_map_.end());
+      DCHECK(!reference_map_.contains(new_value));
       reference_map_.insert(std::make_pair(new_value, it->second));
       reference_map_.erase(it);
     }
