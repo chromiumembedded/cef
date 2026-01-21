@@ -139,9 +139,9 @@ class GLImageDXGISharedHandle : public gl::GLImageDXGI {
 
 }  // namespace
 
-ExternalTextureManager::ExternalTextureManager() {}
+ExternalTextureManager::ExternalTextureManager() = default;
 
-ExternalTextureManager::~ExternalTextureManager() {}
+ExternalTextureManager::~ExternalTextureManager() = default;
 
 void* ExternalTextureManager::CreateTexture(GLuint texture_id,
                                             uint32_t width,

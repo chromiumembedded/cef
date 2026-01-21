@@ -4,7 +4,7 @@
 
 #include "libcef_dll/cpptoc/base_scoped_cpptoc.h"
 
-CefBaseScopedCppToC::CefBaseScopedCppToC() {}
+CefBaseScopedCppToC::CefBaseScopedCppToC() = default;
 
 template <>
 CefOwnPtr<CefBaseScoped>

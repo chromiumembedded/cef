@@ -43,7 +43,7 @@ void SetXWindowVisible(XDisplay* xdisplay, ::Window xwindow, bool visible) {
 
   if (!visible) {
     // Set the hidden property state value.
-    std::unique_ptr<Atom[]> data(new Atom[1]);
+    auto data = std::make_unique<Atom[]>(1);
     data[0] = atoms[2];
 
     XChangeProperty(xdisplay, xwindow,

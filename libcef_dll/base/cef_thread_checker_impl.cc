@@ -11,7 +11,7 @@ ThreadCheckerImpl::ThreadCheckerImpl() : valid_thread_id_() {
   EnsureThreadIdAssigned();
 }
 
-ThreadCheckerImpl::~ThreadCheckerImpl() {}
+ThreadCheckerImpl::~ThreadCheckerImpl() = default;
 
 bool ThreadCheckerImpl::CalledOnValidThread() const {
   EnsureThreadIdAssigned();

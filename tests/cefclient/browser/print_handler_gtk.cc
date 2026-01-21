@@ -578,7 +578,7 @@ struct ClientPrintHandlerGtk::PrintHandler {
   CefRefPtr<CefPrintJobCallback> job_callback_;
 };
 
-ClientPrintHandlerGtk::ClientPrintHandlerGtk() {}
+ClientPrintHandlerGtk::ClientPrintHandlerGtk() = default;
 
 ClientPrintHandlerGtk::~ClientPrintHandlerGtk() {
   DCHECK(!print_handler_);

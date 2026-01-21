@@ -624,7 +624,7 @@ TEST(WeakPtrTest, MoveOwnershipAfterInvalidate) {
   background.Start();
 
   Arrow arrow;
-  std::unique_ptr<TargetWithFactory> target(new TargetWithFactory);
+  auto target = std::make_unique<TargetWithFactory>();
 
   // Bind to main thread.
   arrow.target = target->factory.GetWeakPtr();

@@ -47,7 +47,7 @@ bool ReadFileToString(const std::string& path,
   }
 
   const size_t kBufferSize = 1 << 16;
-  std::unique_ptr<char[]> buf(new char[kBufferSize]);
+  auto buf = std::make_unique<char[]>(kBufferSize);
   size_t len;
   size_t size = 0;
   bool read_status = true;

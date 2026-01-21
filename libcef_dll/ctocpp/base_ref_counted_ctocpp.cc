@@ -4,7 +4,7 @@
 
 #include "libcef_dll/ctocpp/base_ref_counted_ctocpp.h"
 
-CefBaseRefCountedCToCpp::CefBaseRefCountedCToCpp() {}
+CefBaseRefCountedCToCpp::CefBaseRefCountedCToCpp() = default;
 
 template <>
 cef_base_ref_counted_t* CefCToCppRefCounted<
