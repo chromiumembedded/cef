@@ -22,6 +22,9 @@ class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
  public:
   ClientBrowserDelegate() = default;
 
+  ClientBrowserDelegate(const ClientBrowserDelegate&) = delete;
+  ClientBrowserDelegate& operator=(const ClientBrowserDelegate&) = delete;
+
   void OnRegisterCustomPreferences(
       CefRefPtr<client::ClientAppBrowser> app,
       cef_preferences_type_t type,
@@ -98,7 +101,6 @@ class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
   }
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(ClientBrowserDelegate);
   IMPLEMENT_REFCOUNTING(ClientBrowserDelegate);
 };
 

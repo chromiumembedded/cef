@@ -17,6 +17,9 @@ class ClientApp : public CefApp {
  public:
   ClientApp();
 
+  ClientApp(const ClientApp&) = delete;
+  ClientApp& operator=(const ClientApp&) = delete;
+
   enum ProcessType {
     BrowserProcess,
     RendererProcess,
@@ -35,8 +38,6 @@ class ClientApp : public CefApp {
   // CefApp methods.
   void OnRegisterCustomSchemes(
       CefRawPtr<CefSchemeRegistrar> registrar) override;
-
-  DISALLOW_COPY_AND_ASSIGN(ClientApp);
 };
 
 }  // namespace client

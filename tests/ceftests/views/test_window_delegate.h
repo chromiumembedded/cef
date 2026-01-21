@@ -100,5 +100,4 @@ class TestWindowDelegate : public CefWindowDelegate {
   base::WeakPtrFactory<TestWindowDelegate> weak_ptr_factory_;
 
   IMPLEMENT_REFCOUNTING(TestWindowDelegate);
-  DISALLOW_COPY_AND_ASSIGN(TestWindowDelegate);
 };

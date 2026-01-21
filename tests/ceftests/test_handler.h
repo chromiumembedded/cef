@@ -133,6 +133,9 @@ class TestHandler : public CefClient,
   explicit TestHandler(CompletionState* completion_state = nullptr);
   ~TestHandler() override;
 
+  TestHandler(const TestHandler&) = delete;
+  TestHandler& operator=(const TestHandler&) = delete;
+
   // Implement this method to set up the test. Only used in combination with a
   // Collection. Call SetupComplete() once the setup is complete.
   virtual void SetupTest() {}
@@ -369,8 +372,6 @@ class TestHandler : public CefClient,
 
   // Used to track the number of currently existing TestHandlers.
   static std::atomic<size_t> test_handler_count_;
-
-  DISALLOW_COPY_AND_ASSIGN(TestHandler);
 };
 
 // Release |handler| and wait for the destructor to be called.

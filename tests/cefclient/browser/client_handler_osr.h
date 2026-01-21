@@ -80,6 +80,9 @@ class ClientHandlerOsr : public ClientHandler,
                    bool with_controls,
                    const std::string& startup_url);
 
+  ClientHandlerOsr(const ClientHandlerOsr&) = delete;
+  ClientHandlerOsr& operator=(const ClientHandlerOsr&) = delete;
+
   // Returns the ClientHandlerOsr for |client|, or nullptr if |client| is not a
   // ClientHandlerOsr.
   static CefRefPtr<ClientHandlerOsr> GetForClient(CefRefPtr<CefClient> client);
@@ -152,7 +155,6 @@ class ClientHandlerOsr : public ClientHandler,
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientHandlerOsr);
-  DISALLOW_COPY_AND_ASSIGN(ClientHandlerOsr);
 };
 
 }  // namespace client

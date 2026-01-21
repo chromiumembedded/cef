@@ -43,6 +43,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
   Handler() { CEF_REQUIRE_UI_THREAD(); }
 
+  Handler(const Handler&) = delete;
+  Handler& operator=(const Handler&) = delete;
+
   // Called due to cefQuery execution in preferences.html.
   bool OnQuery(CefRefPtr<CefBrowser> browser,
                CefRefPtr<CefFrame> frame,
@@ -346,8 +349,6 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     changed_names.push_back(name);
     return true;
   }
-
-  DISALLOW_COPY_AND_ASSIGN(Handler);
 };
 
 }  // namespace

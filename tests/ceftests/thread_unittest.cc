@@ -23,6 +23,9 @@ class ThreadTest : public base::RefCountedThreadSafe<ThreadTest> {
   ThreadTest() = default;
   virtual ~ThreadTest() = default;
 
+  ThreadTest(const ThreadTest&) = delete;
+  ThreadTest& operator=(const ThreadTest&) = delete;
+
   // Create the test thread. Should only be called one time.
   void CreateTestThread() {
     EXPECT_TRUE(!thread_.get());
@@ -110,8 +113,6 @@ class ThreadTest : public base::RefCountedThreadSafe<ThreadTest> {
   CefRefPtr<CefThread> thread_;
   cef_platform_thread_id_t thread_id_;
   CefRefPtr<CefTaskRunner> thread_task_runner_;
-
-  DISALLOW_COPY_AND_ASSIGN(ThreadTest);
 };
 
 }  // namespace
@@ -136,6 +137,9 @@ class SimpleThreadTest : public ThreadTest {
       : expected_task_count_(expected_task_count),
         task_callback_(std::move(task_callback)),
         done_callback_(std::move(done_callback)) {}
+
+  SimpleThreadTest(const SimpleThreadTest&) = delete;
+  SimpleThreadTest& operator=(const SimpleThreadTest&) = delete;
 
   void RunTest() {
     // Create the test thread.
@@ -180,8 +184,6 @@ class SimpleThreadTest : public ThreadTest {
 
   size_t got_task_count_ = 0U;
   size_t got_done_count_ = 0U;
-
-  DISALLOW_COPY_AND_ASSIGN(SimpleThreadTest);
 };
 
 // Test creation/execution of threads in the browser process.
@@ -193,6 +195,9 @@ class BrowserThreadTestHandler : public TestHandler {
  public:
   explicit BrowserThreadTestHandler(CefThreadId owner_thread_id)
       : owner_thread_id_(owner_thread_id) {}
+
+  BrowserThreadTestHandler(const BrowserThreadTestHandler&) = delete;
+  BrowserThreadTestHandler& operator=(const BrowserThreadTestHandler&) = delete;
 
   void RunTest() override {
     AddResource(kBrowserThreadTestHtml, "<html><body>Test</body></html>",
@@ -267,7 +272,6 @@ class BrowserThreadTestHandler : public TestHandler {
   TrackCallback got_test_done_;
 
   IMPLEMENT_REFCOUNTING(BrowserThreadTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(BrowserThreadTestHandler);
 };
 
 }  // namespace
@@ -308,6 +312,9 @@ const char kRenderThreadTestMsg[] = "ThreadTest.RenderThreadTest";
 class RenderThreadTestHandler : public TestHandler {
  public:
   RenderThreadTestHandler() = default;
+
+  RenderThreadTestHandler(const RenderThreadTestHandler&) = delete;
+  RenderThreadTestHandler& operator=(const RenderThreadTestHandler&) = delete;
 
   void RunTest() override {
     AddResource(kRenderThreadTestHtml, "<html><body>Test</body></html>",
@@ -368,13 +375,15 @@ class RenderThreadTestHandler : public TestHandler {
   TrackCallback got_success_;
 
   IMPLEMENT_REFCOUNTING(RenderThreadTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(RenderThreadTestHandler);
 };
 
 // Renderer side.
 class RenderThreadRendererTest : public ClientAppRenderer::Delegate {
  public:
   RenderThreadRendererTest() = default;
+
+  RenderThreadRendererTest(const RenderThreadRendererTest&) = delete;
+  RenderThreadRendererTest& operator=(const RenderThreadRendererTest&) = delete;
 
   bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
                                 CefRefPtr<CefBrowser> browser,
@@ -425,7 +434,6 @@ class RenderThreadRendererTest : public ClientAppRenderer::Delegate {
   scoped_refptr<SimpleThreadTest> thread_test_;
 
   IMPLEMENT_REFCOUNTING(RenderThreadRendererTest);
-  DISALLOW_COPY_AND_ASSIGN(RenderThreadRendererTest);
 };
 
 }  // namespace

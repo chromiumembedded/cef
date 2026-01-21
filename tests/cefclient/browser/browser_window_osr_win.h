@@ -24,6 +24,9 @@ class BrowserWindowOsrWin : public BrowserWindow,
                       const std::string& startup_url,
                       const OsrRendererSettings& settings);
 
+  BrowserWindowOsrWin(const BrowserWindowOsrWin&) = delete;
+  BrowserWindowOsrWin& operator=(const BrowserWindowOsrWin&) = delete;
+
   // BrowserWindow methods.
   void CreateBrowser(ClientWindowHandle parent_handle,
                      const CefRect& rect,
@@ -59,8 +62,6 @@ class BrowserWindowOsrWin : public BrowserWindow,
   HWND osr_hwnd_ = nullptr;
 
   float device_scale_factor_ = 0;
-
-  DISALLOW_COPY_AND_ASSIGN(BrowserWindowOsrWin);
 };
 
 }  // namespace client

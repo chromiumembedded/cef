@@ -235,6 +235,9 @@ class ClientSchemeHandlerOld : public CefResourceHandler {
  public:
   explicit ClientSchemeHandlerOld(TestResults* tr) : test_results_(tr) {}
 
+  ClientSchemeHandlerOld(const ClientSchemeHandlerOld&) = delete;
+  ClientSchemeHandlerOld& operator=(const ClientSchemeHandlerOld&) = delete;
+
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
@@ -410,12 +413,14 @@ class ClientSchemeHandlerOld : public CefResourceHandler {
   bool has_delayed_ = false;
 
   IMPLEMENT_REFCOUNTING(ClientSchemeHandlerOld);
-  DISALLOW_COPY_AND_ASSIGN(ClientSchemeHandlerOld);
 };
 
 class ClientSchemeHandler : public CefResourceHandler {
  public:
   explicit ClientSchemeHandler(TestResults* tr) : test_results_(tr) {}
+
+  ClientSchemeHandler(const ClientSchemeHandler&) = delete;
+  ClientSchemeHandler& operator=(const ClientSchemeHandler&) = delete;
 
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
@@ -637,12 +642,15 @@ class ClientSchemeHandler : public CefResourceHandler {
   bool has_delayed_ = false;
 
   IMPLEMENT_REFCOUNTING(ClientSchemeHandler);
-  DISALLOW_COPY_AND_ASSIGN(ClientSchemeHandler);
 };
 
 class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
  public:
   explicit ClientSchemeHandlerFactory(TestResults* tr) : test_results_(tr) {}
+
+  ClientSchemeHandlerFactory(const ClientSchemeHandlerFactory&) = delete;
+  ClientSchemeHandlerFactory& operator=(const ClientSchemeHandlerFactory&) =
+      delete;
 
   CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefFrame> frame,
@@ -658,7 +666,6 @@ class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
   TestResults* const test_results_;
 
   IMPLEMENT_REFCOUNTING(ClientSchemeHandlerFactory);
-  DISALLOW_COPY_AND_ASSIGN(ClientSchemeHandlerFactory);
 };
 
 // If |domain| is empty the scheme will be registered as non-standard.
@@ -2709,6 +2716,11 @@ class FrameUrlTestSchemeHandlerFactory : public CefSchemeHandlerFactory {
         got_factory_create_for_sub_(got_factory_create_for_sub),
         got_correct_frame_url_for_sub_(got_correct_frame_url_for_sub) {}
 
+  FrameUrlTestSchemeHandlerFactory(const FrameUrlTestSchemeHandlerFactory&) =
+      delete;
+  FrameUrlTestSchemeHandlerFactory& operator=(
+      const FrameUrlTestSchemeHandlerFactory&) = delete;
+
   CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefFrame> frame,
                                        const CefString& scheme_name,
@@ -2760,12 +2772,14 @@ class FrameUrlTestSchemeHandlerFactory : public CefSchemeHandlerFactory {
   TrackCallback* const got_correct_frame_url_for_sub_;
 
   IMPLEMENT_REFCOUNTING(FrameUrlTestSchemeHandlerFactory);
-  DISALLOW_COPY_AND_ASSIGN(FrameUrlTestSchemeHandlerFactory);
 };
 
 class FrameUrlTestHandler : public TestHandler {
  public:
   FrameUrlTestHandler() = default;
+
+  FrameUrlTestHandler(const FrameUrlTestHandler&) = delete;
+  FrameUrlTestHandler& operator=(const FrameUrlTestHandler&) = delete;
 
   void RunTest() override {
     // Main page URL.
@@ -2861,7 +2875,6 @@ class FrameUrlTestHandler : public TestHandler {
   TrackCallback got_exit_success_;
 
   IMPLEMENT_REFCOUNTING(FrameUrlTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(FrameUrlTestHandler);
 };
 
 }  // namespace

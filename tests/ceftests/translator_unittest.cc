@@ -276,13 +276,16 @@ class TranslatorTestRefPtrClient : public CefTranslatorTestRefPtrClient {
  public:
   explicit TranslatorTestRefPtrClient(const int val) : val_(val) {}
 
+  TranslatorTestRefPtrClient(const TranslatorTestRefPtrClient&) = delete;
+  TranslatorTestRefPtrClient& operator=(const TranslatorTestRefPtrClient&) =
+      delete;
+
   int GetValue() override { return val_; }
 
  private:
   const int val_;
 
   IMPLEMENT_REFCOUNTING(TranslatorTestRefPtrClient);
-  DISALLOW_COPY_AND_ASSIGN(TranslatorTestRefPtrClient);
 };
 
 class TranslatorTestRefPtrClientChild
@@ -290,6 +293,11 @@ class TranslatorTestRefPtrClientChild
  public:
   TranslatorTestRefPtrClientChild(const int val, const int other_val)
       : val_(val), other_val_(other_val) {}
+
+  TranslatorTestRefPtrClientChild(const TranslatorTestRefPtrClientChild&) =
+      delete;
+  TranslatorTestRefPtrClientChild& operator=(
+      const TranslatorTestRefPtrClientChild&) = delete;
 
   int GetValue() override { return val_; }
 
@@ -300,7 +308,6 @@ class TranslatorTestRefPtrClientChild
   const int other_val_;
 
   IMPLEMENT_REFCOUNTING(TranslatorTestRefPtrClientChild);
-  DISALLOW_COPY_AND_ASSIGN(TranslatorTestRefPtrClientChild);
 };
 
 }  // namespace
@@ -479,13 +486,15 @@ class TranslatorTestScopedClient : public CefTranslatorTestScopedClient {
       : val_(val), got_delete_(got_delete) {}
   ~TranslatorTestScopedClient() override { got_delete_->yes(); }
 
+  TranslatorTestScopedClient(const TranslatorTestScopedClient&) = delete;
+  TranslatorTestScopedClient& operator=(const TranslatorTestScopedClient&) =
+      delete;
+
   int GetValue() override { return val_; }
 
  private:
   const int val_;
   TrackCallback* got_delete_;
-
-  DISALLOW_COPY_AND_ASSIGN(TranslatorTestScopedClient);
 };
 
 class TranslatorTestScopedClientChild
@@ -497,6 +506,11 @@ class TranslatorTestScopedClientChild
       : val_(val), other_val_(other_val), got_delete_(got_delete) {}
   ~TranslatorTestScopedClientChild() override { got_delete_->yes(); }
 
+  TranslatorTestScopedClientChild(const TranslatorTestScopedClientChild&) =
+      delete;
+  TranslatorTestScopedClientChild& operator=(
+      const TranslatorTestScopedClientChild&) = delete;
+
   int GetValue() override { return val_; }
 
   int GetOtherValue() override { return other_val_; }
@@ -505,8 +519,6 @@ class TranslatorTestScopedClientChild
   const int val_;
   const int other_val_;
   TrackCallback* got_delete_;
-
-  DISALLOW_COPY_AND_ASSIGN(TranslatorTestScopedClientChild);
 };
 
 }  // namespace

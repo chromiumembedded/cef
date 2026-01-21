@@ -23,6 +23,10 @@ class DevToolsMessageTestHandler : public TestHandler {
  public:
   DevToolsMessageTestHandler() = default;
 
+  DevToolsMessageTestHandler(const DevToolsMessageTestHandler&) = delete;
+  DevToolsMessageTestHandler& operator=(const DevToolsMessageTestHandler&) =
+      delete;
+
   void RunTest() override {
     // Add HTML resources.
     AddResource(kTestUrl1, "<html><body>Test1</body></html>", "text/html");
@@ -114,6 +118,9 @@ class DevToolsMessageTestHandler : public TestHandler {
 
     ~TestMessageObserver() override { handler_->observer_destroyed_.yes(); }
 
+    TestMessageObserver(const TestMessageObserver&) = delete;
+    TestMessageObserver& operator=(const TestMessageObserver&) = delete;
+
     bool OnDevToolsMessage(CefRefPtr<CefBrowser> browser,
                            const void* message,
                            size_t message_size) override {
@@ -177,7 +184,6 @@ class DevToolsMessageTestHandler : public TestHandler {
     DevToolsMessageTestHandler* handler_;
 
     IMPLEMENT_REFCOUNTING(TestMessageObserver);
-    DISALLOW_COPY_AND_ASSIGN(TestMessageObserver);
   };
 
   // Execute a DevTools method. Expected results will be verified in
@@ -359,7 +365,6 @@ class DevToolsMessageTestHandler : public TestHandler {
   TrackCallback observer_destroyed_;
 
   IMPLEMENT_REFCOUNTING(DevToolsMessageTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(DevToolsMessageTestHandler);
 };
 
 }  // namespace

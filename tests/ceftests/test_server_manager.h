@@ -25,6 +25,8 @@ class ObserverRegistration;
 // ObserverHelper instead of calling these methods directly.
 class Manager : public Runner::Delegate {
  public:
+  Manager(const Manager&) = delete;
+  Manager& operator=(const Manager&) = delete;
   using StartDoneCallback =
       base::OnceCallback<void(const std::string& server_origin)>;
   using DoneCallback = base::OnceClosure;
@@ -92,8 +94,6 @@ class Manager : public Runner::Delegate {
   ObserverList observer_list_;
 
   bool stopping_ = false;
-
-  DISALLOW_COPY_AND_ASSIGN(Manager);
 };
 
 }  // namespace test_server

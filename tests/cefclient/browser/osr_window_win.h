@@ -47,6 +47,9 @@ class OsrWindowWin
   // |delegate| must outlive this object.
   OsrWindowWin(Delegate* delegate, const OsrRendererSettings& settings);
 
+  OsrWindowWin(const OsrWindowWin&) = delete;
+  OsrWindowWin& operator=(const OsrWindowWin&) = delete;
+
   // Create a new browser and native window.
   void CreateBrowser(HWND parent_hwnd,
                      const RECT& rect,
@@ -206,8 +209,6 @@ class OsrWindowWin
   int last_click_count_ = 1;
   double last_click_time_ = 0;
   bool last_mouse_down_on_view_ = false;
-
-  DISALLOW_COPY_AND_ASSIGN(OsrWindowWin);
 };
 
 }  // namespace client

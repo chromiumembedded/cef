@@ -16,6 +16,9 @@ class BytesWriteHandler : public CefWriteHandler {
   explicit BytesWriteHandler(size_t grow);
   ~BytesWriteHandler() override;
 
+  BytesWriteHandler(const BytesWriteHandler&) = delete;
+  BytesWriteHandler& operator=(const BytesWriteHandler&) = delete;
+
   size_t Write(const void* ptr, size_t size, size_t n) override;
   int Seek(int64_t offset, int whence) override;
   int64_t Tell() override;
@@ -36,7 +39,6 @@ class BytesWriteHandler : public CefWriteHandler {
   base::Lock lock_;
 
   IMPLEMENT_REFCOUNTING(BytesWriteHandler);
-  DISALLOW_COPY_AND_ASSIGN(BytesWriteHandler);
 };
 
 }  // namespace client

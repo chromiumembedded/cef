@@ -25,6 +25,9 @@ class FindTestHandler : public TestHandler, public CefFindHandler {
 
   FindTestHandler() = default;
 
+  FindTestHandler(const FindTestHandler&) = delete;
+  FindTestHandler& operator=(const FindTestHandler&) = delete;
+
   void RunTest() override {
     const std::string html =
         "<html>"
@@ -106,15 +109,16 @@ class FindTestHandler : public TestHandler, public CefFindHandler {
   TrackCallback got_document_available_;
   TrackCallback got_on_find_result_;
   TrackCallback got_final_update_;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(FindTestHandler);
 };
 
 // Test finding text with a single match
 class FindSingleMatchTestHandler : public FindTestHandler {
  public:
   FindSingleMatchTestHandler() = default;
+
+  FindSingleMatchTestHandler(const FindSingleMatchTestHandler&) = delete;
+  FindSingleMatchTestHandler& operator=(const FindSingleMatchTestHandler&) =
+      delete;
 
   void PerformFind(CefRefPtr<CefBrowser> browser) override {
     // Search for "Unique" which appears once
@@ -136,13 +140,16 @@ class FindSingleMatchTestHandler : public FindTestHandler {
 
  private:
   IMPLEMENT_REFCOUNTING(FindSingleMatchTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(FindSingleMatchTestHandler);
 };
 
 // Test finding text with multiple matches
 class FindMultipleMatchTestHandler : public FindTestHandler {
  public:
   FindMultipleMatchTestHandler() = default;
+
+  FindMultipleMatchTestHandler(const FindMultipleMatchTestHandler&) = delete;
+  FindMultipleMatchTestHandler& operator=(const FindMultipleMatchTestHandler&) =
+      delete;
 
   void PerformFind(CefRefPtr<CefBrowser> browser) override {
     // Search for "the" which appears multiple times (case insensitive)
@@ -165,13 +172,15 @@ class FindMultipleMatchTestHandler : public FindTestHandler {
 
  private:
   IMPLEMENT_REFCOUNTING(FindMultipleMatchTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(FindMultipleMatchTestHandler);
 };
 
 // Test finding text with no matches
 class FindNoMatchTestHandler : public FindTestHandler {
  public:
   FindNoMatchTestHandler() = default;
+
+  FindNoMatchTestHandler(const FindNoMatchTestHandler&) = delete;
+  FindNoMatchTestHandler& operator=(const FindNoMatchTestHandler&) = delete;
 
   void PerformFind(CefRefPtr<CefBrowser> browser) override {
     // Search for text that doesn't exist
@@ -193,13 +202,16 @@ class FindNoMatchTestHandler : public FindTestHandler {
 
  private:
   IMPLEMENT_REFCOUNTING(FindNoMatchTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(FindNoMatchTestHandler);
 };
 
 // Test case-sensitive search
 class FindCaseSensitiveTestHandler : public FindTestHandler {
  public:
   FindCaseSensitiveTestHandler() = default;
+
+  FindCaseSensitiveTestHandler(const FindCaseSensitiveTestHandler&) = delete;
+  FindCaseSensitiveTestHandler& operator=(const FindCaseSensitiveTestHandler&) =
+      delete;
 
   void PerformFind(CefRefPtr<CefBrowser> browser) override {
     // Search for "Fox" (capital F) with case-sensitive matching
@@ -222,13 +234,17 @@ class FindCaseSensitiveTestHandler : public FindTestHandler {
 
  private:
   IMPLEMENT_REFCOUNTING(FindCaseSensitiveTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(FindCaseSensitiveTestHandler);
 };
 
 // Test case-insensitive search
 class FindCaseInsensitiveTestHandler : public FindTestHandler {
  public:
   FindCaseInsensitiveTestHandler() = default;
+
+  FindCaseInsensitiveTestHandler(const FindCaseInsensitiveTestHandler&) =
+      delete;
+  FindCaseInsensitiveTestHandler& operator=(
+      const FindCaseInsensitiveTestHandler&) = delete;
 
   void PerformFind(CefRefPtr<CefBrowser> browser) override {
     // Search for "fox" (lowercase) with case-insensitive matching
@@ -252,13 +268,15 @@ class FindCaseInsensitiveTestHandler : public FindTestHandler {
 
  private:
   IMPLEMENT_REFCOUNTING(FindCaseInsensitiveTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(FindCaseInsensitiveTestHandler);
 };
 
 // Test stopping find operation
 class FindStopTestHandler : public FindTestHandler {
  public:
   FindStopTestHandler() = default;
+
+  FindStopTestHandler(const FindStopTestHandler&) = delete;
+  FindStopTestHandler& operator=(const FindStopTestHandler&) = delete;
 
   void PerformFind(CefRefPtr<CefBrowser> browser) override {
     // Start a search
@@ -304,7 +322,6 @@ class FindStopTestHandler : public FindTestHandler {
   TrackCallback got_stop_find_;
 
   IMPLEMENT_REFCOUNTING(FindStopTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(FindStopTestHandler);
 };
 
 }  // namespace

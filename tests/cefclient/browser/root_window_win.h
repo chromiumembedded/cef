@@ -28,6 +28,9 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
   explicit RootWindowWin(bool use_alloy_style);
   ~RootWindowWin() override;
 
+  RootWindowWin(const RootWindowWin&) = delete;
+  RootWindowWin& operator=(const RootWindowWin&) = delete;
+
   // RootWindow methods.
   void Init(RootWindow::Delegate* delegate,
             std::unique_ptr<RootWindowConfig> config,
@@ -182,8 +185,6 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
   bool browser_destroyed_ = false;
 
   bool called_enable_non_client_dpi_scaling_ = false;
-
-  DISALLOW_COPY_AND_ASSIGN(RootWindowWin);
 };
 
 }  // namespace client

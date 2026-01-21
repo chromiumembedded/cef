@@ -22,6 +22,8 @@ class RootWindowManager;
 // class are thread-safe unless otherwise indicated.
 class MainContext {
  public:
+  MainContext(const MainContext&) = delete;
+  MainContext& operator=(const MainContext&) = delete;
   // Returns the singleton instance of this object.
   static MainContext* Get();
 
@@ -67,9 +69,6 @@ class MainContext {
  protected:
   MainContext();
   virtual ~MainContext();
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(MainContext);
 };
 
 }  // namespace client

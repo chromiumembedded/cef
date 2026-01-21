@@ -26,6 +26,9 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
   explicit RootWindowGtk(bool use_alloy_style);
   ~RootWindowGtk();
 
+  RootWindowGtk(const RootWindowGtk&) = delete;
+  RootWindowGtk& operator=(const RootWindowGtk&) = delete;
+
   // RootWindow methods.
   void Init(RootWindow::Delegate* delegate,
             std::unique_ptr<RootWindowConfig> config,
@@ -183,8 +186,6 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
   // WindowDelete.
   bool force_close_;
   bool is_closing_;
-
-  DISALLOW_COPY_AND_ASSIGN(RootWindowGtk);
 };
 
 }  // namespace client

@@ -27,6 +27,9 @@ class ViewsOverlayControls : public CefButtonDelegate, public CefPanelDelegate {
 
   ViewsOverlayControls(bool with_window_buttons, bool use_bottom_controls);
 
+  ViewsOverlayControls(const ViewsOverlayControls&) = delete;
+  ViewsOverlayControls& operator=(const ViewsOverlayControls&) = delete;
+
   void Initialize(CefRefPtr<CefWindow> window,
                   CefRefPtr<CefMenuButton> menu_button,
                   CefRefPtr<CefView> location_bar,
@@ -68,7 +71,6 @@ class ViewsOverlayControls : public CefButtonDelegate, public CefPanelDelegate {
   CefRefPtr<CefOverlayController> menu_controller_;
 
   IMPLEMENT_REFCOUNTING(ViewsOverlayControls);
-  DISALLOW_COPY_AND_ASSIGN(ViewsOverlayControls);
 };
 
 }  // namespace client

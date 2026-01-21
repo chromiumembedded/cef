@@ -212,6 +212,9 @@ class TestProvider : public CefResourceManager::Provider {
     }
   }
 
+  TestProvider(const TestProvider&) = delete;
+  TestProvider& operator=(const TestProvider&) = delete;
+
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     CEF_REQUIRE_IO_THREAD();
     EXPECT_FALSE(state_->got_on_request_);
@@ -235,8 +238,6 @@ class TestProvider : public CefResourceManager::Provider {
 
  private:
   State* state_;
-
-  DISALLOW_COPY_AND_ASSIGN(TestProvider);
 };
 
 // Helper that blocks on destruction of 1 or more TestProviders.
@@ -372,6 +373,9 @@ class SimpleTestProvider : public TestProvider {
         manager_(manager),
         do_nothing_callback_(std::move(do_nothing_callback)) {}
 
+  SimpleTestProvider(const SimpleTestProvider&) = delete;
+  SimpleTestProvider& operator=(const SimpleTestProvider&) = delete;
+
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     TestProvider::OnRequest(request);
 
@@ -397,8 +401,6 @@ class SimpleTestProvider : public TestProvider {
   Mode mode_;
   CefResourceManager* manager_;  // Weak reference.
   base::OnceClosure do_nothing_callback_;
-
-  DISALLOW_COPY_AND_ASSIGN(SimpleTestProvider);
 };
 
 }  // namespace
@@ -902,6 +904,9 @@ class OneShotProvider : public CefResourceManager::Provider {
     std::move(destruct_callback_).Run();
   }
 
+  OneShotProvider(const OneShotProvider&) = delete;
+  OneShotProvider& operator=(const OneShotProvider&) = delete;
+
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     CEF_REQUIRE_IO_THREAD();
 
@@ -924,8 +929,6 @@ class OneShotProvider : public CefResourceManager::Provider {
   bool done_ = false;
   std::string content_;
   base::OnceClosure destruct_callback_;
-
-  DISALLOW_COPY_AND_ASSIGN(OneShotProvider);
 };
 
 }  // namespace
@@ -1000,6 +1003,9 @@ class EchoProvider : public CefResourceManager::Provider {
     EXPECT_TRUE(!base_url_.empty());
   }
 
+  EchoProvider(const EchoProvider&) = delete;
+  EchoProvider& operator=(const EchoProvider&) = delete;
+
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     CEF_REQUIRE_IO_THREAD();
 
@@ -1031,8 +1037,6 @@ class EchoProvider : public CefResourceManager::Provider {
 
  private:
   std::string base_url_;
-
-  DISALLOW_COPY_AND_ASSIGN(EchoProvider);
 };
 
 }  // namespace
@@ -1100,6 +1104,9 @@ class OneShotRemovalProvider : public TestProvider {
     EXPECT_FALSE(content.empty());
   }
 
+  OneShotRemovalProvider(const OneShotRemovalProvider&) = delete;
+  OneShotRemovalProvider& operator=(const OneShotRemovalProvider&) = delete;
+
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     TestProvider::OnRequest(request);
 
@@ -1136,8 +1143,6 @@ class OneShotRemovalProvider : public TestProvider {
   CefResourceManager* manager_;  // Weak reference.
   std::string identifier_;
   bool remove_before_continue_;
-
-  DISALLOW_COPY_AND_ASSIGN(OneShotRemovalProvider);
 };
 
 }  // namespace
@@ -1520,6 +1525,9 @@ class UrlFilterTestProvider : public TestProvider {
         expected_url_(expected_url),
         expected_url_after_filter_(expected_url_after_filter) {}
 
+  UrlFilterTestProvider(const UrlFilterTestProvider&) = delete;
+  UrlFilterTestProvider& operator=(const UrlFilterTestProvider&) = delete;
+
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     TestProvider::OnRequest(request);
 
@@ -1538,7 +1546,6 @@ class UrlFilterTestProvider : public TestProvider {
  private:
   std::string expected_url_;
   std::string expected_url_after_filter_;
-  DISALLOW_COPY_AND_ASSIGN(UrlFilterTestProvider);
 };
 
 std::string TestUrlFilter(const std::string& url) {
@@ -1729,6 +1736,9 @@ class MimeTypeTestProvider : public TestProvider {
   MimeTypeTestProvider(State* state, const std::string& expected_mime_type)
       : TestProvider(state), expected_mime_type_(expected_mime_type) {}
 
+  MimeTypeTestProvider(const MimeTypeTestProvider&) = delete;
+  MimeTypeTestProvider& operator=(const MimeTypeTestProvider&) = delete;
+
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     TestProvider::OnRequest(request);
 
@@ -1742,7 +1752,6 @@ class MimeTypeTestProvider : public TestProvider {
 
  private:
   std::string expected_mime_type_;
-  DISALLOW_COPY_AND_ASSIGN(MimeTypeTestProvider);
 };
 
 const char kExpectedMimeType[] = "foo/bar";
@@ -1817,6 +1826,9 @@ class AddingTestProvider : public TestProvider {
         manager_(manager),
         before_(before) {}
 
+  AddingTestProvider(const AddingTestProvider&) = delete;
+  AddingTestProvider& operator=(const AddingTestProvider&) = delete;
+
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     TestProvider::OnRequest(request);
 
@@ -1833,8 +1845,6 @@ class AddingTestProvider : public TestProvider {
   State* new_state_;
   CefResourceManager* manager_;  // Weak reference.
   bool before_;
-
-  DISALLOW_COPY_AND_ASSIGN(AddingTestProvider);
 };
 
 }  // namespace

@@ -69,6 +69,9 @@ class StickyPrintSettingGtk {
     NOTREACHED();  // The instance is intentionally leaked.
   }
 
+  StickyPrintSettingGtk(const StickyPrintSettingGtk&) = delete;
+  StickyPrintSettingGtk& operator=(const StickyPrintSettingGtk&) = delete;
+
   GtkPrintSettings* settings() { return last_used_settings_; }
 
   void SetLastUsedSettings(GtkPrintSettings* settings) {
@@ -79,8 +82,6 @@ class StickyPrintSettingGtk {
 
  private:
   GtkPrintSettings* last_used_settings_;
-
-  DISALLOW_COPY_AND_ASSIGN(StickyPrintSettingGtk);
 };
 
 // Lazily initialize the singleton instance.

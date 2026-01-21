@@ -16,6 +16,9 @@ class MainMessageLoopStd : public MainMessageLoop {
  public:
   MainMessageLoopStd();
 
+  MainMessageLoopStd(const MainMessageLoopStd&) = delete;
+  MainMessageLoopStd& operator=(const MainMessageLoopStd&) = delete;
+
   // MainMessageLoop methods.
   int Run() override;
   void Quit() override;
@@ -25,9 +28,6 @@ class MainMessageLoopStd : public MainMessageLoop {
 #if defined(OS_WIN)
   void SetCurrentModelessDialog(HWND hWndDialog) override;
 #endif
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(MainMessageLoopStd);
 };
 
 }  // namespace client

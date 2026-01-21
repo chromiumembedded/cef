@@ -34,6 +34,9 @@ class RequestClient : public CefURLRequestClient {
     DCHECK(!callback_.is_null());
   }
 
+  RequestClient(const RequestClient&) = delete;
+  RequestClient& operator=(const RequestClient&) = delete;
+
   void Detach() {
     CEF_REQUIRE_UI_THREAD();
     if (!callback_.is_null()) {
@@ -77,7 +80,6 @@ class RequestClient : public CefURLRequestClient {
   std::string download_data_;
 
   IMPLEMENT_REFCOUNTING(RequestClient);
-  DISALLOW_COPY_AND_ASSIGN(RequestClient);
 };
 
 // Handle messages in the browser process. Only accessed on the UI thread.
@@ -86,6 +88,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
   Handler() { CEF_REQUIRE_UI_THREAD(); }
 
   ~Handler() override { CancelPendingRequest(); }
+
+  Handler(const Handler&) = delete;
+  Handler& operator=(const Handler&) = delete;
 
   // Called due to cefQuery execution in urlrequest.html.
   bool OnQuery(CefRefPtr<CefBrowser> browser,
@@ -173,8 +178,6 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
   CefRefPtr<Callback> callback_;
   CefRefPtr<CefURLRequest> urlrequest_;
-
-  DISALLOW_COPY_AND_ASSIGN(Handler);
 };
 
 }  // namespace

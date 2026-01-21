@@ -320,7 +320,6 @@ class ViewsWindow : public CefBrowserViewDelegate,
   std::vector<CefDraggableRegion> last_regions_;
 
   IMPLEMENT_REFCOUNTING(ViewsWindow);
-  DISALLOW_COPY_AND_ASSIGN(ViewsWindow);
 };
 
 }  // namespace client

@@ -20,6 +20,9 @@ class DefaultClientHandler : public BaseClientHandler {
   explicit DefaultClientHandler(
       std::optional<bool> use_alloy_style = std::nullopt);
 
+  DefaultClientHandler(const DefaultClientHandler&) = delete;
+  DefaultClientHandler& operator=(const DefaultClientHandler&) = delete;
+
   // Returns the DefaultClientHandler for |client|, or nullptr if |client| is
   // not a DefaultClientHandler.
   static CefRefPtr<DefaultClientHandler> GetForClient(
@@ -52,7 +55,6 @@ class DefaultClientHandler : public BaseClientHandler {
   const bool use_alloy_style_;
 
   IMPLEMENT_REFCOUNTING(DefaultClientHandler);
-  DISALLOW_COPY_AND_ASSIGN(DefaultClientHandler);
 };
 
 }  // namespace client

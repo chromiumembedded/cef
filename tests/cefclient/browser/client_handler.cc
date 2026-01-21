@@ -484,6 +484,10 @@ class ClientDownloadImageCallback : public CefDownloadImageCallback {
   explicit ClientDownloadImageCallback(CefRefPtr<ClientHandler> client_handler)
       : client_handler_(client_handler) {}
 
+  ClientDownloadImageCallback(const ClientDownloadImageCallback&) = delete;
+  ClientDownloadImageCallback& operator=(const ClientDownloadImageCallback&) =
+      delete;
+
   void OnDownloadImageFinished(const CefString& image_url,
                                int http_status_code,
                                CefRefPtr<CefImage> image) override {
@@ -496,7 +500,6 @@ class ClientDownloadImageCallback : public CefDownloadImageCallback {
   CefRefPtr<ClientHandler> client_handler_;
 
   IMPLEMENT_REFCOUNTING(ClientDownloadImageCallback);
-  DISALLOW_COPY_AND_ASSIGN(ClientDownloadImageCallback);
 };
 
 ClientHandler::ClientHandler(Delegate* delegate,

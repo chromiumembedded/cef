@@ -21,6 +21,9 @@ class BrowserWindowStdMac : public BrowserWindow {
                       bool with_controls,
                       const std::string& startup_url);
 
+  BrowserWindowStdMac(const BrowserWindowStdMac&) = delete;
+  BrowserWindowStdMac& operator=(const BrowserWindowStdMac&) = delete;
+
   // BrowserWindow methods.
   void CreateBrowser(ClientWindowHandle parent_handle,
                      const CefRect& rect,
@@ -41,9 +44,6 @@ class BrowserWindowStdMac : public BrowserWindow {
   void SetBounds(int x, int y, size_t width, size_t height) override;
   void SetFocus(bool focus) override;
   ClientWindowHandle GetWindowHandle() const override;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(BrowserWindowStdMac);
 };
 
 }  // namespace client

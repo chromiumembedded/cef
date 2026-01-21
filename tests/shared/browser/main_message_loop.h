@@ -23,6 +23,8 @@ namespace client {
 // this class are thread-safe unless otherwise indicated.
 class MainMessageLoop {
  public:
+  MainMessageLoop(const MainMessageLoop&) = delete;
+  MainMessageLoop& operator=(const MainMessageLoop&) = delete;
   // Returns the singleton instance of this object.
   static MainMessageLoop* Get();
 
@@ -57,9 +59,6 @@ class MainMessageLoop {
 
   MainMessageLoop();
   virtual ~MainMessageLoop();
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(MainMessageLoop);
 };
 
 #define CURRENTLY_ON_MAIN_THREAD() \

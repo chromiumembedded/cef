@@ -22,9 +22,11 @@ class EmptyPanelDelegate : public CefPanelDelegate {
  public:
   EmptyPanelDelegate() = default;
 
+  EmptyPanelDelegate(const EmptyPanelDelegate&) = delete;
+  EmptyPanelDelegate& operator=(const EmptyPanelDelegate&) = delete;
+
  private:
   IMPLEMENT_REFCOUNTING(EmptyPanelDelegate);
-  DISALLOW_COPY_AND_ASSIGN(EmptyPanelDelegate);
 };
 
 void CreatePanel(CefRefPtr<CefPanelDelegate> delegate) {
@@ -102,6 +104,9 @@ class ParentPanelDelegate : public CefPanelDelegate {
  public:
   ParentPanelDelegate() = default;
 
+  ParentPanelDelegate(const ParentPanelDelegate&) = delete;
+  ParentPanelDelegate& operator=(const ParentPanelDelegate&) = delete;
+
   void OnParentViewChanged(CefRefPtr<CefView> view,
                            bool added,
                            CefRefPtr<CefView> parent) override {
@@ -144,12 +149,14 @@ class ParentPanelDelegate : public CefPanelDelegate {
 
  private:
   IMPLEMENT_REFCOUNTING(ParentPanelDelegate);
-  DISALLOW_COPY_AND_ASSIGN(ParentPanelDelegate);
 };
 
 class ChildPanelDelegate : public CefPanelDelegate {
  public:
   ChildPanelDelegate() = default;
+
+  ChildPanelDelegate(const ChildPanelDelegate&) = delete;
+  ChildPanelDelegate& operator=(const ChildPanelDelegate&) = delete;
 
   void OnParentViewChanged(CefRefPtr<CefView> view,
                            bool added,
@@ -190,7 +197,6 @@ class ChildPanelDelegate : public CefPanelDelegate {
 
  private:
   IMPLEMENT_REFCOUNTING(ChildPanelDelegate);
-  DISALLOW_COPY_AND_ASSIGN(ChildPanelDelegate);
 };
 
 void ChildVerifyRemovedState(CefRefPtr<ParentPanelDelegate> parent_delegate,
@@ -594,6 +600,9 @@ class ThemePanelDelegate : public CefPanelDelegate {
  public:
   ThemePanelDelegate() = default;
 
+  ThemePanelDelegate(const ThemePanelDelegate&) = delete;
+  ThemePanelDelegate& operator=(const ThemePanelDelegate&) = delete;
+
   void OnThemeChanged(CefRefPtr<CefView> view) override {
     theme_changed_ct_++;
 
@@ -607,12 +616,14 @@ class ThemePanelDelegate : public CefPanelDelegate {
 
  private:
   IMPLEMENT_REFCOUNTING(ThemePanelDelegate);
-  DISALLOW_COPY_AND_ASSIGN(ThemePanelDelegate);
 };
 
 class ThemeWindowDelegate : public CefWindowDelegate {
  public:
   ThemeWindowDelegate() = default;
+
+  ThemeWindowDelegate(const ThemeWindowDelegate&) = delete;
+  ThemeWindowDelegate& operator=(const ThemeWindowDelegate&) = delete;
 
   void OnThemeChanged(CefRefPtr<CefView> view) override { theme_changed_ct_++; }
 
@@ -626,7 +637,6 @@ class ThemeWindowDelegate : public CefWindowDelegate {
 
  private:
   IMPLEMENT_REFCOUNTING(ThemeWindowDelegate);
-  DISALLOW_COPY_AND_ASSIGN(ThemeWindowDelegate);
 };
 
 void ChildThemeImpl() {
@@ -779,6 +789,9 @@ class SizingPanelDelegate : public CefPanelDelegate {
  public:
   SizingPanelDelegate() = default;
 
+  SizingPanelDelegate(const SizingPanelDelegate&) = delete;
+  SizingPanelDelegate& operator=(const SizingPanelDelegate&) = delete;
+
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override {
     got_get_preferred_size_ = true;
     view_ = view;
@@ -837,7 +850,6 @@ class SizingPanelDelegate : public CefPanelDelegate {
 
  private:
   IMPLEMENT_REFCOUNTING(SizingPanelDelegate);
-  DISALLOW_COPY_AND_ASSIGN(SizingPanelDelegate);
 };
 
 void SizeNoDelegateImpl() {

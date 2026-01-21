@@ -28,6 +28,9 @@ class BrowserWindowOsrGtk : public BrowserWindow,
                       const std::string& startup_url,
                       const OsrRendererSettings& settings);
 
+  BrowserWindowOsrGtk(const BrowserWindowOsrGtk&) = delete;
+  BrowserWindowOsrGtk& operator=(const BrowserWindowOsrGtk&) = delete;
+
   // Called from RootWindowGtk::CreateRootWindow before CreateBrowser.
   void set_xdisplay(XDisplay* xdisplay);
 
@@ -205,8 +208,6 @@ class BrowserWindowOsrGtk : public BrowserWindow,
 
   // Access to these members must be protected by |lock_|.
   float device_scale_factor_;
-
-  DISALLOW_COPY_AND_ASSIGN(BrowserWindowOsrGtk);
 };
 
 }  // namespace client

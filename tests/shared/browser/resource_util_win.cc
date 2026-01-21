@@ -45,6 +45,9 @@ class BinaryResourceProvider : public CefResourceManager::Provider {
     }
   }
 
+  BinaryResourceProvider(const BinaryResourceProvider&) = delete;
+  BinaryResourceProvider& operator=(const BinaryResourceProvider&) = delete;
+
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     CEF_REQUIRE_IO_THREAD();
 
@@ -77,8 +80,6 @@ class BinaryResourceProvider : public CefResourceManager::Provider {
  private:
   std::string url_path_;
   std::string resource_path_prefix_;
-
-  DISALLOW_COPY_AND_ASSIGN(BinaryResourceProvider);
 };
 
 }  // namespace

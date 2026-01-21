@@ -103,7 +103,6 @@ class TestWindowDelegate : public CefWindowDelegate {
   int browser_id_ = 0;
 
   IMPLEMENT_REFCOUNTING(TestWindowDelegate);
-  DISALLOW_COPY_AND_ASSIGN(TestWindowDelegate);
 };
 
 // Delegate implementation for the CefBrowserView.
@@ -111,6 +110,9 @@ class TestBrowserViewDelegate : public CefBrowserViewDelegate {
  public:
   TestBrowserViewDelegate(TestHandler* handler, bool is_devtools_popup)
       : handler_(handler), is_devtools_popup_(is_devtools_popup) {}
+
+  TestBrowserViewDelegate(const TestBrowserViewDelegate&) = delete;
+  TestBrowserViewDelegate& operator=(const TestBrowserViewDelegate&) = delete;
 
   // CefBrowserViewDelegate methods:
 
@@ -175,7 +177,6 @@ class TestBrowserViewDelegate : public CefBrowserViewDelegate {
   const bool is_devtools_popup_;
 
   IMPLEMENT_REFCOUNTING(TestBrowserViewDelegate);
-  DISALLOW_COPY_AND_ASSIGN(TestBrowserViewDelegate);
 };
 
 }  // namespace

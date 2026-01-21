@@ -29,6 +29,9 @@ class BrowserWindowOsrMac : public BrowserWindow,
                       const OsrRendererSettings& settings);
   ~BrowserWindowOsrMac();
 
+  BrowserWindowOsrMac(const BrowserWindowOsrMac&) = delete;
+  BrowserWindowOsrMac& operator=(const BrowserWindowOsrMac&) = delete;
+
   // BrowserWindow methods.
   void CreateBrowser(ClientWindowHandle parent_handle,
                      const CefRect& rect,
@@ -97,8 +100,6 @@ class BrowserWindowOsrMac : public BrowserWindow,
 
  private:
   std::unique_ptr<BrowserWindowOsrMacImpl> impl_;
-
-  DISALLOW_COPY_AND_ASSIGN(BrowserWindowOsrMac);
 
   friend class BrowserWindowOsrMacImpl;
 };

@@ -43,6 +43,9 @@ class Runner {
   explicit Runner(Delegate* delegate);
   virtual ~Runner() = default;
 
+  Runner(const Runner&) = delete;
+  Runner& operator=(const Runner&) = delete;
+
   // Called by the Manager to create the Runner.
   static std::unique_ptr<Runner> Create(Delegate* delegate, bool https_server);
 
@@ -60,8 +63,6 @@ class Runner {
 
  protected:
   Delegate* const delegate_;
-
-  DISALLOW_COPY_AND_ASSIGN(Runner);
 };
 
 }  // namespace test_server

@@ -31,12 +31,13 @@ class ScopedGdkThreadsEnter {
   ScopedGdkThreadsEnter();
   ~ScopedGdkThreadsEnter();
 
+  ScopedGdkThreadsEnter(const ScopedGdkThreadsEnter&) = delete;
+  ScopedGdkThreadsEnter& operator=(const ScopedGdkThreadsEnter&) = delete;
+
  private:
   bool take_lock_;
 
   static base::PlatformThreadId locked_thread_;
-
-  DISALLOW_COPY_AND_ASSIGN(ScopedGdkThreadsEnter);
 };
 
 // Returns the window bounds in root window (pixel) coordinates.

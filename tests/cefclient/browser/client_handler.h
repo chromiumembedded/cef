@@ -106,6 +106,9 @@ class ClientHandler : public BaseClientHandler,
                 bool with_controls,
                 const std::string& startup_url);
 
+  ClientHandler(const ClientHandler&) = delete;
+  ClientHandler& operator=(const ClientHandler&) = delete;
+
   // This object may outlive the Delegate object so it's necessary for the
   // Delegate to detach itself before destruction. Called on the main thread
   // after the browser has closed.
@@ -430,8 +433,6 @@ class ClientHandler : public BaseClientHandler,
 
   // True if an editable field currently has focus.
   bool focus_on_editable_field_ = false;
-
-  DISALLOW_COPY_AND_ASSIGN(ClientHandler);
 };
 
 }  // namespace client

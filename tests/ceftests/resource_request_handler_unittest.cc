@@ -105,6 +105,9 @@ class CallbackResourceHandler : public CefResourceHandler {
     std::move(destroy_callback_).Run();
   }
 
+  CallbackResourceHandler(const CallbackResourceHandler&) = delete;
+  CallbackResourceHandler& operator=(const CallbackResourceHandler&) = delete;
+
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
             CefRefPtr<CefCallback> callback) override {
@@ -212,7 +215,6 @@ class CallbackResourceHandler : public CefResourceHandler {
   int cancel_ct_ = 0;
 
   IMPLEMENT_REFCOUNTING(CallbackResourceHandler);
-  DISALLOW_COPY_AND_ASSIGN(CallbackResourceHandler);
 };
 
 // Resource handler implementation that never completes. Used to test
@@ -246,6 +248,10 @@ class IncompleteResourceHandlerOld : public CefResourceHandler {
 
     std::move(destroy_callback_).Run();
   }
+
+  IncompleteResourceHandlerOld(const IncompleteResourceHandlerOld&) = delete;
+  IncompleteResourceHandlerOld& operator=(const IncompleteResourceHandlerOld&) =
+      delete;
 
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override {
@@ -309,7 +315,6 @@ class IncompleteResourceHandlerOld : public CefResourceHandler {
   CefRefPtr<CefCallback> incomplete_callback_;
 
   IMPLEMENT_REFCOUNTING(IncompleteResourceHandlerOld);
-  DISALLOW_COPY_AND_ASSIGN(IncompleteResourceHandlerOld);
 };
 
 class IncompleteResourceHandler : public CefResourceHandler {
@@ -341,6 +346,10 @@ class IncompleteResourceHandler : public CefResourceHandler {
 
     std::move(destroy_callback_).Run();
   }
+
+  IncompleteResourceHandler(const IncompleteResourceHandler&) = delete;
+  IncompleteResourceHandler& operator=(const IncompleteResourceHandler&) =
+      delete;
 
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
@@ -422,7 +431,6 @@ class IncompleteResourceHandler : public CefResourceHandler {
   CefRefPtr<CefResourceReadCallback> incomplete_read_callback_;
 
   IMPLEMENT_REFCOUNTING(IncompleteResourceHandler);
-  DISALLOW_COPY_AND_ASSIGN(IncompleteResourceHandler);
 };
 
 class BasicResponseTest : public TestHandler {
@@ -489,6 +497,9 @@ class BasicResponseTest : public TestHandler {
   // returns null.
   BasicResponseTest(TestMode mode, bool custom_scheme, bool unhandled)
       : mode_(mode), custom_scheme_(custom_scheme), unhandled_(unhandled) {}
+
+  BasicResponseTest(const BasicResponseTest&) = delete;
+  BasicResponseTest& operator=(const BasicResponseTest&) = delete;
 
   void RunTest() override {
     CreateBrowser(GetStartupURL());
@@ -1404,8 +1415,6 @@ class BasicResponseTest : public TestHandler {
 
   // Used with INCOMPLETE_BEFORE_RESOURCE_LOAD.
   CefRefPtr<CefCallback> incomplete_callback_;
-
-  DISALLOW_COPY_AND_ASSIGN(BasicResponseTest);
   IMPLEMENT_REFCOUNTING(BasicResponseTest);
 };
 
@@ -1532,6 +1541,9 @@ class SubresourceResponseTest : public RoutingTestHandler {
         custom_scheme_(custom_scheme),
         unhandled_(unhandled),
         subframe_(subframe) {}
+
+  SubresourceResponseTest(const SubresourceResponseTest&) = delete;
+  SubresourceResponseTest& operator=(const SubresourceResponseTest&) = delete;
 
   void RunTest() override {
     CreateBrowser(GetMainURL());
@@ -2614,8 +2626,6 @@ class SubresourceResponseTest : public RoutingTestHandler {
 
   // Used with INCOMPLETE_BEFORE_RESOURCE_LOAD.
   CefRefPtr<CefCallback> incomplete_callback_;
-
-  DISALLOW_COPY_AND_ASSIGN(SubresourceResponseTest);
   IMPLEMENT_REFCOUNTING(SubresourceResponseTest);
 };
 
@@ -3052,6 +3062,9 @@ class RedirectResponseTest : public TestHandler {
         CefRefPtr<CefResourceRequestHandler> resource_request_handler)
         : resource_request_handler_(resource_request_handler) {}
 
+    RequestContextHandler(const RequestContextHandler&) = delete;
+    RequestContextHandler& operator=(const RequestContextHandler&) = delete;
+
     CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
         CefRefPtr<CefBrowser> browser,
         CefRefPtr<CefFrame> frame,
@@ -3067,12 +3080,14 @@ class RedirectResponseTest : public TestHandler {
     CefRefPtr<CefResourceRequestHandler> resource_request_handler_;
 
     IMPLEMENT_REFCOUNTING(RequestContextHandler);
-    DISALLOW_COPY_AND_ASSIGN(RequestContextHandler);
   };
 
   class ResourceRequestHandler : public CefResourceRequestHandler {
    public:
     explicit ResourceRequestHandler(RedirectResponseTest* test) : test_(test) {}
+
+    ResourceRequestHandler(const ResourceRequestHandler&) = delete;
+    ResourceRequestHandler& operator=(const ResourceRequestHandler&) = delete;
 
     cef_return_value_t OnBeforeResourceLoad(
         CefRefPtr<CefBrowser> browser,
@@ -3217,7 +3232,6 @@ class RedirectResponseTest : public TestHandler {
     uint64_t sub_request_id_ = 0U;
 
     IMPLEMENT_REFCOUNTING(ResourceRequestHandler);
-    DISALLOW_COPY_AND_ASSIGN(ResourceRequestHandler);
   };
 
   const bool via_request_context_handler_;

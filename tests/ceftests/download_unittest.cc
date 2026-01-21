@@ -36,6 +36,9 @@ class DownloadSchemeHandler : public CefResourceHandler {
       : delay_callback_(std::move(delay_callback)),
         got_download_request_(got_download_request) {}
 
+  DownloadSchemeHandler(const DownloadSchemeHandler&) = delete;
+  DownloadSchemeHandler& operator=(const DownloadSchemeHandler&) = delete;
+
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
             CefRefPtr<CefCallback> callback) override {
@@ -134,7 +137,6 @@ class DownloadSchemeHandler : public CefResourceHandler {
   CefRefPtr<CefResourceReadCallback> read_callback_;
 
   IMPLEMENT_REFCOUNTING(DownloadSchemeHandler);
-  DISALLOW_COPY_AND_ASSIGN(DownloadSchemeHandler);
 };
 
 using DelayCallbackVendor = base::RepeatingCallback<DelayCallback(void)>;
@@ -145,6 +147,10 @@ class DownloadSchemeHandlerFactory : public CefSchemeHandlerFactory {
                                TrackCallback* got_download_request)
       : delay_callback_vendor_(delay_callback_vendor),
         got_download_request_(got_download_request) {}
+
+  DownloadSchemeHandlerFactory(const DownloadSchemeHandlerFactory&) = delete;
+  DownloadSchemeHandlerFactory& operator=(const DownloadSchemeHandlerFactory&) =
+      delete;
 
   CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefFrame> frame,
@@ -161,7 +167,6 @@ class DownloadSchemeHandlerFactory : public CefSchemeHandlerFactory {
   TrackCallback* got_download_request_;
 
   IMPLEMENT_REFCOUNTING(DownloadSchemeHandlerFactory);
-  DISALLOW_COPY_AND_ASSIGN(DownloadSchemeHandlerFactory);
 };
 
 class DownloadTestHandler : public TestHandler {
@@ -628,6 +633,11 @@ class DownloadPauseResumeTestHandler : public TestHandler {
  public:
   DownloadPauseResumeTestHandler() = default;
 
+  DownloadPauseResumeTestHandler(const DownloadPauseResumeTestHandler&) =
+      delete;
+  DownloadPauseResumeTestHandler& operator=(
+      const DownloadPauseResumeTestHandler&) = delete;
+
   void RunTest() override {
     // Create a new temporary directory.
     EXPECT_TRUE(temp_dir_.CreateUniqueTempDir());
@@ -849,7 +859,6 @@ class DownloadPauseResumeTestHandler : public TestHandler {
   TrackCallback got_download_complete_;
 
   IMPLEMENT_REFCOUNTING(DownloadPauseResumeTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(DownloadPauseResumeTestHandler);
 };
 
 }  // namespace

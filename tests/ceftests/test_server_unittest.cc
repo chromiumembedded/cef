@@ -58,6 +58,9 @@ class TestServerHandler : public CefTestServerHandler {
     std::move(destroy_callback_).Run();
   }
 
+  TestServerHandler(const TestServerHandler&) = delete;
+  TestServerHandler& operator=(const TestServerHandler&) = delete;
+
   // Must be called before CreateServer().
   void AddHttpRequestHandler(
       std::unique_ptr<HttpRequestHandler> request_handler) {
@@ -191,7 +194,6 @@ class TestServerHandler : public CefTestServerHandler {
   int actual_http_request_ct_ = 0;
 
   IMPLEMENT_REFCOUNTING(TestServerHandler);
-  DISALLOW_COPY_AND_ASSIGN(TestServerHandler);
 };
 
 // HTTP TESTS
@@ -227,6 +229,9 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
       destroy_event_->Signal();
     }
   }
+
+  HttpTestRunner(const HttpTestRunner&) = delete;
+  HttpTestRunner& operator=(const HttpTestRunner&) = delete;
 
   void AddRequestRunner(std::unique_ptr<RequestRunner> request_runner) {
     EXPECT_FALSE(initialized_);
@@ -409,8 +414,6 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
   TrackCallback got_server_destroyed_;
 
   std::unique_ptr<TestHandler::UIThreadHelper> ui_thread_helper_;
-
-  DISALLOW_COPY_AND_ASSIGN(HttpTestRunner);
 };
 
 // Structure representing the data that can be sent via
@@ -543,6 +546,11 @@ class StaticHttpServerRequestHandler
 
         response_(response) {}
 
+  StaticHttpServerRequestHandler(const StaticHttpServerRequestHandler&) =
+      delete;
+  StaticHttpServerRequestHandler& operator=(
+      const StaticHttpServerRequestHandler&) = delete;
+
   bool HandleRequest(CefRefPtr<CefTestServer> server,
                      CefRefPtr<CefRequest> request,
                      CefRefPtr<CefTestServerConnection> connection) override {
@@ -570,8 +578,6 @@ class StaticHttpServerRequestHandler
   int expected_request_ct_;
   int actual_request_ct_ = 0;
   HttpServerResponse response_;
-
-  DISALLOW_COPY_AND_ASSIGN(StaticHttpServerRequestHandler);
 };
 
 // URLRequestClient that runs a single request and executes a callback with the
@@ -591,6 +597,10 @@ class StaticHttpURLRequestClient : public CefURLRequestClient {
     EXPECT_TRUE(request_);
     EXPECT_FALSE(response_callback_.is_null());
   }
+
+  StaticHttpURLRequestClient(const StaticHttpURLRequestClient&) = delete;
+  StaticHttpURLRequestClient& operator=(const StaticHttpURLRequestClient&) =
+      delete;
 
   void RunRequest() {
     EXPECT_UI_THREAD();
@@ -632,7 +642,6 @@ class StaticHttpURLRequestClient : public CefURLRequestClient {
   std::string data_;
 
   IMPLEMENT_REFCOUNTING(StaticHttpURLRequestClient);
-  DISALLOW_COPY_AND_ASSIGN(StaticHttpURLRequestClient);
 };
 
 // RequestRunner that will manage a single static HTTP request/response.
@@ -641,6 +650,9 @@ class StaticHttpRequestRunner : public HttpTestRunner::RequestRunner {
   StaticHttpRequestRunner(CefRefPtr<CefRequest> request,
                           const HttpServerResponse& response)
       : request_(request), response_(response) {}
+
+  StaticHttpRequestRunner(const StaticHttpRequestRunner&) = delete;
+  StaticHttpRequestRunner& operator=(const StaticHttpRequestRunner&) = delete;
 
   static std::unique_ptr<HttpTestRunner::RequestRunner> Create200(
       const std::string& path,
@@ -763,8 +775,6 @@ class StaticHttpRequestRunner : public HttpTestRunner::RequestRunner {
   TrackCallback got_run_request_;
   TrackCallback got_create_handler_;
   TrackCallback got_response_complete_;
-
-  DISALLOW_COPY_AND_ASSIGN(StaticHttpRequestRunner);
 };
 
 }  // namespace

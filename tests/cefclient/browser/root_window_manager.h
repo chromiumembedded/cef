@@ -26,6 +26,9 @@ class RootWindowManager : public RootWindow::Delegate {
   // after all windows have closed.
   explicit RootWindowManager(bool terminate_when_all_windows_closed);
 
+  RootWindowManager(const RootWindowManager&) = delete;
+  RootWindowManager& operator=(const RootWindowManager&) = delete;
+
   // Create a new top-level native window. This method can be called from
   // anywhere.
   scoped_refptr<RootWindow> CreateRootWindow(
@@ -129,8 +132,6 @@ class RootWindowManager : public RootWindow::Delegate {
   CefRefPtr<CefRequestContext> shared_request_context_;
 
   scoped_refptr<ImageCache> image_cache_;
-
-  DISALLOW_COPY_AND_ASSIGN(RootWindowManager);
 };
 
 }  // namespace client

@@ -23,6 +23,9 @@ class ClientRenderDelegate : public ClientAppRenderer::Delegate {
  public:
   ClientRenderDelegate() = default;
 
+  ClientRenderDelegate(const ClientRenderDelegate&) = delete;
+  ClientRenderDelegate& operator=(const ClientRenderDelegate&) = delete;
+
   void OnWebKitInitialized(CefRefPtr<ClientAppRenderer> app) override {
     if (CefCrashReportingEnabled()) {
       // Set some crash keys for testing purposes. Keys must be defined in the
@@ -83,8 +86,6 @@ class ClientRenderDelegate : public ClientAppRenderer::Delegate {
 
   // Handles the renderer side of query routing.
   CefRefPtr<CefMessageRouterRendererSide> message_router_;
-
-  DISALLOW_COPY_AND_ASSIGN(ClientRenderDelegate);
   IMPLEMENT_REFCOUNTING(ClientRenderDelegate);
 };
 

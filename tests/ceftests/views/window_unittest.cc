@@ -1006,6 +1006,11 @@ class OverlaySizeToPreferredSizeTestPanelDelegate : public CefPanelDelegate {
   explicit OverlaySizeToPreferredSizeTestPanelDelegate(const CefSize& size)
       : preferred_size_(size) {}
 
+  OverlaySizeToPreferredSizeTestPanelDelegate(
+      const OverlaySizeToPreferredSizeTestPanelDelegate&) = delete;
+  OverlaySizeToPreferredSizeTestPanelDelegate& operator=(
+      const OverlaySizeToPreferredSizeTestPanelDelegate&) = delete;
+
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override {
     return preferred_size_;
   }
@@ -1014,7 +1019,6 @@ class OverlaySizeToPreferredSizeTestPanelDelegate : public CefPanelDelegate {
   const CefSize preferred_size_;
 
   IMPLEMENT_REFCOUNTING(OverlaySizeToPreferredSizeTestPanelDelegate);
-  DISALLOW_COPY_AND_ASSIGN(OverlaySizeToPreferredSizeTestPanelDelegate);
 };
 
 void RunWindowOverlaySizeToPreferredSize(CefRefPtr<CefWindow> window) {

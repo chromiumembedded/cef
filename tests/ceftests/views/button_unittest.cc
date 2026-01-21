@@ -101,6 +101,9 @@ class EmptyMenuButtonDelegate : public CefMenuButtonDelegate {
  public:
   EmptyMenuButtonDelegate() = default;
 
+  EmptyMenuButtonDelegate(const EmptyMenuButtonDelegate&) = delete;
+  EmptyMenuButtonDelegate& operator=(const EmptyMenuButtonDelegate&) = delete;
+
   void OnMenuButtonPressed(
       CefRefPtr<CefMenuButton> menu_button,
       const CefPoint& screen_point,
@@ -114,7 +117,6 @@ class EmptyMenuButtonDelegate : public CefMenuButtonDelegate {
 
  private:
   IMPLEMENT_REFCOUNTING(EmptyMenuButtonDelegate);
-  DISALLOW_COPY_AND_ASSIGN(EmptyMenuButtonDelegate);
 };
 
 void RunLabelButtonStyle(CefRefPtr<CefWindow> window) {
@@ -170,6 +172,9 @@ class TestButtonDelegate : public CefButtonDelegate {
  public:
   TestButtonDelegate() = default;
 
+  TestButtonDelegate(const TestButtonDelegate&) = delete;
+  TestButtonDelegate& operator=(const TestButtonDelegate&) = delete;
+
   void OnButtonPressed(CefRefPtr<CefButton> button) override {
     EXPECT_TRUE(button.get());
     EXPECT_EQ(button->GetID(), kButtonID);
@@ -180,7 +185,6 @@ class TestButtonDelegate : public CefButtonDelegate {
 
  private:
   IMPLEMENT_REFCOUNTING(TestButtonDelegate);
-  DISALLOW_COPY_AND_ASSIGN(TestButtonDelegate);
 };
 
 void ClickButton(CefRefPtr<CefWindow> window, int button_id) {
@@ -341,6 +345,9 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
  public:
   TestMenuButtonDelegate() = default;
 
+  TestMenuButtonDelegate(const TestMenuButtonDelegate&) = delete;
+  TestMenuButtonDelegate& operator=(const TestMenuButtonDelegate&) = delete;
+
   void OnMenuButtonPressed(
       CefRefPtr<CefMenuButton> menu_button,
       const CefPoint& screen_point,
@@ -465,7 +472,6 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
   CefRefPtr<CefWindow> window_;
 
   IMPLEMENT_REFCOUNTING(TestMenuButtonDelegate);
-  DISALLOW_COPY_AND_ASSIGN(TestMenuButtonDelegate);
 };
 
 void RunMenuButtonClick(bool with_text,
@@ -581,6 +587,11 @@ class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
  public:
   explicit TestMenuButtonCustomPopupDelegate(bool can_activate)
       : can_activate_(can_activate) {}
+
+  TestMenuButtonCustomPopupDelegate(const TestMenuButtonCustomPopupDelegate&) =
+      delete;
+  TestMenuButtonCustomPopupDelegate& operator=(
+      const TestMenuButtonCustomPopupDelegate&) = delete;
 
   void OnMenuButtonPressed(
       CefRefPtr<CefMenuButton> menu_button,
@@ -710,7 +721,6 @@ class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
   TrackCallback got_button_pressed_;
 
   IMPLEMENT_REFCOUNTING(TestMenuButtonCustomPopupDelegate);
-  DISALLOW_COPY_AND_ASSIGN(TestMenuButtonCustomPopupDelegate);
 };
 
 void RunMenuButtonCustomPopupClick(bool can_activate,
