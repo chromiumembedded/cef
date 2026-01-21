@@ -60,13 +60,17 @@ def process_edits(input_lines):
 
 def main():
     # Read from files if provided, otherwise stdin
+    # Read as binary to handle null bytes correctly
     if len(sys.argv) > 1:
-        lines = []
+        data = b''
         for filename in sys.argv[1:]:
-            with open(filename) as f:
-                lines.extend(f.readlines())
+            with open(filename, 'rb') as f:
+                data += f.read()
     else:
-        lines = sys.stdin.readlines()
+        data = sys.stdin.buffer.read()
+
+    # Split by newlines (tool uses \n as line separator, \0 within lines for embedded newlines)
+    lines = data.decode('utf-8', errors='replace').split('\n')
 
     edits = process_edits(lines)
 

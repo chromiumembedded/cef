@@ -41,11 +41,15 @@ def parse_edit(line):
     if len(parts) < 5:
         return None
 
+    replacement = parts[4] if len(parts) == 5 else ':::'.join(parts[4:])
+    # Convert null bytes back to newlines (the tool uses \0 to encode \n)
+    replacement = replacement.replace('\x00', '\n')
+
     return {
         'file': parts[1],
         'offset': int(parts[2]),
         'length': int(parts[3]),
-        'replacement': parts[4] if len(parts) == 5 else ':::'.join(parts[4:])
+        'replacement': replacement
     }
 
 
@@ -96,19 +100,26 @@ def main():
     parser.add_argument('--base-dir', '-d', help='Base directory for resolving relative paths')
     args = parser.parse_args()
 
-    # Read edits
+    # Read edits (as binary to handle null bytes correctly)
     if args.input_file:
-        with open(args.input_file) as f:
-            lines = f.readlines()
+        with open(args.input_file, 'rb') as f:
+            data = f.read()
     else:
-        lines = sys.stdin.readlines()
+        data = sys.stdin.buffer.read()
 
-    # Group edits by file
-    edits_by_file = defaultdict(list)
+    # Split by newlines
+    lines = data.decode('utf-8', errors='replace').split('\n')
+
+    # Group edits by file, deduplicating by offset+length+replacement
+    edits_by_file = defaultdict(dict)  # file -> {(offset, length, replacement) -> edit}
     for line in lines:
         edit = parse_edit(line)
         if edit:
-            edits_by_file[edit['file']].append(edit)
+            key = (edit['offset'], edit['length'], edit['replacement'])
+            edits_by_file[edit['file']][key] = edit
+
+    # Convert back to lists
+    edits_by_file = {f: list(edits.values()) for f, edits in edits_by_file.items()}
 
     if not edits_by_file:
         print('No edits to apply', file=sys.stderr)

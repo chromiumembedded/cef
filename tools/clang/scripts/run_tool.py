@@ -110,8 +110,12 @@ def _run_tool_on_file(args):
     cmd.append(file_path)
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
-        return result.stdout, result.stderr, result.returncode
+        # Use binary mode to preserve null bytes (which encode newlines in edits)
+        result = subprocess.run(cmd, capture_output=True, timeout=120)
+        # Decode stdout/stderr, preserving null bytes in stdout
+        stdout = result.stdout.decode('utf-8', errors='replace') if result.stdout else ''
+        stderr = result.stderr.decode('utf-8', errors='replace') if result.stderr else ''
+        return stdout, stderr, result.returncode
     except subprocess.TimeoutExpired:
         return '', f'Timeout processing {file_path}', 1
     except Exception as e:

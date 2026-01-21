@@ -279,6 +279,7 @@ The `--tool-args` option passes arguments directly to `cef_cpp_rewriter`. Availa
 | `--count-patterns` | true | Enable `count()` pattern transformation |
 | `--structured-bindings` | true | Enable structured bindings transformation |
 | `--iterator-loops` | true | Enable iterator loop to range-for transformation |
+| `--disallow-copy` | true | Enable DISALLOW_COPY_AND_ASSIGN replacement |
 | `--disable-path-filter` | false | Process all files (not just `/cef/` paths) |
 
 Use `--only` to run a single transformation: `--tool-args="--only=iterator-loops"`

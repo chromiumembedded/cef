@@ -442,6 +442,137 @@ grep -rn 'for (auto it = .*\.begin().*it != .*\.end()' cef/libcef cef/tests --in
 
 ---
 
+### DISALLOW_COPY_AND_ASSIGN Replacement
+
+**Flag:** `--disallow-copy` (default: true)
+**Compatibility:** GCC 4.4+, C++11
+
+Transforms the deprecated `DISALLOW_COPY_AND_ASSIGN(ClassName)` macro into explicit deleted copy constructor and assignment operator declarations. Per the Chromium style guide, deleted special members should be public.
+
+#### Pattern: Basic replacement
+
+```cpp
+// Before
+class Foo {
+ public:
+  Foo();
+  ~Foo();
+
+ private:
+  int member_;
+  DISALLOW_COPY_AND_ASSIGN(Foo);
+};
+
+// After
+class Foo {
+ public:
+  Foo();
+  ~Foo();
+
+  Foo(const Foo&) = delete;
+  Foo& operator=(const Foo&) = delete;
+
+ private:
+  int member_;
+};
+```
+
+#### Pattern: Empty section removal
+
+When the private/protected section contains ONLY the macro, the entire section is removed:
+
+```cpp
+// Before
+class Bar {
+ public:
+  Bar();
+  void Method();
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Bar);
+};
+
+// After
+class Bar {
+ public:
+  Bar();
+
+  Bar(const Bar&) = delete;
+  Bar& operator=(const Bar&) = delete;
+
+  void Method();
+};
+```
+
+#### Pattern: Class with no public constructors
+
+When a class has no public constructor/destructor, the deleted declarations are inserted after `public:`:
+
+```cpp
+// Before
+class Singleton {
+ private:
+  Singleton();
+  DISALLOW_COPY_AND_ASSIGN(Singleton);
+};
+
+// After
+class Singleton {
+ public:
+  Singleton(const Singleton&) = delete;
+  Singleton& operator=(const Singleton&) = delete;
+
+ private:
+  Singleton();
+};
+```
+
+#### Indentation Detection
+
+The tool automatically detects the correct indentation by examining existing constructor/destructor declarations:
+
+```cpp
+// Nested class with 4-space indent
+class Outer {
+ public:
+    class Inner {
+     public:
+        Inner();
+
+        Inner(const Inner&) = delete;
+        Inner& operator=(const Inner&) = delete;
+    };
+};
+```
+
+#### NOT Transformed (by design)
+
+These patterns are intentionally **not** transformed:
+
+```cpp
+// Forward declarations (no class body) - NOT transformed
+class ForwardDeclared;
+
+// DISALLOW_IMPLICIT_CONSTRUCTORS - NOT transformed (different macro)
+class NoConstruct {
+ private:
+  DISALLOW_IMPLICIT_CONSTRUCTORS(NoConstruct);
+};
+
+// Already has explicit deleted declarations - NOT transformed
+class AlreadyExplicit {
+ public:
+  AlreadyExplicit(const AlreadyExplicit&) = delete;
+  AlreadyExplicit& operator=(const AlreadyExplicit&) = delete;
+};
+```
+
+#### Skipped: Platform-Specific Files
+
+Files that aren't compiled on the current platform (e.g., `*_win.h` on macOS) won't be in the compilation database and are skipped. Run the tool on each platform or transform these manually.
+
+---
+
 ## Transformations Not Implemented (Insufficient Instances)
 
 The following transformations were analyzed but not implemented as automated tools because too few instances exist in the CEF codebase. They were transformed manually instead.
@@ -512,7 +643,6 @@ These are better handled by Python scripts or manual review:
 | Feature | Reason |
 |---------|--------|
 | `.starts_with()`/`.ends_with()` | Simple regex pattern matching |
-| `= delete` | Macro replacement (`DISALLOW_COPY_AND_ASSIGN`) |
 | `std::erase`/`std::erase_if` | Recognizable pattern, no type analysis needed |
 | `[[nodiscard]]` | Requires semantic judgment |
 | Designated initializers | Opportunistic, context-dependent |

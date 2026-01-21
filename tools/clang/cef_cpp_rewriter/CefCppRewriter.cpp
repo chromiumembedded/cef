@@ -64,14 +64,22 @@ static llvm::cl::opt<bool> EnableIteratorLoops(
     llvm::cl::init(true),
     llvm::cl::cat(rewriter_category));
 
+// Command-line flag to enable/disable DISALLOW_COPY_AND_ASSIGN transformation
+static llvm::cl::opt<bool> EnableDisallowCopy(
+    "disallow-copy",
+    llvm::cl::desc(
+        "Enable DISALLOW_COPY_AND_ASSIGN transformation (default: true)"),
+    llvm::cl::init(true),
+    llvm::cl::cat(rewriter_category));
+
 // Command-line flag to run only specific transformations
 // When specified, all other transformations are disabled
 static llvm::cl::opt<std::string> OnlyTransforms(
     "only",
     llvm::cl::desc(
         "Run only the specified transformation(s). Comma-separated list of: "
-        "contains, count-patterns, structured-bindings, iterator-loops. "
-        "Example: --only=contains,structured-bindings"),
+        "contains, count-patterns, structured-bindings, iterator-loops, "
+        "disallow-copy. Example: --only=contains,structured-bindings"),
     llvm::cl::init(""),
     llvm::cl::cat(rewriter_category));
 
@@ -1061,6 +1069,347 @@ class IteratorLoopRewriter : public MatchFinder::MatchCallback {
   std::set<unsigned> processed_locations_;
 };
 
+// Rewriter for DISALLOW_COPY_AND_ASSIGN macro
+// Transforms the deprecated macro to explicit deleted declarations in public section
+//
+// Before:
+//   class Foo {
+//    public:
+//     Foo();
+//     ~Foo();
+//    private:
+//     DISALLOW_COPY_AND_ASSIGN(Foo);
+//   };
+//
+// After:
+//   class Foo {
+//    public:
+//     Foo();
+//     ~Foo();
+//
+//     Foo(const Foo&) = delete;
+//     Foo& operator=(const Foo&) = delete;
+//   };
+class DisallowCopyRewriter : public MatchFinder::MatchCallback {
+ public:
+  explicit DisallowCopyRewriter(OutputHelper* output) : output_helper_(*output) {}
+
+  void reset() { processed_locations_.clear(); }
+
+  void run(const MatchFinder::MatchResult& result) override {
+    const auto* class_decl = result.Nodes.getNodeAs<CXXRecordDecl>("classDecl");
+    if (!class_decl) {
+      return;
+    }
+
+    // Skip non-definitions (forward declarations)
+    if (!class_decl->isThisDeclarationADefinition()) {
+      return;
+    }
+
+    const SourceManager& sm = *result.SourceManager;
+    const LangOptions& opts = result.Context->getLangOpts();
+
+    // Skip if in a system header
+    if (sm.isInSystemHeader(class_decl->getBeginLoc())) {
+      return;
+    }
+
+    // Skip if we've already processed this source location
+    unsigned offset = sm.getFileOffset(class_decl->getBeginLoc());
+    if (processed_locations_.count(offset)) {
+      return;
+    }
+
+    // Skip files not in /cef/ directory (unless path filtering is disabled)
+    if (!DisablePathFilter) {
+      StringRef filename = sm.getFilename(class_decl->getBeginLoc());
+      if (!filename.contains("/cef/")) {
+        return;
+      }
+    }
+
+    // Get the class name
+    std::string class_name = class_decl->getNameAsString();
+    if (class_name.empty()) {
+      return;  // Anonymous class
+    }
+
+    // Get the source range of the entire class including braces
+    SourceLocation start_loc = class_decl->getBeginLoc();
+    SourceLocation end_loc = class_decl->getBraceRange().getEnd();
+    if (end_loc.isInvalid()) {
+      end_loc = class_decl->getEndLoc();
+    }
+
+    // Get the full source text of the class
+    bool invalid = false;
+    StringRef source_text = Lexer::getSourceText(
+        CharSourceRange::getTokenRange(start_loc, end_loc),
+        sm, opts, &invalid);
+    if (invalid || source_text.empty()) {
+      return;
+    }
+
+    // Search for DISALLOW_COPY_AND_ASSIGN(ClassName)
+    std::string macro_pattern = "DISALLOW_COPY_AND_ASSIGN(" + class_name + ")";
+    size_t macro_pos = source_text.find(macro_pattern);
+    if (macro_pos == StringRef::npos) {
+      return;  // Macro not found in this class
+    }
+
+    // Mark as processed
+    processed_locations_.insert(offset);
+
+    // Find the start of the line containing the macro
+    size_t line_start = macro_pos;
+    while (line_start > 0 && source_text[line_start - 1] != '\n') {
+      --line_start;
+    }
+
+    // Find the end of the line (including semicolon and newline)
+    size_t line_end = macro_pos + macro_pattern.size();
+    while (line_end < source_text.size() &&
+           (source_text[line_end] == ' ' || source_text[line_end] == '\t')) {
+      ++line_end;
+    }
+    if (line_end < source_text.size() && source_text[line_end] == ';') {
+      ++line_end;
+    }
+    while (line_end < source_text.size() && source_text[line_end] != '\n') {
+      ++line_end;
+    }
+    if (line_end < source_text.size() && source_text[line_end] == '\n') {
+      ++line_end;
+    }
+
+    // Check if this is the only thing in a section (private: or protected:)
+    // If so, we should remove the entire section label too
+    size_t remove_start = line_start;
+    size_t remove_end = line_end;
+
+    // Look backwards for an access specifier (private: or protected:) on its own line
+    size_t search_pos = line_start;
+    bool found_access_label = false;
+    size_t access_line_start = 0;
+
+    // Skip backwards over blank lines to find the access specifier
+    while (search_pos > 0) {
+      // Find start of previous line
+      size_t prev_line_end = search_pos;
+      if (prev_line_end > 0 && source_text[prev_line_end - 1] == '\n') {
+        --prev_line_end;
+      }
+      size_t prev_line_start = prev_line_end;
+      while (prev_line_start > 0 && source_text[prev_line_start - 1] != '\n') {
+        --prev_line_start;
+      }
+
+      // Get the content of this line (trimmed)
+      StringRef prev_line = source_text.substr(prev_line_start,
+                                                prev_line_end - prev_line_start);
+      StringRef trimmed = prev_line.trim();
+
+      if (trimmed.empty()) {
+        // Blank line, continue searching
+        search_pos = prev_line_start;
+        continue;
+      } else if (trimmed == "private:" || trimmed == "protected:") {
+        // Found access specifier label
+        found_access_label = true;
+        access_line_start = prev_line_start;
+        break;
+      } else {
+        // Non-blank, non-access-specifier content - stop searching
+        break;
+      }
+    }
+
+    // Check if there's nothing after the macro line until the closing brace
+    // or until the next access specifier
+    bool nothing_after_macro = true;
+    size_t after_macro = line_end;
+    while (after_macro < source_text.size()) {
+      char c = source_text[after_macro];
+      if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+        ++after_macro;
+        continue;
+      }
+      if (c == '}') {
+        // Closing brace - nothing substantive after macro
+        break;
+      }
+      // Found some other content
+      nothing_after_macro = false;
+      break;
+    }
+
+    // If we found an access label with only whitespace before macro,
+    // and nothing after macro, remove the entire section including the label
+    // and one preceding newline (to eliminate the blank line effect).
+    bool removing_entire_section = false;
+    if (found_access_label && nothing_after_macro) {
+      removing_entire_section = true;
+      remove_start = access_line_start;
+      // Remove just ONE preceding newline to eliminate the blank line.
+      // Don't remove two newlines as that would remove the line ending
+      // of the previous content line.
+      while (remove_start > 0 &&
+             (source_text[remove_start - 1] == ' ' ||
+              source_text[remove_start - 1] == '\t')) {
+        --remove_start;
+      }
+      if (remove_start > 0 && source_text[remove_start - 1] == '\n') {
+        --remove_start;
+      }
+    } else {
+      // Not removing the entire section, but still remove any preceding blank
+      // lines to avoid leaving trailing whitespace in the section.
+      // Look backwards from line_start for blank lines.
+      size_t check_pos = line_start;
+      while (check_pos > 0) {
+        // Find start of previous line
+        size_t prev_line_end = check_pos;
+        if (prev_line_end > 0 && source_text[prev_line_end - 1] == '\n') {
+          --prev_line_end;
+        }
+        size_t prev_line_start = prev_line_end;
+        while (prev_line_start > 0 && source_text[prev_line_start - 1] != '\n') {
+          --prev_line_start;
+        }
+
+        // Check if this line is blank (only whitespace)
+        StringRef prev_line = source_text.substr(prev_line_start,
+                                                  prev_line_end - prev_line_start);
+        if (prev_line.trim().empty()) {
+          // Blank line - include it in the removal
+          remove_start = prev_line_start;
+          check_pos = prev_line_start;
+        } else {
+          // Non-blank line - stop
+          break;
+        }
+      }
+    }
+
+    // Calculate absolute source locations for removal
+    SourceLocation remove_start_loc = start_loc.getLocWithOffset(remove_start);
+    SourceLocation remove_end_loc = start_loc.getLocWithOffset(remove_end);
+
+    // Find insertion point in public section
+    // Look for the last constructor or destructor in the public section
+    SourceLocation insert_loc;
+    SourceLocation public_label_loc;
+    SourceLocation last_public_ctor_dtor_end;
+    std::string indent = "  ";  // Default indentation
+
+    for (const auto* decl : class_decl->decls()) {
+      // Track public access specifier
+      if (const auto* access = dyn_cast<AccessSpecDecl>(decl)) {
+        if (access->getAccess() == AS_public) {
+          public_label_loc = access->getEndLoc();
+        }
+      }
+
+      // Track last constructor/destructor in public section
+      // Skip implicit declarations (like the deleted copy ctor from the macro)
+      if (decl->getAccess() == AS_public && !decl->isImplicit()) {
+        if (isa<CXXConstructorDecl>(decl) || isa<CXXDestructorDecl>(decl)) {
+          // Find the end of this declaration (including semicolon for declarations)
+          SourceLocation decl_end = decl->getEndLoc();
+          if (decl_end.isValid()) {
+            // For declarations with bodies, use the end of the body
+            // For declarations without bodies, find the semicolon
+            SourceLocation potential_end = Lexer::getLocForEndOfToken(
+                decl_end, 0, sm, opts);
+
+            // Check if there's a semicolon
+            Token tok;
+            if (!Lexer::getRawToken(potential_end, tok, sm, opts, true)) {
+              if (tok.is(tok::semi)) {
+                potential_end = tok.getEndLoc();
+              }
+            }
+            last_public_ctor_dtor_end = potential_end;
+
+            // Detect indentation from this declaration
+            SourceLocation decl_start = decl->getBeginLoc();
+            if (decl_start.isValid()) {
+              unsigned decl_offset = sm.getFileOffset(decl_start);
+              unsigned start_offset = sm.getFileOffset(start_loc);
+              if (decl_offset > start_offset) {
+                size_t rel_offset = decl_offset - start_offset;
+                // Find start of line containing this declaration
+                size_t line_start = rel_offset;
+                while (line_start > 0 && source_text[line_start - 1] != '\n') {
+                  --line_start;
+                }
+                // Extract indentation
+                indent = "";
+                for (size_t i = line_start; i < rel_offset; ++i) {
+                  char c = source_text[i];
+                  if (c == ' ' || c == '\t') {
+                    indent += c;
+                  } else {
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Determine insertion point and what to insert
+    std::string deleted_decls;
+    bool need_public_label = false;
+
+    if (last_public_ctor_dtor_end.isValid()) {
+      // Insert after last constructor/destructor in public section
+      insert_loc = last_public_ctor_dtor_end;
+      deleted_decls = "\n\n" + indent + class_name + "(const " + class_name +
+                      "&) = delete;\n" + indent + class_name +
+                      "& operator=(const " + class_name + "&) = delete;";
+    } else if (public_label_loc.isValid()) {
+      // Insert after public: label
+      insert_loc = Lexer::getLocForEndOfToken(public_label_loc, 0, sm, opts);
+      deleted_decls = "\n" + indent + class_name + "(const " + class_name +
+                      "&) = delete;\n" + indent + class_name +
+                      "& operator=(const " + class_name + "&) = delete;";
+    } else {
+      // No public section - create one after the opening brace
+      SourceLocation brace_loc = class_decl->getBraceRange().getBegin();
+      if (brace_loc.isInvalid()) {
+        llvm::outs() << "# SKIPPED (no brace location): "
+                     << sm.getFilename(class_decl->getBeginLoc()).str() << ":"
+                     << sm.getSpellingLineNumber(class_decl->getBeginLoc())
+                     << " class " << class_name << "\n";
+        return;
+      }
+      insert_loc = Lexer::getLocForEndOfToken(brace_loc, 0, sm, opts);
+      need_public_label = true;
+      deleted_decls = "\n public:\n  " + class_name + "(const " + class_name +
+                      "&) = delete;\n  " + class_name +
+                      "& operator=(const " + class_name + "&) = delete;\n";
+    }
+
+    // Generate the removal edit
+    CharSourceRange remove_range = CharSourceRange::getCharRange(
+        remove_start_loc, remove_end_loc);
+    output_helper_.Replace(remove_range, "", sm, opts);
+
+    // Generate the insertion edit
+    CharSourceRange insert_range = CharSourceRange::getCharRange(
+        insert_loc, insert_loc);
+    output_helper_.Replace(insert_range, deleted_decls, sm, opts);
+  }
+
+ private:
+  OutputHelper& output_helper_;
+  std::set<unsigned> processed_locations_;
+};
+
 }  // namespace
 
 int main(int argc, const char* argv[]) {
@@ -1079,6 +1428,7 @@ int main(int argc, const char* argv[]) {
   ContainsRewriter contains_rewriter(&output_helper);
   StructuredBindingsRewriter structured_bindings_rewriter(&output_helper);
   IteratorLoopRewriter iterator_loop_rewriter(&output_helper);
+  DisallowCopyRewriter disallow_copy_rewriter(&output_helper);
 
   if (isTransformEnabled("contains", EnableContains)) {
     // Matcher for find() call on associative container
@@ -1151,6 +1501,13 @@ int main(int argc, const char* argv[]) {
     auto forStmtMatcher = forStmt().bind("forStmt");
 
     match_finder.addMatcher(forStmtMatcher, &iterator_loop_rewriter);
+  }
+
+  if (isTransformEnabled("disallow-copy", EnableDisallowCopy)) {
+    // Match all class definitions - we'll search for the macro in the callback
+    auto classDefMatcher = cxxRecordDecl(isDefinition()).bind("classDecl");
+
+    match_finder.addMatcher(classDefMatcher, &disallow_copy_rewriter);
   }
 
   // Pass output_helper as SourceFileCallbacks to handle per-file setup/teardown

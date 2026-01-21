@@ -19,6 +19,10 @@ A clang AST-based rewriter tool for automating C++20 modernization of CEF code.
   - Converts `for (auto it = map.begin(); it != map.end(); ++it) { use(it->first, it->second); }`
   - To `for (const auto& [key, value] : map) { use(key, value); }`
   - Also supports vector of pairs and any container with `std::pair` value_type
+- DISALLOW_COPY_AND_ASSIGN replacement
+  - Replaces deprecated macro with explicit deleted copy constructor and assignment operator
+  - Moves deleted declarations to public section per Chromium style guide
+  - Automatically removes empty private/protected sections
 
 See [TRANSFORMS.md](TRANSFORMS.md) for complete documentation of all supported transformations, command-line flags, and examples.
 
@@ -113,6 +117,7 @@ The `--tool-args` option passes arguments directly to `cef_cpp_rewriter`:
 | `--count-patterns` | true | Enable `count()` pattern transformation |
 | `--structured-bindings` | true | Enable structured bindings transformation |
 | `--iterator-loops` | true | Enable iterator loop to range-for transformation |
+| `--disallow-copy` | true | Enable DISALLOW_COPY_AND_ASSIGN replacement |
 | `--disable-path-filter` | false | Process all files (not just `/cef/` paths) |
 
 **Examples:**
@@ -168,6 +173,10 @@ cef/tools/clang/
 │       ├── contains-expected.cc
 │       ├── contains-negative-original.cc
 │       ├── contains-negative-expected.cc
+│       ├── disallow-copy-original.cc
+│       ├── disallow-copy-expected.cc
+│       ├── disallow-copy-negative-original.cc
+│       ├── disallow-copy-negative-expected.cc
 │       ├── structured-bindings-original.cc
 │       ├── structured-bindings-expected.cc
 │       ├── structured-bindings-negative-original.cc

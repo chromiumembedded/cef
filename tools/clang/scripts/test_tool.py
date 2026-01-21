@@ -112,6 +112,8 @@ def _apply_edits(raw_output, test_dir, verbose=False):
         _, filepath, offset, length, replacement = parts
         offset = int(offset)
         length = int(length)
+        # Convert null bytes back to newlines (OutputHelper replaces \n with \0)
+        replacement = replacement.replace('\0', '\n')
 
         # Normalize filepath
         if not os.path.isabs(filepath):
