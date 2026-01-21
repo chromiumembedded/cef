@@ -111,6 +111,8 @@ Features to AVOID (incompatible):
 
 ## Adding New Transformations
 
+### Quick Steps
+
 1. Add a command-line flag in `CefCppRewriter.cpp`:
    ```cpp
    static llvm::cl::opt<bool> EnableNewFeature("new-feature",
@@ -126,6 +128,111 @@ Features to AVOID (incompatible):
 
 5. Run tests: `python3 cef/tools/clang/scripts/test_tool.py cef_cpp_rewriter`
    (test_tool.py generates compile_commands.json automatically)
+
+### Full Implementation Checklist Template
+
+Use this checklist when implementing any new transformation:
+
+```markdown
+### Phase N: [Transformation Name]
+**Priority:** Nth | **Complexity:** Low/Medium/High | **Compat:** GCC X+
+
+[Brief description of the transformation]
+
+**Before/After Example:**
+```cpp
+// Before
+[old code pattern]
+
+// After
+[new code pattern]
+```
+
+**Checklist:**
+- [ ] Verify compatibility with GCC 10 and macOS 12.0 deployment target
+- [ ] Add `--flag-name` command-line flag (default: true/false)
+- [ ] Implement `TransformNameRewriter` class with:
+  - [ ] `run()` method that handles matched nodes
+  - [ ] Macro expansion filtering (`isMacroID()`, `isMacroBodyExpansion()`)
+  - [ ] System header filtering (`isInSystemHeader()`)
+  - [ ] Path filtering (skip non-CEF files unless `--disable-path-filter`)
+  - [ ] Deduplication via `processed_locations_` set
+- [ ] Create AST matcher(s) - test with `clang-query` first
+- [ ] Add matcher to `match_finder` in `main()` guarded by flag
+- [ ] Create test files: `transform-name-original.cc`, `transform-name-expected.cc`
+- [ ] Create negative test cases: `transform-name-negative-original.cc` (copy to `-expected.cc`)
+- [ ] Rebuild tool: `ninja -C third_party/llvm-build/Release+Asserts cef_cpp_rewriter`
+- [ ] Run tests: `python3 cef/tools/clang/scripts/test_tool.py cef_cpp_rewriter`
+- [ ] Run on CEF code: `python3 cef/tools/clang/scripts/run_tool.py -p out/ClangTool --tool-args="--flag-name" cef/libcef cef/libcef_dll cef/tests`
+- [ ] Review diffs and verify correctness
+- [ ] Build CEF to verify no compile errors
+- [ ] Run CEF tests to verify no regressions
+- [ ] Search for skipped instances (macros, edge cases) using grep
+- [ ] Manually transform skipped instances if appropriate
+- [ ] Update TRANSFORMS.md with transformation details
+- [ ] Update CLAUDE.md tool arguments table
+- [ ] Update README.md tool arguments table and transformations list
+```
+
+### Rewriter Class Template
+
+```cpp
+class NewFeatureRewriter : public MatchFinder::MatchCallback {
+ public:
+  explicit NewFeatureRewriter(OutputHelper* output) : output_helper_(*output) {}
+
+  void reset() { processed_locations_.clear(); }
+
+  void run(const MatchFinder::MatchResult& result) override {
+    const auto* matched_node = result.Nodes.getNodeAs<NodeType>("bindingName");
+    if (!matched_node) return;
+
+    const SourceManager& sm = *result.SourceManager;
+    const LangOptions& opts = result.Context->getLangOpts();
+
+    // Skip macros
+    if (matched_node->getBeginLoc().isMacroID() ||
+        sm.isMacroBodyExpansion(matched_node->getBeginLoc())) {
+      return;
+    }
+
+    // Skip system headers
+    if (sm.isInSystemHeader(matched_node->getBeginLoc())) {
+      return;
+    }
+
+    // Deduplicate
+    unsigned offset = sm.getFileOffset(matched_node->getBeginLoc());
+    if (processed_locations_.count(offset)) return;
+
+    // Path filter
+    if (!DisablePathFilter) {
+      StringRef filename = sm.getFilename(matched_node->getBeginLoc());
+      if (!filename.contains("/cef/")) return;
+    }
+
+    processed_locations_.insert(offset);
+
+    // Generate replacement
+    std::string replacement = /* ... */;
+    CharSourceRange range = CharSourceRange::getTokenRange(
+        matched_node->getSourceRange());
+    output_helper_.Replace(range, replacement, sm, opts);
+  }
+
+ private:
+  OutputHelper& output_helper_;
+  std::set<unsigned> processed_locations_;
+};
+```
+
+### Common Pitfalls
+
+1. **Iterator comparisons use overloaded operators**: Use `cxxOperatorCallExpr(hasOverloadedOperatorName("!="))` not `binaryOperator`
+2. **Integer literals need implicit cast handling**: Use `ignoringImpCasts(integerLiteral(...))`
+3. **Pointer access needs separate matching**: Include `hasType(pointsTo(...))` in an `anyOf()`
+4. **Token vs char ranges**: `getTokenRange()` includes full last token, `getCharRange()` is exact
+5. **Don't transform std::string methods**: Many string methods have same names but different semantics
 
 ## Running the Tool on CEF Code
 
@@ -144,16 +251,33 @@ gn gen out/ClangTool
 # Build only CEF-related gen targets (~9k vs ~39k for all of Chromium)
 ./cef/tools/clang/scripts/build_gen_targets.sh out/ClangTool
 
+# Run all transformations (default)
 python3 cef/tools/clang/scripts/run_tool.py \
-  --generate-compdb \
   -p out/ClangTool \
-  cef/libcef cef/libcef_dll cef/tests > /tmp/contains-edits-raw.txt
+  cef/libcef cef/libcef_dll cef/tests > /tmp/edits-raw.txt
+
+# Run only specific transformations using --tool-args
+python3 cef/tools/clang/scripts/run_tool.py \
+  -p out/ClangTool \
+  --tool-args="--contains=false --structured-bindings" \
+  cef/libcef cef/libcef_dll cef/tests > /tmp/edits-raw.txt
 
 # Note: --base-dir must match the -p argument since paths are relative to build dir
-cat /tmp/contains-edits-raw.txt \
+cat /tmp/edits-raw.txt \
   | python3 cef/tools/clang/scripts/process_edits.py \
   | python3 cef/tools/clang/scripts/apply_edits.py --base-dir out/ClangTool
 ```
+
+### Tool Arguments
+
+The `--tool-args` option passes arguments directly to `cef_cpp_rewriter`. Available flags:
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--contains` | true | Enable `.contains()` transformation |
+| `--count-patterns` | true | Enable `count()` pattern transformation |
+| `--structured-bindings` | true | Enable structured bindings transformation |
+| `--disable-path-filter` | false | Process all files (not just `/cef/` paths) |
 
 ## Critical Reminders
 

@@ -10,8 +10,11 @@ A clang AST-based rewriter tool for automating C++20 modernization of CEF code.
 
 **Current transformations:**
 - `.contains()` for associative containers (map, set, unordered_map, etc.)
-- Converts `find(x) != end()` to `contains(x)`
-- Converts `count(x) != 0` to `contains(x)`
+  - Converts `find(x) != end()` to `contains(x)`
+  - Converts `count(x) != 0` to `contains(x)`
+- Structured bindings for range-for loops over maps
+  - Converts `for (auto& pair : map) { use(pair.first, pair.second); }`
+  - To `for (auto& [key, value] : map) { use(key, value); }`
 
 See [TRANSFORMS.md](TRANSFORMS.md) for complete documentation of all supported transformations, command-line flags, and examples.
 
@@ -74,21 +77,37 @@ gn gen out/ClangTool
 # Build only CEF-related gen targets (~9k vs ~39k for all of Chromium)
 ./cef/tools/clang/scripts/build_gen_targets.sh out/ClangTool
 
-# Run the tool on CEF code
+# Run the tool on CEF code (all transformations enabled by default)
 python3 cef/tools/clang/scripts/run_tool.py \
-  --generate-compdb \
   -p out/ClangTool \
-  cef/libcef cef/libcef_dll cef/tests > /tmp/contains-edits-raw.txt
+  cef/libcef cef/libcef_dll cef/tests > /tmp/edits-raw.txt
+
+# Run only specific transformations using --tool-args
+python3 cef/tools/clang/scripts/run_tool.py \
+  -p out/ClangTool \
+  --tool-args="--structured-bindings --contains=false" \
+  cef/libcef cef/libcef_dll cef/tests > /tmp/edits-raw.txt
 
 # Or run on all CEF files (omit path arguments)
-# python3 cef/tools/clang/scripts/run_tool.py --generate-compdb -p out/ClangTool
+# python3 cef/tools/clang/scripts/run_tool.py -p out/ClangTool
 
 # Process and apply the edits
 # Note: --base-dir must match the -p argument since paths are relative to build dir
-cat /tmp/contains-edits-raw.txt \
+cat /tmp/edits-raw.txt \
   | python3 cef/tools/clang/scripts/process_edits.py \
   | python3 cef/tools/clang/scripts/apply_edits.py --base-dir out/ClangTool
 ```
+
+### Tool Arguments
+
+The `--tool-args` option passes arguments directly to `cef_cpp_rewriter`:
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--contains` | true | Enable `.contains()` transformation |
+| `--count-patterns` | true | Enable `count()` pattern transformation |
+| `--structured-bindings` | true | Enable structured bindings transformation |
+| `--disable-path-filter` | false | Process all files (not just `/cef/` paths) |
 
 ### Incremental Rebuilds
 
@@ -130,7 +149,11 @@ cef/tools/clang/
 │       ├── contains-original.cc
 │       ├── contains-expected.cc
 │       ├── contains-negative-original.cc
-│       └── contains-negative-expected.cc
+│       ├── contains-negative-expected.cc
+│       ├── structured-bindings-original.cc
+│       ├── structured-bindings-expected.cc
+│       ├── structured-bindings-negative-original.cc
+│       └── structured-bindings-negative-expected.cc
 ├── scripts/
 │   ├── apply_edits.py            # Applies edits (no git dependency)
 │   ├── build_gen_targets.sh  # Build CEF-related gen targets only

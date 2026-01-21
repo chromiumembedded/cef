@@ -168,13 +168,20 @@ grep -rn '\.find([^)]*)\s*[!=]=.*\.end()' cef/libcef cef/tests --include='*.cc' 
 
 ---
 
-## Planned Transformations
+### Structured Bindings for Range-For Loops
 
-The following transformations are planned for future phases.
+**Flag:** `--structured-bindings` (default: true)
+**Compatibility:** GCC 7+, C++17
 
-### Structured Bindings (Phase 8)
-**Flag:** `--structured-bindings` (planned)
-**Compatibility:** GCC 7+
+Transforms range-based for loops over map-like containers that access `.first`/`.second` to use structured bindings.
+
+**Supported Containers:**
+- `std::map`, `std::multimap`
+- `std::unordered_map`, `std::unordered_multimap`
+
+**Binding Names:** The tool uses `key` and `value` as binding names. Loops are skipped if the body declares local variables with these names to avoid shadowing conflicts.
+
+#### Pattern: Basic `.first`/`.second` access
 
 ```cpp
 // Before
@@ -187,6 +194,100 @@ for (const auto& [key, value] : map) {
     use(key, value);
 }
 ```
+
+#### Pattern: Non-const reference
+
+```cpp
+// Before
+for (auto& entry : map) {
+    entry.second = computeValue(entry.first);
+}
+
+// After
+for (auto& [key, value] : map) {
+    value = computeValue(key);
+}
+```
+
+#### Pattern: Value copy
+
+```cpp
+// Before
+for (auto item : map) {
+    process(item.first, item.second);
+}
+
+// After
+for (auto [key, value] : map) {
+    process(key, value);
+}
+```
+
+#### Pattern: Only `.first` or `.second` used
+
+```cpp
+// Before
+for (const auto& pair : map) {
+    use(pair.first);  // only .first used
+}
+
+// After (both bindings still generated)
+for (const auto& [key, value] : map) {
+    use(key);
+}
+```
+
+#### NOT Transformed (by design)
+
+These patterns are intentionally **not** transformed:
+
+```cpp
+// Pair used directly (not just .first/.second) - NOT transformed
+for (const auto& pair : map) {
+    consume(pair);  // Uses the pair object itself
+}
+
+// Iterating over vector of pairs - NOT transformed (not a map container)
+std::vector<std::pair<int, int>> vec;
+for (const auto& pair : vec) {
+    use(pair.first, pair.second);
+}
+
+// Iterating over non-std containers - NOT transformed
+base::Value::Dict dict;
+for (const auto item : dict) {
+    use(item.first);  // base::Value::Dict, not std::map
+}
+
+// Already using structured bindings - NOT transformed (no-op)
+for (const auto& [k, v] : map) {
+    use(k, v);
+}
+
+// Local variable named "key" or "value" would conflict - NOT transformed
+for (const auto& pair : map) {
+    std::string key = pair.first;  // Would shadow binding name
+    if (key.empty()) {
+        key = "default";  // Modifies local copy
+    }
+    use(key, pair.second);
+}
+```
+
+#### Skipped: Code Inside Macros
+
+The tool intentionally skips for-loops inside macro expansions. Manual follow-up recommended:
+
+```bash
+# Search for remaining .first/.second patterns in range-for loops
+grep -rn 'for (.*auto.*:' cef/libcef cef/tests --include='*.cc' | xargs grep -l '\.first\|\.second'
+```
+
+---
+
+## Planned Transformations
+
+The following transformations are planned for future phases.
 
 ### Default Special Members (Phase 9)
 **Flag:** `--default-members` (planned)

@@ -102,9 +102,12 @@ def _filter_cef_entries(entries, path_filters=None):
 
 def _run_tool_on_file(args):
     """Run the clang tool on a single file. Used by process pool."""
-    tool_path, build_dir, file_path = args
+    tool_path, build_dir, file_path, tool_args = args
 
-    cmd = [tool_path, '-p', build_dir, file_path]
+    cmd = [tool_path, '-p', build_dir]
+    if tool_args:
+        cmd.extend(tool_args.split())
+    cmd.append(file_path)
 
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
@@ -147,6 +150,9 @@ def main(argv):
                         help='Number of parallel jobs')
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='Print progress to stderr')
+    parser.add_argument('--tool-args', default='',
+                        help='Additional arguments to pass to the tool '
+                             '(e.g., "--contains=false --structured-bindings=true")')
     parser.add_argument('paths', nargs='*',
                         help='Optional path filters (e.g., cef/libcef cef/tests). '
                              'If not specified, processes all CEF files.')
@@ -214,7 +220,7 @@ def main(argv):
               file=sys.stderr)
 
     # Prepare work items
-    work_items = [(tool_path, args.build_dir, f) for f in file_paths]
+    work_items = [(tool_path, args.build_dir, f, args.tool_args) for f in file_paths]
 
     # Process files in parallel
     completed = 0

@@ -4,9 +4,11 @@
 
 #include <set>
 #include <string>
+#include <vector>
 
 #include "OutputHelper.h"
 #include "clang/AST/ASTContext.h"
+#include "clang/AST/RecursiveASTVisitor.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
 #include "clang/ASTMatchers/ASTMatchers.h"
 #include "clang/Basic/SourceManager.h"
@@ -47,6 +49,13 @@ static llvm::cl::opt<bool> DisablePathFilter(
     llvm::cl::init(false),
     llvm::cl::cat(rewriter_category));
 
+// Command-line flag to enable/disable structured bindings transformation
+static llvm::cl::opt<bool> EnableStructuredBindings(
+    "structured-bindings",
+    llvm::cl::desc("Enable structured bindings transformation (default: true)"),
+    llvm::cl::init(true),
+    llvm::cl::cat(rewriter_category));
+
 // Helper to match associative container types (the underlying record type)
 auto isAssociativeContainerType() {
   return hasUnqualifiedDesugaredType(
@@ -69,6 +78,13 @@ auto isAssociativeContainer() {
 std::string getSourceText(const Expr* expr, const SourceManager& sm,
                           const LangOptions& opts) {
   CharSourceRange range = CharSourceRange::getTokenRange(expr->getSourceRange());
+  return Lexer::getSourceText(range, sm, opts).str();
+}
+
+// Helper function to get source text for a statement
+std::string getSourceText(const Stmt* stmt, const SourceManager& sm,
+                          const LangOptions& opts) {
+  CharSourceRange range = CharSourceRange::getTokenRange(stmt->getSourceRange());
   return Lexer::getSourceText(range, sm, opts).str();
 }
 
@@ -308,6 +324,259 @@ class ContainsRewriter : public MatchFinder::MatchCallback {
   std::set<unsigned> processed_locations_;
 };
 
+// Helper to check if a type is a pair-like type (std::pair)
+bool isPairLikeType(QualType type) {
+  type = type.getCanonicalType();
+  if (type->isReferenceType()) {
+    type = type.getNonReferenceType();
+  }
+  type = type.getUnqualifiedType();
+
+  const auto* record = type->getAs<RecordType>();
+  if (!record) {
+    return false;
+  }
+
+  const auto* decl = record->getDecl();
+  if (!decl) {
+    return false;
+  }
+
+  // Check for std::pair
+  std::string name = decl->getQualifiedNameAsString();
+  return name.find("std::pair") != std::string::npos;
+}
+
+// Helper to check if a type is a map-like container (has key_type and mapped_type)
+bool isMapLikeContainer(QualType type) {
+  type = type.getCanonicalType();
+  if (type->isReferenceType()) {
+    type = type.getNonReferenceType();
+  }
+  type = type.getUnqualifiedType();
+
+  const auto* record = type->getAs<RecordType>();
+  if (!record) {
+    return false;
+  }
+
+  const auto* decl = record->getDecl();
+  if (!decl) {
+    return false;
+  }
+
+  std::string name = decl->getQualifiedNameAsString();
+  return name.find("std::map") != std::string::npos ||
+         name.find("std::unordered_map") != std::string::npos ||
+         name.find("std::multimap") != std::string::npos ||
+         name.find("std::unordered_multimap") != std::string::npos;
+}
+
+// Visitor to collect all uses of a variable in an expression
+class VarUseCollector : public RecursiveASTVisitor<VarUseCollector> {
+ public:
+  explicit VarUseCollector(const VarDecl* var) : target_var_(var) {}
+
+  bool VisitDeclRefExpr(DeclRefExpr* ref) {
+    if (ref->getDecl() == target_var_) {
+      uses_.push_back(ref);
+    }
+    return true;
+  }
+
+  const std::vector<DeclRefExpr*>& getUses() const { return uses_; }
+
+ private:
+  const VarDecl* target_var_;
+  std::vector<DeclRefExpr*> uses_;
+};
+
+// Visitor to collect all local variable declarations in a statement
+class LocalVarDeclCollector : public RecursiveASTVisitor<LocalVarDeclCollector> {
+ public:
+  bool VisitVarDecl(VarDecl* decl) {
+    // Only collect local variables (not parameters, etc.)
+    if (decl->isLocalVarDecl()) {
+      var_names_.insert(decl->getNameAsString());
+    }
+    return true;
+  }
+
+  bool hasConflict(const std::string& name) const {
+    return var_names_.count(name) > 0;
+  }
+
+ private:
+  std::set<std::string> var_names_;
+};
+
+class StructuredBindingsRewriter : public MatchFinder::MatchCallback {
+ public:
+  explicit StructuredBindingsRewriter(OutputHelper* output)
+      : output_helper_(*output) {}
+
+  void reset() { processed_locations_.clear(); }
+
+  void run(const MatchFinder::MatchResult& result) override {
+    const auto* for_stmt = result.Nodes.getNodeAs<CXXForRangeStmt>("forRange");
+    if (!for_stmt) {
+      return;
+    }
+
+    const SourceManager& sm = *result.SourceManager;
+    const LangOptions& opts = result.Context->getLangOpts();
+
+    // Skip if inside a macro expansion
+    if (for_stmt->getBeginLoc().isMacroID() ||
+        sm.isMacroBodyExpansion(for_stmt->getBeginLoc())) {
+      return;
+    }
+
+    // Skip if in a system header
+    if (sm.isInSystemHeader(for_stmt->getBeginLoc())) {
+      return;
+    }
+
+    // Skip if we've already processed this source location
+    unsigned offset = sm.getFileOffset(for_stmt->getBeginLoc());
+    if (processed_locations_.count(offset)) {
+      return;
+    }
+
+    // Skip files not in /cef/ directory (unless path filtering is disabled)
+    if (!DisablePathFilter) {
+      StringRef filename = sm.getFilename(for_stmt->getBeginLoc());
+      if (!filename.contains("/cef/")) {
+        return;
+      }
+    }
+
+    // Get the loop variable
+    const VarDecl* loop_var = for_stmt->getLoopVariable();
+    if (!loop_var) {
+      return;
+    }
+
+    // Check if the loop variable type is pair-like
+    QualType var_type = loop_var->getType();
+    if (!isPairLikeType(var_type)) {
+      return;
+    }
+
+    // Get the range expression and check if it's a map-like container
+    const Expr* range_expr = for_stmt->getRangeInit();
+    if (!range_expr) {
+      return;
+    }
+
+    QualType range_type = range_expr->getType();
+    if (!isMapLikeContainer(range_type)) {
+      return;
+    }
+
+    // Get the loop body
+    const Stmt* body = for_stmt->getBody();
+    if (!body) {
+      return;
+    }
+
+    // Check for local variable declarations that would conflict with binding names
+    // This prevents bugs like: for (const auto& [key, value] : m) { std::string key = key; }
+    LocalVarDeclCollector local_var_collector;
+    local_var_collector.TraverseStmt(const_cast<Stmt*>(body));
+    if (local_var_collector.hasConflict("key") ||
+        local_var_collector.hasConflict("value")) {
+      // Log skipped instance for manual review (to stdout, not stderr)
+      SourceLocation loc = for_stmt->getBeginLoc();
+      llvm::outs() << "# SKIPPED (variable conflict): "
+                   << sm.getFilename(loc).str() << ":"
+                   << sm.getSpellingLineNumber(loc) << "\n";
+      return;
+    }
+
+    // Collect all uses of the loop variable in the body
+    VarUseCollector collector(loop_var);
+    collector.TraverseStmt(const_cast<Stmt*>(body));
+
+    const auto& uses = collector.getUses();
+    if (uses.empty()) {
+      return;  // No uses of the loop variable
+    }
+
+    // Check that ALL uses are via .first or .second member access
+    // Also collect info about which members are used
+    bool uses_first = false;
+    bool uses_second = false;
+    std::vector<std::pair<const MemberExpr*, bool>> member_accesses;  // (expr, is_first)
+
+    for (const DeclRefExpr* use : uses) {
+      // The use must be the base of a MemberExpr accessing .first or .second
+      // Walk up to find the parent MemberExpr
+      const auto& parents = result.Context->getParents(*use);
+      if (parents.empty()) {
+        return;  // Use without parent - can't be .first/.second access
+      }
+
+      const MemberExpr* member = parents[0].get<MemberExpr>();
+      if (!member) {
+        return;  // Not a member access - loop var used directly
+      }
+
+      // Check that the member is .first or .second
+      const ValueDecl* member_decl = member->getMemberDecl();
+      if (!member_decl) {
+        return;
+      }
+
+      std::string member_name = member_decl->getNameAsString();
+      if (member_name == "first") {
+        uses_first = true;
+        member_accesses.push_back({member, true});
+      } else if (member_name == "second") {
+        uses_second = true;
+        member_accesses.push_back({member, false});
+      } else {
+        return;  // Accessing some other member
+      }
+    }
+
+    if (!uses_first && !uses_second) {
+      return;  // No .first/.second access
+    }
+
+    // Mark as processed
+    processed_locations_.insert(offset);
+
+    // Generate binding names based on what's used
+    std::string first_name = "key";
+    std::string second_name = "value";
+
+    // Build the new binding declaration
+    // e.g., "pair" -> "[key, value]"
+    std::string new_binding = "[" + first_name + ", " + second_name + "]";
+
+    // Replace just the variable name with the structured binding
+    // This transforms "const auto& pair" -> "const auto& [key, value]"
+    SourceLocation var_loc = loop_var->getLocation();
+    unsigned var_len = loop_var->getNameAsString().length();
+    CharSourceRange var_range = CharSourceRange::getCharRange(
+        var_loc, var_loc.getLocWithOffset(var_len));
+    output_helper_.Replace(var_range, new_binding, sm, opts);
+
+    // Replace each .first/.second access with the binding name
+    for (const auto& [member, is_first] : member_accesses) {
+      std::string replacement = is_first ? first_name : second_name;
+      CharSourceRange member_range =
+          CharSourceRange::getTokenRange(member->getSourceRange());
+      output_helper_.Replace(member_range, replacement, sm, opts);
+    }
+  }
+
+ private:
+  OutputHelper& output_helper_;
+  std::set<unsigned> processed_locations_;
+};
+
 }  // namespace
 
 int main(int argc, const char* argv[]) {
@@ -324,6 +593,7 @@ int main(int argc, const char* argv[]) {
   OutputHelper output_helper;
   MatchFinder match_finder;
   ContainsRewriter contains_rewriter(&output_helper);
+  StructuredBindingsRewriter structured_bindings_rewriter(&output_helper);
 
   if (EnableContains) {
     // Matcher for find() call on associative container
@@ -382,6 +652,13 @@ int main(int argc, const char* argv[]) {
 
     match_finder.addMatcher(countBooleanMatcher.bind("countBoolean"),
                             &contains_rewriter);
+  }
+
+  if (EnableStructuredBindings) {
+    // Match range-based for loops - we'll filter for pair-like types in the callback
+    auto forRangeMatcher = cxxForRangeStmt().bind("forRange");
+
+    match_finder.addMatcher(forRangeMatcher, &structured_bindings_rewriter);
   }
 
   // Pass output_helper as SourceFileCallbacks to handle per-file setup/teardown
