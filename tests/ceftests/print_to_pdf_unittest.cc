@@ -91,7 +91,7 @@ class PrintToPdfTestHandler : public TestHandler, public CefPdfPrintCallback {
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
     const std::string& url = frame->GetURL();
-    if (url == "about:blank" || url.find("chrome-extension://") == 0) {
+    if (url == "about:blank" || url.starts_with("chrome-extension://")) {
       return;
     }
 

@@ -570,7 +570,7 @@ bool IsAuthorized(CefRefPtr<CefRequest> request,
     return false;
   }
 
-  if (authHeader.find("Basic ") == 0) {
+  if (authHeader.starts_with("Basic ")) {
     const std::string& base64 = authHeader.substr(6);
     CefRefPtr<CefBinaryValue> data = CefBase64Decode(base64);
     EXPECT_TRUE(data);

@@ -254,7 +254,7 @@ class HSTSRedirectTest : public TestHandler {
     EXPECT_UI_THREAD();
 
     http_url_ = url;
-    EXPECT_TRUE(http_url_.find("http://localhost:") == 0);
+    EXPECT_TRUE(http_url_.starts_with("http://localhost:"));
 
     // Start the HTTPS server. Will delete itself after the server stops.
     https_server_ = new HSTSTestServerObserver(
@@ -267,7 +267,7 @@ class HSTSRedirectTest : public TestHandler {
     EXPECT_UI_THREAD();
 
     https_url_ = url;
-    EXPECT_TRUE(https_url_.find("https://localhost:") == 0);
+    EXPECT_TRUE(https_url_.starts_with("https://localhost:"));
 
     // Create a new in-memory context so HSTS decisions aren't cached.
     CreateTestRequestContext(
