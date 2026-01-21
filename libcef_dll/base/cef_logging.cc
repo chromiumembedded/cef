@@ -506,7 +506,7 @@ std::string SystemErrorCodeToString(SystemErrorCode error_code) {
   if (len) {
     std::string s(msgbuf);
     // Messages returned by system end with line breaks.
-    s.erase(std::remove_if(s.begin(), s.end(), ::isspace), s.end());
+    std::erase_if(s, ::isspace);
     ss << s << " (0x" << std::hex << error_code << ")";
   } else {
     ss << "Error (0x" << std::hex << GetLastError()
