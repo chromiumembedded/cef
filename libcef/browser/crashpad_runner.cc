@@ -35,7 +35,7 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
   argv.insert(argv.begin(), command_line.GetProgram().value());
 #endif
 
-  std::unique_ptr<char*[]> argv_as_utf8(new char*[argv.size() + 1]);
+  auto argv_as_utf8 = std::make_unique<char*[]>(argv.size() + 1);
   std::vector<std::string> storage;
   storage.reserve(argv.size());
   for (size_t i = 0; i < argv.size(); ++i) {

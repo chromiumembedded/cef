@@ -848,7 +848,7 @@ bool OsrWindowWin::OnTouchEvent(UINT message, WPARAM wParam, LPARAM lParam) {
   if (num_points < 0 || num_points > 16) {
     return false;
   }
-  std::unique_ptr<TOUCHINPUT[]> input(new TOUCHINPUT[num_points]);
+  auto input = std::make_unique<TOUCHINPUT[]>(num_points);
   if (GetTouchInputInfo(reinterpret_cast<HTOUCHINPUT>(lParam), num_points,
                         input.get(), sizeof(TOUCHINPUT))) {
     CefTouchEvent touch_event;

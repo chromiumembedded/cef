@@ -4,7 +4,7 @@
 
 #include "libcef_dll/ctocpp/base_scoped_ctocpp.h"
 
-CefBaseScopedCToCpp::CefBaseScopedCToCpp() {}
+CefBaseScopedCToCpp::CefBaseScopedCToCpp() = default;
 
 template <>
 cef_base_scoped_t*

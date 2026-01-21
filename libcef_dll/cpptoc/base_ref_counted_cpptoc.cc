@@ -4,7 +4,7 @@
 
 #include "libcef_dll/cpptoc/base_ref_counted_cpptoc.h"
 
-CefBaseRefCountedCppToC::CefBaseRefCountedCppToC() {}
+CefBaseRefCountedCppToC::CefBaseRefCountedCppToC() = default;
 
 template <>
 CefRefPtr<CefBaseRefCounted> CefCppToCRefCounted<

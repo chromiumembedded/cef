@@ -380,7 +380,7 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
   const int timeout_id = ++next_timeout_id_;
 
   // Queue the request.
-  std::unique_ptr<PendingNewBrowserInfo> pending(new PendingNewBrowserInfo());
+  auto pending = std::make_unique<PendingNewBrowserInfo>();
   pending->global_token = global_token;
   pending->timeout_id = timeout_id;
   pending->callback = std::move(callback);

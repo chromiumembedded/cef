@@ -592,7 +592,7 @@ cef_return_value_t CefResourceManager::OnBeforeResourceLoad(
     return RV_CONTINUE;
   }
 
-  std::unique_ptr<RequestState> state(new RequestState);
+  auto state = std::make_unique<RequestState>();
 
   if (!weak_ptr_factory_.get()) {
     // WeakPtrFactory instances need to be created and destroyed on the same

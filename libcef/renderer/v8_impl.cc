@@ -865,8 +865,8 @@ bool CefRegisterExtension(const CefString& extension_name,
     isolate_manager->AddGlobalTrackObject(object);
   }
 
-  std::unique_ptr<v8::Extension> wrapper(new ExtensionWrapper(
-      name->GetString(), code->GetString(), handler.get()));
+  auto wrapper = std::make_unique<ExtensionWrapper>(
+      name->GetString(), code->GetString(), handler.get());
 
   blink::WebScriptController::RegisterExtension(std::move(wrapper));
   return true;
