@@ -165,8 +165,8 @@ scoped_refptr<net::HttpResponseHeaders> CefResponseImpl::GetResponseHeaders() {
   }
 
   std::multimap<std::string, std::string> extra_headers;
-  for (const auto& pair : header_map_) {
-    extra_headers.insert(std::make_pair(pair.first, pair.second));
+  for (const auto& [key, value] : header_map_) {
+    extra_headers.insert(std::make_pair(key, value));
   }
 
   return net_service::MakeResponseHeaders(

@@ -136,8 +136,8 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
   Handler& operator=(const Handler&) = delete;
 
   ~Handler() override {
-    for (auto& pair : subscription_state_map_) {
-      delete pair.second;
+    for (auto& [key, value] : subscription_state_map_) {
+      delete value;
     }
   }
 

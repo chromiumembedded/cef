@@ -43,13 +43,13 @@ ParameterMap FilterParameters(const ParameterMap& parameters) {
   ParameterMap out_map;
 
   // Perform key substitutions.
-  for (const auto& params : in_map) {
-    std::string key = params.first;
-    ParameterMap::const_iterator subs_it = subs.find(params.first);
+  for (const auto& [key, value] : in_map) {
+    std::string substituted_key = key;
+    ParameterMap::const_iterator subs_it = subs.find(key);
     if (subs_it != subs.end()) {
-      key = subs_it->second;
+      substituted_key = subs_it->second;
     }
-    out_map.insert(std::make_pair(key, params.second));
+    out_map.insert(std::make_pair(substituted_key, value));
   }
 
   return out_map;
