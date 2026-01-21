@@ -606,6 +606,9 @@ class RequestSchemeHandlerOld : public CefResourceHandler {
     std::move(destroy_callback_).Run();
   }
 
+  RequestSchemeHandlerOld(const RequestSchemeHandlerOld&) = delete;
+  RequestSchemeHandlerOld& operator=(const RequestSchemeHandlerOld&) = delete;
+
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override {
     EXPECT_IO_THREAD();
@@ -669,7 +672,6 @@ class RequestSchemeHandlerOld : public CefResourceHandler {
   int cancel_ct_ = 0;
 
   IMPLEMENT_REFCOUNTING(RequestSchemeHandlerOld);
-  DISALLOW_COPY_AND_ASSIGN(RequestSchemeHandlerOld);
 };
 
 class RequestSchemeHandler : public CefResourceHandler {
@@ -682,6 +684,9 @@ class RequestSchemeHandler : public CefResourceHandler {
     EXPECT_EQ(1, cancel_ct_);
     std::move(destroy_callback_).Run();
   }
+
+  RequestSchemeHandler(const RequestSchemeHandler&) = delete;
+  RequestSchemeHandler& operator=(const RequestSchemeHandler&) = delete;
 
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
@@ -778,7 +783,6 @@ class RequestSchemeHandler : public CefResourceHandler {
   int cancel_ct_ = 0;
 
   IMPLEMENT_REFCOUNTING(RequestSchemeHandler);
-  DISALLOW_COPY_AND_ASSIGN(RequestSchemeHandler);
 };
 
 // Serves redirect request responses.
@@ -795,6 +799,11 @@ class RequestRedirectSchemeHandlerOld : public CefResourceHandler {
     EXPECT_EQ(1, cancel_ct_);
     std::move(destroy_callback_).Run();
   }
+
+  RequestRedirectSchemeHandlerOld(const RequestRedirectSchemeHandlerOld&) =
+      delete;
+  RequestRedirectSchemeHandlerOld& operator=(
+      const RequestRedirectSchemeHandlerOld&) = delete;
 
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override {
@@ -846,7 +855,6 @@ class RequestRedirectSchemeHandlerOld : public CefResourceHandler {
   int cancel_ct_ = 0;
 
   IMPLEMENT_REFCOUNTING(RequestRedirectSchemeHandlerOld);
-  DISALLOW_COPY_AND_ASSIGN(RequestRedirectSchemeHandlerOld);
 };
 
 class RequestRedirectSchemeHandler : public CefResourceHandler {
@@ -862,6 +870,10 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
     EXPECT_EQ(1, cancel_ct_);
     std::move(destroy_callback_).Run();
   }
+
+  RequestRedirectSchemeHandler(const RequestRedirectSchemeHandler&) = delete;
+  RequestRedirectSchemeHandler& operator=(const RequestRedirectSchemeHandler&) =
+      delete;
 
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
@@ -929,7 +941,6 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
   int cancel_ct_ = 0;
 
   IMPLEMENT_REFCOUNTING(RequestRedirectSchemeHandler);
-  DISALLOW_COPY_AND_ASSIGN(RequestRedirectSchemeHandler);
 };
 
 // Resource handler implementation that never completes. Used to test
@@ -957,6 +968,10 @@ class IncompleteSchemeHandlerOld : public CefResourceHandler {
 
     std::move(destroy_callback_).Run();
   }
+
+  IncompleteSchemeHandlerOld(const IncompleteSchemeHandlerOld&) = delete;
+  IncompleteSchemeHandlerOld& operator=(const IncompleteSchemeHandlerOld&) =
+      delete;
 
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override {
@@ -1027,7 +1042,6 @@ class IncompleteSchemeHandlerOld : public CefResourceHandler {
   CefRefPtr<CefCallback> incomplete_callback_;
 
   IMPLEMENT_REFCOUNTING(IncompleteSchemeHandlerOld);
-  DISALLOW_COPY_AND_ASSIGN(IncompleteSchemeHandlerOld);
 };
 
 class IncompleteSchemeHandler : public CefResourceHandler {
@@ -1053,6 +1067,9 @@ class IncompleteSchemeHandler : public CefResourceHandler {
 
     std::move(destroy_callback_).Run();
   }
+
+  IncompleteSchemeHandler(const IncompleteSchemeHandler&) = delete;
+  IncompleteSchemeHandler& operator=(const IncompleteSchemeHandler&) = delete;
 
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
@@ -1141,12 +1158,15 @@ class IncompleteSchemeHandler : public CefResourceHandler {
   CefRefPtr<CefResourceReadCallback> incomplete_read_callback_;
 
   IMPLEMENT_REFCOUNTING(IncompleteSchemeHandler);
-  DISALLOW_COPY_AND_ASSIGN(IncompleteSchemeHandler);
 };
 
 class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
  public:
   RequestSchemeHandlerFactory() = default;
+
+  RequestSchemeHandlerFactory(const RequestSchemeHandlerFactory&) = delete;
+  RequestSchemeHandlerFactory& operator=(const RequestSchemeHandlerFactory&) =
+      delete;
 
   CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefFrame> frame,
@@ -1255,7 +1275,6 @@ class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
   base::OnceClosure shutdown_callback_;
 
   IMPLEMENT_REFCOUNTING(RequestSchemeHandlerFactory);
-  DISALLOW_COPY_AND_ASSIGN(RequestSchemeHandlerFactory);
 };
 
 // SERVER BACKEND

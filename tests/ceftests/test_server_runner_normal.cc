@@ -25,6 +25,9 @@ class ServerHandler : public CefServerHandler {
     delegate_->OnServerHandlerDeleted();
   }
 
+  ServerHandler(const ServerHandler&) = delete;
+  ServerHandler& operator=(const ServerHandler&) = delete;
+
   void Shutdown() { server_->Shutdown(); }
 
   // CefServerHandler methods:
@@ -162,7 +165,6 @@ class ServerHandler : public CefServerHandler {
   CefRefPtr<CefServer> server_;
 
   IMPLEMENT_REFCOUNTING(ServerHandler);
-  DISALLOW_COPY_AND_ASSIGN(ServerHandler);
 };
 
 class ServerRunner : public Runner {

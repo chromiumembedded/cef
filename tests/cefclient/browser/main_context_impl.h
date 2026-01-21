@@ -22,6 +22,9 @@ class MainContextImpl : public MainContext {
   MainContextImpl(CefRefPtr<CefCommandLine> command_line,
                   bool terminate_when_all_windows_closed);
 
+  MainContextImpl(const MainContextImpl&) = delete;
+  MainContextImpl& operator=(const MainContextImpl&) = delete;
+
   // MainContext members.
   CefRefPtr<CefCommandLine> GetCommandLine() override;
   std::string GetConsoleLogPath() override;
@@ -83,8 +86,6 @@ class MainContextImpl : public MainContext {
 
   // Used to verify that methods are called on the correct thread.
   base::ThreadChecker thread_checker_;
-
-  DISALLOW_COPY_AND_ASSIGN(MainContextImpl);
 };
 
 }  // namespace client

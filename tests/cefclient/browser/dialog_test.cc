@@ -25,13 +25,13 @@ const char kFileSaveMessageName[] = "DialogTest.FileSave";
 // Store persistent dialog state information.
 class DialogState : public base::RefCountedThreadSafe<DialogState> {
  public:
+  DialogState(const DialogState&) = delete;
+  DialogState& operator=(const DialogState&) = delete;
   DialogState() = default;
 
   cef_file_dialog_mode_t mode_ = FILE_DIALOG_OPEN;
   CefString last_file_;
   bool pending_ = false;
-
-  DISALLOW_COPY_AND_ASSIGN(DialogState);
 };
 
 // Callback executed when the file dialog is dismissed.
@@ -41,6 +41,9 @@ class DialogCallback : public CefRunFileDialogCallback {
       CefRefPtr<CefMessageRouterBrowserSide::Callback> router_callback,
       scoped_refptr<DialogState> dialog_state)
       : router_callback_(router_callback), dialog_state_(dialog_state) {}
+
+  DialogCallback(const DialogCallback&) = delete;
+  DialogCallback& operator=(const DialogCallback&) = delete;
 
   void OnFileDialogDismissed(
       const std::vector<CefString>& file_paths) override {
@@ -81,13 +84,15 @@ class DialogCallback : public CefRunFileDialogCallback {
   scoped_refptr<DialogState> dialog_state_;
 
   IMPLEMENT_REFCOUNTING(DialogCallback);
-  DISALLOW_COPY_AND_ASSIGN(DialogCallback);
 };
 
 // Handle messages in the browser process.
 class Handler : public CefMessageRouterBrowserSide::Handler {
  public:
   Handler() = default;
+
+  Handler(const Handler&) = delete;
+  Handler& operator=(const Handler&) = delete;
 
   // Called due to cefQuery execution in dialogs.html.
   bool OnQuery(CefRefPtr<CefBrowser> browser,
@@ -158,8 +163,6 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
  private:
   scoped_refptr<DialogState> dialog_state_;
-
-  DISALLOW_COPY_AND_ASSIGN(Handler);
 };
 
 }  // namespace

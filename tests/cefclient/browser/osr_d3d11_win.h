@@ -59,10 +59,11 @@ class ScopedBinder {
     }
   }
 
+  ScopedBinder(const ScopedBinder&) = delete;
+  ScopedBinder& operator=(const ScopedBinder&) = delete;
+
  private:
   const std::shared_ptr<T> target_;
-
-  DISALLOW_COPY_AND_ASSIGN(ScopedBinder);
 };
 
 class Context {
@@ -81,6 +82,9 @@ class Context {
 class Device {
  public:
   Device(ID3D11Device*, ID3D11DeviceContext*);
+
+  Device(const Device&) = delete;
+  Device& operator=(const Device&) = delete;
 
   static std::shared_ptr<Device> create();
 
@@ -127,8 +131,6 @@ class Device {
 
   const std::shared_ptr<ID3D11Device> device_;
   const std::shared_ptr<Context> ctx_;
-
-  DISALLOW_COPY_AND_ASSIGN(Device);
 };
 
 // Encapsulate a DXGI swapchain for a window.
@@ -138,6 +140,9 @@ class SwapChain {
             ID3D11RenderTargetView*,
             ID3D11SamplerState*,
             ID3D11BlendState*);
+
+  SwapChain(const SwapChain&) = delete;
+  SwapChain& operator=(const SwapChain&) = delete;
 
   void bind(const std::shared_ptr<Context>& ctx);
   void unbind();
@@ -158,13 +163,14 @@ class SwapChain {
   std::shared_ptr<Context> ctx_;
   int width_ = 0;
   int height_ = 0;
-
-  DISALLOW_COPY_AND_ASSIGN(SwapChain);
 };
 
 class Texture2D {
  public:
   Texture2D(ID3D11Texture2D* tex, ID3D11ShaderResourceView* srv);
+
+  Texture2D(const Texture2D&) = delete;
+  Texture2D& operator=(const Texture2D&) = delete;
 
   void bind(std::shared_ptr<Context> const& ctx);
   void unbind();
@@ -189,8 +195,6 @@ class Texture2D {
   const std::shared_ptr<ID3D11ShaderResourceView> srv_;
   std::shared_ptr<IDXGIKeyedMutex> keyed_mutex_;
   std::shared_ptr<Context> ctx_;
-
-  DISALLOW_COPY_AND_ASSIGN(Texture2D);
 };
 
 class Effect {
@@ -198,6 +202,9 @@ class Effect {
   Effect(ID3D11VertexShader* vsh,
          ID3D11PixelShader* psh,
          ID3D11InputLayout* layout);
+
+  Effect(const Effect&) = delete;
+  Effect& operator=(const Effect&) = delete;
 
   void bind(const std::shared_ptr<Context>& ctx);
   void unbind();
@@ -207,8 +214,6 @@ class Effect {
   const std::shared_ptr<ID3D11PixelShader> psh_;
   const std::shared_ptr<ID3D11InputLayout> layout_;
   std::shared_ptr<Context> ctx_;
-
-  DISALLOW_COPY_AND_ASSIGN(Effect);
 };
 
 class Geometry {
@@ -217,6 +222,9 @@ class Geometry {
            uint32_t vertices,
            uint32_t stride,
            ID3D11Buffer*);
+
+  Geometry(const Geometry&) = delete;
+  Geometry& operator=(const Geometry&) = delete;
 
   void bind(const std::shared_ptr<Context>& ctx);
   void unbind();
@@ -229,8 +237,6 @@ class Geometry {
   uint32_t stride_;
   const std::shared_ptr<ID3D11Buffer> buffer_;
   std::shared_ptr<Context> ctx_;
-
-  DISALLOW_COPY_AND_ASSIGN(Geometry);
 };
 
 // Abstraction for a 2D layer within a composition.
@@ -238,6 +244,9 @@ class Layer {
  public:
   Layer(const std::shared_ptr<Device>& device, bool flip);
   virtual ~Layer();
+
+  Layer(const Layer&) = delete;
+  Layer& operator=(const Layer&) = delete;
 
   void attach(const std::shared_ptr<Composition>&);
 
@@ -265,8 +274,6 @@ class Layer {
 
  private:
   std::weak_ptr<Composition> composition_;
-
-  DISALLOW_COPY_AND_ASSIGN(Layer);
 };
 
 // A collection of layers. Will render 1-N layers to a D3D11 device.
@@ -275,6 +282,9 @@ class Composition : public std::enable_shared_from_this<Composition> {
   explicit Composition(const std::shared_ptr<Device>& device,
                        int width = 0,
                        int height = 0);
+
+  Composition(const Composition&) = delete;
+  Composition& operator=(const Composition&) = delete;
 
   int width() const { return width_; }
   int height() const { return height_; }
@@ -302,13 +312,14 @@ class Composition : public std::enable_shared_from_this<Composition> {
 
   const std::shared_ptr<Device> device_;
   std::vector<std::shared_ptr<Layer>> layers_;
-
-  DISALLOW_COPY_AND_ASSIGN(Composition);
 };
 
 class FrameBuffer {
  public:
   explicit FrameBuffer(const std::shared_ptr<Device>& device);
+
+  FrameBuffer(const FrameBuffer&) = delete;
+  FrameBuffer& operator=(const FrameBuffer&) = delete;
 
   // Called in response to CEF's OnAcceleratedPaint notification.
   void on_paint(void* shared_handle);
@@ -319,8 +330,6 @@ class FrameBuffer {
  private:
   const std::shared_ptr<Device> device_;
   std::shared_ptr<Texture2D> shared_buffer_;
-
-  DISALLOW_COPY_AND_ASSIGN(FrameBuffer);
 };
 
 }  // namespace client::d3d11

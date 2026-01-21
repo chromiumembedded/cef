@@ -29,6 +29,9 @@ class OsrRenderer {
   explicit OsrRenderer(const OsrRendererSettings& settings);
   ~OsrRenderer();
 
+  OsrRenderer(const OsrRenderer&) = delete;
+  OsrRenderer& operator=(const OsrRenderer&) = delete;
+
   // Initialize the OpenGL environment.
   void Initialize();
 
@@ -95,8 +98,6 @@ class OsrRenderer {
   float spin_x_ = 0;
   float spin_y_ = 0;
   CefRect update_rect_;
-
-  DISALLOW_COPY_AND_ASSIGN(OsrRenderer);
 };
 
 }  // namespace client

@@ -22,6 +22,9 @@ class ViewsOverlayBrowser : public CefBrowserViewDelegate {
  public:
   explicit ViewsOverlayBrowser(ViewsWindow* owner_window);
 
+  ViewsOverlayBrowser(const ViewsOverlayBrowser&) = delete;
+  ViewsOverlayBrowser& operator=(const ViewsOverlayBrowser&) = delete;
+
   void Initialize(CefRefPtr<CefWindow> window,
                   CefRefPtr<CefClient> client,
                   const std::string& url,
@@ -80,7 +83,6 @@ class ViewsOverlayBrowser : public CefBrowserViewDelegate {
   base::WeakPtrFactory<ViewsOverlayBrowser> weak_ptr_factory_{this};
 
   IMPLEMENT_REFCOUNTING(ViewsOverlayBrowser);
-  DISALLOW_COPY_AND_ASSIGN(ViewsOverlayBrowser);
 };
 
 }  // namespace client

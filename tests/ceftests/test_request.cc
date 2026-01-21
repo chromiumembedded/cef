@@ -31,6 +31,9 @@ class RequestClient : public CefURLRequestClient, public State {
     DCHECK(!done_callback_.is_null());
   }
 
+  RequestClient(const RequestClient&) = delete;
+  RequestClient& operator=(const RequestClient&) = delete;
+
   void OnUploadProgress(CefRefPtr<CefURLRequest> request,
                         int64_t current,
                         int64_t total) override {
@@ -95,7 +98,6 @@ class RequestClient : public CefURLRequestClient, public State {
   RequestDoneCallback done_callback_;
 
   IMPLEMENT_REFCOUNTING(RequestClient);
-  DISALLOW_COPY_AND_ASSIGN(RequestClient);
 };
 
 // Implementation that collects all cookies, and optionally deletes them.
@@ -110,6 +112,9 @@ class CookieVisitor : public CefCookieVisitor {
     CEF_REQUIRE_UI_THREAD();
     std::move(callback_).Run(cookies_);
   }
+
+  CookieVisitor(const CookieVisitor&) = delete;
+  CookieVisitor& operator=(const CookieVisitor&) = delete;
 
   bool Visit(const CefCookie& cookie,
              int count,
@@ -129,7 +134,6 @@ class CookieVisitor : public CefCookieVisitor {
   CookieDoneCallback callback_;
 
   IMPLEMENT_REFCOUNTING(CookieVisitor);
-  DISALLOW_COPY_AND_ASSIGN(CookieVisitor);
 };
 
 }  // namespace

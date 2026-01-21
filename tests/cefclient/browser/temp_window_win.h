@@ -26,9 +26,10 @@ class TempWindowWin {
   TempWindowWin();
   ~TempWindowWin();
 
-  CefWindowHandle hwnd_;
+  TempWindowWin(const TempWindowWin&) = delete;
+  TempWindowWin& operator=(const TempWindowWin&) = delete;
 
-  DISALLOW_COPY_AND_ASSIGN(TempWindowWin);
+  CefWindowHandle hwnd_;
 };
 
 }  // namespace client

@@ -36,6 +36,9 @@ class ObserverRegistration : public CefRegistration {
     }
   }
 
+  ObserverRegistration(const ObserverRegistration&) = delete;
+  ObserverRegistration& operator=(const ObserverRegistration&) = delete;
+
   void Initialize() {
     CEF_REQUIRE_UI_THREAD();
     Manager::GetOrCreateInstance(https_server_)->AddObserver(observer_);
@@ -62,7 +65,6 @@ class ObserverRegistration : public CefRegistration {
   const bool https_server_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(ObserverRegistration);
-  DISALLOW_COPY_AND_ASSIGN(ObserverRegistration);
 };
 
 Manager::Manager(bool https_server) : https_server_(https_server) {

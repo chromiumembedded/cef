@@ -28,6 +28,9 @@ class RootWindowViews : public RootWindow,
   explicit RootWindowViews(bool use_alloy_style);
   ~RootWindowViews() override;
 
+  RootWindowViews(const RootWindowViews&) = delete;
+  RootWindowViews& operator=(const RootWindowViews&) = delete;
+
   void SetTitlebarHeight(const std::optional<float>& height);
 
   // RootWindow methods:
@@ -126,8 +129,6 @@ class RootWindowViews : public RootWindow,
   bool position_on_resize_ = false;
   CefRefPtr<ViewsWindow> window_;
   scoped_refptr<ImageCache> image_cache_;
-
-  DISALLOW_COPY_AND_ASSIGN(RootWindowViews);
 };
 
 }  // namespace client

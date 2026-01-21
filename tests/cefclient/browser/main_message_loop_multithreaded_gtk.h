@@ -25,6 +25,11 @@ class MainMessageLoopMultithreadedGtk : public MainMessageLoop {
   MainMessageLoopMultithreadedGtk();
   ~MainMessageLoopMultithreadedGtk();
 
+  MainMessageLoopMultithreadedGtk(const MainMessageLoopMultithreadedGtk&) =
+      delete;
+  MainMessageLoopMultithreadedGtk& operator=(
+      const MainMessageLoopMultithreadedGtk&) = delete;
+
   // MainMessageLoop methods.
   int Run() override;
   void Quit() override;
@@ -45,8 +50,6 @@ class MainMessageLoopMultithreadedGtk : public MainMessageLoop {
 
   // Must be protected by |lock_|.
   std::queue<CefRefPtr<CefTask>> queued_tasks_;
-
-  DISALLOW_COPY_AND_ASSIGN(MainMessageLoopMultithreadedGtk);
 };
 
 }  // namespace client

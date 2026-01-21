@@ -212,6 +212,9 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
  public:
   TestTextfieldDelegate() = default;
 
+  TestTextfieldDelegate(const TestTextfieldDelegate&) = delete;
+  TestTextfieldDelegate& operator=(const TestTextfieldDelegate&) = delete;
+
   bool OnKeyEvent(CefRefPtr<CefTextfield> textfield,
                   const CefKeyEvent& event) override {
     EXPECT_TRUE(textfield.get());
@@ -260,7 +263,6 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
   size_t after_user_action_ct_ = 0;
 
   IMPLEMENT_REFCOUNTING(TestTextfieldDelegate);
-  DISALLOW_COPY_AND_ASSIGN(TestTextfieldDelegate);
 };
 
 void SendKeyEvents(CefRefPtr<CefWindow> window) {

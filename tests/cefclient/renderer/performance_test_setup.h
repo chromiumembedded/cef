@@ -19,7 +19,7 @@ extern const int kDefaultIterations;
 
 // Entry in test array.
 #define PERF_TEST_ENTRY_EX(name, iterations) \
-  { #name, PERF_TEST_NAME(name), iterations }
+  {#name, PERF_TEST_NAME(name), iterations}
 #define PERF_TEST_ENTRY(name) PERF_TEST_ENTRY_EX(name, kDefaultIterations)
 
 // Test function declaration.
@@ -35,6 +35,9 @@ typedef PERF_TEST_RESULT(PerfTest(PERF_TEST_PARAMS));
 class CefTimer {
  public:
   CefTimer() = default;
+
+  CefTimer(const CefTimer&) = delete;
+  CefTimer& operator=(const CefTimer&) = delete;
 
   bool IsRunning() { return running_; }
 
@@ -59,8 +62,6 @@ class CefTimer {
   bool running_ = false;
   CefTime start_;
   CefTime stop_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefTimer);
 };
 
 // Peform test iterations using a user-provided timing result variable.

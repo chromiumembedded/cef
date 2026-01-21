@@ -171,6 +171,10 @@ class ApiVersionTestRefPtrClient : public CefApiVersionTestRefPtrClient {
  public:
   explicit ApiVersionTestRefPtrClient(int val) : val_(val) {}
 
+  ApiVersionTestRefPtrClient(const ApiVersionTestRefPtrClient&) = delete;
+  ApiVersionTestRefPtrClient& operator=(const ApiVersionTestRefPtrClient&) =
+      delete;
+
   int GetValueLegacy() override { return val_legacy_; }
 
 #if CEF_API_ADDED(CEF_EXPERIMENTAL)
@@ -193,7 +197,6 @@ class ApiVersionTestRefPtrClient : public CefApiVersionTestRefPtrClient {
 #endif
 
   IMPLEMENT_REFCOUNTING(ApiVersionTestRefPtrClient);
-  DISALLOW_COPY_AND_ASSIGN(ApiVersionTestRefPtrClient);
 };
 
 #if CEF_API_REMOVED(13302)
@@ -203,6 +206,11 @@ class ApiVersionTestRefPtrClientChild
  public:
   ApiVersionTestRefPtrClientChild(int val, int other_val)
       : val_(val), other_val_(other_val) {}
+
+  ApiVersionTestRefPtrClientChild(const ApiVersionTestRefPtrClientChild&) =
+      delete;
+  ApiVersionTestRefPtrClientChild& operator=(
+      const ApiVersionTestRefPtrClientChild&) = delete;
 
   int GetValueLegacy() override { return val_legacy_; }
 
@@ -233,7 +241,6 @@ class ApiVersionTestRefPtrClientChild
 #endif
 
   IMPLEMENT_REFCOUNTING(ApiVersionTestRefPtrClientChild);
-  DISALLOW_COPY_AND_ASSIGN(ApiVersionTestRefPtrClientChild);
 };
 
 using ApiVersionTestRefPtrClientChildType = ApiVersionTestRefPtrClientChild;
@@ -245,6 +252,11 @@ class ApiVersionTestRefPtrClientChildV2
  public:
   ApiVersionTestRefPtrClientChildV2(int val, int other_val)
       : val_(val), other_val_(other_val) {}
+
+  ApiVersionTestRefPtrClientChildV2(const ApiVersionTestRefPtrClientChildV2&) =
+      delete;
+  ApiVersionTestRefPtrClientChildV2& operator=(
+      const ApiVersionTestRefPtrClientChildV2&) = delete;
 
   int GetValueLegacy() override { return val_legacy_; }
 
@@ -278,7 +290,6 @@ class ApiVersionTestRefPtrClientChildV2
 #endif
 
   IMPLEMENT_REFCOUNTING(ApiVersionTestRefPtrClientChildV2);
-  DISALLOW_COPY_AND_ASSIGN(ApiVersionTestRefPtrClientChildV2);
 };
 
 using ApiVersionTestRefPtrClientChildType = ApiVersionTestRefPtrClientChildV2;
@@ -519,6 +530,10 @@ class ApiVersionTestScopedClient : public CefApiVersionTestScopedClient {
       : val_(val), got_delete_(got_delete) {}
   ~ApiVersionTestScopedClient() override { got_delete_->yes(); }
 
+  ApiVersionTestScopedClient(const ApiVersionTestScopedClient&) = delete;
+  ApiVersionTestScopedClient& operator=(const ApiVersionTestScopedClient&) =
+      delete;
+
   int GetValueLegacy() override { return val_legacy_; }
 
 #if CEF_API_ADDED(CEF_EXPERIMENTAL)
@@ -541,8 +556,6 @@ class ApiVersionTestScopedClient : public CefApiVersionTestScopedClient {
 #endif
 
   TrackCallback* got_delete_;
-
-  DISALLOW_COPY_AND_ASSIGN(ApiVersionTestScopedClient);
 };
 
 #if CEF_API_REMOVED(13302)
@@ -555,6 +568,11 @@ class ApiVersionTestScopedClientChild
                                   TrackCallback* got_delete)
       : val_(val), other_val_(other_val), got_delete_(got_delete) {}
   ~ApiVersionTestScopedClientChild() override { got_delete_->yes(); }
+
+  ApiVersionTestScopedClientChild(const ApiVersionTestScopedClientChild&) =
+      delete;
+  ApiVersionTestScopedClientChild& operator=(
+      const ApiVersionTestScopedClientChild&) = delete;
 
   int GetValueLegacy() override { return val_legacy_; }
 
@@ -585,8 +603,6 @@ class ApiVersionTestScopedClientChild
 #endif
 
   TrackCallback* got_delete_;
-
-  DISALLOW_COPY_AND_ASSIGN(ApiVersionTestScopedClientChild);
 };
 
 using ApiVersionTestScopedClientChildType = ApiVersionTestScopedClientChild;
@@ -601,6 +617,11 @@ class ApiVersionTestScopedClientChildV2
                                     TrackCallback* got_delete)
       : val_(val), other_val_(other_val), got_delete_(got_delete) {}
   ~ApiVersionTestScopedClientChildV2() override { got_delete_->yes(); }
+
+  ApiVersionTestScopedClientChildV2(const ApiVersionTestScopedClientChildV2&) =
+      delete;
+  ApiVersionTestScopedClientChildV2& operator=(
+      const ApiVersionTestScopedClientChildV2&) = delete;
 
   int GetValueLegacy() override { return val_legacy_; }
 
@@ -634,8 +655,6 @@ class ApiVersionTestScopedClientChildV2
 #endif
 
   TrackCallback* got_delete_;
-
-  DISALLOW_COPY_AND_ASSIGN(ApiVersionTestScopedClientChildV2);
 };
 
 using ApiVersionTestScopedClientChildType = ApiVersionTestScopedClientChildV2;

@@ -43,6 +43,9 @@ class ViewsMenuBar : public CefMenuButtonDelegate,
   // should be reserved in the client for MenuBar usage.
   ViewsMenuBar(Delegate* delegate, int menu_id_start, bool use_bottom_controls);
 
+  ViewsMenuBar(const ViewsMenuBar&) = delete;
+  ViewsMenuBar& operator=(const ViewsMenuBar&) = delete;
+
   // Returns true if |menu_id| exists in the menu bar.
   bool HasMenuId(int menu_id) const;
 
@@ -122,7 +125,6 @@ class ViewsMenuBar : public CefMenuButtonDelegate,
   MnemonicMap mnemonics_;
 
   IMPLEMENT_REFCOUNTING(ViewsMenuBar);
-  DISALLOW_COPY_AND_ASSIGN(ViewsMenuBar);
 };
 
 }  // namespace client

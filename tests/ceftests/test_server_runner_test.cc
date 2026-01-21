@@ -26,6 +26,9 @@ class ServerHandler : public CefTestServerHandler {
     delegate_->OnServerHandlerDeleted();
   }
 
+  ServerHandler(const ServerHandler&) = delete;
+  ServerHandler& operator=(const ServerHandler&) = delete;
+
   void Start() {
     CEF_REQUIRE_UI_THREAD();
 
@@ -118,7 +121,6 @@ class ServerHandler : public CefTestServerHandler {
   CefRefPtr<CefTestServer> server_;
 
   IMPLEMENT_REFCOUNTING(ServerHandler);
-  DISALLOW_COPY_AND_ASSIGN(ServerHandler);
 };
 
 class ServerRunner : public Runner {

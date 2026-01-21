@@ -545,6 +545,10 @@ class RenderViewReadyTestHandler : public TestHandler {
  public:
   RenderViewReadyTestHandler() = default;
 
+  RenderViewReadyTestHandler(const RenderViewReadyTestHandler&) = delete;
+  RenderViewReadyTestHandler& operator=(const RenderViewReadyTestHandler&) =
+      delete;
+
   void RunTest() override {
     AddResource(kRenderViewReadyUrl, kRenderViewReadyHtml, "text/html");
     CreateBrowser(kRenderViewReadyUrl);
@@ -585,7 +589,6 @@ class RenderViewReadyTestHandler : public TestHandler {
   TrackCallback got_load_start_;
   TrackCallback got_load_end_;
   IMPLEMENT_REFCOUNTING(RenderViewReadyTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(RenderViewReadyTestHandler);
 };
 
 }  // namespace
@@ -610,6 +613,10 @@ const char kDocAvailableHtml[] =
 class DocumentAvailableTestHandler : public TestHandler {
  public:
   DocumentAvailableTestHandler() = default;
+
+  DocumentAvailableTestHandler(const DocumentAvailableTestHandler&) = delete;
+  DocumentAvailableTestHandler& operator=(const DocumentAvailableTestHandler&) =
+      delete;
 
   void RunTest() override {
     AddResource(kDocAvailableUrl, kDocAvailableHtml, "text/html");
@@ -653,7 +660,6 @@ class DocumentAvailableTestHandler : public TestHandler {
   TrackCallback got_load_start_;
   TrackCallback got_load_end_;
   IMPLEMENT_REFCOUNTING(DocumentAvailableTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(DocumentAvailableTestHandler);
 };
 
 }  // namespace

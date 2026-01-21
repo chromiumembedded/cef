@@ -26,6 +26,9 @@ class SimpleWindowDelegate : public CefWindowDelegate {
         runtime_style_(runtime_style),
         initial_show_state_(initial_show_state) {}
 
+  SimpleWindowDelegate(const SimpleWindowDelegate&) = delete;
+  SimpleWindowDelegate& operator=(const SimpleWindowDelegate&) = delete;
+
   void OnWindowCreated(CefRefPtr<CefWindow> window) override {
     // Add the browser view and show the window.
     window->AddChildView(browser_view_);
@@ -66,13 +69,16 @@ class SimpleWindowDelegate : public CefWindowDelegate {
   const cef_show_state_t initial_show_state_;
 
   IMPLEMENT_REFCOUNTING(SimpleWindowDelegate);
-  DISALLOW_COPY_AND_ASSIGN(SimpleWindowDelegate);
 };
 
 class SimpleBrowserViewDelegate : public CefBrowserViewDelegate {
  public:
   explicit SimpleBrowserViewDelegate(cef_runtime_style_t runtime_style)
       : runtime_style_(runtime_style) {}
+
+  SimpleBrowserViewDelegate(const SimpleBrowserViewDelegate&) = delete;
+  SimpleBrowserViewDelegate& operator=(const SimpleBrowserViewDelegate&) =
+      delete;
 
   bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
                                  CefRefPtr<CefBrowserView> popup_browser_view,
@@ -94,7 +100,6 @@ class SimpleBrowserViewDelegate : public CefBrowserViewDelegate {
   const cef_runtime_style_t runtime_style_;
 
   IMPLEMENT_REFCOUNTING(SimpleBrowserViewDelegate);
-  DISALLOW_COPY_AND_ASSIGN(SimpleBrowserViewDelegate);
 };
 
 }  // namespace

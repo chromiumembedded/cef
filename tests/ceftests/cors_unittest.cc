@@ -342,6 +342,9 @@ class TestServerObserver : public test_server::ObserverHelper {
 
   ~TestServerObserver() override { std::move(done_callback_).Run(); }
 
+  TestServerObserver(const TestServerObserver&) = delete;
+  TestServerObserver& operator=(const TestServerObserver&) = delete;
+
   void OnInitialized(const std::string& server_origin) override {
     CEF_REQUIRE_UI_THREAD();
     std::move(ready_callback_).Run();
@@ -374,13 +377,14 @@ class TestServerObserver : public test_server::ObserverHelper {
   TestSetup* const setup_;
   base::OnceClosure ready_callback_;
   base::OnceClosure done_callback_;
-
-  DISALLOW_COPY_AND_ASSIGN(TestServerObserver);
 };
 
 class CorsTestHandler : public RoutingTestHandler {
  public:
   explicit CorsTestHandler(TestSetup* setup) : setup_(setup) {}
+
+  CorsTestHandler(const CorsTestHandler&) = delete;
+  CorsTestHandler& operator=(const CorsTestHandler&) = delete;
 
   void RunTest() override {
     StartServer(base::BindOnce(&CorsTestHandler::TriggerCreateBrowser, this));
@@ -624,7 +628,6 @@ class CorsTestHandler : public RoutingTestHandler {
   TrackCallback got_cleared_cookies_;
 
   IMPLEMENT_REFCOUNTING(CorsTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(CorsTestHandler);
 };
 
 // JS that results in a call to CorsTestHandler::OnQuery.

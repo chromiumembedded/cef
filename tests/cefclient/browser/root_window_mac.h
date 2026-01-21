@@ -26,6 +26,9 @@ class RootWindowMac : public RootWindow, public BrowserWindow::Delegate {
   explicit RootWindowMac(bool use_alloy_style);
   ~RootWindowMac();
 
+  RootWindowMac(const RootWindowMac&) = delete;
+  RootWindowMac& operator=(const RootWindowMac&) = delete;
+
   BrowserWindow* browser_window() const;
   RootWindow::Delegate* delegate() const;
   const OsrRendererSettings* osr_settings() const;
@@ -78,8 +81,6 @@ class RootWindowMac : public RootWindow, public BrowserWindow::Delegate {
 
  private:
   CefRefPtr<RootWindowMacImpl> impl_;
-
-  DISALLOW_COPY_AND_ASSIGN(RootWindowMac);
 
   friend class RootWindowMacImpl;
 };

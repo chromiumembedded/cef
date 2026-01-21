@@ -54,6 +54,9 @@ class HSTSTestServerObserver : public test_server::ObserverHelper {
     Initialize(https_server);
   }
 
+  HSTSTestServerObserver(const HSTSTestServerObserver&) = delete;
+  HSTSTestServerObserver& operator=(const HSTSTestServerObserver&) = delete;
+
   void OnInitialized(const std::string& server_origin) override {
     EXPECT_UI_THREAD();
 
@@ -140,8 +143,6 @@ class HSTSTestServerObserver : public test_server::ObserverHelper {
 
   std::string origin_;
   std::string url_;
-
-  DISALLOW_COPY_AND_ASSIGN(HSTSTestServerObserver);
 };
 
 class HSTSRedirectTest : public TestHandler {

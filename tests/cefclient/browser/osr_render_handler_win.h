@@ -19,6 +19,9 @@ class OsrRenderHandlerWin {
   OsrRenderHandlerWin(const OsrRendererSettings& settings, HWND hwnd);
   virtual ~OsrRenderHandlerWin();
 
+  OsrRenderHandlerWin(const OsrRenderHandlerWin&) = delete;
+  OsrRenderHandlerWin& operator=(const OsrRenderHandlerWin&) = delete;
+
   void SetBrowser(CefRefPtr<CefBrowser> browser);
 
   // Rotate the texture based on mouse events.
@@ -73,8 +76,6 @@ class OsrRenderHandlerWin {
 
   // Must be the last member.
   base::WeakPtrFactory<OsrRenderHandlerWin> weak_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(OsrRenderHandlerWin);
 };
 
 }  // namespace client

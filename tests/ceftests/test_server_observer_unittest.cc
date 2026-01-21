@@ -54,6 +54,9 @@ class TestServerObserver : public test_server::ObserverHelper {
 
   ~TestServerObserver() override { std::move(done_callback_).Run(); }
 
+  TestServerObserver(const TestServerObserver&) = delete;
+  TestServerObserver& operator=(const TestServerObserver&) = delete;
+
   void OnInitialized(const std::string& server_origin) override {
     CEF_REQUIRE_UI_THREAD();
     EXPECT_FALSE(state_->got_initialized_);
@@ -141,8 +144,6 @@ class TestServerObserver : public test_server::ObserverHelper {
   std::string url_;
 
   base::WeakPtrFactory<TestServerObserver> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(TestServerObserver);
 };
 
 void CreateObserverOnUIThread(TestState* state,

@@ -21,6 +21,9 @@ class BrowserWindowStdGtk : public BrowserWindow {
                       bool with_controls,
                       const std::string& startup_url);
 
+  BrowserWindowStdGtk(const BrowserWindowStdGtk&) = delete;
+  BrowserWindowStdGtk& operator=(const BrowserWindowStdGtk&) = delete;
+
   // Called from RootWindowGtk::CreateRootWindow before CreateBrowser.
   void set_xdisplay(XDisplay* xdisplay);
 
@@ -47,8 +50,6 @@ class BrowserWindowStdGtk : public BrowserWindow {
 
  private:
   XDisplay* xdisplay_;
-
-  DISALLOW_COPY_AND_ASSIGN(BrowserWindowStdGtk);
 };
 
 }  // namespace client

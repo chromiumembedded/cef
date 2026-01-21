@@ -18,6 +18,9 @@ class ClientPrintHandlerGtk : public CefPrintHandler {
   ClientPrintHandlerGtk();
   virtual ~ClientPrintHandlerGtk();
 
+  ClientPrintHandlerGtk(const ClientPrintHandlerGtk&) = delete;
+  ClientPrintHandlerGtk& operator=(const ClientPrintHandlerGtk&) = delete;
+
   // CefPrintHandler methods.
   void OnPrintStart(CefRefPtr<CefBrowser> browser) override;
   void OnPrintSettings(CefRefPtr<CefBrowser> browser,
@@ -40,7 +43,6 @@ class ClientPrintHandlerGtk : public CefPrintHandler {
   std::unique_ptr<PrintHandler> print_handler_;
 
   IMPLEMENT_REFCOUNTING(ClientPrintHandlerGtk);
-  DISALLOW_COPY_AND_ASSIGN(ClientPrintHandlerGtk);
 };
 
 }  // namespace client

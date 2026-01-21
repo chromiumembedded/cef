@@ -16,6 +16,9 @@ class OsrRenderHandlerWinGL : public OsrRenderHandlerWin {
   OsrRenderHandlerWinGL(const OsrRendererSettings& settings, HWND hwnd);
   ~OsrRenderHandlerWinGL() override;
 
+  OsrRenderHandlerWinGL(const OsrRenderHandlerWinGL&) = delete;
+  OsrRenderHandlerWinGL& operator=(const OsrRenderHandlerWinGL&) = delete;
+
   // Must be called immediately after object creation.
   void Initialize(CefRefPtr<CefBrowser> browser);
 
@@ -48,8 +51,6 @@ class OsrRenderHandlerWinGL : public OsrRenderHandlerWin {
   HDC hdc_ = nullptr;
   HGLRC hrc_ = nullptr;
   bool painting_popup_ = false;
-
-  DISALLOW_COPY_AND_ASSIGN(OsrRenderHandlerWinGL);
 };
 
 }  // namespace client

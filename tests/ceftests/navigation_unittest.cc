@@ -791,6 +791,9 @@ class RedirectSchemeHandler : public CefResourceHandler {
  public:
   RedirectSchemeHandler() = default;
 
+  RedirectSchemeHandler(const RedirectSchemeHandler&) = delete;
+  RedirectSchemeHandler& operator=(const RedirectSchemeHandler&) = delete;
+
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
             CefRefPtr<CefCallback> callback) override {
@@ -885,7 +888,6 @@ class RedirectSchemeHandler : public CefResourceHandler {
   std::string location_;
 
   IMPLEMENT_REFCOUNTING(RedirectSchemeHandler);
-  DISALLOW_COPY_AND_ASSIGN(RedirectSchemeHandler);
 };
 
 class RedirectSchemeHandlerFactory : public CefSchemeHandlerFactory {
@@ -897,6 +899,10 @@ class RedirectSchemeHandlerFactory : public CefSchemeHandlerFactory {
     g_got_invalid_request = false;
   }
 
+  RedirectSchemeHandlerFactory(const RedirectSchemeHandlerFactory&) = delete;
+  RedirectSchemeHandlerFactory& operator=(const RedirectSchemeHandlerFactory&) =
+      delete;
+
   CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefFrame> frame,
                                        const CefString& scheme_name,
@@ -906,7 +912,6 @@ class RedirectSchemeHandlerFactory : public CefSchemeHandlerFactory {
   }
 
   IMPLEMENT_REFCOUNTING(RedirectSchemeHandlerFactory);
-  DISALLOW_COPY_AND_ASSIGN(RedirectSchemeHandlerFactory);
 };
 
 class RedirectTestHandler : public TestHandler {
@@ -3009,6 +3014,9 @@ class UnstartedSchemeHandler : public CefResourceHandler {
  public:
   UnstartedSchemeHandler() = default;
 
+  UnstartedSchemeHandler(const UnstartedSchemeHandler&) = delete;
+  UnstartedSchemeHandler& operator=(const UnstartedSchemeHandler&) = delete;
+
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
             CefRefPtr<CefCallback> callback) override {
@@ -3046,7 +3054,6 @@ class UnstartedSchemeHandler : public CefResourceHandler {
   CefRefPtr<CefResourceReadCallback> callback_;
 
   IMPLEMENT_REFCOUNTING(UnstartedSchemeHandler);
-  DISALLOW_COPY_AND_ASSIGN(UnstartedSchemeHandler);
 };
 
 // Browser side.
@@ -3229,6 +3236,9 @@ class StalledSchemeHandler : public CefResourceHandler {
  public:
   StalledSchemeHandler() = default;
 
+  StalledSchemeHandler(const StalledSchemeHandler&) = delete;
+  StalledSchemeHandler& operator=(const StalledSchemeHandler&) = delete;
+
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
             CefRefPtr<CefCallback> callback) override {
@@ -3291,7 +3301,6 @@ class StalledSchemeHandler : public CefResourceHandler {
   CefRefPtr<CefResourceReadCallback> callback_;
 
   IMPLEMENT_REFCOUNTING(StalledSchemeHandler);
-  DISALLOW_COPY_AND_ASSIGN(StalledSchemeHandler);
 };
 
 // Browser side.

@@ -28,6 +28,10 @@ class ClientRequestContextHandler : public CefRequestContextHandler {
   explicit ClientRequestContextHandler(CreateCallback callback)
       : create_callback_(std::move(callback)) {}
 
+  ClientRequestContextHandler(const ClientRequestContextHandler&) = delete;
+  ClientRequestContextHandler& operator=(const ClientRequestContextHandler&) =
+      delete;
+
   // CefRequestContextHandler methods:
   void OnRequestContextInitialized(
       CefRefPtr<CefRequestContext> request_context) override {
@@ -53,7 +57,6 @@ class ClientRequestContextHandler : public CefRequestContextHandler {
   CreateCallback create_callback_;
 
   IMPLEMENT_REFCOUNTING(ClientRequestContextHandler);
-  DISALLOW_COPY_AND_ASSIGN(ClientRequestContextHandler);
 };
 
 // Ensure a compatible set of window creation attributes.

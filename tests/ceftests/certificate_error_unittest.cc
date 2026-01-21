@@ -35,6 +35,9 @@ class OtherServerObserver : public test_server::ObserverHelper {
     Initialize(https_server);
   }
 
+  OtherServerObserver(const OtherServerObserver&) = delete;
+  OtherServerObserver& operator=(const OtherServerObserver&) = delete;
+
   void OnInitialized(const std::string& server_origin) override {
     EXPECT_UI_THREAD();
     std::move(ready_callback_).Run(server_origin);
@@ -56,8 +59,6 @@ class OtherServerObserver : public test_server::ObserverHelper {
   ReadyCallback ready_callback_;
   base::OnceClosure done_callback_;
   RequestCallback request_callback_;
-
-  DISALLOW_COPY_AND_ASSIGN(OtherServerObserver);
 };
 
 class CertificateErrorTest : public TestHandler, public CefTestServerHandler {

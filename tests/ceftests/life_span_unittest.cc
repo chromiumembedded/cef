@@ -401,6 +401,9 @@ class DevToolsPopupTestHandler : public TestHandler {
  public:
   DevToolsPopupTestHandler() = default;
 
+  DevToolsPopupTestHandler(const DevToolsPopupTestHandler&) = delete;
+  DevToolsPopupTestHandler& operator=(const DevToolsPopupTestHandler&) = delete;
+
   void RunTest() override {
     const std::string html =
         "<html>"
@@ -537,7 +540,6 @@ class DevToolsPopupTestHandler : public TestHandler {
   TrackCallback got_main_before_close_;
 
   IMPLEMENT_REFCOUNTING(DevToolsPopupTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(DevToolsPopupTestHandler);
 };
 
 }  // namespace

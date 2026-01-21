@@ -22,6 +22,9 @@ class BaseClientHandler : public CefClient,
  public:
   BaseClientHandler();
 
+  BaseClientHandler(const BaseClientHandler&) = delete;
+  BaseClientHandler& operator=(const BaseClientHandler&) = delete;
+
   // Returns the BaseClientHandler associated with |browser|.
   static CefRefPtr<BaseClientHandler> GetForBrowser(
       CefRefPtr<CefBrowser> browser);
@@ -146,8 +149,6 @@ class BaseClientHandler : public CefClient,
 
   // True for the initial navigation after browser creation.
   bool initial_navigation_ = true;
-
-  DISALLOW_COPY_AND_ASSIGN(BaseClientHandler);
 };
 
 }  // namespace client

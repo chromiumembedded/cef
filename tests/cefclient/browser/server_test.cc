@@ -43,6 +43,9 @@ class ServerHandler : public CefServerHandler {
 
   ServerHandler() = default;
 
+  ServerHandler(const ServerHandler&) = delete;
+  ServerHandler& operator=(const ServerHandler&) = delete;
+
   // |complete_callback| will be executed on the UI thread after completion.
   void StartServer(int port, CompleteCallback complete_callback) {
     CEF_REQUIRE_UI_THREAD();
@@ -204,7 +207,6 @@ class ServerHandler : public CefServerHandler {
   CompleteCallback complete_callback_;
 
   IMPLEMENT_REFCOUNTING(ServerHandler);
-  DISALLOW_COPY_AND_ASSIGN(ServerHandler);
 };
 
 // Handle messages in the browser process.

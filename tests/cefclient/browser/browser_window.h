@@ -19,6 +19,8 @@ namespace client {
 // indicated.
 class BrowserWindow : public ClientHandler::Delegate {
  public:
+  BrowserWindow(const BrowserWindow&) = delete;
+  BrowserWindow& operator=(const BrowserWindow&) = delete;
   // This interface is implemented by the owner of the BrowserWindow. The
   // methods of this class will be called on the main thread unless otherwise
   // indicated.
@@ -151,9 +153,6 @@ class BrowserWindow : public ClientHandler::Delegate {
   CefRefPtr<CefBrowser> browser_;
   CefRefPtr<ClientHandler> client_handler_;
   bool is_closing_ = false;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(BrowserWindow);
 };
 
 }  // namespace client

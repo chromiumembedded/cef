@@ -19,6 +19,9 @@ class ClientDialogHandlerGtk : public CefDialogHandler,
  public:
   ClientDialogHandlerGtk();
 
+  ClientDialogHandlerGtk(const ClientDialogHandlerGtk&) = delete;
+  ClientDialogHandlerGtk& operator=(const ClientDialogHandlerGtk&) = delete;
+
   // CefDialogHandler methods.
   bool OnFileDialog(CefRefPtr<CefBrowser> browser,
                     FileDialogMode mode,
@@ -78,7 +81,6 @@ class ClientDialogHandlerGtk : public CefDialogHandler,
   CefRefPtr<CefJSDialogCallback> js_dialog_callback_;
 
   IMPLEMENT_REFCOUNTING(ClientDialogHandlerGtk);
-  DISALLOW_COPY_AND_ASSIGN(ClientDialogHandlerGtk);
 };
 
 }  // namespace client

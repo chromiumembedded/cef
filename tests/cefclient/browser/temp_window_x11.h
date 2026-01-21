@@ -14,6 +14,9 @@ namespace client {
 // popup browsers. Only accessed on the UI thread.
 class TempWindowX11 {
  public:
+  TempWindowX11(const TempWindowX11&) = delete;
+  TempWindowX11& operator=(const TempWindowX11&) = delete;
+
   // Returns the singleton window handle.
   static CefWindowHandle GetWindowHandle();
 
@@ -27,8 +30,6 @@ class TempWindowX11 {
   ~TempWindowX11();
 
   CefWindowHandle xwindow_;
-
-  DISALLOW_COPY_AND_ASSIGN(TempWindowX11);
 };
 
 }  // namespace client

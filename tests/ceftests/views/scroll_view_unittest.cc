@@ -26,6 +26,9 @@ class TestScrollViewDelegate : public CefViewDelegate {
  public:
   TestScrollViewDelegate() = default;
 
+  TestScrollViewDelegate(const TestScrollViewDelegate&) = delete;
+  TestScrollViewDelegate& operator=(const TestScrollViewDelegate&) = delete;
+
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override {
     EXPECT_EQ(kScrollViewID, view->GetID());
     got_get_preferred_size_ = true;
@@ -36,12 +39,14 @@ class TestScrollViewDelegate : public CefViewDelegate {
 
  private:
   IMPLEMENT_REFCOUNTING(TestScrollViewDelegate);
-  DISALLOW_COPY_AND_ASSIGN(TestScrollViewDelegate);
 };
 
 class TestPanelDelegate : public CefPanelDelegate {
  public:
   TestPanelDelegate() = default;
+
+  TestPanelDelegate(const TestPanelDelegate&) = delete;
+  TestPanelDelegate& operator=(const TestPanelDelegate&) = delete;
 
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override {
     EXPECT_EQ(kContentPanelID, view->GetID());
@@ -53,7 +58,6 @@ class TestPanelDelegate : public CefPanelDelegate {
 
  private:
   IMPLEMENT_REFCOUNTING(TestPanelDelegate);
-  DISALLOW_COPY_AND_ASSIGN(TestPanelDelegate);
 };
 
 void RunScrollViewLayout(bool with_delegate, CefRefPtr<CefWindow> window) {

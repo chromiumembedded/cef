@@ -102,6 +102,9 @@ class TestServerHandler : public CefServerHandler {
     std::move(destroy_callback_).Run();
   }
 
+  TestServerHandler(const TestServerHandler&) = delete;
+  TestServerHandler& operator=(const TestServerHandler&) = delete;
+
   // Must be called before CreateServer().
   void SetExpectedConnectionCount(int expected) {
     EXPECT_FALSE(initialized_);
@@ -462,7 +465,6 @@ class TestServerHandler : public CefServerHandler {
   int actual_ws_message_ct_ = 0;
 
   IMPLEMENT_REFCOUNTING(TestServerHandler);
-  DISALLOW_COPY_AND_ASSIGN(TestServerHandler);
 };
 
 // HTTP TESTS
@@ -497,6 +499,9 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
       destroy_event_->Signal();
     }
   }
+
+  HttpTestRunner(const HttpTestRunner&) = delete;
+  HttpTestRunner& operator=(const HttpTestRunner&) = delete;
 
   void AddRequestRunner(std::unique_ptr<RequestRunner> request_runner) {
     EXPECT_FALSE(initialized_);
@@ -676,8 +681,6 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
   TrackCallback got_server_destroyed_;
 
   std::unique_ptr<TestHandler::UIThreadHelper> ui_thread_helper_;
-
-  DISALLOW_COPY_AND_ASSIGN(HttpTestRunner);
 };
 
 // Structure representing the data that can be sent via
@@ -830,6 +833,11 @@ class StaticHttpServerRequestHandler
 
         response_(response) {}
 
+  StaticHttpServerRequestHandler(const StaticHttpServerRequestHandler&) =
+      delete;
+  StaticHttpServerRequestHandler& operator=(
+      const StaticHttpServerRequestHandler&) = delete;
+
   bool HandleRequest(CefRefPtr<CefServer> server,
                      int connection_id,
                      const CefString& client_address,
@@ -858,8 +866,6 @@ class StaticHttpServerRequestHandler
   int expected_request_ct_;
   int actual_request_ct_ = 0;
   HttpServerResponse response_;
-
-  DISALLOW_COPY_AND_ASSIGN(StaticHttpServerRequestHandler);
 };
 
 // URLRequestClient that runs a single request and executes a callback with the
@@ -879,6 +885,10 @@ class StaticHttpURLRequestClient : public CefURLRequestClient {
     EXPECT_TRUE(request_);
     EXPECT_FALSE(response_callback_.is_null());
   }
+
+  StaticHttpURLRequestClient(const StaticHttpURLRequestClient&) = delete;
+  StaticHttpURLRequestClient& operator=(const StaticHttpURLRequestClient&) =
+      delete;
 
   void RunRequest() {
     EXPECT_UI_THREAD();
@@ -920,7 +930,6 @@ class StaticHttpURLRequestClient : public CefURLRequestClient {
   std::string data_;
 
   IMPLEMENT_REFCOUNTING(StaticHttpURLRequestClient);
-  DISALLOW_COPY_AND_ASSIGN(StaticHttpURLRequestClient);
 };
 
 // RequestRunner that will manage a single static HTTP request/response.
@@ -929,6 +938,9 @@ class StaticHttpRequestRunner : public HttpTestRunner::RequestRunner {
   StaticHttpRequestRunner(CefRefPtr<CefRequest> request,
                           const HttpServerResponse& response)
       : request_(request), response_(response) {}
+
+  StaticHttpRequestRunner(const StaticHttpRequestRunner&) = delete;
+  StaticHttpRequestRunner& operator=(const StaticHttpRequestRunner&) = delete;
 
   static std::unique_ptr<HttpTestRunner::RequestRunner> Create200(
       const std::string& path,
@@ -1047,8 +1059,6 @@ class StaticHttpRequestRunner : public HttpTestRunner::RequestRunner {
   TrackCallback got_run_request_;
   TrackCallback got_create_handler_;
   TrackCallback got_response_complete_;
-
-  DISALLOW_COPY_AND_ASSIGN(StaticHttpRequestRunner);
 };
 
 }  // namespace
@@ -1176,6 +1186,9 @@ class WebSocketTestHandler : public RoutingTestHandler {
  public:
   WebSocketTestHandler() = default;
 
+  WebSocketTestHandler(const WebSocketTestHandler&) = delete;
+  WebSocketTestHandler& operator=(const WebSocketTestHandler&) = delete;
+
   void RunTest() override {
     handler_ = new TestServerHandler(
         base::BindOnce(&WebSocketTestHandler::OnServerStarted, this),
@@ -1268,8 +1281,6 @@ class WebSocketTestHandler : public RoutingTestHandler {
   TrackCallback got_server_started_;
   TrackCallback got_done_message_;
   TrackCallback got_server_destroyed_;
-
-  DISALLOW_COPY_AND_ASSIGN(WebSocketTestHandler);
 };
 
 // WebSocket request handler that echoes each message sent.
@@ -1277,6 +1288,10 @@ class EchoWebSocketRequestHandler : public TestServerHandler::WsRequestHandler {
  public:
   explicit EchoWebSocketRequestHandler(int expected_message_ct)
       : expected_message_ct_(expected_message_ct) {}
+
+  EchoWebSocketRequestHandler(const EchoWebSocketRequestHandler&) = delete;
+  EchoWebSocketRequestHandler& operator=(const EchoWebSocketRequestHandler&) =
+      delete;
 
   std::string GetWebSocketUrl() { return GetTestServerOrigin(true) + "/echo"; }
 
@@ -1319,8 +1334,6 @@ class EchoWebSocketRequestHandler : public TestServerHandler::WsRequestHandler {
  private:
   int expected_message_ct_;
   int actual_message_ct_ = 0;
-
-  DISALLOW_COPY_AND_ASSIGN(EchoWebSocketRequestHandler);
 };
 
 class EchoWebSocketTestHandler : public WebSocketTestHandler {
@@ -1332,6 +1345,9 @@ class EchoWebSocketTestHandler : public WebSocketTestHandler {
       : connection_ct_(connection_ct),
         message_ct_(message_ct),
         in_parallel_(in_parallel) {}
+
+  EchoWebSocketTestHandler(const EchoWebSocketTestHandler&) = delete;
+  EchoWebSocketTestHandler& operator=(const EchoWebSocketTestHandler&) = delete;
 
   std::string GetClientHtml() override {
     std::stringstream ss;
@@ -1447,7 +1463,6 @@ class EchoWebSocketTestHandler : public WebSocketTestHandler {
   std::string ws_url_;
 
   IMPLEMENT_REFCOUNTING(EchoWebSocketTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(EchoWebSocketTestHandler);
 };
 
 }  // namespace

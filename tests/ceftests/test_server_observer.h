@@ -45,6 +45,9 @@ class ObserverHelper : public Observer {
   ObserverHelper();
   ~ObserverHelper() override;
 
+  ObserverHelper(const ObserverHelper&) = delete;
+  ObserverHelper& operator=(const ObserverHelper&) = delete;
+
   // Initialize the registration. If |https_server| is true an HTTPS server will
   // be used, otherwise an HTTP server will be used. Results in a call to
   // OnInitialized().
@@ -75,8 +78,6 @@ class ObserverHelper : public Observer {
   } state_ = State::NONE;
 
   base::WeakPtrFactory<ObserverHelper> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(ObserverHelper);
 };
 
 }  // namespace test_server

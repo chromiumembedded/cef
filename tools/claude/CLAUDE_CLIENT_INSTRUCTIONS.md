@@ -163,6 +163,9 @@ class SimpleHandler : public CefClient,
                       public CefLifeSpanHandler,
                       public CefLoadHandler {
  public:
+  SimpleHandler(const SimpleHandler&) = delete;
+  SimpleHandler& operator=(const SimpleHandler&) = delete;
+
   // CefClient methods:
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
   CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
@@ -176,7 +179,6 @@ class SimpleHandler : public CefClient,
 
  private:
   IMPLEMENT_REFCOUNTING(SimpleHandler);
-  DISALLOW_COPY_AND_ASSIGN(SimpleHandler);
 };
 ```
 

@@ -424,6 +424,10 @@ class RequestDumpResourceProvider : public CefResourceManager::Provider {
     DCHECK(!url.empty());
   }
 
+  RequestDumpResourceProvider(const RequestDumpResourceProvider&) = delete;
+  RequestDumpResourceProvider& operator=(const RequestDumpResourceProvider&) =
+      delete;
+
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     CEF_REQUIRE_IO_THREAD();
 
@@ -444,8 +448,6 @@ class RequestDumpResourceProvider : public CefResourceManager::Provider {
 
  private:
   std::string url_;
-
-  DISALLOW_COPY_AND_ASSIGN(RequestDumpResourceProvider);
 };
 
 // Provider that returns string data for specific pages. Used in combination
@@ -457,6 +459,9 @@ class StringResourceProvider : public CefResourceManager::Provider {
       : pages_(pages), string_resource_map_(string_resource_map) {
     DCHECK(!pages.empty());
   }
+
+  StringResourceProvider(const StringResourceProvider&) = delete;
+  StringResourceProvider& operator=(const StringResourceProvider&) = delete;
 
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     CEF_REQUIRE_IO_THREAD();
@@ -494,8 +499,6 @@ class StringResourceProvider : public CefResourceManager::Provider {
 
   // Only accessed on the IO thread.
   StringResourceMap* string_resource_map_;
-
-  DISALLOW_COPY_AND_ASSIGN(StringResourceProvider);
 };
 
 // Add a file extension to |url| if none is currently specified.

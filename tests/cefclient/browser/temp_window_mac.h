@@ -16,6 +16,8 @@ class TempWindowMacImpl;
 // popup browsers. Only accessed on the UI thread.
 class TempWindowMac {
  public:
+  TempWindowMac(const TempWindowMac&) = delete;
+  TempWindowMac& operator=(const TempWindowMac&) = delete;
   // Returns the singleton window handle.
   static CefWindowHandle GetWindowHandle();
 
@@ -29,8 +31,6 @@ class TempWindowMac {
   ~TempWindowMac();
 
   std::unique_ptr<TempWindowMacImpl> impl_;
-
-  DISALLOW_COPY_AND_ASSIGN(TempWindowMac);
 };
 
 }  // namespace client

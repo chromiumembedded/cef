@@ -196,6 +196,9 @@ class MyTestHandler : public TestHandler {
  public:
   MyTestHandler() = default;
 
+  MyTestHandler(const MyTestHandler&) = delete;
+  MyTestHandler& operator=(const MyTestHandler&) = delete;
+
   void RunTest() override {
     // Add mock resource before creating browser
     AddResource(kTestUrl, kTestContent, "text/html");
@@ -217,7 +220,6 @@ class MyTestHandler : public TestHandler {
   }
 
   IMPLEMENT_REFCOUNTING(MyTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(MyTestHandler);
 };
 
 }  // namespace
@@ -282,6 +284,9 @@ const char kTestHtml[] =
 
 class RouterTestHandler : public RoutingTestHandler {
  public:
+  RouterTestHandler(const RouterTestHandler&) = delete;
+  RouterTestHandler& operator=(const RouterTestHandler&) = delete;
+
   void RunTest() override {
     AddResource(kTestUrl, kTestHtml, "text/html");
     CreateBrowser(kTestUrl);
@@ -331,7 +336,6 @@ class RouterTestHandler : public RoutingTestHandler {
   TrackCallback got_load_end_;
   TrackCallback got_query_;
   IMPLEMENT_REFCOUNTING(RouterTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(RouterTestHandler);
 };
 
 }  // namespace
@@ -350,6 +354,9 @@ namespace {
 class ServerTestHandler : public TestHandler, public CefTestServerHandler {
  public:
   ServerTestHandler() = default;
+
+  ServerTestHandler(const ServerTestHandler&) = delete;
+  ServerTestHandler& operator=(const ServerTestHandler&) = delete;
 
   void RunTest() override {
     SetTestTimeout();
@@ -443,7 +450,6 @@ class ServerTestHandler : public TestHandler, public CefTestServerHandler {
   TrackCallback got_load_end_;
 
   IMPLEMENT_REFCOUNTING(ServerTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(ServerTestHandler);
 };
 
 }  // namespace
@@ -489,6 +495,9 @@ class RequestContextTestHandler : public TestHandler {
         rc_mode_(rc_mode),
         rc_cache_path_(rc_cache_path) {}
 
+  RequestContextTestHandler(const RequestContextTestHandler&) = delete;
+  RequestContextTestHandler& operator=(const RequestContextTestHandler&) = delete;
+
   void RunTest() override {
     // Create request context asynchronously
     CreateTestRequestContext(rc_mode_, rc_cache_path_,
@@ -523,7 +532,6 @@ class RequestContextTestHandler : public TestHandler {
   CefRefPtr<CefRequestContext> request_context_;
 
   IMPLEMENT_REFCOUNTING(RequestContextTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(RequestContextTestHandler);
 };
 
 }  // namespace
@@ -580,6 +588,9 @@ class MyBrowserDelegate : public client::ClientAppBrowser::Delegate {
  public:
   MyBrowserDelegate() = default;
 
+  MyBrowserDelegate(const MyBrowserDelegate&) = delete;
+  MyBrowserDelegate& operator=(const MyBrowserDelegate&) = delete;
+
   void OnBeforeCommandLineProcessing(
       CefRefPtr<client::ClientAppBrowser> app,
       CefRefPtr<CefCommandLine> command_line) override {
@@ -607,7 +618,6 @@ class MyBrowserDelegate : public client::ClientAppBrowser::Delegate {
 
  private:
   IMPLEMENT_REFCOUNTING(MyBrowserDelegate);
-  DISALLOW_COPY_AND_ASSIGN(MyBrowserDelegate);
 };
 
 }  // namespace
@@ -628,6 +638,9 @@ namespace {
 class MyRendererDelegate : public client::ClientAppRenderer::Delegate {
  public:
   MyRendererDelegate() = default;
+
+  MyRendererDelegate(const MyRendererDelegate&) = delete;
+  MyRendererDelegate& operator=(const MyRendererDelegate&) = delete;
 
   bool OnProcessMessageReceived(
       CefRefPtr<client::ClientAppRenderer> app,
@@ -655,7 +668,6 @@ class MyRendererDelegate : public client::ClientAppRenderer::Delegate {
 
  private:
   IMPLEMENT_REFCOUNTING(MyRendererDelegate);
-  DISALLOW_COPY_AND_ASSIGN(MyRendererDelegate);
 };
 
 }  // namespace
@@ -849,6 +861,9 @@ class MyViewTestHandler : public TestHandler {
     SetTestTimeout();
   }
 
+  MyViewTestHandler(const MyViewTestHandler&) = delete;
+  MyViewTestHandler& operator=(const MyViewTestHandler&) = delete;
+
   void RunTest() override {}  // Not used
 
   void SetOnComplete(OnCompleteCallback callback) {
@@ -874,8 +889,8 @@ class MyViewTestHandler : public TestHandler {
 
   const int expected_browser_count_;  // Use to track loaded browsers in OnLoadEnd
   OnCompleteCallback on_complete_;
+
   IMPLEMENT_REFCOUNTING(MyViewTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(MyViewTestHandler);
 };
 
 // For BrowserView tests, also implement CefBrowserViewDelegate
@@ -888,6 +903,9 @@ class MyViewDelegate : public CefWindowDelegate,
       : handler_(handler),
         event_(event),
         expected_browser_count_(expected_browser_count) {}
+
+  MyViewDelegate(const MyViewDelegate&) = delete;
+  MyViewDelegate& operator=(const MyViewDelegate&) = delete;
 
   void OnWindowCreated(CefRefPtr<CefWindow> window) override {
     window_ = window;
@@ -941,8 +959,8 @@ class MyViewDelegate : public CefWindowDelegate,
   const int expected_browser_count_;
   int browser_created_count_ = 0;
   int browser_destroyed_count_ = 0;
+
   IMPLEMENT_REFCOUNTING(MyViewDelegate);
-  DISALLOW_COPY_AND_ASSIGN(MyViewDelegate);
 };
 
 void MyTestImpl(CefRefPtr<CefWaitableEvent> event) {
@@ -1040,6 +1058,9 @@ Use async operations when testing multi-step processes, coordinating multiple ca
 ```cpp
 class AsyncTestHandler : public TestHandler {
  public:
+  AsyncTestHandler(const AsyncTestHandler&) = delete;
+  AsyncTestHandler& operator=(const AsyncTestHandler&) = delete;
+
   void RunTest() override {
     CefPostTask(TID_UI, base::BindOnce(&AsyncTestHandler::Step1, this));
     SetTestTimeout();
@@ -1059,8 +1080,8 @@ class AsyncTestHandler : public TestHandler {
 
  private:
   bool operation_started_ = false;
+
   IMPLEMENT_REFCOUNTING(AsyncTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(AsyncTestHandler);
 };
 ```
 
@@ -1174,6 +1195,9 @@ CefPostDelayedTask(TID_UI,
 
 class CallbackTestHandler : public TestHandler {
  public:
+  CallbackTestHandler(const CallbackTestHandler&) = delete;
+  CallbackTestHandler& operator=(const CallbackTestHandler&) = delete;
+
   void OnLoadStart(...) override {
     got_load_start_.yes();
   }
@@ -1194,8 +1218,8 @@ class CallbackTestHandler : public TestHandler {
  private:
   TrackCallback got_load_start_;
   TrackCallback got_load_end_;
+
   IMPLEMENT_REFCOUNTING(CallbackTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(CallbackTestHandler);
 };
 ```
 
@@ -1208,6 +1232,9 @@ Use `CefScopedTempDir` for tests that need to write files or use disk cache:
 
 class TempDirTestHandler : public TestHandler {
  public:
+  TempDirTestHandler(const TempDirTestHandler&) = delete;
+  TempDirTestHandler& operator=(const TempDirTestHandler&) = delete;
+
   void RunTest() override {
     // Create temporary directory
     EXPECT_TRUE(temp_dir_.CreateUniqueTempDir());
@@ -1267,8 +1294,8 @@ class TempDirTestHandler : public TestHandler {
 
  private:
   CefScopedTempDir temp_dir_;
+
   IMPLEMENT_REFCOUNTING(TempDirTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(TempDirTestHandler);
 };
 ```
 

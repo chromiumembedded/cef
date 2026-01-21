@@ -38,6 +38,9 @@ class TestCompletionCallback : public CefCompletionCallback {
   explicit TestCompletionCallback(CefRefPtr<CefWaitableEvent> event)
       : event_(event) {}
 
+  TestCompletionCallback(const TestCompletionCallback&) = delete;
+  TestCompletionCallback& operator=(const TestCompletionCallback&) = delete;
+
   void OnComplete() override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
     event_->Signal();
@@ -47,7 +50,6 @@ class TestCompletionCallback : public CefCompletionCallback {
   CefRefPtr<CefWaitableEvent> event_;
 
   IMPLEMENT_REFCOUNTING(TestCompletionCallback);
-  DISALLOW_COPY_AND_ASSIGN(TestCompletionCallback);
 };
 
 class TestSetCookieCallback : public CefSetCookieCallback {
@@ -55,6 +57,9 @@ class TestSetCookieCallback : public CefSetCookieCallback {
   TestSetCookieCallback(bool expected_success,
                         CefRefPtr<CefWaitableEvent> event)
       : expected_success_(expected_success), event_(event) {}
+
+  TestSetCookieCallback(const TestSetCookieCallback&) = delete;
+  TestSetCookieCallback& operator=(const TestSetCookieCallback&) = delete;
 
   void OnComplete(bool success) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
@@ -67,7 +72,6 @@ class TestSetCookieCallback : public CefSetCookieCallback {
   CefRefPtr<CefWaitableEvent> event_;
 
   IMPLEMENT_REFCOUNTING(TestSetCookieCallback);
-  DISALLOW_COPY_AND_ASSIGN(TestSetCookieCallback);
 };
 
 class TestDeleteCookiesCallback : public CefDeleteCookiesCallback {
@@ -75,6 +79,10 @@ class TestDeleteCookiesCallback : public CefDeleteCookiesCallback {
   TestDeleteCookiesCallback(int expected_num_deleted,
                             CefRefPtr<CefWaitableEvent> event)
       : expected_num_deleted_(expected_num_deleted), event_(event) {}
+
+  TestDeleteCookiesCallback(const TestDeleteCookiesCallback&) = delete;
+  TestDeleteCookiesCallback& operator=(const TestDeleteCookiesCallback&) =
+      delete;
 
   void OnComplete(int num_deleted) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
@@ -89,7 +97,6 @@ class TestDeleteCookiesCallback : public CefDeleteCookiesCallback {
   CefRefPtr<CefWaitableEvent> event_;
 
   IMPLEMENT_REFCOUNTING(TestDeleteCookiesCallback);
-  DISALLOW_COPY_AND_ASSIGN(TestDeleteCookiesCallback);
 };
 
 class TestVisitor : public CefCookieVisitor {
@@ -729,6 +736,9 @@ class CookieTestSchemeHandler : public TestHandler {
     explicit SchemeHandler(CookieTestSchemeHandler* handler)
         : handler_(handler) {}
 
+    SchemeHandler(const SchemeHandler&) = delete;
+    SchemeHandler& operator=(const SchemeHandler&) = delete;
+
     bool Open(CefRefPtr<CefRequest> request,
               bool& handle_request,
               CefRefPtr<CefCallback> callback) override {
@@ -809,13 +819,15 @@ class CookieTestSchemeHandler : public TestHandler {
     std::string cookie_;
 
     IMPLEMENT_REFCOUNTING(SchemeHandler);
-    DISALLOW_COPY_AND_ASSIGN(SchemeHandler);
   };
 
   class SchemeHandlerFactory : public CefSchemeHandlerFactory {
    public:
     explicit SchemeHandlerFactory(CookieTestSchemeHandler* handler)
         : handler_(handler) {}
+
+    SchemeHandlerFactory(const SchemeHandlerFactory&) = delete;
+    SchemeHandlerFactory& operator=(const SchemeHandlerFactory&) = delete;
 
     CefRefPtr<CefResourceHandler> Create(
         CefRefPtr<CefBrowser> browser,
@@ -840,7 +852,6 @@ class CookieTestSchemeHandler : public TestHandler {
     CookieTestSchemeHandler* handler_;
 
     IMPLEMENT_REFCOUNTING(SchemeHandlerFactory);
-    DISALLOW_COPY_AND_ASSIGN(SchemeHandlerFactory);
   };
 
   CookieTestSchemeHandler(const std::string& scheme,
@@ -1136,6 +1147,10 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
  public:
   explicit CookieAccessSchemeHandler(CookieAccessData* data) : data_(data) {}
 
+  CookieAccessSchemeHandler(const CookieAccessSchemeHandler&) = delete;
+  CookieAccessSchemeHandler& operator=(const CookieAccessSchemeHandler&) =
+      delete;
+
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
             CefRefPtr<CefCallback> callback) override {
@@ -1215,7 +1230,6 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
   size_t offset_ = 0;
 
   IMPLEMENT_REFCOUNTING(CookieAccessSchemeHandler);
-  DISALLOW_COPY_AND_ASSIGN(CookieAccessSchemeHandler);
 };
 
 class CookieAccessSchemeHandlerFactory : public CefSchemeHandlerFactory,
@@ -1267,6 +1281,10 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
   CookieAccessServerHandler() = default;
 
   ~CookieAccessServerHandler() override { RunCompleteCallback(); }
+
+  CookieAccessServerHandler(const CookieAccessServerHandler&) = delete;
+  CookieAccessServerHandler& operator=(const CookieAccessServerHandler&) =
+      delete;
 
   // Must be called before CreateServer().
   void AddResponse(const std::string& url, CookieAccessData* data) override {
@@ -1388,8 +1406,6 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
   int actual_http_request_ct_ = 0;
 
   std::string request_log_;
-
-  DISALLOW_COPY_AND_ASSIGN(CookieAccessServerHandler);
 };
 
 class CookieAccessTestHandler : public RoutingTestHandler,
@@ -1441,6 +1457,9 @@ class CookieAccessTestHandler : public RoutingTestHandler,
       CHECK(!custom_scheme);
     }
   }
+
+  CookieAccessTestHandler(const CookieAccessTestHandler&) = delete;
+  CookieAccessTestHandler& operator=(const CookieAccessTestHandler&) = delete;
 
   void RunTest() override {
     if (use_global_) {
@@ -1850,8 +1869,6 @@ class CookieAccessTestHandler : public RoutingTestHandler,
   // From cookie manager.
   int cookie_js3_ct_ = 0;
   int cookie_net3_ct_ = 0;
-
-  DISALLOW_COPY_AND_ASSIGN(CookieAccessTestHandler);
   IMPLEMENT_REFCOUNTING(CookieAccessTestHandler);
 };
 
@@ -1927,6 +1944,9 @@ class CookieRestartTestHandler : public RoutingTestHandler,
  public:
   explicit CookieRestartTestHandler(bool use_global)
       : scheme_(GetCookieAccessScheme()), use_global_(use_global) {}
+
+  CookieRestartTestHandler(const CookieRestartTestHandler&) = delete;
+  CookieRestartTestHandler& operator=(const CookieRestartTestHandler&) = delete;
 
   void RunTest() override {
     if (use_global_) {
@@ -2300,8 +2320,6 @@ class CookieRestartTestHandler : public RoutingTestHandler,
   // From cookie manager.
   int cookie_manager_js_ct_ = 0;
   int cookie_manager_net_ct_ = 0;
-
-  DISALLOW_COPY_AND_ASSIGN(CookieRestartTestHandler);
   IMPLEMENT_REFCOUNTING(CookieRestartTestHandler);
 };
 

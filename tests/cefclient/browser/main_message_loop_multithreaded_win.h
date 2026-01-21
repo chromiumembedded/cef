@@ -25,6 +25,11 @@ class MainMessageLoopMultithreadedWin : public MainMessageLoop {
   MainMessageLoopMultithreadedWin();
   ~MainMessageLoopMultithreadedWin() override;
 
+  MainMessageLoopMultithreadedWin(const MainMessageLoopMultithreadedWin&) =
+      delete;
+  MainMessageLoopMultithreadedWin& operator=(
+      const MainMessageLoopMultithreadedWin&) = delete;
+
   // MainMessageLoop methods.
   int Run() override;
   void Quit() override;
@@ -55,8 +60,6 @@ class MainMessageLoopMultithreadedWin : public MainMessageLoop {
   // Must be protected by |lock_|.
   HWND message_hwnd_ = nullptr;
   std::queue<CefRefPtr<CefTask>> queued_tasks_;
-
-  DISALLOW_COPY_AND_ASSIGN(MainMessageLoopMultithreadedWin);
 };
 
 }  // namespace client

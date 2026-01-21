@@ -18,6 +18,9 @@ class ClientHandlerStd : public ClientHandler {
                    bool with_controls,
                    const std::string& startup_url);
 
+  ClientHandlerStd(const ClientHandlerStd&) = delete;
+  ClientHandlerStd& operator=(const ClientHandlerStd&) = delete;
+
   // Returns the ClientHandlerStd for |client|, or nullptr if |client| is not a
   // ClientHandlerStd.
   static CefRefPtr<ClientHandlerStd> GetForClient(CefRefPtr<CefClient> client);
@@ -29,7 +32,6 @@ class ClientHandlerStd : public ClientHandler {
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientHandlerStd);
-  DISALLOW_COPY_AND_ASSIGN(ClientHandlerStd);
 };
 
 }  // namespace client

@@ -15,9 +15,11 @@ class ClientAppOther : public ClientApp {
  public:
   ClientAppOther();
 
+  ClientAppOther(const ClientAppOther&) = delete;
+  ClientAppOther& operator=(const ClientAppOther&) = delete;
+
  private:
   IMPLEMENT_REFCOUNTING(ClientAppOther);
-  DISALLOW_COPY_AND_ASSIGN(ClientAppOther);
 };
 
 }  // namespace client
