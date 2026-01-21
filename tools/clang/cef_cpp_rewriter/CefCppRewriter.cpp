@@ -56,6 +56,55 @@ static llvm::cl::opt<bool> EnableStructuredBindings(
     llvm::cl::init(true),
     llvm::cl::cat(rewriter_category));
 
+// Command-line flag to enable/disable iterator loop to range-for transformation
+static llvm::cl::opt<bool> EnableIteratorLoops(
+    "iterator-loops",
+    llvm::cl::desc(
+        "Enable iterator loop to range-for transformation (default: true)"),
+    llvm::cl::init(true),
+    llvm::cl::cat(rewriter_category));
+
+// Command-line flag to run only specific transformations
+// When specified, all other transformations are disabled
+static llvm::cl::opt<std::string> OnlyTransforms(
+    "only",
+    llvm::cl::desc(
+        "Run only the specified transformation(s). Comma-separated list of: "
+        "contains, count-patterns, structured-bindings, iterator-loops. "
+        "Example: --only=contains,structured-bindings"),
+    llvm::cl::init(""),
+    llvm::cl::cat(rewriter_category));
+
+// Helper to check if a transform is enabled via --only flag
+bool isTransformEnabled(const std::string& name, bool default_value) {
+  if (OnlyTransforms.empty()) {
+    return default_value;
+  }
+  // Parse comma-separated list
+  std::string only = OnlyTransforms;
+  size_t pos = 0;
+  while ((pos = only.find(',')) != std::string::npos || !only.empty()) {
+    std::string token;
+    if (pos != std::string::npos) {
+      token = only.substr(0, pos);
+      only = only.substr(pos + 1);
+    } else {
+      token = only;
+      only.clear();
+    }
+    // Trim whitespace
+    size_t start = token.find_first_not_of(" \t");
+    size_t end = token.find_last_not_of(" \t");
+    if (start != std::string::npos) {
+      token = token.substr(start, end - start + 1);
+    }
+    if (token == name) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // Helper to match associative container types (the underlying record type)
 auto isAssociativeContainerType() {
   return hasUnqualifiedDesugaredType(
@@ -577,6 +626,441 @@ class StructuredBindingsRewriter : public MatchFinder::MatchCallback {
   std::set<unsigned> processed_locations_;
 };
 
+// Visitor to collect all uses of an iterator variable in a statement
+class IteratorUseCollector : public RecursiveASTVisitor<IteratorUseCollector> {
+ public:
+  explicit IteratorUseCollector(const VarDecl* var) : target_var_(var) {}
+
+  bool VisitDeclRefExpr(DeclRefExpr* ref) {
+    if (ref->getDecl() == target_var_) {
+      uses_.push_back(ref);
+    }
+    return true;
+  }
+
+  const std::vector<DeclRefExpr*>& getUses() const { return uses_; }
+
+ private:
+  const VarDecl* target_var_;
+  std::vector<DeclRefExpr*> uses_;
+};
+
+// Rewriter for traditional iterator-based for loops
+// Converts: for (auto it = m.begin(); it != m.end(); ++it) { use(it->first, it->second); }
+// To:       for (const auto& [key, value] : m) { use(key, value); }
+class IteratorLoopRewriter : public MatchFinder::MatchCallback {
+ public:
+  explicit IteratorLoopRewriter(OutputHelper* output) : output_helper_(*output) {}
+
+  void reset() { processed_locations_.clear(); }
+
+  void run(const MatchFinder::MatchResult& result) override {
+    const auto* for_stmt = result.Nodes.getNodeAs<ForStmt>("forStmt");
+    if (!for_stmt) {
+      return;
+    }
+
+    const SourceManager& sm = *result.SourceManager;
+    const LangOptions& opts = result.Context->getLangOpts();
+
+    // Skip if inside a macro expansion
+    if (for_stmt->getBeginLoc().isMacroID() ||
+        sm.isMacroBodyExpansion(for_stmt->getBeginLoc())) {
+      return;
+    }
+
+    // Skip if in a system header
+    if (sm.isInSystemHeader(for_stmt->getBeginLoc())) {
+      return;
+    }
+
+    // Skip if we've already processed this source location
+    unsigned offset = sm.getFileOffset(for_stmt->getBeginLoc());
+    if (processed_locations_.count(offset)) {
+      return;
+    }
+
+    // Skip files not in /cef/ directory (unless path filtering is disabled)
+    if (!DisablePathFilter) {
+      StringRef filename = sm.getFilename(for_stmt->getBeginLoc());
+      if (!filename.contains("/cef/")) {
+        return;
+      }
+    }
+
+    // Get the init statement: should be a DeclStmt with a VarDecl
+    const Stmt* init = for_stmt->getInit();
+    if (!init) {
+      return;
+    }
+
+    const DeclStmt* decl_stmt = dyn_cast<DeclStmt>(init);
+    if (!decl_stmt || !decl_stmt->isSingleDecl()) {
+      return;
+    }
+
+    const VarDecl* iter_var = dyn_cast<VarDecl>(decl_stmt->getSingleDecl());
+    if (!iter_var) {
+      return;
+    }
+
+    // Check that the init expression is container.begin()
+    const Expr* init_expr = iter_var->getInit();
+    if (!init_expr) {
+      return;
+    }
+
+    // Skip through any implicit casts/materialize temps
+    init_expr = init_expr->IgnoreImplicit();
+
+    // For explicit iterator type declarations like:
+    //   std::map<int,int>::const_iterator it = m.begin();
+    // The init is wrapped in a CXXConstructExpr for the implicit conversion
+    if (auto* construct = dyn_cast<CXXConstructExpr>(init_expr)) {
+      if (construct->getNumArgs() == 1) {
+        init_expr = construct->getArg(0)->IgnoreImplicit();
+      }
+    }
+
+    const CXXMemberCallExpr* begin_call = dyn_cast<CXXMemberCallExpr>(init_expr);
+    if (!begin_call) {
+      return;
+    }
+
+    const CXXMethodDecl* begin_method =
+        dyn_cast_or_null<CXXMethodDecl>(begin_call->getMethodDecl());
+    if (!begin_method || begin_method->getNameAsString() != "begin") {
+      return;
+    }
+
+    // Get the container from the begin() call
+    const Expr* begin_container = begin_call->getImplicitObjectArgument();
+    if (!begin_container) {
+      return;
+    }
+
+    // Check that the iterator dereferences to a pair-like type
+    // This supports both map containers AND vector<pair<K,V>>, etc.
+    QualType iter_type = iter_var->getType().getCanonicalType();
+
+    // Get the type that the iterator dereferences to (value_type)
+    // For iterators, we need to look at what operator* returns
+    const CXXRecordDecl* iter_record = iter_type->getAsCXXRecordDecl();
+    if (!iter_record) {
+      return;
+    }
+
+    // Find the value_type or check if dereferencing gives a pair
+    bool has_pair_value_type = false;
+
+    // Check if it's a map-like container (which we know has pair value_type)
+    QualType container_type = begin_container->getType();
+    if (isMapLikeContainer(container_type)) {
+      has_pair_value_type = true;
+    } else {
+      // For other containers, check if value_type is std::pair
+      // Look for value_type typedef in the iterator or container
+      for (const auto* decl : iter_record->decls()) {
+        if (const auto* type_alias = dyn_cast<TypedefNameDecl>(decl)) {
+          if (type_alias->getName() == "value_type") {
+            QualType value_type = type_alias->getUnderlyingType().getCanonicalType();
+            if (const auto* record = value_type->getAsCXXRecordDecl()) {
+              std::string name = record->getQualifiedNameAsString();
+              if (name.find("std::pair") == 0 ||
+                  name.find("std::__1::pair") == 0) {
+                has_pair_value_type = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (!has_pair_value_type) {
+      return;
+    }
+
+    // Get the condition: should be it != container.end() or container.end() != it
+    const Expr* cond = for_stmt->getCond();
+    if (!cond) {
+      return;
+    }
+
+    // The condition might be wrapped in ExprWithCleanups
+    cond = cond->IgnoreImplicit();
+    if (auto* ewc = dyn_cast<ExprWithCleanups>(cond)) {
+      cond = ewc->getSubExpr();
+    }
+
+    // Try to match operator!= comparison
+    // In C++20, some containers (like unordered_map) only define operator==,
+    // and the compiler rewrites != as !(a == b) using CXXRewrittenBinaryOperator
+    const CXXOperatorCallExpr* cond_op = nullptr;
+    bool is_rewritten_not_equal = false;
+
+    if (auto* rewritten = dyn_cast<CXXRewrittenBinaryOperator>(cond)) {
+      // This is a rewritten != that becomes !(a == b)
+      // Get the semantic form which contains the actual == comparison
+      const Expr* semantic = rewritten->getSemanticForm();
+      if (auto* unary = dyn_cast<UnaryOperator>(semantic)) {
+        if (unary->getOpcode() == UO_LNot) {
+          if (auto* inner_op = dyn_cast<CXXOperatorCallExpr>(unary->getSubExpr())) {
+            if (inner_op->getOperator() == OO_EqualEqual) {
+              cond_op = inner_op;
+              is_rewritten_not_equal = true;
+            }
+          }
+        }
+      }
+    } else {
+      cond_op = dyn_cast<CXXOperatorCallExpr>(cond);
+    }
+
+    if (!cond_op) {
+      return;
+    }
+
+    // For direct !=, check it's the right operator
+    // For rewritten !=, we already verified it's == inside !()
+    if (!is_rewritten_not_equal && cond_op->getOperator() != OO_ExclaimEqual) {
+      return;
+    }
+
+    // Find which argument is the iterator and which is end()
+    const Expr* arg0 = cond_op->getArg(0)->IgnoreImplicit();
+    const Expr* arg1 = cond_op->getArg(1)->IgnoreImplicit();
+
+    // Helper lambda to extract CXXMemberCallExpr, handling CXXConstructExpr wrapper
+    auto extractMemberCall = [](const Expr* expr) -> const CXXMemberCallExpr* {
+      if (auto* call = dyn_cast<CXXMemberCallExpr>(expr)) {
+        return call;
+      }
+      // Handle CXXConstructExpr wrapper (for const_iterator conversion)
+      if (auto* construct = dyn_cast<CXXConstructExpr>(expr)) {
+        if (construct->getNumArgs() == 1) {
+          return dyn_cast<CXXMemberCallExpr>(
+              construct->getArg(0)->IgnoreImplicit());
+        }
+      }
+      return nullptr;
+    };
+
+    const CXXMemberCallExpr* end_call = nullptr;
+    const DeclRefExpr* iter_ref = nullptr;
+
+    if (auto* call = extractMemberCall(arg0)) {
+      if (auto* method = call->getMethodDecl()) {
+        if (method->getNameAsString() == "end") {
+          end_call = call;
+          iter_ref = dyn_cast<DeclRefExpr>(arg1);
+        }
+      }
+    }
+    if (!end_call) {
+      if (auto* call = extractMemberCall(arg1)) {
+        if (auto* method = call->getMethodDecl()) {
+          if (method->getNameAsString() == "end") {
+            end_call = call;
+            iter_ref = dyn_cast<DeclRefExpr>(arg0);
+          }
+        }
+      }
+    }
+
+    if (!end_call || !iter_ref) {
+      return;
+    }
+
+    // Verify the iterator reference refers to our iterator variable
+    if (iter_ref->getDecl() != iter_var) {
+      return;
+    }
+
+    // Get the end() container and verify it matches the begin() container
+    const Expr* end_container = end_call->getImplicitObjectArgument();
+    if (!end_container) {
+      return;
+    }
+
+    std::string begin_container_text = getSourceText(begin_container, sm, opts);
+    std::string end_container_text = getSourceText(end_container, sm, opts);
+
+    if (begin_container_text != end_container_text) {
+      return;  // Different containers
+    }
+
+    // Get the increment: should be ++it or it++
+    const Expr* inc = for_stmt->getInc();
+    if (!inc) {
+      return;
+    }
+
+    const UnaryOperator* inc_op = dyn_cast<UnaryOperator>(inc);
+    const CXXOperatorCallExpr* inc_call = nullptr;
+
+    bool valid_increment = false;
+    if (inc_op) {
+      // Built-in ++it or it++
+      if (inc_op->getOpcode() == UO_PreInc || inc_op->getOpcode() == UO_PostInc) {
+        if (auto* ref = dyn_cast<DeclRefExpr>(inc_op->getSubExpr()->IgnoreImplicit())) {
+          if (ref->getDecl() == iter_var) {
+            valid_increment = true;
+          }
+        }
+      }
+    } else {
+      // Overloaded operator++ (common for std::map iterators)
+      inc_call = dyn_cast<CXXOperatorCallExpr>(inc);
+      if (inc_call) {
+        if (inc_call->getOperator() == OO_PlusPlus) {
+          if (auto* ref = dyn_cast<DeclRefExpr>(
+                  inc_call->getArg(0)->IgnoreImplicit())) {
+            if (ref->getDecl() == iter_var) {
+              valid_increment = true;
+            }
+          }
+        }
+      }
+    }
+
+    if (!valid_increment) {
+      return;
+    }
+
+    // Get the loop body
+    const Stmt* body = for_stmt->getBody();
+    if (!body) {
+      return;
+    }
+
+    // Check for local variable conflicts
+    LocalVarDeclCollector local_var_collector;
+    local_var_collector.TraverseStmt(const_cast<Stmt*>(body));
+    if (local_var_collector.hasConflict("key") ||
+        local_var_collector.hasConflict("value")) {
+      SourceLocation loc = for_stmt->getBeginLoc();
+      llvm::outs() << "# SKIPPED (variable conflict): " << sm.getFilename(loc).str()
+                   << ":" << sm.getSpellingLineNumber(loc) << "\n";
+      return;
+    }
+
+    // Collect all uses of the iterator in the body
+    IteratorUseCollector collector(iter_var);
+    collector.TraverseStmt(const_cast<Stmt*>(body));
+
+    const auto& uses = collector.getUses();
+    if (uses.empty()) {
+      return;  // Iterator not used in body
+    }
+
+    // Check that ALL uses are via ->first or ->second member access
+    bool uses_first = false;
+    bool uses_second = false;
+    std::vector<std::pair<const MemberExpr*, bool>> member_accesses;
+
+    for (const DeclRefExpr* use : uses) {
+      // Walk up the AST to find a MemberExpr for ->first or ->second
+      // The AST structure for it->first is:
+      //   MemberExpr (->first)
+      //     CXXOperatorCallExpr (operator->)
+      //       ImplicitCastExpr
+      //         DeclRefExpr (it)
+      //
+      // We need to walk up through all the intermediate nodes.
+
+      const MemberExpr* member = nullptr;
+      const Stmt* current = use;
+      int max_depth = 5;  // Prevent infinite loops
+
+      while (max_depth-- > 0) {
+        const auto& parents = result.Context->getParents(*current);
+        if (parents.empty()) {
+          break;
+        }
+
+        const Stmt* parent_stmt = parents[0].get<Stmt>();
+        if (!parent_stmt) {
+          break;
+        }
+
+        // Check if this parent is a MemberExpr
+        if (auto* me = dyn_cast<MemberExpr>(parent_stmt)) {
+          member = me;
+          break;
+        }
+
+        // Continue walking up through ImplicitCastExpr, CXXOperatorCallExpr, etc.
+        current = parent_stmt;
+      }
+
+      if (!member) {
+        return;  // Iterator used in non-member-access context
+      }
+
+      // Verify it's using arrow operator (isArrow())
+      if (!member->isArrow()) {
+        return;  // Using dot operator on iterator (shouldn't happen normally)
+      }
+
+      // Check that the member is .first or .second
+      const ValueDecl* member_decl = member->getMemberDecl();
+      if (!member_decl) {
+        return;
+      }
+
+      std::string member_name = member_decl->getNameAsString();
+      if (member_name == "first") {
+        uses_first = true;
+        member_accesses.push_back({member, true});
+      } else if (member_name == "second") {
+        uses_second = true;
+        member_accesses.push_back({member, false});
+      } else {
+        return;  // Accessing some other member
+      }
+    }
+
+    if (!uses_first && !uses_second) {
+      return;  // No ->first/->second access
+    }
+
+    // Mark as processed
+    processed_locations_.insert(offset);
+
+    // Generate binding names
+    std::string first_name = "key";
+    std::string second_name = "value";
+    std::string new_binding = "[" + first_name + ", " + second_name + "]";
+
+    // Build the new for loop header
+    // Replace "for (auto it = m.begin(); it != m.end(); ++it)" with
+    // "for (const auto& [key, value] : m)"
+    std::string new_header = "for (const auto& " + new_binding + " : " +
+                             begin_container_text + ")";
+
+    // Get the range from 'for' to the closing paren of the for header
+    SourceLocation for_loc = for_stmt->getForLoc();
+    SourceLocation rparen_loc = for_stmt->getRParenLoc();
+
+    CharSourceRange header_range =
+        CharSourceRange::getTokenRange(for_loc, rparen_loc);
+    output_helper_.Replace(header_range, new_header, sm, opts);
+
+    // Replace each ->first/->second access with the binding name
+    for (const auto& [member, is_first] : member_accesses) {
+      std::string replacement = is_first ? first_name : second_name;
+      CharSourceRange member_range =
+          CharSourceRange::getTokenRange(member->getSourceRange());
+      output_helper_.Replace(member_range, replacement, sm, opts);
+    }
+  }
+
+ private:
+  OutputHelper& output_helper_;
+  std::set<unsigned> processed_locations_;
+};
+
 }  // namespace
 
 int main(int argc, const char* argv[]) {
@@ -594,8 +1078,9 @@ int main(int argc, const char* argv[]) {
   MatchFinder match_finder;
   ContainsRewriter contains_rewriter(&output_helper);
   StructuredBindingsRewriter structured_bindings_rewriter(&output_helper);
+  IteratorLoopRewriter iterator_loop_rewriter(&output_helper);
 
-  if (EnableContains) {
+  if (isTransformEnabled("contains", EnableContains)) {
     // Matcher for find() call on associative container
     auto findCallMatcher =
         cxxMemberCallExpr(
@@ -622,7 +1107,7 @@ int main(int argc, const char* argv[]) {
                             &contains_rewriter);
   }
 
-  if (EnableCountPatterns) {
+  if (isTransformEnabled("count-patterns", EnableCountPatterns)) {
     // Matcher for count() call on associative container
     auto countCallMatcher =
         cxxMemberCallExpr(
@@ -654,11 +1139,18 @@ int main(int argc, const char* argv[]) {
                             &contains_rewriter);
   }
 
-  if (EnableStructuredBindings) {
+  if (isTransformEnabled("structured-bindings", EnableStructuredBindings)) {
     // Match range-based for loops - we'll filter for pair-like types in the callback
     auto forRangeMatcher = cxxForRangeStmt().bind("forRange");
 
     match_finder.addMatcher(forRangeMatcher, &structured_bindings_rewriter);
+  }
+
+  if (isTransformEnabled("iterator-loops", EnableIteratorLoops)) {
+    // Match traditional for loops - we'll filter for iterator patterns in the callback
+    auto forStmtMatcher = forStmt().bind("forStmt");
+
+    match_finder.addMatcher(forStmtMatcher, &iterator_loop_rewriter);
   }
 
   // Pass output_helper as SourceFileCallbacks to handle per-file setup/teardown

@@ -1,3 +1,7 @@
+// Copyright (c) 2026 The Chromium Embedded Framework Authors. All rights
+// reserved. Use of this source code is governed by a BSD-style license that
+// can be found in the LICENSE file.
+
 // Negative test cases - these should NOT be transformed
 // Path contains /cef/ to pass path filter
 

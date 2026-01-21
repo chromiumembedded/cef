@@ -15,6 +15,10 @@ A clang AST-based rewriter tool for automating C++20 modernization of CEF code.
 - Structured bindings for range-for loops over maps
   - Converts `for (auto& pair : map) { use(pair.first, pair.second); }`
   - To `for (auto& [key, value] : map) { use(key, value); }`
+- Iterator loops to range-for with structured bindings
+  - Converts `for (auto it = map.begin(); it != map.end(); ++it) { use(it->first, it->second); }`
+  - To `for (const auto& [key, value] : map) { use(key, value); }`
+  - Also supports vector of pairs and any container with `std::pair` value_type
 
 See [TRANSFORMS.md](TRANSFORMS.md) for complete documentation of all supported transformations, command-line flags, and examples.
 
@@ -104,10 +108,24 @@ The `--tool-args` option passes arguments directly to `cef_cpp_rewriter`:
 
 | Flag | Default | Description |
 |------|---------|-------------|
+| `--only=<list>` | (none) | Run only specified transforms (comma-separated) |
 | `--contains` | true | Enable `.contains()` transformation |
 | `--count-patterns` | true | Enable `count()` pattern transformation |
 | `--structured-bindings` | true | Enable structured bindings transformation |
+| `--iterator-loops` | true | Enable iterator loop to range-for transformation |
 | `--disable-path-filter` | false | Process all files (not just `/cef/` paths) |
+
+**Examples:**
+```bash
+# Run only iterator-loops transformation
+--tool-args="--only=iterator-loops"
+
+# Run only contains and structured-bindings
+--tool-args="--only=contains,structured-bindings"
+
+# Disable specific transformation (all others still run)
+--tool-args="--contains=false"
+```
 
 ### Incremental Rebuilds
 
@@ -153,7 +171,11 @@ cef/tools/clang/
 │       ├── structured-bindings-original.cc
 │       ├── structured-bindings-expected.cc
 │       ├── structured-bindings-negative-original.cc
-│       └── structured-bindings-negative-expected.cc
+│       ├── structured-bindings-negative-expected.cc
+│       ├── iterator-loops-original.cc
+│       ├── iterator-loops-expected.cc
+│       ├── iterator-loops-negative-original.cc
+│       └── iterator-loops-negative-expected.cc
 ├── scripts/
 │   ├── apply_edits.py            # Applies edits (no git dependency)
 │   ├── build_gen_targets.sh  # Build CEF-related gen targets only

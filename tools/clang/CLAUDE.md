@@ -274,10 +274,14 @@ The `--tool-args` option passes arguments directly to `cef_cpp_rewriter`. Availa
 
 | Flag | Default | Description |
 |------|---------|-------------|
+| `--only=<list>` | (none) | Run only specified transforms (comma-separated) |
 | `--contains` | true | Enable `.contains()` transformation |
 | `--count-patterns` | true | Enable `count()` pattern transformation |
 | `--structured-bindings` | true | Enable structured bindings transformation |
+| `--iterator-loops` | true | Enable iterator loop to range-for transformation |
 | `--disable-path-filter` | false | Process all files (not just `/cef/` paths) |
+
+Use `--only` to run a single transformation: `--tool-args="--only=iterator-loops"`
 
 ## Critical Reminders
 

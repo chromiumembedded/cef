@@ -48,6 +48,7 @@ cef_cpp_rewriter file.cc -- --contains --count-patterns=false
 Transforms `find()/end()` and `count()` patterns to use the C++20 `.contains()` method.
 
 **Supported Containers:**
+
 - `std::map`, `std::multimap`
 - `std::set`, `std::multiset`
 - `std::unordered_map`, `std::unordered_multimap`
@@ -176,6 +177,7 @@ grep -rn '\.find([^)]*)\s*[!=]=.*\.end()' cef/libcef cef/tests --include='*.cc' 
 Transforms range-based for loops over map-like containers that access `.first`/`.second` to use structured bindings.
 
 **Supported Containers:**
+
 - `std::map`, `std::multimap`
 - `std::unordered_map`, `std::unordered_multimap`
 
@@ -285,13 +287,168 @@ grep -rn 'for (.*auto.*:' cef/libcef cef/tests --include='*.cc' | xargs grep -l 
 
 ---
 
-## Planned Transformations
+### Iterator Loops to Range-For with Structured Bindings
 
-The following transformations are planned for future phases.
+**Flag:** `--iterator-loops` (default: true)
+**Compatibility:** GCC 7+, C++17
+
+Transforms traditional iterator-based for loops over containers with pair-like value types into range-for loops with structured bindings. This complements the structured bindings transformation above by handling iterator loops that weren't yet modernized to range-for.
+
+**Supported Containers:**
+
+- `std::map`, `std::multimap`
+- `std::unordered_map`, `std::unordered_multimap`
+- `std::vector<std::pair<K, V>>` and any container with `std::pair` as `value_type`
+
+**Binding Names:** The tool uses `key` and `value` as binding names. Loops are skipped if the body declares local variables with these names to avoid shadowing conflicts.
+
+#### Pattern: Basic iterator loop
+
+```cpp
+// Before
+for (auto it = map.begin(); it != map.end(); ++it) {
+    use(it->first, it->second);
+}
+
+// After
+for (const auto& [key, value] : map) {
+    use(key, value);
+}
+```
+
+#### Pattern: Postfix increment
+
+```cpp
+// Before
+for (auto it = map.begin(); it != map.end(); it++) {
+    use(it->first, it->second);
+}
+
+// After
+for (const auto& [key, value] : map) {
+    use(key, value);
+}
+```
+
+#### Pattern: Explicit iterator type
+
+```cpp
+// Before
+for (std::map<int, int>::const_iterator it = map.begin(); it != map.end(); ++it) {
+    use(it->first, it->second);
+}
+
+// After
+for (const auto& [key, value] : map) {
+    use(key, value);
+}
+```
+
+#### Pattern: Vector of pairs
+
+```cpp
+// Before
+std::vector<std::pair<int, int>> vec;
+for (auto it = vec.begin(); it != vec.end(); ++it) {
+    use(it->first, it->second);
+}
+
+// After
+for (const auto& [key, value] : vec) {
+    use(key, value);
+}
+```
+
+#### Pattern: Only `->first` or `->second` used
+
+```cpp
+// Before
+for (auto it = map.begin(); it != map.end(); ++it) {
+    use(it->first);  // only ->first used
+}
+
+// After (both bindings still generated)
+for (const auto& [key, value] : map) {
+    use(key);
+}
+```
+
+#### NOT Transformed (by design)
+
+These patterns are intentionally **not** transformed:
+
+```cpp
+// Iterator used for erase - NOT transformed
+for (auto it = map.begin(); it != map.end(); ) {
+    if (it->first == 0) {
+        it = map.erase(it);  // Uses the iterator!
+    } else {
+        ++it;
+    }
+}
+
+// Iterator dereferenced directly - NOT transformed
+for (auto it = map.begin(); it != map.end(); ++it) {
+    consume(*it);  // Uses *it, not ->first/->second
+}
+
+// Iterator assigned to another variable - NOT transformed
+for (auto it = map.begin(); it != map.end(); ++it) {
+    auto copy = it;  // Iterator used in other ways
+    use(copy->first, copy->second);
+}
+
+// Iterating over set (not pairs) - NOT transformed
+for (auto it = set.begin(); it != set.end(); ++it) {
+    use(*it);  // Set elements are not pairs
+}
+
+// begin() and end() on different containers - NOT transformed
+for (auto it = map1.begin(); it != map2.end(); ++it) {
+    use(it->first, it->second);
+}
+
+// Reverse iterator - NOT transformed
+for (auto it = map.rbegin(); it != map.rend(); ++it) {
+    use(it->first, it->second);
+}
+
+// Non-standard increment (e.g., std::advance) - NOT transformed
+for (auto it = map.begin(); it != map.end(); std::advance(it, 1)) {
+    use(it->first, it->second);
+}
+
+// No declaration in init - NOT transformed
+std::map<int, int>::iterator it;
+for (it = map.begin(); it != map.end(); ++it) {
+    use(it->first, it->second);
+}
+
+// Local variable named "key" or "value" would conflict - NOT transformed
+for (auto it = map.begin(); it != map.end(); ++it) {
+    int key = it->first;  // Would shadow binding name
+    use(key);
+}
+```
+
+#### Skipped: Code Inside Macros
+
+The tool intentionally skips for-loops inside macro expansions. Manual follow-up recommended:
+
+```bash
+# Search for remaining iterator loop patterns
+grep -rn 'for (auto it = .*\.begin().*it != .*\.end()' cef/libcef cef/tests --include='*.cc'
+```
+
+---
+
+## Transformations Not Implemented (Insufficient Instances)
+
+The following transformations were analyzed but not implemented as automated tools because too few instances exist in the CEF codebase. They were transformed manually instead.
 
 ### Default Special Members (Phase 9)
-**Flag:** `--default-members` (planned)
 **Compatibility:** GCC 4.4+
+**Status:** Manually transformed (7 instances)
 
 ```cpp
 // Before
@@ -303,9 +460,11 @@ Foo() = default;
 ~Foo() = default;
 ```
 
+**Analysis:** Only ~7 empty constructors/destructors found in CEF code. Most `() {}` patterns are virtual method stubs that cannot be defaulted. Manual transformation was faster and safer than implementing automated tooling.
+
 ### String View Parameters (Phase 10)
-**Flag:** `--string-view-params` (planned, opt-in)
 **Compatibility:** GCC 7+
+**Status:** Not implemented
 
 ```cpp
 // Before
@@ -315,9 +474,11 @@ void Process(const std::string& name);
 void Process(std::string_view name);
 ```
 
+**Analysis:** High complexity transformation requiring null-termination analysis, ownership tracking, and careful review of each call site. The risk-to-benefit ratio is unfavorable for automated transformation.
+
 ### Make Unique (Phase 11)
-**Flag:** `--make-unique` (planned)
 **Compatibility:** GCC 4.9+
+**Status:** Manually transformed (8 instances)
 
 ```cpp
 // Before
@@ -326,6 +487,21 @@ std::unique_ptr<Foo> ptr(new Foo(args));
 // After
 auto ptr = std::make_unique<Foo>(args);
 ```
+
+**Analysis:** Only 8 instances of `unique_ptr` with `new` found. The codebase already uses `make_unique` in 273 places. Manual transformation was faster than implementing automated tooling.
+
+### Iterator Loops (Phase 8 enhancement)
+**Compatibility:** GCC 7+
+**Status:** Implemented but no transformable instances
+
+The iterator loop transformation was implemented (`--iterator-loops` flag) to convert:
+```cpp
+for (auto it = map.begin(); it != map.end(); ++it) { use(it->first, it->second); }
+// to
+for (const auto& [key, value] : map) { use(key, value); }
+```
+
+**Analysis:** All 3 existing iterator loops in CEF code use the iterator for `erase()` or return the iterator, so none are transformable. The implementation exists for future use.
 
 ---
 
