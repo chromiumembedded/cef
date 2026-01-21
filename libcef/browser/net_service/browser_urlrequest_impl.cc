@@ -73,7 +73,7 @@ class RequestManager {
     DCHECK_LE(request_id, kInitialRequestID);
 
     base::AutoLock lock_scope(lock_);
-    DCHECK(map_.find(request_id) == map_.end());
+    DCHECK(!map_.contains(request_id));
     map_.insert(std::make_pair(request_id, std::make_pair(request, client)));
   }
 
