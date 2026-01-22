@@ -61,9 +61,8 @@ bool CefAppManager::HasCustomScheme(const std::string& scheme_name) {
     return false;
   }
 
-  SchemeInfoList::const_iterator it = scheme_info_list_.begin();
-  for (; it != scheme_info_list_.end(); ++it) {
-    if (it->scheme_name == scheme_name) {
+  for (const auto& info : scheme_info_list_) {
+    if (info.scheme_name == scheme_name) {
       return true;
     }
   }

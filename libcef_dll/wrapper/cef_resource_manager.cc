@@ -260,9 +260,8 @@ class ArchiveProvider : public CefResourceManager::Provider {
 
     if (!pending_requests_.empty()) {
       // Continue all pending requests.
-      PendingRequests::const_iterator it = pending_requests_.begin();
-      for (; it != pending_requests_.end(); ++it) {
-        ContinueRequest(*it);
+      for (const auto& request : pending_requests_) {
+        ContinueRequest(request);
       }
       pending_requests_.clear();
     }
@@ -444,9 +443,8 @@ CefResourceManager::~CefResourceManager() {
   // Delete all entryies now. Requests may still be pending but they will not
   // call back into this manager due to the use of WeakPtr.
   if (!providers_.empty()) {
-    ProviderEntryList::iterator it = providers_.begin();
-    for (; it != providers_.end(); ++it) {
-      delete *it;
+    for (auto* entry : providers_) {
+      delete entry;
     }
     providers_.clear();
   }
@@ -760,9 +758,7 @@ void CefResourceManager::DeleteProvider(ProviderEntryList::iterator& iterator,
     current_entry->deletion_pending_ = true;
 
     // Continue pending requests immediately.
-    RequestList::iterator it = current_entry->pending_requests_.begin();
-    for (; it != current_entry->pending_requests_.end(); ++it) {
-      const scoped_refptr<Request>& request = *it;
+    for (const auto& request : current_entry->pending_requests_) {
       if (request->HasState()) {
         if (stop) {
           request->Stop();

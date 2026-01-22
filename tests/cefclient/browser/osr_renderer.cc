@@ -1017,9 +1017,7 @@ void OsrRenderer::OnPaint(CefRefPtr<CefBrowser> browser,
       VERIFY_NO_ERROR;
     } else {
       // Update just the dirty rectangles.
-      CefRenderHandler::RectList::const_iterator i = dirtyRects.begin();
-      for (; i != dirtyRects.end(); ++i) {
-        const CefRect& rect = *i;
+      for (const auto& rect : dirtyRects) {
         DCHECK(rect.x + rect.width <= view_width_);
         DCHECK(rect.y + rect.height <= view_height_);
         glPixelStorei(GL_UNPACK_SKIP_PIXELS, rect.x);

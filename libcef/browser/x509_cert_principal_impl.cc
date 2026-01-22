@@ -13,9 +13,8 @@ void TransferVector(const std::vector<std::string>& source,
   }
 
   if (!source.empty()) {
-    std::vector<std::string>::const_iterator it = source.begin();
-    for (; it != source.end(); ++it) {
-      target.push_back(*it);
+    for (const auto& item : source) {
+      target.push_back(item);
     }
   }
 }

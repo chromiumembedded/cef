@@ -218,8 +218,7 @@ void Manager::AddObserver(Observer* observer) {
 void Manager::RemoveObserver(Observer* observer, DoneCallback callback) {
   CEF_REQUIRE_UI_THREAD();
   bool found = false;
-  ObserverList::iterator it = observer_list_.begin();
-  for (; it != observer_list_.end(); ++it) {
+  for (auto it = observer_list_.begin(); it != observer_list_.end(); ++it) {
     if (*it == observer) {
       observer_list_.erase(it);
       found = true;
@@ -288,9 +287,8 @@ void Manager::OnTestServerRequest(CefRefPtr<CefRequest> request,
 
   bool handled = false;
 
-  ObserverList::const_iterator it = list.begin();
-  for (; it != list.end(); ++it) {
-    if ((*it)->OnTestServerRequest(request, response_callback)) {
+  for (const auto& observer : list) {
+    if (observer->OnTestServerRequest(request, response_callback)) {
       handled = true;
       break;
     }

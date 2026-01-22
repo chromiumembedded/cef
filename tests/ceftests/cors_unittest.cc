@@ -253,9 +253,7 @@ struct TestSetup {
     }
 
     const std::string& path_url = test_request::GetPathURL(url);
-    ResourceList::const_iterator it = resources.begin();
-    for (; it != resources.end(); ++it) {
-      Resource* resource = *it;
+    for (const auto& resource : resources) {
       if (resource->GetPathURL() == path_url &&
           (resource->method.empty() ||
            matching_methods.contains(resource->method))) {
@@ -279,9 +277,7 @@ struct TestSetup {
 
   // Returns true if the server will be used.
   virtual bool NeedsServer() const {
-    ResourceList::const_iterator it = resources.begin();
-    for (; it != resources.end(); ++it) {
-      Resource* resource = *it;
+    for (const auto& resource : resources) {
       if (resource->handler == HandlerType::SERVER) {
         return true;
       }
@@ -303,9 +299,7 @@ struct TestSetup {
     if (!GotAllExpectedConsoleMessages()) {
       return false;
     }
-    ResourceList::const_iterator it = resources.begin();
-    for (; it != resources.end(); ++it) {
-      Resource* resource = *it;
+    for (const auto& resource : resources) {
       if (!resource->IsDone()) {
         return false;
       }
@@ -315,9 +309,8 @@ struct TestSetup {
 
   void AssertDone() const {
     EXPECT_TRUE(GotAllExpectedConsoleMessages());
-    ResourceList::const_iterator it = resources.begin();
-    for (; it != resources.end(); ++it) {
-      (*it)->AssertDone();
+    for (const auto& resource : resources) {
+      resource->AssertDone();
     }
   }
 

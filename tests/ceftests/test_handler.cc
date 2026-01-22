@@ -220,18 +220,14 @@ void TestHandler::Collection::AddTestHandler(TestHandler* test_handler) {
 void TestHandler::Collection::ExecuteTests() {
   EXPECT_GT(handler_list_.size(), 0UL);
 
-  TestHandlerList::const_iterator it;
-
-  it = handler_list_.begin();
-  for (; it != handler_list_.end(); ++it) {
-    (*it)->SetupTest();
+  for (const auto& handler : handler_list_) {
+    handler->SetupTest();
   }
 
   completion_state_->WaitForTests();
 
-  it = handler_list_.begin();
-  for (; it != handler_list_.end(); ++it) {
-    (*it)->RunTest();
+  for (const auto& handler : handler_list_) {
+    handler->RunTest();
   }
 
   completion_state_->WaitForTests();
@@ -453,9 +449,8 @@ namespace {
 CefResponse::HeaderMap ToCefHeaderMap(
     const ResourceContent::HeaderMap& headerMap) {
   CefResponse::HeaderMap result;
-  ResourceContent::HeaderMap::const_iterator it = headerMap.begin();
-  for (; it != headerMap.end(); ++it) {
-    result.insert(std::pair<CefString, CefString>(it->first, it->second));
+  for (const auto& [key, value] : headerMap) {
+    result.insert(std::pair<CefString, CefString>(key, value));
   }
   return result;
 }
@@ -548,9 +543,8 @@ void TestHandler::DestroyTest() {
     BrowserMap browser_map = browser_map_;
 
     // Tell all browsers to close.
-    BrowserMap::const_iterator it = browser_map.begin();
-    for (; it != browser_map.end(); ++it) {
-      CloseBrowser(it->second, false);
+    for (const auto& [id, browser] : browser_map) {
+      CloseBrowser(browser, false);
     }
   }
 }

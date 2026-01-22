@@ -189,9 +189,7 @@ class MediaObserver : public CefMediaObserver {
       return;
     }
 
-    MediaSinkVector::const_iterator it = sinks.begin();
-    for (size_t idx = 0; it != sinks.end(); ++it, ++idx) {
-      CefRefPtr<CefMediaSink> sink = *it;
+    for (const auto& sink : sinks) {
       const std::string& sink_id = sink->GetId();
       SinkInfo* info = new SinkInfo;
       info->sink = sink;
@@ -214,9 +212,8 @@ class MediaObserver : public CefMediaObserver {
     CefRefPtr<CefListValue> routes_list = CefListValue::Create();
     routes_list->SetSize(routes.size());
 
-    MediaRouteVector::const_iterator it = routes.begin();
-    for (size_t idx = 0; it != routes.end(); ++it, ++idx) {
-      CefRefPtr<CefMediaRoute> route = *it;
+    size_t idx = 0;
+    for (const auto& route : routes) {
       const std::string& route_id = route->GetId();
       route_map_.insert(std::make_pair(route_id, route));
 
@@ -224,7 +221,7 @@ class MediaObserver : public CefMediaObserver {
       route_dict->SetString("id", route_id);
       route_dict->SetString(kSourceKey, route->GetSource()->GetId());
       route_dict->SetString(kSinkKey, route->GetSink()->GetId());
-      routes_list->SetDictionary(idx, route_dict);
+      routes_list->SetDictionary(idx++, route_dict);
     }
 
     payload->SetList("routes_list", routes_list);
@@ -272,9 +269,8 @@ class MediaObserver : public CefMediaObserver {
   }
 
   void ClearSinkInfoMap() {
-    SinkInfoMap::const_iterator it = sink_info_map_.begin();
-    for (; it != sink_info_map_.end(); ++it) {
-      delete it->second;
+    for (const auto& [key, value] : sink_info_map_) {
+      delete value;
     }
     sink_info_map_.clear();
   }
@@ -320,12 +316,10 @@ class MediaObserver : public CefMediaObserver {
     CefRefPtr<CefListValue> sinks_list = CefListValue::Create();
     sinks_list->SetSize(sink_info_map_.size());
 
-    SinkInfoMap::const_iterator it = sink_info_map_.begin();
-    for (size_t idx = 0; it != sink_info_map_.end(); ++it, ++idx) {
-      const SinkInfo* info = it->second;
-
+    size_t idx = 0;
+    for (const auto& [sink_id, info] : sink_info_map_) {
       CefRefPtr<CefDictionaryValue> sink_dict = CefDictionaryValue::Create();
-      sink_dict->SetString("id", it->first);
+      sink_dict->SetString("id", sink_id);
       sink_dict->SetString("name", info->sink->GetName());
       sink_dict->SetInt("icon", info->sink->GetIconType());
       sink_dict->SetString("ip_address",
@@ -336,7 +330,7 @@ class MediaObserver : public CefMediaObserver {
       sink_dict->SetString("type", info->sink->IsCastSink()   ? "cast"
                                    : info->sink->IsDialSink() ? "dial"
                                                               : "unknown");
-      sinks_list->SetDictionary(idx, sink_dict);
+      sinks_list->SetDictionary(idx++, sink_dict);
     }
 
     payload->SetList("sinks_list", sinks_list);
@@ -376,9 +370,8 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
   Handler() { CEF_REQUIRE_UI_THREAD(); }
 
   ~Handler() override {
-    SubscriptionStateMap::iterator it = subscription_state_map_.begin();
-    for (; it != subscription_state_map_.end(); ++it) {
-      delete it->second;
+    for (const auto& [key, value] : subscription_state_map_) {
+      delete value;
     }
   }
 

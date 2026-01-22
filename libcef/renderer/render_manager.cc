@@ -162,11 +162,10 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::GetBrowserForView(
 
 CefRefPtr<CefBrowserImpl> CefRenderManager::GetBrowserForMainFrame(
     blink::WebFrame* frame) {
-  BrowserMap::const_iterator it = browsers_.begin();
-  for (; it != browsers_.end(); ++it) {
-    auto web_view = it->second->GetWebView();
+  for (const auto& [view, browser] : browsers_) {
+    auto web_view = browser->GetWebView();
     if (web_view && web_view->MainFrame() == frame) {
-      return it->second;
+      return browser;
     }
   }
 
@@ -228,9 +227,7 @@ void CefRenderManager::WebKitInitialized() {
   if (!schemes->empty()) {
     // Register the custom schemes. Some attributes are excluded here because
     // they use url/url_util.h APIs instead.
-    CefAppManager::SchemeInfoList::const_iterator it = schemes->begin();
-    for (; it != schemes->end(); ++it) {
-      const CefSchemeInfo& info = *it;
+    for (const auto& info : *schemes) {
       const blink::WebString& scheme =
           blink::WebString::FromUTF8(info.scheme_name);
       if (info.is_display_isolated) {
@@ -349,8 +346,7 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
 }
 
 void CefRenderManager::OnBrowserDestroyed(CefBrowserImpl* browser) {
-  BrowserMap::iterator it = browsers_.begin();
-  for (; it != browsers_.end(); ++it) {
+  for (auto it = browsers_.begin(); it != browsers_.end(); ++it) {
     if (it->second.get() == browser) {
       browsers_.erase(it);
       return;
@@ -373,8 +369,7 @@ CefExcludedView* CefRenderManager::GetExcludedViewForView(
 }
 
 void CefRenderManager::OnExcludedViewDestroyed(CefExcludedView* excluded_view) {
-  ExcludedViewMap::iterator it = excluded_views_.begin();
-  for (; it != excluded_views_.end(); ++it) {
+  for (auto it = excluded_views_.begin(); it != excluded_views_.end(); ++it) {
     if (it->second.get() == excluded_view) {
       excluded_views_.erase(it);
       return;

@@ -25,10 +25,9 @@ const blink::MediaStreamDevice* FindDefaultDeviceWithId(
     return nullptr;
   }
 
-  blink::MediaStreamDevices::const_iterator iter = devices.begin();
-  for (; iter != devices.end(); ++iter) {
-    if (iter->id == device_id) {
-      return &(*iter);
+  for (const auto& device : devices) {
+    if (device.id == device_id) {
+      return &device;
     }
   }
 

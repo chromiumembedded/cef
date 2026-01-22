@@ -65,11 +65,10 @@ int GetCacheControlHeaderPolicy(CefRequest::HeaderMap headerMap) {
 
   // Extract the Cache-Control header line.
   {
-    CefRequest::HeaderMap::const_iterator it = headerMap.begin();
-    for (; it != headerMap.end(); ++it) {
+    for (const auto& [key, value] : headerMap) {
       if (base::EqualsCaseInsensitiveASCII(
-              it->first.ToString(), net::HttpRequestHeaders::kCacheControl)) {
-        line = it->second;
+              key.ToString(), net::HttpRequestHeaders::kCacheControl)) {
+        line = value;
         break;
       }
     }
@@ -145,14 +144,11 @@ void GetHeaderMap(const CefRequest::HeaderMap& source,
                   CefRequest::HeaderMap& map) {
   map.clear();
 
-  CefRequest::HeaderMap::const_iterator it = source.begin();
-  for (; it != source.end(); ++it) {
-    const CefString& name = it->first;
-
+  for (const auto& [name, value] : source) {
     // Do not include Referer in the header map.
     if (!base::EqualsCaseInsensitiveASCII(name.ToString(),
                                           net::HttpRequestHeaders::kReferer)) {
-      map.insert(std::make_pair(name, it->second));
+      map.insert(std::make_pair(name, value));
     }
   }
 }
@@ -941,9 +937,8 @@ bool CefPostDataImpl::AddElement(CefRefPtr<CefPostDataElement> element) {
   CHECK_READONLY_RETURN(false);
 
   // check that the element isn't already in the list before adding
-  ElementVector::const_iterator it = elements_.begin();
-  for (; it != elements_.end(); ++it) {
-    if (it->get() == element.get()) {
+  for (const auto& existing : elements_) {
+    if (existing.get() == element.get()) {
       found = true;
       break;
     }
@@ -998,9 +993,8 @@ void CefPostDataImpl::SetReadOnly(bool read_only) {
 
   read_only_ = read_only;
 
-  ElementVector::const_iterator it = elements_.begin();
-  for (; it != elements_.end(); ++it) {
-    static_cast<CefPostDataElementImpl*>(it->get())->SetReadOnly(read_only);
+  for (const auto& element : elements_) {
+    static_cast<CefPostDataElementImpl*>(element.get())->SetReadOnly(read_only);
   }
 }
 
@@ -1013,10 +1007,9 @@ void CefPostDataImpl::SetTrackChanges(bool track_changes) {
   track_changes_ = track_changes;
   has_changes_ = false;
 
-  ElementVector::const_iterator it = elements_.begin();
-  for (; it != elements_.end(); ++it) {
-    static_cast<CefPostDataElementImpl*>(it->get())->SetTrackChanges(
-        track_changes);
+  for (const auto& element : elements_) {
+    static_cast<CefPostDataElementImpl*>(element.get())
+        ->SetTrackChanges(track_changes);
   }
 }
 
@@ -1026,9 +1019,8 @@ bool CefPostDataImpl::HasChanges() const {
     return true;
   }
 
-  ElementVector::const_iterator it = elements_.begin();
-  for (; it != elements_.end(); ++it) {
-    if (static_cast<CefPostDataElementImpl*>(it->get())->HasChanges()) {
+  for (const auto& element : elements_) {
+    if (static_cast<CefPostDataElementImpl*>(element.get())->HasChanges()) {
       return true;
     }
   }

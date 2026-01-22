@@ -70,12 +70,11 @@ TEST(RequestTest, SetGet) {
   EXPECT_EQ((size_t)2, postData->GetElementCount());
   CefPostData::ElementVector elements;
   postData->GetElements(elements);
-  CefPostData::ElementVector::const_iterator it = elements.begin();
-  for (size_t i = 0; it != elements.end(); ++it, ++i) {
+  for (size_t i = 0; i < elements.size(); ++i) {
     if (i == 0) {
-      TestPostDataElementEqual(element1, (*it).get());
+      TestPostDataElementEqual(element1, elements[i].get());
     } else if (i == 1) {
-      TestPostDataElementEqual(element2, (*it).get());
+      TestPostDataElementEqual(element2, elements[i].get());
     }
   }
 

@@ -60,9 +60,8 @@ void CefValueController::Remove(void* value, bool notify_object) {
 
     // Remove all references.
     if (reference_map_.size() > 0) {
-      ReferenceMap::iterator it = reference_map_.begin();
-      for (; it != reference_map_.end(); ++it) {
-        it->second->OnControlRemoved();
+      for (const auto& [ref_value, ref_object] : reference_map_) {
+        ref_object->OnControlRemoved();
       }
       reference_map_.clear();
     }
@@ -190,30 +189,26 @@ void CefValueController::TakeFrom(CefValueController* other) {
 
   if (!other->reference_map_.empty()) {
     // Transfer references from the other to this.
-    ReferenceMap::iterator it = other->reference_map_.begin();
-    for (; it != other->reference_map_.end(); ++it) {
+    for (const auto& [value, object] : other->reference_map_) {
       // References should only be added once.
-      DCHECK(!reference_map_.contains(it->first));
-      reference_map_.insert(std::make_pair(it->first, it->second));
+      DCHECK(!reference_map_.contains(value));
+      reference_map_.insert(std::make_pair(value, object));
     }
     other->reference_map_.clear();
   }
 
   if (!other->dependency_map_.empty()) {
     // Transfer dependencies from the other to this.
-    DependencyMap::iterator it_other = other->dependency_map_.begin();
-    for (; it_other != other->dependency_map_.end(); ++it_other) {
-      DependencyMap::iterator it_me = dependency_map_.find(it_other->first);
+    for (const auto& [parent, children] : other->dependency_map_) {
+      DependencyMap::iterator it_me = dependency_map_.find(parent);
       if (it_me == dependency_map_.end()) {
         // All children are new.
-        dependency_map_.insert(
-            std::make_pair(it_other->first, it_other->second));
+        dependency_map_.insert(std::make_pair(parent, children));
       } else {
         // Evaluate each child.
-        DependencySet::iterator it_other_set = it_other->second.begin();
-        for (; it_other_set != it_other->second.end(); ++it_other_set) {
-          if (!it_me->second.contains(*it_other_set)) {
-            it_me->second.insert(*it_other_set);
+        for (const auto& child : children) {
+          if (!it_me->second.contains(child)) {
+            it_me->second.insert(child);
           }
         }
       }
@@ -248,12 +243,11 @@ void CefValueController::Swap(void* old_value, void* new_value) {
       dependency_map_.erase(it);
     }
 
-    it = dependency_map_.begin();
-    for (; it != dependency_map_.end(); ++it) {
-      DependencySet::iterator dit = it->second.find(old_value);
-      if (dit != it->second.end()) {
-        it->second.insert(new_value);
-        it->second.erase(dit);
+    for (auto& [parent, children] : dependency_map_) {
+      DependencySet::iterator dit = children.find(old_value);
+      if (dit != children.end()) {
+        children.insert(new_value);
+        children.erase(dit);
       }
     }
   }

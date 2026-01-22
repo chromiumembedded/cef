@@ -36,23 +36,19 @@ void VerifyCommandLine(CefRefPtr<CefCommandLine> command_line,
 
   bool has1 = false, has2 = false, has3 = false, has4 = false;
 
-  CefCommandLine::SwitchMap::const_iterator it = switches.begin();
-  for (; it != switches.end(); ++it) {
-    std::string name = it->first;
-    std::string val = it->second;
-
-    if (name == "switch1") {
+  for (const auto& entry : switches) {
+    if (entry.first == "switch1") {
       has1 = true;
-      EXPECT_EQ("", val);
-    } else if (name == "switch2") {
+      EXPECT_STREQ("", entry.second.ToString().c_str());
+    } else if (entry.first == "switch2") {
       has2 = true;
-      EXPECT_EQ("VAL2", val);
-    } else if (name == "switch3") {
+      EXPECT_STREQ("VAL2", entry.second.ToString().c_str());
+    } else if (entry.first == "switch3") {
       has3 = true;
-      EXPECT_EQ("val3", val);
-    } else if (name == "switch4") {
+      EXPECT_STREQ("val3", entry.second.ToString().c_str());
+    } else if (entry.first == "switch4") {
       has4 = true;
-      EXPECT_EQ("val 4", val);
+      EXPECT_STREQ("val 4", entry.second.ToString().c_str());
     }
   }
 

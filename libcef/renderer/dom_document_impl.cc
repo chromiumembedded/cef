@@ -220,8 +220,7 @@ CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetOrCreateNode(
 
   if (!node_map_.empty()) {
     // Locate the existing node, if any.
-    NodeMap::const_iterator it = node_map_.find(node);
-    if (it != node_map_.end()) {
+    if (auto it = node_map_.find(node); it != node_map_.end()) {
       return it->second;
     }
   }
@@ -238,8 +237,7 @@ void CefDOMDocumentImpl::RemoveNode(const blink::WebNode& node) {
   }
 
   if (!node_map_.empty()) {
-    NodeMap::iterator it = node_map_.find(node);
-    if (it != node_map_.end()) {
+    if (auto it = node_map_.find(node); it != node_map_.end()) {
       node_map_.erase(it);
     }
   }
@@ -259,9 +257,8 @@ void CefDOMDocumentImpl::Detach() {
   DCHECK(HasOneRef());
 
   if (!node_map_.empty()) {
-    NodeMap::const_iterator it = node_map_.begin();
-    for (; it != node_map_.end(); ++it) {
-      static_cast<CefDOMNodeImpl*>(it->second)->Detach();
+    for (const auto& [web_node, dom_node] : node_map_) {
+      static_cast<CefDOMNodeImpl*>(dom_node)->Detach();
     }
     node_map_.clear();
   }

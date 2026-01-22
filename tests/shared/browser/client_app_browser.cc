@@ -97,9 +97,8 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
     }
 #endif
 
-    DelegateSet::iterator it = delegates_.begin();
-    for (; it != delegates_.end(); ++it) {
-      (*it)->OnBeforeCommandLineProcessing(this, command_line);
+    for (auto& delegate : delegates_) {
+      delegate->OnBeforeCommandLineProcessing(this, command_line);
     }
   }
 }

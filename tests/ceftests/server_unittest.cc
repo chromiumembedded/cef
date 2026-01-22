@@ -84,18 +84,14 @@ class TestServerHandler : public CefServerHandler {
     EXPECT_UI_THREAD();
 
     if (!http_request_handler_list_.empty()) {
-      HttpRequestHandlerList::const_iterator it =
-          http_request_handler_list_.begin();
-      for (; it != http_request_handler_list_.end(); ++it) {
-        delete *it;
+      for (const auto& handler : http_request_handler_list_) {
+        delete handler;
       }
     }
 
     if (!ws_request_handler_list_.empty()) {
-      WsRequestHandlerList::const_iterator it =
-          ws_request_handler_list_.begin();
-      for (; it != ws_request_handler_list_.end(); ++it) {
-        delete *it;
+      for (const auto& handler : ws_request_handler_list_) {
+        delete handler;
       }
     }
 
@@ -240,11 +236,9 @@ class TestServerHandler : public CefServerHandler {
     EXPECT_TRUE(VerifyRequest(request, false));
 
     bool handled = false;
-    HttpRequestHandlerList::const_iterator it =
-        http_request_handler_list_.begin();
-    for (; it != http_request_handler_list_.end(); ++it) {
-      handled =
-          (*it)->HandleRequest(server, connection_id, client_address, request);
+    for (const auto& handler : http_request_handler_list_) {
+      handled = handler->HandleRequest(server, connection_id, client_address,
+                                       request);
       if (handled) {
         break;
       }
@@ -270,10 +264,9 @@ class TestServerHandler : public CefServerHandler {
     ws_connection_id_set_.insert(connection_id);
 
     bool handled = false;
-    WsRequestHandlerList::const_iterator it = ws_request_handler_list_.begin();
-    for (; it != ws_request_handler_list_.end(); ++it) {
-      handled = (*it)->HandleRequest(server, connection_id, client_address,
-                                     request, callback);
+    for (const auto& handler : ws_request_handler_list_) {
+      handled = handler->HandleRequest(server, connection_id, client_address,
+                                       request, callback);
       if (handled) {
         break;
       }
@@ -293,9 +286,8 @@ class TestServerHandler : public CefServerHandler {
                 ws_connection_id_set_.end());
 
     bool handled = false;
-    WsRequestHandlerList::const_iterator it = ws_request_handler_list_.begin();
-    for (; it != ws_request_handler_list_.end(); ++it) {
-      handled = (*it)->HandleConnected(server, connection_id);
+    for (const auto& handler : ws_request_handler_list_) {
+      handled = handler->HandleConnected(server, connection_id);
       if (handled) {
         break;
       }
@@ -318,9 +310,8 @@ class TestServerHandler : public CefServerHandler {
                 ws_connection_id_set_.end());
 
     bool handled = false;
-    WsRequestHandlerList::const_iterator it = ws_request_handler_list_.begin();
-    for (; it != ws_request_handler_list_.end(); ++it) {
-      handled = (*it)->HandleMessage(server, connection_id, data, data_size);
+    for (const auto& handler : ws_request_handler_list_) {
+      handled = handler->HandleMessage(server, connection_id, data, data_size);
       if (handled) {
         break;
       }
@@ -384,11 +375,9 @@ class TestServerHandler : public CefServerHandler {
     EXPECT_EQ(expected_http_request_ct_, actual_http_request_ct_);
 
     if (!http_request_handler_list_.empty()) {
-      HttpRequestHandlerList::const_iterator it =
-          http_request_handler_list_.begin();
-      for (; it != http_request_handler_list_.end(); ++it) {
-        EXPECT_TRUE((*it)->VerifyResults())
-            << "HttpRequestHandler for " << (*it)->ToString();
+      for (const auto& handler : http_request_handler_list_) {
+        EXPECT_TRUE(handler->VerifyResults())
+            << "HttpRequestHandler for " << handler->ToString();
       }
     }
 
@@ -399,11 +388,9 @@ class TestServerHandler : public CefServerHandler {
     EXPECT_EQ(expected_ws_message_ct_, actual_ws_message_ct_);
 
     if (!ws_request_handler_list_.empty()) {
-      WsRequestHandlerList::const_iterator it =
-          ws_request_handler_list_.begin();
-      for (; it != ws_request_handler_list_.end(); ++it) {
-        EXPECT_TRUE((*it)->VerifyResults())
-            << "WsRequestHandler for " << (*it)->ToString();
+      for (const auto& handler : ws_request_handler_list_) {
+        EXPECT_TRUE(handler->VerifyResults())
+            << "WsRequestHandler for " << handler->ToString();
       }
     }
   }
@@ -538,9 +525,8 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
     initialized_ = true;
 
     EXPECT_FALSE(request_runner_map_.empty());
-    RequestRunnerMap::const_iterator it = request_runner_map_.begin();
-    for (; it != request_runner_map_.end(); ++it) {
-      handler_->AddHttpRequestHandler(it->second->CreateHttpRequestHandler());
+    for (const auto& [id, runner] : request_runner_map_) {
+      handler_->AddHttpRequestHandler(runner->CreateHttpRequestHandler());
     }
 
     handler_->SetExpectedConnectionCount(
@@ -573,10 +559,9 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
 
   // Run all requests in parallel.
   void RunAllRequests() {
-    RequestRunnerMap::const_iterator it = request_runner_map_.begin();
-    for (; it != request_runner_map_.end(); ++it) {
-      it->second->RunRequest(
-          base::BindOnce(&HttpTestRunner::OnRequestComplete, this, it->first));
+    for (const auto& [id, runner] : request_runner_map_) {
+      runner->RunRequest(
+          base::BindOnce(&HttpTestRunner::OnRequestComplete, this, id));
     }
   }
 
