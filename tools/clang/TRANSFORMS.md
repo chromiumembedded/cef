@@ -14,16 +14,6 @@ CEF targets C++20 with the following minimum toolchain versions:
 
 All transformations in this document are compatible with these requirements.
 
-## Implementation Approach
-
-Different modernization patterns require different tools:
-
-| Approach | When to Use | Examples |
-|----------|-------------|----------|
-| **Clang rewriter** | Need type info, AST context, semantic analysis | `.contains()`, structured bindings, `make_unique` |
-| **Python script** | Fixed syntax patterns, unambiguous transforms | `.starts_with()`, `DISALLOW_COPY_AND_ASSIGN` |
-| **Manual review** | Semantic decisions, few instances, opportunistic | `[[nodiscard]]`, designated initializers |
-
 ## Command-Line Usage
 
 ```bash
@@ -570,69 +560,6 @@ class AlreadyExplicit {
 #### Skipped: Platform-Specific Files
 
 Files that aren't compiled on the current platform (e.g., `*_win.h` on macOS) won't be in the compilation database and are skipped. Run the tool on each platform or transform these manually.
-
----
-
-## Transformations Not Implemented (Insufficient Instances)
-
-The following transformations were analyzed but not implemented as automated tools because too few instances exist in the CEF codebase. They were transformed manually instead.
-
-### Default Special Members (Phase 9)
-**Compatibility:** GCC 4.4+
-**Status:** Manually transformed (7 instances)
-
-```cpp
-// Before
-Foo() {}
-~Foo() {}
-
-// After
-Foo() = default;
-~Foo() = default;
-```
-
-**Analysis:** Only ~7 empty constructors/destructors found in CEF code. Most `() {}` patterns are virtual method stubs that cannot be defaulted. Manual transformation was faster and safer than implementing automated tooling.
-
-### String View Parameters (Phase 10)
-**Compatibility:** GCC 7+
-**Status:** Not implemented
-
-```cpp
-// Before
-void Process(const std::string& name);
-
-// After
-void Process(std::string_view name);
-```
-
-**Analysis:** High complexity transformation requiring null-termination analysis, ownership tracking, and careful review of each call site. The risk-to-benefit ratio is unfavorable for automated transformation.
-
-### Make Unique (Phase 11)
-**Compatibility:** GCC 4.9+
-**Status:** Manually transformed (8 instances)
-
-```cpp
-// Before
-std::unique_ptr<Foo> ptr(new Foo(args));
-
-// After
-auto ptr = std::make_unique<Foo>(args);
-```
-
-**Analysis:** Only 8 instances of `unique_ptr` with `new` found. The codebase already uses `make_unique` in 273 places. Manual transformation was faster than implementing automated tooling.
-
-### Iterator Loops (Phase 8 enhancement)
-**Compatibility:** GCC 7+
-**Status:** Implemented but no transformable instances
-
-The iterator loop transformation was implemented (`--iterator-loops` flag) to convert:
-```cpp
-for (auto it = map.begin(); it != map.end(); ++it) { use(it->first, it->second); }
-// to
-for (const auto& [key, value] : map) { use(key, value); }
-```
-
-**Analysis:** All 3 existing iterator loops in CEF code use the iterator for `erase()` or return the iterator, so none are transformable. The implementation exists for future use.
 
 ---
 
