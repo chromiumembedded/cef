@@ -8,23 +8,14 @@ This directory contains clang-based tools for CEF code modernization and refacto
 
 A clang AST-based rewriter tool for automating C++20 modernization of CEF code.
 
-**Current transformations:**
-- `.contains()` for associative containers (map, set, unordered_map, etc.)
-  - Converts `find(x) != end()` to `contains(x)`
-  - Converts `count(x) != 0` to `contains(x)`
-- Structured bindings for range-for loops over maps
-  - Converts `for (auto& pair : map) { use(pair.first, pair.second); }`
-  - To `for (auto& [key, value] : map) { use(key, value); }`
-- Iterator loops to range-for with structured bindings
-  - Converts `for (auto it = map.begin(); it != map.end(); ++it) { use(it->first, it->second); }`
-  - To `for (const auto& [key, value] : map) { use(key, value); }`
-  - Also supports vector of pairs and any container with `std::pair` value_type
-- DISALLOW_COPY_AND_ASSIGN replacement
-  - Replaces deprecated macro with explicit deleted copy constructor and assignment operator
-  - Moves deleted declarations to public section per Chromium style guide
-  - Automatically removes empty private/protected sections
+**Supported transformations:**
 
-See [TRANSFORMS.md](TRANSFORMS.md) for complete documentation of all supported transformations, command-line flags, and examples.
+- `.contains()` for associative containers
+- Structured bindings for range-for loops
+- Iterator loops to range-for
+- DISALLOW_COPY_AND_ASSIGN replacement
+
+See [TRANSFORMS.md](TRANSFORMS.md) for complete documentation of all transformations, command-line flags, and examples.
 
 ## Prerequisites
 
@@ -60,6 +51,7 @@ Add the export line to `~/.zshrc` to make it permanent.
 ```
 
 This will:
+
 1. Create a symlink from `tools/clang/cef_cpp_rewriter` to the CEF tool
 2. Bootstrap clang with the tool (~30 minutes)
 
@@ -108,17 +100,8 @@ cat /tmp/edits-raw.txt \
 
 ### Tool Arguments
 
-The `--tool-args` option passes arguments directly to `cef_cpp_rewriter`:
-
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--only=<list>` | (none) | Run only specified transforms (comma-separated) |
-| `--contains` | true | Enable `.contains()` transformation |
-| `--count-patterns` | true | Enable `count()` pattern transformation |
-| `--structured-bindings` | true | Enable structured bindings transformation |
-| `--iterator-loops` | true | Enable iterator loop to range-for transformation |
-| `--disallow-copy` | true | Enable DISALLOW_COPY_AND_ASSIGN replacement |
-| `--disable-path-filter` | false | Process all files (not just `/cef/` paths) |
+The `--tool-args` option passes arguments directly to `cef_cpp_rewriter`.
+See [TRANSFORMS.md](TRANSFORMS.md) for the complete list of command-line flags.
 
 **Examples:**
 ```bash
@@ -154,10 +137,43 @@ python3 cef/tools/clang/scripts/test_tool.py cef_cpp_rewriter --verbose
 
 ## Compatibility
 
-CEF targets C++20. All transformations are compatible with these minimum toolchain versions:
-- GCC 10+ (CEF minimum)
-- Xcode 16 (Apple Clang)
-- macOS 12.0+ deployment target
+CEF targets C++20. See [TRANSFORMS.md](TRANSFORMS.md) for minimum toolchain versions.
+
+## Standalone Distribution
+
+The tool can be packaged for use on any C++ project (not just CEF):
+
+```bash
+# Package to a target directory
+./cef/tools/clang/scripts/package_standalone.sh /path/to/target
+
+# This creates:
+# /path/to/target/
+# ├── bin/cpp_rewriter           # The tool binary
+# ├── lib/clang/<version>/       # Bundled clang headers
+# ├── scripts/
+# │   ├── run_rewriter.py        # Standalone wrapper
+# │   ├── apply_edits.py
+# │   └── process_edits.py
+# └── README.md
+```
+
+The standalone distribution is self-contained and includes bundled clang headers
+so it works without requiring a matching system clang installation.
+
+**Usage on any CMake project:**
+```bash
+cd my-project
+
+# Generate compile_commands.json (requires Ninja or Makefiles generator)
+cmake -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build
+
+# Run the rewriter
+/path/to/target/scripts/run_rewriter.py -p build src/ \
+  | /path/to/target/scripts/apply_edits.py --base-dir build
+```
+
+See `standalone/README.md` for complete standalone usage documentation.
 
 ## Directory Structure
 
@@ -187,14 +203,18 @@ cef/tools/clang/
 │       └── iterator-loops-negative-expected.cc
 ├── scripts/
 │   ├── apply_edits.py            # Applies edits (no git dependency)
-│   ├── build_gen_targets.sh  # Build CEF-related gen targets only
+│   ├── build_gen_targets.sh      # Build CEF-related gen targets only
 │   ├── build_clang_rewriter.sh   # Bootstrap clang with the tool
+│   ├── package_standalone.sh     # Package for standalone use
 │   ├── process_edits.py          # Adds markers, deduplicates edits
-│   ├── run_tool.py           # Run tool on CEF files
-│   └── test_tool.py          # CEF-specific test harness
+│   ├── run_tool.py               # Run tool on CEF files
+│   └── test_tool.py              # CEF-specific test harness
+├── standalone/
+│   ├── README.md                 # Standalone usage documentation
+│   └── run_rewriter.py           # Standalone wrapper script
 ├── CLAUDE.md
 ├── README.md
-└── TRANSFORMS.md                   # Transformation documentation
+└── TRANSFORMS.md                 # Transformation documentation
 ```
 
 ## Maintenance
@@ -213,14 +233,14 @@ This tool is not regularly tested. It may need updates when:
 If the tool fails to build after a Chromium update:
 
 1. Check if `ast_rewriter` still exists and builds:
-   ```bash
-   python3 tools/clang/scripts/build.py --bootstrap --extra-tools ast_rewriter
-   ```
+    ```bash
+    python3 tools/clang/scripts/build.py --bootstrap --extra-tools ast_rewriter
+    ```
 
 2. Compare CMakeLists.txt with the current ast_rewriter version:
-   ```bash
-   diff cef/tools/clang/cef_cpp_rewriter/CMakeLists.txt tools/clang/ast_rewriter/CMakeLists.txt
-   ```
+    ```bash
+    diff cef/tools/clang/cef_cpp_rewriter/CMakeLists.txt tools/clang/ast_rewriter/CMakeLists.txt
+    ```
 
 3. Check for API changes in Clang's AST matchers (review Clang release notes)
 

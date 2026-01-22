@@ -8,8 +8,8 @@ The `cef_cpp_rewriter` tool is a clang AST-based rewriter for C++20 modernizatio
 It uses Clang's LibTooling and AST matchers to perform type-aware transformations
 that cannot be done with simple regex.
 
-See [TRANSFORMS.md](TRANSFORMS.md) for complete documentation of all supported
-transformations, command-line flags, and examples.
+**Supported transformations:** `.contains()`, structured bindings, iterator loops,
+DISALLOW_COPY_AND_ASSIGN. See [TRANSFORMS.md](TRANSFORMS.md) for complete documentation.
 
 **Important:** CEF is a separate git repository within chromium/src. Chromium's
 clang tool scripts use git commands that don't work across repository boundaries.
@@ -20,6 +20,8 @@ Use the CEF-specific scripts in `cef/tools/clang/scripts/` instead.
 - `cef/tools/clang/cef_cpp_rewriter/CefCppRewriter.cpp` - Main tool implementation
 - `cef/tools/clang/cef_cpp_rewriter/CMakeLists.txt` - Build configuration
 - `cef/tools/clang/scripts/build_clang_rewriter.sh` - Bootstrap script
+- `cef/tools/clang/scripts/package_standalone.sh` - Package for standalone use
+- `cef/tools/clang/standalone/` - Standalone distribution files
 - `cef/tools/clang/cef_cpp_rewriter/tests/` - Test cases
 
 ## Prerequisites
@@ -101,10 +103,12 @@ python3 cef/tools/clang/scripts/test_tool.py cef_cpp_rewriter --verbose
 ## Compatibility Requirements
 
 CEF targets C++20. All transformations must work with these minimum toolchain versions:
+
 - GCC 10 (CEF minimum)
 - macOS 12.0 deployment target
 
 Features to AVOID (incompatible):
+
 - `std::string::contains()` - C++23, needs GCC 11+
 - `std::format` - needs GCC 13+ and macOS 13.3+
 - `using enum` - needs GCC 11+
@@ -114,11 +118,11 @@ Features to AVOID (incompatible):
 ### Quick Steps
 
 1. Add a command-line flag in `CefCppRewriter.cpp`:
-   ```cpp
-   static llvm::cl::opt<bool> EnableNewFeature("new-feature",
-       llvm::cl::desc("Enable new feature transformation"),
-       llvm::cl::init(true));
-   ```
+    ```cpp
+    static llvm::cl::opt<bool> EnableNewFeature("new-feature",
+        llvm::cl::desc("Enable new feature transformation"),
+        llvm::cl::init(true));
+    ```
 
 2. Create a new `MatchCallback` class for the transformation
 
@@ -270,19 +274,10 @@ cat /tmp/edits-raw.txt \
 
 ### Tool Arguments
 
-The `--tool-args` option passes arguments directly to `cef_cpp_rewriter`. Available flags:
+The `--tool-args` option passes arguments directly to `cef_cpp_rewriter`.
+See [TRANSFORMS.md](TRANSFORMS.md) for the complete list of command-line flags.
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--only=<list>` | (none) | Run only specified transforms (comma-separated) |
-| `--contains` | true | Enable `.contains()` transformation |
-| `--count-patterns` | true | Enable `count()` pattern transformation |
-| `--structured-bindings` | true | Enable structured bindings transformation |
-| `--iterator-loops` | true | Enable iterator loop to range-for transformation |
-| `--disallow-copy` | true | Enable DISALLOW_COPY_AND_ASSIGN replacement |
-| `--disable-path-filter` | false | Process all files (not just `/cef/` paths) |
-
-Use `--only` to run a single transformation: `--tool-args="--only=iterator-loops"`
+Example: `--tool-args="--only=iterator-loops"` runs only the iterator-loops transformation.
 
 ## Critical Reminders
 
@@ -291,3 +286,31 @@ Use `--only` to run a single transformation: `--tool-args="--only=iterator-loops
 3. **Do not transform `std::string::find()`**: Only associative containers have C++20 `.contains()`
 4. **Incremental builds**: Use `ninja -C third_party/llvm-build/Release+Asserts cef_cpp_rewriter`
 5. **Do not re-run build.py**: It deletes everything and rebuilds from scratch (~30 min)
+
+## Standalone Distribution
+
+The tool can be packaged for use on any C++ project (not just CEF):
+
+```bash
+# Package to a target directory (from chromium/src)
+./cef/tools/clang/scripts/package_standalone.sh /path/to/cpp_rewriter
+
+# This creates a self-contained distribution:
+# /path/to/cpp_rewriter/
+# ├── bin/cpp_rewriter           # The tool binary (renamed from cef_cpp_rewriter)
+# ├── lib/clang/<version>/       # Bundled clang headers (stdarg.h, etc.)
+# ├── scripts/
+# │   ├── run_rewriter.py        # Standalone wrapper (auto-detects resource dir)
+# │   ├── apply_edits.py
+# │   └── process_edits.py
+# └── README.md
+```
+
+**Key differences from CEF usage:**
+
+- Uses `--path-filter` for substring matching instead of default `/cef/` filter
+- Bundled clang headers allow tool to work without matching system clang
+- No `--generate-compdb` - requires pre-existing `compile_commands.json`
+- `CMAKE_EXPORT_COMPILE_COMMANDS` only works with Ninja/Makefiles generators (not Xcode/VS)
+
+See `standalone/README.md` for complete standalone usage documentation.

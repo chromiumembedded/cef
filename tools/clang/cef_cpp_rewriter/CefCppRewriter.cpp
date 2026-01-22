@@ -49,6 +49,18 @@ static llvm::cl::opt<bool> DisablePathFilter(
     llvm::cl::init(false),
     llvm::cl::cat(rewriter_category));
 
+// Command-line option to specify a path filter substring
+// When set, only files whose path contains this substring will be processed
+// When empty, uses the default /cef/ filter (unless --disable-path-filter)
+static llvm::cl::opt<std::string> PathFilter(
+    "path-filter",
+    llvm::cl::desc(
+        "Substring to filter files by path. Only files whose path contains "
+        "this string will be processed. If empty and --disable-path-filter is "
+        "not set, defaults to filtering for /cef/ paths."),
+    llvm::cl::init(""),
+    llvm::cl::cat(rewriter_category));
+
 // Command-line flag to enable/disable structured bindings transformation
 static llvm::cl::opt<bool> EnableStructuredBindings(
     "structured-bindings",
@@ -111,6 +123,24 @@ bool isTransformEnabled(const std::string& name, bool default_value) {
     }
   }
   return false;
+}
+
+// Helper function to check if a path should be processed based on filter settings
+// Note: Uses simple substring matching instead of regex since clang tools are
+// built with exceptions disabled.
+bool shouldProcessPath(StringRef path) {
+  // If path filter is specified, use simple substring matching
+  if (!PathFilter.empty()) {
+    return path.contains(PathFilter);
+  }
+
+  // If disable-path-filter is set, process all files
+  if (DisablePathFilter) {
+    return true;
+  }
+
+  // Default behavior: only process CEF files
+  return path.contains("/cef/");
 }
 
 // Helper to match associative container types (the underlying record type)
@@ -202,12 +232,10 @@ class ContainsRewriter : public MatchFinder::MatchCallback {
     }
     processed_locations_.insert(offset);
 
-    // Skip files not in /cef/ directory (unless path filtering is disabled)
-    if (!DisablePathFilter) {
-      StringRef filename = sm.getFilename(comparison->getBeginLoc());
-      if (!filename.contains("/cef/")) {
-        return;
-      }
+    // Skip files that don't match the path filter
+    StringRef filename = sm.getFilename(comparison->getBeginLoc());
+    if (!shouldProcessPath(filename)) {
+      return;
     }
 
     const auto* find_call =
@@ -271,12 +299,10 @@ class ContainsRewriter : public MatchFinder::MatchCallback {
       return;
     }
 
-    // Skip files not in /cef/ directory (unless path filtering is disabled)
-    if (!DisablePathFilter) {
-      StringRef filename = sm.getFilename(comparison->getBeginLoc());
-      if (!filename.contains("/cef/")) {
-        return;
-      }
+    // Skip files that don't match the path filter
+    StringRef filename = sm.getFilename(comparison->getBeginLoc());
+    if (!shouldProcessPath(filename)) {
+      return;
     }
 
     const auto* count_call =
@@ -331,12 +357,10 @@ class ContainsRewriter : public MatchFinder::MatchCallback {
       return;
     }
 
-    // Skip files not in /cef/ directory (unless path filtering is disabled)
-    if (!DisablePathFilter) {
-      StringRef filename = sm.getFilename(cast_expr->getBeginLoc());
-      if (!filename.contains("/cef/")) {
-        return;
-      }
+    // Skip files that don't match the path filter
+    StringRef filename = sm.getFilename(cast_expr->getBeginLoc());
+    if (!shouldProcessPath(filename)) {
+      return;
     }
 
     // Verify this is an IntegralToBoolean cast
@@ -500,12 +524,10 @@ class StructuredBindingsRewriter : public MatchFinder::MatchCallback {
       return;
     }
 
-    // Skip files not in /cef/ directory (unless path filtering is disabled)
-    if (!DisablePathFilter) {
-      StringRef filename = sm.getFilename(for_stmt->getBeginLoc());
-      if (!filename.contains("/cef/")) {
-        return;
-      }
+    // Skip files that don't match the path filter
+    StringRef filename = sm.getFilename(for_stmt->getBeginLoc());
+    if (!shouldProcessPath(filename)) {
+      return;
     }
 
     // Get the loop variable
@@ -688,12 +710,10 @@ class IteratorLoopRewriter : public MatchFinder::MatchCallback {
       return;
     }
 
-    // Skip files not in /cef/ directory (unless path filtering is disabled)
-    if (!DisablePathFilter) {
-      StringRef filename = sm.getFilename(for_stmt->getBeginLoc());
-      if (!filename.contains("/cef/")) {
-        return;
-      }
+    // Skip files that don't match the path filter
+    StringRef filename = sm.getFilename(for_stmt->getBeginLoc());
+    if (!shouldProcessPath(filename)) {
+      return;
     }
 
     // Get the init statement: should be a DeclStmt with a VarDecl
@@ -1121,12 +1141,10 @@ class DisallowCopyRewriter : public MatchFinder::MatchCallback {
       return;
     }
 
-    // Skip files not in /cef/ directory (unless path filtering is disabled)
-    if (!DisablePathFilter) {
-      StringRef filename = sm.getFilename(class_decl->getBeginLoc());
-      if (!filename.contains("/cef/")) {
-        return;
-      }
+    // Skip files that don't match the path filter
+    StringRef filename = sm.getFilename(class_decl->getBeginLoc());
+    if (!shouldProcessPath(filename)) {
+      return;
     }
 
     // Get the class name

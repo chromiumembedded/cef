@@ -23,9 +23,25 @@ cef_cpp_rewriter file.cc --
 # Disable specific transformations
 cef_cpp_rewriter file.cc -- --contains=false
 
-# Enable only specific transformations
-cef_cpp_rewriter file.cc -- --contains --count-patterns=false
+# Run only specific transformations
+cef_cpp_rewriter file.cc -- --only=contains,structured-bindings
 ```
+
+## Command-Line Flags
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--only=<list>` | (none) | Run only specified transforms (comma-separated) |
+| `--contains` | true | Enable `.contains()` transformation |
+| `--count-patterns` | true | Enable `count()` pattern transformation |
+| `--structured-bindings` | true | Enable structured bindings transformation |
+| `--iterator-loops` | true | Enable iterator loop to range-for transformation |
+| `--disallow-copy` | true | Enable DISALLOW_COPY_AND_ASSIGN replacement |
+| `--disable-path-filter` | false | Process all files (not just `/cef/` paths) |
+| `--path-filter=<str>` | (empty) | Only process files whose path contains this substring |
+
+All transformation flags are enabled by default. Use `--flag=false` to disable specific ones,
+or use `--only=<list>` to run only specific transformations.
 
 ## Current Transformations
 
