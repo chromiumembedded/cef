@@ -454,7 +454,7 @@ index 339cd970e716158faf7973fc0ce72d9aac532e27..6684175f4812b0573c7e5c71ba0bf1dc
  
  void MaybeBlockDynamicCodeForBrowserProcess() {
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index fd16a561e84c5449f440dbcd47aef9b6a780fe7c..3af1b0aef0a67fe26703e6f8bc404807bd16594e 100644
+index c475a642ef45a161aada21cb5d4d9774947ce3a7..7f35140fff4924ae3bb1bd658f769740d35ce20d 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -51,6 +51,7 @@

@@ -201,7 +201,7 @@ index 673a1bf2acb2467aa3ac5746c4d6193fba8487f2..121986d07d325c7d628c431733a104a8
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 0cc0c7cb642a8ae84a637c79a3305ba2dcb93fa9..812466ebab2f34ca83f0078c789046f4d44c43ed 100644
+index 8d94773fb2c7d0eb518bf664b0ece741ddaa665c..8da210afcc4793d1397ad1443d69e4039bdff3f8 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -850,13 +850,23 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
@@ -445,7 +445,7 @@ index 0cc0c7cb642a8ae84a637c79a3305ba2dcb93fa9..812466ebab2f34ca83f0078c789046f4
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
    }
  
-@@ -5069,7 +5171,9 @@ void BrowserView::Layout(PassKey) {
+@@ -5073,7 +5175,9 @@ void BrowserView::Layout(PassKey) {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -456,7 +456,7 @@ index 0cc0c7cb642a8ae84a637c79a3305ba2dcb93fa9..812466ebab2f34ca83f0078c789046f4
    GetFrameView()->UpdateMinimumSize();
  
    // Some of the situations when the BrowserView is laid out are:
-@@ -5160,6 +5264,12 @@ void BrowserView::AddedToWidget() {
+@@ -5164,6 +5268,12 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->GetProfile());
  #endif
  
@@ -469,7 +469,7 @@ index 0cc0c7cb642a8ae84a637c79a3305ba2dcb93fa9..812466ebab2f34ca83f0078c789046f4
    toolbar_->Init();
  
    UpdateTabSearchBubbleHost();
-@@ -5254,12 +5364,6 @@ void BrowserView::AddedToWidget() {
+@@ -5258,12 +5368,6 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -482,7 +482,7 @@ index 0cc0c7cb642a8ae84a637c79a3305ba2dcb93fa9..812466ebab2f34ca83f0078c789046f4
  #if !BUILDFLAG(IS_CHROMEOS)
    browser_->GetFeatures().download_toolbar_ui_controller()->Init();
  #endif
-@@ -5300,6 +5404,13 @@ void BrowserView::AddedToWidget() {
+@@ -5304,6 +5408,13 @@ void BrowserView::AddedToWidget() {
    dialog_anchor_ = std::make_unique<user_education::ViewSubregionAnchor>(
        kBrowserDialogAnchorElementId, *this);
  

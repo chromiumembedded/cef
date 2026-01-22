@@ -61,10 +61,10 @@ index cae64d23d6de3a9f1cc51dd1b36dc98e6516f456..1a20e4d6921f44a2ae7d432bbee51489
      case ui::mojom::WindowShowState::kMaximized:
        return kSerializedShowStateMaximized;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index 30c9f9586e1c82975889e9196f34570dc343c0c7..26ae3c3cbbd89471b1bd3d6a8de2e30325c588d8 100644
+index f63a7b0b7a1506f83027f3f29cbb951277883b04..01d6ef4bdfa97fce974e80e6a281eb6bf24995d4 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
-@@ -650,6 +650,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
+@@ -651,6 +651,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
    return scale_override_for_capture_;
  }
  
@@ -80,7 +80,7 @@ index 30c9f9586e1c82975889e9196f34570dc343c0c7..26ae3c3cbbd89471b1bd3d6a8de2e303
    if (!GetMouseWheelPhaseHandler())
      return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index c05fac0b5fc2166daaa94d407dd9a652e6144c80..e69f8b1355166622cb2727465f22e97563edd43f 100644
+index 1a18bdda39f76cfae36adc0ffde136e788a98262..bfed240010bf74b5c148dcec2f6c599c2dbde4ae 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -75,6 +75,7 @@ namespace content {
@@ -91,7 +91,7 @@ index c05fac0b5fc2166daaa94d407dd9a652e6144c80..e69f8b1355166622cb2727465f22e975
  class ScopedViewTransitionResources;
  class TextInputManager;
  class TouchSelectionControllerClientManager;
-@@ -160,6 +161,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -161,6 +162,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
  
    virtual void DidOverscroll(const ui::DidOverscrollParams& params) {}
  
@@ -101,7 +101,7 @@ index c05fac0b5fc2166daaa94d407dd9a652e6144c80..e69f8b1355166622cb2727465f22e975
    // Identical to `CopyFromSurface()`, except that this method issues the
    // `viz::CopyOutputRequest` against the exact `viz::Surface` currently
    // embedded by this View, while `CopyFromSurface()` may return a copy of any
-@@ -255,6 +259,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -257,6 +261,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // Called when screen information or native widget bounds change.
    virtual void UpdateScreenInfo();
  
@@ -112,7 +112,7 @@ index c05fac0b5fc2166daaa94d407dd9a652e6144c80..e69f8b1355166622cb2727465f22e975
    // Called by the TextInputManager to notify the view about being removed from
    // the list of registered views, i.e., TextInputManager is no longer tracking
    // TextInputState from this view. The RWHV should reset |text_input_manager_|
-@@ -383,6 +391,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -385,6 +393,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
                             const gfx::Rect& bounds,
                             const gfx::Rect& anchor_rect) = 0;
  
@@ -125,7 +125,7 @@ index c05fac0b5fc2166daaa94d407dd9a652e6144c80..e69f8b1355166622cb2727465f22e975
    // Indicates whether the page has finished loading.
    virtual void SetIsLoading(bool is_loading) = 0;
  
-@@ -655,6 +669,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -657,6 +671,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // to all displays.
    gfx::Size system_cursor_size_;
  
@@ -136,7 +136,7 @@ index c05fac0b5fc2166daaa94d407dd9a652e6144c80..e69f8b1355166622cb2727465f22e975
   private:
    FRIEND_TEST_ALL_PREFIXES(
        BrowserSideFlingBrowserTest,
-@@ -676,10 +694,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -678,10 +696,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
  
    void SynchronizeVisualProperties();
  
@@ -196,10 +196,10 @@ index a51a44a147e89c1f71bf31d7d13b150a6bc1faee..8750a98e5bddc65af96e4e79b3198163
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
      set_focus_on_mouse_down_or_key_event_ = false;
 diff --git content/public/browser/render_widget_host_view.h content/public/browser/render_widget_host_view.h
-index 71bf1f3dc21a13a1d2072d39a0be94ccd32b860d..f2bf1d9041dab38f086bebaa6041a3daebbd0a47 100644
+index c87f079a6541866fa00cc96e7dfed11d743ba182..17c949f873124021ae69b2fe9d46991311f3de21 100644
 --- content/public/browser/render_widget_host_view.h
 +++ content/public/browser/render_widget_host_view.h
-@@ -266,6 +266,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
+@@ -287,6 +287,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
    // This must always return the same device scale factor as GetScreenInfo.
    virtual float GetDeviceScaleFactor() const = 0;
  
@@ -258,10 +258,10 @@ index aeaf8e35f7eda89598149117fe8508d197bf2610..4b7cc3f03d3cf9c91ac8efe11ae820cf
 +  [MinVersion=1] kEnd = 7,
  };
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
-index d2a547590a82cc2f05714d7a7960ca0404c16230..c9336bfb5ce39754ce3e10b588e89620a258b7c2 100644
+index 7af34829238f6294cd88fa0cd3b75714f4849ed8..2eb419b24d737caaaaf8a6825338aa885c753c0c 100644
 --- ui/ozone/platform/x11/x11_window.cc
 +++ ui/ozone/platform/x11/x11_window.cc
-@@ -1879,7 +1879,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
+@@ -1880,7 +1880,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
    req.border_pixel = 0;
  
    last_set_bounds_px_ = SanitizeBounds(bounds);

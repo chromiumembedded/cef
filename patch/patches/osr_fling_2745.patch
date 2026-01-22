@@ -58,7 +58,7 @@ index 79df9203ec3b63fbfb30ceb0c402d7cd4595c628..60abc7b2ac845bc02d03b343719b2ce5
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 330793d9e5642ba327c596b142a15c7a659603ce..50bacb37620ae1d1c39754fbde23ad2f7c688004 100644
+index f56703978d6d416ecbd378742e2b23ae7f69c64f..daad99a315ea903531795429a68495e4ee489a5b 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
 @@ -3826,6 +3826,11 @@ void RenderWidgetHostImpl::StopFling() {

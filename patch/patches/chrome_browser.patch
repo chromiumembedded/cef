@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index c0551950d0463d2162a935fd9fc409e48f8432a9..c580d546e392b62513b160c78f45f40df7a087ae 100644
+index 23d1513b3711c6791b3942375e5ebed5a3d37d65..c0cbc8ec83a36978ec8a4a6a4dd607c197554d7a 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -27,7 +27,7 @@ index c0551950d0463d2162a935fd9fc409e48f8432a9..c580d546e392b62513b160c78f45f40d
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2617,6 +2617,10 @@ static_library("browser") {
+@@ -2619,6 +2619,10 @@ static_library("browser") {
      sources += [ "net/net_error_diagnostics_dialog_stub.cc" ]
    }
  
