@@ -106,10 +106,7 @@ void ImageCache::LoadImages(const ImageInfoSet& image_info,
   ImageSet images;
   bool missing_images = false;
 
-  ImageInfoSet::const_iterator it = image_info.begin();
-  for (; it != image_info.end(); ++it) {
-    const ImageInfo& info = *it;
-
+  for (const auto& info : image_info) {
     if (info.id_ == kEmptyId) {
       // Image intentionally left empty.
       images.push_back(nullptr);
@@ -206,9 +203,7 @@ bool ImageCache::LoadImageContents(const ImageInfo& info,
                                    ImageContent* content) {
   CEF_REQUIRE_FILE_USER_BLOCKING_THREAD();
 
-  ImageRepSet::const_iterator it = info.reps_.begin();
-  for (; it != info.reps_.end(); ++it) {
-    const ImageRep& rep = *it;
+  for (const auto& rep : info.reps_) {
     ImageType rep_type;
     std::string rep_contents;
     if (!LoadImageContents(rep.path_, info.internal_, &rep_type,
@@ -289,9 +284,7 @@ CefRefPtr<CefImage> ImageCache::CreateImage(const std::string& image_id,
 
   CefRefPtr<CefImage> image = CefImage::CreateImage();
 
-  ImageContent::RepContentSet::const_iterator it = content.contents_.begin();
-  for (; it != content.contents_.end(); ++it) {
-    const ImageContent::RepContent& rep = *it;
+  for (const auto& rep : content.contents_) {
     if (rep.type_ == TYPE_PNG) {
       if (!image->AddPNG(rep.scale_factor_, rep.contents_.c_str(),
                          rep.contents_.size())) {

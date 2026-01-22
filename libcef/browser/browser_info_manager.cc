@@ -463,8 +463,8 @@ void CefBrowserInfoManager::RemoveBrowserInfo(
     scoped_refptr<CefBrowserInfo> browser_info) {
   base::AutoLock lock_scope(browser_info_lock_);
 
-  BrowserInfoList::iterator it = browser_info_list_.begin();
-  for (; it != browser_info_list_.end(); ++it) {
+  for (auto it = browser_info_list_.begin(); it != browser_info_list_.end();
+       ++it) {
     if (*it == browser_info) {
       browser_info_list_.erase(it);
       return;
@@ -484,9 +484,8 @@ void CefBrowserInfoManager::DestroyAllBrowsers() {
 
   // Destroy any remaining browser windows.
   if (!list.empty()) {
-    BrowserInfoList::iterator it = list.begin();
-    for (; it != list.end(); ++it) {
-      CefRefPtr<CefBrowserHostBase> browser = (*it)->browser();
+    for (const auto& browser_info : list) {
+      CefRefPtr<CefBrowserHostBase> browser = browser_info->browser();
       DCHECK(browser.get());
       if (browser.get()) {
         // DestroyBrowser will call RemoveBrowserInfo.

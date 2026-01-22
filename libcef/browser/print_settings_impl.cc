@@ -71,9 +71,7 @@ int CefPrintSettingsImpl::GetDPI() {
 void CefPrintSettingsImpl::SetPageRanges(const PageRangeList& ranges) {
   CEF_VALUE_VERIFY_RETURN_VOID(true);
   printing::PageRanges page_ranges;
-  PageRangeList::const_iterator it = ranges.begin();
-  for (; it != ranges.end(); ++it) {
-    const CefRange& cef_range = *it;
+  for (const auto& cef_range : ranges) {
     printing::PageRange range;
     range.from = cef_range.from;
     range.to = cef_range.to;
@@ -93,9 +91,7 @@ void CefPrintSettingsImpl::GetPageRanges(PageRangeList& ranges) {
     ranges.clear();
   }
   const printing::PageRanges& page_ranges = const_value().ranges();
-  printing::PageRanges::const_iterator it = page_ranges.begin();
-  for (; it != page_ranges.end(); ++it) {
-    const printing::PageRange& range = *it;
+  for (const auto& range : page_ranges) {
     ranges.emplace_back(range.from, range.to);
   }
 }

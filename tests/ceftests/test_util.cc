@@ -29,28 +29,24 @@ void TestMapEqual(const CefRequest::HeaderMap& map1,
   TestMapNoDuplicates(map1);
   TestMapNoDuplicates(map2);
 
-  CefRequest::HeaderMap::const_iterator it1, it2;
-
-  for (it1 = map1.begin(); it1 != map1.end(); ++it1) {
+  for (const auto& [key1, value1] : map1) {
     bool found = false;
-    std::string name1 = client::AsciiStrToLower(it1->first);
-    for (it2 = map2.begin(); it2 != map2.end(); ++it2) {
-      std::string name2 = client::AsciiStrToLower(it2->first);
-      if (name1 == name2 && it1->second == it2->second) {
+    std::string name1 = client::AsciiStrToLower(key1);
+    for (const auto& [key2, value2] : map2) {
+      std::string name2 = client::AsciiStrToLower(key2);
+      if (name1 == name2 && value1 == value2) {
         found = true;
         break;
       }
     }
-    EXPECT_TRUE(found) << "No entry for " << it1->first.ToString() << ": "
-                       << it1->second.ToString();
+    EXPECT_TRUE(found) << "No entry for " << key1.ToString() << ": "
+                       << value1.ToString();
   }
 }
 
 void TestMapNoDuplicates(const CefRequest::HeaderMap& map) {
-  CefRequest::HeaderMap::const_iterator it1 = map.begin();
-  for (; it1 != map.end(); ++it1) {
-    CefRequest::HeaderMap::const_iterator it2 = it1;
-    for (++it2; it2 != map.end(); ++it2) {
+  for (auto it1 = map.begin(); it1 != map.end(); ++it1) {
+    for (auto it2 = std::next(it1); it2 != map.end(); ++it2) {
       EXPECT_FALSE(it1->first == it2->first && it1->second == it2->second)
           << "Duplicate entry for " << it1->first.ToString() << ": "
           << it1->second.ToString();
@@ -96,10 +92,8 @@ void TestPostDataEqual(CefRefPtr<CefPostData> postData1,
   postData1->GetElements(ev2);
   ASSERT_EQ(ev1.size(), ev2.size());
 
-  CefPostData::ElementVector::const_iterator it1 = ev1.begin();
-  CefPostData::ElementVector::const_iterator it2 = ev2.begin();
-  for (; it1 != ev1.end() && it2 != ev2.end(); ++it1, ++it2) {
-    TestPostDataElementEqual((*it1), (*it2));
+  for (size_t i = 0; i < ev1.size(); ++i) {
+    TestPostDataElementEqual(ev1[i], ev2[i]);
   }
 }
 
@@ -189,9 +183,7 @@ void TestDictionaryEqual(CefRefPtr<CefDictionaryValue> val1,
   CefDictionaryValue::KeyList keys;
   EXPECT_TRUE(val1->GetKeys(keys));
 
-  CefDictionaryValue::KeyList::const_iterator it = keys.begin();
-  for (; it != keys.end(); ++it) {
-    CefString key = *it;
+  for (const auto& key : keys) {
     EXPECT_TRUE(val2->HasKey(key));
     CefValueType type = val1->GetType(key);
     EXPECT_EQ(type, val2->GetType(key));

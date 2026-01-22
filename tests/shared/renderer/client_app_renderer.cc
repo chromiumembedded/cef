@@ -13,25 +13,22 @@ ClientAppRenderer::ClientAppRenderer() {
 }
 
 void ClientAppRenderer::OnWebKitInitialized() {
-  DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it) {
-    (*it)->OnWebKitInitialized(this);
+  for (auto& delegate : delegates_) {
+    delegate->OnWebKitInitialized(this);
   }
 }
 
 void ClientAppRenderer::OnBrowserCreated(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDictionaryValue> extra_info) {
-  DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it) {
-    (*it)->OnBrowserCreated(this, browser, extra_info);
+  for (auto& delegate : delegates_) {
+    delegate->OnBrowserCreated(this, browser, extra_info);
   }
 }
 
 void ClientAppRenderer::OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) {
-  DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it) {
-    (*it)->OnBrowserDestroyed(this, browser);
+  for (auto& delegate : delegates_) {
+    delegate->OnBrowserDestroyed(this, browser);
   }
 }
 
@@ -48,18 +45,16 @@ CefRefPtr<CefLoadHandler> ClientAppRenderer::GetLoadHandler() {
 void ClientAppRenderer::OnContextCreated(CefRefPtr<CefBrowser> browser,
                                          CefRefPtr<CefFrame> frame,
                                          CefRefPtr<CefV8Context> context) {
-  DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it) {
-    (*it)->OnContextCreated(this, browser, frame, context);
+  for (auto& delegate : delegates_) {
+    delegate->OnContextCreated(this, browser, frame, context);
   }
 }
 
 void ClientAppRenderer::OnContextReleased(CefRefPtr<CefBrowser> browser,
                                           CefRefPtr<CefFrame> frame,
                                           CefRefPtr<CefV8Context> context) {
-  DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it) {
-    (*it)->OnContextReleased(this, browser, frame, context);
+  for (auto& delegate : delegates_) {
+    delegate->OnContextReleased(this, browser, frame, context);
   }
 }
 
@@ -69,19 +64,17 @@ void ClientAppRenderer::OnUncaughtException(
     CefRefPtr<CefV8Context> context,
     CefRefPtr<CefV8Exception> exception,
     CefRefPtr<CefV8StackTrace> stackTrace) {
-  DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it) {
-    (*it)->OnUncaughtException(this, browser, frame, context, exception,
-                               stackTrace);
+  for (auto& delegate : delegates_) {
+    delegate->OnUncaughtException(this, browser, frame, context, exception,
+                                  stackTrace);
   }
 }
 
 void ClientAppRenderer::OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
                                              CefRefPtr<CefFrame> frame,
                                              CefRefPtr<CefDOMNode> node) {
-  DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it) {
-    (*it)->OnFocusedNodeChanged(this, browser, frame, node);
+  for (auto& delegate : delegates_) {
+    delegate->OnFocusedNodeChanged(this, browser, frame, node);
   }
 }
 

@@ -1203,12 +1203,10 @@ bool ClientHandler::OnSelectClientCertificate(
     return true;
   }
 
-  std::vector<CefRefPtr<CefX509Certificate>>::const_iterator it =
-      certificates.begin();
-  for (; it != certificates.end(); ++it) {
-    CefString subject((*it)->GetSubject()->GetDisplayName());
+  for (const auto& cert : certificates) {
+    CefString subject(cert->GetSubject()->GetDisplayName());
     if (subject == cert_name) {
-      callback->Select(*it);
+      callback->Select(cert);
       return true;
     }
   }

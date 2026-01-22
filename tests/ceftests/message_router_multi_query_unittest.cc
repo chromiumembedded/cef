@@ -602,9 +602,8 @@ class MultiQueryManager {
     // iterating.
     ObserverSet observer_set = observer_set_;
 
-    ObserverSet::const_iterator it = observer_set.begin();
-    for (; it != observer_set.end(); ++it) {
-      (*it)->OnManualQueriesCompleted(this);
+    for (const auto& observer : observer_set) {
+      observer->OnManualQueriesCompleted(this);
     }
   }
 
@@ -617,9 +616,8 @@ class MultiQueryManager {
     // iterating.
     ObserverSet observer_set = observer_set_;
 
-    ObserverSet::const_iterator it = observer_set.begin();
-    for (; it != observer_set.end(); ++it) {
-      (*it)->OnAllQueriesCompleted(this);
+    for (const auto& observer : observer_set) {
+      observer->OnAllQueriesCompleted(this);
     }
   }
 
@@ -1548,9 +1546,8 @@ class MultiQueryManagerMap : public MultiQueryManager::Observer {
         // iterating.
         ObserverSet observer_set = observer_set_;
 
-        ObserverSet::const_iterator it = observer_set.begin();
-        for (; it != observer_set.end(); ++it) {
-          (*it)->OnMapManualQueriesCompleted(this);
+        for (const auto& observer : observer_set) {
+          observer->OnMapManualQueriesCompleted(this);
         }
       }
     }
@@ -1568,9 +1565,8 @@ class MultiQueryManagerMap : public MultiQueryManager::Observer {
         // iterating.
         ObserverSet observer_set = observer_set_;
 
-        ObserverSet::const_iterator it = observer_set.begin();
-        for (; it != observer_set.end(); ++it) {
-          (*it)->OnMapAllQueriesCompleted(this);
+        for (const auto& observer : observer_set) {
+          observer->OnMapAllQueriesCompleted(this);
         }
       }
     }
@@ -1616,8 +1612,8 @@ class MultiQueryManagerMap : public MultiQueryManager::Observer {
     MultiQueryManager* next_manager = nullptr;
 
     // Find the pending manager that matches the expected URL.
-    ManagerList::iterator it = pending_managers_.begin();
-    for (; it != pending_managers_.end(); ++it) {
+    for (auto it = pending_managers_.begin(); it != pending_managers_.end();
+         ++it) {
       if ((*it)->label() == expected_url) {
         next_manager = *it;
         pending_managers_.erase(it);
@@ -1653,8 +1649,7 @@ class MultiQueryManagerMap : public MultiQueryManager::Observer {
         frame->IsMain() ? std::string() : frame->GetIdentifier().ToString();
 
     // Find the manager in the active map.
-    ManagerMap::const_iterator it =
-        manager_map_.find(std::make_pair(browser_id, frame_id));
+    auto it = manager_map_.find(std::make_pair(browser_id, frame_id));
     EXPECT_NE(it, manager_map_.end())
         << "browser_id = " << browser_id << ", frame_id = " << frame_id;
     return it->second;
@@ -1939,9 +1934,8 @@ class MultiQueryMultiLoadTestHandler
       BrowserMap browser_map;
       GetAllBrowsers(&browser_map);
 
-      BrowserMap::const_iterator it = browser_map.begin();
-      for (; it != browser_map.end(); ++it) {
-        it->second->GetMainFrame()->LoadURL(cancel_url_);
+      for (const auto& [id, browser] : browser_map) {
+        browser->GetMainFrame()->LoadURL(cancel_url_);
       }
     }
   }

@@ -547,9 +547,8 @@ TEST(XmlReaderTest, ObjectLoad) {
   ASSERT_EQ(obj->GetChildren(obj_children), (size_t)4);
   ASSERT_EQ(obj_children.size(), (size_t)4);
 
-  CefXmlObject::ObjectVector::const_iterator it = obj_children.begin();
-  for (int ct = 0; it != obj_children.end(); ++it, ++ct) {
-    obj_child = *it;
+  for (int ct = 0; ct < static_cast<int>(obj_children.size()); ++ct) {
+    obj_child = obj_children[ct];
     ASSERT_TRUE(obj_child.get());
     if (ct == 0) {
       // ns:objA

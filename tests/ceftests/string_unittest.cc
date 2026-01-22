@@ -164,9 +164,8 @@ TEST(StringTest, List) {
 
   cef_string_list_t listPtr = cef_string_list_alloc();
   EXPECT_TRUE(listPtr != nullptr);
-  ListType::const_iterator it = list.begin();
-  for (; it != list.end(); ++it) {
-    cef_string_list_append(listPtr, it->GetStruct());
+  for (const auto& item : list) {
+    cef_string_list_append(listPtr, item.GetStruct());
   }
 
   CefString str;
@@ -230,10 +229,8 @@ TEST(StringTest, Map) {
 
   cef_string_map_t mapPtr = cef_string_map_alloc();
 
-  it = map.begin();
-  for (; it != map.end(); ++it) {
-    cef_string_map_append(mapPtr, it->first.GetStruct(),
-                          it->second.GetStruct());
+  for (const auto& [key, value] : map) {
+    cef_string_map_append(mapPtr, key.GetStruct(), value.GetStruct());
   }
 
   CefString str;
@@ -306,10 +303,8 @@ TEST(StringTest, Multimap) {
 
   cef_string_multimap_t mapPtr = cef_string_multimap_alloc();
 
-  it = map.begin();
-  for (; it != map.end(); ++it) {
-    cef_string_multimap_append(mapPtr, it->first.GetStruct(),
-                               it->second.GetStruct());
+  for (const auto& [key, value] : map) {
+    cef_string_multimap_append(mapPtr, key.GetStruct(), value.GetStruct());
   }
 
   CefString str;

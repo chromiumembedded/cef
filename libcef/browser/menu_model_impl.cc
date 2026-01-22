@@ -416,9 +416,9 @@ int CefMenuModelImpl::GetIndexOf(int command_id) {
     return kInvalidIndex;
   }
 
-  for (ItemVector::iterator i = items_.begin(); i != items_.end(); ++i) {
-    if ((*i).command_id_ == command_id) {
-      return static_cast<int>(std::distance(items_.begin(), i));
+  for (size_t i = 0; i < items_.size(); ++i) {
+    if (items_[i].command_id_ == command_id) {
+      return static_cast<int>(i);
     }
   }
   return kInvalidIndex;

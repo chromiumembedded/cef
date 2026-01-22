@@ -268,9 +268,8 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
     initialized_ = true;
 
     EXPECT_FALSE(request_runner_map_.empty());
-    RequestRunnerMap::const_iterator it = request_runner_map_.begin();
-    for (; it != request_runner_map_.end(); ++it) {
-      handler_->AddHttpRequestHandler(it->second->CreateHttpRequestHandler());
+    for (const auto& [id, runner] : request_runner_map_) {
+      handler_->AddHttpRequestHandler(runner->CreateHttpRequestHandler());
     }
 
     handler_->SetExpectedHttpRequestCount(
@@ -302,17 +301,16 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
 
   // Run all requests in parallel.
   void RunAllRequests() {
-    RequestRunnerMap::const_iterator it = request_runner_map_.begin();
-    for (; it != request_runner_map_.end(); ++it) {
-      it->second->RunRequest(
+    for (const auto& [id, runner] : request_runner_map_) {
+      runner->RunRequest(
           server_origin_,
-          base::BindOnce(&HttpTestRunner::OnRequestComplete, this, it->first));
+          base::BindOnce(&HttpTestRunner::OnRequestComplete, this, id));
     }
   }
 
   // Run one request at a time.
   void RunNextRequest() {
-    RequestRunnerMap::const_iterator it = request_runner_map_.begin();
+    auto it = request_runner_map_.begin();
     it->second->RunRequest(
         server_origin_,
         base::BindOnce(&HttpTestRunner::OnRequestComplete, this, it->first));
@@ -327,7 +325,7 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
   }
 
   void OnRequestCompleteContinue(int request_id) {
-    RequestRunnerMap::iterator it = request_runner_map_.find(request_id);
+    auto it = request_runner_map_.find(request_id);
     EXPECT_TRUE(it != request_runner_map_.end());
 
     // Verify the request results.

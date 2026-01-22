@@ -303,9 +303,8 @@ CefDownloadManagerDelegateImpl::CefDownloadManagerDelegateImpl(
 
   DownloadManager::DownloadVector items;
   manager->GetAllDownloads(&items);
-  DownloadManager::DownloadVector::const_iterator it = items.begin();
-  for (; it != items.end(); ++it) {
-    OnDownloadCreated(manager, *it);
+  for (const auto& item : items) {
+    OnDownloadCreated(manager, item);
   }
 }
 
@@ -348,9 +347,8 @@ void CefDownloadManagerDelegateImpl::OnDownloadDestroyed(DownloadItem* item) {
     // Determine if any remaining DownloadItems are associated with the same
     // browser. If not, then unregister as an observer.
     bool has_remaining = false;
-    ItemBrowserMap::const_iterator it2 = item_browser_map_.begin();
-    for (; it2 != item_browser_map_.end(); ++it2) {
-      if (it2->second == browser) {
+    for (const auto& [other_item, other_browser] : item_browser_map_) {
+      if (other_browser == browser) {
         has_remaining = true;
         break;
       }
@@ -441,13 +439,12 @@ bool CefDownloadManagerDelegateImpl::DetermineDownloadTarget(
 
 void CefDownloadManagerDelegateImpl::OnBrowserDestroyed(
     CefBrowserHostBase* browser) {
-  ItemBrowserMap::iterator it = item_browser_map_.begin();
-  for (; it != item_browser_map_.end(); ++it) {
-    if (it->second == browser) {
+  for (auto& [item, item_browser] : item_browser_map_) {
+    if (item_browser == browser) {
       // Don't call back into browsers that have been destroyed. We're not
       // canceling the download so it will continue silently until it completes
       // or until the associated browser context is destroyed.
-      it->second = nullptr;
+      item_browser = nullptr;
     }
   }
 }

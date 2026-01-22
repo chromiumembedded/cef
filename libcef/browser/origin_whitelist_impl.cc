@@ -78,8 +78,7 @@ class CefOriginWhitelistManager {
     {
       base::AutoLock lock_scope(lock_);
 
-      CrossOriginWhiteList::iterator it = origin_list_.begin();
-      for (; it != origin_list_.end(); ++it) {
+      for (auto it = origin_list_.begin(); it != origin_list_.end(); ++it) {
         if (*it == info) {
           origin_list_.erase(it);
           found = true;

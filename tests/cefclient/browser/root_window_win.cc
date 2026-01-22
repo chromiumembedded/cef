@@ -1461,13 +1461,12 @@ void RootWindowWin::OnSetDraggableRegions(
   ::SetRectRgn(draggable_region_, 0, 0, 0, 0);
 
   // Determine new draggable region.
-  std::vector<CefDraggableRegion>::const_iterator it = regions.begin();
-  for (; it != regions.end(); ++it) {
-    HRGN region = ::CreateRectRgn(it->bounds.x, it->bounds.y,
-                                  it->bounds.x + it->bounds.width,
-                                  it->bounds.y + it->bounds.height);
+  for (const auto& draggable : regions) {
+    HRGN region = ::CreateRectRgn(draggable.bounds.x, draggable.bounds.y,
+                                  draggable.bounds.x + draggable.bounds.width,
+                                  draggable.bounds.y + draggable.bounds.height);
     ::CombineRgn(draggable_region_, draggable_region_, region,
-                 it->draggable ? RGN_OR : RGN_DIFF);
+                 draggable.draggable ? RGN_OR : RGN_DIFF);
     ::DeleteObject(region);
   }
 

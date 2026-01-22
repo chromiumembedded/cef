@@ -1110,8 +1110,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       // is deleted, so if the request is currently pending also remove it from
       // the list.
       if (!pending_requests_.empty()) {
-        PendingRequests::iterator it = pending_requests_.begin();
-        for (; it != pending_requests_.end(); ++it) {
+        for (auto it = pending_requests_.begin(); it != pending_requests_.end();
+             ++it) {
           if ((*it)->id_ == request_id) {
             pending_requests_.erase(it);
             break;

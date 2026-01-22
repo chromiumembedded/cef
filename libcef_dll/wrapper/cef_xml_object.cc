@@ -194,19 +194,17 @@ void CefXmlObject::Append(CefRefPtr<CefXmlObject> object,
   if (object->HasChildren()) {
     ObjectVector children;
     object->GetChildren(children);
-    ObjectVector::const_iterator it = children.begin();
-    for (; it != children.end(); ++it) {
-      AddChild((*it)->Duplicate());
+    for (const auto& child : children) {
+      AddChild(child->Duplicate());
     }
   }
 
   if (object->HasAttributes()) {
     AttributeMap attributes;
     object->GetAttributes(attributes);
-    AttributeMap::const_iterator it = attributes.begin();
-    for (; it != attributes.end(); ++it) {
-      if (overwriteAttributes || !HasAttribute(it->first)) {
-        SetAttributeValue(it->first, it->second);
+    for (const auto& [key, value] : attributes) {
+      if (overwriteAttributes || !HasAttribute(key)) {
+        SetAttributeValue(key, value);
       }
     }
   }

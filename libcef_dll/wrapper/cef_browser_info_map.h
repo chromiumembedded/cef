@@ -203,10 +203,8 @@ class CefBrowserInfoMap {
     }
 
     size_t size = 0;
-    typename BrowserInfoMap::const_iterator it_browser =
-        browser_info_map_.begin();
-    for (; it_browser != browser_info_map_.end(); ++it_browser) {
-      size += it_browser->second->size();
+    for (const auto& [browser_id, info_map] : browser_info_map_) {
+      size += info_map->size();
     }
     return size;
   }
@@ -233,13 +231,9 @@ class CefBrowserInfoMap {
       return;
     }
 
-    typename BrowserInfoMap::const_iterator it_browser =
-        browser_info_map_.begin();
-    for (; it_browser != browser_info_map_.end(); ++it_browser) {
-      InfoMap* info_map = it_browser->second;
-      typename InfoMap::const_iterator it_info = info_map->begin();
-      for (; it_info != info_map->end(); ++it_info) {
-        Traits::Destruct(it_info->second);
+    for (const auto& [browser_id, info_map] : browser_info_map_) {
+      for (const auto& [info_id, info] : *info_map) {
+        Traits::Destruct(info);
       }
       delete info_map;
     }
@@ -260,9 +254,8 @@ class CefBrowserInfoMap {
     }
 
     InfoMap* info_map = it_browser->second;
-    typename InfoMap::const_iterator it_info = info_map->begin();
-    for (; it_info != info_map->end(); ++it_info) {
-      Traits::Destruct(it_info->second);
+    for (const auto& [info_id, info] : *info_map) {
+      Traits::Destruct(info);
     }
 
     browser_info_map_.erase(it_browser);

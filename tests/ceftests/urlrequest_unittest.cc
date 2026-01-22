@@ -470,11 +470,9 @@ void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
 
 std::string GetHeaderValue(const CefRequest::HeaderMap& header_map,
                            const std::string& header_name_lower) {
-  CefRequest::HeaderMap::const_iterator it = header_map.begin();
-  for (; it != header_map.end(); ++it) {
-    std::string name = client::AsciiStrToLower(it->first);
-    if (name == header_name_lower) {
-      return it->second;
+  for (const auto& [key, value] : header_map) {
+    if (client::AsciiStrToLower(key) == header_name_lower) {
+      return value;
     }
   }
   return std::string();

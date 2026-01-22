@@ -138,10 +138,9 @@ void SetCookies(CefRefPtr<CefCookieManager> manager,
                 const CookieVector& cookies,
                 bool expected_success,
                 CefRefPtr<CefWaitableEvent> event) {
-  CookieVector::const_iterator it = cookies.begin();
-  for (; it != cookies.end(); ++it) {
+  for (const auto& cookie : cookies) {
     EXPECT_TRUE(manager->SetCookie(
-        url, *it, new TestSetCookieCallback(expected_success, event)));
+        url, cookie, new TestSetCookieCallback(expected_success, event)));
     event->Wait();
   }
 }
@@ -369,16 +368,15 @@ void TestMultipleCookies(CefRefPtr<CefCookieManager> manager,
 
   EXPECT_EQ((CookieVector::size_type)kNumCookies, cookies.size());
 
-  CookieVector::const_iterator it = cookies.begin();
-  for (i = 0; it != cookies.end(); ++it, ++i) {
-    const CefCookie& cookie = *it;
-
+  i = 0;
+  for (const auto& cookie : cookies) {
     ss << "my_cookie" << i;
     EXPECT_EQ(CefString(&cookie.name), ss.str());
     ss.str("");
     ss << "My Value " << i;
     EXPECT_EQ(CefString(&cookie.value), ss.str());
     ss.str("");
+    ++i;
   }
 
   cookies.clear();

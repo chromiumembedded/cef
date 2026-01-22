@@ -68,10 +68,8 @@ void CefCommandLineImpl::Reset() {
 
 void CefCommandLineImpl::GetArgv(std::vector<CefString>& argv) {
   CEF_VALUE_VERIFY_RETURN_VOID(false);
-  const base::CommandLine::StringVector& cmd_argv = const_value().argv();
-  base::CommandLine::StringVector::const_iterator it = cmd_argv.begin();
-  for (; it != cmd_argv.end(); ++it) {
-    argv.push_back(*it);
+  for (const auto& arg : const_value().argv()) {
+    argv.push_back(arg);
   }
 }
 
@@ -108,10 +106,8 @@ CefString CefCommandLineImpl::GetSwitchValue(const CefString& name) {
 
 void CefCommandLineImpl::GetSwitches(SwitchMap& switches) {
   CEF_VALUE_VERIFY_RETURN_VOID(false);
-  const base::CommandLine::SwitchMap& map = const_value().GetSwitches();
-  base::CommandLine::SwitchMap::const_iterator it = map.begin();
-  for (; it != map.end(); ++it) {
-    switches.insert(std::make_pair(it->first, it->second));
+  for (const auto& [key, value] : const_value().GetSwitches()) {
+    switches.insert(std::make_pair(key, value));
   }
 }
 
@@ -142,10 +138,8 @@ bool CefCommandLineImpl::HasArguments() {
 
 void CefCommandLineImpl::GetArguments(ArgumentList& arguments) {
   CEF_VALUE_VERIFY_RETURN_VOID(false);
-  const base::CommandLine::StringVector& vec = const_value().GetArgs();
-  base::CommandLine::StringVector::const_iterator it = vec.begin();
-  for (; it != vec.end(); ++it) {
-    arguments.push_back(*it);
+  for (const auto& arg : const_value().GetArgs()) {
+    arguments.push_back(arg);
   }
 }
 

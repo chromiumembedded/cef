@@ -124,11 +124,10 @@ bool CefDragDataImpl::GetFileNames(std::vector<CefString>& names) {
     return false;
   }
 
-  std::vector<ui::FileInfo>::const_iterator it = data_.filenames.begin();
-  for (; it != data_.filenames.end(); ++it) {
-    auto name = it->display_name.value();
+  for (const auto& file_info : data_.filenames) {
+    auto name = file_info.display_name.value();
     if (name.empty()) {
-      name = it->path.BaseName().value();
+      name = file_info.path.BaseName().value();
     }
     names.push_back(name);
   }
@@ -142,9 +141,8 @@ bool CefDragDataImpl::GetFilePaths(std::vector<CefString>& paths) {
     return false;
   }
 
-  std::vector<ui::FileInfo>::const_iterator it = data_.filenames.begin();
-  for (; it != data_.filenames.end(); ++it) {
-    auto path = it->path.value();
+  for (const auto& file_info : data_.filenames) {
+    auto path = file_info.path.value();
     paths.push_back(path);
   }
 
