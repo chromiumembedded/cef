@@ -159,6 +159,19 @@ index 49272553c7c53a91bc79677884217881fd405653..5ba90c9a06ecf72c28b84cbb62ae3cbb
   private:
    raw_ptr<content::WebContents, AcrossTasksDanglingUntriaged> source_contents_;
  };
+diff --git ui/shell_dialogs/execute_select_file_win.cc ui/shell_dialogs/execute_select_file_win.cc
+index b0decb60aae6af1889c27982f3953e4137522982..97c6501edb125ebfeb4d6873cf000c04208f098e 100644
+--- ui/shell_dialogs/execute_select_file_win.cc
++++ ui/shell_dialogs/execute_select_file_win.cc
+@@ -31,7 +31,7 @@ namespace ui {
+ namespace {
+ 
+ // Stop switch for the AutoCloseDialogEventHandler.
+-BASE_FEATURE(kAutoCloseFileDialogs, base::FEATURE_ENABLED_BY_DEFAULT);
++BASE_FEATURE(kAutoCloseFileDialogs, base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // RAII wrapper around AutoCloseDialogEventHandler.
+ class ScopedAutoCloseDialogEventHandler {
 diff --git ui/shell_dialogs/select_file_dialog.cc ui/shell_dialogs/select_file_dialog.cc
 index f9c0d03193a6373437b1509b882a93855c58bd8d..f32f02d216120f0f954be712f706b5696b78d722 100644
 --- ui/shell_dialogs/select_file_dialog.cc
