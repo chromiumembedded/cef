@@ -82,3 +82,17 @@ index cfeffcb14b60abf722edf0fdd85886d2e63d5b86..56684d6e5b6b91be4ae9eb7428503b1e
  
    // Verify if user is eligible for iOS promo, and attempt showing if they are.
    ios_promos_utils::VerifyIOSPromoEligibility(
+diff --git chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
+index 0bc621103a38be2a8cfc42e0ef3014f489da23b8..a2800a489a0b5d13f8fb17add66cab86bc9755eb 100644
+--- chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
++++ chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
+@@ -804,6 +804,9 @@ void SaveCardBubbleControllerImpl::DoShowBubble() {
+   }
+ 
+   Browser* browser = chrome::FindBrowserWithTab(web_contents());
++  if (!browser) {
++    return;
++  }
+   if (current_bubble_type_ == PaymentsBubbleType::kUploadComplete) {
+     SetBubbleView(*browser->window()
+                        ->GetAutofillBubbleHandler()
