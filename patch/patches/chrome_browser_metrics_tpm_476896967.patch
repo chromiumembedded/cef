@@ -1,0 +1,24 @@
+diff --git chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
+index a381a79338871ab2cfb42b04864d1896e6364e0e..c5b312504ab2b3ebaa1363e858e0d76ba7bf1668 100644
+--- chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
++++ chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
+@@ -34,6 +34,7 @@
+ #include "base/version.h"
+ #include "build/build_config.h"
+ #include "build/config/compiler/compiler_buildflags.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/about_flags.h"
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/buildflags.h"
+@@ -883,9 +884,11 @@ void RecordStartupMetrics() {
+   key_credential_manager_support::ReportKeyCredentialManagerSupport();
+ #endif  // BUILDFLAG(IS_WIN)
+ 
++#if !BUILDFLAG(ENABLE_CEF)
+ #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
+   crypto::MaybeMeasureTpmOperations(unexportable_keys::GetDefaultConfig());
+ #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
++#endif  // !BUILDFLAG(ENABLE_CEF)
+ 
+   // Record whether Chrome is the default browser or not.
+   // Disabled on Linux due to hanging browser tests, see crbug.com/1216328.
