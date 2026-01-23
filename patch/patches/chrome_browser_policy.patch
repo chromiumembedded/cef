@@ -1,3 +1,15 @@
+diff --git chrome/browser/policy/BUILD.gn chrome/browser/policy/BUILD.gn
+index b4617a7c69a67cfd5736cfb8cf158af31dace48e..f139981d6ac3d0d77fefc445e5f3c871be697d84 100644
+--- chrome/browser/policy/BUILD.gn
++++ chrome/browser/policy/BUILD.gn
+@@ -23,6 +23,7 @@ source_set("path_parser") {
+     "//base",
+     "//chrome/common:constants",
+     "//components/policy:generated",
++    "//components/strings:components_strings",
+   ]
+ 
+   if (is_mac) {
 diff --git chrome/browser/policy/browser_dm_token_storage_linux.cc chrome/browser/policy/browser_dm_token_storage_linux.cc
 index a7a7a3a167bce56952b713f2e7987de34ed37c16..432a0c418a54ed7fa1f65e894d0fcec71ea27f35 100644
 --- chrome/browser/policy/browser_dm_token_storage_linux.cc
