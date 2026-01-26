@@ -1,0 +1,25 @@
+diff --git components/gcm_driver/gcm_client_impl.cc components/gcm_driver/gcm_client_impl.cc
+index d3fb7da1069716355f8de888067f93e1115ac369..a7e4ec602da2c26d24ceccf06e64c3904896722d 100644
+--- components/gcm_driver/gcm_client_impl.cc
++++ components/gcm_driver/gcm_client_impl.cc
+@@ -296,6 +296,9 @@ void GCMClientImpl::Initialize(
+ }
+ 
+ void GCMClientImpl::Start(StartMode start_mode) {
++  // Disable GCM to avoid DEPRECATED_ENDPOINT errors.
++  return;
++
+   DCHECK_NE(UNINITIALIZED, state_);
+   DCHECK(io_task_runner_->RunsTasksInCurrentSequence());
+ 
+@@ -792,6 +795,10 @@ void GCMClientImpl::ResetCache() {
+ 
+ void GCMClientImpl::Register(
+     scoped_refptr<RegistrationInfo> registration_info) {
++  // Disable GCM to avoid DEPRECATED_ENDPOINT errors.
++  delegate_->OnRegisterFinished(registration_info, std::string(), GCM_DISABLED);
++  return;
++
+   DCHECK_EQ(state_, READY);
+   DCHECK(io_task_runner_->RunsTasksInCurrentSequence());
+ 
