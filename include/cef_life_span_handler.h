@@ -84,6 +84,18 @@ class CefLifeSpanHandler : public virtual CefBaseRefCounted {
   /// called for the opener browser. See OnBeforePopupAborted documentation for
   /// additional details.
   ///
+  /// A default popup window is created if this method returns false without
+  /// setting a parent window handle via CefWindowInfo (for native-hosted
+  /// popups), or without implementing
+  /// CefBrowserViewDelegate::OnPopupBrowserViewCreated (for Views-hosted
+  /// popups). The default popup window type depends on the parent browser
+  /// configuration:
+  /// - Views-hosted parent: Creates a Views-hosted popup window.
+  /// - Native-hosted Alloy style parent: Creates a native popup window.
+  /// - Native-hosted Chrome style parent: Creates a Chrome UI popup window by
+  ///   default; set CefSettings.use_views_default_popup to true to instead
+  ///   create a Views-hosted popup window.
+  ///
   /*--cef(optional_param=target_url,optional_param=target_frame_name)--*/
   virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
                              CefRefPtr<CefFrame> frame,

@@ -499,6 +499,16 @@ typedef struct _cef_settings_t {
   /// Specify whether signal handlers must be disabled on POSIX systems.
   ///
   int disable_signal_handlers;
+
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// If true use a Views (bare-bones) window instead of a Chrome UI window when
+  /// creating default popups for Chrome style native-hosted (non-Views)
+  /// browsers. This applies when CefLifeSpanHandler::OnBeforePopup has not been
+  /// implemented to provide parent window information for the new popup.
+  ///
+  int use_views_default_popup;
+#endif
 } cef_settings_t;
 
 ///

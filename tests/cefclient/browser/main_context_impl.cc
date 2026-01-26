@@ -182,7 +182,8 @@ bool MainContextImpl::TouchEventsEnabled() {
 
 bool MainContextImpl::UseDefaultPopup() {
   return !use_windowless_rendering_ &&
-         command_line_->HasSwitch(switches::kUseDefaultPopup);
+         (command_line_->HasSwitch(switches::kUseDefaultPopup) ||
+          command_line_->HasSwitch(switches::kUseViewsDefaultPopup));
 }
 
 void MainContextImpl::PopulateSettings(CefSettings* settings) {
@@ -221,6 +222,12 @@ void MainContextImpl::PopulateSettings(CefSettings* settings) {
         "";
 #endif
   }
+
+#if CEF_API_ADDED(CEF_NEXT)
+  if (command_line_->HasSwitch(switches::kUseViewsDefaultPopup)) {
+    settings->use_views_default_popup = true;
+  }
+#endif
 }
 
 void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {

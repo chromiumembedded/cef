@@ -42,6 +42,7 @@ extern const char kNoActivate[];
 extern const char kShowChromeToolbar[];
 extern const char kInitialShowState[];
 extern const char kUseDefaultPopup[];
+extern const char kUseViewsDefaultPopup[];
 extern const char kUseClientDialogs[];
 extern const char kUseTestHttpServer[];
 extern const char kShowWindowButtons[];

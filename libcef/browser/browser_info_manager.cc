@@ -12,7 +12,9 @@
 #include "cef/libcef/browser/browser_guest_util.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/browser_platform_delegate.h"
+#include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/api_version_util.h"
 #include "cef/libcef/common/cef_switches.h"
 #include "cef/libcef/common/frame_util.h"
 #include "cef/libcef/common/values_impl.h"
@@ -540,6 +542,11 @@ bool CefBrowserInfoManager::MaybeAllowNavigation(
 bool CefBrowserInfoManager::ShouldCreateViewsHostedPopup(
     CefRefPtr<CefBrowserHostBase> opener,
     bool use_default_browser_creation) {
+  if (CEF_API_IS_ADDED(CEF_NEXT) &&
+      CefContext::Get()->settings().use_views_default_popup) {
+    return true;
+  }
+
   // In most cases, Views-hosted browsers should create Views-hosted popups
   // and native browsers should use default popup handling. With Chrome
   // style, we should additionally use default handling (a) when using an

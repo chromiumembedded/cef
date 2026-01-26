@@ -468,6 +468,10 @@ struct CefSettingsTraits {
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
     target->disable_signal_handlers = src->disable_signal_handlers;
 #endif
+
+#if CEF_API_ADDED(CEF_NEXT)
+    target->use_views_default_popup = src->use_views_default_popup;
+#endif
   }
 };
 
