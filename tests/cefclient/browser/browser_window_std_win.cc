@@ -4,6 +4,7 @@
 
 #include "tests/cefclient/browser/browser_window_std_win.h"
 
+#include "include/base/cef_logging.h"
 #include "tests/cefclient/browser/client_handler_std.h"
 #include "tests/shared/browser/main_message_loop.h"
 
@@ -68,15 +69,15 @@ void BrowserWindowStdWin::ShowPopup(ClientWindowHandle parent_handle,
   REQUIRE_MAIN_THREAD();
 
   HWND hwnd = GetWindowHandle();
-  if (hwnd) {
-    SetParent(hwnd, parent_handle);
-    SetWindowPos(hwnd, nullptr, x, y, static_cast<int>(width),
-                 static_cast<int>(height), SWP_NOZORDER | SWP_NOACTIVATE);
+  CHECK(hwnd);
 
-    const bool no_activate =
-        GetWindowLongPtr(parent_handle, GWL_EXSTYLE) & WS_EX_NOACTIVATE;
-    ShowWindow(hwnd, no_activate ? SW_SHOWNOACTIVATE : SW_SHOW);
-  }
+  SetParent(hwnd, parent_handle);
+  SetWindowPos(hwnd, nullptr, x, y, static_cast<int>(width),
+               static_cast<int>(height), SWP_NOZORDER | SWP_NOACTIVATE);
+
+  const bool no_activate =
+      GetWindowLongPtr(parent_handle, GWL_EXSTYLE) & WS_EX_NOACTIVATE;
+  ShowWindow(hwnd, no_activate ? SW_SHOWNOACTIVATE : SW_SHOW);
 }
 
 void BrowserWindowStdWin::Show() {

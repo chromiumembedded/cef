@@ -1224,8 +1224,12 @@ void RootWindowWin::OnCreate(LPCREATESTRUCT lpCreateStruct) {
   } else {
     // With popups we already have a browser window. Parent the browser window
     // to the root window and show it in the correct location.
-    browser_window_->ShowPopup(hwnd_, bounds.x, bounds.y, bounds.width,
-                               bounds.height);
+    // For Chrome style with multi-threaded message loop, the browser HWND may
+    // not be available yet (it's created asynchronously on the UI thread).
+    // Store the bounds and poll until the HWND is available.
+    pending_show_popup_ = true;
+    pending_popup_bounds_ = bounds;
+    TryShowPopupBrowser();
   }
 
   window_created_ = true;
@@ -1506,6 +1510,32 @@ void RootWindowWin::SaveWindowRestoreOnUIThread(
   const auto dip_bounds = CefDisplay::ConvertScreenRectFromPixels(pixel_bounds);
 
   prefs::SaveWindowRestorePreferences(show_state, dip_bounds);
+}
+
+void RootWindowWin::TryShowPopupBrowser() {
+  REQUIRE_MAIN_THREAD();
+
+  if (!pending_show_popup_ || !browser_window_) {
+    return;
+  }
+
+  // Check if the browser HWND is now available.
+  HWND browser_hwnd = nullptr;
+  if (auto browser = browser_window_->GetBrowser()) {
+    browser_hwnd = browser->GetHost()->GetWindowHandle();
+  }
+
+  if (browser_hwnd) {
+    // Browser HWND is available, proceed with ShowPopup.
+    pending_show_popup_ = false;
+    browser_window_->ShowPopup(
+        hwnd_, pending_popup_bounds_.x, pending_popup_bounds_.y,
+        pending_popup_bounds_.width, pending_popup_bounds_.height);
+  } else {
+    // Browser HWND not yet available, retry after a short delay.
+    MAIN_POST_CLOSURE(
+        base::BindOnce(&RootWindowWin::TryShowPopupBrowser, this));
+  }
 }
 
 }  // namespace client
