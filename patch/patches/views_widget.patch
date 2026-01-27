@@ -258,16 +258,25 @@ index aeaf8e35f7eda89598149117fe8508d197bf2610..4b7cc3f03d3cf9c91ac8efe11ae820cf
 +  [MinVersion=1] kEnd = 7,
  };
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
-index 7af34829238f6294cd88fa0cd3b75714f4849ed8..2eb419b24d737caaaaf8a6825338aa885c753c0c 100644
+index 7af34829238f6294cd88fa0cd3b75714f4849ed8..d0476ad2f4688fd10330a7c840623d926f1c122e 100644
 --- ui/ozone/platform/x11/x11_window.cc
 +++ ui/ozone/platform/x11/x11_window.cc
-@@ -1880,7 +1880,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
+@@ -1880,7 +1880,17 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
    req.border_pixel = 0;
  
    last_set_bounds_px_ = SanitizeBounds(bounds);
 -  req.parent = x_root_window_;
-+  req.parent = properties.parent_widget == gfx::kNullAcceleratedWidget ?
-+      x_root_window_ : static_cast<x11::Window>(properties.parent_widget);
++  // Menu windows should be parented to the root window to prevent them from
++  // being clipped to a parent window's bounds. This is especially important
++  // for OSR (off-screen rendering) scenarios where the parent is an external
++  // window. Other window types maintain their normal parent relationship.
++  if (properties.type == ui::PlatformWindowType::kMenu) {
++    req.parent = x_root_window_;
++  } else {
++    req.parent = properties.parent_widget == gfx::kNullAcceleratedWidget
++                     ? x_root_window_
++                     : static_cast<x11::Window>(properties.parent_widget);
++  }
    req.x = last_set_bounds_px_.x();
    req.y = last_set_bounds_px_.y();
    req.width = last_set_bounds_px_.width();
