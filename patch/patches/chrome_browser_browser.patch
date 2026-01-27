@@ -34,7 +34,7 @@ index e6229041ad338593fe8ba959f1db7d4715b89bc3..63b64e06eb8589f44190ddb6461147d3
    NOTREACHED();
  }
 diff --git chrome/browser/devtools/devtools_window.cc chrome/browser/devtools/devtools_window.cc
-index d6e0c76bf3aaa37443bce43c3afb359b31b746c6..0ad9560b793d7e95b911da1b5900bbfcdf8d3321 100644
+index d6e0c76bf3aaa37443bce43c3afb359b31b746c6..bbfee41a8c6de60074f1c5db428024e67f4f97d1 100644
 --- chrome/browser/devtools/devtools_window.cc
 +++ chrome/browser/devtools/devtools_window.cc
 @@ -45,6 +45,7 @@
@@ -70,7 +70,7 @@ index d6e0c76bf3aaa37443bce43c3afb359b31b746c6..0ad9560b793d7e95b911da1b5900bbfc
      chrome::ScopedTabbedBrowserDisplayer displayer(profile_);
      chrome::AddSelectedTabWithURL(displayer.browser(), fixed_url,
                                    ui::PAGE_TRANSITION_LINK);
-@@ -2010,12 +2020,27 @@ void DevToolsWindow::CreateDevToolsBrowser() {
+@@ -2010,12 +2020,30 @@ void DevToolsWindow::CreateDevToolsBrowser() {
        Browser::CreationStatus::kOk) {
      return;
    }
@@ -82,7 +82,10 @@ index d6e0c76bf3aaa37443bce43c3afb359b31b746c6..0ad9560b793d7e95b911da1b5900bbfc
 -      -1, ui::PAGE_TRANSITION_AUTO_TOPLEVEL, AddTabTypes::ADD_ACTIVE);
 +
 +  auto* inspected_web_contents = GetInspectedWebContents();
-+  auto* opener = chrome::FindBrowserWithTab(inspected_web_contents);
++  Browser* opener = nullptr;
++  if (inspected_web_contents) {
++    opener = chrome::FindBrowserWithTab(inspected_web_contents);
++  }
 +  auto devtools_contents = OwnedMainWebContents::TakeWebContents(
 +      std::move(owned_main_web_contents_));
 +
