@@ -945,14 +945,13 @@ void OsrWindowWin::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 bool OsrWindowWin::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
                                      CefRect& rect) {
   CEF_REQUIRE_UI_THREAD();
-  DCHECK_GT(device_scale_factor_, 0);
 
-  if (!settings_.real_screen_bounds) {
+  if (!::IsWindow(hwnd_) || !settings_.real_screen_bounds) {
     return false;
   }
 
   HWND root_hwnd = ::GetAncestor(hwnd_, GA_ROOT);
-  DCHECK(root_hwnd);
+  CHECK(root_hwnd);
   RECT root_rect = {};
   ::GetWindowRect(root_hwnd, &root_rect);
 
@@ -972,7 +971,12 @@ bool OsrWindowWin::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
 
 void OsrWindowWin::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
   CEF_REQUIRE_UI_THREAD();
-  DCHECK_GT(device_scale_factor_, 0);
+
+  if (!::IsWindow(hwnd_)) {
+    // Window not yet created; return a default size.
+    rect = {0, 0, 1, 1};
+    return;
+  }
 
   RECT window_rect = {};
   ::GetWindowRect(hwnd_, &window_rect);
