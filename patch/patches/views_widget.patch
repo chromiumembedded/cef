@@ -388,7 +388,7 @@ index 0a2962a811a338ca969df12001b21d40bc00f17f..1db762615ae193f157e6061be1616393
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 4467ed08afa4d56059775b4786ba2907884e2f28..e46b60903eb24a76ae62c064d8c23184b05d2eda 100644
+index 4467ed08afa4d56059775b4786ba2907884e2f28..28c7f23b2614d84697fccbad5f20a05b79ded283 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -27,6 +27,7 @@
@@ -399,7 +399,7 @@ index 4467ed08afa4d56059775b4786ba2907884e2f28..e46b60903eb24a76ae62c064d8c23184
  #include "ui/aura/window_event_dispatcher.h"
  #include "ui/base/class_property.h"
  #include "ui/base/cursor/cursor.h"
-@@ -183,7 +184,10 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
+@@ -183,17 +184,30 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
                          native_widget_delegate_.get());
  
    HWND parent_hwnd = nullptr;
@@ -411,15 +411,13 @@ index 4467ed08afa4d56059775b4786ba2907884e2f28..e46b60903eb24a76ae62c064d8c23184
      parent_hwnd = params.parent->GetHost()->GetAcceleratedWidget();
    }
  
-@@ -191,9 +195,18 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
+   remove_standard_frame_ = params.remove_standard_frame;
    has_non_client_view_ = Widget::RequiresNonClientView(params.type);
    z_order_ = params.EffectiveZOrderLevel();
- 
--  // We don't have an HWND yet, so scale relative to the nearest screen.
--  gfx::Rect pixel_bounds =
--      display::win::GetScreenWin()->DIPToScreenRect(nullptr, params.bounds);
++  is_menu_ = (params.type == Widget::InitParams::TYPE_MENU);
++
 +  gfx::Rect pixel_bounds;
-+  if (has_external_parent_ && params.type != Widget::InitParams::TYPE_MENU) {
++  if (has_external_parent_ && !is_menu_) {
 +    // Scale relative to the screen that contains the parent window.
 +    // Child windows always have origin (0,0).
 +    pixel_bounds.set_size(display::win::GetScreenWin()->DIPToScreenSize(
@@ -429,11 +427,14 @@ index 4467ed08afa4d56059775b4786ba2907884e2f28..e46b60903eb24a76ae62c064d8c23184
 +    pixel_bounds =
 +        display::win::GetScreenWin()->DIPToScreenRect(nullptr, params.bounds);
 +  }
-+
+ 
+-  // We don't have an HWND yet, so scale relative to the nearest screen.
+-  gfx::Rect pixel_bounds =
+-      display::win::GetScreenWin()->DIPToScreenRect(nullptr, params.bounds);
    message_handler_->Init(parent_hwnd, pixel_bounds);
  
    if (ShouldAddDWMBackdrop()) {
-@@ -218,6 +231,13 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
+@@ -218,6 +232,13 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
    InitHost();
    window()->Show();
  
@@ -447,7 +448,7 @@ index 4467ed08afa4d56059775b4786ba2907884e2f28..e46b60903eb24a76ae62c064d8c23184
    // Stack immediately above its parent so that it does not cover other
    // root-level windows, with the exception of menus, to allow them to be
    // displayed on top of other windows.
-@@ -1156,6 +1176,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
+@@ -1156,6 +1177,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
  
    if (restored) {
      window()->Show();
@@ -466,7 +467,7 @@ index 4467ed08afa4d56059775b4786ba2907884e2f28..e46b60903eb24a76ae62c064d8c23184
    } else {
      window()->Hide();
    }
-@@ -1177,11 +1209,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -1177,11 +1210,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -486,7 +487,7 @@ index 4467ed08afa4d56059775b4786ba2907884e2f28..e46b60903eb24a76ae62c064d8c23184
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
-@@ -1190,6 +1228,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+@@ -1190,6 +1229,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
      return true;
    }
  
@@ -499,36 +500,40 @@ index 4467ed08afa4d56059775b4786ba2907884e2f28..e46b60903eb24a76ae62c064d8c23184
    SendEventToSink(event);
    return event->handled();
  }
-@@ -1389,9 +1433,17 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
+@@ -1389,9 +1434,18 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
    // positions in variable-DPI situations. See https://crbug.com/1224715 for
    // details.
    aura::Window* root = nullptr;
 -  const gfx::Rect bounds_in_pixels =
-+  if (has_external_parent_) {
++  if (has_external_parent_ && !is_menu_) {
 +    // Scale relative to the screen that contains the parent window.
 +    root = AsWindowTreeHost()->window();
 +  }
 +  gfx::Rect bounds_in_pixels =
        display::Screen::Get()->DIPToScreenRectInWindow(
            root, AdjustedContentBounds(bounds));
-+  if (has_external_parent_) {
++  if (has_external_parent_ && !is_menu_) {
 +    // Child windows always have origin (0,0).
++    // Menus need to use proper screen coordinates for positioning.
 +    bounds_in_pixels.set_origin(gfx::Point(0, 0));
 +  }
    AsWindowTreeHost()->SetBoundsInPixels(bounds_in_pixels);
  }
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index b65ced55f997d5064b9d9338190567f8c264fce8..72b4361f6806d6892dad7bbfcfa83865462bc046 100644
+index b65ced55f997d5064b9d9338190567f8c264fce8..84fabb840d681b53f81881b17b2618faf569f51c 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-@@ -349,6 +349,14 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
+@@ -349,6 +349,17 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
    // True if the window is allow to take screenshots, by default is true.
    bool allow_screenshots_ = true;
  
 +  // True if the widget has a external parent view/window outside of the
 +  // Chromium-controlled view/window hierarchy.
 +  bool has_external_parent_ = false;
++
++  // True if this widget is a menu.
++  bool is_menu_ = false;
 +
 +  // True if the first call to HandleWindowMinimizedOrRestored for an initially-
 +  // minimized window is pending.
