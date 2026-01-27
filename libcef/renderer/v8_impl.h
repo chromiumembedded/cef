@@ -6,11 +6,13 @@
 #define CEF_LIBCEF_RENDERER_V8_IMPL_H_
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "base/location.h"
 #include "base/logging.h"
 #include "base/memory/ref_counted.h"
+#include "base/synchronization/lock.h"
 #include "base/task/single_thread_task_runner.h"
 #include "cef/include/cef_v8.h"
 #include "cef/libcef/common/tracker.h"
@@ -361,6 +363,30 @@ class CefV8ValueImpl : public CefV8Value {
   bool rethrow_exceptions_;
 
   IMPLEMENT_REFCOUNTING(CefV8ValueImpl);
+};
+
+class CefV8BackingStoreImpl : public CefV8BackingStore {
+ public:
+  explicit CefV8BackingStoreImpl(
+      std::unique_ptr<v8::BackingStore> backing_store);
+
+  CefV8BackingStoreImpl(const CefV8BackingStoreImpl&) = delete;
+  CefV8BackingStoreImpl& operator=(const CefV8BackingStoreImpl&) = delete;
+
+  // CefV8BackingStore methods.
+  void* Data() override;
+  size_t ByteLength() override;
+  bool IsValid() override;
+
+  // Transfer ownership of the underlying BackingStore. Returns nullptr if
+  // already consumed. Must be called on the V8 thread.
+  std::unique_ptr<v8::BackingStore> TakeBackingStore();
+
+ private:
+  base::Lock lock_;
+  std::unique_ptr<v8::BackingStore> backing_store_;
+
+  IMPLEMENT_REFCOUNTING(CefV8BackingStoreImpl);
 };
 
 class CefV8StackTraceImpl : public CefV8StackTrace {

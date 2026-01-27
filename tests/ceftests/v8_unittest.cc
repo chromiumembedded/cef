@@ -64,6 +64,7 @@ enum V8TestMode {
 #endif  // CEF_V8_ENABLE_SANDBOX
   V8TEST_ARRAY_BUFFER_CREATE_EMPTY,
   V8TEST_ARRAY_BUFFER_COPY,
+  V8TEST_ARRAY_BUFFER_BACKING_STORE,
   V8TEST_OBJECT_CREATE,
   V8TEST_OBJECT_USERDATA,
   V8TEST_OBJECT_ACCESSOR,
@@ -165,6 +166,9 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
         break;
       case V8TEST_ARRAY_BUFFER_COPY:
         RunArrayBufferCopyTest();
+        break;
+      case V8TEST_ARRAY_BUFFER_BACKING_STORE:
+        RunArrayBufferBackingStoreTest();
         break;
       case V8TEST_OBJECT_CREATE:
         RunObjectCreateTest();
@@ -700,6 +704,60 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       EXPECT_EQ(static_cast<int*>(data)[1], static_data[1]);
 
       EXPECT_FALSE(value->HasValue(0));
+    }
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+    DestroyTest();
+  }
+
+  void RunArrayBufferBackingStoreTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+    {
+      const size_t byte_length = 64;
+      CefRefPtr<CefV8BackingStore> backing_store =
+          CefV8BackingStore::Create(byte_length);
+      EXPECT_TRUE(backing_store.get());
+      EXPECT_TRUE(backing_store->IsValid());
+      EXPECT_EQ(backing_store->ByteLength(), byte_length);
+
+      void* data = backing_store->Data();
+      EXPECT_NE(data, nullptr);
+
+      // Write data into the backing store (simulates background thread work).
+      memset(data, 0xAB, byte_length);
+
+      // Create ArrayBuffer from the backing store (zero-copy).
+      CefRefPtr<CefV8Value> value =
+          CefV8Value::CreateArrayBufferFromBackingStore(backing_store);
+      EXPECT_TRUE(value.get());
+      EXPECT_TRUE(value->IsArrayBuffer());
+      EXPECT_TRUE(value->IsObject());
+      EXPECT_EQ(value->GetArrayBufferByteLength(), byte_length);
+
+      // Verify the data is accessible through the ArrayBuffer.
+      void* ab_data = value->GetArrayBufferData();
+      EXPECT_NE(ab_data, nullptr);
+      EXPECT_EQ(static_cast<uint8_t*>(ab_data)[0], 0xAB);
+      EXPECT_EQ(static_cast<uint8_t*>(ab_data)[byte_length - 1], 0xAB);
+
+      // The backing store should be consumed (invalid) after creating the
+      // ArrayBuffer.
+      EXPECT_FALSE(backing_store->IsValid());
+      EXPECT_EQ(backing_store->Data(), nullptr);
+      EXPECT_EQ(backing_store->ByteLength(), static_cast<size_t>(0));
+
+      // Creating a second ArrayBuffer from the consumed backing store should
+      // fail.
+      CefRefPtr<CefV8Value> value2 =
+          CefV8Value::CreateArrayBufferFromBackingStore(backing_store);
+      EXPECT_FALSE(value2.get());
+
+      // Verify the ArrayBuffer can be neutered.
+      EXPECT_TRUE(value->NeuterArrayBuffer());
+      EXPECT_EQ(value->GetArrayBufferByteLength(), static_cast<size_t>(0));
     }
     // Exit the V8 context.
     EXPECT_TRUE(context->Exit());
@@ -3472,6 +3530,7 @@ V8_TEST(ArrayBufferValue, V8TEST_ARRAY_BUFFER_VALUE)
 #endif  // CEF_V8_ENABLE_SANDBOX
 V8_TEST(ArrayBufferCreateEmpty, V8TEST_ARRAY_BUFFER_CREATE_EMPTY)
 V8_TEST(ArrayBufferCopy, V8TEST_ARRAY_BUFFER_COPY)
+V8_TEST(ArrayBufferBackingStore, V8TEST_ARRAY_BUFFER_BACKING_STORE)
 V8_TEST(ObjectCreate, V8TEST_OBJECT_CREATE)
 V8_TEST(ObjectUserData, V8TEST_OBJECT_USERDATA)
 V8_TEST(ObjectAccessor, V8TEST_OBJECT_ACCESSOR)

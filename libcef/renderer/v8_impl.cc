@@ -1502,6 +1502,85 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArrayBufferWithCopy(void* buffer,
   return impl;
 }
 
+// CefV8BackingStoreImpl implementation.
+
+CefV8BackingStoreImpl::CefV8BackingStoreImpl(
+    std::unique_ptr<v8::BackingStore> backing_store)
+    : backing_store_(std::move(backing_store)) {}
+
+void* CefV8BackingStoreImpl::Data() {
+  base::AutoLock lock(lock_);
+  return backing_store_ ? backing_store_->Data() : nullptr;
+}
+
+size_t CefV8BackingStoreImpl::ByteLength() {
+  base::AutoLock lock(lock_);
+  return backing_store_ ? backing_store_->ByteLength() : 0;
+}
+
+bool CefV8BackingStoreImpl::IsValid() {
+  base::AutoLock lock(lock_);
+  return backing_store_ != nullptr;
+}
+
+std::unique_ptr<v8::BackingStore> CefV8BackingStoreImpl::TakeBackingStore() {
+  base::AutoLock lock(lock_);
+  return std::move(backing_store_);
+}
+
+// static
+CefRefPtr<CefV8BackingStore> CefV8BackingStore::Create(size_t byte_length) {
+  CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
+
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
+  std::unique_ptr<v8::BackingStore> backing =
+      v8::ArrayBuffer::NewBackingStore(isolate, byte_length);
+  if (!backing) {
+    return nullptr;
+  }
+
+  return new CefV8BackingStoreImpl(std::move(backing));
+}
+
+// static
+CefRefPtr<CefV8Value> CefV8Value::CreateArrayBufferFromBackingStore(
+    CefRefPtr<CefV8BackingStore> backing_store) {
+  CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
+
+  if (!backing_store || !backing_store->IsValid()) {
+    return nullptr;
+  }
+
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
+  v8::HandleScope handle_scope(isolate);
+  v8::Local<v8::Context> context = isolate->GetCurrentContext();
+  if (context.IsEmpty()) {
+    DCHECK(false) << "not currently in a V8 context";
+    return nullptr;
+  }
+
+  CefV8BackingStoreImpl* impl =
+      static_cast<CefV8BackingStoreImpl*>(backing_store.get());
+  std::unique_ptr<v8::BackingStore> store = impl->TakeBackingStore();
+  if (!store) {
+    return nullptr;
+  }
+
+  v8::Local<v8::ArrayBuffer> ab =
+      v8::ArrayBuffer::New(isolate, std::move(store));
+
+  // Create a tracker object that will cause the user data reference to be
+  // released when the V8 object is destroyed.
+  V8TrackObject* tracker = new V8TrackObject(isolate);
+
+  // Attach the tracker object.
+  tracker->AttachTo(context, ab);
+
+  CefRefPtr<CefV8ValueImpl> value = new CefV8ValueImpl(isolate);
+  value->InitObject(ab, tracker);
+  return value.get();
+}
+
 // static
 CefRefPtr<CefV8Value> CefV8Value::CreateFunction(
     const CefString& name,
