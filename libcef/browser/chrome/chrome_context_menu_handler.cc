@@ -90,6 +90,15 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
   CefContextMenuObserver(const CefContextMenuObserver&) = delete;
   CefContextMenuObserver& operator=(const CefContextMenuObserver&) = delete;
 
+  ~CefContextMenuObserver() override {
+    // Ensure model is detached if the observer is destroyed before
+    // OnMenuClosed() is called (e.g., when the window is closed while
+    // the context menu is still visible).
+    if (model_) {
+      model_->Detach();
+    }
+  }
+
   // RenderViewContextMenuObserver methods:
 
   void InitMenu(const content::ContextMenuParams& params) override {
