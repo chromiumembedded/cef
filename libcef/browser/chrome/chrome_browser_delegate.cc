@@ -68,9 +68,14 @@ Browser* ChromeBrowserDelegate::CreateDevToolsBrowser(
   CefRefPtr<CefBrowserHostBase> opener_browser_host =
       opener ? ChromeBrowserHostImpl::GetBrowserForBrowser(opener) : nullptr;
   if (!opener_browser_host) {
-    // |inspected_web_contents| may be an Alloy style browser.
-    opener_browser_host =
-        CefBrowserHostBase::GetBrowserForContents(inspected_web_contents);
+    // |inspected_web_contents| may be an Alloy style browser, or it may be
+    // nullptr when using chrome://inspect to inspect a remote debugging target
+    // in the same or different process.
+    if (inspected_web_contents) {
+      opener_browser_host =
+          CefBrowserHostBase::GetBrowserForContents(inspected_web_contents);
+    }
+
     if (!opener_browser_host) {
       // The popup browser host will instead be created via SetAsDelegate.
       return nullptr;
