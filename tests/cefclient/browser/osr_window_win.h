@@ -182,7 +182,7 @@ class OsrWindowWin
   std::unique_ptr<OsrImeHandlerWin> ime_handler_;
 
   RECT client_rect_;
-  float device_scale_factor_ = 0;
+  float device_scale_factor_ = 1.0f;
 
   CefRefPtr<CefBrowser> browser_;
 
