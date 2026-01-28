@@ -152,6 +152,17 @@ class CefViewDelegate : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual void OnThemeChanged(CefRefPtr<CefView> view) {}
+
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// Called by CefBrowserPlatformDelegateChromeViews::BrowserDestroyed()
+  ///
+  /// We have to drop our reference to the native delegate, because it's
+  /// going to be destroyed very soon.
+  ///
+  /*--cef(added=next)--*/
+  virtual void ClearNativeDelegate() {}
+#endif
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_DELEGATE_H_
