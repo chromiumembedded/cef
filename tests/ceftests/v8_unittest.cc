@@ -716,6 +716,11 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     // Enter the V8 context.
     EXPECT_TRUE(context->Enter());
     {
+      // Creating a backing store with zero size should fail.
+      CefRefPtr<CefV8BackingStore> empty_store =
+          CefV8BackingStore::Create(0);
+      EXPECT_FALSE(empty_store.get());
+
       const size_t byte_length = 64;
       CefRefPtr<CefV8BackingStore> backing_store =
           CefV8BackingStore::Create(byte_length);
