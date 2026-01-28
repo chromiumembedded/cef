@@ -380,7 +380,7 @@ class CefV8BackingStoreImpl : public CefV8BackingStore {
 
   // Transfer ownership of the underlying BackingStore. Returns nullptr if
   // already consumed. Must be called on the V8 thread.
-  std::unique_ptr<v8::BackingStore> TakeBackingStore();
+  [[nodiscard]] std::unique_ptr<v8::BackingStore> TakeBackingStore();
 
  private:
   base::Lock lock_;

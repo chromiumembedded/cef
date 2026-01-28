@@ -1532,6 +1532,10 @@ std::unique_ptr<v8::BackingStore> CefV8BackingStoreImpl::TakeBackingStore() {
 CefRefPtr<CefV8BackingStore> CefV8BackingStore::Create(size_t byte_length) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
 
+  if (byte_length == 0) {
+    return nullptr;
+  }
+
   v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   std::unique_ptr<v8::BackingStore> backing =
       v8::ArrayBuffer::NewBackingStore(isolate, byte_length);
