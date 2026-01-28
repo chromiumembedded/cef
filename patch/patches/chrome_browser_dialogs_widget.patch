@@ -212,10 +212,10 @@ index cc25afde6afb9027efaed4ef8d23046433231305..8fb54dc6040bb9f2f2bb322204798abf
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
  
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index 1b7eb9149208de6104c613a0f7c6f38214e2a050..2f3953f5f731dc337de2edafdc4ae02ef81fe6b1 100644
+index fe458f799f64daae2b0bc05f568a30b4fb6b70dd..62973ccd8525565fea2894b26eb702c1599f6d1b 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
-@@ -100,10 +100,12 @@ DialogDelegate::DialogDelegate() {
+@@ -111,10 +111,12 @@ DialogDelegate::DialogDelegate() {
  // static
  Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
                                             gfx::NativeWindow context,
@@ -230,7 +230,7 @@ index 1b7eb9149208de6104c613a0f7c6f38214e2a050..2f3953f5f731dc337de2edafdc4ae02e
    widget->Init(std::move(params));
    return widget;
  }
-@@ -112,15 +114,17 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
+@@ -123,15 +125,17 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
  Widget* DialogDelegate::CreateDialogWidget(
      std::unique_ptr<WidgetDelegate> delegate,
      gfx::NativeWindow context,
@@ -252,7 +252,7 @@ index 1b7eb9149208de6104c613a0f7c6f38214e2a050..2f3953f5f731dc337de2edafdc4ae02e
  #else
    return true;
  #endif
-@@ -131,7 +135,8 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -142,7 +146,8 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
      WidgetDelegate* delegate,
      gfx::NativeWindow context,
      gfx::NativeView parent,
@@ -262,7 +262,7 @@ index 1b7eb9149208de6104c613a0f7c6f38214e2a050..2f3953f5f731dc337de2edafdc4ae02e
    DialogDelegate* dialog = delegate->AsDialogDelegate();
  
    views::Widget::InitParams params(
-@@ -141,7 +146,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -152,7 +157,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
    params.bounds = bounds;
  
    if (dialog) {
@@ -271,7 +271,7 @@ index 1b7eb9149208de6104c613a0f7c6f38214e2a050..2f3953f5f731dc337de2edafdc4ae02e
    }
  
    if (!dialog || dialog->use_custom_frame()) {
-@@ -155,6 +160,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -166,6 +171,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
    }
    params.context = context;
    params.parent = parent;
