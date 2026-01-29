@@ -1125,7 +1125,7 @@ if not options.nodocs:
     sys.stdout.write(result['err'])
   sys.stdout.write(result['out'])
 
-  src_dir = os.path.join(cef_dir, 'docs')
+  src_dir = os.path.join(cef_dir, 'cppdocs')
   if path_exists(src_dir):
     # create the docs output directory
     docs_output_dir = create_output_dir(output_dir_base + '_docs',

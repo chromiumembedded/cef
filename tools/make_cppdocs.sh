@@ -18,10 +18,10 @@ CEF_DIR="${SCRIPT_DIR}/.."
 # Environment variables inserted into the Doxyfile via `$(VAR_NAME)` syntax.
 export PROJECT_NUMBER=$(python3 ${SCRIPT_DIR}/cef_version.py current)
 
-# Generate documentation in the docs/html directory.
+# Generate documentation in the cppdocs/html directory.
 # Run from the top-level CEF directory so that relative paths resolve correctly.
 ( cd ${CEF_DIR} && doxygen Doxyfile )
 
-# Write a docs/index.html file.
-echo "<html><head><meta http-equiv=\"refresh\" content=\"0;URL='html/index.html'\"/></head></html>" > ${CEF_DIR}/docs/index.html
+# Write a cppdocs/index.html file.
+echo "<html><head><meta http-equiv=\"refresh\" content=\"0;URL='html/index.html'\"/></head></html>" > ${CEF_DIR}/cppdocs/index.html
 

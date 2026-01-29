@@ -49,7 +49,7 @@ Thumbs.db
 *.kdev4
 # CEF generated directories
 /binary_distrib
-/docs
+/cppdocs
 # CEF generated files
 .ccls-cache/
 /cef_api_untracked.json
