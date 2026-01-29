@@ -113,7 +113,7 @@ cd c:\code\chromium_git\chromium\src\cef
 create.bat
 ```
 
-This will generate a "c:\code\chromium_git\chromium\src\out\Debug_GN_x86\cef.sln" file that can be loaded in Visual Studio for debugging and compiling individual files. Replace “x86” with “x64” in this path to work with the 64-bit build instead of the 32-bit build. Always use Ninja to build the complete project. Repeat this step if you change the project configuration or add/remove files in the GN configuration (BUILD.gn file).
+This will generate a "c:\code\chromium_git\chromium\src\out\Debug_GN_x86\cef.sln" file that can be loaded in Visual Studio for debugging and compiling individual files. Replace "x86" with "x64" in this path to work with the 64-bit build instead of the 32-bit build. Always use Ninja to build the complete project. Repeat this step if you change the project configuration or add/remove files in the GN configuration (BUILD.gn file).
 
 8\. Create a Debug build of CEF/Chromium using Ninja. Edit the CEF source code at "c:\code\chromium_git\chromium\src\cef" and repeat this step multiple times to perform incremental builds while developing.
 
@@ -122,7 +122,7 @@ cd c:\code\chromium_git\chromium\src
 autoninja -C out\Debug_GN_x86 cef
 ```
 
-Replace "Debug" with "Release" to generate a Release build instead of a Debug build. Replace “x86” with “x64” to generate a 64-bit build instead of a 32-bit build.
+Replace "Debug" with "Release" to generate a Release build instead of a Debug build. Replace "x86" with "x64" to generate a 64-bit build instead of a 32-bit build.
 
 9\. Run the resulting cefclient sample application.
 
@@ -386,4 +386,4 @@ VSCode is configured via JSON files in the `chromium/src/.vscode` directory. The
 - If you prefer a different editor Chromium provides tips/tutorials for [Visual Studio](https://www.chromium.org/developers/how-tos/visualstudio-tricks/), [Eclipse](https://chromium.googlesource.com/chromium/src/+/main/docs/linux/eclipse_dev.md) and [Emacs](https://chromium.googlesource.com/chromium/src/+/main/docs/emacs.md).
 - Review the [Tutorial](tutorial.md) and [General Usage](general_usage.md) Wiki pages for details on CEF implementation and usage.
 - Review the Chromium debugging guide for [Windows](https://www.chromium.org/developers/how-tos/debugging-on-windows), [Mac OS X](https://www.chromium.org/developers/how-tos/debugging-on-os-x) or [Linux](https://chromium.googlesource.com/chromium/src/+/main/docs/linux/debugging.md).
-- When you’re ready to contribute your changes back to the CEF project see the [Contributing With Git](contributing_with_git.md) page for instructions on creating a pull request.
+- When you're ready to contribute your changes back to the CEF project see the [Contributing With Git](contributing_with_git.md) page for instructions on creating a pull request.

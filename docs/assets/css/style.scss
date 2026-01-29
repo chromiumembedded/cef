@@ -132,6 +132,12 @@ a:hover {
     background-color: #252525 !important;
   }
 
+  /* Error tokens - remove error highlighting */
+  .highlight .err {
+    background-color: transparent !important;
+    color: #d4d4d4 !important;
+  }
+
   /* Comments */
   .highlight .c, .highlight .c1, .highlight .cm, .highlight .cs {
     color: #6a9955 !important;

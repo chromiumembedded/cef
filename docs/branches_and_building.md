@@ -68,7 +68,7 @@ Older CEF release version numbers have the format X.YYYY.A.gHHHHHHH where:
   * "A" is an incremental number representing the number of commits in the current branch. This is roughly equivalent to the SVN revision number but on a per-branch basis and assists people in quickly determining the order of builds in the same branch (for bug reports, etc).
   * "gHHHHHHH" is the 7-character abbreviation for the Git commit hash. This facilitates lookup of the relevant commit history in Git.
 
-Detailed Chromium and CEF version information is available in the include/cef\_version.h header file which is created during the build process or by loading the “about:version” URL in a CEF-derived application.
+Detailed Chromium and CEF version information is available in the include/cef\_version.h header file which is created during the build process or by loading the "about:version" URL in a CEF-derived application.
 
 ## Current Release Branches (Supported)
 
@@ -210,7 +210,7 @@ Note that 1025 and older branches contain only CEF1 source code and that 1547 an
 
 # Building from Source
 
-Building from source code is currently supported on Windows, macOS and Linux platforms. Use of the Automated Method described below is recommended. Building the current CEF/Chromium master branch for local development is described on the [Master Build Quick Start](master_build_quick_start.md) page. Building the current CEF/Chromium stable branch automatically for production use is described on the  [Automated Build Setup](automated_build_setup.md#linux-configuration) page. For other branches see the build requirements listed in the “Release Branches” section above and the “Build Notes” section below.
+Building from source code is currently supported on Windows, macOS and Linux platforms. Use of the Automated Method described below is recommended. Building the current CEF/Chromium master branch for local development is described on the [Master Build Quick Start](master_build_quick_start.md) page. Building the current CEF/Chromium stable branch automatically for production use is described on the  [Automated Build Setup](automated_build_setup.md#linux-configuration) page. For other branches see the build requirements listed in the "Release Branches" section above and the "Build Notes" section below.
 
 ## Automated Method
 
@@ -236,15 +236,15 @@ To build a release branch:
 python /path/to/automate/automate-git.py --download-dir=/path/to/download --branch=2785
 ```
 
-By default the script will download depot\_tools, Chromium and CEF source code, run Debug and Release builds of CEF, and create a binary distribution package containing the build artifacts in the “/path/to/download/chromium/src/cef/binary\_distrib” directory. Future runs of the script will perform the minimum work necessary (unless otherwise configured using command-line flags). For example, if there are no pending CEF or Chromium updates the script will do nothing.
+By default the script will download depot\_tools, Chromium and CEF source code, run Debug and Release builds of CEF, and create a binary distribution package containing the build artifacts in the "/path/to/download/chromium/src/cef/binary\_distrib" directory. Future runs of the script will perform the minimum work necessary (unless otherwise configured using command-line flags). For example, if there are no pending CEF or Chromium updates the script will do nothing.
 
-If you run the script and CEF or Chromium updates are pending the “/path/to/download/chromium/src/cef” directory will be removed and replaced with a clean copy from “/path/to/download/cef\_(branch)” (specify the `--no-update` command-line flag to disable updates). Make sure to back up any changes that you made in the “/path/to/download/chromium/src/cef” directory before re-running the script.
+If you run the script and CEF or Chromium updates are pending the "/path/to/download/chromium/src/cef" directory will be removed and replaced with a clean copy from "/path/to/download/cef\_(branch)" (specify the `--no-update` command-line flag to disable updates). Make sure to back up any changes that you made in the "/path/to/download/chromium/src/cef" directory before re-running the script.
 
-The same download directory can be used for building multiple CEF branches (just specify a different `--branch` command-line value). The existing “/path/to/download/chromium/src/out” directory will be moved to “/path/to/download/out\_(previousbranch)” so that the build output from the previous branch is not lost. When you switch back to a previous branch the out directory will be restored to its original location.
+The same download directory can be used for building multiple CEF branches (just specify a different `--branch` command-line value). The existing "/path/to/download/chromium/src/out" directory will be moved to "/path/to/download/out\_(previousbranch)" so that the build output from the previous branch is not lost. When you switch back to a previous branch the out directory will be restored to its original location.
 
 The script will create a 32-bit build on Windows by default. To create a 64-bit build on Windows, macOS or Linux specify the `--x64-build` command-line flag. 32-bit builds on macOS are [no longer supported](https://groups.google.com/a/chromium.org/d/msg/chromium-dev/sdsDCkq_zwo/yep65H8Eg3sJ) starting with 2272 branch so this flag is now required when building 2272+ on that platform.
 
-If you receive Git errors when moving an existing checkout from one branch to another you can force a clean Chromium Git checkout (specify the  `--force-clean` command-line flag) and optionally a clean download of Chromium dependencies (specify the `--force-clean-deps` command-line flag). Any build output that currently exists in the “src/out” directory will be deleted. Re-downloading the Chromium dependencies can take approximately 30 minutes with a reasonably fast internet connection.
+If you receive Git errors when moving an existing checkout from one branch to another you can force a clean Chromium Git checkout (specify the  `--force-clean` command-line flag) and optionally a clean download of Chromium dependencies (specify the `--force-clean-deps` command-line flag). Any build output that currently exists in the "src/out" directory will be deleted. Re-downloading the Chromium dependencies can take approximately 30 minutes with a reasonably fast internet connection.
 
 Add the `--help` command-line switch to output a complete list of supported command-line options.
 
@@ -280,7 +280,7 @@ This section summarizes build-related requirements and options.
   * [Clang](https://clang.llvm.org/) is used by default for compiling/linking Chromium/CEF on macOS in all branches, Linux starting in 2063 branch, and Windows starting in 3282 branch.
   * [GYP](https://gyp.gsrc.io/docs/UserDocumentation.md) is supported by 2785 branch and older. [GN](http://www.chromium.org/developers/gn-build-configuration) is supported by 2785 branch and newer, and required starting with 2840 branch. Set `CEF_USE_GN=1` to build 2785 branch with GN instead of GYP.
   * To perform a 64-bit build on Windows (any branch) or macOS (branch 2171 or older) set `GYP_DEFINES=target_arch=x64` (GYP only) or build the `out/[Debug|Release]_GN_x64` target (GN only). To perform a 32-bit Linux build on a 64-bit Linux system see instructions on the [Automated Build Setup](automated_build_setup.md#linux-configuration) page.
-  * To perform an “official” build set `GYP_DEFINES=buildtype=Official` (GYP only) or `GN_DEFINES=is_official_build=true` (GN only). This will disable debugging code and enable additional link-time optimizations in Release builds. See instructions on the [Automated Build Setup](automated_build_setup.md) page for additional official build recommendations.
+  * To perform an "official" build set `GYP_DEFINES=buildtype=Official` (GYP only) or `GN_DEFINES=is_official_build=true` (GN only). This will disable debugging code and enable additional link-time optimizations in Release builds. See instructions on the [Automated Build Setup](automated_build_setup.md) page for additional official build recommendations.
   * Windows -
     * If multiple versions of Visual Studio are installed on your system you can set the GYP\_MSVS\_VERSION environment variable to create project files for that version. For example, set the value to "2015" for VS2015 or "2017" for VS2017. Check the Chromium documentation for the correct value when using other Visual Studio versions.
     * If you wish to use Visual Studio for debugging and compiling in combination with a Ninja build you can set `GYP_GENERATORS=ninja,msvs-ninja` (GYP only) or `GN_ARGUMENTS=--ide=vs2017 --sln=cef --filters=//cef/*` (GN only) to generate both Ninja and VS project files. Visual Studio is supported only for debugging and compiling individual source files -- it will not build whole targets successfully. You must use Ninja when building CEF/Chromium targets.

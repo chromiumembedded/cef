@@ -52,19 +52,19 @@ cd /path/to/chromium_git/chromium/src
 
 **NOTE: This section was last updated for 2357 branch (April 2015) and specific details may be out of date.**
 
-ASan on Linux is built as a static library by default. This works fine with applications like cefclient and cef\_unittests that are built at the same time as libcef and consequently specify the “-fsanitize=address” flag. However, in order to use libcef and ASan with pre-built third-party executables (e.g. Java and [JCEF](https://github.com/chromiumembedded/java-cef)) it’s necessary to build ASan as a shared library (see [here](https://github.com/google/sanitizers/issues/271) for more information). This works as follows (see step 8 below for an example):
+ASan on Linux is built as a static library by default. This works fine with applications like cefclient and cef\_unittests that are built at the same time as libcef and consequently specify the "-fsanitize=address" flag. However, in order to use libcef and ASan with pre-built third-party executables (e.g. Java and [JCEF](https://github.com/chromiumembedded/java-cef)) it's necessary to build ASan as a shared library (see [here](https://github.com/google/sanitizers/issues/271) for more information). This works as follows (see step 8 below for an example):
 
-A. The ASan library (“libclang\_rt.asan-x86\_64.so” on 64-bit Linux) is specified via LD\_PRELOAD so that it will be loaded into the main executable at runtime.
+A. The ASan library ("libclang\_rt.asan-x86\_64.so" on 64-bit Linux) is specified via LD\_PRELOAD so that it will be loaded into the main executable at runtime.
 
-B. The main executable delay loads “libcef.so” which depends on “libc++.so” and “libclang\_rt.asan-x86\_64.so” provided by the Chromium Clang build.
+B. The main executable delay loads "libcef.so" which depends on "libc++.so" and "libclang\_rt.asan-x86\_64.so" provided by the Chromium Clang build.
 
 C. Output is piped to the ASan post-processing script in order to symbolize stack traces.
 
-To build ASan as a shared library the following changes are required to Chromium’s default Clang build and GYP configuration:
+To build ASan as a shared library the following changes are required to Chromium's default Clang build and GYP configuration:
 
 1\. Create a custom build of Clang with ASan configured as a shared library.
 
-A. Edit the “tools/clang/scripts/update.sh” script and add "-DCOMPILER\_RT\_BUILD\_SHARED\_ASAN=ON" to all CMake command-lines (see [AddressSanitizerAsDso](https://github.com/google/sanitizers/wiki/AddressSanitizerAsDso) and [AddressSanitizerHowToBuild](https://github.com/google/sanitizers/wiki/AddressSanitizerHowToBuild) for more information).
+A. Edit the "tools/clang/scripts/update.sh" script and add "-DCOMPILER\_RT\_BUILD\_SHARED\_ASAN=ON" to all CMake command-lines (see [AddressSanitizerAsDso](https://github.com/google/sanitizers/wiki/AddressSanitizerAsDso) and [AddressSanitizerHowToBuild](https://github.com/google/sanitizers/wiki/AddressSanitizerHowToBuild) for more information).
 
 ```
 diff --git tools/clang/scripts/update.sh tools/clang/scripts/update.sh
@@ -105,18 +105,18 @@ index 10a4645..bd7c5ab 100755
        -DLLVM_ENABLE_THREADS=OFF \
 ```
 
-B. Run the “tools/clang/scripts/update.sh” script to create a local build of Clang.
+B. Run the "tools/clang/scripts/update.sh" script to create a local build of Clang.
 
 ```sh
 cd /path/to/chromium_git/chromium/src
 ./tools/clang/scripts/update.sh --force-local-build --without-android
 ```
 
-This will create “libclang\_rt.asan-x86\_64.so” (assuming 64-bit Linux) in the “third\_party/llvm-build/Release+Asserts/lib/clang/3.7.0/lib/linux” directory.
+This will create "libclang\_rt.asan-x86\_64.so" (assuming 64-bit Linux) in the "third\_party/llvm-build/Release+Asserts/lib/clang/3.7.0/lib/linux" directory.
 
-2\. Copy “libclang\_rt.asan-x86\_64.so” to the “out/Release/lib” directory so that binaries built as part of the Chromium build can find it.
+2\. Copy "libclang\_rt.asan-x86\_64.so" to the "out/Release/lib" directory so that binaries built as part of the Chromium build can find it.
 
-3\. Add '-shared-libasan' or modify related exclusions everywhere that ‘-fsanitize=address’ is mentioned for Linux in “build/common.gypi”, “build/sanitizers/sanitizers.gyp”, “sandbox/linux/sandbox\_linux.gypi” and “third\_party/libvpx/libvpx.gyp” (see [AddressSanitizerAsDso](https://github.com/google/sanitizers/wiki/AddressSanitizerAsDso) for details). Also, specify '-mllvm -asan-globals=0' in “base/common.gypi” (see [here](https://github.com/google/sanitizers/issues/82#c18) for details).
+3\. Add '-shared-libasan' or modify related exclusions everywhere that '-fsanitize=address' is mentioned for Linux in "build/common.gypi", "build/sanitizers/sanitizers.gyp", "sandbox/linux/sandbox\_linux.gypi" and "third\_party/libvpx/libvpx.gyp" (see [AddressSanitizerAsDso](https://github.com/google/sanitizers/wiki/AddressSanitizerAsDso) for details). Also, specify '-mllvm -asan-globals=0' in "base/common.gypi" (see [here](https://github.com/google/sanitizers/issues/82#c18) for details).
 
 ```
 diff --git build/common.gypi build/common.gypi
@@ -187,9 +187,9 @@ index 4305b41..9ca48de 100644
 
 4\. Build CEF with ASan (see the "Building CEF with ASan" section above).
 
-5\. Copy “libcef.so”, “libc++.so” and “libclang\_rt.asan-x86\_64.so” from the “out/Release/lib” directory to the third-party project’s binary directory (e.g. “out/Debug” for JCEF).
+5\. Copy "libcef.so", "libc++.so" and "libclang\_rt.asan-x86\_64.so" from the "out/Release/lib" directory to the third-party project's binary directory (e.g. "out/Debug" for JCEF).
 
-6\. Run the third-party executable pre-loading “libclang\_rt.asan-x86\_64.so” and piping output to the ASan post-processing script so that stack traces will be symbolized. For example, using JCEF’s [run.sh script](https://github.com/chromiumembedded/java-cef/blob/master/tools/run.sh):
+6\. Run the third-party executable pre-loading "libclang\_rt.asan-x86\_64.so" and piping output to the ASan post-processing script so that stack traces will be symbolized. For example, using JCEF's [run.sh script](https://github.com/chromiumembedded/java-cef/blob/master/tools/run.sh):
 
 ```
 LD_PRELOAD=$LIB_PATH/libclang_rt.asan-x86_64.so java -cp "$CLS_PATH" -Djava.library.path=$LIB_PATH tests.$RUN_TYPE.MainFrame "$@" 2>&1 | /path/to/chromium_git/chromium/src/tools/valgrind/asan/asan_symbolize.py

@@ -42,14 +42,14 @@ CEF provides a sample project that makes it really easy to get started with CEF 
 The cefsimple application loads google.com by default but you can change it to load a custom URL instead. The easiest way to load a different URL is via the command-line.
 
 ```sh
-# Load the local file “c:\example\example.html”
+# Load the local file "c:\example\example.html"
 cefsimple.exe --url=file://c:/example/example.html
 ```
 
 You can also edit the source code in [cefsimple/simple\_app.cc](https://github.com/chromiumembedded/cef/blob/master/tests/cefsimple/simple_app.cc) and recompile the application to load your custom URL by default.
 
 ```cpp
-// Load the local file “c:\example\example.html”
+// Load the local file "c:\example\example.html"
 …
 if (url.empty())
   url = "file://c:/example/example.html";
@@ -60,7 +60,7 @@ if (url.empty())
 
 All CEF applications have the following primary components:
 
-  1. The CEF dynamic library (libcef.dll on Windows, libcef.so on Linux, “Chromium Embedded Framework.framework” on macOS).
+  1. The CEF dynamic library (libcef.dll on Windows, libcef.so on Linux, "Chromium Embedded Framework.framework" on macOS).
   1. Support files (\*.pak and \*.bin binary blobs, etc).
   1. Resources (html/js/css for built-in features, strings, etc).
   1. Client executable (cefsimple in this example).
@@ -159,8 +159,8 @@ Application/
   1. Compile the libcef\_dll\_wrapper static library.
   1. Compile/link cefsimple.
     * Required source code files include: cefsimple\_linux.cc, simple\_app.cc, simple\_handler.cc, simple\_handler\_linux.cc.
-    * Required link libraries include: libcef\_dll\_wrapper.a, libcef.so and dependencies (identified at build time using the “pkg-config” tool).
-    * Configure the rpath to find libcef.so in the current directory (“-Wl,-rpath,.”) or use the LD\_LIBRARY\_PATH environment variable.
+    * Required link libraries include: libcef\_dll\_wrapper.a, libcef.so and dependencies (identified at build time using the "pkg-config" tool).
+    * Configure the rpath to find libcef.so in the current directory ("-Wl,-rpath,.") or use the LD\_LIBRARY\_PATH environment variable.
   1. Copy all files from the Resources directory to the output directory.
   1. Copy all files from the Debug/Release directory to the output directory.
   1. Set SUID permissions on the chrome-sandbox executable to support the sandbox. See binary distribution build output for the necessary command.
@@ -184,17 +184,17 @@ Application/
 ## MacOS Build Steps
 
   1. Compile the libcef\_dll\_wrapper static library.
-  1. Compile/link/package the “cefsimple Helper” app.
+  1. Compile/link/package the "cefsimple Helper" app.
     * Required source code files include: process\_helper\_mac.cc.
     * Required link frameworks include: AppKit.framework.
-    * App bundle configuration is provided via “cefsimple/mac/helper-Info.plist”.
+    * App bundle configuration is provided via "cefsimple/mac/helper-Info.plist".
     * Load the CEF Framework as described [here](https://groups.google.com/d/msg/cef-announce/Fith0A3kWtw/6ds_mJVMCQAJ).
-  1. Compile/link/package the “cefsimple” app.
+  1. Compile/link/package the "cefsimple" app.
     * Required source code files include: cefsimple\_mac.mm, simple\_app.cc, simple\_handler.cc, simple\_handler\_mac.mm.
     * Required link frameworks include: AppKit.framework.
-    * App bundle configuration is provided via “cefsimple/mac/Info.plist”.
+    * App bundle configuration is provided via "cefsimple/mac/Info.plist".
     * Load the CEF Framework as described [here](https://groups.google.com/d/msg/cef-announce/Fith0A3kWtw/6ds_mJVMCQAJ).
-  1. Create a Contents/Frameworks directory in the cefsimple.app bundle. Copy the following files to that directory: “cefsimple Helper.app”, “Chromium Embedded Framework.framework”.
+  1. Create a Contents/Frameworks directory in the cefsimple.app bundle. Copy the following files to that directory: "cefsimple Helper.app", "Chromium Embedded Framework.framework".
 
 The resulting directory structure looks like this for 2526 branch:
 
