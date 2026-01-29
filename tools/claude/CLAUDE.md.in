@@ -251,7 +251,7 @@ Communication between processes uses **Mojo IPC** (//mojo/) with strong type saf
 
 ### Key Documentation
 
-Refer to [docs/](docs/) for comprehensive documentation including:
+Refer to [docs/README.md](docs/README.md) for comprehensive documentation including:
 
 - Platform-specific build instructions
 - Design documents and architecture guides  

@@ -79,5 +79,5 @@ This is the primary CEF sample application. Changes to CEF features, API updates
 
 - [CEF Tutorial](https://github.com/chromiumembedded/cef/blob/master/docs/tutorial.md) - Detailed walkthrough of this example
 - [CEF General Usage](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md) - Complete API documentation
-- [CEF C++ API Documentation](https://github.com/chromiumembedded/cef/blob/master/docs/)
+- [CEF C++ API Documentation](https://github.com/chromiumembedded/cef/blob/master/docs/README.md)
 - [C API Version](../cefsimple_capi/) - Pure C implementation of this example

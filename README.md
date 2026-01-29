@@ -3,7 +3,7 @@ The Chromium Embedded Framework (CEF) is a simple framework for embedding Chromi
 # Quick Links
 
 * Project Page - https://github.com/chromiumembedded/cef
-* Documentation - [docs/](docs/)
+* Documentation - [docs/](docs/README.md)
 * Tutorial - [docs/tutorial.md](docs/tutorial.md)
 * General Usage - [docs/general_usage.md](docs/general_usage.md)
 * Master Build Quick-Start - [docs/master_build_quick_start.md](docs/master_build_quick_start.md)

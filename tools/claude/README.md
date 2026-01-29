@@ -242,7 +242,7 @@ Then share the analysis files with Claude.
 
 ### For Issues with CEF
 
-- CEF wiki: https://github.com/chromiumembedded/cef/blob/master/docs/
+- CEF wiki: https://github.com/chromiumembedded/cef/blob/master/docs/README.md
 - CEF forums: https://magpcss.org/ceforum/
 - CEF issue tracker: https://github.com/chromiumembedded/cef/issues
 
