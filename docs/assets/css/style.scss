@@ -50,55 +50,80 @@ a:hover {
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
-  body {
-    background-color: #1a1a1a;
-    color: #e0e0e0;
+  body,
+  .wrapper {
+    background-color: #1a1a1a !important;
+    color: #d0d0d0 !important;
+  }
+
+  header,
+  section {
+    background-color: #1a1a1a !important;
   }
 
   a {
-    color: #6db3f2;
+    color: #6db3f2 !important;
   }
 
   a:hover {
-    color: #9dcbf5;
+    color: #9dcbf5 !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    color: #f0f0f0;
+    color: #f0f0f0 !important;
+    border-bottom-color: #444 !important;
   }
 
+  /* Inline code */
   code {
-    background-color: #3a3a3a !important;
-    color: #e8e8e8 !important;
-    border: 1px solid #555 !important;
+    background-color: #2a2a2a !important;
+    color: #f0a050 !important;
+    border: none !important;
+    border-radius: 3px !important;
   }
 
+  /* Code blocks */
   pre {
-    background-color: #2d2d2d !important;
-    border: 1px solid #444 !important;
+    background-color: #252525 !important;
+    border: 1px solid #3a3a3a !important;
+    color: #d0d0d0 !important;
   }
 
   pre code {
     background-color: transparent !important;
-    border: none !important;
-    color: #e0e0e0 !important;
+    color: #d0d0d0 !important;
   }
 
   blockquote {
-    border-left-color: #555;
-    color: #b0b0b0;
+    border-left-color: #555 !important;
+    color: #a0a0a0 !important;
   }
 
   hr {
-    border-color: #444;
+    border-color: #444 !important;
+    background-color: #444 !important;
   }
 
   table th,
   table td {
-    border-color: #444;
+    border-color: #444 !important;
+  }
+
+  table th {
+    background-color: #2a2a2a !important;
   }
 
   table tr:nth-child(even) {
-    background-color: #252525;
+    background-color: #222 !important;
+  }
+
+  /* Lists */
+  ul, ol, li {
+    color: #d0d0d0 !important;
+  }
+
+  /* Strong/bold */
+  strong, b {
+    color: #e8e8e8 !important;
   }
 }
