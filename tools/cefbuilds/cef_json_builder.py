@@ -185,7 +185,7 @@ class cef_json_builder:
         numbers. """
     chromium_version = 'master'
     git_hash = cef_version[-7:]
-    query_url = 'https://bitbucket.org/chromiumembedded/cef/raw/%s/CHROMIUM_BUILD_COMPATIBILITY.txt' % git_hash
+    query_url = 'https://raw.githubusercontent.com/chromiumembedded/cef/%s/CHROMIUM_BUILD_COMPATIBILITY.txt' % git_hash
     self._queryct = self._queryct + 1
     if not self._silent:
       print('Reading %s' % query_url)

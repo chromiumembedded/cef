@@ -34,7 +34,7 @@ from urllib.request import urlopen
 depot_tools_url = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
 depot_tools_archive_url = 'https://storage.googleapis.com/chrome-infra/depot_tools.zip'
 
-cef_git_url = 'https://bitbucket.org/chromiumembedded/cef.git'
+cef_git_url = 'https://github.com/chromiumembedded/cef.git'
 
 ##
 # Global system variables.
