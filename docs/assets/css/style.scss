@@ -1,0 +1,32 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+/* Reduce sidebar width */
+header {
+  width: 180px;
+  padding-right: 10px;
+}
+
+section {
+  width: calc(100% - 200px);
+  margin-left: 200px;
+}
+
+/* Smaller header text */
+header h1 {
+  font-size: 1.5em;
+}
+
+/* Mobile: hide sidebar, full width content */
+@media print, screen and (max-width: 720px) {
+  header {
+    width: auto;
+    padding-right: 0;
+  }
+  section {
+    width: 100%;
+    margin-left: 0;
+  }
+}
