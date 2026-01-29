@@ -67,13 +67,21 @@ a:hover {
     color: #f0f0f0;
   }
 
-  code, pre {
-    background-color: #2d2d2d;
-    color: #e0e0e0;
+  code {
+    background-color: #3a3a3a;
+    color: #e8e8e8;
+    border: 1px solid #555;
   }
 
   pre {
+    background-color: #2d2d2d;
     border: 1px solid #444;
+  }
+
+  pre code {
+    background-color: transparent;
+    border: none;
+    color: #e0e0e0;
   }
 
   blockquote {
