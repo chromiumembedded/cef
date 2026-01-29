@@ -108,7 +108,7 @@ Execution begins in the browser process entry point function. This function is r
 
 ## SimpleApp
 
-SimpleApp is responsible for handling process-level callbacks. It exposes some interfaces/methods that are shared by multiple processes and some that are only called in a particular process. The CefBrowserProcessHandler interface, for example, is only called in the browser process. There's a separate CefRenderProcessHandler interface (not shown in this example) that is only called in the render process. Note that GetBrowserProcessHandler() must return |this| because SimpleApp implements both CefApp and CefBrowserProcessHandler. See the [General Usage](general_usage.md) page or API header files for additional information on CefApp and related interfaces.
+SimpleApp is responsible for handling process-level callbacks. It exposes some interfaces/methods that are shared by multiple processes and some that are only called in a particular process. The CefBrowserProcessHandler interface, for example, is only called in the browser process. There's a separate CefRenderProcessHandler interface (not shown in this example) that is only called in the render process. Note that GetBrowserProcessHandler() must return `|this|` because SimpleApp implements both CefApp and CefBrowserProcessHandler. See the [General Usage](general_usage.md) page or API header files for additional information on CefApp and related interfaces.
 
   * Shared implementation: [cefsimple/simple\_app.h](https://github.com/chromiumembedded/cef/blob/master/tests/cefsimple/simple_app.h), [cefsimple/simple\_app.cc](https://github.com/chromiumembedded/cef/blob/master/tests/cefsimple/simple_app.cc)
 

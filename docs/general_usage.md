@@ -1263,7 +1263,7 @@ Proxy settings are configured in CEF3 using the same command-line flags as Googl
       Specify proxy autoconfiguration URL.
 ```
 
-If the proxy requires authentication the CefRequestHandler::GetAuthCredentials() callback will be executed with an |isProxy| value of true to retrieve the username and password.
+If the proxy requires authentication the CefRequestHandler::GetAuthCredentials() callback will be executed with an `isProxy` value of true to retrieve the username and password.
 
 ```cpp
 bool MyHandler::GetAuthCredentials(
