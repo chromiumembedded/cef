@@ -47,3 +47,50 @@ a:hover {
     margin-left: 0;
   }
 }
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+  }
+
+  a {
+    color: #6db3f2;
+  }
+
+  a:hover {
+    color: #9dcbf5;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: #f0f0f0;
+  }
+
+  code, pre {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+  }
+
+  pre {
+    border: 1px solid #444;
+  }
+
+  blockquote {
+    border-left-color: #555;
+    color: #b0b0b0;
+  }
+
+  hr {
+    border-color: #444;
+  }
+
+  table th,
+  table td {
+    border-color: #444;
+  }
+
+  table tr:nth-child(even) {
+    background-color: #252525;
+  }
+}
