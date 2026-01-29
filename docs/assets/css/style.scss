@@ -20,11 +20,14 @@ header h1 {
 }
 
 /* Fix footer text wrapping */
-header p.view,
-header p:last-child {
+header p,
+header small {
   word-wrap: break-word;
   overflow-wrap: break-word;
-  font-size: 0.8em;
+  white-space: normal;
+  max-width: 100%;
+  font-size: 0.75em;
+  display: block;
 }
 
 /* Prevent link hover from adding bold (causes layout shift) */
