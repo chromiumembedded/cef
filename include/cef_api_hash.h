@@ -29,7 +29,7 @@
 //
 // Versions are managed using the version_manager.py tool. For usage details
 // see
-// https://github.com/chromiumembedded/cef/blob/master/docs/api_versioning.md
+// https://chromiumembedded.github.io/cef/api_versioning
 //
 
 #ifndef CEF_INCLUDE_CEF_API_HASH_H_

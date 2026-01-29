@@ -398,7 +398,7 @@ Run with -n to output the next available API version.
 Run with -a to apply the next available API version.
 
 For complete usage details see
-https://github.com/chromiumembedded/cef/blob/master/docs/api_versioning.md
+https://chromiumembedded.github.io/cef/api_versioning
 
 """
 

@@ -44,7 +44,7 @@ extern "C" {
 /// is individually configured for each window/browser at creation time and
 /// different styles can be mixed during runtime. For additional comparative
 /// details on runtime styles see
-/// https://github.com/chromiumembedded/cef/blob/master/docs/architecture.md#cef3
+/// https://chromiumembedded.github.io/cef/architecture#cef3
 ///
 /// Windowless rendering will always use Alloy style. Windowed rendering with a
 /// default window or client-provided parent window can configure the style via

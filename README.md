@@ -3,11 +3,11 @@ The Chromium Embedded Framework (CEF) is a simple framework for embedding Chromi
 # Quick Links
 
 * Project Page - https://github.com/chromiumembedded/cef
-* Documentation - [docs/](docs/README.md)
-* Tutorial - [docs/tutorial.md](docs/tutorial.md)
-* General Usage - [docs/general_usage.md](docs/general_usage.md)
-* Master Build Quick-Start - [docs/master_build_quick_start.md](docs/master_build_quick_start.md)
-* Branches and Building - [docs/branches_and_building.md](docs/branches_and_building.md)
+* Documentation - https://chromiumembedded.github.io/cef/
+* Tutorial - https://chromiumembedded.github.io/cef/tutorial
+* General Usage - https://chromiumembedded.github.io/cef/general_usage
+* Master Build Quick-Start - https://chromiumembedded.github.io/cef/master_build_quick_start
+* Branches and Building - https://chromiumembedded.github.io/cef/branches_and_building
 * Announcements - https://groups.google.com/forum/#!forum/cef-announce
 * Support Forum - http://www.magpcss.org/ceforum/
 * Issue Tracker - https://github.com/chromiumembedded/cef/issues
@@ -30,7 +30,7 @@ Numerous individuals and organizations contribute time and resources to support 
 
 # Getting Started
 
-Users new to CEF development should start by reading the [Tutorial](docs/tutorial.md) for an overview of CEF usage and then proceed to the [General Usage](docs/general_usage.md) page for a more in-depth discussion of architectural and usage issues. Complete API documentation is available [here](https://cef-builds.spotifycdn.com/docs/stable.html). CEF support and related discussion is available on the [CEF Forum](http://www.magpcss.org/ceforum/).
+Users new to CEF development should start by reading the [Tutorial](https://chromiumembedded.github.io/cef/tutorial) for an overview of CEF usage and then proceed to the [General Usage](https://chromiumembedded.github.io/cef/general_usage) page for a more in-depth discussion of architectural and usage issues. Complete API documentation is available [here](https://cef-builds.spotifycdn.com/docs/stable.html). CEF support and related discussion is available on the [CEF Forum](http://www.magpcss.org/ceforum/).
 
 # Binary Distributions
 
@@ -38,7 +38,7 @@ Binary distributions, which include all files necessary to build a CEF-based app
 
 # Source Distributions
 
-The CEF project is an extension of the Chromium project. CEF maintains development and release branches that track Chromium branches. CEF source code can be downloaded, built and packaged manually or with automated tools. Visit the [Branches and Building](docs/branches_and_building.md) page for more information.
+The CEF project is an extension of the Chromium project. CEF maintains development and release branches that track Chromium branches. CEF source code can be downloaded, built and packaged manually or with automated tools. Visit the [Branches and Building](https://chromiumembedded.github.io/cef/branches_and_building) page for more information.
 
 # External Projects
 
@@ -77,7 +77,7 @@ If you would like to contribute source code changes to CEF please follow the bel
 
 \- Create or find an appropriate issue for each distinct bug, feature or change. 
 
-\- Submit a [pull request](docs/contributing_with_git.md) or create a patch with your changes and attach it to the CEF issue. Changes should:
+\- Submit a [pull request](https://chromiumembedded.github.io/cef/contributing_with_git) or create a patch with your changes and attach it to the CEF issue. Changes should:
 
 * Be submitted against the current [CEF master branch](https://github.com/chromiumembedded/cef/tree/master) unless explicitly fixing a bug in a CEF release branch.
 * Follow the style of existing CEF source files. In general CEF uses the [Chromium C++ style guide](https://chromium.googlesource.com/chromium/src/+/master/styleguide/c++/c++.md).

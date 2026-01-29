@@ -335,7 +335,7 @@ This section shows you **how to approach** common tasks. For complete implementa
 
 **C API:**
 
-- [UsingTheCAPI.md](https://github.com/chromiumembedded/cef/blob/master/docs/using_the_capi.md) - C API guide
+- [Using the CAPI](https://github.com/chromiumembedded/cef/blob/master/docs/using_the_capi.md) - C API guide
 
 ### Header File Documentation
 

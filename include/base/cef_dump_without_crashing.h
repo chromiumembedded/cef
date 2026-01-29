@@ -36,7 +36,7 @@
 /// against the libcef_dll_wrapper target.
 ///
 /// NOTE: Ensure crash reporting is configured before use. See
-/// https://github.com/chromiumembedded/cef/blob/master/docs/crash_reporting.md
+/// https://chromiumembedded.github.io/cef/crash_reporting
 /// for more information
 ///
 /// WARNING: Crash reporting should not be used in the main/browser process

@@ -11,7 +11,7 @@ Minimal C++ browser application - the recommended starting point for learning CE
 - **Purpose:** Learning CEF basics
 - **Complexity:** ~10 source files
 - **Best for:** Understanding CEF architecture and fundamental APIs
-- **Tutorial:** [CEF Tutorial](https://github.com/chromiumembedded/cef/blob/master/docs/tutorial.md) provides detailed walkthrough
+- **Tutorial:** [CEF Tutorial](https://chromiumembedded.github.io/cef/tutorial) provides detailed walkthrough
 
 ### [cefsimple_capi](cefsimple_capi/)
 
@@ -20,7 +20,7 @@ Pure C implementation of cefsimple using the CEF C API.
 - **Purpose:** C API reference implementation
 - **Language:** Pure C (C11), no C++
 - **Best for:** Embedding CEF in C projects or when C++ is unavailable
-- **Documentation:** [Using the C API](https://github.com/chromiumembedded/cef/blob/master/docs/using_the_capi.md)
+- **Documentation:** [Using the CAPI](https://chromiumembedded.github.io/cef/using_the_capi)
 
 ### [cefclient](cefclient/)
 
@@ -57,16 +57,16 @@ Common utilities and helpers used by cefclient and ceftests.
 
 **New to CEF?** Follow this recommended path:
 
-1. **Start with [cefsimple](cefsimple/)** and the [CEF Tutorial](https://github.com/chromiumembedded/cef/blob/master/docs/tutorial.md) to understand CEF architecture
+1. **Start with [cefsimple](cefsimple/)** and the [CEF Tutorial](https://chromiumembedded.github.io/cef/tutorial) to understand CEF architecture
 2. **Explore [cefclient](cefclient/)** to see advanced features and integration patterns
 3. **Review [ceftests](ceftests/)** to understand API usage and testing patterns
 4. **Study [shared](shared/)** code for reusable patterns and best practices
 
-For C API development, substitute [cefsimple_capi](cefsimple_capi/) for cefsimple and consult [UsingTheCAPI.md](https://github.com/chromiumembedded/cef/blob/master/docs/using_the_capi.md).
+For C API development, substitute [cefsimple_capi](cefsimple_capi/) for cefsimple and consult [Using the CAPI](https://chromiumembedded.github.io/cef/using_the_capi).
 
 ## References
 
 - [CEF Project](https://github.com/chromiumembedded/cef) - Main repository
-- [CEF Tutorial](https://github.com/chromiumembedded/cef/blob/master/docs/tutorial.md) - Detailed architecture walkthrough
-- [CEF General Usage](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md) - Complete API documentation
+- [CEF Tutorial](https://chromiumembedded.github.io/cef/tutorial) - Detailed architecture walkthrough
+- [CEF General Usage](https://chromiumembedded.github.io/cef/general_usage) - Complete API documentation
 - [CEF Forum](https://magpcss.org/ceforum/) - Community support and discussions

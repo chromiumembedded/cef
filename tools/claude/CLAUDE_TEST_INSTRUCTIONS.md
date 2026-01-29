@@ -1622,7 +1622,7 @@ Tests succeed when:
 
 - [ceftests README](../../tests/ceftests/README.md) - Test suite overview
 - [CEF General Usage](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md) - API documentation
-- [ChromiumUpdate.md](https://github.com/chromiumembedded/cef/blob/master/docs/chromium_update.md) - Test filters
+- [Chromium Update](https://github.com/chromiumembedded/cef/blob/master/docs/chromium_update.md) - Test filters
 - [Google Test Docs](https://google.github.io/googletest/) - gtest reference
 
 ---

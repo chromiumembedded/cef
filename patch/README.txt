@@ -11,5 +11,5 @@ capability works as follows:
 3. When building CEF from source code the patch files are applied by the
    patcher.py tool via the cef_create_projects[.bat|sh] build step
 4. When updating Chromium the patch_updater.py tool is used to update all patch
-   files. See https://github.com/chromiumembedded/cef/blob/master/docs/chromium_update.md
+   files. See https://chromiumembedded.github.io/cef/chromium_update
    for more information about the update process.

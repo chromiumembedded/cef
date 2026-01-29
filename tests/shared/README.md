@@ -72,7 +72,7 @@ Applications customize behavior by implementing delegates without modifying shar
 
 ## References
 
-- [CEF General Usage](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md) - CEF API documentation
-- [CEF Tutorial](https://github.com/chromiumembedded/cef/blob/master/docs/tutorial.md) - Application architecture overview
+- [CEF General Usage](https://chromiumembedded.github.io/cef/general_usage) - CEF API documentation
+- [CEF Tutorial](https://chromiumembedded.github.io/cef/tutorial) - Application architecture overview
 - [cefclient](../cefclient/) - Reference implementation using shared code
 - [ceftests](../ceftests/) - Test suite using shared code

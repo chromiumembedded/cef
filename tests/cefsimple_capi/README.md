@@ -35,8 +35,8 @@ This ensures the C API example remains current and demonstrates the same CEF fea
 
 For best results, we recommend this learning path:
 
-1. **[CEF Tutorial](https://github.com/chromiumembedded/cef/blob/master/docs/tutorial.md)** - Start here to understand CEF architecture and concepts using the C++ cefsimple example
-2. **[Using the C API](https://github.com/chromiumembedded/cef/blob/master/docs/using_the_capi.md)** - Learn C-specific patterns and reference counting rules
+1. **[CEF Tutorial](https://chromiumembedded.github.io/cef/tutorial)** - Start here to understand CEF architecture and concepts using the C++ cefsimple example
+2. **[Using the CAPI](https://chromiumembedded.github.io/cef/using_the_capi)** - Learn C-specific patterns and reference counting rules
 3. **This example (cefsimple_capi)** - See the C API implementation in practice
 
 **Note:** The Tutorial uses C++ code examples, but the architectural concepts (processes, threads, callbacks, program flow) apply equally to the C API version.
@@ -93,7 +93,7 @@ The C API requires significantly different patterns than C++:
 - **Manual string conversion** - Use `cef_string_from_ascii()` / `cef_string_clear()` instead of `CefString` class
 - **Structure initialization** - Use `calloc()` and set function pointers instead of C++ constructors
 
-**See [UsingTheCAPI.md](https://github.com/chromiumembedded/cef/blob/master/docs/using_the_capi.md) for complete C API patterns and examples.**
+**See [Using the CAPI](https://chromiumembedded.github.io/cef/using_the_capi) for complete C API patterns and examples.**
 
 ## Critical C API Rules
 
@@ -105,10 +105,10 @@ When working with the C API, you **must** follow these rules to avoid crashes an
 4. **Add reference when returning to CEF** - CEF will release when done
 5. **Use atomic operations** - Reference counting functions called from any thread
 
-**See [UsingTheCAPI.md](https://github.com/chromiumembedded/cef/blob/master/docs/using_the_capi.md) for detailed explanations, complete code examples, and reference counting patterns.**
+**See [Using the CAPI](https://chromiumembedded.github.io/cef/using_the_capi) for detailed explanations, complete code examples, and reference counting patterns.**
 
 ## References
 
-- [CEF Tutorial](https://github.com/chromiumembedded/cef/blob/master/docs/tutorial.md) - Architecture overview (uses C++ examples)
-- [CEF C API Documentation](https://github.com/chromiumembedded/cef/blob/master/docs/using_the_capi.md) - C-specific patterns
+- [CEF Tutorial](https://chromiumembedded.github.io/cef/tutorial) - Architecture overview (uses C++ examples)
+- [CEF C API Documentation](https://chromiumembedded.github.io/cef/using_the_capi) - C-specific patterns
 - [Original C++ cefsimple](../cefsimple/)

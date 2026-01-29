@@ -18,7 +18,7 @@ This utility sets up Claude Code integration for CEF.
   epilog = """
 This utility sets up Claude Code integration for an existing
 CEF/Chromium development environment. See
-https://github.com/chromiumembedded/cef/blob/master/docs/master_build_quick_start.md for
+https://chromiumembedded.github.io/cef/master_build_quick_start for
 prerequisite environment setup instructions.
 
 This setup copies the CLAUDE.md file from cef/tools/claude/ to the project

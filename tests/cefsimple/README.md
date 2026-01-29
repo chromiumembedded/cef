@@ -22,7 +22,7 @@ A pure C implementation of this example is available at [../cefsimple_capi/](../
 
 ## Learning Resources
 
-**New to CEF?** Start with the [CEF Tutorial](https://github.com/chromiumembedded/cef/blob/master/docs/tutorial.md), which provides a detailed walkthrough of this exact example:
+**New to CEF?** Start with the [CEF Tutorial](https://chromiumembedded.github.io/cef/tutorial), which provides a detailed walkthrough of this exact example:
 
 - **Architecture overview** - CEF processes, threads, and callbacks
 - **Code walkthrough** - Detailed explanation of each file and function
@@ -31,7 +31,7 @@ A pure C implementation of this example is available at [../cefsimple_capi/](../
 
 The Tutorial is the recommended starting point for understanding how CEF applications work.
 
-For complete API documentation, see [GeneralUsage](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md).
+For complete API documentation, see [General Usage](https://chromiumembedded.github.io/cef/general_usage).
 
 ## Architecture
 
@@ -77,7 +77,7 @@ This is the primary CEF sample application. Changes to CEF features, API updates
 
 ## References
 
-- [CEF Tutorial](https://github.com/chromiumembedded/cef/blob/master/docs/tutorial.md) - Detailed walkthrough of this example
-- [CEF General Usage](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md) - Complete API documentation
-- [CEF C++ API Documentation](https://github.com/chromiumembedded/cef/blob/master/docs/README.md)
+- [CEF Tutorial](https://chromiumembedded.github.io/cef/tutorial) - Detailed walkthrough of this example
+- [CEF General Usage](https://chromiumembedded.github.io/cef/general_usage) - Complete API documentation
+- [CEF C++ API Documentation](https://chromiumembedded.github.io/cef/)
 - [C API Version](../cefsimple_capi/) - Pure C implementation of this example

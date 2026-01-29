@@ -85,7 +85,7 @@ After running `patch_updater.py` and seeing failures:
 
     **Finding version numbers:**
 
-    - See [Identifying the target Chromium version](https://github.com/chromiumembedded/cef/blob/master/docs/chromium_update.md#markdown-header-a-identify-the-target-chromium-version)
+    - See [Identifying the target Chromium version](https://github.com/chromiumembedded/cef/blob/master/docs/chromium_update.md#a-identify-the-target-chromium-version)
     - Old version: Check `chrome/VERSION` before the Chromium update
     - New version: Check `chrome/VERSION` after the Chromium update
 
@@ -630,6 +630,6 @@ Usage: `git cef-patches` or `git cef-analyze output.txt`
 
 ### For Issues with CEF Update Process
 
-- See [ChromiumUpdate.md](https://github.com/chromiumembedded/cef/blob/master/docs/chromium_update.md) for the overall process
+- See [Chromium Update](https://github.com/chromiumembedded/cef/blob/master/docs/chromium_update.md) for the overall process
 - Check CEF forums: https://magpcss.org/ceforum/
 - Check CEF issue tracker: https://github.com/chromiumembedded/cef/issues

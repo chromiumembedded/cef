@@ -4,7 +4,7 @@
 #
 # This file provides the GN configuration for the CEF project. This is not a
 # stand-alone configuration -- it must be built from inside the Chromium source
-# tree. See https://github.com/chromiumembedded/cef/blob/master/docs/branches_and_building.md
+# tree. See https://chromiumembedded.github.io/cef/branches_and_building
 # for complete CEF build instructions. See below for links to additional GN
 # documentation.
 #

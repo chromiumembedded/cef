@@ -21,7 +21,7 @@
 #   during update.
 #
 # For complete update instructions see:
-# https://github.com/chromiumembedded/cef/blob/master/docs/chromium_update.md
+# https://chromiumembedded.github.io/cef/chromium_update
 
 {
   # Files in the chromium/src directory that should be evaluated for changes.

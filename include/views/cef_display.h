@@ -51,7 +51,7 @@
 /// otherwise indicated.
 ///
 /// For details on coordinate systems and usage see
-/// https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md#coordinate-systems
+/// https://chromiumembedded.github.io/cef/general_usage#coordinate-systems
 ///
 /*--cef(source=library)--*/
 class CefDisplay : public CefBaseRefCounted {

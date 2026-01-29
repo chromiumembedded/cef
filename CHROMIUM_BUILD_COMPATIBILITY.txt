@@ -4,7 +4,7 @@
 # revisions is available by viewing this file's change history.
 #
 # Instructions for building CEF are available at:
-# https://github.com/chromiumembedded/cef/blob/master/docs/branches_and_building.md
+# https://chromiumembedded.github.io/cef/branches_and_building
 
 {
   'chromium_checkout': 'refs/tags/145.0.7632.0'
