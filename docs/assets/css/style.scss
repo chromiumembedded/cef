@@ -147,8 +147,10 @@ a:hover {
   /* Strings */
   .highlight .s, .highlight .s1, .highlight .s2, .highlight .sb,
   .highlight .sc, .highlight .sd, .highlight .se, .highlight .sh,
-  .highlight .si, .highlight .sx, .highlight .sr, .highlight .ss {
+  .highlight .si, .highlight .sx, .highlight .sr, .highlight .ss,
+  .highlight .dl {
     color: #ce9178 !important;
+    background-color: transparent !important;
   }
 
   /* Numbers */
