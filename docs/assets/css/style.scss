@@ -19,6 +19,19 @@ header h1 {
   font-size: 1.5em;
 }
 
+/* Fix footer text wrapping */
+header p.view,
+header p:last-child {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  font-size: 0.8em;
+}
+
+/* Prevent link hover from adding bold (causes layout shift) */
+a:hover {
+  font-weight: inherit;
+}
+
 /* Mobile: hide sidebar, full width content */
 @media print, screen and (max-width: 720px) {
   header {
