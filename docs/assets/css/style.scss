@@ -4,7 +4,8 @@
 @import "{{ site.theme }}";
 
 /* Reduce sidebar width */
-header {
+header,
+footer {
   width: 180px;
   padding-right: 10px;
 }
