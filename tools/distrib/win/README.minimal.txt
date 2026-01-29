@@ -33,4 +33,4 @@ Building using Bazel:
 
 Please visit the CEF Website for additional usage information.
 
-https://bitbucket.org/chromiumembedded/cef/
+https://github.com/chromiumembedded/cef/

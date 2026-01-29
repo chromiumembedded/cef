@@ -40,7 +40,7 @@ cd cef_binary_<version>_<platform>
 **2. (Optional) Clone CEF wiki documentation:**
 
 ```bash
-git clone https://bitbucket.org/chromiumembedded/cef.git/wiki cef_wiki
+# Wiki content is now in docs/ directory
 ```
 
 This gives Claude direct access to documentation via the Read tool.
@@ -166,7 +166,7 @@ open build/tests/cefsimple/Release/cefsimple.app
 
 ### For Issues with CEF API
 
-- CEF wiki: https://bitbucket.org/chromiumembedded/cef/wiki/Home
+- CEF wiki: https://github.com/chromiumembedded/cef/blob/master/docs/README.md
 - CEF forums: https://magpcss.org/ceforum/
 - CEF issue tracker: https://github.com/chromiumembedded/cef/issues
 

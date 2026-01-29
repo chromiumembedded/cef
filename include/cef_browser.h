@@ -711,7 +711,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /// information will be sent to the renderer process to configure screen size
   /// and position values used by CSS and JavaScript (window.deviceScaleFactor,
   /// window.screenX/Y, window.outerWidth/Height, etc.). For background see
-  /// https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage.md#markdown-header-coordinate-systems
+  /// https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md#coordinate-systems
   ///
   /// This method is used with (a) windowless rendering and (b) windowed
   /// rendering with external (client-provided) root window.

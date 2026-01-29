@@ -13,28 +13,25 @@ This is a reference implementation showing how to use CEF from C without any C++
 **ALWAYS read these documents when working on this project:**
 
 1. **[cef_wiki/UsingTheCAPI.md](../../cef_wiki/UsingTheCAPI.md)** - Complete CEF C API guide
-
-   - Base structure types (ref-counted vs scoped)
-   - Reference counting rules and patterns
-   - String handling
-   - Thread safety and atomic operations
-   - Complete working examples
+    - Base structure types (ref-counted vs scoped)
+    - Reference counting rules and patterns
+    - String handling
+    - Thread safety and atomic operations
+    - Complete working examples
 
 2. **[cef/tools/claude/CLAUDE_BUILD_INSTRUCTIONS.md](../../tools/claude/CLAUDE_BUILD_INSTRUCTIONS.md)** - Build workflow and error fixing
-
-   - Build system usage (GN and Ninja)
-   - Fixing build errors during Chromium updates
-   - Common error patterns and solutions
+    - Build system usage (GN and Ninja)
+    - Fixing build errors during Chromium updates
+    - Common error patterns and solutions
 
 3. **[README.md](README.md)** - Project-specific documentation
-
-   - Architecture and file organization
-   - Key differences from C++ version
-   - Critical C API rules specific to this implementation
+    - Architecture and file organization
+    - Key differences from C++ version
+    - Critical C API rules specific to this implementation
 
 **Note:** If the `cef_wiki` directory doesn't exist, create it by running from the `chromium/src` directory:
 ```bash
-git clone https://bitbucket.org/chromiumembedded/cef.git/wiki cef_wiki
+# Wiki content is now in docs/ directory
 ```
 
 ## Building
@@ -141,46 +138,46 @@ Similar to Chromium API updates, CEF C API changes follow patterns:
 **Common CEF C API change patterns:**
 
 1. **Function pointer signature changes** (new/removed parameters):
-   ```c
-   // Old CEF API
-   void CEF_CALLBACK on_load_end(
-       cef_load_handler_t* self,
-       cef_browser_t* browser,
-       cef_frame_t* frame,
-       int httpStatusCode) { ... }
+    ```c
+    // Old CEF API
+    void CEF_CALLBACK on_load_end(
+        cef_load_handler_t* self,
+        cef_browser_t* browser,
+        cef_frame_t* frame,
+        int httpStatusCode) { ... }
 
-   // New CEF API (added is_main_frame parameter)
-   void CEF_CALLBACK on_load_end(
-       cef_load_handler_t* self,
-       cef_browser_t* browser,
-       cef_frame_t* frame,
-       int httpStatusCode,
-       int is_main_frame) { ... }
-   ```
+    // New CEF API (added is_main_frame parameter)
+    void CEF_CALLBACK on_load_end(
+        cef_load_handler_t* self,
+        cef_browser_t* browser,
+        cef_frame_t* frame,
+        int httpStatusCode,
+        int is_main_frame) { ... }
+    ```
 
 2. **Structure field changes** (renamed/removed members):
-   ```c
-   // Old
-   window_info.window = parent_window;
+    ```c
+    // Old
+    window_info.window = parent_window;
 
-   // New (if renamed)
-   window_info.parent_window = parent_window;
-   ```
+    // New (if renamed)
+    window_info.parent_window = parent_window;
+    ```
 
 3. **New required function pointers** in base structures:
-   ```c
-   // CEF added new function pointer to cef_base_ref_counted_t
-   app->app.base.get_size = app_get_size;  // Must implement
-   ```
+    ```c
+    // CEF added new function pointer to cef_base_ref_counted_t
+    app->app.base.get_size = app_get_size;  // Must implement
+    ```
 
 4. **Handler callback changes** (different return types or parameters):
-   ```c
-   // Old - returned int
-   int CEF_CALLBACK on_before_browse(...);
+    ```c
+    // Old - returned int
+    int CEF_CALLBACK on_before_browse(...);
 
-   // New - returns cef_return_value_t enum
-   cef_return_value_t CEF_CALLBACK on_before_browse(...);
-   ```
+    // New - returns cef_return_value_t enum
+    cef_return_value_t CEF_CALLBACK on_before_browse(...);
+    ```
 
 #### Fixing Process
 
@@ -188,9 +185,9 @@ Similar to Chromium API updates, CEF C API changes follow patterns:
 2. **Check CEF C API headers** - Look at the current definition in `cef/include/capi/*.h`
 3. **Update our code** - Modify files in `cef/tests/cefsimple_capi/` to match
 4. **Rebuild incrementally** - Build individual .o files for fast feedback:
-   ```bash
-   autoninja -C out/Debug_GN_x64 obj/cef/tests/cefsimple_capi/cefsimple_capi/simple_handler.o
-   ```
+    ```bash
+    autoninja -C out/Debug_GN_x64 obj/cef/tests/cefsimple_capi/cefsimple_capi/simple_handler.o
+    ```
 5. **Consult UsingTheCAPI.md** - Reference patterns for correct implementation
 
 #### Example Fix Workflow

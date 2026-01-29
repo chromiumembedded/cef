@@ -29,7 +29,7 @@ CEF wiki documentation is referenced throughout this guide. You can access it in
 The WebFetch tool can read Bitbucket wiki URLs:
 
 ```
-Use WebFetch to read: https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage
+Use WebFetch to read: https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md
 ```
 
 **Option 2: Clone the wiki repository**
@@ -38,7 +38,7 @@ If WebFetch is unavailable or you need to search across multiple pages, clone th
 
 ```bash
 # Clone CEF wiki documentation (markdown files)
-git clone https://bitbucket.org/chromiumembedded/cef.git/wiki cef_wiki
+# Wiki content is now in docs/ directory
 
 # Wiki pages are markdown files:
 # cef_wiki/GeneralUsage.md
@@ -237,7 +237,7 @@ open build/tests/cefsimple/Release/cefsimple.app
 
 ## Common Implementation Patterns
 
-This section shows you **how to approach** common tasks. For complete implementation details, consult [GeneralUsage.md](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage) and the header file documentation.
+This section shows you **how to approach** common tasks. For complete implementation details, consult [GeneralUsage.md](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md) and the header file documentation.
 
 ### Custom Scheme Handler
 
@@ -254,9 +254,9 @@ This section shows you **how to approach** common tasks. For complete implementa
 
 **Documentation:**
 
-- [GeneralUsage.md - Request Handling](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown-header-request-handling) - Complete guide
+- [GeneralUsage.md - Request Handling](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md#request-handling) - Complete guide
 - `include/cef_scheme.h`, `include/cef_resource_handler.h` - API documentation
-- [cef-project/examples/scheme_handler](https://bitbucket.org/chromiumembedded/cef-project/src/master/examples/scheme_handler/) - Working example
+- [cef-project/examples/scheme_handler](https://github.com/chromiumembedded/cef-project/blob/master/examples/scheme_handler/) - Working example
 
 **Test:** `build/tests/cefsimple/cefsimple --url=foobar://test`
 
@@ -275,10 +275,10 @@ This section shows you **how to approach** common tasks. For complete implementa
 
 **Documentation:**
 
-- [HandsOnTutorial.md Step 6](https://bitbucket.org/chromiumembedded/cef/wiki/HandsOnTutorial#markdown-header-step-6-javascript-to-c-communication) - Complete example
-- [JavaScriptIntegration.md](https://bitbucket.org/chromiumembedded/cef/wiki/JavaScriptIntegration) - V8 integration guide
-- [GeneralUsage.md - IPC](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown-header-inter-process-communication-ipc) - Process messages
-- [cef-project/examples/message_router](https://bitbucket.org/chromiumembedded/cef-project/src/master/examples/message_router/) - CefMessageRouter for request/response patterns
+- [HandsOnTutorial.md Step 6](https://github.com/chromiumembedded/cef/blob/master/docs/hands_on_tutorial.md#step-6-javascript-to-c-communication) - Complete example
+- [JavaScriptIntegration.md](https://github.com/chromiumembedded/cef/blob/master/docs/javascript_integration.md) - V8 integration guide
+- [GeneralUsage.md - IPC](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md#inter-process-communication-ipc) - Process messages
+- [cef-project/examples/message_router](https://github.com/chromiumembedded/cef-project/blob/master/examples/message_router/) - CefMessageRouter for request/response patterns
 - `include/cef_v8.h`, `include/cef_process_message.h` - API documentation
 
 ### Request Interception
@@ -296,9 +296,9 @@ This section shows you **how to approach** common tasks. For complete implementa
 
 **Documentation:**
 
-- [GeneralUsage.md - Request Handling](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown-header-request-handling) - Complete guide
+- [GeneralUsage.md - Request Handling](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md#request-handling) - Complete guide
 - `include/cef_request_handler.h`, `include/cef_resource_request_handler.h` - API documentation
-- [cef-project/examples/resource_manager](https://bitbucket.org/chromiumembedded/cef-project/src/master/examples/resource_manager/) - Working example
+- [cef-project/examples/resource_manager](https://github.com/chromiumembedded/cef-project/blob/master/examples/resource_manager/) - Working example
 
 ### Popup Window Customization
 
@@ -314,7 +314,7 @@ This section shows you **how to approach** common tasks. For complete implementa
 
 **Documentation:**
 
-- [HandsOnTutorial.md Step 8](https://bitbucket.org/chromiumembedded/cef/wiki/HandsOnTutorial#markdown-header-step-8-views-styling-of-popup-browsers) - Complete example
+- [HandsOnTutorial.md Step 8](https://github.com/chromiumembedded/cef/blob/master/docs/hands_on_tutorial.md#step-8-views-styling-of-popup-browsers) - Complete example
 - `include/cef_life_span_handler.h`, `include/views/cef_browser_view_delegate.h` - API documentation
 
 ## Documentation Resources
@@ -323,19 +323,19 @@ This section shows you **how to approach** common tasks. For complete implementa
 
 **Start here:**
 
-- [Tutorial.md](https://bitbucket.org/chromiumembedded/cef/wiki/Tutorial) - Architectural overview
-- [HandsOnTutorial.md](https://bitbucket.org/chromiumembedded/cef/wiki/HandsOnTutorial) - Step-by-step practical guide
-- [GeneralUsage.md](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage) - Comprehensive reference
+- [Tutorial.md](https://github.com/chromiumembedded/cef/blob/master/docs/tutorial.md) - Architectural overview
+- [HandsOnTutorial.md](https://github.com/chromiumembedded/cef/blob/master/docs/hands_on_tutorial.md) - Step-by-step practical guide
+- [GeneralUsage.md](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md) - Comprehensive reference
 
 **Specific topics:**
 
-- [JavaScriptIntegration.md](https://bitbucket.org/chromiumembedded/cef/wiki/JavaScriptIntegration) - V8 integration, JavaScript bindings
-- [GeneralUsage.md#IPC](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown-header-inter-process-communication-ipc) - Process messages
-- [GeneralUsage.md#RequestHandling](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown-header-request-handling) - Network interception, custom schemes
+- [JavaScriptIntegration.md](https://github.com/chromiumembedded/cef/blob/master/docs/javascript_integration.md) - V8 integration, JavaScript bindings
+- [GeneralUsage.md#IPC](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md#inter-process-communication-ipc) - Process messages
+- [GeneralUsage.md#RequestHandling](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md#request-handling) - Network interception, custom schemes
 
 **C API:**
 
-- [UsingTheCAPI.md](https://bitbucket.org/chromiumembedded/cef/wiki/UsingTheCAPI) - C API guide
+- [UsingTheCAPI.md](https://github.com/chromiumembedded/cef/blob/master/docs/using_the_capi.md) - C API guide
 
 ### Header File Documentation
 
@@ -365,7 +365,7 @@ include/views/                 // Views framework headers
 
 **Additional examples (online):**
 
-- [cef-project examples](https://bitbucket.org/chromiumembedded/cef-project/src/master/examples/) - Focused feature examples (message_router, resource_manager, scheme_handler)
+- [cef-project examples](https://github.com/chromiumembedded/cef-project/blob/master/examples/) - Focused feature examples (message_router, resource_manager, scheme_handler)
 
 ## Task Execution Strategy
 
@@ -581,7 +581,7 @@ void SimpleApp::OnRegisterCustomSchemes(...) {
 }
 ```
 
-See [GeneralUsage.md - Request Handling](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown-header-request-handling) for complete scheme handler implementation.
+See [GeneralUsage.md - Request Handling](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md#request-handling) for complete scheme handler implementation.
 
 **JavaScript execution:**
 
@@ -589,7 +589,7 @@ See [GeneralUsage.md - Request Handling](https://bitbucket.org/chromiumembedded/
 frame->ExecuteJavaScript("alert('Hello!');", frame->GetURL(), 0);
 ```
 
-See [HandsOnTutorial.md Step 5](https://bitbucket.org/chromiumembedded/cef/wiki/HandsOnTutorial#markdown-header-step-5-javascript-execution) for examples.
+See [HandsOnTutorial.md Step 5](https://github.com/chromiumembedded/cef/blob/master/docs/hands_on_tutorial.md#step-5-javascript-execution) for examples.
 
 **Process messages:**
 
@@ -610,4 +610,4 @@ bool SimpleHandler::OnProcessMessageReceived(...) {
 }
 ```
 
-See [HandsOnTutorial.md Step 6](https://bitbucket.org/chromiumembedded/cef/wiki/HandsOnTutorial#markdown-header-step-6-javascript-to-c-communication) and [GeneralUsage.md - IPC](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown-header-inter-process-communication-ipc) for complete examples.
+See [HandsOnTutorial.md Step 6](https://github.com/chromiumembedded/cef/blob/master/docs/hands_on_tutorial.md#step-6-javascript-to-c-communication) and [GeneralUsage.md - IPC](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md#inter-process-communication-ipc) for complete examples.

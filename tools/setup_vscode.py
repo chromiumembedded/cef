@@ -61,7 +61,7 @@ This utility sets up Visual Studio Code (VSCode) integration for CEF.
   epilog = """
 This utility sets up Visual Studio Code (VSCode) integration for an existing
 CEF/Chromium development environment. See
-https://bitbucket.org/chromiumembedded/cef/wiki/MasterBuildQuickStart.md for
+https://github.com/chromiumembedded/cef/blob/master/docs/master_build_quick_start.md for
 prerequisite environment setup instructions.
 
 The VSCode application and recommended extensions should be installed manually

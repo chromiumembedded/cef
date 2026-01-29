@@ -151,8 +151,8 @@ Some paragraph text.
 
 ```markdown
 ✅ CORRECT - Full URL:
-See [Tutorial](https://bitbucket.org/chromiumembedded/cef/wiki/Tutorial) for details.
-See [GeneralUsage IPC section](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown-header-inter-process-communication-ipc).
+See [Tutorial](https://github.com/chromiumembedded/cef/blob/master/docs/tutorial.md) for details.
+See [GeneralUsage IPC section](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md#inter-process-communication-ipc).
 
 ❌ INCORRECT - Relative path:
 See [Tutorial](Tutorial.md) for details.
@@ -281,5 +281,5 @@ You cannot preview wiki pages directly, so rely on following these formatting ru
 
 ## Additional Resources
 
-- CEF Wiki Home: https://bitbucket.org/chromiumembedded/cef/wiki/Home
+- CEF Wiki Home: https://github.com/chromiumembedded/cef/blob/master/docs/README.md
 - Bitbucket Wiki Markdown: https://confluence.atlassian.com/bitbucketserver/markdown-syntax-guide-776639995.html

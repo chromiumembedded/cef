@@ -28,7 +28,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // Versions are managed using the version_manager.py tool. For usage details
-// see https://bitbucket.org/chromiumembedded/cef/wiki/ApiVersioning.md
+// see
+// https://github.com/chromiumembedded/cef/blob/master/docs/api_versioning.md
 //
 
 #ifndef CEF_INCLUDE_CEF_API_HASH_H_

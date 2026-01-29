@@ -134,7 +134,7 @@ xvfb-run ceftests --no-sandbox
 
 ### Filters for Known Issues
 
-Some tests are known to be flaky or have platform-specific issues. For the recommended test filters that exclude these known issues, see [ChromiumUpdate.md § Run CEF tests](https://bitbucket.org/chromiumembedded/cef/wiki/ChromiumUpdate.md#markdown-header-5-run-cef-tests), section C.
+Some tests are known to be flaky or have platform-specific issues. For the recommended test filters that exclude these known issues, see [ChromiumUpdate.md § Run CEF tests](https://github.com/chromiumembedded/cef/blob/master/docs/chromium_update.md#5-run-cef-tests), section C.
 
 ## Test Infrastructure
 
@@ -228,7 +228,7 @@ Test resources are located in `resources/` directory:
 
 ## References
 
-- [CEF General Usage](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage.md) - Complete API documentation
-- [ChromiumUpdate.md](https://bitbucket.org/chromiumembedded/cef/wiki/ChromiumUpdate.md) - Test execution details
+- [CEF General Usage](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md) - Complete API documentation
+- [ChromiumUpdate.md](https://github.com/chromiumembedded/cef/blob/master/docs/chromium_update.md) - Test execution details
 - [Google Test Documentation](https://google.github.io/googletest/) - gtest framework reference
 - [cefclient](../cefclient/) - Interactive test application for manual testing

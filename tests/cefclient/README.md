@@ -27,8 +27,8 @@ This directory contains the comprehensive CEF sample application demonstrating a
 
 **Understanding cefclient architecture:**
 
-1. **[CEF Tutorial](https://bitbucket.org/chromiumembedded/cef/wiki/Tutorial.md)** - Covers cefsimple architecture, which provides the foundation
-2. **[CEF General Usage](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage.md)** - Complete CEF API documentation
+1. **[CEF Tutorial](https://github.com/chromiumembedded/cef/blob/master/docs/tutorial.md)** - Covers cefsimple architecture, which provides the foundation
+2. **[CEF General Usage](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md)** - Complete CEF API documentation
 3. **This application** - Explore the built-in tests and advanced implementations
 
 ## Architecture
@@ -141,7 +141,7 @@ Unlike cefsimple, cefclient does **not** have a C API equivalent due to its comp
 
 ## References
 
-- [CEF Tutorial](https://bitbucket.org/chromiumembedded/cef/wiki/Tutorial.md) - Start with cefsimple concepts
-- [CEF General Usage](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage.md) - Complete API documentation
+- [CEF Tutorial](https://github.com/chromiumembedded/cef/blob/master/docs/tutorial.md) - Start with cefsimple concepts
+- [CEF General Usage](https://github.com/chromiumembedded/cef/blob/master/docs/general_usage.md) - Complete API documentation
 - [cefsimple](../cefsimple/) - Minimal example for learning basics
 - [CEF Forum](https://magpcss.org/ceforum/) - Community support and discussions
