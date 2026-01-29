@@ -68,20 +68,20 @@ a:hover {
   }
 
   code {
-    background-color: #3a3a3a;
-    color: #e8e8e8;
-    border: 1px solid #555;
+    background-color: #3a3a3a !important;
+    color: #e8e8e8 !important;
+    border: 1px solid #555 !important;
   }
 
   pre {
-    background-color: #2d2d2d;
-    border: 1px solid #444;
+    background-color: #2d2d2d !important;
+    border: 1px solid #444 !important;
   }
 
   pre code {
-    background-color: transparent;
-    border: none;
-    color: #e0e0e0;
+    background-color: transparent !important;
+    border: none !important;
+    color: #e0e0e0 !important;
   }
 
   blockquote {
