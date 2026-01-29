@@ -53,6 +53,7 @@ IDS_RESPONSE_FILTER_HTML BINARY "tests\\cefclient\\resources\\response_filter.ht
 IDS_SERVER_HTML BINARY "tests\\cefclient\\resources\\server.html"
 IDS_TASK_MANAGER_HTML BINARY "tests\\cefclient\\resources\\task_manager.html"
 IDS_TRANSPARENCY_HTML BINARY "tests\\cefclient\\resources\\transparency.html"
+IDS_TRANSPARENT_VIEWS_HTML BINARY "tests\\cefclient\\resources\\transparent_views.html"
 IDS_URLREQUEST_HTML BINARY "tests\\cefclient\\resources\\urlrequest.html"
 IDS_WEBSOCKET_HTML BINARY "tests\\cefclient\\resources\\websocket.html"
 IDS_WINDOW_HTML BINARY "tests\\cefclient\\resources\\window.html"

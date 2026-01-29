@@ -567,6 +567,19 @@ void WindowAcceleratorImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, std::move(config));
 }
 
+void VerifyWindowTransparentBackground(CefRefPtr<CefWindow> window) {
+  // The transparent background color value from CefSettings.background_color
+  // by set in CefTestSuite::GetSettings() to enable transparent window
+  // in Views framework.
+  EXPECT_EQ(window->GetBackgroundColor(), 0u);
+}
+
+void WindowCreateTranslucentImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(VerifyWindowTransparentBackground);
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+
 }  // namespace
 
 // Test window functionality. This is primarily to exercise exposed CEF APIs
@@ -591,6 +604,7 @@ WINDOW_TEST_ASYNC(WindowFullscreenFrameless)
 WINDOW_TEST_ASYNC(WindowIcon)
 WINDOW_TEST_ASYNC(WindowIconFrameless)
 WINDOW_TEST_ASYNC(WindowAccelerator)
+WINDOW_TEST_ASYNC(WindowCreateTranslucent)
 
 namespace {
 
