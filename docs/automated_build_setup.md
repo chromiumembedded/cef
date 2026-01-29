@@ -37,11 +37,11 @@ The reference build system works by executing the following steps in order:
 
 ## 1\. Change Trigger
 
-Runs automatically at some interval (for example, once daily) to check if a new change has been committed to the CEF repository. The [Bitbucket REST API](https://confluence.atlassian.com/bitbucket/commits-or-commit-resource-389775478.html) exposes an endpoint that can be queried to identify the most recent commit in a branch. For example, this will return the most recent commit for 2785 branch:
+Runs automatically at some interval (for example, once daily) to check if a new change has been committed to the CEF repository. The [GitHub REST API](https://docs.github.com/en/rest/branches/branches#get-a-branch) exposes an endpoint that can be queried to identify the most recent commit in a branch. For example, this will return the most recent commit for 2785 branch:
 
-https://api.bitbucket.org/2.0/repositories/chromiumembedded/cef/commit/2785
+https://api.github.com/repos/chromiumembedded/cef/branches/2785
 
-The resulting "hash" value can then be compared to the last successful CEF build version to identify if a new build is required (e.g. a hash value of "1e15b7626244fa6c6455b7a24552664e4cc14fd3" from branch 2785 will match a build artifact file named "cef_binary_3.2785.\*.g1e15b76_\*.tar.bz2").
+The resulting "commit.sha" value can then be compared to the last successful CEF build version to identify if a new build is required (e.g. a sha value of "1e15b7626244fa6c6455b7a24552664e4cc14fd3" from branch 2785 will match a build artifact file named "cef_binary_3.2785.\*.g1e15b76_\*.tar.bz2").
 
 If artifacts are stored on a shared file system then languages like Python can access the file list directly. If artifacts are stored in Artifactory then see the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API) documentation for instructions on how to retrieve a directory listing.
 
