@@ -126,4 +126,76 @@ a:hover {
   strong, b {
     color: #e8e8e8 !important;
   }
+
+  /* Syntax highlighting for code blocks (Rouge/Pygments) */
+  .highlight {
+    background-color: #252525 !important;
+  }
+
+  /* Comments */
+  .highlight .c, .highlight .c1, .highlight .cm, .highlight .cs {
+    color: #6a9955 !important;
+    font-style: italic;
+  }
+
+  /* Keywords */
+  .highlight .k, .highlight .kd, .highlight .kn, .highlight .kp,
+  .highlight .kr, .highlight .kt, .highlight .kc {
+    color: #569cd6 !important;
+  }
+
+  /* Strings */
+  .highlight .s, .highlight .s1, .highlight .s2, .highlight .sb,
+  .highlight .sc, .highlight .sd, .highlight .se, .highlight .sh,
+  .highlight .si, .highlight .sx, .highlight .sr, .highlight .ss {
+    color: #ce9178 !important;
+  }
+
+  /* Numbers */
+  .highlight .m, .highlight .mi, .highlight .mf, .highlight .mh,
+  .highlight .mo, .highlight .il {
+    color: #b5cea8 !important;
+  }
+
+  /* Operators */
+  .highlight .o, .highlight .ow {
+    color: #d4d4d4 !important;
+  }
+
+  /* Punctuation */
+  .highlight .p {
+    color: #d4d4d4 !important;
+  }
+
+  /* Names/identifiers */
+  .highlight .n, .highlight .na, .highlight .nb, .highlight .nc,
+  .highlight .no, .highlight .nd, .highlight .ni, .highlight .ne,
+  .highlight .nf, .highlight .nl, .highlight .nn, .highlight .nt,
+  .highlight .nv, .highlight .nx {
+    color: #dcdcaa !important;
+  }
+
+  /* Class names */
+  .highlight .nc {
+    color: #4ec9b0 !important;
+  }
+
+  /* Function names */
+  .highlight .nf {
+    color: #dcdcaa !important;
+  }
+
+  /* Preprocessor */
+  .highlight .cp, .highlight .cpf {
+    color: #c586c0 !important;
+  }
+
+  /* Generic */
+  .highlight .ge {
+    font-style: italic;
+  }
+
+  .highlight .gs {
+    font-weight: bold;
+  }
 }
