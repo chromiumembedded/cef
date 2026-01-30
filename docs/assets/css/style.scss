@@ -13,6 +13,7 @@ footer {
 section {
   width: calc(100% - 200px);
   margin-left: 200px;
+  max-width: 900px !important;
 }
 
 /* Smaller header text */
