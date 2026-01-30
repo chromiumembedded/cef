@@ -15,7 +15,6 @@ This page provides information about using Git to contribute code changes to CEF
   - [Coding Style](#coding-style)
   - [Creating a Pull Request](#creating-a-pull-request)
   - [Reviewing a Pull Request](#reviewing-a-pull-request)
-- [Contributing to the Wiki](#contributing-to-the-wiki)
 
 ---
 
@@ -254,7 +253,3 @@ curl -L https://github.com/chromiumembedded/cef/pull/{pull_no}.diff -o name.patc
 # Apply the patch file to your local Git checkout.
 git apply name.patch
 ```
-
-# Contributing to the Wiki
-
-To contribute to the wiki, clone it, apply your changes and upload it in a public location before submitting it for review in the forum or issue tacker.
