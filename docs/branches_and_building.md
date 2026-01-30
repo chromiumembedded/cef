@@ -33,7 +33,7 @@ Win 10+ deployment, Win 10+ build system w/ VS2022 17.13.4, Win 10.0.26100.4654 
 
 The following URLs should be used for downloading development versions of CEF.
 
-  * CEF3 - https://github.com/chromiumembedded/cef/tree/master
+  * CEF3 - <https://github.com/chromiumembedded/cef/tree/master>
 
 CEF1 is no longer actively developed or supported. See the [CEF1 Retirement Plan](http://magpcss.org/ceforum/viewtopic.php?f=10&t=10647) for details.
 

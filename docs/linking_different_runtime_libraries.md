@@ -44,4 +44,4 @@ Sandbox support (linking `cef_sandbox.lib`) is only possible when your applicati
 # Additional Information
 
 More information on Microsoft run-time flags can be found here:
-http://msdn.microsoft.com/en-us/library/2kzt1wy3.aspx
+<http://msdn.microsoft.com/en-us/library/2kzt1wy3.aspx>

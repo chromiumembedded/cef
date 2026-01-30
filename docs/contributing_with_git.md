@@ -27,7 +27,7 @@ The CEF project uses the Git source code management system hosted via GitHub. Th
 
 Git can maintain your changes both locally and on a remote server. To work with Git efficiently the remote server locations must be configured properly.
 
-1\. Log into GitHub and create a public forked version of the cef.git repository using the Fork button at https://github.com/chromiumembedded/cef. This public linked fork will be used to create and submit pull requests.
+1\. Log into GitHub and create a public forked version of the cef.git repository using the Fork button at <https://github.com/chromiumembedded/cef>. This public linked fork will be used to create and submit pull requests.
 
 2\. Optionally, create a private unlinked fork using git commands directly. This private fork can be used for day-to-day development without exposing your work publicly.
 
