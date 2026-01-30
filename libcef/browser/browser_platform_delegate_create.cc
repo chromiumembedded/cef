@@ -67,8 +67,11 @@ std::unique_ptr<CefBrowserPlatformDelegateOsr> CreateOSRDelegate(
 std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
     const CefBrowserCreateParams& create_params) {
   const bool is_windowless = create_params.IsWindowless();
+  const bool is_views_hosted = create_params.browser_view ||
+                               create_params.popup_with_views_hosted_opener;
   const SkColor background_color = CefContext::Get()->GetBackgroundColor(
-      &create_params.settings, is_windowless ? STATE_ENABLED : STATE_DISABLED);
+      &create_params.settings,
+      is_windowless || is_views_hosted ? STATE_ENABLED : STATE_DISABLED);
 
   if (create_params.IsChromeStyle()) {
     CefWindowInfo window_info;
@@ -97,8 +100,7 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
         std::move(native_delegate));
   }
 
-  if (create_params.browser_view ||
-      create_params.popup_with_views_hosted_opener) {
+  if (is_views_hosted) {
     // CefWindowInfo is not used in this case.
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
         CreateNativeDelegate(CefWindowInfo(), background_color);

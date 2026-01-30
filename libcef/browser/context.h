@@ -70,13 +70,14 @@ class CefContext {
   // Returns the background color for the browser. If |browser_settings| is
   // nullptr or does not specify a color then the global settings will be used.
   // The alpha component will be either SK_AlphaTRANSPARENT or SK_AlphaOPAQUE
-  // (e.g. fully transparent or fully opaque). If |is_windowless| is
+  // (e.g. fully transparent or fully opaque). If |transparent_state| is
   // STATE_DISABLED then SK_AlphaTRANSPARENT will always be returned. If
-  // |is_windowless| is STATE_ENABLED then SK_ColorTRANSPARENT may be returned
-  // to enable transparency for windowless browsers. See additional comments on
-  // CefSettings.background_color and CefBrowserSettings.background_color.
+  // |transparent_state| is STATE_ENABLED then SK_ColorTRANSPARENT may be returned
+  // to enable transparency for windowless browsers or a frameless
+  // window in Views. See additional comments on CefSettings.background_color
+  // and CefBrowserSettings.background_color.
   SkColor GetBackgroundColor(const CefBrowserSettings* browser_settings,
-                             cef_state_t windowless_state) const;
+                             cef_state_t transparent_state) const;
 
   CefTraceSubscriber* GetTraceSubscriber();
   pref_helper::Registrar* GetPrefRegistrar();
