@@ -270,6 +270,8 @@
       'tests/cefclient/browser/main_context.h',
       'tests/cefclient/browser/main_context_impl.cc',
       'tests/cefclient/browser/main_context_impl.h',
+      'tests/cefclient/browser/component_test.cc',
+      'tests/cefclient/browser/component_test.h',
       'tests/cefclient/browser/media_router_test.cc',
       'tests/cefclient/browser/media_router_test.h',
       'tests/cefclient/browser/osr_dragdrop_events.h',
@@ -335,6 +337,7 @@
     'cefclient_sources_resources': [
       'tests/cefclient/resources/binary_transfer.html',
       'tests/cefclient/resources/binding.html',
+      'tests/cefclient/resources/components.html',
       'tests/cefclient/resources/config.html',
       'tests/cefclient/resources/dialogs.html',
       'tests/cefclient/resources/draggable.html',
