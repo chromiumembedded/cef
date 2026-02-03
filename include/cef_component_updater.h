@@ -42,6 +42,7 @@
 
 #include "include/cef_api_hash.h"
 #include "include/cef_base.h"
+#include "include/internal/cef_types_component.h"
 
 #if CEF_API_ADDED(CEF_NEXT)
 
@@ -60,8 +61,10 @@ class CefComponentUpdateCallback : public virtual CefBaseRefCounted {
 };
 
 ///
-/// Class representing a single component. This is an informational object
-/// that provides details about a registered component.
+/// Class representing a snapshot of a component's state at the time of
+/// retrieval. To get updated information, retrieve a new CefComponent object
+/// via CefComponentUpdater::GetComponentByID or GetComponents. The methods of
+/// this class may be called on any thread.
 ///
 /*--cef(source=library,added=next)--*/
 class CefComponent : public virtual CefBaseRefCounted {
@@ -87,18 +90,19 @@ class CefComponent : public virtual CefBaseRefCounted {
   virtual CefString GetVersion() = 0;
 
   ///
-  /// Returns the current state of this component.
+  /// Returns the state of this component at the time this object was created.
+  /// A component is considered installed when its state is one of:
+  /// CEF_COMPONENT_STATE_UPDATED, CEF_COMPONENT_STATE_UP_TO_DATE, or
+  /// CEF_COMPONENT_STATE_RUN.
   ///
   /*--cef(default_retval=CEF_COMPONENT_STATE_NEW)--*/
   virtual cef_component_state_t GetState() = 0;
 };
 
 ///
-/// Class for managing component updates. The methods of this class may only
-/// be called on the browser process UI thread.
-///
-/// This API provides access to Chromium's component updater service, allowing
-/// clients to discover registered components and trigger on-demand updates.
+/// This class provides access to Chromium's component updater service, allowing
+/// clients to discover registered components and trigger on-demand updates. The
+/// methods of this class may only be called on the browser process UI thread.
 ///
 /*--cef(source=library,added=next)--*/
 class CefComponentUpdater : public virtual CefBaseRefCounted {

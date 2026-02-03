@@ -5,6 +5,7 @@
 #include "cef/libcef/browser/component_updater_impl.h"
 
 #include "base/functional/bind.h"
+#include "base/notreached.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "chrome/browser/browser_process.h"
@@ -13,11 +14,9 @@
 #include "components/update_client/update_client.h"
 #include "components/update_client/update_client_errors.h"
 
-#if CEF_API_ADDED(CEF_NEXT)
-
 namespace {
 
-cef_component_state_t MapComponentState(update_client::ComponentState state) {
+cef_component_state_t ToCefComponentState(update_client::ComponentState state) {
   switch (state) {
     case update_client::ComponentState::kNew:
       return CEF_COMPONENT_STATE_NEW;
@@ -42,10 +41,10 @@ cef_component_state_t MapComponentState(update_client::ComponentState state) {
     case update_client::ComponentState::kRun:
       return CEF_COMPONENT_STATE_RUN;
   }
-  return CEF_COMPONENT_STATE_NEW;
+  NOTREACHED();
 }
 
-cef_component_update_error_t MapUpdateClientError(update_client::Error error) {
+cef_component_update_error_t ToCefUpdateError(update_client::Error error) {
   switch (error) {
     case update_client::Error::NONE:
       return CEF_COMPONENT_UPDATE_ERROR_NONE;
@@ -66,13 +65,12 @@ cef_component_update_error_t MapUpdateClientError(update_client::Error error) {
     case update_client::Error::BAD_CRX_DATA_CALLBACK:
       return CEF_COMPONENT_UPDATE_ERROR_BAD_CRX_DATA_CALLBACK;
     case update_client::Error::MAX_VALUE:
-      // Treat MAX_VALUE as a service error
       return CEF_COMPONENT_UPDATE_ERROR_SERVICE_ERROR;
   }
-  return CEF_COMPONENT_UPDATE_ERROR_SERVICE_ERROR;
+  NOTREACHED();
 }
 
-component_updater::OnDemandUpdater::Priority ToChromeUpdatePriority(
+component_updater::OnDemandUpdater::Priority ToChromiumPriority(
     cef_component_update_priority_t priority) {
   switch (priority) {
     case CEF_COMPONENT_UPDATE_PRIORITY_BACKGROUND:
@@ -80,14 +78,14 @@ component_updater::OnDemandUpdater::Priority ToChromeUpdatePriority(
     case CEF_COMPONENT_UPDATE_PRIORITY_FOREGROUND:
       return component_updater::OnDemandUpdater::Priority::FOREGROUND;
   }
-  return component_updater::OnDemandUpdater::Priority::BACKGROUND;
+  NOTREACHED();
 }
 
 void OnUpdateComplete(CefRefPtr<CefComponentUpdateCallback> callback,
                       update_client::Error error) {
   CEF_REQUIRE_UIT();
   if (callback) {
-    callback->OnComplete(MapUpdateClientError(error));
+    callback->OnComplete(ToCefUpdateError(error));
   }
 }
 
@@ -137,15 +135,12 @@ void CefComponentUpdaterImpl::GetComponents(
     if (component_updater_->GetComponentDetails(component_id, &item)) {
       std::string name;
       std::string version;
-
-      // component is std::optional - may not be present if not installed
       if (item.component) {
         name = item.component->name;
         version = item.component->version.GetString();
       }
-
-      components.push_back(new CefComponentImpl(component_id, name, version,
-                                                MapComponentState(item.state)));
+      components.push_back(new CefComponentImpl(
+          component_id, name, version, ToCefComponentState(item.state)));
     }
   }
 }
@@ -160,16 +155,13 @@ CefRefPtr<CefComponent> CefComponentUpdaterImpl::GetComponentByID(
   if (component_updater_->GetComponentDetails(id, &item)) {
     std::string name;
     std::string version;
-
     if (item.component) {
       name = item.component->name;
       version = item.component->version.GetString();
     }
-
     return new CefComponentImpl(id, name, version,
-                                MapComponentState(item.state));
+                                ToCefComponentState(item.state));
   }
-
   return nullptr;
 }
 
@@ -180,7 +172,7 @@ void CefComponentUpdaterImpl::Update(
   CEF_REQUIRE_UIT();
 
   component_updater_->GetOnDemandUpdater().OnDemandUpdate(
-      component_id.ToString(), ToChromeUpdatePriority(priority),
+      component_id.ToString(), ToChromiumPriority(priority),
       base::BindOnce(&OnUpdateComplete, callback));
 }
 
@@ -200,5 +192,3 @@ CefRefPtr<CefComponentUpdater> CefComponentUpdater::GetComponentUpdater() {
 
   return new CefComponentUpdaterImpl(component_updater);
 }
-
-#endif  // CEF_API_ADDED(CEF_NEXT)

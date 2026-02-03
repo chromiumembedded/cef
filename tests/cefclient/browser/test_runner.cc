@@ -866,14 +866,14 @@ void CreateMessageHandlers(MessageHandlerSet& handlers) {
   // Create the binding test handlers.
   binding_test::CreateMessageHandlers(handlers);
 
+  // Create the component test handlers.
+  component_test::CreateMessageHandlers(handlers);
+
   // Create the config test handlers.
   config_test::CreateMessageHandlers(handlers);
 
   // Create the dialog test handlers.
   dialog_test::CreateMessageHandlers(handlers);
-
-  // Create the component test handlers.
-  component_test::CreateMessageHandlers(handlers);
 
   // Create the hang test handlers.
   hang_test::CreateMessageHandlers(handlers);
