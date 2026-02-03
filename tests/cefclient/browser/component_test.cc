@@ -34,8 +34,6 @@ const char* GetErrorName(cef_component_update_error_t error) {
       return "Invalid argument";
     case CEF_COMPONENT_UPDATE_ERROR_BAD_CRX_DATA_CALLBACK:
       return "Bad CRX data callback";
-    case CEF_COMPONENT_UPDATE_ERROR_CONTEXT_NOT_INITIALIZED:
-      return "Context not initialized";
   }
   return "Unknown error";
 }
@@ -181,7 +179,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       return true;
     }
 
-    // Request update directly via the updater
+    // Request update directly via the updater with component ID.
     updater->Update(componentId, CEF_COMPONENT_UPDATE_PRIORITY_FOREGROUND,
                     new ComponentUpdateCallbackImpl(callback));
     return true;

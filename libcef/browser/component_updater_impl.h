@@ -9,9 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/cef_component_updater.h"
-
-#if CEF_API_ADDED(CEF_NEXT)
 
 namespace component_updater {
 class ComponentUpdateService;
@@ -60,11 +59,9 @@ class CefComponentUpdaterImpl : public CefComponentUpdater {
               CefRefPtr<CefComponentUpdateCallback> callback) override;
 
  private:
-  component_updater::ComponentUpdateService* const component_updater_;
+  raw_ptr<component_updater::ComponentUpdateService> component_updater_;
 
   IMPLEMENT_REFCOUNTING(CefComponentUpdaterImpl);
 };
-
-#endif  // CEF_API_ADDED(CEF_NEXT)
 
 #endif  // CEF_LIBCEF_BROWSER_COMPONENT_UPDATER_IMPL_H_
