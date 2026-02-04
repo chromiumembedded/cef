@@ -250,10 +250,11 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile")
       # Generate documentation in the docs/html directory.
       COMMAND "${DOXYGEN_EXECUTABLE}" Doxyfile
       # Write a docs/index.html file.
+      COMMAND ${CMAKE_COMMAND} -E make_directory docs
       COMMAND ${CMAKE_COMMAND} -E echo "<html><head><meta http-equiv=\"refresh\" content=\"0;URL='html/index.html'\"/></head></html>" > docs/index.html
       WORKING_DIRECTORY "${CEF_ROOT}"
       COMMENT "Generating API documentation with Doxygen..."
-      JOB_POOL console
+      USES_TERMINAL
       VERBATIM )
   else()
     message(WARNING "Doxygen must be installed to generate API documentation.")
