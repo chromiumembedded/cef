@@ -253,6 +253,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile")
       COMMAND ${CMAKE_COMMAND} -E echo "<html><head><meta http-equiv=\"refresh\" content=\"0;URL='html/index.html'\"/></head></html>" > docs/index.html
       WORKING_DIRECTORY "${CEF_ROOT}"
       COMMENT "Generating API documentation with Doxygen..."
+      JOB_POOL console
       VERBATIM )
   else()
     message(WARNING "Doxygen must be installed to generate API documentation.")
