@@ -201,7 +201,7 @@ index 673a1bf2acb2467aa3ac5746c4d6193fba8487f2..121986d07d325c7d628c431733a104a8
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505dfc61db59 100644
+index 1596366892e11ff1d48cf0984d36adf15ffd9ac5..93e46c35f6a58e80147ac6334de92073b00be91a 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -850,13 +850,23 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
@@ -226,10 +226,10 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
 +  DCHECK(!browser_);
 +  browser_ = browser;
 +
-   SetShowIcon(::ShouldShowWindowIcon(
-       browser_.get(), AppUsesWindowControlsOverlay(), AppUsesTabbed()));
- 
-@@ -871,7 +881,7 @@ BrowserView::BrowserView(Browser* browser)
+   if (auto* manager = InitialWebUIWindowMetricsManager::From(browser_.get())) {
+     manager->OnBrowserWindowCreated();
+   }
+@@ -875,7 +885,7 @@ BrowserView::BrowserView(Browser* browser)
      SetCanMinimize(false);
      SetCanMaximize(false);
      SetCanFullscreen(false);
@@ -238,7 +238,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
    } else {
      SetCanResize(browser_->create_params().can_resize);
      SetCanMaximize(browser_->create_params().can_maximize);
-@@ -918,8 +928,15 @@ BrowserView::BrowserView(Browser* browser)
+@@ -922,8 +932,15 @@ BrowserView::BrowserView(Browser* browser)
    contents_container->SetLayoutManager(std::make_unique<ContentsLayoutManager>(
        contents_view, lens_overlay_view_));
  
@@ -256,7 +256,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
  
    top_container_separator_ = top_container_->AddChildView(
        ContentsSeparator::CreateContentsSeparator());
-@@ -1029,6 +1046,10 @@ BrowserView::BrowserView(Browser* browser)
+@@ -1033,6 +1050,10 @@ BrowserView::BrowserView(Browser* browser)
  }
  
  BrowserView::~BrowserView() {
@@ -267,7 +267,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
    // Remove the layout manager to avoid dangling. This needs to be earlier than
    // other cleanups that destroy views referenced in the layout manager.
    SetLayoutManager(nullptr);
-@@ -1041,7 +1062,9 @@ BrowserView::~BrowserView() {
+@@ -1045,7 +1066,9 @@ BrowserView::~BrowserView() {
  
    // All the tabs should have been destroyed already. If we were closed by the
    // OS with some tabs than the BrowserNativeWidget should have destroyed them.
@@ -278,7 +278,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
  
    // Stop the animation timer explicitly here to avoid running it in a nested
    // message loop, which may run by Browser destructor.
-@@ -1136,7 +1159,7 @@ void BrowserView::SetDisableRevealerDelayForTesting(bool disable) {
+@@ -1140,7 +1163,7 @@ void BrowserView::SetDisableRevealerDelayForTesting(bool disable) {
    g_disable_revealer_delay_for_testing = disable;
  }
  
@@ -287,7 +287,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
    gfx::Rect contents_bounds = contents_container_->ConvertRectToWidget(
        contents_container_->GetLocalBounds());
  
-@@ -1158,6 +1181,16 @@ gfx::Rect BrowserView::GetFindBarBoundingBox() const {
+@@ -1162,6 +1185,16 @@ gfx::Rect BrowserView::GetFindBarBoundingBox() const {
    return contents_container_->GetMirroredRect(contents_bounds);
  }
  
@@ -304,7 +304,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
  int BrowserView::GetTabStripHeight() const {
    // We want to return tabstrip_->height(), but we might be called in the midst
    // of layout, when that hasn't yet been updated to reflect the current state.
-@@ -1778,6 +1811,28 @@ gfx::Point BrowserView::GetThemeOffsetFromBrowserView() const {
+@@ -1782,6 +1815,28 @@ gfx::Point BrowserView::GetThemeOffsetFromBrowserView() const {
        ThemeProperties::kFrameHeightAboveTabs - browser_view_origin.y());
  }
  
@@ -333,7 +333,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
  bool BrowserView::IsLoadingAnimationRunning() const {
    return loading_animation_timer_.IsRunning();
  }
-@@ -2087,7 +2142,11 @@ void BrowserView::Restore() {
+@@ -2091,7 +2146,11 @@ void BrowserView::Restore() {
  
  bool BrowserView::ShouldHideUIForFullscreen() const {
    // Immersive mode needs UI for the slide-down top panel.
@@ -346,7 +346,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
      return false;
    }
  
-@@ -3265,6 +3324,9 @@ void BrowserView::ShowOneClickSigninConfirmation(
+@@ -3269,6 +3328,9 @@ void BrowserView::ShowOneClickSigninConfirmation(
  
  DownloadBubbleUIController* BrowserView::GetDownloadBubbleUIController() {
  #if !BUILDFLAG(IS_CHROMEOS)
@@ -356,7 +356,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
    if (auto* download_controller =
            browser_->GetFeatures().download_toolbar_ui_controller()) {
      return download_controller->bubble_controller();
-@@ -4312,7 +4374,10 @@ bool BrowserView::GetSavedWindowPlacement(
+@@ -4316,7 +4378,10 @@ bool BrowserView::GetSavedWindowPlacement(
  }
  
  views::View* BrowserView::GetContentsView() {
@@ -368,7 +368,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
  }
  
  views::ClientView* BrowserView::CreateClientView(views::Widget* widget) {
-@@ -4491,9 +4556,22 @@ void BrowserView::DeleteBrowserWindow() {
+@@ -4495,9 +4560,22 @@ void BrowserView::DeleteBrowserWindow() {
    // before the frame is destroyed to mitigate UAF risk.
    browser_widget_->SaveWindowPlacementIfNeeded();
  
@@ -394,7 +394,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
  }
  
  void BrowserView::SetForceShowBookmarkBarFlag(
-@@ -4786,11 +4864,36 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+@@ -4790,11 +4868,36 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
  bool BrowserView::ShouldDescendIntoChildForEventHandling(
      gfx::NativeView child,
      const gfx::Point& location) {
@@ -433,7 +433,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
      // Draggable regions are defined relative to the web contents.
      gfx::Point point_in_contents_web_view_coords(location);
      views::View::ConvertPointToTarget(GetWidget()->GetRootView(),
-@@ -4799,9 +4902,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+@@ -4803,9 +4906,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
  
      // Draggable regions should be ignored for clicks into any browser view's
      // owned widgets, for example alerts, permission prompts or find bar.
@@ -445,7 +445,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
    }
  
-@@ -5073,7 +5175,9 @@ void BrowserView::Layout(PassKey) {
+@@ -5077,7 +5179,9 @@ void BrowserView::Layout(PassKey) {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -456,7 +456,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
    GetFrameView()->UpdateMinimumSize();
  
    // Some of the situations when the BrowserView is laid out are:
-@@ -5164,6 +5268,12 @@ void BrowserView::AddedToWidget() {
+@@ -5168,6 +5272,12 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->GetProfile());
  #endif
  
@@ -469,7 +469,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
    toolbar_->Init();
  
    UpdateTabSearchBubbleHost();
-@@ -5258,12 +5368,6 @@ void BrowserView::AddedToWidget() {
+@@ -5262,12 +5372,6 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -482,7 +482,7 @@ index 9a1a6ca77930480c6ce0627e01f074c23f58433f..503d104c7fdb7ac9121dece11ff8505d
  #if !BUILDFLAG(IS_CHROMEOS)
    browser_->GetFeatures().download_toolbar_ui_controller()->Init();
  #endif
-@@ -5304,6 +5408,13 @@ void BrowserView::AddedToWidget() {
+@@ -5308,6 +5412,13 @@ void BrowserView::AddedToWidget() {
    dialog_anchor_ = std::make_unique<user_education::ViewSubregionAnchor>(
        kBrowserDialogAnchorElementId, *this);
  
