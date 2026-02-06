@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>CEF Component Updater</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 20px;
+      background: #f5f5f5;
+      min-width: 500px;
+    }
+    h1 {
+      color: #333;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+    .section {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .section h2 {
+      margin-top: 0;
+      color: #555;
+    }
+    .component-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 4px;
+    }
+    .component-info {
+      flex: 1;
+    }
+    .component-name {
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .component-id {
+      font-family: monospace;
+      font-size: 12px;
+      color: #666;
+    }
+    .component-version {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+    .component-status {
+      font-size: 12px;
+      color: #666;
+      margin-top: 2px;
+    }
+    .component-status.status-up-to-date {
+      color: #28a745;
+    }
+    .component-status.status-error {
+      color: #dc3545;
+    }
+    .component-status.status-updating {
+      color: #ffc107;
+    }
+    .update-btn {
+      background: #0066cc;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .update-btn:hover {
+      background: #0052a3;
+    }
+    .update-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .update-btn.updating {
+      background: #ffc107;
+      color: #333;
+    }
+    .update-btn.success {
+      background: #28a745;
+    }
+    .update-btn.error {
+      background: #dc3545;
+    }
+    #status-message {
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      display: none;
+    }
+    #status-message.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      display: block;
+    }
+    #status-message.error {
+      background: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+    #status-message.success {
+      background: #d4edda;
+      color: #155724;
+      display: block;
+    }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+    .no-components {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+    .refresh-btn {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+    .refresh-btn:hover {
+      background: #5a6268;
+    }
+  </style>
+</head>
+<body>
+  <h1>CEF Component Updater</h1>
+  <div id="status-message"></div>
+
+  <div class="section">
+    <h2>Registered Components</h2>
+    <button class="refresh-btn" id="refresh-btn">Refresh List</button>
+    <div id="components-container">
+      <div class="loading">Loading components...</div>
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById('components-container');
+    const statusMessage = document.getElementById('status-message');
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function showStatus(type, message) {
+      statusMessage.className = type;
+      statusMessage.textContent = message;
+      setTimeout(() => { statusMessage.className = ''; }, 5000);
+    }
+
+    function getStatusClass(status) {
+      if (status === 'Up to date' || status === 'Updated') {
+        return 'status-up-to-date';
+      }
+      if (status === 'Update error') {
+        return 'status-error';
+      }
+      if (status.includes('...')) {
+        return 'status-updating';
+      }
+      return '';
+    }
+
+    function renderComponents(components) {
+      if (!components?.length) {
+        container.innerHTML = '<div class="no-components">No components registered</div>';
+        return;
+      }
+
+      container.innerHTML = components.map(comp => {
+        const version = comp.version || 'Not installed';
+        const name = comp.name || 'No name';
+        const status = comp.status || 'Unknown';
+        const statusClass = getStatusClass(status);
+        return `
+          <div class="component-row">
+            <div class="component-info">
+              <div class="component-name">${escapeHtml(name)}</div>
+              <div class="component-id">${escapeHtml(comp.id)}</div>
+              <div class="component-version">Version: ${escapeHtml(version)}</div>
+              <div class="component-status ${statusClass}" id="status-${escapeHtml(comp.id)}">Status: ${escapeHtml(status)}</div>
+            </div>
+            <button class="update-btn" data-id="${escapeHtml(comp.id)}">Check for update</button>
+          </div>`;
+      }).join('');
+    }
+
+    function updateComponent(componentId, button) {
+      button.disabled = true;
+      button.className = 'update-btn updating';
+      button.textContent = 'Updating...';
+
+      window.cefQuery({
+        request: JSON.stringify({ action: 'updateComponent', componentId }),
+        onSuccess: (response) => {
+          const result = JSON.parse(response);
+          if (result.error === 0) {
+            button.className = 'update-btn success';
+            button.textContent = 'Updated!';
+            showStatus('success', 'Component update completed successfully');
+            setTimeout(loadComponents, 1500);
+          } else {
+            button.className = 'update-btn error';
+            button.textContent = `Error: ${result.errorName}`;
+            showStatus('error', `Update failed: ${result.errorName}`);
+          }
+        },
+        onFailure: (errorCode, errorMessage) => {
+          button.className = 'update-btn error';
+          button.textContent = 'Failed';
+          button.disabled = false;
+          showStatus('error', `Update request failed: ${errorMessage}`);
+        }
+      });
+    }
+
+    function loadComponents() {
+      container.innerHTML = '<div class="loading">Loading components...</div>';
+
+      window.cefQuery({
+        request: JSON.stringify({ action: 'getComponents' }),
+        onSuccess: (response) => renderComponents(JSON.parse(response)),
+        onFailure: (errorCode, errorMessage) => {
+          container.innerHTML = `<div class="no-components">Failed to load components: ${errorMessage}</div>`;
+          showStatus('error', `Failed to load components: ${errorMessage}`);
+        }
+      });
+    }
+
+    // Event listeners
+    container.addEventListener('click', (e) => {
+      if (e.target.classList.contains('update-btn')) {
+        updateComponent(e.target.dataset.id, e.target);
+      }
+    });
+
+    document.getElementById('refresh-btn').addEventListener('click', loadComponents);
+
+    loadComponents();
+  </script>
+</body>
+</html>
