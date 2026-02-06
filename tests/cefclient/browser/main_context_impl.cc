@@ -110,6 +110,17 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
     use_views_ = true;
   }
 
+  // Whether transparent painting is used with windowless rendering.
+  const bool use_transparent_painting =
+      (use_windowless_rendering_ || use_views_) &&
+      command_line_->HasSwitch(switches::kTransparentPaintingEnabled);
+  if (use_views_ && use_transparent_painting &&
+      command_line->HasSwitch(switches::kHideFrame) &&
+      !command_line_->HasSwitch(switches::kUrl)) {
+    // Use the draggable regions test as the default URL for frameless windows.
+    main_url_ = "http://tests/transparent_views";
+  }
+
   if (command_line_->HasSwitch(switches::kBackgroundColor)) {
     // Parse the background color value.
     background_color_ =

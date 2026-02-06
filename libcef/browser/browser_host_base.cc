@@ -1521,7 +1521,8 @@ int CefBrowserHostBase::browser_id() const {
 SkColor CefBrowserHostBase::GetBackgroundColor() const {
   // Don't use |platform_delegate_| because it's not thread-safe.
   return CefContext::Get()->GetBackgroundColor(
-      &settings_, IsWindowless() ? STATE_ENABLED : STATE_DISABLED);
+      &settings_,
+      IsWindowless() || is_views_hosted() ? STATE_ENABLED : STATE_DISABLED);
 }
 
 content::WebContents* CefBrowserHostBase::GetWebContents() const {

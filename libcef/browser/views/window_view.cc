@@ -17,10 +17,13 @@
 #endif
 #endif
 
+#include "cef/libcef/browser/chrome/views/chrome_browser_frame.h"
+#include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/geometry_util.h"
 #include "cef/libcef/browser/image_impl.h"
 #include "cef/libcef/browser/views/widget.h"
 #include "cef/libcef/browser/views/window_impl.h"
+#include "cef/libcef/features/runtime.h"
 #include "ui/base/hit_test.h"
 #include "ui/base/metadata/metadata_impl_macros.h"
 #include "ui/base/mojom/ui_base_types.mojom-shared.h"
@@ -521,6 +524,9 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
   bool can_activate = true;
   bool can_resize = true;
 
+  auto color = CefContext::Get()->GetBackgroundColor(nullptr, STATE_ENABLED);
+  bool is_translucent = color == SK_ColorTRANSPARENT;
+
   const bool has_native_parent = parent_widget != gfx::kNullAcceleratedWidget;
   if (has_native_parent) {
     params.parent_widget = parent_widget;
@@ -539,6 +545,9 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
     params.opacity = views::Widget::InitParams::WindowOpacity::kOpaque;
   } else {
     params.type = views::Widget::InitParams::TYPE_WINDOW;
+    if (is_translucent) {
+      params.opacity = views::Widget::InitParams::WindowOpacity::kTranslucent;
+    }
   }
 
   if (cef_delegate()) {
@@ -727,6 +736,10 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
     // |widget|.
     host_widget_destruction_observer_ =
         std::make_unique<WidgetDestructionObserver>(host_widget);
+
+    if (is_translucent) {
+      GetCefWindow()->SetBackgroundColor(SK_ColorTRANSPARENT);
+    }
   }
 }
 
