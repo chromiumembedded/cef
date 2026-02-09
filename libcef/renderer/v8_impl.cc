@@ -1509,22 +1509,18 @@ CefV8BackingStoreImpl::CefV8BackingStoreImpl(
     : backing_store_(std::move(backing_store)) {}
 
 void* CefV8BackingStoreImpl::Data() {
-  base::AutoLock lock(lock_);
   return backing_store_ ? backing_store_->Data() : nullptr;
 }
 
 size_t CefV8BackingStoreImpl::ByteLength() {
-  base::AutoLock lock(lock_);
   return backing_store_ ? backing_store_->ByteLength() : 0;
 }
 
 bool CefV8BackingStoreImpl::IsValid() {
-  base::AutoLock lock(lock_);
   return backing_store_ != nullptr;
 }
 
 std::unique_ptr<v8::BackingStore> CefV8BackingStoreImpl::TakeBackingStore() {
-  base::AutoLock lock(lock_);
   return std::move(backing_store_);
 }
 

@@ -12,7 +12,6 @@
 #include "base/location.h"
 #include "base/logging.h"
 #include "base/memory/ref_counted.h"
-#include "base/synchronization/lock.h"
 #include "base/task/single_thread_task_runner.h"
 #include "cef/include/cef_v8.h"
 #include "cef/libcef/common/tracker.h"
@@ -383,7 +382,6 @@ class CefV8BackingStoreImpl : public CefV8BackingStore {
   [[nodiscard]] std::unique_ptr<v8::BackingStore> TakeBackingStore();
 
  private:
-  base::Lock lock_;
   std::unique_ptr<v8::BackingStore> backing_store_;
 
   IMPLEMENT_REFCOUNTING(CefV8BackingStoreImpl);
