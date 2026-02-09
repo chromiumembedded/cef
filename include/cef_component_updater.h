@@ -54,10 +54,12 @@ class CefComponentUpdateCallback : public virtual CefBaseRefCounted {
  public:
   ///
   /// Called when the component update operation completes.
+  /// |component_id| is the ID of the component that was updated.
   /// |error| contains the result of the operation.
   ///
   /*--cef()--*/
-  virtual void OnComplete(cef_component_update_error_t error) = 0;
+  virtual void OnComplete(const CefString& component_id,
+                          cef_component_update_error_t error) = 0;
 };
 
 ///
@@ -108,8 +110,9 @@ class CefComponent : public virtual CefBaseRefCounted {
 class CefComponentUpdater : public virtual CefBaseRefCounted {
  public:
   ///
-  /// Returns the global CefComponentUpdater object. Returns nullptr if the
-  /// CEF context is not initialized or if called from the incorrect thread.
+  /// Returns a CefComponentUpdater object that provides access to the
+  /// component updater service. Returns nullptr if the CEF context is not
+  /// initialized or if called from the incorrect thread.
   ///
   /*--cef()--*/
   static CefRefPtr<CefComponentUpdater> GetComponentUpdater();

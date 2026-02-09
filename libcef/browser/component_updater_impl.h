@@ -18,9 +18,9 @@ class ComponentUpdateService;
 
 class CefComponentImpl : public CefComponent {
  public:
-  CefComponentImpl(const std::string& id,
-                   const std::string& name,
-                   const std::string& version,
+  CefComponentImpl(std::string id,
+                   std::string name,
+                   std::string version,
                    cef_component_state_t state);
 
   CefComponentImpl(const CefComponentImpl&) = delete;

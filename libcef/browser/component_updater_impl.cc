@@ -41,7 +41,7 @@ cef_component_state_t ToCefComponentState(update_client::ComponentState state) {
     case update_client::ComponentState::kRun:
       return CEF_COMPONENT_STATE_RUN;
   }
-  NOTREACHED();
+  NOTREACHED() << "Unexpected ComponentState: " << static_cast<int>(state);
 }
 
 cef_component_update_error_t ToCefUpdateError(update_client::Error error) {
@@ -67,7 +67,8 @@ cef_component_update_error_t ToCefUpdateError(update_client::Error error) {
     case update_client::Error::MAX_VALUE:
       return CEF_COMPONENT_UPDATE_ERROR_SERVICE_ERROR;
   }
-  NOTREACHED();
+  NOTREACHED() << "Unexpected update_client::Error: "
+               << static_cast<int>(error);
 }
 
 component_updater::OnDemandUpdater::Priority ToChromiumPriority(
@@ -78,24 +79,42 @@ component_updater::OnDemandUpdater::Priority ToChromiumPriority(
     case CEF_COMPONENT_UPDATE_PRIORITY_FOREGROUND:
       return component_updater::OnDemandUpdater::Priority::FOREGROUND;
   }
-  NOTREACHED();
+  NOTREACHED() << "Unexpected update priority: " << static_cast<int>(priority);
 }
 
 void OnUpdateComplete(CefRefPtr<CefComponentUpdateCallback> callback,
+                      const std::string& component_id,
                       update_client::Error error) {
   CEF_REQUIRE_UIT();
   if (callback) {
-    callback->OnComplete(ToCefUpdateError(error));
+    callback->OnComplete(component_id, ToCefUpdateError(error));
   }
+}
+
+CefRefPtr<CefComponentImpl> CreateComponentFromItem(
+    std::string id,
+    const update_client::CrxUpdateItem& item) {
+  std::string name;
+  std::string version;
+  if (item.component) {
+    name = item.component->name;
+    version = item.component->version.GetString();
+  }
+  return new CefComponentImpl(std::move(id), std::move(name),
+                              std::move(version),
+                              ToCefComponentState(item.state));
 }
 
 }  // namespace
 
-CefComponentImpl::CefComponentImpl(const std::string& id,
-                                   const std::string& name,
-                                   const std::string& version,
+CefComponentImpl::CefComponentImpl(std::string id,
+                                   std::string name,
+                                   std::string version,
                                    cef_component_state_t state)
-    : id_(id), name_(name), version_(version), state_(state) {}
+    : id_(std::move(id)),
+      name_(std::move(name)),
+      version_(std::move(version)),
+      state_(state) {}
 
 CefString CefComponentImpl::GetID() {
   return id_;
@@ -128,19 +147,14 @@ void CefComponentUpdaterImpl::GetComponents(
     std::vector<CefRefPtr<CefComponent>>& components) {
   CEF_REQUIRE_UIT();
 
+  const auto& component_ids = component_updater_->GetComponentIDs();
   components.clear();
+  components.reserve(component_ids.size());
 
-  for (const auto& component_id : component_updater_->GetComponentIDs()) {
+  for (const auto& component_id : component_ids) {
     update_client::CrxUpdateItem item;
     if (component_updater_->GetComponentDetails(component_id, &item)) {
-      std::string name;
-      std::string version;
-      if (item.component) {
-        name = item.component->name;
-        version = item.component->version.GetString();
-      }
-      components.push_back(new CefComponentImpl(
-          component_id, name, version, ToCefComponentState(item.state)));
+      components.push_back(CreateComponentFromItem(component_id, item));
     }
   }
 }
@@ -153,14 +167,7 @@ CefRefPtr<CefComponent> CefComponentUpdaterImpl::GetComponentByID(
   update_client::CrxUpdateItem item;
 
   if (component_updater_->GetComponentDetails(id, &item)) {
-    std::string name;
-    std::string version;
-    if (item.component) {
-      name = item.component->name;
-      version = item.component->version.GetString();
-    }
-    return new CefComponentImpl(id, name, version,
-                                ToCefComponentState(item.state));
+    return CreateComponentFromItem(std::move(id), item);
   }
   return nullptr;
 }
@@ -171,20 +178,20 @@ void CefComponentUpdaterImpl::Update(
     CefRefPtr<CefComponentUpdateCallback> callback) {
   CEF_REQUIRE_UIT();
 
+  std::string id = component_id.ToString();
   component_updater_->GetOnDemandUpdater().OnDemandUpdate(
-      component_id.ToString(), ToChromiumPriority(priority),
-      base::BindOnce(&OnUpdateComplete, callback));
+      id, ToChromiumPriority(priority),
+      base::BindOnce(&OnUpdateComplete, callback, id));
 }
 
-// Static
+// static
 CefRefPtr<CefComponentUpdater> CefComponentUpdater::GetComponentUpdater() {
+  CEF_REQUIRE_UIT_RETURN(nullptr);
+
   if (!CONTEXT_STATE_VALID()) {
     DCHECK(false) << "context not valid";
     return nullptr;
   }
-
-  CEF_REQUIRE_UIT_RETURN(nullptr);
-
   auto* component_updater = g_browser_process->component_updater();
   if (!component_updater) {
     return nullptr;

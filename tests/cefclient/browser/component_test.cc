@@ -73,10 +73,12 @@ class ComponentUpdateCallbackImpl : public CefComponentUpdateCallback {
       CefRefPtr<CefMessageRouterBrowserSide::Callback> callback)
       : callback_(callback) {}
 
-  void OnComplete(cef_component_update_error_t error) override {
+  void OnComplete(const CefString& component_id,
+                  cef_component_update_error_t error) override {
     CEF_REQUIRE_UI_THREAD();
 
     CefRefPtr<CefDictionaryValue> result = CefDictionaryValue::Create();
+    result->SetString("componentId", component_id);
     result->SetInt("error", static_cast<int>(error));
     result->SetString("errorName", GetErrorName(error));
 

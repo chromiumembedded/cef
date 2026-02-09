@@ -151,7 +151,6 @@
 
   <script>
     const container = document.getElementById('components-container');
-    const statusMessage = document.getElementById('status-message');
 
     function escapeHtml(text) {
       const div = document.createElement('div');
@@ -160,9 +159,9 @@
     }
 
     function showStatus(type, message) {
+      const statusMessage = document.getElementById('status-message');
       statusMessage.className = type;
       statusMessage.textContent = message;
-      setTimeout(() => { statusMessage.className = ''; }, 5000);
     }
 
     function getStatusClass(status) {
@@ -211,15 +210,16 @@
         request: JSON.stringify({ action: 'updateComponent', componentId }),
         onSuccess: (response) => {
           const result = JSON.parse(response);
+          const id = result.componentId;
           if (result.error === 0) {
             button.className = 'update-btn success';
             button.textContent = 'Updated!';
-            showStatus('success', 'Component update completed successfully');
+            showStatus('success', `Component ${id} updated successfully`);
             setTimeout(loadComponents, 1500);
           } else {
             button.className = 'update-btn error';
             button.textContent = `Error: ${result.errorName}`;
-            showStatus('error', `Update failed: ${result.errorName}`);
+            showStatus('error', `Update failed for ${id}: ${result.errorName}`);
           }
         },
         onFailure: (errorCode, errorMessage) => {
