@@ -9,12 +9,7 @@
 #include <string>
 #include <vector>
 
-#include "base/memory/raw_ptr.h"
 #include "cef/include/cef_component_updater.h"
-
-namespace component_updater {
-class ComponentUpdateService;
-}
 
 class CefComponentImpl : public CefComponent {
  public:
@@ -43,8 +38,7 @@ class CefComponentImpl : public CefComponent {
 
 class CefComponentUpdaterImpl : public CefComponentUpdater {
  public:
-  explicit CefComponentUpdaterImpl(
-      component_updater::ComponentUpdateService* component_updater);
+  CefComponentUpdaterImpl() = default;
 
   CefComponentUpdaterImpl(const CefComponentUpdaterImpl&) = delete;
   CefComponentUpdaterImpl& operator=(const CefComponentUpdaterImpl&) = delete;
@@ -59,8 +53,6 @@ class CefComponentUpdaterImpl : public CefComponentUpdater {
               CefRefPtr<CefComponentUpdateCallback> callback) override;
 
  private:
-  raw_ptr<component_updater::ComponentUpdateService> component_updater_;
-
   IMPLEMENT_REFCOUNTING(CefComponentUpdaterImpl);
 };
 

@@ -5,6 +5,7 @@
 #include "cef/libcef/browser/component_updater_impl.h"
 
 #include "base/functional/bind.h"
+#include "base/no_destructor.h"
 #include "base/notreached.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/thread_util.h"
@@ -105,6 +106,14 @@ CefRefPtr<CefComponentImpl> CreateComponentFromItem(
                               ToCefComponentState(item.state));
 }
 
+component_updater::ComponentUpdateService* GetComponentUpdateService() {
+  CEF_REQUIRE_UIT_RETURN(nullptr);
+  if (!CONTEXT_STATE_VALID()) {
+    return nullptr;
+  }
+  return g_browser_process->component_updater();
+}
+
 }  // namespace
 
 CefComponentImpl::CefComponentImpl(std::string id,
@@ -132,41 +141,43 @@ cef_component_state_t CefComponentImpl::GetState() {
   return state_;
 }
 
-CefComponentUpdaterImpl::CefComponentUpdaterImpl(
-    component_updater::ComponentUpdateService* component_updater)
-    : component_updater_(component_updater) {
-  DCHECK(component_updater_);
-}
-
 size_t CefComponentUpdaterImpl::GetComponentCount() {
-  CEF_REQUIRE_UIT();
-  return component_updater_->GetComponentIDs().size();
+  auto* service = GetComponentUpdateService();
+  if (!service) {
+    return 0;
+  }
+  return service->GetComponentIDs().size();
 }
 
 void CefComponentUpdaterImpl::GetComponents(
     std::vector<CefRefPtr<CefComponent>>& components) {
-  CEF_REQUIRE_UIT();
-
-  const auto& component_ids = component_updater_->GetComponentIDs();
   components.clear();
+  auto* service = GetComponentUpdateService();
+  if (!service) {
+    return;
+  }
+
+  const auto& component_ids = service->GetComponentIDs();
   components.reserve(component_ids.size());
 
   for (const auto& component_id : component_ids) {
     update_client::CrxUpdateItem item;
-    if (component_updater_->GetComponentDetails(component_id, &item)) {
-      components.push_back(CreateComponentFromItem(component_id, item));
-    }
+    CHECK(service->GetComponentDetails(component_id, &item));
+    components.push_back(CreateComponentFromItem(component_id, item));
   }
 }
 
 CefRefPtr<CefComponent> CefComponentUpdaterImpl::GetComponentByID(
     const CefString& component_id) {
-  CEF_REQUIRE_UIT();
+  auto* service = GetComponentUpdateService();
+  if (!service) {
+    return nullptr;
+  }
 
   std::string id = component_id.ToString();
   update_client::CrxUpdateItem item;
 
-  if (component_updater_->GetComponentDetails(id, &item)) {
+  if (service->GetComponentDetails(id, &item)) {
     return CreateComponentFromItem(std::move(id), item);
   }
   return nullptr;
@@ -176,10 +187,13 @@ void CefComponentUpdaterImpl::Update(
     const CefString& component_id,
     cef_component_update_priority_t priority,
     CefRefPtr<CefComponentUpdateCallback> callback) {
-  CEF_REQUIRE_UIT();
+  auto* service = GetComponentUpdateService();
+  if (!service) {
+    return;
+  }
 
   std::string id = component_id.ToString();
-  component_updater_->GetOnDemandUpdater().OnDemandUpdate(
+  service->GetOnDemandUpdater().OnDemandUpdate(
       id, ToChromiumPriority(priority),
       base::BindOnce(&OnUpdateComplete, callback, id));
 }
@@ -188,14 +202,7 @@ void CefComponentUpdaterImpl::Update(
 CefRefPtr<CefComponentUpdater> CefComponentUpdater::GetComponentUpdater() {
   CEF_REQUIRE_UIT_RETURN(nullptr);
 
-  if (!CONTEXT_STATE_VALID()) {
-    DCHECK(false) << "context not valid";
-    return nullptr;
-  }
-  auto* component_updater = g_browser_process->component_updater();
-  if (!component_updater) {
-    return nullptr;
-  }
-
-  return new CefComponentUpdaterImpl(component_updater);
+  static base::NoDestructor<CefRefPtr<CefComponentUpdaterImpl>> instance(
+      new CefComponentUpdaterImpl());
+  return instance->get();
 }

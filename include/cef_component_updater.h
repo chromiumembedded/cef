@@ -105,27 +105,29 @@ class CefComponent : public virtual CefBaseRefCounted {
 /// This class provides access to Chromium's component updater service, allowing
 /// clients to discover registered components and trigger on-demand updates. The
 /// methods of this class may only be called on the browser process UI thread.
+/// If the CEF context is not initialized or the component updater service is
+/// not available, methods will return safe defaults (0, nullptr, or empty).
 ///
 /*--cef(source=library,added=next)--*/
 class CefComponentUpdater : public virtual CefBaseRefCounted {
  public:
   ///
-  /// Returns a CefComponentUpdater object that provides access to the
-  /// component updater service. Returns nullptr if the CEF context is not
-  /// initialized or if called from the incorrect thread.
+  /// Returns the global CefComponentUpdater singleton. Returns nullptr if
+  /// called from the incorrect thread.
   ///
   /*--cef()--*/
   static CefRefPtr<CefComponentUpdater> GetComponentUpdater();
 
   ///
-  /// Returns the number of registered components.
+  /// Returns the number of registered components, or 0 if the service is not
+  /// available.
   ///
   /*--cef()--*/
   virtual size_t GetComponentCount() = 0;
 
   ///
-  /// Returns all registered components. Use GetComponentCount() to get the
-  /// expected number of components.
+  /// Populates |components| with all registered components. Any existing
+  /// contents will be cleared first.
   ///
   /*--cef(count_func=components:GetComponentCount)--*/
   virtual void GetComponents(
@@ -133,7 +135,7 @@ class CefComponentUpdater : public virtual CefBaseRefCounted {
 
   ///
   /// Returns the component with the specified |component_id|, or nullptr if
-  /// not found.
+  /// not found or the service is not available.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefComponent> GetComponentByID(
@@ -141,12 +143,9 @@ class CefComponentUpdater : public virtual CefBaseRefCounted {
 
   ///
   /// Triggers an on-demand update for the component with the specified
-  /// |component_id|.
-  ///
-  /// |priority| specifies whether the update should be processed in the
-  /// background or foreground. Use CEF_COMPONENT_UPDATE_PRIORITY_FOREGROUND
-  /// for user-initiated updates.
-  ///
+  /// |component_id|. |priority| specifies whether the update should be
+  /// processed in the background or foreground. Use
+  /// CEF_COMPONENT_UPDATE_PRIORITY_FOREGROUND for user-initiated updates.
   /// |callback| will be called on the UI thread when the update operation
   /// completes. The callback may be nullptr if no notification is needed.
   ///
