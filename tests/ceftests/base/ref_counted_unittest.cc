@@ -188,7 +188,7 @@ TEST(RefCountedUnitTest, TestSelfAssignment) {
   scoped_refptr<SelfAssign> var(p);
   var = *&var;  // The *& defeats Clang's -Wself-assign warning.
   EXPECT_EQ(var.get(), p);
-  var = std::move(*&var);  // The *& defeats GCC's -Wself-move warning.
+  var = std::move(var);
   EXPECT_EQ(var.get(), p);
   var.swap(var);
   EXPECT_EQ(var.get(), p);
