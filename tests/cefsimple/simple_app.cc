@@ -42,6 +42,12 @@ class SimpleWindowDelegate : public CefWindowDelegate {
     browser_view_ = nullptr;
   }
 
+  bool IsFrameless(CefRefPtr<CefWindow> window) override {
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::GetGlobalCommandLine();
+    return command_line->HasSwitch("hide-frame");
+  }
+
   bool CanClose(CefRefPtr<CefWindow> window) override {
     // Allow the window to close if the browser says it's OK.
     CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();

@@ -37,6 +37,7 @@ int GetResourceId(const char* resource_name) {
                       {"server.html", IDS_SERVER_HTML},
                       {"task_manager.html", IDS_TASK_MANAGER_HTML},
                       {"transparency.html", IDS_TRANSPARENCY_HTML},
+                      {"transparent_views.html", IDS_TRANSPARENT_VIEWS_HTML},
                       {"urlrequest.html", IDS_URLREQUEST_HTML},
                       {"websocket.html", IDS_WEBSOCKET_HTML},
                       {"window.html", IDS_WINDOW_HTML},

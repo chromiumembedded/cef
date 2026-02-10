@@ -1,0 +1,64 @@
+<html>
+  <head><title>Translucent Window Test</title>
+  <style>
+  #radius-window {
+    border-radius: 30px;
+    height: 400px;
+    width: 600px;
+    background: rgba(98, 98, 115);
+    opacity: 0.8;
+  }
+  #title-bar {
+    user-select: none;
+    margin-left: 30px;
+    margin-right: 30px;
+    display: flex;
+    background: rgb(88, 88, 105);
+  }
+  .draggable {
+    flex-grow: 2;
+    -webkit-app-region: drag;
+    height: 20px;
+  }
+  .controls {
+    flex-grow: 0;
+    font: 18px bold "Sans-serif";
+    color: red;
+    height: 20px;
+    width: 20px;
+    cursor: hand;
+  }
+  </style>
+  <script>
+    function changeAlpha(e) {
+      let w = document.getElementById("radius-window");
+      let opacity = w.style.opacity === "" ? 0.8 : parseFloat(w.style.opacity);
+      if (!e.shiftKey) {
+        opacity += 0.1;
+      } else {
+        opacity -= 0.1;
+      }
+      if (opacity <= 1  && opacity >= 0) {
+        w.style.opacity = opacity;
+      }
+    }
+  </script>
+  </head>
+  <body>
+    <div id="radius-window" onmousedown="changeAlpha(event);">
+      <div id="title-bar">
+        <div class="draggable"></div>
+        <div class="controls" onclick="window.close()">X</div>
+      </div>
+      Transparent window using Views framework can be enabled by setting the
+      alpha component of the CefSettings.background_color to fully transparent
+      (0x00) and returning true from IsFrameless() in CefWindowDelegate().
+      The transparent effect will propagate to
+      <a href="#" onClick="window.open(location.href, 'Popup'); return false;">popped up window</a>.
+      <br/>Window can be closed using JavaScript <a href="#" onClick="window.close(); return false;">window.close()</a>.
+      </p>
+      Click: decrease alpha component of the background.<br/>
+      Shift-Click: increase alpha component of the background.
+    </div>
+  </body>
+</html>

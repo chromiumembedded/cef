@@ -74,14 +74,14 @@ void InitCrashReporter() {
 
 #endif  // BUILDFLAG(IS_WIN)
 
-bool GetColor(const cef_color_t cef_in, bool is_windowless, SkColor* sk_out) {
-  // Windowed browser colors must be fully opaque.
-  if (!is_windowless && CefColorGetA(cef_in) != SK_AlphaOPAQUE) {
+bool GetColor(const cef_color_t cef_in, bool is_transparent, SkColor* sk_out) {
+  // transparent unsupported browser colors must be fully opaque.
+  if (!is_transparent && CefColorGetA(cef_in) != SK_AlphaOPAQUE) {
     return false;
   }
 
-  // Windowless browser colors may be fully transparent.
-  if (is_windowless && CefColorGetA(cef_in) == SK_AlphaTRANSPARENT) {
+  // transparent supported browser colors may be fully transparent.
+  if (is_transparent && CefColorGetA(cef_in) == SK_AlphaTRANSPARENT) {
     *sk_out = SK_ColorTRANSPARENT;
     return true;
   }
@@ -444,10 +444,10 @@ bool CefContext::OnInitThread() {
 
 SkColor CefContext::GetBackgroundColor(
     const CefBrowserSettings* browser_settings,
-    cef_state_t windowless_state) const {
-  bool is_windowless = windowless_state == STATE_ENABLED
+    cef_state_t transparent_state) const {
+  bool is_transparent = transparent_state == STATE_ENABLED
                            ? true
-                           : (windowless_state == STATE_DISABLED
+                           : (transparent_state == STATE_DISABLED
                                   ? false
                                   : !!settings_.windowless_rendering_enabled);
 
@@ -455,8 +455,8 @@ SkColor CefContext::GetBackgroundColor(
   SkColor sk_color = SK_ColorWHITE;
 
   if (!browser_settings ||
-      !GetColor(browser_settings->background_color, is_windowless, &sk_color)) {
-    GetColor(settings_.background_color, is_windowless, &sk_color);
+      !GetColor(browser_settings->background_color, is_transparent, &sk_color)) {
+    GetColor(settings_.background_color, is_transparent, &sk_color);
   }
   return sk_color;
 }
