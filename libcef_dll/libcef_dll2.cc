@@ -46,6 +46,11 @@ CEF_EXPORT int cef_version_info(int entry) {
 }
 
 CEF_EXPORT void cef_version_info_all(cef_version_info_t* info) {
+  if (!info || info->size == 0) {
+    return;
+  }
+
+  // Always populate base version fields (present in all struct versions).
   info->cef_version_major = CEF_VERSION_MAJOR;
   info->cef_version_minor = CEF_VERSION_MINOR;
   info->cef_version_patch = CEF_VERSION_PATCH;
@@ -54,6 +59,14 @@ CEF_EXPORT void cef_version_info_all(cef_version_info_t* info) {
   info->chrome_version_minor = CHROME_VERSION_MINOR;
   info->chrome_version_build = CHROME_VERSION_BUILD;
   info->chrome_version_patch = CHROME_VERSION_PATCH;
+
+  // Populate sandbox_compat_hash if the struct is large enough to contain it.
+  // This allows older clients with smaller structs to still work.
+  if (info->size >= CEF_VERSION_INFO_SIZE_WITH_SANDBOX_HASH) {
+    strncpy(info->sandbox_compat_hash, CEF_SANDBOX_COMPAT_HASH,
+            sizeof(info->sandbox_compat_hash) - 1);
+    info->sandbox_compat_hash[sizeof(info->sandbox_compat_hash) - 1] = '\0';
+  }
 }
 
 #include "cef/libcef_dll/cef_api_versions.inc"
@@ -91,6 +104,8 @@ CEF_EXPORT const char* cef_api_hash(int version, int entry) {
       return current_version_hash->hash;
     case 2:
       return CEF_COMMIT_HASH;
+    case 3:
+      return CEF_SANDBOX_COMPAT_HASH;
     default:
       return nullptr;
   }

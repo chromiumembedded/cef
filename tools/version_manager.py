@@ -12,8 +12,18 @@ from file_util import read_file, read_json_file, write_file, write_json_file
 from git_util import exec_git_cmd
 import os
 import sys
+from sandbox_compat_hash import calculate_sandbox_compat_hash
 from translator import translate
 from version_util import *
+
+# Sandbox interface files for compatibility hash (paths relative to src/).
+# Keep in sync with _sandbox_compat_files in cef/BUILD.gn.
+SANDBOX_COMPAT_FILES = [
+    'chrome/chrome_elf/chrome_elf_main.h',
+    'sandbox/policy/mojom/sandbox.mojom',
+    'sandbox/win/src/sandbox.h',
+    'sandbox/win/src/sandbox_types.h',
+]
 
 
 def get_next_api_revision(api_versions_file, major_version):
@@ -44,7 +54,8 @@ def get_next_api_revision(api_versions_file, major_version):
 
 def compute_api_hashes(api_version: str,
                        hasher: CefApiHasher,
-                       next_allowed: bool) -> Dict[str, str]:
+                       next_allowed: bool,
+                       src_dir: str) -> Dict[str, str]:
   """ Computes API hashes for the specified |api_version|. """
   if not next_allowed:
     # Next usage is banned with explicit API versions.
@@ -58,6 +69,10 @@ def compute_api_hashes(api_version: str,
 
   hashes = hasher.calculate(api_version, added_defines)
   if hashes:
+    # Add sandbox compatibility hash.
+    sandbox_files = [os.path.join(src_dir, f) for f in SANDBOX_COMPAT_FILES]
+    hashes['sandbox_compat'] = calculate_sandbox_compat_hash(sandbox_files)
+
     if api_version in UNTRACKED_VERSIONS:
       label = version_label(api_version)
       label = label[0:1].upper() + label[1:]
@@ -67,9 +82,24 @@ def compute_api_hashes(api_version: str,
   return hashes
 
 
-def same_api_hashes(hashes1, hashes2):
-  return all(hashes1[key] == hashes2[key]
-             for key in ['linux', 'mac', 'windows'])
+def same_api_hashes(hashes1, hashes2, compare_sandbox=True):
+  # Compare platform hashes (always required).
+  for key in ['linux', 'mac', 'windows']:
+    if hashes1.get(key) != hashes2.get(key):
+      return False
+  # Compare sandbox_compat only when requested.
+  if compare_sandbox:
+    has1 = 'sandbox_compat' in hashes1
+    has2 = 'sandbox_compat' in hashes2
+    if has1 and has2:
+      # Both have the field - compare values.
+      if hashes1['sandbox_compat'] != hashes2['sandbox_compat']:
+        return False
+    elif has1 or has2:
+      # One has the field and the other doesn't - not the same.
+      # This ensures the field gets added to entries that lack it.
+      return False
+  return True
 
 
 def compute_next_api_version(api_versions_file):
@@ -200,7 +230,8 @@ def exec_apply(api_versions_file,
                api_untracked_file,
                next_version,
                apply_next,
-               hasher: CefApiHasher) -> int:
+               hasher: CefApiHasher,
+               src_dir: str) -> int:
   """ Updates untracked API hashes if necessary.
       Saves the hash for the next API version if |apply_next| is true.
   """
@@ -214,13 +245,14 @@ def exec_apply(api_versions_file,
   untracked_changed = False
   for version in UNTRACKED_VERSIONS:
     label = version_label(version)
-    hashes = compute_api_hashes(version, hasher, next_allowed=True)
+    hashes = compute_api_hashes(
+        version, hasher, next_allowed=True, src_dir=src_dir)
     if not hashes:
       sys.stderr.write('ERROR: Failed to process %s\n' % label)
       return 1
 
     if version in json_untracked['hashes'] and same_api_hashes(
-        hashes, json_untracked['hashes'][version]):
+        hashes, json_untracked['hashes'][version], compare_sandbox=True):
       print('Hashes for %s are unchanged.' % label)
     else:
       untracked_changed = True
@@ -231,14 +263,20 @@ def exec_apply(api_versions_file,
   if apply_next:
     next_label = version_label(next_version)
 
-    hashes = compute_api_hashes(next_version, hasher, next_allowed=False)
+    hashes = compute_api_hashes(
+        next_version, hasher, next_allowed=False, src_dir=src_dir)
     if not hashes:
       sys.stderr.write('ERROR: Failed to process %s\n' % next_label)
       return 1
 
     last_version = json_versions.get('last', None)
     if not last_version is None and last_version in json_versions['hashes']:
-      if same_api_hashes(hashes, json_versions['hashes'][last_version]):
+      # Compare sandbox_compat_hash if both have it. For older versions that
+      # don't have the field, the comparison is skipped (handled by
+      # same_api_hashes). Once last_version has the field, sandbox changes
+      # will trigger new version bumps.
+      if same_api_hashes(
+          hashes, json_versions['hashes'][last_version], compare_sandbox=True):
         print('Hashes for last %s are unchanged.' % version_label(last_version))
         next_changed = False
 
@@ -248,7 +286,8 @@ def exec_apply(api_versions_file,
       json_versions['hashes'][next_version] = hashes
 
       if NEXT_VERSION in json_untracked['hashes'] and not \
-         same_api_hashes(hashes, json_untracked['hashes'][NEXT_VERSION]):
+         same_api_hashes(hashes, json_untracked['hashes'][NEXT_VERSION],
+                         compare_sandbox=True):
         print('NOTE: Additional versions are available to generate.')
 
   write_versions = next_changed or not os.path.isfile(api_versions_file)
@@ -273,7 +312,8 @@ def exec_check(api_versions_file,
                fast_check,
                force_update,
                skip_untracked,
-               hasher: CefApiHasher) -> int:
+               hasher: CefApiHasher,
+               src_dir: str) -> int:
   """ Checks existing API version hashes.
       Resaves all API hashes if |force_update| is true. Otherwise, hash
       changes are considered an error.
@@ -325,11 +365,16 @@ def exec_check(api_versions_file,
     else:
       stored_hashes = json_versions['hashes'][version]
     label = version_label(version)
-    computed_hashes = compute_api_hashes(version, hasher, next_allowed=True)
+    computed_hashes = compute_api_hashes(
+        version, hasher, next_allowed=True, src_dir=src_dir)
     if not bool(computed_hashes):
       sys.stderr.write('ERROR: Failed to process %s\n' % label)
       return 1
-    if not same_api_hashes(computed_hashes, stored_hashes):
+    # Only compare sandbox_compat_hash for untracked versions since we can
+    # only compute the hash for the current file state, not for historical
+    # versions.
+    if not same_api_hashes(
+        computed_hashes, stored_hashes, compare_sandbox=untracked):
       if force_update:
         print('Updating hashes for %s' % label)
         if untracked:
@@ -477,6 +522,7 @@ https://chromiumembedded.github.io/cef/api_versioning
 
   script_dir = os.path.dirname(__file__)
   cef_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
+  src_dir = os.path.abspath(os.path.join(cef_dir, os.pardir))
 
   cpp_header_dir = os.path.join(cef_dir, 'include')
   if not os.path.isdir(cpp_header_dir):
@@ -526,7 +572,7 @@ https://chromiumembedded.github.io/cef/api_versioning
       api_untracked_file):
     skip_untracked = True
     if exec_apply(api_versions_file, api_untracked_file, next_version,
-                  options.apply, hasher) > 0:
+                  options.apply, hasher, src_dir) > 0:
       # Apply failed.
       sys.exit(1)
   elif not options.check:
@@ -536,4 +582,4 @@ https://chromiumembedded.github.io/cef/api_versioning
   sys.exit(
       exec_check(api_versions_file, api_untracked_file, options.fastcheck and
                  not options.force_update, options.check and
-                 options.force_update, skip_untracked, hasher))
+                 options.force_update, skip_untracked, hasher, src_dir))

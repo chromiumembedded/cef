@@ -24,7 +24,8 @@ else:
 #     "versions": [
 #       {
 #         "cef_version": "3.2704.1414.g185cd6c",
-#         "chromium_version": "51.0.2704.47"
+#         "chromium_version": "51.0.2704.47",
+#         "sandbox_compat": "abc123def4567890",  # Optional, queried from GitHub
 #         "files": [
 #           {
 #             "last_modified": "2016-05-18T22:42:14.066Z"
@@ -126,6 +127,32 @@ class cef_json_builder:
         bool(re.compile('^' + _chromium_version_regex + '$').match(version))
 
   @staticmethod
+  def is_valid_sandbox_compat(sandbox_compat):
+    """ Returns true if the specified sandbox_compat hash is valid. """
+    if sandbox_compat is None:
+      return False
+    # 16-character hex string
+    return bool(re.compile('^[0-9a-f]{16}$').match(sandbox_compat))
+
+  @staticmethod
+  def cef_version_to_api_version(cef_version):
+    """ Convert CEF version to API version number.
+        E.g., '138.0.1+g...' -> '13800', '138.1.0+g...' -> '13801'
+        Returns None for old-style version numbers that predate API versioning.
+    """
+    if '+' not in cef_version:
+      # Old style version numbers don't have API versioning.
+      return None
+
+    # New style: 138.0.1+g...
+    version_part = cef_version.split('+')[0]
+    parts = version_part.split('.')
+    chrome_major = int(parts[0])
+    cef_minor = int(parts[1])
+
+    return '%d%02d' % (chrome_major, cef_minor)
+
+  @staticmethod
   def get_file_name(version, platform, type, channel='stable'):
     """ Returns the expected distribution file name excluding extension based on
         the input parameters. """
@@ -139,6 +166,8 @@ class cef_json_builder:
     for platform in self.get_platforms():
       self._data[platform] = {'versions': []}
     self._versions = {}
+    self._sandbox_compats = {}
+    self._api_versions_cache = {}
     self._queryct = 0
 
   def filter_files(self, files, file_type, sha1, name):
@@ -246,6 +275,84 @@ class cef_json_builder:
     """ Return True if a matching Chromium version is known. """
     return cef_version in self._versions
 
+  def _query_api_versions_json(self, cef_version):
+    """ Query cef_api_versions.json from GitHub for the given CEF version. """
+    # Get Chromium version and extract branch (build number).
+    chromium_version = self.get_chromium_version(cef_version)
+    if not self.is_valid_chromium_version(chromium_version):
+      return None
+
+    parts = chromium_version.split('.')
+    branch = parts[2]  # Chromium build number (e.g., 7204 from 138.0.7204.0)
+
+    # Check cache first.
+    if branch in self._api_versions_cache:
+      return self._api_versions_cache[branch]
+
+    query_url = 'https://raw.githubusercontent.com/chromiumembedded/cef/%s/cef_api_versions.json' % branch
+    self._queryct = self._queryct + 1
+    if not self._silent:
+      print('Reading %s' % query_url)
+
+    try:
+      handle = urlopen(query_url)
+      json_data = json.loads(handle.read().decode('utf-8'))
+      handle.close()
+      self._api_versions_cache[branch] = json_data
+      return json_data
+    except Exception as e:
+      if not self._silent:
+        print('Failed to read cef_api_versions.json: %s' % e)
+      return None
+
+  def _query_sandbox_compat(self, cef_version):
+    """ Query sandbox_compat from cef_api_versions.json on GitHub. """
+    target_version = self.cef_version_to_api_version(cef_version)
+    if target_version is None:
+      # Old-style version numbers don't have API versioning.
+      return None
+
+    json_data = self._query_api_versions_json(cef_version)
+    if json_data is None or 'hashes' not in json_data:
+      return None
+
+    # Find exact match or closest lower version.
+    available = sorted(json_data['hashes'].keys(), reverse=True)
+    for version in available:
+      if version <= target_version:
+        return json_data['hashes'][version].get('sandbox_compat')
+
+    return None
+
+  def set_sandbox_compat(self, cef_version, sandbox_compat=None):
+    """ Set the sandbox_compat hash for the given CEF version. If not provided
+        or invalid, it will be queried remotely. """
+    if not self.is_valid_version(cef_version):
+      raise Exception('Invalid CEF version: %s' % cef_version)
+
+    if not self.is_valid_sandbox_compat(sandbox_compat):
+      if cef_version in self._sandbox_compats:
+        # Keep the sandbox_compat that we already know about.
+        return self._sandbox_compats[cef_version]
+
+      sandbox_compat = self._query_sandbox_compat(cef_version)
+
+    if sandbox_compat is not None:
+      self._sandbox_compats[cef_version] = sandbox_compat
+
+    return sandbox_compat
+
+  def get_sandbox_compat(self, cef_version):
+    """ Return the sandbox_compat hash. If not currently known it will be
+        queried remotely. May return None if not available. """
+    if cef_version in self._sandbox_compats:
+      return self._sandbox_compats[cef_version]
+    return self.set_sandbox_compat(cef_version)
+
+  def has_sandbox_compat(self, cef_version):
+    """ Return True if a sandbox_compat hash is known. """
+    return cef_version in self._sandbox_compats
+
   def load(self, json_string, fatalerrors=True):
     """ Load new JSON into this object. Any existing contents will be cleared.
         If |fatalerrors| is True then any errors while loading the JSON file
@@ -311,7 +418,7 @@ class cef_json_builder:
           })
 
         if len(valid_files) > 0:
-          valid_versions.append({
+          version_record = {
               'cef_version':
                   version['cef_version'],
               'chromium_version':
@@ -321,7 +428,13 @@ class cef_json_builder:
                   version.get('channel', 'stable'),
               'files':
                   self._sort_files(valid_files)
-          })
+          }
+          # Include sandbox_compat if available.
+          sandbox_compat = self.set_sandbox_compat(
+              version['cef_version'], version.get('sandbox_compat'))
+          if sandbox_compat is not None:
+            version_record['sandbox_compat'] = sandbox_compat
+          valid_versions.append(version_record)
 
       if len(valid_versions) > 0:
         self._data[platform]['versions'] = valid_versions
@@ -447,12 +560,17 @@ class cef_json_builder:
     if version_idx == -1:
       # Add a new version record.
       self._print('add_file: Add %s %s %s' % (platform, version, channel))
-      self._data[platform]['versions'].append({
+      version_record = {
           'cef_version': version,
           'chromium_version': self.get_chromium_version(version),
           'channel': channel,
           'files': []
-      })
+      }
+      # Include sandbox_compat if available.
+      sandbox_compat = self.get_sandbox_compat(version)
+      if sandbox_compat is not None:
+        version_record['sandbox_compat'] = sandbox_compat
+      self._data[platform]['versions'].append(version_record)
       version_idx = len(self._data[platform]['versions']) - 1
 
     files = self._data[platform]['versions'][version_idx]['files']
@@ -498,6 +616,8 @@ class cef_json_builder:
               result_obj['cef_version'] = version_obj['cef_version']
               result_obj['chromium_version'] = version_obj['chromium_version']
               result_obj['channel'] = version_obj['channel']
+              if 'sandbox_compat' in version_obj:
+                result_obj['sandbox_compat'] = version_obj['sandbox_compat']
               results.append(result_obj)
 
     return results

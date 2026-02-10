@@ -31,6 +31,7 @@
 #define CEF_INCLUDE_CEF_VERSION_INFO_H_
 
 #include <stddef.h>
+#include <string.h>
 
 #include "include/cef_api_hash.h"
 #include "include/internal/cef_export.h"
@@ -77,7 +78,24 @@ typedef struct _cef_version_info_t {
   int chrome_version_minor;
   int chrome_version_build;
   int chrome_version_patch;
+
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// Sandbox compatibility hash (Windows only, empty on other platforms).
+  ///
+  char sandbox_compat_hash[17];
+#endif
 } cef_version_info_t;
+
+#if CEF_API_ADDED(CEF_NEXT)
+///
+/// Minimum struct size required to contain the sandbox_compat_hash field.
+/// Used for version compatibility checks.
+///
+#define CEF_VERSION_INFO_SIZE_WITH_SANDBOX_HASH        \
+  (offsetof(cef_version_info_t, sandbox_compat_hash) + \
+   sizeof(((cef_version_info_t*)0)->sandbox_compat_hash))
+#endif
 
 ///
 /// Return all CEF version information for the libcef library.
@@ -104,6 +122,16 @@ typedef struct _cef_version_info_t {
 
 #endif  // !defined(GENERATING_CEF_API_HASH)
 
+// Helper macro for setting sandbox_compat_hash.
+#if CEF_API_ADDED(CEF_NEXT)
+#define _CEF_POPULATE_SANDBOX_HASH(info)                        \
+  strncpy((info)->sandbox_compat_hash, CEF_SANDBOX_COMPAT_HASH, \
+          sizeof((info)->sandbox_compat_hash) - 1);             \
+  (info)->sandbox_compat_hash[sizeof((info)->sandbox_compat_hash) - 1] = '\0'
+#else
+#define _CEF_POPULATE_SANDBOX_HASH(info)
+#endif
+
 ///
 /// Populate CEF version information for the client library.
 ///
@@ -116,7 +144,8 @@ typedef struct _cef_version_info_t {
   (info)->chrome_version_major = CHROME_VERSION_MAJOR; \
   (info)->chrome_version_minor = CHROME_VERSION_MINOR; \
   (info)->chrome_version_build = CHROME_VERSION_BUILD; \
-  (info)->chrome_version_patch = CHROME_VERSION_PATCH
+  (info)->chrome_version_patch = CHROME_VERSION_PATCH; \
+  _CEF_POPULATE_SANDBOX_HASH(info)
 
 #ifdef __cplusplus
 }
