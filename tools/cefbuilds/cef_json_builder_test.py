@@ -5,7 +5,9 @@
 from __future__ import absolute_import
 from cef_json_builder import cef_json_builder
 import datetime
+import json
 import unittest
+from unittest.mock import patch, MagicMock
 
 
 class TestCefJSONBuilder(unittest.TestCase):
@@ -100,6 +102,10 @@ class TestCefJSONBuilder(unittest.TestCase):
     chromium_version = '49.0.2705.50'
     self.assertEqual(chromium_version,
                      builder.set_chromium_version(version, chromium_version))
+    # For new-style versions, set a dummy sandbox_compat to avoid GitHub queries.
+    # Old-style versions don't have sandbox_compat.
+    if '+' in version:
+      builder.set_sandbox_compat(version, 'abc123def4567890')
     self.assertEqual(0, builder.get_query_count())
 
     result = builder.add_file(name, attribs[attrib_idx]['size'],
@@ -109,7 +115,7 @@ class TestCefJSONBuilder(unittest.TestCase):
     self.assertEqual(not shouldfail, result)
 
     # Return the result expected from get_files().
-    return {
+    expected = {
         'chromium_version': chromium_version,
         'sha1': attribs[attrib_idx]['sha1'],
         'name': name,
@@ -120,6 +126,10 @@ class TestCefJSONBuilder(unittest.TestCase):
         'type': type,
         'size': attribs[attrib_idx]['size']
     }
+    # Include sandbox_compat only for new-style versions.
+    if '+' in version:
+      expected['sandbox_compat'] = 'abc123def4567890'
+    return expected
 
   # Test with no file contents.
   def test_empty(self):
@@ -456,6 +466,265 @@ class TestCefJSONBuilder(unittest.TestCase):
     self._add_test_file(builder, channel='stable')
     files = builder.get_files()
     self.assertEqual(len(files), 2)
+
+  # Test sandbox_compat hash validation.
+  def test_valid_sandbox_compat(self):
+    # Valid 16-character hex string.
+    self.assertTrue(
+        cef_json_builder.is_valid_sandbox_compat('0123456789abcdef'))
+    self.assertTrue(
+        cef_json_builder.is_valid_sandbox_compat('abcdef0123456789'))
+
+    # Invalid values.
+    self.assertFalse(cef_json_builder.is_valid_sandbox_compat(None))
+    self.assertFalse(cef_json_builder.is_valid_sandbox_compat(''))
+    self.assertFalse(cef_json_builder.is_valid_sandbox_compat('foobar'))
+    # Too short.
+    self.assertFalse(
+        cef_json_builder.is_valid_sandbox_compat('0123456789abcde'))
+    # Too long.
+    self.assertFalse(
+        cef_json_builder.is_valid_sandbox_compat('0123456789abcdef0'))
+    # Invalid characters.
+    self.assertFalse(
+        cef_json_builder.is_valid_sandbox_compat('0123456789abcdeg'))
+    # Uppercase not allowed.
+    self.assertFalse(
+        cef_json_builder.is_valid_sandbox_compat('0123456789ABCDEF'))
+
+  # Test CEF version to API version conversion.
+  def test_cef_version_to_api_version(self):
+    # New-style version numbers.
+    self.assertEqual('13800',
+                     cef_json_builder.cef_version_to_api_version(
+                         '138.0.1+g62d140e+chromium-138.0.7204.0'))
+    self.assertEqual('13801',
+                     cef_json_builder.cef_version_to_api_version(
+                         '138.1.0+g62d140e+chromium-138.0.7204.0'))
+    self.assertEqual('13802',
+                     cef_json_builder.cef_version_to_api_version(
+                         '138.2.5+g62d140e+chromium-138.0.7204.0'))
+    self.assertEqual('7401',
+                     cef_json_builder.cef_version_to_api_version(
+                         '74.1.0+g62d140e+chromium-74.0.3729.6'))
+    self.assertEqual('10000',
+                     cef_json_builder.cef_version_to_api_version(
+                         '100.0.0+g62d140e+chromium-100.0.4896.0'))
+
+    # Old-style version numbers return None (no API versioning).
+    self.assertIsNone(
+        cef_json_builder.cef_version_to_api_version('3.2704.1414.g185cd6c'))
+    self.assertIsNone(
+        cef_json_builder.cef_version_to_api_version('3.2623.9999.gb90a3be'))
+
+  # Helper to create mock API versions JSON response.
+  def _create_mock_api_versions_json(self, versions_with_sandbox):
+    """Create a mock cef_api_versions.json structure."""
+    hashes = {}
+    for version, sandbox_compat in versions_with_sandbox:
+      hashes[version] = {
+          'comment': 'Test version.',
+          'linux': 'a' * 40,
+          'mac': 'b' * 40,
+          'windows': 'c' * 40,
+      }
+      if sandbox_compat:
+        hashes[version]['sandbox_compat'] = sandbox_compat
+    return {'hashes': hashes, 'min': min(versions_with_sandbox)[0]}
+
+  # Test sandbox_compat query with mocked GitHub response.
+  @patch('cef_json_builder.urlopen')
+  def test_sandbox_compat_query(self, mock_urlopen):
+    builder = cef_json_builder(silent=True)
+
+    # Mock API versions JSON with sandbox_compat.
+    mock_json = self._create_mock_api_versions_json([
+        ('13800', 'abc123def4567890'),
+        ('13801', 'def456abc7890123'),
+    ])
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps(mock_json).encode('utf-8')
+    mock_urlopen.return_value = mock_response
+
+    cef_version = '138.0.1+g62d140e+chromium-138.0.7204.0'
+
+    # Test query.
+    self.assertFalse(builder.has_sandbox_compat(cef_version))
+    sandbox_compat = builder.get_sandbox_compat(cef_version)
+    self.assertEqual('abc123def4567890', sandbox_compat)
+    self.assertTrue(builder.has_sandbox_compat(cef_version))
+
+    # Verify URL was called with branch number from Chromium version.
+    mock_urlopen.assert_called_once()
+    call_url = mock_urlopen.call_args[0][0]
+    self.assertIn('/7204/', call_url)  # Branch from chromium-138.0.7204.0
+    self.assertIn('cef_api_versions.json', call_url)
+
+  # Test sandbox_compat falls back to closest lower version.
+  @patch('cef_json_builder.urlopen')
+  def test_sandbox_compat_fallback(self, mock_urlopen):
+    builder = cef_json_builder(silent=True)
+
+    # Only 13800 exists, not 13801.
+    mock_json = self._create_mock_api_versions_json([
+        ('13800', 'abc123def4567890'),
+    ])
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps(mock_json).encode('utf-8')
+    mock_urlopen.return_value = mock_response
+
+    # CEF version 138.1.x should fall back to 13800.
+    cef_version = '138.1.0+g62d140e+chromium-138.0.7204.0'
+    sandbox_compat = builder.get_sandbox_compat(cef_version)
+    self.assertEqual('abc123def4567890', sandbox_compat)
+
+  # Test sandbox_compat returns None when not available.
+  @patch('cef_json_builder.urlopen')
+  def test_sandbox_compat_not_available(self, mock_urlopen):
+    builder = cef_json_builder(silent=True)
+
+    # Version exists but has no sandbox_compat field.
+    mock_json = self._create_mock_api_versions_json([
+        ('13800', None),
+    ])
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps(mock_json).encode('utf-8')
+    mock_urlopen.return_value = mock_response
+
+    cef_version = '138.0.1+g62d140e+chromium-138.0.7204.0'
+    sandbox_compat = builder.get_sandbox_compat(cef_version)
+    self.assertIsNone(sandbox_compat)
+
+  # Test sandbox_compat handles query failure gracefully.
+  @patch('cef_json_builder.urlopen')
+  def test_sandbox_compat_query_failure(self, mock_urlopen):
+    builder = cef_json_builder(silent=True)
+
+    # Simulate network error.
+    mock_urlopen.side_effect = Exception('Network error')
+
+    cef_version = '138.0.1+g62d140e+chromium-138.0.7204.0'
+    sandbox_compat = builder.get_sandbox_compat(cef_version)
+    self.assertIsNone(sandbox_compat)
+
+  # Test sandbox_compat returns None when target version is older than all available.
+  @patch('cef_json_builder.urlopen')
+  def test_sandbox_compat_no_matching_version(self, mock_urlopen):
+    builder = cef_json_builder(silent=True)
+
+    # Only newer versions available (13900, 14000), target is 13800.
+    mock_json = self._create_mock_api_versions_json([
+        ('13900', 'abc123def4567890'),
+        ('14000', 'def456abc7890123'),
+    ])
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps(mock_json).encode('utf-8')
+    mock_urlopen.return_value = mock_response
+
+    # CEF 138.0.x = API version 13800, which is older than available.
+    cef_version = '138.0.1+g62d140e+chromium-138.0.7204.0'
+    sandbox_compat = builder.get_sandbox_compat(cef_version)
+    self.assertIsNone(sandbox_compat)
+
+  # Test sandbox_compat returns None when fallback version lacks the field.
+  @patch('cef_json_builder.urlopen')
+  def test_sandbox_compat_fallback_no_field(self, mock_urlopen):
+    builder = cef_json_builder(silent=True)
+
+    # 13800 exists but has no sandbox_compat field.
+    mock_json = self._create_mock_api_versions_json([
+        ('13800', None),
+    ])
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps(mock_json).encode('utf-8')
+    mock_urlopen.return_value = mock_response
+
+    # CEF 138.1.x = API version 13801, falls back to 13800 which lacks field.
+    cef_version = '138.1.0+g62d140e+chromium-138.0.7204.0'
+    sandbox_compat = builder.get_sandbox_compat(cef_version)
+    self.assertIsNone(sandbox_compat)
+
+  # Test sandbox_compat is included in version records.
+  @patch('cef_json_builder.urlopen')
+  def test_sandbox_compat_in_version_record(self, mock_urlopen):
+    builder = cef_json_builder(silent=True)
+
+    # Mock API versions JSON.
+    mock_json = self._create_mock_api_versions_json([
+        ('13800', 'abc123def4567890'),
+    ])
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps(mock_json).encode('utf-8')
+    mock_urlopen.return_value = mock_response
+
+    cef_version = '138.0.1+g62d140e+chromium-138.0.7204.0'
+    chromium_version = '138.0.7204.0'
+
+    # Pre-populate chromium version to avoid additional queries.
+    builder.set_chromium_version(cef_version, chromium_version)
+
+    # Add a file.
+    name = cef_json_builder.get_file_name(cef_version, 'linux64',
+                                          'standard') + '.tar.gz'
+    builder.add_file(name, 12345, '2026-02-10T12:00:00.000Z', 'a' * 40)
+
+    # Verify sandbox_compat is in the version record.
+    versions = builder.get_versions('linux64')
+    self.assertEqual(1, len(versions))
+    self.assertEqual('abc123def4567890', versions[0].get('sandbox_compat'))
+
+    # Verify sandbox_compat is in get_files() result.
+    files = builder.get_files()
+    self.assertEqual(1, len(files))
+    self.assertEqual('abc123def4567890', files[0].get('sandbox_compat'))
+
+  # Test sandbox_compat is preserved through load/save cycle.
+  @patch('cef_json_builder.urlopen')
+  def test_sandbox_compat_load_save(self, mock_urlopen):
+    builder = cef_json_builder(silent=True)
+
+    # Mock API versions JSON.
+    mock_json = self._create_mock_api_versions_json([
+        ('13800', 'abc123def4567890'),
+    ])
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps(mock_json).encode('utf-8')
+    mock_urlopen.return_value = mock_response
+
+    cef_version = '138.0.1+g62d140e+chromium-138.0.7204.0'
+    chromium_version = '138.0.7204.0'
+
+    builder.set_chromium_version(cef_version, chromium_version)
+
+    name = cef_json_builder.get_file_name(cef_version, 'linux64',
+                                          'standard') + '.tar.gz'
+    builder.add_file(name, 12345, '2026-02-10T12:00:00.000Z', 'a' * 40)
+
+    # Save to string.
+    output = str(builder)
+    self.assertIn('sandbox_compat', output)
+    self.assertIn('abc123def4567890', output)
+
+    # Load into new builder.
+    builder2 = cef_json_builder(silent=True)
+    builder2.load(output)
+
+    # Verify sandbox_compat is preserved.
+    versions = builder2.get_versions('linux64')
+    self.assertEqual(1, len(versions))
+    self.assertEqual('abc123def4567890', versions[0].get('sandbox_compat'))
+
+  # Test set_sandbox_compat with explicit value.
+  def test_set_sandbox_compat_explicit(self):
+    builder = cef_json_builder(silent=True)
+
+    cef_version = '138.0.1+g62d140e+chromium-138.0.7204.0'
+
+    # Set explicit value (no query needed).
+    sandbox_compat = builder.set_sandbox_compat(cef_version, '1234567890abcdef')
+    self.assertEqual('1234567890abcdef', sandbox_compat)
+    self.assertTrue(builder.has_sandbox_compat(cef_version))
+    self.assertEqual(0, builder.get_query_count())
 
 
 # Program entry point.
