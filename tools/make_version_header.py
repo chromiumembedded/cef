@@ -7,11 +7,12 @@ from cef_parser import get_copyright
 from cef_version import VersionFormatter
 from date_util import *
 from file_util import *
+from sandbox_compat_hash import calculate_sandbox_compat_hash
 import git_util as git
 import sys
 
 
-def make_version_header(header):
+def make_version_header(header, sandbox_files=None):
   result = get_copyright(full=True, translator=False) + \
 """//
 // ---------------------------------------------------------------------------
@@ -34,6 +35,8 @@ def make_version_header(header):
 #define CHROME_VERSION_MINOR $CHROME_MINOR$
 #define CHROME_VERSION_BUILD $CHROME_BUILD$
 #define CHROME_VERSION_PATCH $CHROME_PATCH$
+
+#define CEF_SANDBOX_COMPAT_HASH "$SANDBOX_COMPAT_HASH$"
 
 #define DO_MAKE_STRING(p) #p
 #define MAKE_STRING(p) DO_MAKE_STRING(p)
@@ -60,19 +63,36 @@ def make_version_header(header):
     result = result.replace('$CHROME_%s$' % key,
                             str(chrome_version_components[key]))
 
+  # Calculate sandbox compat hash (Windows only, empty on other platforms)
+  if sandbox_files:
+    sandbox_hash = calculate_sandbox_compat_hash(sandbox_files)
+  else:
+    sandbox_hash = ""
+  result = result.replace('$SANDBOX_COMPAT_HASH$', sandbox_hash)
+
   return result
 
 
-def write_version_header(output):
-  result = make_version_header(output)
+def write_version_header(output, sandbox_files=None):
+  result = make_version_header(output, sandbox_files)
   return write_file_if_changed(output, result)
 
 
 def main(argv):
   if len(argv) < 2:
-    print(("Usage:\n  %s <output_filename>" % argv[0]))
+    print((
+        "Usage:\n  %s <output_filename> [--sandbox-files file1 ...]" % argv[0]))
     sys.exit(-1)
-  write_version_header(argv[1])
+
+  output = argv[1]
+  sandbox_files = []
+
+  # Check for --sandbox-files flag
+  if '--sandbox-files' in argv:
+    idx = argv.index('--sandbox-files')
+    sandbox_files = argv[idx + 1:]
+
+  write_version_header(output, sandbox_files)
 
 
 if '__main__' == __name__:
