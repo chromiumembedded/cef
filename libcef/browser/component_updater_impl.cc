@@ -9,6 +9,7 @@
 #include "base/notreached.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/api_version_util.h"
 #include "chrome/browser/browser_process.h"
 #include "components/component_updater/component_updater_service.h"
 #include "components/update_client/crx_update_item.h"
@@ -107,10 +108,10 @@ CefRefPtr<CefComponentImpl> CreateComponentFromItem(
 }
 
 component_updater::ComponentUpdateService* GetComponentUpdateService() {
-  CEF_REQUIRE_UIT_RETURN(nullptr);
   if (!CONTEXT_STATE_VALID()) {
     return nullptr;
   }
+  CEF_REQUIRE_UIT_RETURN(nullptr);
   return g_browser_process->component_updater();
 }
 
@@ -200,6 +201,7 @@ void CefComponentUpdaterImpl::Update(
 
 // static
 CefRefPtr<CefComponentUpdater> CefComponentUpdater::GetComponentUpdater() {
+  CEF_API_REQUIRE_ADDED(CEF_NEXT);
   CEF_REQUIRE_UIT_RETURN(nullptr);
 
   static base::NoDestructor<CefRefPtr<CefComponentUpdaterImpl>> instance(
