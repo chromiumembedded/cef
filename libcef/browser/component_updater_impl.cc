@@ -190,6 +190,12 @@ void CefComponentUpdaterImpl::Update(
     CefRefPtr<CefComponentUpdateCallback> callback) {
   auto* service = GetComponentUpdateService();
   if (!service) {
+    if (callback) {
+      CEF_POST_TASK(CEF_UIT,
+                    base::BindOnce(&CefComponentUpdateCallback::OnComplete,
+                                   callback, component_id.ToString(),
+                                   CEF_COMPONENT_UPDATE_ERROR_SERVICE_ERROR));
+    }
     return;
   }
 

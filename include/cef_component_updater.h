@@ -146,8 +146,14 @@ class CefComponentUpdater : public virtual CefBaseRefCounted {
   /// |component_id|. |priority| specifies whether the update should be
   /// processed in the background or foreground. Use
   /// CEF_COMPONENT_UPDATE_PRIORITY_FOREGROUND for user-initiated updates.
-  /// |callback| will be called on the UI thread when the update operation
-  /// completes. The callback may be nullptr if no notification is needed.
+  ///
+  /// |callback| will be called asynchronously on the UI thread when the
+  /// update operation completes. The callback is always executed, including
+  /// when the component is already up-to-date (returns
+  /// CEF_COMPONENT_UPDATE_ERROR_NONE), when the requested component doesn't
+  /// exist, or when the service is unavailable (returns
+  /// CEF_COMPONENT_UPDATE_ERROR_SERVICE_ERROR). The callback may be nullptr
+  /// if no notification is needed.
   ///
   /*--cef(optional_param=callback)--*/
   virtual void Update(const CefString& component_id,
