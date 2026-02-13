@@ -75,7 +75,11 @@ typedef enum {
   CEF_CONTENT_SETTING_TYPE_PROTECTED_MEDIA_IDENTIFIER,
   CEF_CONTENT_SETTING_TYPE_APP_BANNER,
   CEF_CONTENT_SETTING_TYPE_SITE_ENGAGEMENT,
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CONTENT_SETTING_TYPE_PERSISTENT_STORAGE,
+#else
   CEF_CONTENT_SETTING_TYPE_DURABLE_STORAGE,
+#endif
   CEF_CONTENT_SETTING_TYPE_USB_CHOOSER_DATA,
   CEF_CONTENT_SETTING_TYPE_BLUETOOTH_GUARD,
   CEF_CONTENT_SETTING_TYPE_BACKGROUND_SYNC,
@@ -360,9 +364,13 @@ typedef enum {
   /// should be enabled.
   CEF_CONTENT_SETTING_TYPE_ANTI_ABUSE,
 
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CONTENT_SETTING_TYPE_THIRD_PARTY_STORAGE_PARTITIONING_DEPRECATED,
+#else
   /// Content setting used to indicate whether third-party storage partitioning
   /// should be enabled.
   CEF_CONTENT_SETTING_TYPE_THIRD_PARTY_STORAGE_PARTITIONING,
+#endif
 
   /// Used to indicate whether HTTPS-First Mode is enabled on the hostname.
   CEF_CONTENT_SETTING_TYPE_HTTPS_ENFORCED,
@@ -466,10 +474,14 @@ typedef enum {
   /// auto-revoked notification permissions from abusive sites.
   CEF_CONTENT_SETTING_TYPE_REVOKED_ABUSIVE_NOTIFICATION_PERMISSIONS,
 
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CONTENT_SETTING_TYPE_TRACKING_PROTECTION_DEPRECATED,
+#else
   /// Content setting that controls tracking protection status per site.
   /// BLOCK: Protections enabled. This is the default state.
   /// ALLOW: Protections disabled.
   CEF_CONTENT_SETTING_TYPE_TRACKING_PROTECTION,
+#endif
 
   /// With this permission, when the application calls `getDisplayMedia()`, a
   /// system audio track can be returned without showing the display media

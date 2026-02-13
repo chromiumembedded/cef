@@ -1,8 +1,8 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index 5f72908b2a73a27989f4449d498356045480c469..483657dd42a9206d3b224c1543c2179faab9653d 100644
+index 557eadb18229e4adb2f0092593877254e2f1fe7c..845957e702f095a22a5911c8206dfc75324fa809 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
-@@ -25,6 +25,7 @@
+@@ -26,6 +26,7 @@
  #include "base/version.h"
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
@@ -10,7 +10,7 @@ index 5f72908b2a73a27989f4449d498356045480c469..483657dd42a9206d3b224c1543c2179f
  #include "components/embedder_support/pref_names.h"
  #include "components/embedder_support/switches.h"
  #include "components/policy/core/common/policy_pref_names.h"
-@@ -53,6 +54,10 @@
+@@ -54,6 +55,10 @@
  #include <sys/utsname.h>
  #endif
  
@@ -21,7 +21,7 @@ index 5f72908b2a73a27989f4449d498356045480c469..483657dd42a9206d3b224c1543c2179f
  namespace embedder_support {
  
  namespace {
-@@ -455,6 +460,13 @@ std::string BuildOSCpuInfo(
+@@ -439,6 +444,13 @@ std::string BuildOSCpuInfo(
  }  // namespace
  
  std::string GetProductAndVersion() {

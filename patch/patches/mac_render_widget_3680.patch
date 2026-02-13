@@ -1,8 +1,8 @@
 diff --git content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm
-index c464f0888f4e1e03be1837fedccd75a250f7ddbb..6d093ab643f518584490d20bec88b5760729a43c 100644
+index 3077fba9f7fa7fb84adcac9ca6a9960385dfd2f5..6ba842ba7ee11aa1bae5444c5ba5dcd0d7542f87 100644
 --- content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm
 +++ content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm
-@@ -169,6 +169,13 @@ void ExtractUnderlines(NSAttributedString* string,
+@@ -168,6 +168,13 @@ void ExtractUnderlines(NSAttributedString* string,
  
  // RenderWidgetHostViewCocoa ---------------------------------------------------
  
@@ -16,7 +16,7 @@ index c464f0888f4e1e03be1837fedccd75a250f7ddbb..6d093ab643f518584490d20bec88b576
  // Private methods:
  @interface RenderWidgetHostViewCocoa ()
  
-@@ -788,6 +795,15 @@ static NSWindow* __weak _deferredResignKeyWindow;
+@@ -787,6 +794,15 @@ static NSWindow* __weak _deferredResignKeyWindow;
  }
  
  - (BOOL)acceptsFirstMouse:(NSEvent*)theEvent {

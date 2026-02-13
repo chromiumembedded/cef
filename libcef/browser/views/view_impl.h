@@ -335,13 +335,13 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter, public CefViewClass {
     }
     root_view_ref_ = nullptr;
   }
-  void GetDebugInfo(base::Value::Dict* info, bool include_children) override {
+  void GetDebugInfo(base::DictValue* info, bool include_children) override {
     info->Set("type", GetDebugType());
     info->Set("id", root_view()->GetID());
 
     // Use GetBounds() because some subclasses (like CefWindowImpl) override it.
     const CefRect& bounds = GetBounds();
-    base::Value::Dict bounds_value;
+    base::DictValue bounds_value;
     bounds_value.Set("x", bounds.x);
     bounds_value.Set("y", bounds.y);
     bounds_value.Set("width", bounds.width);
@@ -446,7 +446,7 @@ CEF_VIEW_IMPL_T CefString CEF_VIEW_IMPL_D::GetTypeString() {
 
 CEF_VIEW_IMPL_T CefString CEF_VIEW_IMPL_D::ToString(bool include_children) {
   CEF_REQUIRE_UIT_RETURN(CefString());
-  base::Value::Dict info;
+  base::DictValue info;
   if (IsValid()) {
     GetDebugInfo(&info, include_children);
   } else {

@@ -47,18 +47,18 @@ CEF_PANEL_IMPL_T class CefPanelImpl : public CEF_VIEW_IMPL_D {
   CefRefPtr<CefPanel> AsPanel() override { return this; }
 
   // CefViewAdapter methods:
-  void GetDebugInfo(base::Value::Dict* info, bool include_children) override {
+  void GetDebugInfo(base::DictValue* info, bool include_children) override {
     ParentClass::GetDebugInfo(info, include_children);
     if (include_children) {
       const size_t count = ParentClass::content_view()->children().size();
       if (count > 0U) {
-        base::Value::List children;
+        base::ListValue children;
 
         for (size_t i = 0U; i < count; ++i) {
           views::View* view = ParentClass::content_view()->children()[i];
           CefViewAdapter* adapter = CefViewAdapter::GetFor(view);
           if (adapter) {
-            base::Value::Dict child_info;
+            base::DictValue child_info;
             adapter->GetDebugInfo(&child_info, include_children);
             children.Append(std::move(child_info));
           }

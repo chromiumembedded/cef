@@ -203,7 +203,7 @@ class CefDictionaryValueImpl
   // Take ownership of |value|. Do not pass in a value owned by something else
   // (use GetOrCreateRef or constructor variant with |will_delete| argument).
   CefDictionaryValueImpl(base::Value value, bool read_only);
-  CefDictionaryValueImpl(base::Value::Dict value, bool read_only);
+  CefDictionaryValueImpl(base::DictValue value, bool read_only);
 
   // Reference an existing value (set |will_delete| to false) or take ownership
   // of an existing value (set |will_delete| to true). When referencing an
@@ -289,7 +289,7 @@ class CefListValueImpl : public CefValueBase<CefListValue, base::Value> {
   // Take ownership of |value|. Do not pass in a value owned by something else
   // (use GetOrCreateRef or constructor variant with |will_delete| argument).
   CefListValueImpl(base::Value value, bool read_only);
-  CefListValueImpl(base::Value::List value, bool read_only);
+  CefListValueImpl(base::ListValue value, bool read_only);
 
   // Reference an existing value (set |will_delete| to false) or take ownership
   // of an existing value (set |will_delete| to true). When referencing an

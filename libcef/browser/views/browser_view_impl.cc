@@ -298,7 +298,7 @@ void CefBrowserViewImpl::Detach() {
   }
 }
 
-void CefBrowserViewImpl::GetDebugInfo(base::Value::Dict* info,
+void CefBrowserViewImpl::GetDebugInfo(base::DictValue* info,
                                       bool include_children) {
   ParentClass::GetDebugInfo(info, include_children);
   if (browser_) {

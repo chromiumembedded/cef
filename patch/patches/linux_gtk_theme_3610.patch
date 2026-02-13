@@ -1,5 +1,5 @@
 diff --git ui/gtk/gtk_ui.cc ui/gtk/gtk_ui.cc
-index e886c405cb352097b5ada7049f971f85557e0481..3a53b2a4c38bddb9c89c39ac29993c5b9ed77a74 100644
+index 066dcd99651f0eda2216f19f0d818de9db4cb074..7ea449e4a951c71f695f0d8b23bbec6ac8e95e22 100644
 --- ui/gtk/gtk_ui.cc
 +++ ui/gtk/gtk_ui.cc
 @@ -30,6 +30,7 @@

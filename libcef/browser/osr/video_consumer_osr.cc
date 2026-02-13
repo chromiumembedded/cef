@@ -49,9 +49,10 @@ CefVideoConsumerOSR::~CefVideoConsumerOSR() = default;
 void CefVideoConsumerOSR::SetActive(bool active) {
   if (active) {
     video_capturer_->Start(
-        this, use_shared_texture_
-                  ? viz::mojom::BufferFormatPreference::kPreferGpuMemoryBuffer
-                  : viz::mojom::BufferFormatPreference::kDefault);
+        this,
+        use_shared_texture_
+            ? viz::mojom::BufferFormatPreference::kPreferMappableSharedImage
+            : viz::mojom::BufferFormatPreference::kDefault);
   } else {
     video_capturer_->Stop();
   }

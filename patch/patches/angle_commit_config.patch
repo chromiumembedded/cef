@@ -1,5 +1,5 @@
 diff --git BUILD.gn BUILD.gn
-index efd57a5a7b8a1a6a8ff82282700e0b23b5073cb9..337ad9e39fbeacd0fe73df90716cdcceda562952 100644
+index b03776f9e5e0f1f4ec0962d0e92fb875ba2cf544..1b094a0a610b405e4d214aed29d2208df29d2916 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -89,6 +89,9 @@ declare_args() {

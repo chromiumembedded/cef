@@ -61,7 +61,7 @@ bool IsWindowVisible(x11::Connection* connection, x11::Window window) {
   if (connection->GetArrayProperty(window, x11::GetAtom("_NET_WM_STATE"),
                                    &wm_states)) {
     x11::Atom hidden_atom = x11::GetAtom("_NET_WM_STATE_HIDDEN");
-    if (base::Contains(wm_states, hidden_atom)) {
+    if (std::ranges::contains(wm_states, hidden_atom)) {
       return false;
     }
   }
@@ -388,7 +388,7 @@ bool CefWindowX11::TopLevelAlwaysOnTop() const {
   if (connection_->GetArrayProperty(toplevel_window, x11::GetAtom(kNetWMState),
                                     &wm_states)) {
     x11::Atom keep_above_atom = x11::GetAtom(kNetWMStateKeepAbove);
-    if (base::Contains(wm_states, keep_above_atom)) {
+    if (std::ranges::contains(wm_states, keep_above_atom)) {
       return true;
     }
   }

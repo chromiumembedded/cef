@@ -12,7 +12,7 @@ index ae58a0b0a64ae1fdb3f9cd8587041d71a121c6b9..35e01ee64e5d75496b687870abb6a42d
  
        "//google_apis/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 6c30a84bff349b1df1011388b73da2732ba7c088..eac38ac19b89bd04b4ac6ae4acd503bbc39eb097 100644
+index f8b354bf1620338e53f35312eece416e5058bd0a..92a4edc9f2999b0f87d497e7c9f5ecb78d30d7cf 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -21,6 +21,7 @@ import("//build/config/ui.gni")
@@ -23,7 +23,7 @@ index 6c30a84bff349b1df1011388b73da2732ba7c088..eac38ac19b89bd04b4ac6ae4acd503bb
  import("//chrome/browser/buildflags.gni")
  import("//chrome/enterprise_companion/buildflags.gni")
  import("//components/enterprise/buildflags/buildflags.gni")
-@@ -284,6 +285,10 @@ group("gn_all") {
+@@ -283,6 +284,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -78,7 +78,7 @@ index bd411669389525e8f03eb329a4cf700ad89b62f3..fba7843d79796b903b592b69e2e1f2c7
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 01cf7a39372fb2e15dbd79be33766b0beed30062..514707c10d15f962ff6d9514bb24dec3d1fa25a6 100644
+index 399674a0f6b813140d7dc6230beac31a06939b17..b4382278134ca1847047dd94de88cc8982d076d0 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -89,7 +89,7 @@ index 01cf7a39372fb2e15dbd79be33766b0beed30062..514707c10d15f962ff6d9514bb24dec3
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -509,6 +510,11 @@ template("chrome_extra_paks") {
+@@ -518,6 +519,11 @@ template("chrome_extra_paks") {
        deps += [ "//components/headless/command_handler" ]
      }
  
@@ -152,7 +152,7 @@ index 5f9acdb7f355036ba23859ccbe26f7d2bce3b90d..8a33b46e4f7ea54dc83b32f1ed3d3ce7
    outputs = [
      "$root_out_dir/chrome.7z",
 diff --git tools/grit/grit_args.gni tools/grit/grit_args.gni
-index 06eb8869ec668deaee75f64a3914afc8da160950..21696a21c34582e194b16da473ca3ad7f6b55e0a 100644
+index cd2b6b933766377a959291da317d38508463e34e..7d1fcae8e1ac50e46f91eabab95301eaf835c43e 100644
 --- tools/grit/grit_args.gni
 +++ tools/grit/grit_args.gni
 @@ -4,7 +4,9 @@

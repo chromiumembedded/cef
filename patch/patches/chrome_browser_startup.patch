@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/startup/startup_browser_creator.cc chrome/browser/ui/startup/startup_browser_creator.cc
-index e1d02996005979b33cca70ed68cd1c0fc622fb80..9bcf0360f4161d03c67f1be25788d9b7e72ebf9b 100644
+index 26e845c75d014f75e4e6ef4212282531c64d185f..344b9c1cb1e0e1c181b1b311e96677f07abdfd6f 100644
 --- chrome/browser/ui/startup/startup_browser_creator.cc
 +++ chrome/browser/ui/startup/startup_browser_creator.cc
-@@ -773,6 +773,13 @@ std::optional<bool> MaybeHandleValidateCrx(
+@@ -649,6 +649,13 @@ std::optional<bool> MaybeHandleValidateCrx(
    return false;
  }
  
@@ -16,7 +16,7 @@ index e1d02996005979b33cca70ed68cd1c0fc622fb80..9bcf0360f4161d03c67f1be25788d9b7
  }  // namespace
  
  StartupBrowserCreator::StartupBrowserCreator() = default;
-@@ -1614,6 +1621,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
+@@ -1490,6 +1497,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
        {profile, mode}, last_opened_profiles);
  }
  
@@ -29,7 +29,7 @@ index e1d02996005979b33cca70ed68cd1c0fc622fb80..9bcf0360f4161d03c67f1be25788d9b7
  // static
  void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      const base::CommandLine& command_line,
-@@ -1623,6 +1636,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
+@@ -1499,6 +1512,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      return;
    }
  
@@ -42,7 +42,7 @@ index e1d02996005979b33cca70ed68cd1c0fc622fb80..9bcf0360f4161d03c67f1be25788d9b7
    if (profile_path_info.mode == StartupProfileMode::kBrowserWindow) {
      ProfileManager* profile_manager = g_browser_process->profile_manager();
 diff --git chrome/browser/ui/startup/startup_browser_creator.h chrome/browser/ui/startup/startup_browser_creator.h
-index 9e6c961694cc51b6ca8e738b2cbb6704468dc3ba..1c6aec7b6da3d61ebf27f258ef7d75b12713e35b 100644
+index c384e930cb0481ef2b3417f8f6a811cfc31f33b6..b541ad3adddfe2674be0730615f7143253b51d0e 100644
 --- chrome/browser/ui/startup/startup_browser_creator.h
 +++ chrome/browser/ui/startup/startup_browser_creator.h
 @@ -9,6 +9,7 @@

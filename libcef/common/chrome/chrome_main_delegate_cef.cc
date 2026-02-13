@@ -5,11 +5,11 @@
 
 #include "cef/libcef/common/chrome/chrome_main_delegate_cef.h"
 
+#include <algorithm>
 #include <tuple>
 
 #include "base/base_switches.h"
 #include "base/command_line.h"
-#include "base/containers/contains.h"
 #include "base/lazy_instance.h"
 #include "base/path_service.h"
 #include "base/threading/threading_features.h"
@@ -27,6 +27,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
+#include "components/autofill/core/common/autofill_features.h"
 #include "components/embedder_support/switches.h"
 #include "components/lens/lens_features.h"
 #include "components/variations/service/buildflags.h"
@@ -354,6 +355,9 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
     // Disable features that crash during Chrome browser initialization.
     // -- "Gemini in Chrome" Actor UI support. See issue #3982.
     DisableFeatureByDefault(features::kGlicActorUi, disable_features);
+    // -- Autofill Actor mode requires ActorKeyedService (glic).
+    DisableFeatureByDefault(autofill::features::kAutofillActorMode,
+                            disable_features);
     // -- "Search with Google Lens" support.
     DisableFeatureByDefault(lens::features::kLensOverlay, disable_features);
 
@@ -364,7 +368,7 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
       if (!disable_features_str.empty()) {
         for (std::string_view feature_name :
              base::FeatureList::SplitFeatureListString(disable_features_str)) {
-          if (!base::Contains(disable_features, feature_name)) {
+          if (!std::ranges::contains(disable_features, feature_name)) {
             disable_features.emplace_back(feature_name);
           }
         }

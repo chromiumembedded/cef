@@ -1,5 +1,5 @@
 diff --git chrome/browser/printing/printer_query.cc chrome/browser/printing/printer_query.cc
-index c31c873db21ef06b6d0f19c789c9a097f3cfeb2b..866592264593af06fd0ea334218d9d6108a7f1ee 100644
+index 15bd25f0d99b38c2d3a01b5bab78173ea9fef23c..974df4b04daf7672d3f9b21479fd7234d6c5089f 100644
 --- chrome/browser/printing/printer_query.cc
 +++ chrome/browser/printing/printer_query.cc
 @@ -125,6 +125,7 @@ PrinterQuery::PrinterQuery(content::GlobalRenderFrameHostId rfh_id)
@@ -11,14 +11,14 @@ index c31c873db21ef06b6d0f19c789c9a097f3cfeb2b..866592264593af06fd0ea334218d9d61
  
  PrinterQuery::~PrinterQuery() {
 diff --git printing/printing_context.h printing/printing_context.h
-index 2f34f45aaf89e6f4600be1d2b8444c636b0cc83f..c869ed85686b0ab1e55198fbedf8918bdcd4a063 100644
+index 01970ac4c5c38182774353762ee138dbd9af184c..131341609dc77672495bdbbdad7ce6cdf665e1ba 100644
 --- printing/printing_context.h
 +++ printing/printing_context.h
 @@ -12,6 +12,7 @@
  #include "base/memory/raw_ptr.h"
  #include "base/values.h"
  #include "build/build_config.h"
-+#include "content/public/browser/child_process_id.h"
++#include "content/public/common/child_process_id.h"
  #include "printing/buildflags/buildflags.h"
  #include "printing/mojom/print.mojom.h"
  #include "printing/native_drawing_context.h"

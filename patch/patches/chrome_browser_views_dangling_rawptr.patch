@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/bubble/webui_bubble_manager.h chrome/browser/ui/views/bubble/webui_bubble_manager.h
-index f343b57043077..0848742bf7b36 100644
+index f343b57043077eca60a396477d62129ee84461e1..0848742bf7b361b7ecbbd4074b59c48c0a8ea2ea 100644
 --- chrome/browser/ui/views/bubble/webui_bubble_manager.h
 +++ chrome/browser/ui/views/bubble/webui_bubble_manager.h
 @@ -28,6 +28,7 @@
@@ -38,7 +38,7 @@ index f343b57043077..0848742bf7b36 100644
    if (!widget_initialization_callback_.is_null()) {
      bubble_view->RegisterWidgetInitializedCallback(
 diff --git chrome/browser/ui/views/tab_search_bubble_host.cc chrome/browser/ui/views/tab_search_bubble_host.cc
-index b0812c3f1e7d3..9fa6978f0a463 100644
+index 29f8192e2fb1ecebaa3a8c997ec50c9b0d941bce..949a32a141760d3bd4a9788aad6d55890b858eb9 100644
 --- chrome/browser/ui/views/tab_search_bubble_host.cc
 +++ chrome/browser/ui/views/tab_search_bubble_host.cc
 @@ -67,7 +67,7 @@ TabSearchOpenAction GetActionForEvent(const ui::Event& event) {
@@ -50,7 +50,7 @@ index b0812c3f1e7d3..9fa6978f0a463 100644
        profile_(browser_window_interface->GetProfile()),
        webui_bubble_manager_(WebUIBubbleManager::Create<TabSearchUI>(
            button,
-@@ -268,9 +268,11 @@ bool TabSearchBubbleHost::ShowTabSearchBubble(
+@@ -261,9 +261,11 @@ bool TabSearchBubbleHost::ShowTabSearchBubble(
  
    // Hold the pressed lock while the |bubble_| is active.
    // LINT.IfChange(pressed_lock_)
@@ -66,7 +66,7 @@ index b0812c3f1e7d3..9fa6978f0a463 100644
    return true;
  }
 diff --git chrome/browser/ui/views/tab_search_bubble_host.h chrome/browser/ui/views/tab_search_bubble_host.h
-index 0e9197fbe516c..5ee4dfdddd784 100644
+index 0e9197fbe516cc556edc845aa16d2cb39cf8e0f9..5ee4dfdddd784436c70766dbd988bbf79a4a5ac0 100644
 --- chrome/browser/ui/views/tab_search_bubble_host.h
 +++ chrome/browser/ui/views/tab_search_bubble_host.h
 @@ -10,6 +10,7 @@

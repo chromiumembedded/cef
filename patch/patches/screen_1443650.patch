@@ -1,5 +1,5 @@
 diff --git ui/display/screen.cc ui/display/screen.cc
-index 111b751eb970e528a9cc7e94a3a0e941bc98abc5..e1eb1f73e6cca44c89b7214b092f22a61cd29f9a 100644
+index b918c494ed0c664f456718c635efdcb173c7baec..8cbcd615b585032ff0a7a08dd490734896c0b7a4 100644
 --- ui/display/screen.cc
 +++ ui/display/screen.cc
 @@ -104,13 +104,13 @@ base::TimeDelta Screen::CalculateIdleTime() const {
@@ -19,10 +19,10 @@ index 111b751eb970e528a9cc7e94a3a0e941bc98abc5..e1eb1f73e6cca44c89b7214b092f22a6
  
  bool Screen::GetDisplayWithDisplayId(int64_t display_id,
 diff --git ui/display/win/screen_win.cc ui/display/win/screen_win.cc
-index 813af70a2d4d5cb00c6cbd57de3524cd972055fd..7378ba76998fef0e1d7bc09f406dcd6d8f32dab9 100644
+index bfc40f8073decb0394afc7f4f589549760a6219a..dc7a02fef54709776556fcf844c30afb62b691aa 100644
 --- ui/display/win/screen_win.cc
 +++ ui/display/win/screen_win.cc
-@@ -751,7 +751,7 @@ gfx::Rect ScreenWin::ScreenToDIPRect(HWND hwnd,
+@@ -749,7 +749,7 @@ gfx::Rect ScreenWin::ScreenToDIPRect(HWND hwnd,
                  gfx::PointF(pixel_bounds.origin()), screen_win_display))
            : ToFlooredPoint(display::win::ScreenToDIPPoint(
                  gfx::PointF(pixel_bounds.origin()), screen_win_display));
@@ -31,7 +31,7 @@ index 813af70a2d4d5cb00c6cbd57de3524cd972055fd..7378ba76998fef0e1d7bc09f406dcd6d
  }
  
  gfx::Rect ScreenWin::DIPToScreenRect(HWND hwnd,
-@@ -766,7 +766,7 @@ gfx::Rect ScreenWin::DIPToScreenRect(HWND hwnd,
+@@ -764,7 +764,7 @@ gfx::Rect ScreenWin::DIPToScreenRect(HWND hwnd,
    const gfx::Point origin =
        display::win::DIPToScreenPoint(dip_bounds.origin(), screen_win_display);
    const float scale_factor = screen_win_display.display().device_scale_factor();

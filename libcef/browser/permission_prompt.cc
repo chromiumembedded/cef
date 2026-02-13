@@ -10,6 +10,7 @@
 #include "cef/libcef/browser/browser_host_base.h"
 #include "chrome/browser/ui/permission_bubble/permission_prompt.h"
 #include "components/permissions/permission_request.h"
+#include "components/permissions/resolvers/permission_prompt_options.h"
 
 namespace permission_prompt {
 
@@ -142,18 +143,19 @@ class CefPermissionPrompt : public permissions::PermissionPrompt {
   // We don't expose AcceptThisTime() because it's a special case for
   // Geolocation (see DCHECK in PrefProvider::SetWebsiteSetting).
   void NotifyDelegate(cef_permission_request_result_t result) {
+    const PromptOptions prompt_options(std::monostate{});
     switch (result) {
       case CEF_PERMISSION_RESULT_ACCEPT:
-        delegate_->Accept();
+        delegate_->Accept(prompt_options);
         break;
       case CEF_PERMISSION_RESULT_DENY:
-        delegate_->Deny();
+        delegate_->Deny(prompt_options);
         break;
       case CEF_PERMISSION_RESULT_DISMISS:
-        delegate_->Dismiss();
+        delegate_->Dismiss(prompt_options);
         break;
       case CEF_PERMISSION_RESULT_IGNORE:
-        delegate_->Ignore();
+        delegate_->Ignore(prompt_options);
         break;
       case CEF_PERMISSION_RESULT_NUM_VALUES:
         DCHECK(false);

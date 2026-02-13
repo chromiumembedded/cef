@@ -14,7 +14,7 @@ index 6a1b3f5267b0d82d6763743f85815686942daa7e..d9cfa012c97564a4bb905b46c0c4d97f
               ? profile_metrics::BrowserProfileType::kRegular
               : profile_metrics::BrowserProfileType::kIncognito;
 diff --git chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
-index d01de059bb835ee15ecda31aae23669949bf567e..5b887af4dc9fcb7876175f6d82d654be15e4bc07 100644
+index 6ed384e4aa0c11a52d0823625710a07e4cc8413d..78922b2bcca4a5b49110b144b3579374b4986c00 100644
 --- chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
 +++ chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
 @@ -32,7 +32,9 @@ IncognitoClearBrowsingDataDialog::IncognitoClearBrowsingDataDialog(
@@ -29,7 +29,7 @@ index d01de059bb835ee15ecda31aae23669949bf567e..5b887af4dc9fcb7876175f6d82d654be
    SetShowCloseButton(true);
  
 diff --git chrome/browser/ui/views/incognito_clear_browsing_data_dialog_coordinator.cc chrome/browser/ui/views/incognito_clear_browsing_data_dialog_coordinator.cc
-index d7a04e177509e6a0470926ac7cf512d2c791618b..731a57b70079c40049a76c7bcfe63038fd4579af 100644
+index 94cd742989ff05346f0fc163663e10e9f1c79c3c..45ef36711928dd6820ccc0eab5b7827653981a46 100644
 --- chrome/browser/ui/views/incognito_clear_browsing_data_dialog_coordinator.cc
 +++ chrome/browser/ui/views/incognito_clear_browsing_data_dialog_coordinator.cc
 @@ -22,6 +22,10 @@ IncognitoClearBrowsingDataDialogCoordinator::
@@ -40,14 +40,14 @@ index d7a04e177509e6a0470926ac7cf512d2c791618b..731a57b70079c40049a76c7bcfe63038
 +  if (!anchor_view)
 +    return;
 +
-   auto bubble = std::make_unique<IncognitoClearBrowsingDataDialog>(
-       anchor_view, profile_, type);
-   DCHECK_EQ(nullptr, bubble_tracker_.view());
+   if (bubble_tracker_.view() && bubble_tracker_.view()->GetWidget()) {
+     // Ensure the previous bubble is closed before creating and showing the new
+     // one.
 diff --git chrome/browser/ui/views/profiles/incognito_menu_view.cc chrome/browser/ui/views/profiles/incognito_menu_view.cc
-index 1a3d8d1054be69963189ffafc678dda1344a4cf1..47e7c9c43ac201a16ab12aff34f1236eb335bf31 100644
+index c3c7d35b433815a0b81965432225b06fe58439b9..9ea64c2d6839478bc05eba771d7c437d374f7bf0 100644
 --- chrome/browser/ui/views/profiles/incognito_menu_view.cc
 +++ chrome/browser/ui/views/profiles/incognito_menu_view.cc
-@@ -31,7 +31,9 @@
+@@ -30,7 +30,9 @@
  IncognitoMenuView::IncognitoMenuView(ui::TrackedElement* anchor_element,
                                       Browser* browser)
      : ProfileMenuViewBase(anchor_element, browser) {

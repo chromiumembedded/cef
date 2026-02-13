@@ -19,7 +19,7 @@ class CefProcessMessageImpl : public CefProcessMessage {
   // Constructor for creating a new CefListValue that takes ownership of
   // |arguments|.
   CefProcessMessageImpl(const CefString& name,
-                        base::Value::List arguments,
+                        base::ListValue arguments,
                         bool read_only);
 
   CefProcessMessageImpl(const CefProcessMessageImpl&) = delete;
@@ -31,7 +31,7 @@ class CefProcessMessageImpl : public CefProcessMessage {
   // a copy if the argument list is already owned by something else.
   // TODO: Pass by reference instead of ownership if/when Mojo adds support
   // for that.
-  [[nodiscard]] base::Value::List TakeArgumentList();
+  [[nodiscard]] base::ListValue TakeArgumentList();
 
   // CefProcessMessage methods.
   bool IsValid() override;

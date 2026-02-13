@@ -186,7 +186,7 @@ void CefTouchSelectionControllerClientOSR::OnClientHitTestRegionUpdated(
     ui::TouchSelectionControllerClient* client) {
   if (client != active_client_ || !rwhv_->selection_controller() ||
       rwhv_->selection_controller()->active_status() ==
-          ui::TouchSelectionController::INACTIVE) {
+          ui::TouchSelectionController::ActiveStatus::kInactive) {
     return;
   }
 

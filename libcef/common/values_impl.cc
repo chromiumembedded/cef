@@ -14,12 +14,12 @@ namespace {
 // Removes empty dictionaries from |dict|, potentially nested.
 // Does not modify empty lists.
 // From chrome/browser/chromeos/extensions/echo_private/echo_private_api.cc
-void RemoveEmptyValueDicts(base::Value::Dict& dict) {
+void RemoveEmptyValueDicts(base::DictValue& dict) {
   auto it = dict.begin();
   while (it != dict.end()) {
     base::Value& value = it->second;
     if (value.is_dict()) {
-      base::Value::Dict& sub_dict = value.GetDict();
+      base::DictValue& sub_dict = value.GetDict();
       RemoveEmptyValueDicts(sub_dict);
       if (sub_dict.empty()) {
         it = dict.erase(it);
@@ -679,7 +679,7 @@ CefDictionaryValueImpl::CefDictionaryValueImpl(base::Value value,
                              /*will_delete=*/true,
                              read_only) {}
 
-CefDictionaryValueImpl::CefDictionaryValueImpl(base::Value::Dict value,
+CefDictionaryValueImpl::CefDictionaryValueImpl(base::DictValue value,
                                                bool read_only)
     : CefDictionaryValueImpl(base::Value(std::move(value)), read_only) {}
 
@@ -1125,7 +1125,7 @@ CefListValueImpl::CefListValueImpl(base::Value value, bool read_only)
                        /*will_delete=*/true,
                        read_only) {}
 
-CefListValueImpl::CefListValueImpl(base::Value::List value, bool read_only)
+CefListValueImpl::CefListValueImpl(base::ListValue value, bool read_only)
     : CefListValueImpl(base::Value(std::move(value)), read_only) {}
 
 CefListValueImpl::CefListValueImpl(base::Value* value,

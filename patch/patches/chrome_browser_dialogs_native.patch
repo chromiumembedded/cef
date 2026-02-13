@@ -1,8 +1,8 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index 5f5e671978830a0d9044a4c9ec68ba40a5323228..802171258704046336f151a6b72d2e718edfb041 100644
+index 70918f07bef42fd9fc157f1c5057b6607c8bc257..be011570ecdc4fabb422ec98cdc03de57777d9bb 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
-@@ -257,6 +257,12 @@ void FileSelectHelper::OnListDone(int error) {
+@@ -258,6 +258,12 @@ void FileSelectHelper::OnListDone(int error) {
    }
  
    if (dialog_type_ == ui::SelectFileDialog::SELECT_UPLOAD_FOLDER) {
@@ -15,7 +15,7 @@ index 5f5e671978830a0d9044a4c9ec68ba40a5323228..802171258704046336f151a6b72d2e71
      auto model = CreateConfirmationDialog(
          entry->display_name_, std::move(chooser_files),
          base::BindOnce(&FileSelectHelper::PerformContentAnalysisIfNeeded,
-@@ -455,31 +461,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -456,31 +462,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    std::vector<base::FilePath::StringType>* extensions =
        &file_type->extensions.back();
  
@@ -71,7 +71,7 @@ index 5f5e671978830a0d9044a4c9ec68ba40a5323228..802171258704046336f151a6b72d2e71
      if (extensions->size() > old_extension_size)
        valid_type_count++;
    }
-@@ -496,12 +522,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -497,12 +523,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    //    dialog uses the first extension in the list to form the description,
    //    like "EHTML Files". This is not what we want.
    if (valid_type_count > 1 ||
@@ -104,7 +104,7 @@ index 5f5e671978830a0d9044a4c9ec68ba40a5323228..802171258704046336f151a6b72d2e71
    }
  
    return file_type;
-@@ -511,7 +553,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -512,7 +554,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
  void FileSelectHelper::RunFileChooser(
      content::RenderFrameHost* render_frame_host,
      scoped_refptr<content::FileSelectListener> listener,
@@ -114,7 +114,7 @@ index 5f5e671978830a0d9044a4c9ec68ba40a5323228..802171258704046336f151a6b72d2e71
    Profile* profile = Profile::FromBrowserContext(
        render_frame_host->GetProcess()->GetBrowserContext());
  
-@@ -519,6 +562,7 @@ void FileSelectHelper::RunFileChooser(
+@@ -520,6 +563,7 @@ void FileSelectHelper::RunFileChooser(
    // message.
    scoped_refptr<FileSelectHelper> file_select_helper(
        new FileSelectHelper(profile));
@@ -160,7 +160,7 @@ index 49272553c7c53a91bc79677884217881fd405653..5ba90c9a06ecf72c28b84cbb62ae3cbb
    raw_ptr<content::WebContents, AcrossTasksDanglingUntriaged> source_contents_;
  };
 diff --git ui/shell_dialogs/execute_select_file_win.cc ui/shell_dialogs/execute_select_file_win.cc
-index b0decb60aae6af1889c27982f3953e4137522982..97c6501edb125ebfeb4d6873cf000c04208f098e 100644
+index b9f46bd6ebf8da7c668a67a7a3aea0e35910cbe3..ca2dceef5e0a077a2394f528e0156e6fef0c7293 100644
 --- ui/shell_dialogs/execute_select_file_win.cc
 +++ ui/shell_dialogs/execute_select_file_win.cc
 @@ -31,7 +31,7 @@ namespace ui {
@@ -173,10 +173,10 @@ index b0decb60aae6af1889c27982f3953e4137522982..97c6501edb125ebfeb4d6873cf000c04
  // RAII wrapper around AutoCloseDialogEventHandler.
  class ScopedAutoCloseDialogEventHandler {
 diff --git ui/shell_dialogs/select_file_dialog.cc ui/shell_dialogs/select_file_dialog.cc
-index f9c0d03193a6373437b1509b882a93855c58bd8d..f32f02d216120f0f954be712f706b5696b78d722 100644
+index d44aa9ea9f3f81e2d6dd3f28f67980ded747f7d8..60f42e1299d5cd909974de91cd48c4b79b4c1590 100644
 --- ui/shell_dialogs/select_file_dialog.cc
 +++ ui/shell_dialogs/select_file_dialog.cc
-@@ -88,8 +88,10 @@ void SelectFileDialog::SetFactory(
+@@ -90,8 +90,10 @@ void SelectFileDialog::SetFactory(
  // static
  scoped_refptr<SelectFileDialog> SelectFileDialog::Create(
      Listener* listener,

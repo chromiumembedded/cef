@@ -285,7 +285,7 @@ void CefFrameHostImpl::SendProcessMessage(
     SendToRenderFrame(
         __FUNCTION__,
         base::BindOnce(
-            [](const CefString& name, base::Value::List argument_list,
+            [](const CefString& name, base::ListValue argument_list,
                const RenderFrameType& render_frame) {
               render_frame->SendMessage(name, std::move(argument_list));
             },
@@ -667,7 +667,7 @@ void CefFrameHostImpl::OnRenderFrameDisconnect() {
 }
 
 void CefFrameHostImpl::SendMessage(const std::string& name,
-                                   base::Value::List arguments) {
+                                   base::ListValue arguments) {
   if (auto browser = GetBrowserHostBase()) {
     if (auto client = browser->GetClient()) {
       CefRefPtr<CefProcessMessageImpl> message(

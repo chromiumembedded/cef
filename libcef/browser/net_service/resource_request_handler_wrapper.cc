@@ -35,6 +35,7 @@
 #include "ipc/constants.mojom.h"
 #include "net/base/load_flags.h"
 #include "net/http/http_status_code.h"
+#include "services/network/public/cpp/originating_process.h"
 #include "third_party/blink/public/mojom/loader/resource_load_info.mojom-shared.h"
 #include "ui/base/page_transition_types.h"
 #include "url/origin.h"
@@ -489,7 +490,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
             static_cast<content::StoragePartitionImpl*>(
                 browser_context->GetDefaultStoragePartition())
                 ->CreateURLLoaderNetworkObserverForServiceOrSharedWorker(
-                    content::ChildProcessHost::kInvalidUniqueID, url::Origin());
+                    network::OriginatingProcess::browser(), url::Origin());
       }
     }
 

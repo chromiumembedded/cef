@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_MANAGER_H_
 
 #include "cef/libcef/common/mojom/cef.mojom.h"
-#include "content/public/browser/child_process_id.h"
+#include "content/public/common/child_process_id.h"
 #include "mojo/public/cpp/bindings/remote.h"
 #include "services/service_manager/public/cpp/binder_registry.h"
 

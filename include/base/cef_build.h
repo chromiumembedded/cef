@@ -80,7 +80,7 @@
 
 #if BUILDFLAG(IS_LINUX)
 #include "ui/base/ozone_buildflags.h"
-#if BUILDFLAG(IS_OZONE_X11)
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
 #define CEF_X11 1
 #endif
 #endif

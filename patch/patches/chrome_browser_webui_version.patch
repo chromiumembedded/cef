@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/webui/version/version_handler.cc chrome/browser/ui/webui/version/version_handler.cc
-index e503ac10c0eaa6e528c8835a87947916f49a8a1a..dacd96a06e870aa12d5a4e4873e3f875de85ad4a 100644
+index 35ed222da9c56b56c0ed52d088535b74f3769aa4..87d63b9bbeff297bf8971e4fcd6be6d67d765c0c 100644
 --- chrome/browser/ui/webui/version/version_handler.cc
 +++ chrome/browser/ui/webui/version/version_handler.cc
 @@ -29,12 +29,23 @@
@@ -47,7 +47,7 @@ index e503ac10c0eaa6e528c8835a87947916f49a8a1a..dacd96a06e870aa12d5a4e4873e3f875
  }
  
  }  // namespace
-@@ -123,23 +147,46 @@ void VersionHandler::HandleRequestPathInfo(const base::Value::List& args) {
+@@ -123,23 +147,46 @@ void VersionHandler::HandleRequestPathInfo(const base::ListValue& args) {
    // OnGotFilePaths.
    std::u16string* exec_path_buffer = new std::u16string;
    std::u16string* profile_path_buffer = new std::u16string;
@@ -88,7 +88,7 @@ index e503ac10c0eaa6e528c8835a87947916f49a8a1a..dacd96a06e870aa12d5a4e4873e3f875
 +#endif
 +                                    ) {
    DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
-   base::Value::Dict response;
+   base::DictValue response;
    response.Set(version_ui::kKeyExecPath, *executable_path_data);
    response.Set(version_ui::kKeyProfilePath, *profile_path_data);
 +#if BUILDFLAG(ENABLE_CEF)
@@ -98,7 +98,7 @@ index e503ac10c0eaa6e528c8835a87947916f49a8a1a..dacd96a06e870aa12d5a4e4873e3f875
    ResolveJavascriptCallback(base::Value(callback_id), response);
  }
 diff --git chrome/browser/ui/webui/version/version_handler.h chrome/browser/ui/webui/version/version_handler.h
-index 2f8162d7491d1f78c540565333ad01589221c8e7..b00f0d5bf26aeede35a95ccbb08ad4eac99fcd4d 100644
+index 7d1beedfffbfdd34323cfb749bec83187b54778e..d4c79e26e51deb9a32fb9649a1c21a1874ea48c7 100644
 --- chrome/browser/ui/webui/version/version_handler.h
 +++ chrome/browser/ui/webui/version/version_handler.h
 @@ -9,6 +9,7 @@
@@ -124,10 +124,10 @@ index 2f8162d7491d1f78c540565333ad01589221c8e7..b00f0d5bf26aeede35a95ccbb08ad4ea
    // Factory for the creating refs in callbacks.
    base::WeakPtrFactory<VersionHandler> weak_ptr_factory_{this};
 diff --git chrome/browser/ui/webui/version/version_ui.cc chrome/browser/ui/webui/version/version_ui.cc
-index 54b208e8b6b85d2cdc764fe42999598e9e9d9304..55c7aad119db816a7c58a0259b08c37fbe4f83cb 100644
+index ea613f37066c1cc26fb0ac657b009338e08ef8a6..101b5ed429d3cabbab55bbda57b7843cbff41784 100644
 --- chrome/browser/ui/webui/version/version_ui.cc
 +++ chrome/browser/ui/webui/version/version_ui.cc
-@@ -18,6 +18,7 @@
+@@ -19,6 +19,7 @@
  #include "base/strings/utf_string_conversions.h"
  #include "base/time/time.h"
  #include "build/build_config.h"
@@ -135,7 +135,7 @@ index 54b208e8b6b85d2cdc764fe42999598e9e9d9304..55c7aad119db816a7c58a0259b08c37f
  #include "chrome/browser/browser_process_impl.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/ui/webui/version/version_handler.h"
-@@ -68,6 +69,10 @@
+@@ -69,6 +70,10 @@
  #include "chrome/browser/ui/webui/version/version_util_win.h"
  #endif
  
@@ -146,7 +146,7 @@ index 54b208e8b6b85d2cdc764fe42999598e9e9d9304..55c7aad119db816a7c58a0259b08c37f
  using content::WebUIDataSource;
  
  namespace {
-@@ -88,6 +93,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
+@@ -89,6 +94,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
        {version_ui::kCommandLineName, IDS_VERSION_UI_COMMAND_LINE},
        {version_ui::kExecutablePathName, IDS_VERSION_UI_EXECUTABLE_PATH},
        {version_ui::kProfilePathName, IDS_VERSION_UI_PROFILE_PATH},
@@ -157,7 +157,7 @@ index 54b208e8b6b85d2cdc764fe42999598e9e9d9304..55c7aad119db816a7c58a0259b08c37f
        {version_ui::kVariationsName, IDS_VERSION_UI_VARIATIONS},
        {version_ui::kVariationsCmdName, IDS_VERSION_UI_VARIATIONS_CMD},
        {version_ui::kCopyVariationsLabel, IDS_VERSION_UI_COPY_VARIATIONS_LABEL},
-@@ -119,6 +128,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
+@@ -120,6 +129,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
    html_source->AddResourcePath("images/product_logo_white.png",
                                 IDR_PRODUCT_LOGO_WHITE);
  #endif  // BUILDFLAG(IS_ANDROID)
@@ -168,7 +168,7 @@ index 54b208e8b6b85d2cdc764fe42999598e9e9d9304..55c7aad119db816a7c58a0259b08c37f
  }
  
  std::string GetProductModifier() {
-@@ -254,6 +267,10 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
+@@ -255,6 +268,10 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
    // blank.
    html_source->AddString(version_ui::kExecutablePath, std::string_view());
    html_source->AddString(version_ui::kProfilePath, std::string_view());
@@ -221,10 +221,10 @@ index 2193019afd18eac09e7812737dc2de3533c2f404..42ec99b0a4673f9ba7c8bbd568a18fa8
 +  }
  }
 diff --git components/webui/version/resources/about_version.css components/webui/version/resources/about_version.css
-index bd41fd2492e79b9dad3197f91e22885f13edcfe2..04378e39332e19aaa883d04abea6292d4fa84fb7 100644
+index 474768656bdae1d5c212bfd3034c8f8bfe718983..2ca20f8cc7251ad92b1845ce4bc8a2deadbfb592 100644
 --- components/webui/version/resources/about_version.css
 +++ components/webui/version/resources/about_version.css
-@@ -135,3 +135,7 @@ body {
+@@ -134,3 +134,7 @@ body {
    position: fixed;
    width: 1px;
  }

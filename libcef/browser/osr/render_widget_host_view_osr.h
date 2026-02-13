@@ -174,6 +174,7 @@ class CefRenderWidgetHostViewOSR
   void CopyFromSurface(
       const gfx::Rect& src_rect,
       const gfx::Size& output_size,
+      base::TimeDelta timeout,
       base::OnceCallback<void(const content::CopyFromSurfaceResult&)> callback)
       override;
   display::ScreenInfos GetNewScreenInfosForUpdate() override;

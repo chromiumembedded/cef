@@ -1,5 +1,5 @@
 diff --git chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
-index 5bb67663975391ad97ccd9f831ab5ef8ef5ce39f..8a456cb9d6e51ba8a2e5f19b6b5f730a16196fad 100644
+index 8dd724e489aeacafd1eb7cc902cfa5dc90deec60..e0d1887373cd813962ebb76feb3c021c1fff05d4 100644
 --- chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
 +++ chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
 @@ -26,12 +26,31 @@

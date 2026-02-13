@@ -82,7 +82,7 @@ class CefBrowserViewImpl
   // CefViewAdapter methods:
   void Detach() override;
   std::string GetDebugType() override { return "BrowserView"; }
-  void GetDebugInfo(base::Value::Dict* info, bool include_children) override;
+  void GetDebugInfo(base::DictValue* info, bool include_children) override;
 
   // CefBrowserViewView::Delegate methods:
   void AddedToWidget() override;

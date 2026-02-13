@@ -13,16 +13,6 @@ ChromeBrowserFrameView::ChromeBrowserFrameView(BrowserWidget* browser_widget,
 
 ChromeBrowserFrameView::~ChromeBrowserFrameView() = default;
 
-gfx::Rect ChromeBrowserFrameView::GetBoundsForTabStripRegion(
-    const gfx::Size& tabstrip_minimum_size) const {
-  return gfx::Rect();
-}
-
-gfx::Rect ChromeBrowserFrameView::GetBoundsForWebAppFrameToolbar(
-    const gfx::Size& toolbar_preferred_size) const {
-  return gfx::Rect();
-}
-
 int ChromeBrowserFrameView::GetTopInset(bool restored) const {
   return GetBrowserView()->y();
 }

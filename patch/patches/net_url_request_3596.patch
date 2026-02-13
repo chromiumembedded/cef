@@ -1,8 +1,16 @@
 diff --git net/url_request/url_request_job.cc net/url_request/url_request_job.cc
-index f65b7e6eccd2ef33c9addb5797aab62e75fd3803..1391b7a3a040f2bf8338080ccaaf6fbbf0de5d01 100644
+index 6c5d84f2ae58fb8b349ef8d93035fa341ebabfb3..d973fea2161e10dce0dfa5cf7ce45c35146074b7 100644
 --- net/url_request/url_request_job.cc
 +++ net/url_request/url_request_job.cc
-@@ -39,6 +39,7 @@
+@@ -4,6 +4,7 @@
+ 
+ #include "net/url_request/url_request_job.h"
+ 
++#include <algorithm>
+ #include <utility>
+ 
+ #include "base/compiler_specific.h"
+@@ -39,6 +40,7 @@
  #include "net/url_request/redirect_info.h"
  #include "net/url_request/redirect_util.h"
  #include "net/url_request/url_request_context.h"
@@ -10,7 +18,7 @@ index f65b7e6eccd2ef33c9addb5797aab62e75fd3803..1391b7a3a040f2bf8338080ccaaf6fbb
  
  namespace net {
  
-@@ -59,6 +60,16 @@ const scoped_refptr<base::SingleThreadTaskRunner>& TaskRunner(
+@@ -59,6 +61,16 @@ const scoped_refptr<base::SingleThreadTaskRunner>& TaskRunner(
    return base::SingleThreadTaskRunner::GetCurrentDefault();
  }
  
@@ -21,13 +29,13 @@ index f65b7e6eccd2ef33c9addb5797aab62e75fd3803..1391b7a3a040f2bf8338080ccaaf6fbb
 +  if (GURL::SchemeIsCryptographic(url.scheme())) {
 +    return true;
 +  }
-+  return base::Contains(url::GetSecureSchemes(), url.scheme());
++  return std::ranges::contains(url::GetSecureSchemes(), url.scheme());
 +}
 +
  }  // namespace
  
  // Each SourceStreams own the previous SourceStream in the chain, but the
-@@ -344,8 +355,7 @@ GURL URLRequestJob::ComputeReferrerForPolicy(
+@@ -344,8 +356,7 @@ GURL URLRequestJob::ComputeReferrerForPolicy(
    }
  
    bool secure_referrer_but_insecure_destination =

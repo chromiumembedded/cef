@@ -1,14 +1,15 @@
 diff --git content/browser/scheduler/browser_task_executor.cc content/browser/scheduler/browser_task_executor.cc
-index c4932b7ff3530a86e52dd847b8881517aeb3f9e9..90b9b32d0db670bc76dfa5b12579b829ec6336ca 100644
+index 657bdaa8e50a8b9db9604745d89667c094a881e7..112cd929ba17b08ac4251c5df55173b1d8cd4c17 100644
 --- content/browser/scheduler/browser_task_executor.cc
 +++ content/browser/scheduler/browser_task_executor.cc
-@@ -216,10 +216,9 @@ void BrowserTaskExecutor::ResetForTesting() {
+@@ -216,11 +216,9 @@ void BrowserTaskExecutor::ResetForTesting() {
  
  // static
  void BrowserTaskExecutor::Shutdown() {
--  if (!g_browser_task_executor)
+-  if (!g_browser_task_executor) {
 +  if (!g_browser_task_executor || !Get()->browser_ui_thread_scheduler_)
      return;
+-  }
  
 -  DCHECK(Get()->browser_ui_thread_scheduler_);
    // We don't delete |g_browser_task_executor| because other threads may

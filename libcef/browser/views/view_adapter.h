@@ -45,7 +45,7 @@ class CefViewAdapter {
   virtual std::string GetDebugType() = 0;
 
   // Override this method to provide debug info specific to the View type.
-  virtual void GetDebugInfo(base::Value::Dict* info, bool include_children) = 0;
+  virtual void GetDebugInfo(base::DictValue* info, bool include_children) = 0;
 
  protected:
   virtual ~CefViewAdapter() = default;

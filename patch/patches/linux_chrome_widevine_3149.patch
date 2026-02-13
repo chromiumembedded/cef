@@ -1,5 +1,5 @@
 diff --git chrome/common/media/component_widevine_cdm_hint_file_linux.cc chrome/common/media/component_widevine_cdm_hint_file_linux.cc
-index c416845d817fe0400fbc9637c9a83f43b4c64473..f940dd80e2ed42fee8bbcff4c5d7f5c8ff966e08 100644
+index 108a82ac47ed2569e87acdc9a1805afc3516d8ae..17ed3f0425d3bb1256e9047fa10bb2aa82fa021f 100644
 --- chrome/common/media/component_widevine_cdm_hint_file_linux.cc
 +++ chrome/common/media/component_widevine_cdm_hint_file_linux.cc
 @@ -18,6 +18,7 @@
@@ -34,10 +34,10 @@ index c416845d817fe0400fbc9637c9a83f43b4c64473..f940dd80e2ed42fee8bbcff4c5d7f5c8
 +  return true;
 +}
 +
- // Returns the hint file contents as a Value::Dict. Returned result may be an
- // empty dictionary if the hint file does not exist or is formatted incorrectly.
- base::Value::Dict GetHintFileContents() {
-@@ -65,8 +86,7 @@ bool UpdateWidevineCdmHintFile(const base::FilePath& cdm_base_path,
+ // Returns the hint file contents as a base::DictValue. Returned result may be
+ // an empty dictionary if the hint file does not exist or is formatted
+ // incorrectly.
+@@ -66,8 +87,7 @@ bool UpdateWidevineCdmHintFile(const base::FilePath& cdm_base_path,
    DCHECK(!cdm_base_path.empty());
  
    base::FilePath hint_file_path;
@@ -45,5 +45,5 @@ index c416845d817fe0400fbc9637c9a83f43b4c64473..f940dd80e2ed42fee8bbcff4c5d7f5c8
 -                               &hint_file_path));
 +  CHECK(GetHintFilePath(&hint_file_path));
  
-   base::Value::Dict dict;
+   base::DictValue dict;
    dict.Set(kPath, cdm_base_path.value());

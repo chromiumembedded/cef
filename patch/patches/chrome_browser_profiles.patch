@@ -14,7 +14,7 @@ index 326da3a5dee4f598527d8ad722f452fdfba9ff02..f22b4aecb3130b6a8f96df6b2301909f
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index d252c882b70153f568cbe68f881056c232ffe118..ac6394ff72fbddaa1036775a995a790148800ecd 100644
+index 64b3e5af4de03e477d91af925bf70d78df398410..469907b8ec124c1f4a4d89967fcab55506834f80 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
 @@ -94,6 +94,7 @@ std::set<content::BrowserContext*>& GetProfileInstances() {
@@ -52,7 +52,7 @@ index d252c882b70153f568cbe68f881056c232ffe118..ac6394ff72fbddaa1036775a995a7901
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index e5b6826b553a16e6c6933cd81733a0d63e459570..48ce19c4cbd75656a2314ba749c4ea54cb0c5d10 100644
+index f474c3da8c9f390414eafc6ad1262c7bb56de8ce..09a9a3df2214d79ec9a019bad14a91b05e19f73a 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -91,6 +91,10 @@ class Profile : public content::BrowserContext {
@@ -85,7 +85,7 @@ index e5b6826b553a16e6c6933cd81733a0d63e459570..48ce19c4cbd75656a2314ba749c4ea54
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 8981bef78da4f234bb261c66d8e1fe5a149ea94c..00bb5fcb5e009eeaef61d60f1563a9eda17146bd 100644
+index 6bc3db5c106e40aadc0aec040ed029603387a8fb..58ba3f8b69ae3f02e9a08d65921fc4c6181d042a 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
 @@ -39,6 +39,7 @@
@@ -107,7 +107,7 @@ index 8981bef78da4f234bb261c66d8e1fe5a149ea94c..00bb5fcb5e009eeaef61d60f1563a9ed
  #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
  #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"
  #include "chrome/browser/extensions/extension_special_storage_policy.h"
-@@ -270,6 +275,12 @@ class ScopedAllowBlockingForProfile : public base::ScopedAllowBlocking {};
+@@ -274,6 +279,12 @@ class ScopedAllowBlockingForProfile : public base::ScopedAllowBlocking {};
  
  namespace {
  
@@ -120,7 +120,7 @@ index 8981bef78da4f234bb261c66d8e1fe5a149ea94c..00bb5fcb5e009eeaef61d60f1563a9ed
  #if BUILDFLAG(ENABLE_SESSION_SERVICE)
  // Delay before we explicitly create the SessionService.
  static constexpr base::TimeDelta kCreateSessionServiceDelay =
-@@ -998,7 +1009,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1003,7 +1014,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -131,7 +131,7 @@ index 8981bef78da4f234bb261c66d8e1fe5a149ea94c..00bb5fcb5e009eeaef61d60f1563a9ed
  
    return raw_otr_profile;
  }
-@@ -1320,6 +1333,12 @@ ProfileImpl::GetStorageNotificationService() {
+@@ -1328,6 +1341,12 @@ ProfileImpl::GetStorageNotificationService() {
  #if BUILDFLAG(IS_ANDROID)
    return nullptr;
  #else

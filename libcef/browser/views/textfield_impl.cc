@@ -4,7 +4,10 @@
 
 #include "cef/libcef/browser/views/textfield_impl.h"
 
+#include <utility>
+
 #include "cef/libcef/browser/thread_util.h"
+#include "ui/touch_selection/touch_editing_controller.h"
 
 namespace {
 
@@ -17,15 +20,15 @@ static int CefCommandIdToChromeId(cef_text_field_commands_t command_id) {
     case CEF_TFC_UNKNOWN:
       return 0;
     case CEF_TFC_CUT:
-      return views::Textfield::kCut;
+      return std::to_underlying(ui::TouchEditable::MenuCommands::kCut);
     case CEF_TFC_COPY:
-      return views::Textfield::kCopy;
+      return std::to_underlying(ui::TouchEditable::MenuCommands::kCopy);
     case CEF_TFC_PASTE:
-      return views::Textfield::kPaste;
+      return std::to_underlying(ui::TouchEditable::MenuCommands::kPaste);
     case CEF_TFC_SELECT_ALL:
-      return views::Textfield::kSelectAll;
+      return std::to_underlying(ui::TouchEditable::MenuCommands::kSelectAll);
     case CEF_TFC_SELECT_WORD:
-      return views::Textfield::kSelectWord;
+      return std::to_underlying(ui::TouchEditable::MenuCommands::kSelectWord);
     case CEF_TFC_UNDO:
       return views::Textfield::kUndo;
     case CEF_TFC_DELETE:

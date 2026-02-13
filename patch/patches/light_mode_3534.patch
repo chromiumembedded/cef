@@ -32,10 +32,10 @@ index daecebb5070705c1eb5281a3a7df4ace6b89c119..aed51c2e6b06e3527bd6c2003e4b6a82
    return (dark_mode_support.allow_dark_mode_for_app ||
            dark_mode_support.set_preferred_app_mode) &&
 diff --git chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-index 39a20bbee6076b206033ed495152903624e3f35a..0c00b8de9bf5cc7ac1509466ff182d59c47a2d2c 100644
+index 094551c9feac29138113464a50be115126ed05d9..0f47eaacd2947cbbb78bd710b736c9c9f4efcbc3 100644
 --- chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 +++ chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-@@ -67,7 +67,10 @@ void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
+@@ -66,7 +66,10 @@ void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
  #endif
  
  #if BUILDFLAG(USE_DBUS)
@@ -48,7 +48,7 @@ index 39a20bbee6076b206033ed495152903624e3f35a..0c00b8de9bf5cc7ac1509466ff182d59
  }
  
 diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
-index e09cf382304fa258f3d8bca4fae116301076a011..3331c751bd8d6f909c575d6efccc940122157e2a 100644
+index 3deaaa681088a7fe66e52de2f21fd9e03010241b..013d69b0e3c5449d710d28b2076b8767a82a8f6b 100644
 --- ui/native_theme/native_theme.cc
 +++ ui/native_theme/native_theme.cc
 @@ -281,6 +281,8 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
@@ -60,7 +60,7 @@ index e09cf382304fa258f3d8bca4fae116301076a011..3331c751bd8d6f909c575d6efccc9401
    RecordNumColorProvidersInitializedDuringOnNativeThemeUpdated(
        color_provider_manager.num_providers_initialized() -
        initial_providers_initialized);
-@@ -368,6 +370,13 @@ bool NativeTheme::IsForcedDarkMode() {
+@@ -361,6 +363,13 @@ bool NativeTheme::IsForcedDarkMode() {
    return kIsForcedDarkMode;
  }
  
@@ -74,7 +74,7 @@ index e09cf382304fa258f3d8bca4fae116301076a011..3331c751bd8d6f909c575d6efccc9401
  bool NativeTheme::IsForcedHighContrast() {
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
-@@ -581,8 +590,13 @@ ColorProviderKey::ForcedColors NativeTheme::CalculateForcedColors() const {
+@@ -574,8 +583,13 @@ ColorProviderKey::ForcedColors NativeTheme::CalculateForcedColors() const {
  
  NativeTheme::PreferredColorScheme NativeTheme::CalculatePreferredColorScheme()
      const {

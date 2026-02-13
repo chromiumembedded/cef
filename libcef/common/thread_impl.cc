@@ -77,7 +77,7 @@ bool CefThreadImpl::Create(const CefString& display_name,
       options.thread_type = base::ThreadType::kBackground;
       break;
     case TP_DISPLAY:
-      options.thread_type = base::ThreadType::kDisplayCritical;
+      options.thread_type = base::ThreadType::kPresentation;
       break;
     case TP_REALTIME_AUDIO:
       options.thread_type = base::ThreadType::kRealtimeAudio;

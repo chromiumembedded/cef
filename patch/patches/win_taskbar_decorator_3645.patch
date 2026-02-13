@@ -1,5 +1,5 @@
 diff --git chrome/browser/taskbar/taskbar_decorator_win.cc chrome/browser/taskbar/taskbar_decorator_win.cc
-index 9e6a90242151a56f72c6fc1e2ab898925a6d5a3d..6515959bb4d8e0aa08257946613ba0b918571f82 100644
+index 201dc29dd1c6b6ee38fe26fcbd804a578273aec2..5123e409216c679078bc3da1fbb38384516b3884 100644
 --- chrome/browser/taskbar/taskbar_decorator_win.cc
 +++ chrome/browser/taskbar/taskbar_decorator_win.cc
 @@ -21,12 +21,14 @@

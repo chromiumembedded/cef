@@ -17,10 +17,10 @@ index fbce13c16ad10420f3f8e0df521e3be6979271d1..0512b2f09937ed0410f23d321b57f77d
  std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPrompt(
      content::WebContents* web_contents,
 diff --git chrome/browser/ui/views/permissions/permission_prompt_factory.cc chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-index a14c5b7313a20da159e516ae9f6b83f9417b0329..4a805a0d67836dd7636eb1b40a36f0857e658e1b 100644
+index 4af5d0c9635b5b867f0f988ad511f30ccead2474..396a56312b5770522b5ddffe1b962f53af0b0008 100644
 --- chrome/browser/ui/views/permissions/permission_prompt_factory.cc
 +++ chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-@@ -223,11 +223,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
+@@ -232,11 +232,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
    }
  }
  
@@ -48,4 +48,4 @@ index a14c5b7313a20da159e516ae9f6b83f9417b0329..4a805a0d67836dd7636eb1b40a36f085
 +
    Browser* browser = chrome::FindBrowserWithTab(web_contents);
    if (!browser) {
-     DLOG(WARNING) << "Permission prompt suppressed because the WebContents is "
+     // For embedded WebUIs (e.g., Omnibox Popup and Contextual Tasks), try

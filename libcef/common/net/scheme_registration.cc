@@ -4,7 +4,8 @@
 
 #include "cef/libcef/common/net/scheme_registration.h"
 
-#include "base/containers/contains.h"
+#include <algorithm>
+
 #include "content/public/common/url_constants.h"
 #include "extensions/common/constants.h"
 #include "url/url_constants.h"
@@ -46,7 +47,7 @@ bool IsStandardScheme(std::string_view scheme) {
 // Should return the same value as SecurityOrigin::isLocal and
 // SchemeRegistry::shouldTreatURLSchemeAsCorsEnabled.
 bool IsCorsEnabledScheme(std::string_view scheme) {
-  return base::Contains(url::GetCorsEnabledSchemes(), scheme);
+  return std::ranges::contains(url::GetCorsEnabledSchemes(), scheme);
 }
 
 }  // namespace scheme

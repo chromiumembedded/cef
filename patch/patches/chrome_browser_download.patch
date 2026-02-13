@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/chrome_download_manager_delegate.cc chrome/browser/download/chrome_download_manager_delegate.cc
-index 72690dbe76004f82377414250f96252e4942346b..1fe218af2fa695413eea6cf189949c0de8e61f76 100644
+index 0a69999d8ef91904fa62a1ef5373ae083144854b..0eed68a0a5f4d11a38c66aca5b07d9536695df76 100644
 --- chrome/browser/download/chrome_download_manager_delegate.cc
 +++ chrome/browser/download/chrome_download_manager_delegate.cc
 @@ -31,6 +31,7 @@
@@ -21,7 +21,7 @@ index 72690dbe76004f82377414250f96252e4942346b..1fe218af2fa695413eea6cf189949c0d
  using content::BrowserThread;
  using content::DownloadManager;
  using download::DownloadItem;
-@@ -603,6 +608,10 @@ ChromeDownloadManagerDelegate::ChromeDownloadManagerDelegate(Profile* profile)
+@@ -609,6 +614,10 @@ ChromeDownloadManagerDelegate::ChromeDownloadManagerDelegate(Profile* profile)
        download_message_bridge_(std::make_unique<DownloadMessageBridge>()),
  #endif
        download_prefs_(std::make_unique<DownloadPrefs>(profile)) {
@@ -32,7 +32,7 @@ index 72690dbe76004f82377414250f96252e4942346b..1fe218af2fa695413eea6cf189949c0d
  }
  
  ChromeDownloadManagerDelegate::~ChromeDownloadManagerDelegate() {
-@@ -666,6 +675,9 @@ void ChromeDownloadManagerDelegate::Shutdown() {
+@@ -672,6 +681,9 @@ void ChromeDownloadManagerDelegate::Shutdown() {
      download_manager_->RemoveObserver(this);
      download_manager_ = nullptr;
    }
@@ -42,7 +42,7 @@ index 72690dbe76004f82377414250f96252e4942346b..1fe218af2fa695413eea6cf189949c0d
  }
  
  void ChromeDownloadManagerDelegate::OnDownloadCanceledAtShutdown(
-@@ -734,6 +746,12 @@ bool ChromeDownloadManagerDelegate::DetermineDownloadTarget(
+@@ -740,6 +752,12 @@ bool ChromeDownloadManagerDelegate::DetermineDownloadTarget(
      ReportPDFLoadStatus(PDFLoadStatus::kTriggeredNoGestureDriveByDownload);
    }
  
@@ -55,7 +55,7 @@ index 72690dbe76004f82377414250f96252e4942346b..1fe218af2fa695413eea6cf189949c0d
    DownloadTargetDeterminer::CompletionCallback target_determined_callback =
        base::BindOnce(&ChromeDownloadManagerDelegate::OnDownloadTargetDetermined,
                       weak_ptr_factory_.GetWeakPtr(), download->GetId(),
-@@ -1263,8 +1281,12 @@ void ChromeDownloadManagerDelegate::OpenDownload(DownloadItem* download) {
+@@ -1272,8 +1290,12 @@ void ChromeDownloadManagerDelegate::OpenDownload(DownloadItem* download) {
    }
  
    Browser* browser = chrome::ScopedTabbedBrowserDisplayer(profile_).browser();

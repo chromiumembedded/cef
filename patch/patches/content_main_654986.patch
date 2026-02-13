@@ -108,7 +108,7 @@ index f2b1cdff827eae3726febe590f2f30b5f6d89046..cb18a6fe7c76483fe79abf64bbec8ad2
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index ed476de46617f416982a4257fe1750ee301ba4f8..abebb9082c577844eff840ab58f072dcaad65ba0 100644
+index 81e2e8bbae7c2d8c5ef6c4fad5121121317901ca..eb95c8590b810dfbfee024110fc8a9779a30cc60 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -50,6 +50,7 @@
@@ -119,7 +119,7 @@ index ed476de46617f416982a4257fe1750ee301ba4f8..abebb9082c577844eff840ab58f072dc
  #include "base/time/default_clock.h"
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
-@@ -971,18 +972,12 @@ int ContentMainRunnerImpl::Initialize(ContentMainParams params) {
+@@ -966,18 +967,12 @@ int ContentMainRunnerImpl::Initialize(ContentMainParams params) {
        }));
  
  #if !defined(OFFICIAL_BUILD) || BUILDFLAG(CHROME_FOR_TESTING)
@@ -139,14 +139,14 @@ index ed476de46617f416982a4257fe1750ee301ba4f8..abebb9082c577844eff840ab58f072dc
      base::debug::EnableInProcessStackDumping();
    }
  
-@@ -1349,6 +1344,13 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1352,6 +1347,13 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
 +void ContentMainRunnerImpl::ShutdownOnUIThread() {
 +  base::ScopedAllowBaseSyncPrimitivesForTesting allow_wait;
 +  discardable_shared_memory_manager_.reset();
-+  browser_memory_consumer_registry_.reset();
++  browser_memory_coordinator_.reset();
 +  memory_pressure_listener_registry_.reset();
 +}
 +
@@ -154,11 +154,11 @@ index ed476de46617f416982a4257fe1750ee301ba4f8..abebb9082c577844eff840ab58f072dc
  std::unique_ptr<ContentMainRunner> ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 7ce426ea5f15dcafdabb3501e1249e3b6ef23d0b..9dbc753ce5bc284dcb76baa233c7ec169bf4b125 100644
+index e3d6621ec75a1b02c75fb0f4ad764339aea622f6..4ca2cc3de1fc428cfc0ff58865c81ed4a44597e0 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
 @@ -31,7 +31,7 @@ namespace content {
- class BrowserMemoryConsumerRegistry;
+ class BrowserMemoryCoordinator;
  class MojoIpcSupport;
  
 -class ContentMainRunnerImpl : public ContentMainRunner {

@@ -1,5 +1,5 @@
 diff --git chrome/browser/win/app_icon.cc chrome/browser/win/app_icon.cc
-index 85b5979a621b1b933baa805bc03a98cd5bd2175d..ca3afb0146facec382edcd0d10ed63ba2c2ac6cf 100644
+index 103b731c6163f43b6d4fb1060f406520a09bddeb..c07e986c2b4db04d85e2aec019c42f4bdad92d64 100644
 --- chrome/browser/win/app_icon.cc
 +++ chrome/browser/win/app_icon.cc
 @@ -18,13 +18,26 @@ int GetAppIconResourceId() {
@@ -16,7 +16,7 @@ index 85b5979a621b1b933baa805bc03a98cd5bd2175d..ca3afb0146facec382edcd0d10ed63ba
 +
  HICON GetAppIcon() {
    // TODO(mgiuca): Use GetAppIconImageFamily/CreateExact instead of LoadIcon, to
-   // get correct scaling. (See http://crbug.com/551256)
+   // get correct scaling. (See http://crbug.com/40443246)
 -  const int icon_id = GetAppIconResourceId();
    // HICON returned from LoadIcon do not leak and do not have to be destroyed.
 +  if (g_exe_app_icon_resource_id > 0) {
@@ -33,7 +33,7 @@ index 85b5979a621b1b933baa805bc03a98cd5bd2175d..ca3afb0146facec382edcd0d10ed63ba
 @@ -32,9 +45,18 @@ HICON GetAppIcon() {
  HICON GetSmallAppIcon() {
    // TODO(mgiuca): Use GetAppIconImageFamily/CreateExact instead of LoadIcon, to
-   // get correct scaling. (See http://crbug.com/551256)
+   // get correct scaling. (See http://crbug.com/40443246)
 -  const int icon_id = GetAppIconResourceId();
    gfx::Size size = GetSmallAppIconSize();
    // HICON returned from LoadImage must be released using DestroyIcon.

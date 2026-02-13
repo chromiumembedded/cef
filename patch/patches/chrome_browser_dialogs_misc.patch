@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/extensions/extension_dialog_utils_views.cc chrome/browser/ui/extensions/extension_dialog_utils_views.cc
-index b6875fb50d180291f7a2154e473563add704cb72..11a1713cd46ce2b17c0d501c90a73335134b9382 100644
+index 08ce628533c966d3fd72d61c7a2dd6aebc6753c5..376ab7701e2b3a7052665ee3d7ed63027ea2619b 100644
 --- chrome/browser/ui/extensions/extension_dialog_utils_views.cc
 +++ chrome/browser/ui/extensions/extension_dialog_utils_views.cc
 @@ -88,10 +88,9 @@ void ShowDialog(Browser* browser,

@@ -22,7 +22,7 @@ CefProcessMessageImpl::CefProcessMessageImpl(const CefString& name,
 }
 
 CefProcessMessageImpl::CefProcessMessageImpl(const CefString& name,
-                                             base::Value::List arguments,
+                                             base::ListValue arguments,
                                              bool read_only)
     : name_(name) {
   DCHECK(!name_.empty());
@@ -32,7 +32,7 @@ CefProcessMessageImpl::CefProcessMessageImpl(const CefString& name,
 
 CefProcessMessageImpl::~CefProcessMessageImpl() = default;
 
-base::Value::List CefProcessMessageImpl::TakeArgumentList() {
+base::ListValue CefProcessMessageImpl::TakeArgumentList() {
   DCHECK(IsValid());
   CefListValueImpl* value_impl =
       static_cast<CefListValueImpl*>(arguments_.get());

@@ -152,8 +152,7 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
                    content::RenderFrameHost* render_frame_host);
 
   // cef::mojom::BrowserFrame methods forwarded from CefBrowserFrame.
-  void SendMessage(const std::string& name,
-                   base::Value::List arguments) override;
+  void SendMessage(const std::string& name, base::ListValue arguments) override;
   void SendSharedMemoryRegion(const std::string& name,
                               base::WritableSharedMemoryRegion region) override;
   void FrameAttached(mojo::PendingRemote<cef::mojom::RenderFrame> render_frame,

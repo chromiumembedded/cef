@@ -19,7 +19,7 @@
 #include "ui/gfx/font_render_params.h"
 #include "ui/views/widget/widget.h"
 
-#if BUILDFLAG(IS_OZONE_X11)
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
 #include "cef/libcef/browser/native/window_x11.h"
 #include "ui/events/keycodes/keyboard_code_conversion_x.h"
 #include "ui/events/keycodes/keyboard_code_conversion_xkb.h"
@@ -54,7 +54,7 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   gfx::Rect rect(window_info_.bounds.x, window_info_.bounds.y,
                  window_info_.bounds.width, window_info_.bounds.height);
 
-#if BUILDFLAG(IS_OZONE_X11)
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
   DCHECK(!window_x11_);
 
   x11::Window parent_window = x11::Window::None;
@@ -87,7 +87,7 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   window_widget_->Show();
 
   window_x11_->Show();
-#endif  // BUILDFLAG(IS_OZONE_X11)
+#endif  // BUILDFLAG(SUPPORTS_OZONE_X11)
 
   // As an additional requirement on Linux, we must set the colors for the
   // render widgets in webkit.
@@ -115,7 +115,7 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
 }
 
 void CefBrowserPlatformDelegateNativeLinux::CloseHostWindow() {
-#if BUILDFLAG(IS_OZONE_X11)
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
   if (window_x11_) {
     window_x11_->Close();
   }
@@ -145,14 +145,14 @@ void CefBrowserPlatformDelegateNativeLinux::SetFocus(bool setFocus) {
     web_contents_->Focus();
   }
 
-#if BUILDFLAG(IS_OZONE_X11)
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
   if (window_x11_) {
     // Give native focus to the DesktopNativeWidgetAura for the root window.
     // Needs to be done via the ::Window so that keyboard focus is assigned
     // correctly.
     window_x11_->Focus();
   }
-#endif  // BUILDFLAG(IS_OZONE_X11)
+#endif  // BUILDFLAG(SUPPORTS_OZONE_X11)
 }
 
 void CefBrowserPlatformDelegateNativeLinux::NotifyMoveOrResizeStarted() {
@@ -163,7 +163,7 @@ void CefBrowserPlatformDelegateNativeLinux::NotifyMoveOrResizeStarted() {
     return;
   }
 
-#if BUILDFLAG(IS_OZONE_X11)
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
   if (!window_x11_) {
     return;
   }
@@ -183,16 +183,16 @@ void CefBrowserPlatformDelegateNativeLinux::NotifyMoveOrResizeStarted() {
   content::RenderWidgetHostImpl::From(
       web_contents_->GetRenderViewHost()->GetWidget())
       ->SendScreenRects();
-#endif  // BUILDFLAG(IS_OZONE_X11)
+#endif  // BUILDFLAG(SUPPORTS_OZONE_X11)
 }
 
 void CefBrowserPlatformDelegateNativeLinux::SizeTo(int width, int height) {
-#if BUILDFLAG(IS_OZONE_X11)
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
   if (window_x11_) {
     window_x11_->SetBounds(
         gfx::Rect(window_x11_->bounds().origin(), gfx::Size(width, height)));
   }
-#endif  // BUILDFLAG(IS_OZONE_X11)
+#endif  // BUILDFLAG(SUPPORTS_OZONE_X11)
 }
 
 void CefBrowserPlatformDelegateNativeLinux::ViewText(const std::string& text) {
@@ -249,7 +249,7 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeLinux::TranslateUiKeyEvent(
   ui::DomCode dom_code =
       ui::KeycodeConverter::NativeKeycodeToDomCode(key_event.native_key_code);
 
-#if BUILDFLAG(IS_OZONE_X11)
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
   int keysym = ui::XKeysymForWindowsKeyCode(
       key_code, !!(key_event.modifiers & EVENTFLAG_SHIFT_DOWN));
   char16_t character = ui::GetUnicodeCharacterFromXKeySym(keysym);
@@ -277,7 +277,7 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeLinux::TranslateUiKeyEvent(
       DCHECK(false);
   }
 
-#if BUILDFLAG(IS_OZONE_X11)
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
   ui::DomKey dom_key = ui::XKeySymToDomKey(keysym, character);
 #else
   ui::DomKey dom_key = ui::DomKey::NONE;

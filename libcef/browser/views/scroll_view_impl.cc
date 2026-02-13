@@ -64,14 +64,14 @@ int CefScrollViewImpl::GetVerticalScrollbarWidth() {
   return root_view()->GetScrollBarLayoutWidth();
 }
 
-void CefScrollViewImpl::GetDebugInfo(base::Value::Dict* info,
+void CefScrollViewImpl::GetDebugInfo(base::DictValue* info,
                                      bool include_children) {
   ParentClass::GetDebugInfo(info, include_children);
   if (include_children) {
     views::View* view = root_view()->contents();
     CefViewAdapter* adapter = CefViewAdapter::GetFor(view);
     if (adapter) {
-      base::Value::Dict child_info;
+      base::DictValue child_info;
       adapter->GetDebugInfo(&child_info, include_children);
       info->Set("content_view", std::move(child_info));
     }

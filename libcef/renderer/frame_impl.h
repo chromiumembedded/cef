@@ -149,8 +149,7 @@ class CefFrameImpl
 
   // cef::mojom::RenderFrame methods:
   void FrameAttachedAck(bool allow) override;
-  void SendMessage(const std::string& name,
-                   base::Value::List arguments) override;
+  void SendMessage(const std::string& name, base::ListValue arguments) override;
   void SendSharedMemoryRegion(const std::string& name,
                               base::WritableSharedMemoryRegion region) override;
   void SendCommand(const std::string& command) override;

@@ -264,8 +264,9 @@ class V8TrackObject : public CefTrackNode {
 
   // Attach this track object to the specified V8 object.
   void AttachTo(v8::Local<v8::Context> context, v8::Local<v8::Object> object) {
-    SetPrivate(context, object, kCefTrackObject,
-               v8::External::New(isolate_, this));
+    SetPrivate(
+        context, object, kCefTrackObject,
+        v8::External::New(isolate_, this, v8::kExternalPointerTypeTagDefault));
   }
 
   // Retrieve the track object for the specified V8 object.
@@ -274,7 +275,8 @@ class V8TrackObject : public CefTrackNode {
     v8::Local<v8::Value> value;
     if (GetPrivate(context, object, kCefTrackObject, &value) &&
         value->IsExternal()) {
-      return static_cast<V8TrackObject*>(v8::External::Cast(*value)->Value());
+      return static_cast<V8TrackObject*>(v8::External::Cast(*value)->Value(
+          v8::kExternalPointerTypeTagDefault));
     }
 
     return nullptr;
@@ -321,8 +323,9 @@ class V8TrackArrayBuffer : public CefTrackNode {
   // Attach this track object to the specified V8 object.
   void AttachTo(v8::Local<v8::Context> context,
                 v8::Local<v8::ArrayBuffer> arrayBuffer) {
-    SetPrivate(context, arrayBuffer, kCefTrackObject,
-               v8::External::New(isolate_, this));
+    SetPrivate(
+        context, arrayBuffer, kCefTrackObject,
+        v8::External::New(isolate_, this, v8::kExternalPointerTypeTagDefault));
   }
 
   // Retrieve the track object for the specified V8 object.
@@ -331,8 +334,8 @@ class V8TrackArrayBuffer : public CefTrackNode {
     v8::Local<v8::Value> value;
     if (GetPrivate(context, object, kCefTrackObject, &value) &&
         value->IsExternal()) {
-      return static_cast<V8TrackArrayBuffer*>(
-          v8::External::Cast(*value)->Value());
+      return static_cast<V8TrackArrayBuffer*>(v8::External::Cast(*value)->Value(
+          v8::kExternalPointerTypeTagDefault));
     }
 
     return nullptr;
@@ -357,7 +360,8 @@ class V8FunctionData {
 
   static V8FunctionData* Unwrap(v8::Local<v8::Value> data) {
     DCHECK(data->IsExternal());
-    return static_cast<V8FunctionData*>(v8::External::Cast(*data)->Value());
+    return static_cast<V8FunctionData*>(
+        v8::External::Cast(*data)->Value(v8::kExternalPointerTypeTagDefault));
   }
 
   CefString function_name() const { return function_name_; }
@@ -386,7 +390,8 @@ class V8FunctionData {
   }
 
   v8::Local<v8::External> CreateExternal() {
-    v8::Local<v8::External> external = v8::External::New(isolate_, this);
+    v8::Local<v8::External> external =
+        v8::External::New(isolate_, this, v8::kExternalPointerTypeTagDefault);
 
     isolate_->AdjustAmountOfExternalAllocatedMemory(
         static_cast<int>(sizeof(V8FunctionData)));

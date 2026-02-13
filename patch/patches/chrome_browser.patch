@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index c0551950d0463d2162a935fd9fc409e48f8432a9..c580d546e392b62513b160c78f45f40df7a087ae 100644
+index 1b61f9aa6bd0607f8d6a0b046cda73d466dde60b..99b24e2aa8c566302cec028225b85e5150059937 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -10,7 +10,7 @@ index c0551950d0463d2162a935fd9fc409e48f8432a9..c580d546e392b62513b160c78f45f40d
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -353,8 +354,6 @@ static_library("browser") {
+@@ -346,8 +347,6 @@ static_library("browser") {
      "data_sharing/data_sharing_navigation_utils.h",
      "data_sharing/data_sharing_service_factory.cc",
      "data_sharing/data_sharing_service_factory.h",
@@ -19,7 +19,7 @@ index c0551950d0463d2162a935fd9fc409e48f8432a9..c580d546e392b62513b160c78f45f40d
      "data_sharing/personal_collaboration_data/personal_collaboration_data_service_factory.cc",
      "data_sharing/personal_collaboration_data/personal_collaboration_data_service_factory.h",
      "defaults.cc",
-@@ -1784,6 +1783,7 @@ static_library("browser") {
+@@ -1760,6 +1759,7 @@ static_library("browser") {
      "//build/config/compiler:compiler_buildflags",
      "//build/config/linux/dbus:buildflags",
      "//cc",
@@ -27,7 +27,7 @@ index c0551950d0463d2162a935fd9fc409e48f8432a9..c580d546e392b62513b160c78f45f40d
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2617,6 +2617,10 @@ static_library("browser") {
+@@ -2600,6 +2600,10 @@ static_library("browser") {
      sources += [ "net/net_error_diagnostics_dialog_stub.cc" ]
    }
  
@@ -38,3 +38,21 @@ index c0551950d0463d2162a935fd9fc409e48f8432a9..c580d546e392b62513b160c78f45f40d
    if (is_android) {
      sources += [
        "accessibility/accessibility_prefs/android/accessibility_prefs_controller.cc",
+@@ -4244,8 +4248,6 @@ static_library("browser") {
+       "//chrome/browser/actor/ui:actor_overlay",
+       "//chrome/browser/actor/ui:window_controller_impl",
+       "//chrome/browser/actor/ui/task_list_bubble:controller",
+-      "//chrome/browser/actor/ui/task_list_bubble:controller_impl",
+-      "//chrome/browser/actor/ui/task_list_bubble:ui",
+       "//chrome/browser/apps/app_service",
+       "//chrome/browser/apps/app_service/publishers",
+       "//chrome/browser/apps/link_capturing",
+@@ -6234,6 +6236,8 @@ static_library("browser") {
+ 
+   if (enable_glic) {
+     deps += [
++      "//chrome/browser/actor/ui/task_list_bubble:controller_impl",
++      "//chrome/browser/actor/ui/task_list_bubble:ui",
+       "//chrome/browser/background/glic",
+       "//chrome/browser/background/glic:impl",
+       "//chrome/browser/glic",
