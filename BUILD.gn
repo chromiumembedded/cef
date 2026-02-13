@@ -566,6 +566,8 @@ source_set("libcef_static") {
     "libcef/browser/chrome/views/toolbar_view_impl.h",
     "libcef/browser/chrome/views/toolbar_view_view.cc",
     "libcef/browser/chrome/views/toolbar_view_view.h",
+    "libcef/browser/component_updater_impl.cc",
+    "libcef/browser/component_updater_impl.h",
     "libcef/browser/context.cc",
     "libcef/browser/context.h",
     "libcef/browser/context_menu_params_impl.cc",
