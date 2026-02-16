@@ -65,6 +65,9 @@ HMODULE Load(const std::wstring& dll_path,
       cef_version_info_all(&dll_info);
 #else
       // Only populating the members that are used below.
+      dll_info.cef_version_major = cef_version_info(0);
+      dll_info.cef_version_minor = cef_version_info(1);
+      dll_info.cef_version_patch = cef_version_info(2);
       dll_info.chrome_version_major = cef_version_info(4);
       dll_info.chrome_version_patch = cef_version_info(7);
 #endif
@@ -85,14 +88,16 @@ HMODULE Load(const std::wstring& dll_path,
           if (std::strcmp(version_info->sandbox_compat_hash,
                           dll_info.sandbox_compat_hash) != 0) {
             LOG(FATAL) << "Failed libcef.dll sandbox compatibility check; "
-                       << "bootstrap hash: "
+                          "bootstrap hash: "
                        << version_info->sandbox_compat_hash
                        << ", bootstrap version: "
-                       << version_info->chrome_version_major << "."
-                       << version_info->chrome_version_patch
+                       << version_info->cef_version_major << "."
+                       << version_info->cef_version_minor << "."
+                       << version_info->cef_version_patch
                        << ", libcef hash: " << dll_info.sandbox_compat_hash
-                       << ", libcef version: " << dll_info.chrome_version_major
-                       << "." << dll_info.chrome_version_patch;
+                       << ", libcef version: " << dll_info.cef_version_major
+                       << "." << dll_info.cef_version_minor << "."
+                       << dll_info.cef_version_patch;
           }
           check_dll_version = false;
         }
@@ -105,10 +110,26 @@ HMODULE Load(const std::wstring& dll_path,
                                     version_info->chrome_version_patch)) {
         LOG(FATAL) << "Failed libcef.dll version compatibility check; "
                       "bootstrap version: "
-                   << version_info->chrome_version_major << "."
-                   << version_info->chrome_version_patch
-                   << ", libcef version: " << dll_info.chrome_version_major
-                   << "." << dll_info.chrome_version_patch;
+                   << version_info->cef_version_major << "."
+                   << version_info->cef_version_minor << "."
+                   << version_info->cef_version_patch
+                   << ", libcef version: " << dll_info.cef_version_major << "."
+                   << dll_info.cef_version_minor << "."
+                   << dll_info.cef_version_patch;
+      }
+
+      const char* api_hash = cef_api_hash(CEF_API_VERSION, 0);
+      if (std::strcmp(api_hash, CEF_API_HASH_PLATFORM) != 0) {
+        LOG(FATAL) << "Failed libcef.dll API compatibility check; "
+                      "API version: "
+                   << CEF_API_VERSION
+                   << ", wrapper hash: " << CEF_API_HASH_PLATFORM
+                   << ", wrapper version: " << CEF_VERSION_MAJOR << "."
+                   << CEF_VERSION_MINOR << "." << CEF_VERSION_PATCH
+                   << ", libcef hash: " << api_hash
+                   << ", libcef version: " << dll_info.cef_version_major << "."
+                   << dll_info.cef_version_minor << "."
+                   << dll_info.cef_version_patch;
       }
     }
 
