@@ -131,6 +131,7 @@ extern "C" {
 /// 0 - CEF_API_HASH_PLATFORM
 /// 1 - CEF_API_HASH_UNIVERSAL (deprecated, same as CEF_API_HASH_PLATFORM)
 /// 2 - CEF_COMMIT_HASH (from cef_version.h)
+/// 3 - CEF_SANDBOX_COMPAT_HASH (from cef_version.h, Windows only)
 ///
 CEF_EXPORT const char* cef_api_hash(int version, int entry);
 

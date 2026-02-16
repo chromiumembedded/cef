@@ -1584,8 +1584,21 @@ action("make_version_header") {
     "//chrome/VERSION",
   ]
   outputs = [ "$root_gen_dir/cef/include/cef_version.h" ]
-
   args = rebase_path(outputs, root_build_dir)
+
+  if (is_win) {
+    # Sandbox interface files for Windows-only compatibility hash.
+    _sandbox_compat_files = [
+      "//chrome/chrome_elf/chrome_elf_main.h",
+      "//sandbox/policy/mojom/sandbox.mojom",
+      "//sandbox/win/src/sandbox.h",
+      "//sandbox/win/src/sandbox_types.h",
+    ]
+
+    inputs += _sandbox_compat_files
+    args += [ "--sandbox-files" ]
+    args += rebase_path(_sandbox_compat_files, root_build_dir)
+  }
 }
 
 # This no-op action lists args.gn as an output, allowing it to be referenced as

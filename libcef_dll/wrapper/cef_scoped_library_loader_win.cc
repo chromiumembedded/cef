@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
+#include <cstring>
 
 #include "include/base/cef_logging.h"
 #include "include/wrapper/cef_certificate_util_win.h"
@@ -64,16 +65,71 @@ HMODULE Load(const std::wstring& dll_path,
       cef_version_info_all(&dll_info);
 #else
       // Only populating the members that are used below.
+      dll_info.cef_version_major = cef_version_info(0);
+      dll_info.cef_version_minor = cef_version_info(1);
+      dll_info.cef_version_patch = cef_version_info(2);
       dll_info.chrome_version_major = cef_version_info(4);
       dll_info.chrome_version_patch = cef_version_info(7);
 #endif
-      if (dll_info.chrome_version_major != version_info->chrome_version_major ||
-          dll_info.chrome_version_patch != version_info->chrome_version_patch) {
-        LOG(FATAL) << "Failed libcef.dll version check; expected "
-                   << version_info->chrome_version_major << "."
-                   << version_info->chrome_version_patch << ", got "
-                   << dll_info.chrome_version_major << "."
-                   << dll_info.chrome_version_patch;
+
+      bool check_dll_version = true;
+
+#if CEF_API_ADDED(CEF_NEXT)
+      // Check sandbox compatibility hash. Only compare if both structs are
+      // large enough to contain the hash field.
+      const bool version_info_has_hash =
+          version_info->size >= CEF_VERSION_INFO_SIZE_WITH_SANDBOX_HASH;
+      const bool dll_info_has_hash =
+          dll_info.size >= CEF_VERSION_INFO_SIZE_WITH_SANDBOX_HASH;
+
+      if (version_info_has_hash && dll_info_has_hash) {
+        if (version_info->sandbox_compat_hash[0] != '\0' &&
+            dll_info.sandbox_compat_hash[0] != '\0') {
+          if (std::strcmp(version_info->sandbox_compat_hash,
+                          dll_info.sandbox_compat_hash) != 0) {
+            LOG(FATAL) << "Failed libcef.dll sandbox compatibility check; "
+                          "bootstrap hash: "
+                       << version_info->sandbox_compat_hash
+                       << ", bootstrap version: "
+                       << version_info->cef_version_major << "."
+                       << version_info->cef_version_minor << "."
+                       << version_info->cef_version_patch
+                       << ", libcef hash: " << dll_info.sandbox_compat_hash
+                       << ", libcef version: " << dll_info.cef_version_major
+                       << "." << dll_info.cef_version_minor << "."
+                       << dll_info.cef_version_patch;
+          }
+          check_dll_version = false;
+        }
+      }
+#endif  // CEF_API_ADDED(CEF_NEXT)
+
+      if (check_dll_version && (dll_info.chrome_version_major !=
+                                    version_info->chrome_version_major ||
+                                dll_info.chrome_version_patch !=
+                                    version_info->chrome_version_patch)) {
+        LOG(FATAL) << "Failed libcef.dll version compatibility check; "
+                      "bootstrap version: "
+                   << version_info->cef_version_major << "."
+                   << version_info->cef_version_minor << "."
+                   << version_info->cef_version_patch
+                   << ", libcef version: " << dll_info.cef_version_major << "."
+                   << dll_info.cef_version_minor << "."
+                   << dll_info.cef_version_patch;
+      }
+
+      const char* api_hash = cef_api_hash(CEF_API_VERSION, 0);
+      if (std::strcmp(api_hash, CEF_API_HASH_PLATFORM) != 0) {
+        LOG(FATAL) << "Failed libcef.dll API compatibility check; "
+                      "API version: "
+                   << CEF_API_VERSION
+                   << ", wrapper hash: " << CEF_API_HASH_PLATFORM
+                   << ", wrapper version: " << CEF_VERSION_MAJOR << "."
+                   << CEF_VERSION_MINOR << "." << CEF_VERSION_PATCH
+                   << ", libcef hash: " << api_hash
+                   << ", libcef version: " << dll_info.cef_version_major << "."
+                   << dll_info.cef_version_minor << "."
+                   << dll_info.cef_version_patch;
       }
     }
 

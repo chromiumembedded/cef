@@ -1636,6 +1636,14 @@ if chromium_checkout != chromium_compat_version:
     out_file = None
   check_pattern_matches(output_file=out_file)
 
+# On release branches, check for sandbox compat hash changes that require
+# a new API version. This can happen when Chromium updates modify sandbox
+# interface files.
+if not branch_is_master and chromium_checkout_changed:
+  msg('Checking for sandbox compat hash changes...')
+  tool = os.path.join(cef_src_dir, 'tools', 'version_manager.py')
+  run('%s %s -a' % (python_exe, tool), cef_src_dir)
+
 ##
 # Build CEF.
 ##
