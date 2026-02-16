@@ -318,6 +318,23 @@ bool UseAlloyStyleWindowGlobal() {
   return use_alloy_style;
 }
 
+bool IsRunningOnWayland() {
+#if defined(OS_LINUX)
+  static bool is_wayland = []() {
+    auto command_line = CefCommandLine::GetGlobalCommandLine();
+    if (command_line->HasSwitch(client::switches::kOzonePlatform)) {
+      return command_line->GetSwitchValue(client::switches::kOzonePlatform) ==
+             "wayland";
+    }
+    // Fall back to checking environment if flag not set.
+    return getenv("WAYLAND_DISPLAY") != nullptr;
+  }();
+  return is_wayland;
+#else
+  return false;
+#endif
+}
+
 std::string ComputeViewsWindowTitle(CefRefPtr<CefWindow> window,
                                     CefRefPtr<CefBrowserView> browser_view) {
   std::string title = "CefTest - Views - ";

@@ -105,6 +105,9 @@ std::string ComputeViewsWindowTitle(CefRefPtr<CefWindow> window,
 // Determine the native window title based on |use_alloy_style|.
 std::string ComputeNativeWindowTitle(bool use_alloy_style);
 
+// Returns true if running on the Wayland platform (Linux only).
+bool IsRunningOnWayland();
+
 // Returns true if BFCache is enabled.
 bool IsBFCacheEnabled();
 

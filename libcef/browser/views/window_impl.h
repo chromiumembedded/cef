@@ -9,6 +9,7 @@
 #include <map>
 
 #include "base/memory/raw_ptr.h"
+#include "build/build_config.h"
 #include "cef/include/views/cef_window.h"
 #include "cef/include/views/cef_window_delegate.h"
 #include "cef/libcef/browser/menu_model_impl.h"
@@ -17,6 +18,11 @@
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/views/controls/menu/menu_runner.h"
 #include "ui/views/widget/widget.h"
+
+#if BUILDFLAG(IS_OZONE)
+#include "ui/events/test/event_generator.h"
+#include "ui/gfx/geometry/point.h"
+#endif
 
 namespace views {
 class MenuButton;
@@ -154,6 +160,13 @@ class CefWindowImpl
   // Initialize the Widget.
   void CreateWidget(gfx::AcceleratedWidget parent_widget);
 
+#if BUILDFLAG(IS_OZONE)
+  // Ensure the EventGenerator is created for input simulation at the given
+  // screen coordinates. The EventGenerator is recreated if the target window
+  // changes (e.g., when clicking on a popup menu).
+  void EnsureEventGenerator(const gfx::Point& screen_point);
+#endif
+
   raw_ptr<views::Widget> widget_ = nullptr;
 
   // True if the window has been initialized.
@@ -177,6 +190,15 @@ class CefWindowImpl
 
   // True if this window was shown using ShowAsBrowserModalDialog().
   bool shown_as_browser_modal_ = false;
+
+#if BUILDFLAG(IS_OZONE)
+  // Used for input event simulation on Wayland where ui_controls is not
+  // available without a test compositor.
+  std::unique_ptr<ui::test::EventGenerator> event_generator_;
+  // The root window that event_generator_ was created for (stored as void*
+  // since we only use it for comparison).
+  raw_ptr<void> event_generator_root_window_ = nullptr;
+#endif
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefWindowImpl);
 };

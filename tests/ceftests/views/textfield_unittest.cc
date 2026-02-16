@@ -6,6 +6,7 @@
 #include "include/views/cef_textfield.h"
 #include "include/views/cef_textfield_delegate.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/ceftests/thread_helper.h"
 #include "tests/ceftests/views/test_window_delegate.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -308,6 +309,13 @@ void RunTextfieldKeyEvent(CefRefPtr<CefWindow> window) {
 }
 
 void TextfieldKeyEventImpl(CefRefPtr<CefWaitableEvent> event) {
+  if (IsRunningOnWayland()) {
+    // Skipping test on Wayland. EventGenerator key events don't go through
+    // Wayland's text input protocol, so text input doesn't work.
+    event->Signal();
+    return;
+  }
+
   auto config = std::make_unique<TestWindowDelegate::Config>();
   config->on_window_created = base::BindOnce(RunTextfieldKeyEvent);
   config->close_window = false;
