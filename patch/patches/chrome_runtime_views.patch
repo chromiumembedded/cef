@@ -544,7 +544,7 @@ index aa0ddbd7eef8b57efa5f916e887dad6a4b74c5f8..0c8e1130dfae26514cc4b1ffff22a203
    base::CallbackListSubscription chip_visibility_subscription_;
  
 diff --git chrome/browser/ui/views/frame/browser_widget.cc chrome/browser/ui/views/frame/browser_widget.cc
-index d825bc7cb582898807504ff76123b8cf7090f428..8d3ae371a96d47ad1182afa41bc1b27cfaa46227 100644
+index d825bc7cb582898807504ff76123b8cf7090f428..f22893cf9f029a354f41ba99d3be756c4cc5b9c7 100644
 --- chrome/browser/ui/views/frame/browser_widget.cc
 +++ chrome/browser/ui/views/frame/browser_widget.cc
 @@ -111,21 +111,38 @@ ui::ColorProviderKey::SchemeVariant GetSchemeVariant(
@@ -666,7 +666,7 @@ index d825bc7cb582898807504ff76123b8cf7090f428..8d3ae371a96d47ad1182afa41bc1b27c
    }
    GetRootView()->InvalidateLayout();
  }
-@@ -609,6 +644,9 @@ bool BrowserWidget::RegenerateFrameOnThemeChange(
+@@ -609,11 +644,15 @@ bool BrowserWidget::RegenerateFrameOnThemeChange(
  }
  
  bool BrowserWidget::IsIncognitoBrowser() const {
@@ -676,6 +676,13 @@ index d825bc7cb582898807504ff76123b8cf7090f428..8d3ae371a96d47ad1182afa41bc1b27c
    return browser_view_->browser()->profile()->IsIncognitoProfile();
  }
  
+ ThemeService* BrowserWidget::GetThemeService() const {
+-  if (base::FeatureList::IsEnabled(features::kBrowserWidgetCacheThemeService)) {
++  if (base::FeatureList::IsEnabled(features::kBrowserWidgetCacheThemeService) &&
++      theme_service_) {
+     return theme_service_;
+   }
+   return ThemeServiceFactory::GetForProfile(
 diff --git chrome/browser/ui/views/frame/browser_widget.h chrome/browser/ui/views/frame/browser_widget.h
 index 8c71e1f938484e703afe19eee3c7b0c10a94e5f5..195119e9511ee27f57bb89ae7a22b9d475d1e0fc 100644
 --- chrome/browser/ui/views/frame/browser_widget.h
