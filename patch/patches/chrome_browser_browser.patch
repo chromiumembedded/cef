@@ -108,7 +108,7 @@ index 65c1e34883e441121f6c3085b2f3b9d33cacc377..a830f72075de4e572bfe63a992ddd6e2
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index dcdfb2edc4a03ee48fe4473f291b6686448c4710..4c81fd5697ba86a5521753675c2c01e0a57a4647 100644
+index dcdfb2edc4a03ee48fe4473f291b6686448c4710..71427ecfd9fd433880f172aa507e1a226c951fd5 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
@@ -152,24 +152,7 @@ index dcdfb2edc4a03ee48fe4473f291b6686448c4710..4c81fd5697ba86a5521753675c2c01e0
    # TODO(crbug.com/41437292): Remove this circular dependency.
    # Any circular includes must depend on the target "//chrome/browser:browser_public_dependencies".
    # These are all-platform circular includes.
-@@ -4482,8 +4495,6 @@ static_library("ui") {
-       "views/tabs/tab_slot_view.h",
-       "views/tabs/tab_strip.cc",
-       "views/tabs/tab_strip.h",
--      "views/tabs/tab_strip_action_container.cc",
--      "views/tabs/tab_strip_action_container.h",
-       "views/tabs/tab_strip_control_button.cc",
-       "views/tabs/tab_strip_control_button.h",
-       "views/tabs/tab_strip_controller.h",
-@@ -4786,7 +4797,6 @@ static_library("ui") {
-       # componentized:
-       # c/b/ui/browser.h, browser_finder.h, browser_window.h.
-       # c/b/ui/passwords/passwords_model_delegate.h, passwords_client_ui_delegate.h.
--      "//chrome/browser/actor/ui",
-       "//chrome/browser/ui:tab_search_feature",
-       "//chrome/browser/ui/views/zoom",
-       "//chrome/browser/ui/waap:waap_utils",
-@@ -5270,6 +5280,7 @@ static_library("ui") {
+@@ -5270,6 +5283,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [
        "//components/printing/browser",
@@ -177,15 +160,6 @@ index dcdfb2edc4a03ee48fe4473f291b6686448c4710..4c81fd5697ba86a5521753675c2c01e0
        "//printing",
      ]
    }
-@@ -5462,6 +5473,8 @@ static_library("ui") {
-     allow_circular_includes_from += [ "//chrome/browser/glic/fre" ]
-     if (!is_android) {
-       sources += [
-+        "views/tabs/tab_strip_action_container.cc",
-+        "views/tabs/tab_strip_action_container.h",
-         "webui/settings/glic_handler.cc",
-         "webui/settings/glic_handler.h",
-       ]
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
 index cb1c559fa9cb0a05004197765e19a4195952cd91..309c446ee765d4952b07c22017a4d13a598c848a 100644
 --- chrome/browser/ui/browser.cc
@@ -841,20 +815,10 @@ index 8fcba62fa159924eaa33f5c9f1b57dc8ab5db863..25b96e03a9e2598a6c5a6dbf0ad60bf7
    }
  
 diff --git chrome/browser/ui/browser_window/internal/browser_window_features.cc chrome/browser/ui/browser_window/internal/browser_window_features.cc
-index 545e2827ccee3c7ee8270be81614f166ca460482..5f8c07a2aaa7dc64daa66b0fff1c8caef360b04c 100644
+index 545e2827ccee3c7ee8270be81614f166ca460482..9ffb8f0508d040e031e66992e87a647eaca86558 100644
 --- chrome/browser/ui/browser_window/internal/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/internal/browser_window_features.cc
-@@ -113,7 +113,9 @@
- #include "chrome/browser/ui/views/side_panel/side_panel_coordinator.h"
- #include "chrome/browser/ui/views/side_panel/side_panel_registry.h"
- #include "chrome/browser/ui/views/tabs/recent_activity_bubble_dialog_view.h"
-+#if BUILDFLAG(ENABLE_GLIC)
- #include "chrome/browser/ui/views/tabs/tab_strip_action_container.h"
-+#endif
- #include "chrome/browser/ui/views/toolbar/chrome_labs/chrome_labs_coordinator.h"
- #include "chrome/browser/ui/views/toolbar/pinned_toolbar_actions_controller.h"
- #include "chrome/browser/ui/views/translate/translate_bubble_controller.h"
-@@ -214,6 +216,15 @@ class BrowserWindowFeatures::ExtensionKeybindingRegistryDelegateTabStrip final
+@@ -214,6 +214,15 @@ class BrowserWindowFeatures::ExtensionKeybindingRegistryDelegateTabStrip final
  BrowserWindowFeatures::BrowserWindowFeatures() = default;
  BrowserWindowFeatures::~BrowserWindowFeatures() = default;
  
@@ -870,7 +834,7 @@ index 545e2827ccee3c7ee8270be81614f166ca460482..5f8c07a2aaa7dc64daa66b0fff1c8cae
  void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
    // This is used only for the controllers which will be created on demand
    // later.
-@@ -481,6 +492,9 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -481,6 +490,9 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
  #endif
  
    Profile* const profile = browser_->GetProfile();
@@ -880,7 +844,7 @@ index 545e2827ccee3c7ee8270be81614f166ca460482..5f8c07a2aaa7dc64daa66b0fff1c8cae
    BrowserView* const browser_view =
        BrowserView::GetBrowserViewForBrowser(browser);
    if (browser_view) {
-@@ -493,7 +507,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -493,7 +505,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
    // Features that are only enabled for normal browser windows (e.g. a window
    // with an omnibox and a tab strip). By default most features should be
    // instantiated in this block.
@@ -889,7 +853,7 @@ index 545e2827ccee3c7ee8270be81614f166ca460482..5f8c07a2aaa7dc64daa66b0fff1c8cae
      if (IsChromeLabsEnabled()) {
        chrome_labs_coordinator_ =
            std::make_unique<ChromeLabsCoordinator>(browser);
-@@ -616,7 +630,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -616,7 +628,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
        browser, browser->GetTabStripModel(), profile, browser->GetWindow(),
        browser->GetType(), browser->app_name(), browser->GetSessionID());
  
@@ -898,7 +862,7 @@ index 545e2827ccee3c7ee8270be81614f166ca460482..5f8c07a2aaa7dc64daa66b0fff1c8cae
      toast_service_ = std::make_unique<ToastService>(browser);
    }
  
-@@ -752,7 +766,9 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -752,7 +764,9 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
        GetUserDataFactory().CreateInstanceWithFactoryMethod(
            *browser_, &chrome::CreateImmersiveModeController, browser_view);
  
@@ -909,7 +873,7 @@ index 545e2827ccee3c7ee8270be81614f166ca460482..5f8c07a2aaa7dc64daa66b0fff1c8cae
  #if BUILDFLAG(ENABLE_GLIC)
      glic::GlicKeyedService* glic_service =
          glic::GlicKeyedService::Get(browser_view->GetProfile());
-@@ -817,16 +833,6 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -817,16 +831,6 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
      }
    }
  
@@ -926,7 +890,7 @@ index 545e2827ccee3c7ee8270be81614f166ca460482..5f8c07a2aaa7dc64daa66b0fff1c8cae
  #if !BUILDFLAG(IS_CHROMEOS)
    download_toolbar_ui_controller_ =
        std::make_unique<DownloadToolbarUIController>(browser_view);
-@@ -866,6 +872,38 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -866,6 +870,38 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
        browser_view);
  }
  
@@ -1020,4 +984,17 @@ index cc7ad6500dc29ba9280868cf0f78a2b3796a816e..5eabd9010ec904049d44dbf8038be174
    // This is used by features that need to operate on most or all tabs in the
    // browser window. Do not use this method to find a specific tab.
    virtual std::vector<tabs::TabInterface*> GetAllTabInterfaces() = 0;
-
+diff --git chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
+index 43d03b2b996fca77a72e9d1e37c8601f3b4190a1..7bc81f17d8d8ed3d09076f049c9753df004cb6de 100644
+--- chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
++++ chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
+@@ -231,8 +231,7 @@ HorizontalTabStripRegionView::HorizontalTabStripRegionView(
+   // Add and configure the TabSearchContainer and TabStripComboButton.
+   std::unique_ptr<TabSearchContainer> tab_search_container;
+   std::unique_ptr<TabStripActionContainer> tab_strip_action_container;
+-  if (browser &&
+-      (browser->GetType() == BrowserWindowInterface::Type::TYPE_NORMAL)) {
++  if (browser && browser->IsNormalBrowser()) {
+     if (features::HasTabSearchToolbarButton()) {
+       tab_strip_action_container = std::make_unique<TabStripActionContainer>(
+           browser, browser->GetFeatures().glic_nudge_controller());
