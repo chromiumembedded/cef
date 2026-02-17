@@ -223,7 +223,7 @@ void MainContextImpl::PopulateSettings(CefSettings* settings) {
 #endif
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14600)
   if (command_line_->HasSwitch(switches::kUseViewsDefaultPopup)) {
     settings->use_views_default_popup = true;
   }

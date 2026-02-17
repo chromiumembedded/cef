@@ -426,7 +426,7 @@ class CefV8ArrayBufferReleaseCallback : public virtual CefBaseRefCounted {
   virtual void ReleaseBuffer(void* buffer) = 0;
 };
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14600)
 ///
 /// Class representing a V8 ArrayBuffer backing store. The backing store holds
 /// the memory that backs an ArrayBuffer. It must be created on a thread with a
@@ -439,7 +439,7 @@ class CefV8ArrayBufferReleaseCallback : public virtual CefBaseRefCounted {
 /// CefV8Value::CreateArrayBufferFromBackingStore(), after which IsValid()
 /// returns false.
 ///
-/*--cef(source=library,no_debugct_check,added=next)--*/
+/*--cef(source=library,no_debugct_check,added=14600)--*/
 class CefV8BackingStore : public virtual CefBaseRefCounted {
  public:
   ///
@@ -594,7 +594,7 @@ class CefV8Value : public virtual CefBaseRefCounted {
   static CefRefPtr<CefV8Value> CreateArrayBufferWithCopy(void* buffer,
                                                          size_t length);
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14600)
   ///
   /// Create a new CefV8Value object of type ArrayBuffer from a backing store
   /// previously created with CefV8BackingStore::Create(). This is a zero-copy
@@ -605,7 +605,7 @@ class CefV8Value : public virtual CefBaseRefCounted {
   /// combination with calling Enter() and Exit() on a stored CefV8Context
   /// reference.
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=14600)--*/
   static CefRefPtr<CefV8Value> CreateArrayBufferFromBackingStore(
       CefRefPtr<CefV8BackingStore> backing_store);
 #endif

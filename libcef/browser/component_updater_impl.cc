@@ -207,7 +207,7 @@ void CefComponentUpdaterImpl::Update(
 
 // static
 CefRefPtr<CefComponentUpdater> CefComponentUpdater::GetComponentUpdater() {
-  CEF_API_REQUIRE_ADDED(CEF_NEXT);
+  CEF_API_REQUIRE_ADDED(14600);
   CEF_REQUIRE_UIT_RETURN(nullptr);
 
   static base::NoDestructor<CefRefPtr<CefComponentUpdaterImpl>> instance(

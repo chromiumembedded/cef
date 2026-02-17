@@ -44,12 +44,12 @@
 #include "include/cef_base.h"
 #include "include/internal/cef_types_component.h"
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14600)
 
 ///
 /// Callback interface for component update results.
 ///
-/*--cef(source=client,added=next)--*/
+/*--cef(source=client,added=14600)--*/
 class CefComponentUpdateCallback : public virtual CefBaseRefCounted {
  public:
   ///
@@ -68,7 +68,7 @@ class CefComponentUpdateCallback : public virtual CefBaseRefCounted {
 /// via CefComponentUpdater::GetComponentByID or GetComponents. The methods of
 /// this class may be called on any thread.
 ///
-/*--cef(source=library,added=next)--*/
+/*--cef(source=library,added=14600)--*/
 class CefComponent : public virtual CefBaseRefCounted {
  public:
   ///
@@ -108,7 +108,7 @@ class CefComponent : public virtual CefBaseRefCounted {
 /// If the CEF context is not initialized or the component updater service is
 /// not available, methods will return safe defaults (0, nullptr, or empty).
 ///
-/*--cef(source=library,added=next)--*/
+/*--cef(source=library,added=14600)--*/
 class CefComponentUpdater : public virtual CefBaseRefCounted {
  public:
   ///
@@ -161,6 +161,6 @@ class CefComponentUpdater : public virtual CefBaseRefCounted {
                       CefRefPtr<CefComponentUpdateCallback> callback) = 0;
 };
 
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(14600)
 
 #endif  // CEF_INCLUDE_CEF_COMPONENT_UPDATER_H_

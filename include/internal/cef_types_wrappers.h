@@ -469,7 +469,7 @@ struct CefSettingsTraits {
     target->disable_signal_handlers = src->disable_signal_handlers;
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14600)
     target->use_views_default_popup = src->use_views_default_popup;
 #endif
   }

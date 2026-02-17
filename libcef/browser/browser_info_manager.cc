@@ -542,7 +542,7 @@ bool CefBrowserInfoManager::MaybeAllowNavigation(
 bool CefBrowserInfoManager::ShouldCreateViewsHostedPopup(
     CefRefPtr<CefBrowserHostBase> opener,
     bool use_default_browser_creation) {
-  if (CEF_API_IS_ADDED(CEF_NEXT) &&
+  if (CEF_API_IS_ADDED(14600) &&
       CefContext::Get()->settings().use_views_default_popup) {
     return true;
   }

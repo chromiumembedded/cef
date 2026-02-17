@@ -79,7 +79,7 @@ typedef struct _cef_version_info_t {
   int chrome_version_build;
   int chrome_version_patch;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14600)
   ///
   /// Sandbox compatibility hash (Windows only, empty on other platforms).
   ///
@@ -87,7 +87,7 @@ typedef struct _cef_version_info_t {
 #endif
 } cef_version_info_t;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14600)
 ///
 /// Minimum struct size required to contain the sandbox_compat_hash field.
 /// Used for version compatibility checks.
@@ -123,7 +123,7 @@ typedef struct _cef_version_info_t {
 #endif  // !defined(GENERATING_CEF_API_HASH)
 
 // Helper macro for setting sandbox_compat_hash.
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14600)
 #define _CEF_POPULATE_SANDBOX_HASH(info)                        \
   strncpy((info)->sandbox_compat_hash, CEF_SANDBOX_COMPAT_HASH, \
           sizeof((info)->sandbox_compat_hash) - 1);             \

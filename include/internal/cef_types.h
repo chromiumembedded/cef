@@ -500,7 +500,7 @@ typedef struct _cef_settings_t {
   ///
   int disable_signal_handlers;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14600)
   ///
   /// If true use a Views (bare-bones) window instead of a Chrome UI window when
   /// creating default popups for Chrome style native-hosted (non-Views)

@@ -74,7 +74,7 @@ HMODULE Load(const std::wstring& dll_path,
 
       bool check_dll_version = true;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14600)
       // Check sandbox compatibility hash. Only compare if both structs are
       // large enough to contain the hash field.
       const bool version_info_has_hash =
@@ -102,7 +102,7 @@ HMODULE Load(const std::wstring& dll_path,
           check_dll_version = false;
         }
       }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(14600)
 
       if (check_dll_version && (dll_info.chrome_version_major !=
                                     version_info->chrome_version_major ||

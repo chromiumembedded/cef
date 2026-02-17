@@ -37,7 +37,7 @@
 extern "C" {
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14600)
 
 ///
 /// Component update error codes. These map to update_client::Error values
@@ -175,7 +175,7 @@ typedef enum {
 
 } cef_component_state_t;
 
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(14600)
 
 #ifdef __cplusplus
 }
