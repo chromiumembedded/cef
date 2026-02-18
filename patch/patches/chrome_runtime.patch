@@ -454,7 +454,7 @@ index 6e1d22522a8f576d19d794200acd96a01eb52a7a..3bac6fc2e7135943612ce77d4ff1c7d2
  
  void MaybeBlockDynamicCodeForBrowserProcess() {
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 94aece099d645b8fd38ca283c5ead4572260fbb6..61f95d4814d4eb6975d5e955e16c36774550b235 100644
+index b1c0cb14fede49fba031c05c5f7a3158efb941d2..166a16560dff9ad36c9273a24fb6e8d42cac5829 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -53,6 +53,7 @@
@@ -550,7 +550,7 @@ index 94aece099d645b8fd38ca283c5ead4572260fbb6..61f95d4814d4eb6975d5e955e16c3677
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index 16452551e52687143c4676a94045678e613d9f39..add5b46a5c70e0c2d4cf3f9475f14e1724641774 100644
+index 8b5c6239e74dc20d34abd5c679cf46d30a94f8e8..8e96f0159f3330c0291f9c3c5db2653a250d77a7 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -156,6 +156,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
@@ -571,7 +571,7 @@ index 16452551e52687143c4676a94045678e613d9f39..add5b46a5c70e0c2d4cf3f9475f14e17
        content::BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -1383,7 +1385,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -1384,7 +1386,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
  
  #if !BUILDFLAG(IS_ANDROID)
    uint64_t num_keepalive_requests_ = 0;

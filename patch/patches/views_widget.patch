@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/sessions/sessions_api.cc chrome/browser/extensions/api/sessions/sessions_api.cc
-index aab5c71d4fbdc19b2dcd88b600f503c7fce0e576..b551ac2cec3b1f87197ddc6d803a77c0cda26e94 100644
+index 5bc20ff2e36c8704687a144e4ef60e329f1f3320..9d3a62deb93fd27e93cabaf806dbd0a98b48d8e5 100644
 --- chrome/browser/extensions/api/sessions/sessions_api.cc
 +++ chrome/browser/extensions/api/sessions/sessions_api.cc
 @@ -486,6 +486,7 @@ SessionsGetDevicesFunction::CreateWindowModel(

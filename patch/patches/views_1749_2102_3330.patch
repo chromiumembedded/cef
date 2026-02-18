@@ -423,7 +423,7 @@ index fc1d5fccc3845b204d2a85bc5e00c0ffb4aee0d7..c065cafcd537c4e28a633569e170d65c
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 9398f1c871895031e720a768c690b418c707470e..4ca5ca3367da0cb5e7e4555beaa01b5a601c39d3 100644
+index 25653e1b0c980f2650aaf51e4da9420b7fc202f6..b22c115c6e1534da2cb8c2303bf0bbe812bcaa37 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
 @@ -1204,6 +1204,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,

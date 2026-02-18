@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/chrome_extensions_api_client.cc chrome/browser/extensions/api/chrome_extensions_api_client.cc
-index 15fe3d1017cfd5f934c37234621a6229b8ac114c..29ce9027f6dcfbbe9d3cbae52543a32a396e9f2b 100644
+index 09466e02ed4809ba9dd81b7c224dcff064c043cd..0cd40c216fae76d7fc49e8b8284f8b3996b47f16 100644
 --- chrome/browser/extensions/api/chrome_extensions_api_client.cc
 +++ chrome/browser/extensions/api/chrome_extensions_api_client.cc
 @@ -16,6 +16,7 @@
@@ -34,7 +34,7 @@ index 15fe3d1017cfd5f934c37234621a6229b8ac114c..29ce9027f6dcfbbe9d3cbae52543a32a
  #endif
  
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index a56abc2506fea6694a3dd68ddd33b28d17772035..3a7c1dc7eb15ded3d94297ff774de01ea3bc882f 100644
+index 86caef00d10aaa4cebb116d06e3bd6a07740e1c8..bf785e78cb85665f76c32e227616168462c7a0bd 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
 @@ -2286,16 +2286,14 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
@@ -92,7 +92,7 @@ index a56abc2506fea6694a3dd68ddd33b28d17772035..3a7c1dc7eb15ded3d94297ff774de01e
    }
    return true;
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
-index 2fdab006bd4339f61ae033a3632cb1dbfdf8b59d..5dfaa6195b3b4f8d7c1b8076aa75218f7b2030ec 100644
+index 1ae63bb0d4638d89221902d3a426372a89d7883f..28653d15fa2eefab0b6abde27722f13064cf6f3a 100644
 --- chrome/browser/extensions/extension_tab_util.cc
 +++ chrome/browser/extensions/extension_tab_util.cc
 @@ -69,6 +69,7 @@

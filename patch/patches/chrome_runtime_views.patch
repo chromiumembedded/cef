@@ -201,7 +201,7 @@ index 673a1bf2acb2467aa3ac5746c4d6193fba8487f2..121986d07d325c7d628c431733a104a8
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index e502d148bfa3e03fd0797bc062cbf38e9632ff0e..5cf995346f476b2f9abc37a89024f8f9655f5b12 100644
+index a29e3f73ef39bf2998b1fce9edc42b0f1290fcd4..362909c0a488f3bc4f42a2da2cb53c79d4712174 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -867,13 +867,23 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
@@ -1029,10 +1029,10 @@ index d76c4968196652a6abbd26b425d65fc3c47baee7..3e7e5c31f6c1ebd47c90eebabc8517dc
        case PageActionIconType::kPaymentsOfferNotification:
          add_page_action_icon(
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index f0578bbf916374860d4d9ef83a95ba94d2339d38..55e8c1ac684eea81d300b80da86f8e220e72d979 100644
+index 324441f7f80d81af009d3c1ba2aae51d6b77001a..d65c24a02250fd585f47068a20120f7a5a248b57 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
-@@ -189,12 +189,14 @@ bool IsMigratedClickToCallBubble(
+@@ -197,12 +197,14 @@ bool IsMigratedClickToCallBubble(
  
  DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(ToolbarView, kToolbarElementId);
  
@@ -1049,7 +1049,7 @@ index f0578bbf916374860d4d9ef83a95ba94d2339d38..55e8c1ac684eea81d300b80da86f8e22
    SetID(VIEW_ID_TOOLBAR);
    SetProperty(views::kElementIdentifierKey, kToolbarElementId);
  
-@@ -219,9 +221,24 @@ ToolbarView::~ToolbarView() {
+@@ -227,9 +229,24 @@ ToolbarView::~ToolbarView() {
    for (const auto& view_and_command : GetViewCommandMap()) {
      chrome::RemoveCommandObserver(browser_, view_and_command.second, this);
    }
@@ -1074,7 +1074,7 @@ index f0578bbf916374860d4d9ef83a95ba94d2339d38..55e8c1ac684eea81d300b80da86f8e22
  #if defined(USE_AURA)
    // Avoid generating too many occlusion tracking calculation events before this
    // function returns. The occlusion status will be computed only once once this
-@@ -232,7 +249,7 @@ void ToolbarView::Init() {
+@@ -240,7 +257,7 @@ void ToolbarView::Init() {
  
    auto location_bar = std::make_unique<LocationBarView>(
        browser_, browser_->profile(), browser_->command_controller(), this,
@@ -1083,7 +1083,7 @@ index f0578bbf916374860d4d9ef83a95ba94d2339d38..55e8c1ac684eea81d300b80da86f8e22
    // Make sure the toolbar shows by default.
    size_animation_.Reset(1);
  
-@@ -298,7 +315,8 @@ void ToolbarView::Init() {
+@@ -306,7 +323,8 @@ void ToolbarView::Init() {
    }
  
    std::unique_ptr<MediaToolbarButtonView> media_button;
@@ -1093,7 +1093,7 @@ index f0578bbf916374860d4d9ef83a95ba94d2339d38..55e8c1ac684eea81d300b80da86f8e22
      media_button = std::make_unique<MediaToolbarButtonView>(
          browser_view_,
          std::make_unique<MediaToolbarButtonContextualMenu>(browser_));
-@@ -366,7 +384,7 @@ void ToolbarView::Init() {
+@@ -374,7 +392,7 @@ void ToolbarView::Init() {
    pinned_toolbar_actions_container_ = AddChildView(
        std::make_unique<PinnedToolbarActionsContainer>(browser_view_, this));
  
@@ -1102,7 +1102,7 @@ index f0578bbf916374860d4d9ef83a95ba94d2339d38..55e8c1ac684eea81d300b80da86f8e22
      tab_search_button_ =
          pinned_toolbar_actions_container()->CreatePermanentButtonFor(
              kActionTabSearch);
-@@ -395,7 +413,8 @@ void ToolbarView::Init() {
+@@ -403,7 +421,8 @@ void ToolbarView::Init() {
  
    // Only show the Battery Saver button when it is not controlled by the OS. On
    // ChromeOS the battery icon in the shelf shows the same information.
@@ -1112,7 +1112,7 @@ index f0578bbf916374860d4d9ef83a95ba94d2339d38..55e8c1ac684eea81d300b80da86f8e22
      battery_saver_button_ =
          AddChildView(std::make_unique<BatterySaverButton>(browser_view_));
    }
-@@ -423,7 +442,7 @@ void ToolbarView::Init() {
+@@ -448,7 +467,7 @@ void ToolbarView::Init() {
                                 browser_->profile()->IsGuestSession() ||
                                 browser_->profile()->IsRegularProfile();
  #endif
@@ -1122,10 +1122,10 @@ index f0578bbf916374860d4d9ef83a95ba94d2339d38..55e8c1ac684eea81d300b80da86f8e22
  #if BUILDFLAG(ENABLE_WEBUI_TAB_STRIP)
    auto new_tab_button = std::make_unique<ToolbarButton>(base::BindRepeating(
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.h chrome/browser/ui/views/toolbar/toolbar_view.h
-index 5c3b583d39a94f9ad75e9287dd788832d0e94ec1..2bd159d983b1f3a3dcf399d6460f6acffe48dd3c 100644
+index 109aaef3d9c4ff7476bdc391cfc0f490f42818fd..9534ba6225dbc4b3b4af0b98c0e6d7ad6027e6d0 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.h
 +++ chrome/browser/ui/views/toolbar/toolbar_view.h
-@@ -88,7 +88,8 @@ class ToolbarView : public views::AccessiblePaneView,
+@@ -95,7 +95,8 @@ class ToolbarView : public views::AccessiblePaneView,
  
    DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kToolbarElementId);
  

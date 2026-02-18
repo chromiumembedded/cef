@@ -105,7 +105,7 @@ index c123b8eb1996afe3bed3625ed3d52e2e4f54e683..c9f13ee2f36d624e29c4c3cc6e400335
  #if !BUILDFLAG(IS_ANDROID)
        kChromeUIManagementHost,
 diff --git chrome/common/webui_url_constants.h chrome/common/webui_url_constants.h
-index 887446e6659fe4fdd9554c42fe00340d1eb12bb9..cc6dad754b79a9e8a106b77af788d425b4ba9e40 100644
+index 7a96c535d94ba748ef40d466c81abd9a18e195cd..f67f423f9a952e6473716687d7a68e1ffd1edf57 100644
 --- chrome/common/webui_url_constants.h
 +++ chrome/common/webui_url_constants.h
 @@ -18,6 +18,7 @@

@@ -108,7 +108,7 @@ index 65c1e34883e441121f6c3085b2f3b9d33cacc377..a830f72075de4e572bfe63a992ddd6e2
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index dcdfb2edc4a03ee48fe4473f291b6686448c4710..71427ecfd9fd433880f172aa507e1a226c951fd5 100644
+index dac5e9152bb28b2e3ed65e5412f9f172a9aaf3ab..d2b21bce822b77d9fafa7b039e956842edfe93d7 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
@@ -815,10 +815,10 @@ index 8fcba62fa159924eaa33f5c9f1b57dc8ab5db863..25b96e03a9e2598a6c5a6dbf0ad60bf7
    }
  
 diff --git chrome/browser/ui/browser_window/internal/browser_window_features.cc chrome/browser/ui/browser_window/internal/browser_window_features.cc
-index 545e2827ccee3c7ee8270be81614f166ca460482..9ffb8f0508d040e031e66992e87a647eaca86558 100644
+index 1333104aa9d3b85ee8df7e4406c2deabd2c1c931..ebfe8d154ad8a891ea8564564824b0e10203c8f8 100644
 --- chrome/browser/ui/browser_window/internal/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/internal/browser_window_features.cc
-@@ -214,6 +214,15 @@ class BrowserWindowFeatures::ExtensionKeybindingRegistryDelegateTabStrip final
+@@ -215,6 +215,15 @@ class BrowserWindowFeatures::ExtensionKeybindingRegistryDelegateTabStrip final
  BrowserWindowFeatures::BrowserWindowFeatures() = default;
  BrowserWindowFeatures::~BrowserWindowFeatures() = default;
  
@@ -834,7 +834,7 @@ index 545e2827ccee3c7ee8270be81614f166ca460482..9ffb8f0508d040e031e66992e87a647e
  void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
    // This is used only for the controllers which will be created on demand
    // later.
-@@ -481,6 +490,9 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -482,6 +491,9 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
  #endif
  
    Profile* const profile = browser_->GetProfile();
@@ -844,7 +844,7 @@ index 545e2827ccee3c7ee8270be81614f166ca460482..9ffb8f0508d040e031e66992e87a647e
    BrowserView* const browser_view =
        BrowserView::GetBrowserViewForBrowser(browser);
    if (browser_view) {
-@@ -493,7 +505,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -494,7 +506,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
    // Features that are only enabled for normal browser windows (e.g. a window
    // with an omnibox and a tab strip). By default most features should be
    // instantiated in this block.
@@ -853,7 +853,7 @@ index 545e2827ccee3c7ee8270be81614f166ca460482..9ffb8f0508d040e031e66992e87a647e
      if (IsChromeLabsEnabled()) {
        chrome_labs_coordinator_ =
            std::make_unique<ChromeLabsCoordinator>(browser);
-@@ -616,7 +628,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -617,7 +629,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
        browser, browser->GetTabStripModel(), profile, browser->GetWindow(),
        browser->GetType(), browser->app_name(), browser->GetSessionID());
  
@@ -862,7 +862,7 @@ index 545e2827ccee3c7ee8270be81614f166ca460482..9ffb8f0508d040e031e66992e87a647e
      toast_service_ = std::make_unique<ToastService>(browser);
    }
  
-@@ -752,7 +764,9 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -754,7 +766,9 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
        GetUserDataFactory().CreateInstanceWithFactoryMethod(
            *browser_, &chrome::CreateImmersiveModeController, browser_view);
  
@@ -873,7 +873,7 @@ index 545e2827ccee3c7ee8270be81614f166ca460482..9ffb8f0508d040e031e66992e87a647e
  #if BUILDFLAG(ENABLE_GLIC)
      glic::GlicKeyedService* glic_service =
          glic::GlicKeyedService::Get(browser_view->GetProfile());
-@@ -817,16 +831,6 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -821,16 +835,6 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
      }
    }
  
@@ -890,7 +890,7 @@ index 545e2827ccee3c7ee8270be81614f166ca460482..9ffb8f0508d040e031e66992e87a647e
  #if !BUILDFLAG(IS_CHROMEOS)
    download_toolbar_ui_controller_ =
        std::make_unique<DownloadToolbarUIController>(browser_view);
-@@ -866,6 +870,38 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -870,6 +874,38 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
        browser_view);
  }
  
@@ -930,7 +930,7 @@ index 545e2827ccee3c7ee8270be81614f166ca460482..9ffb8f0508d040e031e66992e87a647e
    // Tear down embedder features first, in reverse order of initialization.
    embedder_browser_window_features_->TearDownPreBrowserWindowDestruction();
 diff --git chrome/browser/ui/browser_window/public/browser_window_features.h chrome/browser/ui/browser_window/public/browser_window_features.h
-index 68fa558078bc5b206fd437d6ccd77f5255cf26e4..ee146377fcf2270136c42d2979b7b9e3dc221352 100644
+index 7e7d6be3f3a7d0baa25820a2a0b14471b68af192..70d8d6ec9f364a2e88db4aa23fcfab8a455f0b07 100644
 --- chrome/browser/ui/browser_window/public/browser_window_features.h
 +++ chrome/browser/ui/browser_window/public/browser_window_features.h
 @@ -147,6 +147,9 @@ namespace chrome {
@@ -985,10 +985,10 @@ index cc7ad6500dc29ba9280868cf0f78a2b3796a816e..5eabd9010ec904049d44dbf8038be174
    // browser window. Do not use this method to find a specific tab.
    virtual std::vector<tabs::TabInterface*> GetAllTabInterfaces() = 0;
 diff --git chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
-index 43d03b2b996fca77a72e9d1e37c8601f3b4190a1..7bc81f17d8d8ed3d09076f049c9753df004cb6de 100644
+index 2706421080674da2cd4e02e32bdbcdcb7bdf4bd1..4aa2c4d17a4c8d76a76b2c533c4328456b0e36fa 100644
 --- chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
 +++ chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
-@@ -231,8 +231,7 @@ HorizontalTabStripRegionView::HorizontalTabStripRegionView(
+@@ -240,8 +240,7 @@ HorizontalTabStripRegionView::HorizontalTabStripRegionView(
    // Add and configure the TabSearchContainer and TabStripComboButton.
    std::unique_ptr<TabSearchContainer> tab_search_container;
    std::unique_ptr<TabStripActionContainer> tab_strip_action_container;
