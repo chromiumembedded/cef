@@ -108,7 +108,7 @@ index d6e0c76bf3aaa37443bce43c3afb359b31b746c6..bbfee41a8c6de60074f1c5db428024e6
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 2ec7c847678a01426666d043210df5563e52d46e..1fa2d8c948e90ae084d17287ff3e8ed04db7b161 100644
+index 851a22b4dfdbebda14303bd08464e865aabf72c2..a244056e9e64c5716aaf0b1de3a0f3f72df28220 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
@@ -130,7 +130,7 @@ index 2ec7c847678a01426666d043210df5563e52d46e..1fa2d8c948e90ae084d17287ff3e8ed0
    public_deps = [
      # WARNING WARNING WARNING
      # New dependencies outside of //chrome/browser should be added to
-@@ -266,6 +271,7 @@ static_library("ui") {
+@@ -268,6 +273,7 @@ static_library("ui") {
      "//build/config/linux/dbus:buildflags",
      "//build/util:chromium_git_revision",
      "//cc/paint",
@@ -138,7 +138,7 @@ index 2ec7c847678a01426666d043210df5563e52d46e..1fa2d8c948e90ae084d17287ff3e8ed0
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/app:chrome_dll_resources",
-@@ -697,6 +703,13 @@ static_library("ui") {
+@@ -699,6 +705,13 @@ static_library("ui") {
      deps += [ "//chrome/browser/compose" ]
    }
  
@@ -152,7 +152,7 @@ index 2ec7c847678a01426666d043210df5563e52d46e..1fa2d8c948e90ae084d17287ff3e8ed0
    # TODO(crbug.com/41437292): Remove this circular dependency.
    # Any circular includes must depend on the target "//chrome/browser:browser_public_dependencies".
    # These are all-platform circular includes.
-@@ -5258,6 +5271,7 @@ static_library("ui") {
+@@ -5267,6 +5280,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [
        "//components/printing/browser",
@@ -930,7 +930,7 @@ index cecb7ad2b11475e8858dc10ec9e5175e35215167..c2d030240f9cd0963c60d6b952cc7945
    // Tear down embedder features first, in reverse order of initialization.
    embedder_browser_window_features_->TearDownPreBrowserWindowDestruction();
 diff --git chrome/browser/ui/browser_window/public/browser_window_features.h chrome/browser/ui/browser_window/public/browser_window_features.h
-index f1fc1743c6b4b06e4ee0c078b96599cb88f04c53..0c5a29736f675938bc026d8ec7ca3cb8ff5e3eec 100644
+index 46dc20753de4bcf25eb31099e284d5c71b4dc8f0..5ee16dc9d0513e2e81d13992f89e423f157dfdc8 100644
 --- chrome/browser/ui/browser_window/public/browser_window_features.h
 +++ chrome/browser/ui/browser_window/public/browser_window_features.h
 @@ -144,6 +144,9 @@ namespace commerce {
