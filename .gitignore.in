@@ -57,3 +57,4 @@ Thumbs.db
 /tools/claude/build_output.txt
 /tools/claude/patch_analysis.txt
 /tools/claude/patch_output.txt
+__pycache__
