@@ -208,7 +208,7 @@ def copy_directory(source, target, allow_overwrite=False):
   if not options.dryrun and os.path.exists(target):
     if not allow_overwrite:
       raise Exception("Directory %s already exists" % (target))
-    remove_directory(target)
+    delete_directory(target)
   if os.path.exists(source):
     msg("Copying directory %s to %s" % (source, target))
     if not options.dryrun:
@@ -220,7 +220,7 @@ def move_directory(source, target, allow_overwrite=False):
   if not options.dryrun and os.path.exists(target):
     if not allow_overwrite:
       raise Exception("Directory %s already exists" % (target))
-    remove_directory(target)
+    delete_directory(target)
   if os.path.exists(source):
     msg("Moving directory %s to %s" % (source, target))
     if not options.dryrun:
@@ -1434,7 +1434,7 @@ if options.nochromiumhistory and os.path.exists(chromium_src_dir):
           'Current Chromium checkout with --no-chromium-history is incorrect.' +
           error)
 
-    remove_directory(chromium_src_dir)
+    delete_directory(chromium_src_dir)
     force_config = True
 
 if options.chromiumurl != '':
