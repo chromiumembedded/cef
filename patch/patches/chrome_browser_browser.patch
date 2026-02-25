@@ -815,7 +815,7 @@ index 8fcba62fa159924eaa33f5c9f1b57dc8ab5db863..25b96e03a9e2598a6c5a6dbf0ad60bf7
    }
  
 diff --git chrome/browser/ui/browser_window/internal/browser_window_features.cc chrome/browser/ui/browser_window/internal/browser_window_features.cc
-index 1333104aa9d3b85ee8df7e4406c2deabd2c1c931..ebfe8d154ad8a891ea8564564824b0e10203c8f8 100644
+index 7421f3a3323063f0aa9f703bd2889112aeadb379..b3caf4340e765831295c9eebbb75ab50ce00a738 100644
 --- chrome/browser/ui/browser_window/internal/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/internal/browser_window_features.cc
 @@ -215,6 +215,15 @@ class BrowserWindowFeatures::ExtensionKeybindingRegistryDelegateTabStrip final
