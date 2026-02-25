@@ -65,7 +65,11 @@ class ChildWindowDelegate : public CefWindowDelegate {
   void OnWindowDestroyed(CefRefPtr<CefWindow> window) override {
     browser_view_ = nullptr;
     window_ = nullptr;
-#if BUILDFLAG(IS_WIN)
+    native_delegate_ = nullptr;
+  }
+
+  void ClearNativeDelegate() override {
+#if defined(USE_AURA)
     native_delegate_ = nullptr;
 #endif
   }
