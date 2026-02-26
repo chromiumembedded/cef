@@ -92,7 +92,7 @@ index 86caef00d10aaa4cebb116d06e3bd6a07740e1c8..bf785e78cb85665f76c32e2276161684
    }
    return true;
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
-index 1ae63bb0d4638d89221902d3a426372a89d7883f..28653d15fa2eefab0b6abde27722f13064cf6f3a 100644
+index 2b5f1e30a5e095e850e6438c2c2115f4b6406efa..c32bf0b6f0474aaf0f42d6db079ed06048d24b88 100644
 --- chrome/browser/extensions/extension_tab_util.cc
 +++ chrome/browser/extensions/extension_tab_util.cc
 @@ -69,6 +69,7 @@

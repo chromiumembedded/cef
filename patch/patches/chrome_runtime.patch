@@ -454,7 +454,7 @@ index 6e1d22522a8f576d19d794200acd96a01eb52a7a..3bac6fc2e7135943612ce77d4ff1c7d2
  
  void MaybeBlockDynamicCodeForBrowserProcess() {
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index b1c0cb14fede49fba031c05c5f7a3158efb941d2..166a16560dff9ad36c9273a24fb6e8d42cac5829 100644
+index 7ca1e306d936b77522bae0171989a4453f4d9a7b..c5af5945a81fb7f41f6507e20023dac7b3db1f30 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -53,6 +53,7 @@
@@ -581,7 +581,7 @@ index 8b5c6239e74dc20d34abd5c679cf46d30a94f8e8..8e96f0159f3330c0291f9c3c5db2653a
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 5ebf7919c309f375f63526196b53d72d621f347a..ea6da464aaf3bcd953d62e4bbb87511951da9717 100644
+index 868bfe1564db32f7c94ee68742c7066fa4c36199..5c44b57fe055fa29a64ec473908f7ed62bf26b96 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -17,6 +17,7 @@
@@ -603,7 +603,7 @@ index 5ebf7919c309f375f63526196b53d72d621f347a..ea6da464aaf3bcd953d62e4bbb875119
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/extensions/preinstalled_apps.h"
-@@ -1684,6 +1689,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
+@@ -1688,6 +1693,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
  
    // This is intentionally last.
    RegisterLocalStatePrefsForMigration(registry);
@@ -615,7 +615,7 @@ index 5ebf7919c309f375f63526196b53d72d621f347a..ea6da464aaf3bcd953d62e4bbb875119
  }
  
  // Register prefs applicable to all profiles.
-@@ -2177,6 +2187,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -2181,6 +2191,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
                                const std::string& locale) {
    RegisterProfilePrefs(registry, locale);
  
