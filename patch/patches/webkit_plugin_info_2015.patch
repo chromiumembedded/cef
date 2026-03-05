@@ -15,7 +15,7 @@ index a26e45d64229f692efb4a218c653afc212788d1f..19baf6756a282efa89c2350591dfc86e
    static void InitializeMainThreadCommon(
        std::unique_ptr<MainThread> main_thread);
 diff --git third_party/blink/renderer/core/inspector/devtools_session.cc third_party/blink/renderer/core/inspector/devtools_session.cc
-index 2455ee36882694244223f9341a66b77f5f1b1625..e3ec43e182b287092178f6f34e9df8ba9f0b3a78 100644
+index 203c16c8c9f577687aeb7c8a04d8eaa3ce709464..bb51265d71c5d4ff36c080bec04febdc077552c8 100644
 --- third_party/blink/renderer/core/inspector/devtools_session.cc
 +++ third_party/blink/renderer/core/inspector/devtools_session.cc
 @@ -13,6 +13,7 @@
