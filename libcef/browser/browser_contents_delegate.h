@@ -161,7 +161,9 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void ResizeDueToAutoResize(content::WebContents* source,
                              const gfx::Size& new_size) override;
   void WebContentsDestroyed() override;
-
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
+  void DidGetUserInteraction(const blink::WebInputEvent& event) override;
+#endif
   // Accessors for state information. Changes will be signaled to
   // Observer::OnStateChanged.
   bool is_loading() const { return is_loading_; }

@@ -61,10 +61,151 @@ index f90deb3cbfa8e1e6cc660d93446d9ae9a867994b..f8b9a4708dfad357dcc223fe35827062
      case ui::mojom::WindowShowState::kMaximized:
        return kSerializedShowStateMaximized;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index f63a7b0b7a1506f83027f3f29cbb951277883b04..01d6ef4bdfa97fce974e80e6a281eb6bf24995d4 100644
+index f63a7b0b7a1506f83027f3f29cbb951277883b04..69ca869b52781bad290b6111c0d46e9ccb1b510d 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
-@@ -651,6 +651,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
+@@ -82,8 +82,9 @@ RenderWidgetHostViewBase::~RenderWidgetHostViewBase() {
+   NotifyObserversAboutShutdown();
+   // If we have a live reference to |text_input_manager_|, we should unregister
+   // so that the |text_input_manager_| will free its state.
+-  if (text_input_manager_)
++  if (text_input_manager_) {
+     text_input_manager_->Unregister(this);
++  }
+ }
+ 
+ RenderWidgetHostImpl* RenderWidgetHostViewBase::GetFocusedWidget() const {
+@@ -97,8 +98,9 @@ RenderWidgetHost* RenderWidgetHostViewBase::GetRenderWidgetHost() {
+ }
+ 
+ void RenderWidgetHostViewBase::SetContentBackgroundColor(SkColor color) {
+-  if (content_background_color_ == color)
++  if (content_background_color_ == color) {
+     return;
++  }
+ 
+   content_background_color_ = color;
+   UpdateBackgroundColor();
+@@ -124,10 +126,11 @@ void RenderWidgetHostViewBase::SelectionBoundsChanged(
+     const gfx::Rect& bounding_box,
+     bool is_anchor_first) {
+ #if !BUILDFLAG(IS_ANDROID)
+-  if (GetTextInputManager())
++  if (GetTextInputManager()) {
+     GetTextInputManager()->SelectionBoundsChanged(
+         this, anchor_rect, anchor_dir, focus_rect, focus_dir, bounding_box,
+         is_anchor_first);
++  }
+ #else
+   NOTREACHED() << "Selection bounds should be routed through the compositor.";
+ #endif
+@@ -140,8 +143,9 @@ RenderWidgetHostViewBase* RenderWidgetHostViewBase::GetRootView() {
+ void RenderWidgetHostViewBase::SelectionChanged(const std::u16string& text,
+                                                 size_t offset,
+                                                 const gfx::Range& range) {
+-  if (GetTextInputManager())
++  if (GetTextInputManager()) {
+     GetTextInputManager()->SelectionChanged(this, text, offset, range);
++  }
+ }
+ 
+ gfx::Size RenderWidgetHostViewBase::GetRequestedRendererSize() {
+@@ -324,8 +328,9 @@ RenderWidgetHostViewBase::CreateVideoCapturer() {
+ }
+ 
+ std::u16string RenderWidgetHostViewBase::GetSelectedText() {
+-  if (!GetTextInputManager())
++  if (!GetTextInputManager()) {
+     return std::u16string();
++  }
+   return GetTextInputManager()->GetTextSelection(this)->selected_text();
+ }
+ 
+@@ -335,8 +340,9 @@ void RenderWidgetHostViewBase::SetBackgroundColor(SkColor color) {
+   // `blink::WebView` instead.
+   CHECK(SkColorGetA(color) == SK_AlphaOPAQUE ||
+         SkColorGetA(color) == SK_AlphaTRANSPARENT);
+-  if (default_background_color_ == color)
++  if (default_background_color_ == color) {
+     return;
++  }
+ 
+   bool opaque = default_background_color_
+                     ? SkColorGetA(*default_background_color_)
+@@ -352,8 +358,9 @@ void RenderWidgetHostViewBase::SetBackgroundColor(SkColor color) {
+ }
+ 
+ std::optional<SkColor> RenderWidgetHostViewBase::GetBackgroundColor() {
+-  if (content_background_color_)
++  if (content_background_color_) {
+     return content_background_color_;
++  }
+   return default_background_color_;
+ }
+ 
+@@ -444,12 +451,12 @@ WidgetType RenderWidgetHostViewBase::GetWidgetType() {
+ }
+ 
+ gfx::AcceleratedWidget
+-    RenderWidgetHostViewBase::AccessibilityGetAcceleratedWidget() {
++RenderWidgetHostViewBase::AccessibilityGetAcceleratedWidget() {
+   return gfx::kNullAcceleratedWidget;
+ }
+ 
+ gfx::NativeViewAccessible
+-    RenderWidgetHostViewBase::AccessibilityGetNativeViewAccessible() {
++RenderWidgetHostViewBase::AccessibilityGetNativeViewAccessible() {
+   return gfx::NativeViewAccessible();
+ }
+ 
+@@ -489,8 +496,9 @@ void RenderWidgetHostViewBase::UpdateScreenInfo() {
+       host()->SendScreenRects();
+     }
+   } else {
+-    if (host() && host()->delegate())
++    if (host() && host()->delegate()) {
+       host()->delegate()->SendScreenRects();
++    }
+   }
+ 
+   auto new_screen_infos = GetNewScreenInfosForUpdate();
+@@ -539,8 +547,9 @@ void RenderWidgetHostViewBase::UpdateScreenInfo() {
+   }
+ #endif  // BUILDFLAG(IS_OZONE)
+ 
+-  if (screen_infos_ == new_screen_infos && !force_sync_visual_properties)
++  if (screen_infos_ == new_screen_infos && !force_sync_visual_properties) {
+     return;
++  }
+ 
+   // We need to look at `orientation_type` which is marked as kUndefined at
+   // startup. Unlike `orientation_angle` that uses 0 degrees as the default.
+@@ -567,10 +576,11 @@ void RenderWidgetHostViewBase::UpdateActiveState(bool active) {
+   // Send active state through the delegate if there is one to make sure
+   // it stays consistent across all widgets in the tab. Not every
+   // RenderWidgetHost has a delegate (for example, drop-down widgets).
+-  if (host()->delegate())
++  if (host()->delegate()) {
+     host()->delegate()->SendActiveState(active);
+-  else
++  } else {
+     host()->SetActive(active);
++  }
+ }
+ 
+ void RenderWidgetHostViewBase::DidUnregisterFromTextInputManager(
+@@ -598,8 +608,9 @@ void RenderWidgetHostViewBase::DisableAutoResize(const gfx::Size& new_size) {
+   // unnecessary updates in view layout. Hence we should disable the auto
+   // resize before setting the view size.
+   host()->SetAutoResize(false, gfx::Size(), gfx::Size());
+-  if (!new_size.IsEmpty())
++  if (!new_size.IsEmpty()) {
+     SetSize(new_size);
++  }
+   host()->SynchronizeVisualProperties();
+ }
+ 
+@@ -651,9 +662,18 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
    return scale_override_for_capture_;
  }
  
@@ -77,12 +218,156 @@ index f63a7b0b7a1506f83027f3f29cbb951277883b04..01d6ef4bdfa97fce974e80e6a281eb6b
 +}
 +
  void RenderWidgetHostViewBase::OnAutoscrollStart() {
-   if (!GetMouseWheelPhaseHandler())
+-  if (!GetMouseWheelPhaseHandler())
++  if (!GetMouseWheelPhaseHandler()) {
      return;
++  }
+ 
+   // End the current scrolling seqeunce when autoscrolling starts.
+   GetMouseWheelPhaseHandler()->DispatchPendingWheelEndEvent();
+@@ -699,8 +719,9 @@ void RenderWidgetHostViewBase::OnNewViewDidNavigatePostCommit() {}
+ void RenderWidgetHostViewBase::OnFrameTokenChangedForView(
+     uint32_t frame_token,
+     base::TimeTicks activation_time) {
+-  if (host())
++  if (host()) {
+     host()->DidProcessFrame(frame_token, activation_time);
++  }
+ }
+ 
+ void RenderWidgetHostViewBase::ProcessMouseEvent(
+@@ -708,8 +729,9 @@ void RenderWidgetHostViewBase::ProcessMouseEvent(
+     const ui::LatencyInfo& latency) {
+   // TODO(crbug.com/40564125): Figure out the reason |host| is null here in all
+   // Process* functions.
+-  if (!host())
++  if (!host()) {
+     return;
++  }
+ 
+   // Ensure the event is not routed to a prerendered page.
+   if (host()->frame_tree() && host()->frame_tree()->is_prerendering()) {
+@@ -723,8 +745,9 @@ void RenderWidgetHostViewBase::ProcessMouseEvent(
+ void RenderWidgetHostViewBase::ProcessMouseWheelEvent(
+     const blink::WebMouseWheelEvent& event,
+     const ui::LatencyInfo& latency) {
+-  if (!host())
++  if (!host()) {
+     return;
++  }
+ 
+   // Ensure the event is not routed to a prerendered page.
+   if (host()->frame_tree() && host()->frame_tree()->is_prerendering()) {
+@@ -737,8 +760,9 @@ void RenderWidgetHostViewBase::ProcessMouseWheelEvent(
+ void RenderWidgetHostViewBase::ProcessTouchEvent(
+     const blink::WebTouchEvent& event,
+     const ui::LatencyInfo& latency) {
+-  if (!host())
++  if (!host()) {
+     return;
++  }
+ 
+   // Ensure the event is not routed to a prerendered page.
+   if (host()->frame_tree() && host()->frame_tree()->is_prerendering()) {
+@@ -753,8 +777,9 @@ void RenderWidgetHostViewBase::ProcessTouchEvent(
+ void RenderWidgetHostViewBase::ProcessGestureEvent(
+     const blink::WebGestureEvent& event,
+     const ui::LatencyInfo& latency) {
+-  if (!host())
++  if (!host()) {
+     return;
++  }
+ 
+   // Ensure the event is not routed to a prerendered page.
+   if (host()->frame_tree() && host()->frame_tree()->is_prerendering()) {
+@@ -801,13 +826,15 @@ double RenderWidgetHostViewBase::GetCSSZoomFactor() const {
+ 
+ void RenderWidgetHostViewBase::TextInputStateChanged(
+     const ui::mojom::TextInputState& text_input_state) {
+-  if (GetTextInputManager())
++  if (GetTextInputManager()) {
+     GetTextInputManager()->UpdateTextInputState(this, text_input_state);
++  }
+ }
+ 
+ void RenderWidgetHostViewBase::ImeCancelComposition() {
+-  if (GetTextInputManager())
++  if (GetTextInputManager()) {
+     GetTextInputManager()->ImeCancelComposition(this);
++  }
+ }
+ 
+ void RenderWidgetHostViewBase::ImeCompositionRangeChanged(
+@@ -820,17 +847,20 @@ void RenderWidgetHostViewBase::ImeCompositionRangeChanged(
+ }
+ 
+ TextInputManager* RenderWidgetHostViewBase::GetTextInputManager() {
+-  if (text_input_manager_)
++  if (text_input_manager_) {
+     return text_input_manager_;
++  }
+ 
+-  if (!host() || !host()->delegate())
++  if (!host() || !host()->delegate()) {
+     return nullptr;
++  }
+ 
+   // This RWHV needs to be registered with the TextInputManager so that the
+   // TextInputManager starts tracking its state, and observing its lifetime.
+   text_input_manager_ = host()->delegate()->GetTextInputManager();
+-  if (text_input_manager_)
++  if (text_input_manager_) {
+     text_input_manager_->Register(this);
++  }
+ 
+   return text_input_manager_;
+ }
+@@ -851,8 +881,9 @@ RenderWidgetHostViewBase::GetInputTransferHandlerObserver() {
+ }
+ 
+ void RenderWidgetHostViewBase::SynchronizeVisualProperties() {
+-  if (host())
++  if (host()) {
+     host()->SynchronizeVisualProperties();
++  }
+ }
+ 
+ display::ScreenInfos RenderWidgetHostViewBase::GetNewScreenInfosForUpdate() {
+@@ -880,8 +911,9 @@ display::ScreenInfos RenderWidgetHostViewBase::GetNewScreenInfosForUpdate() {
+ }
+ 
+ void RenderWidgetHostViewBase::DidNavigate() {
+-  if (host())
++  if (host()) {
+     host()->SynchronizeVisualProperties();
++  }
+ }
+ 
+ WebContentsAccessibility*
+@@ -910,8 +942,9 @@ bool RenderWidgetHostViewBase::IsHTMLFormPopup() const {
+ 
+ void RenderWidgetHostViewBase::OnShowWithPageVisibility(
+     PageVisibilityState page_visibility) {
+-  if (!host())
++  if (!host()) {
+     return;
++  }
+ 
+   EnsurePlatformVisibility(page_visibility);
+ 
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 1a18bdda39f76cfae36adc0ffde136e788a98262..bfed240010bf74b5c148dcec2f6c599c2dbde4ae 100644
+index 1a18bdda39f76cfae36adc0ffde136e788a98262..3b61a3cfee35bd99a30c79d82383869d83c53551 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
+@@ -61,7 +61,7 @@ class FilteredGestureProvider;
+ namespace blink {
+ class WebMouseEvent;
+ class WebMouseWheelEvent;
+-}
++}  // namespace blink
+ 
+ namespace ui {
+ class Compositor;
 @@ -75,6 +75,7 @@ namespace content {
  class DevicePosturePlatformProvider;
  class MouseWheelPhaseHandler;
@@ -148,7 +433,7 @@ index 1a18bdda39f76cfae36adc0ffde136e788a98262..bfed240010bf74b5c148dcec2f6c599c
    // renderer process changes. This method is called before notifying
    // RenderWidgetHostImpl in order to allow the view to allocate a new
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index a51a44a147e89c1f71bf31d7d13b150a6bc1faee..8750a98e5bddc65af96e4e79b319816355e684f8 100644
+index a51a44a147e89c1f71bf31d7d13b150a6bc1faee..cc75c51facf536305f4c10531eb95e40a382b816 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -53,6 +53,10 @@ namespace {
@@ -162,39 +447,370 @@ index a51a44a147e89c1f71bf31d7d13b150a6bc1faee..8750a98e5bddc65af96e4e79b3198163
  #if BUILDFLAG(IS_WIN)
  // A callback function for EnumThreadWindows to enumerate and dismiss
  // any owned popup windows.
-@@ -843,6 +847,14 @@ void RenderWidgetHostViewEventHandler::MoveCursorToCenter(
+@@ -91,15 +95,17 @@ void MarkUnchangedTouchPointsAsStationary(blink::WebTouchEvent* event,
+   if (event->GetType() == blink::WebInputEvent::Type::kTouchMove ||
+       event->GetType() == blink::WebInputEvent::Type::kTouchCancel) {
+     for (size_t i = 0; i < event->touches_length; ++i) {
+-      if (event->touches[i].id != changed_touch_id)
++      if (event->touches[i].id != changed_touch_id) {
+         event->touches[i].state = blink::WebTouchPoint::State::kStateStationary;
++      }
+     }
+   }
+ }
+ 
+ bool NeedsInputGrab(content::RenderWidgetHostViewBase* view) {
+-  if (!view)
++  if (!view) {
+     return false;
++  }
+   return view->GetWidgetType() == content::WidgetType::kPopup;
+ }
+ 
+@@ -135,24 +141,28 @@ void RenderWidgetHostViewEventHandler::SetPopupChild(
+ blink::mojom::PointerLockResult RenderWidgetHostViewEventHandler::LockPointer(
+     bool request_unadjusted_movement) {
+   aura::Window* root_window = window_->GetRootWindow();
+-  if (!root_window)
++  if (!root_window) {
+     return blink::mojom::PointerLockResult::kWrongDocument;
++  }
+ 
+-  if (mouse_locked_)
++  if (mouse_locked_) {
+     return blink::mojom::PointerLockResult::kSuccess;
++  }
+ 
+   if (request_unadjusted_movement && window_->GetHost()) {
+     mouse_locked_unadjusted_movement_ =
+         window_->GetHost()->RequestUnadjustedMovement();
+-    if (!mouse_locked_unadjusted_movement_)
++    if (!mouse_locked_unadjusted_movement_) {
+       return blink::mojom::PointerLockResult::kUnsupportedOptions;
++    }
+   }
+   mouse_locked_ = true;
+ 
+   window_->GetHost()->LockMouse(window_);
+ 
+-  if (ShouldMoveToCenter(unlocked_global_mouse_position_))
++  if (ShouldMoveToCenter(unlocked_global_mouse_position_)) {
+     MoveCursorToCenter(nullptr);
++  }
+ 
+   delegate_->SetTooltipsEnabled(false);
+   return blink::mojom::PointerLockResult::kSuccess;
+@@ -162,14 +172,16 @@ blink::mojom::PointerLockResult
+ RenderWidgetHostViewEventHandler::ChangePointerLock(
+     bool request_unadjusted_movement) {
+   aura::Window* root_window = window_->GetRootWindow();
+-  if (!root_window || !window_->GetHost())
++  if (!root_window || !window_->GetHost()) {
+     return blink::mojom::PointerLockResult::kWrongDocument;
++  }
+ 
+   // If lock was lost before completing this change request
+   // it was because the user hit escape or navigated away
+   // from the page.
+-  if (!mouse_locked_)
++  if (!mouse_locked_) {
+     return blink::mojom::PointerLockResult::kUserRejected;
++  }
+ 
+   if (!request_unadjusted_movement) {
+     mouse_locked_unadjusted_movement_.reset();
+@@ -184,8 +196,9 @@ RenderWidgetHostViewEventHandler::ChangePointerLock(
+   mouse_locked_unadjusted_movement_ =
+       window_->GetHost()->RequestUnadjustedMovement();
+ 
+-  if (!mouse_locked_unadjusted_movement_)
++  if (!mouse_locked_unadjusted_movement_) {
+     return blink::mojom::PointerLockResult::kUnsupportedOptions;
++  }
+ 
+   return blink::mojom::PointerLockResult::kSuccess;
+ }
+@@ -194,8 +207,9 @@ void RenderWidgetHostViewEventHandler::UnlockPointer() {
+   delegate_->SetTooltipsEnabled(true);
+ 
+   aura::Window* root_window = window_->GetRootWindow();
+-  if (!mouse_locked_ || !root_window)
++  if (!mouse_locked_ || !root_window) {
+     return;
++  }
+ 
+   mouse_locked_ = false;
+   mouse_locked_unadjusted_movement_.reset();
+@@ -217,8 +231,9 @@ void RenderWidgetHostViewEventHandler::UnlockPointer() {
+ bool RenderWidgetHostViewEventHandler::LockKeyboard(
+     std::optional<base::flat_set<ui::DomCode>> codes) {
+   aura::Window* root_window = window_->GetRootWindow();
+-  if (!root_window)
++  if (!root_window) {
+     return false;
++  }
+ 
+   // Remove existing hook, if registered.
+   UnlockKeyboard();
+@@ -240,8 +255,9 @@ void RenderWidgetHostViewEventHandler::OnKeyEvent(ui::KeyEvent* event) {
+ 
+   if (NeedsInputGrab(popup_child_host_view_)) {
+     popup_child_event_handler_->OnKeyEvent(event);
+-    if (event->handled())
++    if (event->handled()) {
+       return;
++    }
+   }
+ 
+   if (event->key_code() == ui::VKEY_RETURN) {
+@@ -264,14 +280,16 @@ void RenderWidgetHostViewEventHandler::OnKeyEvent(ui::KeyEvent* event) {
+ 
+   // If the key has been reserved as part of the active KeyboardLock request,
+   // then we want to mark it as such so it is not intercepted by the browser.
+-  if (IsKeyLocked(*event))
++  if (IsKeyLocked(*event)) {
+     webkit_event.skip_if_unhandled = true;
++  }
+ 
+   bool mark_event_as_handled = true;
+   delegate_->ForwardKeyboardEventWithLatencyInfo(
+       webkit_event, *event->latency(), &mark_event_as_handled);
+-  if (mark_event_as_handled)
++  if (mark_event_as_handled) {
+     event->SetHandled();
++  }
+ }
+ 
+ void RenderWidgetHostViewEventHandler::HandleMouseWheelEvent(
+@@ -320,8 +338,9 @@ void RenderWidgetHostViewEventHandler::OnMouseEvent(ui::MouseEvent* event) {
+ 
+   // CrOS will send a mouse exit event to update hover state when mouse is
+   // hidden which we want to filter out in renderer. crbug.com/723535.
+-  if (event->flags() & ui::EF_CURSOR_HIDE)
++  if (event->flags() & ui::EF_CURSOR_HIDE) {
+     return;
++  }
+ 
+   ForwardMouseEventToParent(event);
+   // TODO(mgiuca): Return if event->handled() returns true. This currently
+@@ -358,7 +377,6 @@ void RenderWidgetHostViewEventHandler::OnMouseEvent(ui::MouseEvent* event) {
+     bool is_selection_popup = NeedsInputGrab(popup_child_host_view_);
+     if (CanRendererHandleEvent(event, mouse_locked_, is_selection_popup) &&
+         !(event->flags() & ui::EF_FROM_TOUCH)) {
+-
+       // Confirm existing composition text on mouse press, to make sure
+       // the input caret won't be moved with an ongoing composition text.
+       if (event->type() == ui::EventType::kMousePressed) {
+@@ -387,15 +405,17 @@ void RenderWidgetHostViewEventHandler::OnMouseEvent(ui::MouseEvent* event) {
+       window_->SetCapture();
+       break;
+     case ui::EventType::kMouseReleased:
+-      if (!delegate_->NeedsMouseCapture())
++      if (!delegate_->NeedsMouseCapture()) {
+         window_->ReleaseCapture();
++      }
+       break;
+     default:
+       break;
+   }
+ 
+-  if (!ShouldGenerateAppCommand(event))
++  if (!ShouldGenerateAppCommand(event)) {
+     event->SetHandled();
++  }
+ }
+ 
+ void RenderWidgetHostViewEventHandler::OnScrollEvent(ui::ScrollEvent* event) {
+@@ -420,8 +440,9 @@ void RenderWidgetHostViewEventHandler::OnScrollEvent(ui::ScrollEvent* event) {
+ #if !BUILDFLAG(IS_WIN)
+     // TODO(ananta)
+     // Investigate if this is true for Windows 8 Metro ASH as well.
+-    if (event->finger_count() != 2)
++    if (event->finger_count() != 2) {
+       return;
++    }
+ #endif
+     blink::WebMouseWheelEvent mouse_wheel_event =
+         ui::MakeWebMouseWheelEvent(*event);
+@@ -494,13 +515,16 @@ void RenderWidgetHostViewEventHandler::OnTouchEvent(ui::TouchEvent* event) {
+   }
+   pointer_state_.CleanupRemovedTouchPoints(*event);
+ 
+-  if (handled)
++  if (handled) {
+     return;
++  }
+ 
+-  if (had_no_pointer)
++  if (had_no_pointer) {
+     delegate_->selection_controller_client()->OnTouchDown();
+-  if (!pointer_state_.GetPointerCount())
++  }
++  if (!pointer_state_.GetPointerCount()) {
+     delegate_->selection_controller_client()->OnTouchUp();
++  }
+ 
+   // It is important to always mark events as being handled asynchronously when
+   // they are forwarded. This ensures that the current event does not get
+@@ -538,8 +562,9 @@ void RenderWidgetHostViewEventHandler::OnGestureEvent(ui::GestureEvent* event) {
+   }
+ 
+   HandleGestureForTouchSelection(event);
+-  if (event->handled())
++  if (event->handled()) {
+     return;
++  }
+ 
+   // Confirm existing composition text on TAP gesture, to make sure the input
+   // caret won't be moved with an ongoing composition text.
+@@ -616,14 +641,16 @@ bool RenderWidgetHostViewEventHandler::CanRendererHandleEvent(
+   }
+ 
+   if (event->type() == ui::EventType::kMouseExited) {
+-    if (mouse_locked || selection_popup)
++    if (mouse_locked || selection_popup) {
+       return false;
++    }
+ #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+     // Don't forward the mouse leave message which is received when the context
+     // menu is displayed by the page. This confuses the page and causes state
+     // changes.
+-    if (host_->delegate() && host_->delegate()->IsShowingContextMenuOnPage())
++    if (host_->delegate() && host_->delegate()->IsShowingContextMenuOnPage()) {
+       return false;
++    }
+ #endif
+     return true;
+   }
+@@ -673,11 +700,13 @@ void RenderWidgetHostViewEventHandler::ForwardMouseEventToParent(
+   // note that it might be something other than a WebContentsViewAura instance.
+   // TODO(pkotwicz): Find a better way of doing this.
+ 
+-  if (event->flags() & ui::EF_FROM_TOUCH)
++  if (event->flags() & ui::EF_FROM_TOUCH) {
+     return;
++  }
+ 
+-  if (!window_->parent() || !window_->parent()->delegate())
++  if (!window_->parent() || !window_->parent()->delegate()) {
+     return;
++  }
+ 
+   // Take a copy of |event|, to avoid ConvertLocationToTarget mutating the
+   // event.
+@@ -685,8 +714,9 @@ void RenderWidgetHostViewEventHandler::ForwardMouseEventToParent(
+   ui::MouseEvent* mouse_event = static_cast<ui::MouseEvent*>(event_copy.get());
+   mouse_event->ConvertLocationToTarget(window_.get(), window_->parent());
+   window_->parent()->delegate()->OnMouseEvent(mouse_event);
+-  if (mouse_event->handled())
++  if (mouse_event->handled()) {
+     event->SetHandled();
++  }
+ }
+ 
+ void RenderWidgetHostViewEventHandler::HandleGestureForTouchSelection(
+@@ -790,8 +820,9 @@ void RenderWidgetHostViewEventHandler::HandleMouseEventWhileLocked(
+       MoveCursorToCenter(event);
+     }
+   }
+-  if (!ShouldGenerateAppCommand(event))
++  if (!ShouldGenerateAppCommand(event)) {
+     event->SetHandled();
++  }
+ }
+ 
+ void RenderWidgetHostViewEventHandler::ModifyEventMovementAndCoords(
+@@ -843,6 +874,15 @@ void RenderWidgetHostViewEventHandler::MoveCursorToCenter(
      }
      return;
    }
 +#endif
 +#if BUILDFLAG(IS_LINUX)
-+  if (host_view_->HasExternalParent() &&
-+      window_ && window_->delegate()->CanFocus()) {
++  if (host_view_->HasExternalParent() && window_ &&
++      window_->delegate()->CanFocus()) {
 +    aura::WindowTreeHost* host = window_->GetHost();
-+    if (host)
++    if (host) {
 +      host->Show();
++    }
 +  }
  #endif
    synthetic_move_position_ = center_in_screen;
  }
-@@ -873,6 +885,17 @@ bool RenderWidgetHostViewEventHandler::MatchesSynthesizedMovePosition(
+@@ -873,6 +913,27 @@ bool RenderWidgetHostViewEventHandler::MatchesSynthesizedMovePosition(
  }
  
  void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
 +#if BUILDFLAG(IS_WIN)
-+  if (host_view_->HasExternalParent() &&
-+      window_ && window_->delegate()->CanFocus()) {
++  if (host_view_->HasExternalParent() && window_ &&
++      window_->delegate()->CanFocus()) {
 +    aura::WindowTreeHost* host = window_->GetHost();
 +    if (host) {
 +      gfx::AcceleratedWidget hwnd = host->GetAcceleratedWidget();
-+      if (!(::GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_NOACTIVATE))
++      if (!(::GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_NOACTIVATE)) {
 +        ::SetFocus(hwnd);
++      }
++    }
++  }
++#endif
++#if BUILDFLAG(IS_LINUX)
++  if (host_view_->HasExternalParent() && window_ &&
++      window_->delegate()->CanFocus()) {
++    aura::WindowTreeHost* host = window_->GetHost();
++    if (host) {
++      host->Show();
 +    }
 +  }
 +#endif
    // TODO(wjmaclean): can host_ ever be null?
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
      set_focus_on_mouse_down_or_key_event_ = false;
+@@ -885,12 +946,14 @@ bool RenderWidgetHostViewEventHandler::ShouldMoveToCenter(
+   // Do not need to move to center in unadjusted movement mode as
+   // the movement value are directly from OS.
+ #if BUILDFLAG(IS_WIN)
+-  if (mouse_locked_unadjusted_movement_)
++  if (mouse_locked_unadjusted_movement_) {
+     return false;
++  }
+ #endif
+ 
+-  if (window_->GetHost()->SupportsMouseLock())
++  if (window_->GetHost()->SupportsMouseLock()) {
+     return false;
++  }
+ 
+   gfx::Rect rect = window_->bounds();
+   rect = delegate_->ConvertRectToScreen(rect);
+@@ -904,14 +967,16 @@ bool RenderWidgetHostViewEventHandler::ShouldMoveToCenter(
+ }
+ 
+ bool RenderWidgetHostViewEventHandler::ShouldRouteEvents() const {
+-  if (!host_->delegate())
++  if (!host_->delegate()) {
+     return false;
++  }
+ 
+   // Do not route events that are currently targeted to page popups such as
+   // <select> element drop-downs, since these cannot contain cross-process
+   // frames.
+-  if (!host_->delegate()->IsWidgetForPrimaryMainFrame(host_))
++  if (!host_->delegate()->IsWidgetForPrimaryMainFrame(host_)) {
+     return false;
++  }
+ 
+   return !!host_->delegate()->GetInputEventRouter();
+ }
+@@ -939,8 +1004,9 @@ bool RenderWidgetHostViewEventHandler::IsKeyLocked(const ui::KeyEvent& event) {
+   // Note: We never consider 'ESC' to be locked as we don't want to prevent it
+   // from being handled by the browser.  Doing so would have adverse effects
+   // such as the user being unable to exit fullscreen mode.
+-  if (!IsKeyboardLocked() || event.code() == ui::DomCode::ESCAPE)
++  if (!IsKeyboardLocked() || event.code() == ui::DomCode::ESCAPE) {
+     return false;
++  }
+ 
+   return scoped_keyboard_hook_->IsKeyLocked(event.code());
+ }
 diff --git content/public/browser/render_widget_host_view.h content/public/browser/render_widget_host_view.h
 index c87f079a6541866fa00cc96e7dfed11d743ba182..17c949f873124021ae69b2fe9d46991311f3de21 100644
 --- content/public/browser/render_widget_host_view.h
@@ -244,6 +860,125 @@ index 883f23810672adf94c8b86f8ec54dc6ac9e7acbb..5d1a2b11c2cea3b247077f96c35780e4
    window->AddObserver(this);
    // Remember this mapping from hwnd to Window*.
    hwnd_root_window_map_[root_window_hwnd] = window;
+diff --git ui/aura/window_tree_host_platform.cc ui/aura/window_tree_host_platform.cc
+index 3ac3eaccb9d0eeaf75a7e00ed165d410e3ebd42b..02f88f5539e0c011719fd09034cd65b2d8b09518 100644
+--- ui/aura/window_tree_host_platform.cc
++++ ui/aura/window_tree_host_platform.cc
+@@ -53,7 +53,7 @@ WindowTreeHostPlatform::PlatformWindowFactoryDelegateForTesting*
+ 
+ const char kWindowTreeHostPlatformForAcceleratedWidget[] =
+     "__AURA_WINDOW_TREE_HOST_PLATFORM_ACCELERATED_WIDGET__";
+-}
++}  // namespace
+ 
+ // static
+ std::unique_ptr<WindowTreeHost> WindowTreeHost::Create(
+@@ -107,8 +107,9 @@ WindowTreeHostPlatform::~WindowTreeHostPlatform() {
+   DestroyDispatcher();
+ 
+   // |platform_window_| may not exist yet.
+-  if (platform_window_)
++  if (platform_window_) {
+     platform_window_->Close();
++  }
+ }
+ 
+ ui::EventSource* WindowTreeHostPlatform::GetEventSource() {
+@@ -200,8 +201,9 @@ void WindowTreeHostPlatform::OnVideoCaptureLockDestroyed() {
+ }
+ 
+ void WindowTreeHostPlatform::SetCursorNative(gfx::NativeCursor cursor) {
+-  if (cursor == current_cursor_)
++  if (cursor == current_cursor_) {
+     return;
++  }
+   current_cursor_ = cursor;
+ 
+   platform_window_->SetCursor(cursor.platform());
+@@ -254,6 +256,16 @@ void WindowTreeHostPlatform::SetPlatformWindowFactoryDelegateForTesting(
+   g_platform_window_factory_delegate_for_testing = delegate;
+ }
+ 
++#if BUILDFLAG(IS_LINUX)
++bool WindowTreeHostPlatform::HasExternalParent() const {
++  return has_external_parent_;
++}
++
++void WindowTreeHostPlatform::SetHasExternalParent(bool has_external_parent) {
++  has_external_parent_ = has_external_parent;
++}
++#endif
++
+ void WindowTreeHostPlatform::OnBoundsChanged(const BoundsChange& change) {
+   // It's possible this function may be called recursively. Only notify
+   // observers on initial entry. This way observers can safely assume that
+@@ -275,14 +287,16 @@ void WindowTreeHostPlatform::OnBoundsChanged(const BoundsChange& change) {
+   if (change.origin_changed) {
+     OnHostMovedInPixels();
+     // Changing the bounds may destroy this.
+-    if (!weak_ref)
++    if (!weak_ref) {
+       return;
++    }
+   }
+   if (size_changed || current_scale != new_scale) {
+     OnHostResizedInPixels(new_size);
+     // Changing the size may destroy this.
+-    if (!weak_ref)
++    if (!weak_ref) {
+       return;
++    }
+   }
+   DCHECK_GT(on_bounds_changed_recursion_depth_, 0);
+   if (--on_bounds_changed_recursion_depth_ == 0) {
+@@ -298,8 +312,9 @@ void WindowTreeHostPlatform::OnDamageRect(const gfx::Rect& damage_rect) {
+ void WindowTreeHostPlatform::DispatchEvent(ui::Event* event) {
+   TRACE_EVENT0("input", "WindowTreeHostPlatform::DispatchEvent");
+   ui::EventDispatchDetails details = SendEventToSink(event);
+-  if (details.dispatcher_destroyed)
++  if (details.dispatcher_destroyed) {
+     event->SetHandled();
++  }
+ }
+ 
+ void WindowTreeHostPlatform::OnCloseRequest() {
+@@ -322,8 +337,9 @@ void WindowTreeHostPlatform::OnAcceleratedWidgetAvailable(
+       widget, kWindowTreeHostPlatformForAcceleratedWidget, this);
+   widget_ = widget;
+   // This may be called before the Compositor has been created.
+-  if (compositor())
++  if (compositor()) {
+     WindowTreeHost::OnAcceleratedWidgetAvailable();
++  }
+ }
+ 
+ void WindowTreeHostPlatform::OnWillDestroyAcceleratedWidget() {}
+diff --git ui/aura/window_tree_host_platform.h ui/aura/window_tree_host_platform.h
+index 20b1f3b112ae6a4a5e36d44cc226701d350778d3..ca87697a6e77131cd509a4c3451ae5ede14a8897 100644
+--- ui/aura/window_tree_host_platform.h
++++ ui/aura/window_tree_host_platform.h
+@@ -71,7 +71,10 @@ class AURA_EXPORT WindowTreeHostPlatform : public WindowTreeHost,
+   };
+   static void SetPlatformWindowFactoryDelegateForTesting(
+       PlatformWindowFactoryDelegateForTesting* delegate);
+-
++#if BUILDFLAG(IS_LINUX)
++  bool HasExternalParent() const override;
++  void SetHasExternalParent(bool has_external_parent) override;
++#endif
+  protected:
+   // NOTE: this does not call CreateCompositor(); subclasses must call
+   // CreateCompositor() at the appropriate time.
+@@ -132,6 +135,9 @@ class AURA_EXPORT WindowTreeHostPlatform : public WindowTreeHost,
+   // OnBoundsChanged() this is incremented and on leaving OnBoundsChanged() this
+   // is decremented.
+   int on_bounds_changed_recursion_depth_ = 0;
++#if BUILDFLAG(IS_LINUX)
++  bool has_external_parent_ = false;
++#endif
+ };
+ 
+ }  // namespace aura
 diff --git ui/base/mojom/window_show_state.mojom ui/base/mojom/window_show_state.mojom
 index aeaf8e35f7eda89598149117fe8508d197bf2610..4b7cc3f03d3cf9c91ac8efe11ae820cf2b34b8b0 100644
 --- ui/base/mojom/window_show_state.mojom
@@ -258,10 +993,20 @@ index aeaf8e35f7eda89598149117fe8508d197bf2610..4b7cc3f03d3cf9c91ac8efe11ae820cf
 +  [MinVersion=1] kEnd = 7,
  };
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
-index 7af34829238f6294cd88fa0cd3b75714f4849ed8..d0476ad2f4688fd10330a7c840623d926f1c122e 100644
+index 7af34829238f6294cd88fa0cd3b75714f4849ed8..261c9be0594ca9549ddee52ca03b3228284d94e3 100644
 --- ui/ozone/platform/x11/x11_window.cc
 +++ ui/ozone/platform/x11/x11_window.cc
-@@ -1880,7 +1880,17 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
+@@ -795,7 +795,8 @@ PlatformWindowState X11Window::GetPlatformWindowState() const {
+ }
+ 
+ void X11Window::Activate() {
+-  if (!IsVisible() || !activatable_) {
++  if (!IsVisible() || !activatable_ ||
++      platform_window_delegate_->HasExternalParent()) {
+     return;
+   }
+ 
+@@ -1880,7 +1881,22 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
    req.border_pixel = 0;
  
    last_set_bounds_px_ = SanitizeBounds(bounds);
@@ -271,7 +1016,12 @@ index 7af34829238f6294cd88fa0cd3b75714f4849ed8..d0476ad2f4688fd10330a7c840623d92
 +  // for OSR (off-screen rendering) scenarios where the parent is an external
 +  // window. Other window types maintain their normal parent relationship.
 +  if (properties.type == ui::PlatformWindowType::kMenu) {
-+    req.parent = x_root_window_;
++    req.parent = properties.parent_widget == gfx::kNullAcceleratedWidget
++                     ? x_root_window_
++                     : static_cast<x11::Window>(properties.parent_widget);
++    if (properties.parent_widget != gfx::kNullAcceleratedWidget) {
++      platform_window_delegate_->SetHasExternalParent(true);
++    }
 +  } else {
 +    req.parent = properties.parent_widget == gfx::kNullAcceleratedWidget
 +                     ? x_root_window_
@@ -280,6 +1030,48 @@ index 7af34829238f6294cd88fa0cd3b75714f4849ed8..d0476ad2f4688fd10330a7c840623d92
    req.x = last_set_bounds_px_.x();
    req.y = last_set_bounds_px_.y();
    req.width = last_set_bounds_px_.width();
+@@ -2158,7 +2174,11 @@ void X11Window::OnCrossingEvent(bool enter,
+     // window or the PointerRoot is focused) && |has_pointer_|.  Therefore, we
+     // can just use |has_pointer_| in the assignment.  The transitions for when
+     // the focus changes are handled in OnFocusEvent().
+-    has_pointer_focus_ = has_pointer_;
++    // On the other hand, if platform_window_delegate_->HasExternalParent() is
++    // true, we don't want to steal focus from the toolkits when mouse enters
++    // web view. It must click.
++    has_pointer_focus_ =
++        has_pointer_ && !platform_window_delegate_->HasExternalParent();
+   }
+ 
+   AfterActivationStateChanged();
+diff --git ui/platform_window/platform_window_delegate.cc ui/platform_window/platform_window_delegate.cc
+index fc8fbf6cec34caaa41551c032f657de877bfe4a1..13957126dd6874d62e7f239d56ade96a4dfa01aa 100644
+--- ui/platform_window/platform_window_delegate.cc
++++ ui/platform_window/platform_window_delegate.cc
+@@ -63,6 +63,11 @@ void PlatformWindowDelegate::OnWindowTiledStateChanged(
+     WindowTiledEdges new_tiled_edges) {}
+ #endif
+ 
++bool PlatformWindowDelegate::HasExternalParent() const {
++  return false;
++}
++void PlatformWindowDelegate::SetHasExternalParent(bool has_external_parent) {}
++
+ std::optional<gfx::Size> PlatformWindowDelegate::GetMinimumSizeForWindow()
+     const {
+   return std::nullopt;
+diff --git ui/platform_window/platform_window_delegate.h ui/platform_window/platform_window_delegate.h
+index 012c70d9b9b653ffb49467c74b4ee26033fb2d8c..4bcc9a4c45130ba166810f68908aceb05a6298b1 100644
+--- ui/platform_window/platform_window_delegate.h
++++ ui/platform_window/platform_window_delegate.h
+@@ -149,6 +149,8 @@ class COMPONENT_EXPORT(PLATFORM_WINDOW) PlatformWindowDelegate {
+ #if BUILDFLAG(IS_LINUX)
+   // Notifies the delegate that the tiled state of the window edges has changed.
+   virtual void OnWindowTiledStateChanged(WindowTiledEdges new_tiled_edges);
++  virtual bool HasExternalParent() const;
++  virtual void SetHasExternalParent(bool has_external_parent);
+ #endif
+ 
+   enum RotateDirection {
 diff --git ui/views/widget/desktop_aura/desktop_screen_win.cc ui/views/widget/desktop_aura/desktop_screen_win.cc
 index 077855979045d4862abd099ec16befa0fcecff65..69f369b06c29e65dead98a52cc8b743ee81b2b7c 100644
 --- ui/views/widget/desktop_aura/desktop_screen_win.cc
@@ -373,17 +1165,23 @@ index c773bbe351260d958de222cd4e7942d757a53c25..2d4c1a17a0b3fc9b5fd929361873bfea
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index 17476127a1b05fad6d44bc31980b19f17debb81a..5f5407bdaf4bd490fc4eef8b5d78b76c1fdfc226 100644
+index 17476127a1b05fad6d44bc31980b19f17debb81a..6d73f09f9d7c28dbe44d05bf72cc448bed91075e 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-@@ -280,8 +280,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
+@@ -278,10 +278,14 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
+   // data during destruction to make sure that when we try to close a parent
+   // window, we also destroy all child windows.
    if (properties.parent_widget) {
++#if BUILDFLAG(IS_LINUX)
++    SetHasExternalParent(true);
++#endif
      window_parent_ = DesktopWindowTreeHostPlatform::GetHostForWidget(
          properties.parent_widget);
 -    DCHECK(window_parent_);
 -    window_parent_->window_children_.insert(this);
-+    if (window_parent_)
++    if (window_parent_) {
 +      window_parent_->window_children_.insert(this);
++    }
    }
  
    // Calculate initial bounds.
