@@ -51,7 +51,7 @@ class CefBrowserPlatformDelegateNative
       int deltaY) const = 0;
 
   const CefWindowInfo& window_info() const { return window_info_; }
-
+  base::WeakPtr<CefBrowserPlatformDelegateNative> GetWeakPtr();
  protected:
   // Delegates that can wrap a native delegate.
   friend class CefBrowserPlatformDelegateBackground;
@@ -73,6 +73,9 @@ class CefBrowserPlatformDelegateNative
 
   // Not owned by this object.
   raw_ptr<WindowlessHandler> windowless_handler_ = nullptr;
+
+  base::WeakPtrFactory<CefBrowserPlatformDelegateNative> weak_ptr_factory_{
+      this};
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_H_
