@@ -284,6 +284,11 @@ if(OS_WINDOWS)
     )
 
   if(USE_SANDBOX)
+    # Add installer config resource (embedded in client DLL, read by bootstrap.exe).
+    list(APPEND CEFCLIENT_SRCS
+      ${CMAKE_CURRENT_SOURCE_DIR}/win/installer_config.rc
+    )
+
     # Shared library (DLL) target.
     list(APPEND CEF_SHARED_LINKER_FLAGS
       ${ADDITIONAL_DELAYLOAD_FLAGS}

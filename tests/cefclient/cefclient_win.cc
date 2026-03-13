@@ -49,6 +49,33 @@ constexpr bool kAllowUnsigned = true;
 // specified or if |kAllowUnsigned| is true.
 constexpr bool kRequireMatchingThumbprints = false;
 
+#if CEF_API_ADDED(CEF_NEXT)
+// Certificate thumbprint for official CEF distributions (SHA-1, uppercase hex).
+// Used when libcef.dll was installed from CDN (not bundled with the app).
+constexpr char kCefCertificateThumbprint[] =
+    "3906F72B1D5FA45A6334A8590495FAEB93347E5B";
+
+// Matches kExitCodeCancelled from the installer exit-code table documented in
+// libcef_dll/bootstrap/installer/README.md. The installer headers are not
+// distributed with the binary distribution, so the value is duplicated here.
+constexpr int kInstallerExitCodeCancelled = 108;
+
+struct InstallerStartupError {
+  int code = 0;
+  const char* message = nullptr;
+};
+
+InstallerStartupError GetInstallerStartupError(
+    const cef_version_info_t* version_info) {
+  if (version_info &&
+      version_info->size >= CEF_VERSION_INFO_SIZE_WITH_INSTALLER_ERROR) {
+    return {version_info->installer_error_code,
+            version_info->installer_error_message};
+  }
+  return {};
+}
+#endif
+
 static_assert(sizeof(kRequiredThumbprint) == 1 ||
                   sizeof(kRequiredThumbprint) ==
                       cef_certificate_util::kThumbprintLength + 1,
@@ -101,22 +128,70 @@ bool VerifyCodeSigningAndLoad(CefScopedLibraryLoader& library_loader,
       client_dll_path, RequiredThumbprint(&exe_thumbprint), kAllowUnsigned);
 #endif  // defined(CEF_USE_BOOTSTRAP)
 
-  // Require libcef.dll in the same directory as the executable.
-  auto sep_pos = exe_path.find_last_of(L"/\\");
-  CHECK(sep_pos != std::wstring::npos);
-  const auto& libcef_dll_path = exe_path.substr(0, sep_pos + 1) + L"libcef.dll";
+  // Determine the path to libcef.dll and the appropriate thumbprint.
+  std::wstring libcef_dll_path;
+  const char* libcef_thumbprint = RequiredThumbprint(&exe_thumbprint);
+  bool libcef_allow_unsigned = kAllowUnsigned;
+#if CEF_API_ADDED(CEF_NEXT)
+  const InstallerStartupError installer_error =
+      GetInstallerStartupError(version_info);
+  if (version_info &&
+      version_info->size >= CEF_VERSION_INFO_SIZE_WITH_INSTALLER_ERROR &&
+      version_info->libcef_path) {
+    // Use path from bootstrap installer.
+    libcef_dll_path = version_info->libcef_path;
+
+    if (!version_info->libcef_is_bundled) {
+      // CDN-installed: require the CEF distribution certificate.
+      libcef_thumbprint = kCefCertificateThumbprint;
+      libcef_allow_unsigned = false;
+    }
+  } else
+#endif
+  {
+    // Fallback: require libcef.dll in same directory as executable.
+    auto sep_pos = exe_path.find_last_of(L"/\\");
+    CHECK(sep_pos != std::wstring::npos);
+    libcef_dll_path = exe_path.substr(0, sep_pos + 1) + L"libcef.dll";
+#if CEF_API_ADDED(CEF_NEXT)
+    if (installer_error.code != 0) {
+      const std::string message =
+          installer_error.message ? installer_error.message : "no diagnostic";
+      if (::GetFileAttributesW(libcef_dll_path.c_str()) ==
+          INVALID_FILE_ATTRIBUTES) {
+        LOG(FATAL) << "CEF installer failed (" << installer_error.code
+                   << "): " << message
+                   << "; adjacent libcef.dll fallback is unavailable";
+      }
+      LOG(ERROR) << "CEF installer failed (" << installer_error.code
+                 << "): " << message << "; using adjacent libcef.dll";
+    }
+#endif
+  }
 
   // Validate code signing requirements for libcef.dll before loading, and
   // then load.
   return library_loader.LoadInMainAssert(libcef_dll_path.c_str(),
-                                         RequiredThumbprint(&exe_thumbprint),
-                                         kAllowUnsigned, version_info);
+                                         libcef_thumbprint,
+                                         libcef_allow_unsigned, version_info);
 }
 
 int RunMain(HINSTANCE hInstance,
             int nCmdShow,
             void* sandbox_info,
             cef_version_info_t* version_info) {
+#if CEF_API_ADDED(CEF_NEXT)
+  const InstallerStartupError installer_error =
+      GetInstallerStartupError(version_info);
+  if (installer_error.code == kInstallerExitCodeCancelled) {
+    cef::logging::ScopedEarlySupport scoped_logging({});
+    LOG(ERROR) << "CEF setup cancelled; restart to retry"
+               << (installer_error.message ? ": " : "")
+               << (installer_error.message ? installer_error.message : "");
+    return CEF_RESULT_CODE_NORMAL_EXIT;
+  }
+#endif
+
   CefMainArgs main_args(hInstance);
 
   // Dynamically load the CEF library after code signing verification.

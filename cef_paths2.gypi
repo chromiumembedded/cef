@@ -368,6 +368,8 @@
       'tests/cefclient/browser/browser_window_osr_win.h',
       'tests/cefclient/browser/browser_window_std_win.cc',
       'tests/cefclient/browser/browser_window_std_win.h',
+      'tests/cefclient/browser/client_update_win.cc',
+      'tests/cefclient/browser/client_update_win.h',
       'tests/cefclient/browser/main_context_impl_win.cc',
       'tests/cefclient/browser/main_message_loop_multithreaded_win.cc',
       'tests/cefclient/browser/main_message_loop_multithreaded_win.h',

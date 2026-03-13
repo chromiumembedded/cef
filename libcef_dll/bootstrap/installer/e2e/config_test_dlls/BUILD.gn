@@ -1,0 +1,109 @@
+# Copyright 2026 The Chromium Embedded Framework Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+if (is_win) {
+  # Test DLLs with embedded CEF_INSTALLER_CONFIG resources for config
+  # precedence unit tests.
+  shared_library("cef_config_test_appid_a") {
+    testonly = true
+    sources = [
+      "config_appid_a.rc",
+      "dll_stub.cc",
+    ]
+  }
+
+  shared_library("cef_config_test_appid_b") {
+    testonly = true
+    sources = [
+      "config_appid_b.rc",
+      "dll_stub.cc",
+    ]
+  }
+
+  shared_library("cef_config_test_explicit_modes") {
+    testonly = true
+    sources = [
+      "config_explicit_modes.rc",
+      "dll_stub.cc",
+    ]
+  }
+
+  shared_library("cef_config_test_cdn_wrong_shape") {
+    testonly = true
+    sources = [
+      "config_cdn_wrong_shape.rc",
+      "dll_stub.cc",
+    ]
+  }
+
+  shared_library("cef_config_test_cdn_empty") {
+    testonly = true
+    sources = [
+      "config_cdn_empty.rc",
+      "dll_stub.cc",
+    ]
+  }
+
+  shared_library("cef_config_test_cdn_overcount") {
+    testonly = true
+    sources = [
+      "config_cdn_overcount.rc",
+      "dll_stub.cc",
+    ]
+  }
+
+  shared_library("cef_config_test_cdn_overlength") {
+    testonly = true
+    sources = [
+      "config_cdn_overlength.rc",
+      "dll_stub.cc",
+    ]
+  }
+
+  shared_library("cef_config_test_no_config") {
+    testonly = true
+    sources = [ "dll_stub.cc" ]
+  }
+
+  shared_library("cef_config_test_malformed") {
+    testonly = true
+    sources = [
+      "config_malformed.rc",
+      "dll_stub.cc",
+    ]
+  }
+
+  shared_library("cef_config_test_invalid") {
+    testonly = true
+    sources = [
+      "config_invalid.rc",
+      "dll_stub.cc",
+    ]
+  }
+
+  shared_library("cef_config_test_invalid_cdn") {
+    testonly = true
+    sources = [
+      "config_invalid_cdn.rc",
+      "dll_stub.cc",
+    ]
+  }
+
+  group("config_test_dlls") {
+    testonly = true
+    deps = [
+      ":cef_config_test_appid_a",
+      ":cef_config_test_appid_b",
+      ":cef_config_test_cdn_empty",
+      ":cef_config_test_cdn_overcount",
+      ":cef_config_test_cdn_overlength",
+      ":cef_config_test_cdn_wrong_shape",
+      ":cef_config_test_explicit_modes",
+      ":cef_config_test_invalid",
+      ":cef_config_test_invalid_cdn",
+      ":cef_config_test_malformed",
+      ":cef_config_test_no_config",
+    ]
+  }
+}

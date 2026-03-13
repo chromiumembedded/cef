@@ -333,6 +333,7 @@ group("cef") {
       ":cefsimple_dll",
       ":cefsimple_capi_dll",
       ":ceftests_dll",
+      "libcef_dll/bootstrap/installer:installer_tests",
     ]
   }
 
@@ -383,6 +384,7 @@ if (is_win) {
 
       # Required by chrome_switches.cc
       "//chrome/common:buildflags",
+      "//extensions/buildflags:buildflags",
       "//printing/buildflags:buildflags",
       "//ui/base:buildflags",
 
@@ -450,6 +452,33 @@ test("libcef_static_unittests") {
     "libcef/features:config",
     "//build/config:precompiled_headers",
   ]
+}
+
+if (is_win) {
+  # Certificate utilities used by installer_signature and bootstrap.
+  # Separated to avoid duplicate symbol errors when both depend on these.
+  source_set("cef_certificate_util") {
+    sources = [
+      "include/wrapper/cef_certificate_util_win.h",
+      "include/wrapper/cef_util_win.h",
+      "libcef_dll/wrapper/cef_certificate_util_win.cc",
+      "libcef_dll/wrapper/cef_util_win.cc",
+    ]
+
+    deps = [ "//base" ]
+
+    libs = [
+      "wintrust.lib",
+      "crypt32.lib",
+    ]
+
+    defines = [ "CEF_BUILD_BOOTSTRAP" ]
+
+    configs += [
+      "libcef/features:config",
+      "//build/config:precompiled_headers",
+    ]
+  }
 }
 
 # Source files that are linked into libcef and cef_framework and implement
@@ -1319,15 +1348,11 @@ if (is_mac) {
 if (is_win) {
   bootstrap_sources = includes_common +
                       includes_win + [
-    "include/wrapper/cef_certificate_util_win.h",
-    "include/wrapper/cef_util_win.h",
     "libcef_dll/bootstrap/bootstrap_util_win.cc",
     "libcef_dll/bootstrap/bootstrap_util_win.h",
     "libcef_dll/bootstrap/bootstrap_win.cc",
     "libcef_dll/bootstrap/win/bootstrap.rc",
     "libcef_dll/bootstrap/win/resource.h",
-    "libcef_dll/wrapper/cef_certificate_util_win.cc",
-    "libcef_dll/wrapper/cef_util_win.cc",
     "libcef/browser/crashpad_runner.cc",
     "libcef/browser/crashpad_runner.h",
     "libcef/browser/preferred_stack_size_win.inc",
@@ -1337,12 +1362,12 @@ if (is_win) {
     "//chrome/common/win/delay_load_failure_support.h",
     "//content/app/sandbox_helper_win.cc",
     "//content/public/app/sandbox_helper_win.h",
+
   ]
 
   bootstrap_deps = [
-    ":make_api_versions_header",
-    ":make_config_header",
-    ":make_version_header",
+    ":cef_certificate_util",
+    "libcef_dll/bootstrap/installer:cef_installer",
     "//base",
     "//build/win:default_exe_manifest",
     "//chrome/install_static:secondary_module",
@@ -1373,7 +1398,12 @@ if (is_win) {
     testonly = true
 
     sources = bootstrap_sources
-    deps = bootstrap_deps
+    deps = bootstrap_deps + [
+      # Trigger generation of installer_config.json/rc so that the files exist
+      # for distributions (automate-git.py builds bootstrap but not cefclient_dll).
+      # The files are not embedded in this binary.
+      "libcef_dll/bootstrap/installer:cef_installer_config"
+    ]
     libs = bootstrap_libs
     configs += bootstrap_configs
 
@@ -2550,10 +2580,15 @@ if (is_mac) {
                 gypi_paths2.cefclient_sources_common +
                 gypi_paths2.cefclient_sources_renderer +
                 gypi_paths2.cefclient_sources_win +
-                gypi_paths2.cefclient_sources_resources_win_rc
+                gypi_paths2.cefclient_sources_resources_win_rc + [
+                  # Generated installer config resource (embedded in client DLL,
+                  # read by bootstrap.exe).
+                  "$target_gen_dir/installer_config.rc",
+                ]
 
       deps = [
         ":bootstrap",
+        "libcef_dll/bootstrap/installer:cef_installer_config",
         ":libcef",
         ":libcef_dll_wrapper",
       ]

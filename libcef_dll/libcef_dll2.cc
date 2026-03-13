@@ -45,6 +45,10 @@ CEF_EXPORT int cef_version_info(int entry) {
   }
 }
 
+CEF_EXPORT const char* cef_version_full(void) {
+  return CEF_VERSION;
+}
+
 CEF_EXPORT void cef_version_info_all(cef_version_info_t* info) {
   if (!info || info->size == 0) {
     return;
@@ -66,6 +70,15 @@ CEF_EXPORT void cef_version_info_all(cef_version_info_t* info) {
     strncpy(info->sandbox_compat_hash, CEF_SANDBOX_COMPAT_HASH,
             sizeof(info->sandbox_compat_hash) - 1);
     info->sandbox_compat_hash[sizeof(info->sandbox_compat_hash) - 1] = '\0';
+  }
+
+  if (info->size >= CEF_VERSION_INFO_SIZE_WITH_INSTALLER_ERROR) {
+    // These fields are only populated by the bootstrap executable.
+    info->libcef_path = nullptr;
+    info->libcef_is_bundled = 0;
+    info->libcef_version_full = nullptr;
+    info->installer_error_code = 0;
+    info->installer_error_message = nullptr;
   }
 }
 

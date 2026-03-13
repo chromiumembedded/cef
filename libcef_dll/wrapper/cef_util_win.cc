@@ -139,4 +139,31 @@ std::wstring GetCommandLineValue(const std::vector<std::wstring>& command_line,
   return std::wstring();
 }
 
+bool ReadResourceData(HMODULE module,
+                      const wchar_t* resource_name,
+                      std::string* data) {
+  if (!data) {
+    return false;
+  }
+
+  HRSRC resource = ::FindResourceW(module, resource_name, RT_RCDATA);
+  if (!resource) {
+    return false;
+  }
+
+  HGLOBAL resource_handle = ::LoadResource(module, resource);
+  if (!resource_handle) {
+    return false;
+  }
+
+  void* resource_data = ::LockResource(resource_handle);
+  DWORD resource_size = ::SizeofResource(module, resource);
+  if (!resource_data || resource_size == 0) {
+    return false;
+  }
+
+  data->assign(static_cast<const char*>(resource_data), resource_size);
+  return true;
+}
+
 }  // namespace cef_util

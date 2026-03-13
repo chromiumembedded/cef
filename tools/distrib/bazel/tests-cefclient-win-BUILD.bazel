@@ -44,6 +44,8 @@ declare_dll(
         "{}.ico".format(PRODUCT_NAME),
         "small.ico",
         "//tests/shared:Resources",
+        # Installer config resource (embedded in client DLL, read by bootstrap.exe).
+        "installer_config.rc",
     ],
     resources_deps = [
         "{}:ResourceH".format(PKG_NAME),
