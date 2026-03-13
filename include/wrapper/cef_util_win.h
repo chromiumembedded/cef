@@ -60,6 +60,14 @@ std::vector<std::wstring> ParseCommandLineArgs(const wchar_t* str);
 std::wstring GetCommandLineValue(const std::vector<std::wstring>& command_line,
                                  const std::wstring& name);
 
+///
+/// Read binary data from a named RT_RCDATA resource.
+/// Returns true if successful and populates |data|, false otherwise.
+///
+bool ReadResourceData(HMODULE module,
+                      const wchar_t* resource_name,
+                      std::string* data);
+
 }  // namespace cef_util
 
 #endif  // CEF_INCLUDE_WRAPPER_CEF_UTIL_WIN_H_

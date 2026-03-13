@@ -1,0 +1,62 @@
+# Copyright 2026 The Chromium Embedded Framework Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+if (is_win) {
+  # Mock client DLL for E2E launcher/RunInstaller tests.
+  shared_library("cef_e2e_mock_client") {
+    testonly = true
+    sources = [ "mock_client_dll/cef_mock_client.cc" ]
+    deps = [
+      "//cef:make_api_versions_header",
+      "//cef:make_config_header",
+      "//cef:make_version_header",
+      "//cef/libcef/features:buildflags",
+    ]
+    libs = [ "kernel32.lib" ]
+    configs += [ "//cef/libcef/features:config" ]
+  }
+
+  # Helper binary that receives WM_COPYDATA progress notifications.
+  executable("cef_e2e_progress_helper") {
+    testonly = true
+    sources = [ "progress_helper/progress_helper.cc" ]
+    libs = [ "user32.lib" ]
+  }
+
+  # Helper tool that builds signed test distributions in CDN layout for E2E.
+  executable("cef_e2e_build_test_cdn") {
+    testonly = true
+
+    sources = [
+      "../installer_test_archive.cc",
+      "../installer_test_archive.h",
+      "../installer_test_catalog.cc",
+      "../installer_test_catalog.h",
+      "../installer_test_helpers.cc",
+      "../installer_test_helpers.h",
+      "build_test_cdn.cc",
+    ]
+
+    data = [ "../testdata/test_signing.pfx" ]
+
+    deps = [
+      "//base",
+      "//cef/libcef_dll/bootstrap/installer:cef_installer",
+    ]
+
+    configs += [
+      "//build/config:precompiled_headers",
+      "//cef/libcef/features:config",
+    ]
+  }
+
+  group("e2e") {
+    testonly = true
+    deps = [
+      ":cef_e2e_build_test_cdn",
+      ":cef_e2e_mock_client",
+      ":cef_e2e_progress_helper",
+    ]
+  }
+}

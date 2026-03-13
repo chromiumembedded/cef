@@ -206,15 +206,22 @@ class CefScopedLibraryLoader final {
 
   ///
   /// Load the CEF library (libcef.dll) in the main process from the specified
-  /// absolute path. If libcef.dll is code signed then all signatures must be
-  /// valid. If |thumbprint| is a SHA1 hash (e.g. 40 character upper-case
-  /// hex-encoded value) then the primary signature must match that thumbprint.
-  /// If |allow_unsigned| is true and |thumbprint| is nullptr then libcef.dll
-  /// may be unsigned, otherwise it must be validly signed. Failure of code
-  /// signing requirements or DLL loading will result in a FATAL error and
-  /// application termination. If |version_info| is specified then the
-  /// libcef.dll version information must also match. Returns true if the load
-  /// succeeds. Usage must be protected by cef::logging::ScopedEarlySupport.
+  /// absolute path. The library is loaded using LOAD_WITH_ALTERED_SEARCH_PATH,
+  /// which ensures that libcef.dll's dependencies are loaded from the same
+  /// directory as libcef.dll rather than from the application directory. If
+  /// libcef.dll is code signed then all signatures must be valid. If
+  /// |thumbprint| is a SHA1 hash (e.g. 40 character upper-case hex-encoded
+  /// value) then the primary signature must match that thumbprint. If
+  /// |allow_unsigned| is true and |thumbprint| is nullptr then libcef.dll may
+  /// be unsigned, otherwise it must be validly signed. Failure of code signing
+  /// requirements or DLL loading will result in a FATAL error and application
+  /// termination. If |version_info| is specified then the libcef.dll version
+  /// information must also match. Returns true if the load succeeds. Usage must
+  /// be protected by cef::logging::ScopedEarlySupport. Bootstrap clients
+  /// should size-check and handle installer_error_code and
+  /// installer_error_message before calling this method so they can select an
+  /// adjacent fallback or present cancellation guidance instead of immediately
+  /// terminating.
   ///
   bool LoadInMainAssert(const wchar_t* dll_path,
                         const char* thumbprint,

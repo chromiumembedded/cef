@@ -14,6 +14,10 @@
 #include "tests/cefclient/browser/root_window_manager.h"
 #include "tests/shared/common/client_switches.h"
 
+#if defined(CEF_USE_BOOTSTRAP)
+#include "tests/cefclient/browser/client_update_win.h"
+#endif
+
 namespace client::browser {
 
 namespace {
@@ -54,6 +58,14 @@ class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
       // Load the CRLSets file from the specified path.
       CefLoadCRLSetsFile(crl_sets_path);
     }
+
+#if defined(CEF_USE_BOOTSTRAP)
+    // Start background update check when running under bootstrap.exe.
+    StartBackgroundUpdateCheck();
+    // Confirm launch health after a delay so app-level crashes that occur
+    // after CEF has loaded successfully don't penalize the CEF version.
+    StartLaunchHealthConfirmation();
+#endif
   }
 
   void OnBeforeCommandLineProcessing(

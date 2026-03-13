@@ -208,13 +208,11 @@ def copy_gtest(tests_dir):
     fuse_gtest_files.FuseGTest(fuse_gtest_files.DEFAULT_GTEST_ROOT_DIR,
                                temp_dir)
     # Move generated files to target locations
-    copy_file(
-        os.path.join(temp_dir, 'gtest', 'gtest.h'),
-        os.path.join(target_gtest_include_dir, 'gtest', 'gtest.h'),
-        options.quiet)
-    copy_file(
-        os.path.join(temp_dir, 'gtest', 'gtest-all.cc'),
-        os.path.join(target_gtest_src_dir, 'gtest-all.cc'), options.quiet)
+    copy_file(os.path.join(temp_dir, 'gtest', 'gtest.h'),
+              os.path.join(target_gtest_include_dir, 'gtest', 'gtest.h'),
+              options.quiet)
+    copy_file(os.path.join(temp_dir, 'gtest', 'gtest-all.cc'),
+              os.path.join(target_gtest_src_dir, 'gtest-all.cc'), options.quiet)
 
   # gtest LICENSE file at tests/gtest/LICENSE (from googletest source)
   googletest_license = os.path.join(src_dir, 'third_party', 'googletest', 'src',
@@ -222,14 +220,12 @@ def copy_gtest(tests_dir):
   copy_file(googletest_license, target_gtest_dir, options.quiet)
 
   # CEF README file at tests/gtest/README.cef
-  copy_file(
-      os.path.join(cef_dir, 'tools', 'distrib', 'gtest', 'README.cef'),
-      os.path.join(target_gtest_dir, 'README.cef'), options.quiet)
+  copy_file(os.path.join(cef_dir, 'tools', 'distrib', 'gtest', 'README.cef'),
+            os.path.join(target_gtest_dir, 'README.cef'), options.quiet)
 
   # Copy tests/gtest/teamcity files
-  copy_dir(
-      os.path.join(cef_dir, 'tests', 'gtest', 'teamcity'),
-      os.path.join(target_gtest_dir, 'teamcity'), options.quiet)
+  copy_dir(os.path.join(cef_dir, 'tests', 'gtest', 'teamcity'),
+           os.path.join(target_gtest_dir, 'teamcity'), options.quiet)
 
 
 def copy_gmock(tests_dir):
@@ -255,8 +251,8 @@ def copy_gmock(tests_dir):
     os.makedirs(os.path.join(temp_dir, 'gmock'))
     fuse_gmock_files.FuseGMockH(fuse_gmock_files.DEFAULT_GMOCK_ROOT_DIR,
                                 temp_dir)
-    copy_file(
-        os.path.join(temp_dir, 'gmock', 'gmock.h'), gmock_h_path, options.quiet)
+    copy_file(os.path.join(temp_dir, 'gmock', 'gmock.h'), gmock_h_path,
+              options.quiet)
 
   # Fix the gtest include path in gmock.h for the binary distribution.
   # The fused gmock.h uses '#include "gtest/gtest.h"' but in the binary
@@ -283,9 +279,8 @@ def copy_gmock(tests_dir):
   copy_file(googletest_license, target_gmock_dir, options.quiet)
 
   # CEF README file at tests/gmock/README.cef
-  copy_file(
-      os.path.join(cef_dir, 'tools', 'distrib', 'gmock', 'README.cef'),
-      os.path.join(target_gmock_dir, 'README.cef'), options.quiet)
+  copy_file(os.path.join(cef_dir, 'tools', 'distrib', 'gmock', 'README.cef'),
+            os.path.join(target_gmock_dir, 'README.cef'), options.quiet)
 
 
 def transfer_doxyfile(dst_dir, quiet):
@@ -361,8 +356,8 @@ def extract_toolchain_cmd(build_dir,
       path = None
 
   if require_cmd and (cmd is None or path is None):
-    raise Exception('Failed to extract %s command from %s' % (exe_name,
-                                                              toolchain_ninja))
+    raise Exception('Failed to extract %s command from %s' %
+                    (exe_name, toolchain_ninja))
 
   return cmd, path
 
@@ -387,8 +382,8 @@ def transfer_tools_files(script_dir, build_dirs, output_dir):
     tool_cmd, tool_dir = extract_toolchain_cmd(
         build_dir, mksnapshot_name, require_toolchain=not options.allowpartial)
     if tool_cmd is None:
-      sys.stdout.write("No %s build toolchain for %s.\n" % (dst_dir_name,
-                                                            mksnapshot_name))
+      sys.stdout.write("No %s build toolchain for %s.\n" %
+                       (dst_dir_name, mksnapshot_name))
       continue
 
     if options.allowpartial and not path_exists(
@@ -1222,8 +1217,8 @@ elif platform == 'windows':
 
   # transfer Release files
   build_dir = build_dir_release
-  if not options.allowpartial or path_exists(
-      os.path.join(build_dir, libcef_dll)):
+  if not options.allowpartial or path_exists(os.path.join(
+      build_dir, libcef_dll)):
     if not mode.endswith('symbols'):
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Release')
@@ -1270,29 +1265,43 @@ elif platform == 'windows':
                         'tests/shared/', shared_dir, options.quiet)
 
     # transfer cefclient files
-    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_win'] +
-                        cef_paths2['cefclient_sources_resources_win'] +
-                        cef_paths2['cefclient_sources_resources_win_rc'],
-                        'tests/cefclient/', cefclient_dir, options.quiet)
+    transfer_gypi_files(
+        cef_dir, cef_paths2['cefclient_sources_win'] +
+        cef_paths2['cefclient_sources_resources_win'] +
+        cef_paths2['cefclient_sources_resources_win_rc'], 'tests/cefclient/',
+        cefclient_dir, options.quiet)
+
+    # copy generated installer config files (both in win/ directory
+    # so the RC file can reference the JSON by basename)
+    cefclient_win_dir = os.path.join(cefclient_dir, 'win')
+    make_dir(cefclient_win_dir, options.quiet)
+    copy_file(
+        os.path.join(valid_build_dir, 'gen', 'cef', 'installer_config.json'),
+        os.path.join(cefclient_win_dir, 'installer_config.json'), options.quiet)
+    copy_file(
+        os.path.join(valid_build_dir, 'gen', 'cef', 'installer_config.rc'),
+        os.path.join(cefclient_win_dir, 'installer_config.rc'), options.quiet)
 
     # transfer cefsimple files
-    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_win'] +
-                        cef_paths2['cefsimple_sources_resources_win'] +
-                        cef_paths2['cefsimple_sources_resources_win_rc'],
-                        'tests/cefsimple/', cefsimple_dir, options.quiet)
+    transfer_gypi_files(
+        cef_dir, cef_paths2['cefsimple_sources_win'] +
+        cef_paths2['cefsimple_sources_resources_win'] +
+        cef_paths2['cefsimple_sources_resources_win_rc'], 'tests/cefsimple/',
+        cefsimple_dir, options.quiet)
 
     # transfer cefsimple_capi files
-    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_capi_sources_win'] +
-                        cef_paths2['cefsimple_capi_sources_resources_win'] +
-                        cef_paths2['cefsimple_capi_sources_resources_win_rc'],
-                        'tests/cefsimple_capi/', cefsimple_capi_dir,
-                        options.quiet)
+    transfer_gypi_files(
+        cef_dir, cef_paths2['cefsimple_capi_sources_win'] +
+        cef_paths2['cefsimple_capi_sources_resources_win'] +
+        cef_paths2['cefsimple_capi_sources_resources_win_rc'],
+        'tests/cefsimple_capi/', cefsimple_capi_dir, options.quiet)
 
     # transfer ceftests files
-    transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_win'] +
-                        cef_paths2['ceftests_sources_resources_win'] +
-                        cef_paths2['ceftests_sources_resources_win_rc'],
-                        'tests/ceftests/', ceftests_dir, options.quiet)
+    transfer_gypi_files(
+        cef_dir, cef_paths2['ceftests_sources_win'] +
+        cef_paths2['ceftests_sources_resources_win'] +
+        cef_paths2['ceftests_sources_resources_win_rc'], 'tests/ceftests/',
+        ceftests_dir, options.quiet)
 
 elif platform == 'mac':
   framework_name = 'Chromium Embedded Framework'
@@ -1328,9 +1337,8 @@ elif platform == 'mac':
 
         if mode == 'sandbox':
           # Only transfer the sandbox library.
-          copy_file(
-              os.path.join(framework_src_dir, 'Libraries', sandbox_lib),
-              dst_dir, options.quiet)
+          copy_file(os.path.join(framework_src_dir, 'Libraries', sandbox_lib),
+                    dst_dir, options.quiet)
         else:
           framework_dst_dir = os.path.join(dst_dir,
                                            '%s.framework' % framework_name)
@@ -1345,9 +1353,8 @@ elif platform == 'mac':
         # dSYMs are only generated when is_official_build=true or enable_dsyms=true.
         # See //build/config/mac/symbols.gni.
         for dsym in dsym_dirs:
-          copy_dir(
-              os.path.join(build_dir, dsym),
-              os.path.join(symbol_output_dir, dsym), options.quiet)
+          copy_dir(os.path.join(build_dir, dsym),
+                   os.path.join(symbol_output_dir, dsym), options.quiet)
     else:
       sys.stdout.write("No Debug build files.\n")
 
@@ -1365,21 +1372,19 @@ elif platform == 'mac':
 
       if mode == 'sandbox':
         # Only transfer the sandbox library.
-        copy_file(
-            os.path.join(framework_src_dir, 'Libraries', sandbox_lib), dst_dir,
-            options.quiet)
+        copy_file(os.path.join(framework_src_dir, 'Libraries', sandbox_lib),
+                  dst_dir, options.quiet)
       else:
         if mode != 'client':
           framework_dst_dir = os.path.join(dst_dir,
                                            '%s.framework' % framework_name)
         else:
-          copy_dir(
-              os.path.join(build_dir, cefclient_app),
-              os.path.join(dst_dir, cefclient_app), options.quiet)
+          copy_dir(os.path.join(build_dir, cefclient_app),
+                   os.path.join(dst_dir, cefclient_app), options.quiet)
           # Replace the versioned framework with an unversioned framework in the sample app.
           framework_dst_dir = os.path.join(
-              dst_dir, '%s/Contents/Frameworks/%s.framework' % (cefclient_app,
-                                                                framework_name))
+              dst_dir, '%s/Contents/Frameworks/%s.framework' %
+              (cefclient_app, framework_name))
           remove_dir(framework_dst_dir, options.quiet)
         copy_dir(framework_src_dir, framework_dst_dir, options.quiet)
 
@@ -1392,9 +1397,8 @@ elif platform == 'mac':
       # dSYMs are only generated when is_official_build=true or enable_dsyms=true.
       # See //build/config/mac/symbols.gni.
       for dsym in dsym_dirs:
-        copy_dir(
-            os.path.join(build_dir, dsym),
-            os.path.join(symbol_output_dir, dsym), options.quiet)
+        copy_dir(os.path.join(build_dir, dsym),
+                 os.path.join(symbol_output_dir, dsym), options.quiet)
   else:
     sys.stdout.write("No Release build files.\n")
 
@@ -1567,15 +1571,13 @@ if mode == 'standard' or mode == 'minimal':
   }
   variables.update(cef_paths2)
 
-  copy_dir(
-      os.path.join(cef_dir, 'bazel'),
-      os.path.join(output_dir, 'bazel'), options.quiet)
+  copy_dir(os.path.join(cef_dir, 'bazel'), os.path.join(output_dir, 'bazel'),
+           options.quiet)
 
-  transfer_bazel_files(
-      os.path.join(script_dir, 'distrib', 'bazel'),
-      output_dir,
-      variables,
-      require_parent_dir=(mode != 'standard'))
+  transfer_bazel_files(os.path.join(script_dir, 'distrib', 'bazel'),
+                       output_dir,
+                       variables,
+                       require_parent_dir=(mode != 'standard'))
 
 if not options.noarchive:
   # create an archive for each output directory

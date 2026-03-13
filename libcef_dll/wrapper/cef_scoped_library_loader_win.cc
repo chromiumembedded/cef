@@ -55,10 +55,33 @@ HMODULE Load(const std::wstring& dll_path,
                                         LOAD_WITH_ALTERED_SEARCH_PATH)) {
     // libcef functions should now be callable via the /DELAYLOAD handler.
     if (version_info) {
-      // Compare Chromium version for the client/bootstrap and libcef.dll. This
-      // strict version check is necessary because both sandbox info and
-      // chrome_elf introduce Chromium version dependencies, and we don't know
-      // which non-matching versions are compatible.
+      // Check the loaded DLL version using different techniques depending on
+      // what information and API versions are available.
+      bool check_dll_version = true;
+
+#if CEF_API_ADDED(CEF_NEXT)
+      // When using installer path resolution verify that the loaded DLL's full
+      // version matches what the installer resolved from metadata. This closes
+      // the gap between the installer's revocation check (metadata-only from
+      // cef_version.json) and the actual loaded binary. This is the most
+      // specific version check in that we're comparing full CEF version
+      // strings (e.g. "150.0.1+gabc1234+chromium-150.0.7871.4").
+      const bool version_info_has_version_full =
+          version_info->size >= CEF_VERSION_INFO_SIZE_WITH_INSTALLER_ERROR;
+      if (version_info_has_version_full && version_info->libcef_version_full) {
+        const char* dll_version_full = cef_version_full();
+        if (std::strcmp(version_info->libcef_version_full, dll_version_full) !=
+            0) {
+          LOG(FATAL) << "Failed libcef.dll installed version identity check; "
+                        "expected: "
+                     << version_info->libcef_version_full
+                     << ", loaded: " << dll_version_full;
+        }
+        check_dll_version = false;
+      }
+#endif  // CEF_API_ADDED(CEF_NEXT)
+
+      // Retrieve self-reported DLL version information.
       cef_version_info_t dll_info = {};
       dll_info.size = sizeof(cef_version_info_t);
 #if CEF_API_ADDED(13800)
@@ -72,38 +95,45 @@ HMODULE Load(const std::wstring& dll_path,
       dll_info.chrome_version_patch = cef_version_info(7);
 #endif
 
-      bool check_dll_version = true;
-
 #if CEF_API_ADDED(14600)
-      // Check sandbox compatibility hash. Only compare if both structs are
-      // large enough to contain the hash field.
-      const bool version_info_has_hash =
-          version_info->size >= CEF_VERSION_INFO_SIZE_WITH_SANDBOX_HASH;
-      const bool dll_info_has_hash =
-          dll_info.size >= CEF_VERSION_INFO_SIZE_WITH_SANDBOX_HASH;
+      if (check_dll_version) {
+        // Check sandbox compatibility hashes if available. This is a hash of
+        // all Chromium APIs (sandbox + chrome_elf) that are likely to drift
+        // between versions and should give an accurate picture of Chromium
+        // binary compatibility. Patch version changes in the same Chromium
+        // milestone will generally be compatible (but not guaranteed, hence the
+        // check).
+        const bool version_info_has_hash =
+            version_info->size >= CEF_VERSION_INFO_SIZE_WITH_SANDBOX_HASH;
+        const bool dll_info_has_hash =
+            dll_info.size >= CEF_VERSION_INFO_SIZE_WITH_SANDBOX_HASH;
 
-      if (version_info_has_hash && dll_info_has_hash) {
-        if (version_info->sandbox_compat_hash[0] != '\0' &&
-            dll_info.sandbox_compat_hash[0] != '\0') {
-          if (std::strcmp(version_info->sandbox_compat_hash,
-                          dll_info.sandbox_compat_hash) != 0) {
-            LOG(FATAL) << "Failed libcef.dll sandbox compatibility check; "
-                          "bootstrap hash: "
-                       << version_info->sandbox_compat_hash
-                       << ", bootstrap version: "
-                       << version_info->cef_version_major << "."
-                       << version_info->cef_version_minor << "."
-                       << version_info->cef_version_patch
-                       << ", libcef hash: " << dll_info.sandbox_compat_hash
-                       << ", libcef version: " << dll_info.cef_version_major
-                       << "." << dll_info.cef_version_minor << "."
-                       << dll_info.cef_version_patch;
+        if (version_info_has_hash && dll_info_has_hash) {
+          if (version_info->sandbox_compat_hash[0] != '\0' &&
+              dll_info.sandbox_compat_hash[0] != '\0') {
+            if (std::strcmp(version_info->sandbox_compat_hash,
+                            dll_info.sandbox_compat_hash) != 0) {
+              LOG(FATAL) << "Failed libcef.dll sandbox compatibility check; "
+                            "bootstrap hash: "
+                         << version_info->sandbox_compat_hash
+                         << ", bootstrap version: "
+                         << version_info->cef_version_major << "."
+                         << version_info->cef_version_minor << "."
+                         << version_info->cef_version_patch
+                         << ", libcef hash: " << dll_info.sandbox_compat_hash
+                         << ", libcef version: " << dll_info.cef_version_major
+                         << "." << dll_info.cef_version_minor << "."
+                         << dll_info.cef_version_patch;
+            }
+            check_dll_version = false;
           }
-          check_dll_version = false;
         }
       }
 #endif  // CEF_API_ADDED(14600)
 
+      // Older API versions require strict Chromium version checks (major +
+      // patch). Prior to sandbox compatibility hashing we don't know which
+      // non-exact Chromium binary matches are compatible.
       if (check_dll_version && (dll_info.chrome_version_major !=
                                     version_info->chrome_version_major ||
                                 dll_info.chrome_version_patch !=
@@ -118,6 +148,10 @@ HMODULE Load(const std::wstring& dll_path,
                    << dll_info.cef_version_patch;
       }
 
+      // Always check API hash compatibility. This is the last line of defense
+      // against loading an incompatible API version. For example, a client
+      // built with (unversioned) CEF_EXPERIMENTAL API requires a DLL built with
+      // the same unversioned API surface (as captured by the API hash).
       const char* api_hash = cef_api_hash(CEF_API_VERSION, 0);
       if (std::strcmp(api_hash, CEF_API_HASH_PLATFORM) != 0) {
         LOG(FATAL) << "Failed libcef.dll API compatibility check; "

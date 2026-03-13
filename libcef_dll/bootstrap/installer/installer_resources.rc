@@ -1,0 +1,63 @@
+// Copyright 2026 The Chromium Embedded Framework Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#include "libcef_dll/bootstrap/installer/installer_resources.h"
+
+#include <windows.h>
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_INSTALLER_PROGRESS DIALOGEX 0, 0, 280, 70
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "CEF Installer"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Checking for updates...",IDC_INSTALLER_STEP,10,10,230,12
+    RTEXT           "0%",IDC_INSTALLER_PERCENT,240,10,30,12
+    CONTROL         "",IDC_INSTALLER_PROGRESS,"msctls_progress32",WS_BORDER,10,26,260,14
+    PUSHBUTTON      "Cancel",IDC_INSTALLER_CANCEL,215,50,55,14
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_INSTALLER_TITLE              "CEF Installer"
+    IDS_INSTALLER_STEP_INITIALIZING  "Initializing..."
+    IDS_INSTALLER_STEP_CHECKING      "Checking versions..."
+    IDS_INSTALLER_STEP_DOWNLOADING   "Downloading..."
+    IDS_INSTALLER_STEP_EXTRACTING    "Extracting..."
+    IDS_INSTALLER_STEP_VERIFYING     "Verifying signatures..."
+    IDS_INSTALLER_STEP_INSTALLING    "Installing..."
+    IDS_INSTALLER_STEP_COMMITTING    "Committing..."
+    IDS_INSTALLER_STEP_CLEANING      "Cleaning up..."
+    IDS_INSTALLER_CANCEL             "Cancel"
+    IDS_INSTALLER_ERROR_TITLE        "Installation Error"
+    IDS_INSTALLER_PERCENT_FORMAT     "$1%"
+    IDS_INSTALLER_ERROR_MESSAGE_FORMAT "$1\n\nError code: $2"
+    IDS_INSTALLER_ERROR_MESSAGE_CONFIG "The application isn't configured correctly. Check for an application update or contact support."
+    IDS_INSTALLER_ERROR_MESSAGE_NETWORK "The files needed for installation couldn't be downloaded. Check your internet connection and try again."
+    IDS_INSTALLER_ERROR_MESSAGE_VERIFICATION "The downloaded files couldn't be verified. Try again. If the problem continues, contact support."
+    IDS_INSTALLER_ERROR_MESSAGE_COMPATIBILITY "A compatible component version isn't currently available. Check for an application update or contact support."
+    IDS_INSTALLER_ERROR_MESSAGE_BUSY "Another setup operation may be in progress. Wait for it to finish, then try again."
+    IDS_INSTALLER_ERROR_MESSAGE_POLICY "The requested operation couldn't continue because of an organization policy. Contact your system administrator."
+    IDS_INSTALLER_ERROR_MESSAGE_GENERIC "The requested operation couldn't be completed. Try again. If the problem continues, contact support."
+END
+
+#endif    // English (U.S.) resources

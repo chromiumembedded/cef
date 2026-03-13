@@ -1,0 +1,284 @@
+# Copyright 2026 The Chromium Embedded Framework Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//cef/libcef/features/features.gni")
+import("//testing/libfuzzer/fuzzer_test.gni")
+import("//testing/test.gni")
+
+if (is_win) {
+  action("cef_installer_config") {
+    script = "//cef/tools/make_installer_config.py"
+
+    inputs = [
+      "//cef/cef_api_versions.json",
+      "//cef/tests/cefclient/win/installer_config.json.in",
+    ]
+    outputs = [
+      "$root_gen_dir/cef/installer_config.json",
+      "$root_gen_dir/cef/installer_config.rc",
+    ]
+
+    args = [
+      "--template",
+      rebase_path("//cef/tests/cefclient/win/installer_config.json.in",
+                  root_build_dir),
+      "--api-versions",
+      rebase_path("//cef/cef_api_versions.json", root_build_dir),
+      "--output-json",
+      rebase_path(outputs[0], root_build_dir),
+      "--output-rc",
+      rebase_path(outputs[1], root_build_dir),
+      "--resource-name",
+      "CEF_INSTALLER_CONFIG",
+    ]
+
+    if (cef_api_version != "") {
+      args += [
+        "--api-version",
+        cef_api_version,
+      ]
+    }
+  }
+
+  action("installer_revocation_resource") {
+    script = "//cef/tools/make_revocation_resource.py"
+
+    inputs = [
+      "//cef/cef_api_versions.json",
+      "//cef/tools/cefbuilds/revoked.json",
+    ]
+    outputs = [
+      "$root_gen_dir/cef/installer/revocation_list.json",
+      "$root_gen_dir/cef/installer/revocation_list.rc",
+    ]
+
+    args = [
+      "--revoked-json",
+      rebase_path("//cef/tools/cefbuilds/revoked.json", root_build_dir),
+      "--api-versions",
+      rebase_path("//cef/cef_api_versions.json", root_build_dir),
+      "--output-json",
+      rebase_path(outputs[0], root_build_dir),
+      "--output-rc",
+      rebase_path(outputs[1], root_build_dir),
+      "--resource-name",
+      "CEF_REVOCATION_LIST",
+    ]
+
+    if (cef_api_version != "") {
+      args += [
+        "--api-version",
+        cef_api_version,
+      ]
+    }
+  }
+
+  source_set("cef_installer") {
+    sources = [
+      "$root_gen_dir/cef/installer/revocation_list.rc",
+      "installer_archive.cc",
+      "installer_archive.h",
+      "installer_bootstrap_helpers.cc",
+      "installer_bootstrap_helpers.h",
+      "installer_cdn_manifest.cc",
+      "installer_cdn_manifest.h",
+      "installer_config.cc",
+      "installer_config.h",
+      "installer_constants.h",
+      "installer_controller.cc",
+      "installer_controller.h",
+      "installer_crc.cc",
+      "installer_crc.h",
+      "installer_database.cc",
+      "installer_database.h",
+      "installer_download.cc",
+      "installer_download.h",
+      "installer_e2e_config.cc",
+      "installer_e2e_config.h",
+      "installer_file_integrity.cc",
+      "installer_file_integrity.h",
+      "installer_file_ops.cc",
+      "installer_file_ops.h",
+      "installer_launch_state.cc",
+      "installer_launch_state.h",
+      "installer_lock.cc",
+      "installer_lock.h",
+      "installer_lifecycle.cc",
+      "installer_lifecycle.h",
+      "installer_logger.cc",
+      "installer_logger.h",
+      "installer_parallel_xz.cc",
+      "installer_parallel_xz.h",
+      "installer_paths.cc",
+      "installer_paths.h",
+      "installer_policy.cc",
+      "installer_policy.h",
+      "installer_progress_dialog.cc",
+      "installer_progress_dialog.h",
+      "installer_registry.cc",
+      "installer_registry.h",
+      "installer_relaunch.cc",
+      "installer_relaunch.h",
+      "installer_result_json.cc",
+      "installer_result_json.h",
+      "installer_retention.cc",
+      "installer_retention.h",
+      "installer_revocation.cc",
+      "installer_revocation.h",
+      "installer_scoped_thread_pool.cc",
+      "installer_scoped_thread_pool.h",
+      "installer_signature.cc",
+      "installer_signature.h",
+      "installer_validation.cc",
+      "installer_validation.h",
+      "installer_version.cc",
+      "installer_version.h",
+      "installer_version_metadata.cc",
+      "installer_version_metadata.h",
+      "installer_version_resolver.cc",
+      "installer_version_resolver.h",
+      "installer_xz_index.cc",
+      "installer_xz_index.h",
+    ]
+
+    deps = [
+      ":installer_revocation_resource",
+      "//base",
+      "//cef:cef_certificate_util",
+      "//crypto",
+    ]
+
+    libs = [
+      "advapi32.lib",
+      "comctl32.lib",
+      "user32.lib",
+    ]
+
+    public_deps = [
+      "//cef:make_api_versions_header",
+      "//cef:make_config_header",
+      "//cef:make_version_header",
+      "//cef/libcef/features:buildflags",
+      "//third_party/lzma_sdk",
+      "//third_party/lzma_sdk:lzma_sdk_xz",
+    ]
+
+    configs += [
+      "//build/config:precompiled_headers",
+      "//cef/libcef/features:config",
+    ]
+  }
+
+  test("cef_installer_unittests") {
+    testonly = true
+
+    sources = [
+      "installer_archive_unittest.cc",
+      "installer_bootstrap_helpers_unittest.cc",
+      "installer_cdn_manifest_unittest.cc",
+      "installer_config_unittest.cc",
+      "installer_controller_unittest.cc",
+      "installer_database_unittest.cc",
+      "installer_download_unittest.cc",
+      "installer_e2e_config_unittest.cc",
+      "installer_file_integrity_unittest.cc",
+      "installer_file_ops_unittest.cc",
+      "installer_integration_test.cc",
+      "installer_launch_state_unittest.cc",
+      "installer_lock_unittest.cc",
+      "installer_lifecycle_test_support.cc",
+      "installer_lifecycle_test_support.h",
+      "installer_lifecycle_unittest.cc",
+      "installer_logger_unittest.cc",
+      "installer_parallel_xz_unittest.cc",
+      "installer_paths_unittest.cc",
+      "installer_policy_unittest.cc",
+      "installer_progress_dialog_unittest.cc",
+      "installer_progress_ui_integration_unittest.cc",
+      "installer_registry_unittest.cc",
+      "installer_relaunch_unittest.cc",
+      "installer_resources.rc",
+      "installer_retention_unittest.cc",
+      "installer_revocation_unittest.cc",
+      "installer_signature_unittest.cc",
+      "installer_test_archive.cc",
+      "installer_test_archive.h",
+      "installer_test_catalog.cc",
+      "installer_test_catalog.h",
+      "installer_test_helpers.cc",
+      "installer_test_helpers.h",
+      "installer_test_resources.h",
+      "installer_test_resources.rc",
+      "installer_validation_unittest.cc",
+      "installer_version_metadata_unittest.cc",
+      "installer_version_resolver_unittest.cc",
+      "installer_version_unittest.cc",
+      "installer_xz_index_unittest.cc",
+    ]
+
+    data = [
+      "testdata/loopback_tls_cert.pem",
+      "testdata/loopback_tls_key.pem",
+      "testdata/multi_block_4.tar.xz",
+      "testdata/multi_block_large.tar.xz",
+      "testdata/single_block.tar.xz",
+      "testdata/small_single.tar.xz",
+      "testdata/test_signing.cer",
+      "testdata/test_signing.pfx",
+      "testdata/test_thumbprint.txt",
+    ]
+
+    deps = [
+      ":cef_installer",
+      "e2e/config_test_dlls",
+      "//base",
+      "//base/test:run_all_unittests",
+      "//net:test_support",
+      "//testing/gtest",
+    ]
+
+    configs += [
+      "//build/config:precompiled_headers",
+      "//cef/libcef/features:config",
+    ]
+  }
+
+  group("installer_tests") {
+    testonly = true
+    deps = [
+      ":cef_installer_unittests",
+      "e2e",
+    ]
+  }
+
+  fuzzer_test("installer_xz_index_fuzzer") {
+    sources = [ "installer_xz_index_fuzzer.cc" ]
+    deps = [
+      ":cef_installer",
+      "//base",
+      "//third_party/lzma_sdk",
+    ]
+    seed_corpus = "testdata"
+  }
+
+  fuzzer_test("installer_tar_fuzzer") {
+    sources = [ "installer_tar_fuzzer.cc" ]
+    deps = [
+      ":cef_installer",
+      "//base",
+    ]
+    libfuzzer_options = [ "max_len=65536" ]
+  }
+
+  fuzzer_test("installer_xz_block_fuzzer") {
+    sources = [ "installer_xz_block_fuzzer.cc" ]
+    deps = [
+      ":cef_installer",
+      "//base",
+      "//third_party/lzma_sdk",
+      "//third_party/lzma_sdk:lzma_sdk_xz",
+    ]
+    seed_corpus = "testdata"
+  }
+}
