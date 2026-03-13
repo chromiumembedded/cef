@@ -70,6 +70,15 @@ This directory contains tools and instructions for using Claude Code to assist w
 - Handling version differences between Chromium versions
 - Verifying patches can be reverted and reapplied
 
+**Are you improving unit test coverage?**
+
+→ See [CLAUDE_COVERAGE_INSTRUCTIONS.md](CLAUDE_COVERAGE_INSTRUCTIONS.md) for running and analyzing code coverage:
+
+- Human prerequisites for setting up coverage builds
+- Building and running tests with coverage instrumentation
+- Analyzing coverage reports to identify gaps
+- Workflow for improving function and line coverage
+
 ## Files in This Directory
 
 ### Documentation
@@ -80,6 +89,7 @@ This directory contains tools and instructions for using Claude Code to assist w
 - **[CLAUDE_BUILD_INSTRUCTIONS.md](CLAUDE_BUILD_INSTRUCTIONS.md)** - Detailed instructions for Claude agents fixing build errors
 - **[CLAUDE_CHERRY_PICK_INSTRUCTIONS.md](CLAUDE_CHERRY_PICK_INSTRUCTIONS.md)** - Instructions for cherry-picking commits from upstream CEF that include patch files
 - **[CLAUDE_CLIENT_INSTRUCTIONS.md](CLAUDE_CLIENT_INSTRUCTIONS.md)** - Detailed instructions for Claude agents implementing features in CEF applications
+- **[CLAUDE_COVERAGE_INSTRUCTIONS.md](CLAUDE_COVERAGE_INSTRUCTIONS.md)** - Instructions for running and analyzing code coverage
 - **[CLAUDE_LIBCEF_INSTRUCTIONS.md](CLAUDE_LIBCEF_INSTRUCTIONS.md)** - Detailed instructions for Claude agents developing libcef internals (API versioning, WebContentsDelegate)
 - **[CLAUDE_PATCH_INSTRUCTIONS.md](CLAUDE_PATCH_INSTRUCTIONS.md)** - Detailed instructions for Claude agents fixing patch failures
 - **[CLAUDE_SRC_PATCH_INSTRUCTIONS.md](CLAUDE_SRC_PATCH_INSTRUCTIONS.md)** - Instructions for applying Chromium commits to CEF as new or existing patches
@@ -91,6 +101,7 @@ This directory contains tools and instructions for using Claude Code to assist w
 ### Python Tools
 
 - **[analyze_build_output.py](analyze_build_output.py)** - Analyze and format ninja build output with error index
+- **[analyze_coverage_output.py](analyze_coverage_output.py)** - Analyze LLVM coverage reports and identify coverage gaps
 - **[analyze_patch_output.py](analyze_patch_output.py)** - Analyze and format `patch_updater.py` output with file movement detection
 - **[patch_utils.py](patch_utils.py)** - Shared utilities for patch analysis tools (file movement detection)
 - **[verify_patch.py](verify_patch.py)** - Verify that regenerated patches include all changes from reject files
@@ -99,6 +110,7 @@ This directory contains tools and instructions for using Claude Code to assist w
 ### Test Files
 
 - **[analyze_build_output_test.py](analyze_build_output_test.py)** - Unit tests for analyze_build_output.py
+- **[analyze_coverage_output_test.py](analyze_coverage_output_test.py)** - Unit tests for analyze_coverage_output.py
 - **[analyze_patch_output_test.py](analyze_patch_output_test.py)** - Unit tests for analyze_patch_output.py
 - **[patch_utils_test.py](patch_utils_test.py)** - Unit tests for patch_utils.py
 - **[verify_patch_test.py](verify_patch_test.py)** - Unit tests for verify_patch.py
