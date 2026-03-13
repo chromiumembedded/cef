@@ -90,6 +90,10 @@ _cef_version_dev_regex = _cef_number_regex + r'\-\w+\.[0-9]{1,7}\+' + _cef_hash_
 class cef_json_builder:
   """ Class used to build the cefbuilds JSON file. """
 
+  # Minimum milestone that supports sandbox_compat (ABI hash) queries.
+  # Can be overridden for testing.
+  MIN_SANDBOX_COMPAT_MILESTONE = 146
+
   def __init__(self, prettyprint=False, silent=True):
     """ Create a new cef_json_builder object. """
     self._prettyprint = prettyprint
@@ -107,7 +111,7 @@ class cef_json_builder:
   def get_distrib_types():
     """ Returns the list of supported distribution types. """
     return ('standard', 'minimal', 'client', 'tools', 'release_symbols',
-            'debug_symbols')
+            'debug_symbols', 'signed')
 
   @staticmethod
   def is_valid_version(version):
@@ -133,6 +137,16 @@ class cef_json_builder:
       return False
     # 16-character hex string
     return bool(re.compile('^[0-9a-f]{16}$').match(sandbox_compat))
+
+  @staticmethod
+  def get_short_version(cef_version):
+    """Extract short version (e.g., '137.3.5') from full CEF version."""
+    return cef_version.split('+')[0]
+
+  @staticmethod
+  def get_milestone(cef_version):
+    """Extract milestone (major version number) from CEF version."""
+    return int(cef_version.split('.')[0])
 
   @staticmethod
   def cef_version_to_api_version(cef_version):
@@ -190,12 +204,11 @@ class cef_json_builder:
     # Return a string representation of this object.
     self._sort_versions()
     if self._prettyprint:
-      return json.dumps(
-          self._data,
-          cls=cef_json_encoder,
-          sort_keys=True,
-          indent=2,
-          separators=(',', ': '))
+      return json.dumps(self._data,
+                        cls=cef_json_encoder,
+                        sort_keys=True,
+                        indent=2,
+                        separators=(',', ': '))
     else:
       return json.dumps(self._data, cls=cef_json_encoder, sort_keys=True)
 
@@ -310,6 +323,10 @@ class cef_json_builder:
     target_version = self.cef_version_to_api_version(cef_version)
     if target_version is None:
       # Old-style version numbers don't have API versioning.
+      return None
+
+    # sandbox_compat (ABI hash) only exists for recent milestones.
+    if self.get_milestone(cef_version) < self.MIN_SANDBOX_COMPAT_MILESTONE:
       return None
 
     json_data = self._query_api_versions_json(cef_version)
@@ -492,6 +509,11 @@ class cef_json_builder:
     # Might be '<version>_<platform>_tools'.
     if name_parts[-1] == 'tools':
       type = 'tools'
+      del name_parts[-1]
+
+    # Might be '<version>_<platform>_signed'.
+    if name_parts[-1] == 'signed':
+      type = 'signed'
       del name_parts[-1]
 
     # Might be '<version>_<platform>_beta'.

@@ -12,6 +12,14 @@ from unittest.mock import patch, MagicMock
 
 class TestCefJSONBuilder(unittest.TestCase):
 
+  def setUp(self):
+    # Allow sandbox_compat queries for all milestones in tests.
+    self._orig_min = cef_json_builder.MIN_SANDBOX_COMPAT_MILESTONE
+    cef_json_builder.MIN_SANDBOX_COMPAT_MILESTONE = 0
+
+  def tearDown(self):
+    cef_json_builder.MIN_SANDBOX_COMPAT_MILESTONE = self._orig_min
+
   # Test CEF version number matching.
   def test_valid_version(self):
     # Old-style version numbers.
@@ -212,8 +220,10 @@ class TestCefJSONBuilder(unittest.TestCase):
       builder = cef_json_builder()
 
       # Specify all values just in case the defaults change.
-      expected = self._add_test_file(
-          builder, platform='linux32', version=version, type='standard')
+      expected = self._add_test_file(builder,
+                                     platform='linux32',
+                                     version=version,
+                                     type='standard')
 
       # No filter.
       files = builder.get_files()
@@ -247,18 +257,22 @@ class TestCefJSONBuilder(unittest.TestCase):
       self.assertEqual(len(files), 0)
 
       # All filters.
-      files = builder.get_files(
-          platform='linux32', version=partial_version, type='standard')
+      files = builder.get_files(platform='linux32',
+                                version=partial_version,
+                                type='standard')
       self.assertEqual(len(files), 1)
       self.assertEqual(expected, files[0])
-      files = builder.get_files(
-          platform='linux32', version=partial_version, type='minimal')
+      files = builder.get_files(platform='linux32',
+                                version=partial_version,
+                                type='minimal')
       self.assertEqual(len(files), 0)
-      files = builder.get_files(
-          platform='linux32', version='3.2623', type='standard')
+      files = builder.get_files(platform='linux32',
+                                version='3.2623',
+                                type='standard')
       self.assertEqual(len(files), 0)
-      files = builder.get_files(
-          platform='linux64', version=partial_version, type='standard')
+      files = builder.get_files(platform='linux64',
+                                version=partial_version,
+                                type='standard')
       self.assertEqual(len(files), 0)
 
   # Test add/get of multiple files.
@@ -280,8 +294,10 @@ class TestCefJSONBuilder(unittest.TestCase):
       for version in versions:
         for type in types:
           expected.append(
-              self._add_test_file(
-                  builder, platform=platform, type=type, version=version))
+              self._add_test_file(builder,
+                                  platform=platform,
+                                  type=type,
+                                  version=version))
 
     self._verify_write_read(builder)
 
@@ -307,8 +323,9 @@ class TestCefJSONBuilder(unittest.TestCase):
     for platform in platforms:
       for version in versions:
         for type in types:
-          files = builder.get_files(
-              platform=platform, type=type, version=version)
+          files = builder.get_files(platform=platform,
+                                    type=type,
+                                    version=version)
           self.assertEqual(len(files), 1)
           self.assertEqual(expected[idx], files[0])
           idx += 1
@@ -325,8 +342,10 @@ class TestCefJSONBuilder(unittest.TestCase):
       # Initial file versions.
       for platform in platforms:
         for type in types:
-          self._add_test_file(
-              builder, platform=platform, type=type, version=version)
+          self._add_test_file(builder,
+                              platform=platform,
+                              type=type,
+                              version=version)
 
       # No filter.
       files = builder.get_files()
@@ -338,12 +357,11 @@ class TestCefJSONBuilder(unittest.TestCase):
       for platform in platforms:
         for type in types:
           expected.append(
-              self._add_test_file(
-                  builder,
-                  platform=platform,
-                  type=type,
-                  version=version,
-                  attrib_idx=1))
+              self._add_test_file(builder,
+                                  platform=platform,
+                                  type=type,
+                                  version=version,
+                                  attrib_idx=1))
 
       # No filter.
       files = builder.get_files()
@@ -353,8 +371,9 @@ class TestCefJSONBuilder(unittest.TestCase):
       idx = 0
       for platform in platforms:
         for type in types:
-          files = builder.get_files(
-              platform=platform, type=type, version=version)
+          files = builder.get_files(platform=platform,
+                                    type=type,
+                                    version=version)
           self.assertEqual(len(files), 1)
           self.assertEqual(expected[idx], files[0])
           idx += 1
@@ -371,8 +390,10 @@ class TestCefJSONBuilder(unittest.TestCase):
       # Initial file versions.
       for platform in platforms:
         for type in types:
-          self._add_test_file(
-              builder, platform=platform, type=type, version=version)
+          self._add_test_file(builder,
+                              platform=platform,
+                              type=type,
+                              version=version)
 
       # No filter.
       files = builder.get_files()
@@ -384,12 +405,11 @@ class TestCefJSONBuilder(unittest.TestCase):
       for platform in platforms:
         for type in types:
           expected.append(
-              self._add_test_file(
-                  builder,
-                  platform=platform,
-                  type=type,
-                  version=version,
-                  shouldfail=True))
+              self._add_test_file(builder,
+                                  platform=platform,
+                                  type=type,
+                                  version=version,
+                                  shouldfail=True))
 
       # No filter.
       files = builder.get_files()
@@ -399,8 +419,9 @@ class TestCefJSONBuilder(unittest.TestCase):
       idx = 0
       for platform in platforms:
         for type in types:
-          files = builder.get_files(
-              platform=platform, type=type, version=version)
+          files = builder.get_files(platform=platform,
+                                    type=type,
+                                    version=version)
           self.assertEqual(len(files), 1)
           self.assertEqual(expected[idx], files[0])
           idx += 1
@@ -495,21 +516,26 @@ class TestCefJSONBuilder(unittest.TestCase):
   # Test CEF version to API version conversion.
   def test_cef_version_to_api_version(self):
     # New-style version numbers.
-    self.assertEqual('13800',
-                     cef_json_builder.cef_version_to_api_version(
-                         '138.0.1+g62d140e+chromium-138.0.7204.0'))
-    self.assertEqual('13801',
-                     cef_json_builder.cef_version_to_api_version(
-                         '138.1.0+g62d140e+chromium-138.0.7204.0'))
-    self.assertEqual('13802',
-                     cef_json_builder.cef_version_to_api_version(
-                         '138.2.5+g62d140e+chromium-138.0.7204.0'))
-    self.assertEqual('7401',
-                     cef_json_builder.cef_version_to_api_version(
-                         '74.1.0+g62d140e+chromium-74.0.3729.6'))
-    self.assertEqual('10000',
-                     cef_json_builder.cef_version_to_api_version(
-                         '100.0.0+g62d140e+chromium-100.0.4896.0'))
+    self.assertEqual(
+        '13800',
+        cef_json_builder.cef_version_to_api_version(
+            '138.0.1+g62d140e+chromium-138.0.7204.0'))
+    self.assertEqual(
+        '13801',
+        cef_json_builder.cef_version_to_api_version(
+            '138.1.0+g62d140e+chromium-138.0.7204.0'))
+    self.assertEqual(
+        '13802',
+        cef_json_builder.cef_version_to_api_version(
+            '138.2.5+g62d140e+chromium-138.0.7204.0'))
+    self.assertEqual(
+        '7401',
+        cef_json_builder.cef_version_to_api_version(
+            '74.1.0+g62d140e+chromium-74.0.3729.6'))
+    self.assertEqual(
+        '10000',
+        cef_json_builder.cef_version_to_api_version(
+            '100.0.0+g62d140e+chromium-100.0.4896.0'))
 
     # Old-style version numbers return None (no API versioning).
     self.assertIsNone(
@@ -713,6 +739,35 @@ class TestCefJSONBuilder(unittest.TestCase):
     versions = builder2.get_versions('linux64')
     self.assertEqual(1, len(versions))
     self.assertEqual('abc123def4567890', versions[0].get('sandbox_compat'))
+
+  # Test get_short_version static method.
+  def test_get_short_version(self):
+    # New-style version returns short version.
+    self.assertEqual(
+        '137.3.5',
+        cef_json_builder.get_short_version(
+            '137.3.5+g62d140e+chromium-137.0.7204.6'))
+    # Old-style version returns full string (no '+').
+    self.assertEqual('3.2704.1414.g185cd6c',
+                     cef_json_builder.get_short_version('3.2704.1414.g185cd6c'))
+
+  # Test get_milestone static method.
+  def test_get_milestone(self):
+    # New-style version returns milestone.
+    self.assertEqual(
+        137,
+        cef_json_builder.get_milestone(
+            '137.3.5+g62d140e+chromium-137.0.7204.6'))
+    # Old-style version returns 3.
+    self.assertEqual(3, cef_json_builder.get_milestone('3.2704.1414.g185cd6c'))
+
+  # Test add/get of a signed type file.
+  def test_add_signed_file(self):
+    self._test_add_file('signed')
+
+  # Test add/get of a signed type file in beta channel.
+  def test_add_signed_file_beta(self):
+    self._test_add_file('signed', channel='beta')
 
   # Test set_sandbox_compat with explicit value.
   def test_set_sandbox_compat_explicit(self):

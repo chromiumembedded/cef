@@ -11,12 +11,17 @@
 # Add files for all platforms at the specified version:
 # > python cef_json_builder_example.py add all 3.2704.1416.g185cd6c 51.0.2704.47
 #
+# Add files and also generate installer query files:
+# > python cef_json_builder_example.py add all 137.3.5+g62d140e+chromium-137.0.7204.6 137.0.7204.6 --installer
+#
 # See cef_json_builder.get_platforms() for the list of supported platforms.
 
 from __future__ import absolute_import
 from __future__ import print_function
 from cef_json_builder import cef_json_builder
+from cef_installer_builder import cef_installer_builder
 import datetime
+import json
 import os
 import random
 import string
@@ -25,8 +30,8 @@ import sys
 
 # Create a fake sha1 checksum value.
 def make_fake_sha1():
-  return ''.join(random.SystemRandom().choice('abcdef' + string.digits)
-                 for _ in range(40))
+  return ''.join(
+      random.SystemRandom().choice('abcdef' + string.digits) for _ in range(40))
 
 
 # Create a fake file size value.
@@ -63,6 +68,9 @@ def create_fake_files(platform, version):
     files.append(make_fake_file_info(platform, version, 'debug_symbols'))
     files.append(make_fake_file_info(platform, version, 'release_symbols'))
 
+  # All platforms create signed distributions (for installer use).
+  files.append(make_fake_file_info(platform, version, 'signed'))
+
   return files
 
 
@@ -71,9 +79,12 @@ if __name__ == '__main__':
   # Verify command-line arguments.
   if len(sys.argv) < 5 or sys.argv[1] != 'add':
     sys.stderr.write(
-        'Usage: %s add <platform> <cef_version> <chromium_version>\n' %
-        sys.argv[0])
+        'Usage: %s add <platform> <cef_version> <chromium_version> [--installer]\n'
+        % sys.argv[0])
     sys.exit()
+
+  # Check for --installer flag.
+  generate_installer = '--installer' in sys.argv
 
   # Requested platform.
   if sys.argv[2] == 'all':
@@ -148,3 +159,69 @@ if __name__ == '__main__':
     # A real implementation would now upload the changed files.
     for file in changed_files:
       print('--> Upload file %s' % file['name'])
+
+  # Optionally generate installer query files.
+  if generate_installer:
+    # Load revoked.json if it exists.
+    revoked_file = os.path.join(current_dir, 'revoked.json')
+    revoked_json = None
+    if os.path.exists(revoked_file):
+      print('--> Reading revoked.json')
+      with open(revoked_file, 'r') as f:
+        revoked_json = json.loads(f.read())
+
+    installer = cef_installer_builder(builder, revoked_json=revoked_json)
+
+    # Generate stable.txt.
+    for channel in ('stable', 'beta'):
+      stable_txt = installer.generate_stable_txt(channel=channel)
+      if stable_txt is not None:
+        filename = '%s.txt' % channel
+        filepath = os.path.join(current_dir, filename)
+        print('--> Writing %s' % filename)
+        with open(filepath, 'w') as f:
+          f.write(stable_txt)
+
+    # Generate per-milestone and per-milestone+platform JSON files.
+    for channel in ('stable', 'beta'):
+      for milestone in installer.get_milestones(channel=channel):
+        channel_suffix = '_' + channel if channel != 'stable' else ''
+
+        # {milestone}.json
+        filename = '%d%s.json' % (milestone, channel_suffix)
+        filepath = os.path.join(current_dir, filename)
+        print('--> Writing %s' % filename)
+        with open(filepath, 'w') as f:
+          f.write(
+              installer.generate_milestone_json(milestone,
+                                                channel=channel,
+                                                prettyprint=True))
+
+        # {milestone}_{platform}.json
+        for platform in cef_json_builder.get_platforms():
+          content = installer.generate_milestone_platform_json(milestone,
+                                                               platform,
+                                                               channel=channel,
+                                                               prettyprint=True)
+          if content != '[]':
+            filename = '%d_%s%s.json' % (milestone, platform, channel_suffix)
+            filepath = os.path.join(current_dir, filename)
+            print('--> Writing %s' % filename)
+            with open(filepath, 'w') as f:
+              f.write(content)
+
+    # Generate per-abi_hash+platform JSON files (Windows only).
+    for channel in ('stable', 'beta'):
+      for abi_hash in installer.get_abi_hashes(channel=channel):
+        channel_suffix = '_' + channel if channel != 'stable' else ''
+        for platform in ('windows32', 'windows64', 'windowsarm64'):
+          content = installer.generate_abi_hash_platform_json(abi_hash,
+                                                              platform,
+                                                              channel=channel,
+                                                              prettyprint=True)
+          if content != '[]':
+            filename = '%s_%s%s.json' % (abi_hash, platform, channel_suffix)
+            filepath = os.path.join(current_dir, filename)
+            print('--> Writing %s' % filename)
+            with open(filepath, 'w') as f:
+              f.write(content)
