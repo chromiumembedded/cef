@@ -1,4 +1,4 @@
-# Copyright 2015-2017 Google Inc. All Rights Reserved.
+# Copyright 2015 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,20 +25,19 @@ the lib2to3 library.
 """
 
 import ast
-from lib2to3 import pygram
-from lib2to3 import pytree
-from lib2to3.pgen2 import driver
-from lib2to3.pgen2 import parse
-from lib2to3.pgen2 import token
+import os
+
+from yapf_third_party._ylib2to3 import pygram
+from yapf_third_party._ylib2to3 import pytree
+from yapf_third_party._ylib2to3.pgen2 import driver
+from yapf_third_party._ylib2to3.pgen2 import parse
+from yapf_third_party._ylib2to3.pgen2 import token
 
 # TODO(eliben): We may want to get rid of this filtering at some point once we
 # have a better understanding of what information we need from the tree. Then,
 # these tokens may be filtered out from the tree before the tree gets to the
 # unwrapper.
 NONSEMANTIC_TOKENS = frozenset(['DEDENT', 'INDENT', 'NEWLINE', 'ENDMARKER'])
-
-OPENING_BRACKETS = frozenset({'(', '[', '{'})
-CLOSING_BRACKETS = frozenset({')', ']', '}'})
 
 
 class Annotation(object):
@@ -68,16 +67,27 @@ def NodeName(node):
     return pygram.python_grammar.number2symbol[node.type]
 
 
+def FirstLeafNode(node):
+  if isinstance(node, pytree.Leaf):
+    return node
+  return FirstLeafNode(node.children[0])
+
+
+def LastLeafNode(node):
+  if isinstance(node, pytree.Leaf):
+    return node
+  return LastLeafNode(node.children[-1])
+
+
 # lib2to3 thoughtfully provides pygram.python_grammar_no_print_statement for
 # parsing Python 3 code that wouldn't parse otherwise (when 'print' is used in a
 # context where a keyword is disallowed).
 # It forgets to do the same for 'exec' though. Luckily, Python is amenable to
 # monkey-patching.
-_GRAMMAR_FOR_PY3 = pygram.python_grammar_no_print_statement.copy()
-del _GRAMMAR_FOR_PY3.keywords['exec']
-
-_GRAMMAR_FOR_PY2 = pygram.python_grammar.copy()
-del _GRAMMAR_FOR_PY2.keywords['nonlocal']
+# Note that pygram.python_grammar_no_print_and_exec_statement with "_and_exec"
+# will require Python >=3.8.
+_PYTHON_GRAMMAR = pygram.python_grammar_no_print_statement.copy()
+del _PYTHON_GRAMMAR.keywords['exec']
 
 
 def ParseCodeToTree(code):
@@ -95,25 +105,16 @@ def ParseCodeToTree(code):
   """
   # This function is tiny, but the incantation for invoking the parser correctly
   # is sufficiently magical to be worth abstracting away.
+  if not code.endswith(os.linesep):
+    code += os.linesep
+
   try:
-    # Try to parse using a Python 3 grammar, which is more permissive (print and
-    # exec are not keywords).
-    parser_driver = driver.Driver(_GRAMMAR_FOR_PY3, convert=pytree.convert)
+    parser_driver = driver.Driver(_PYTHON_GRAMMAR, convert=pytree.convert)
     tree = parser_driver.parse_string(code, debug=False)
   except parse.ParseError:
-    # Now try to parse using a Python 2 grammar; If this fails, then
-    # there's something else wrong with the code.
-    try:
-      parser_driver = driver.Driver(_GRAMMAR_FOR_PY2, convert=pytree.convert)
-      tree = parser_driver.parse_string(code, debug=False)
-    except parse.ParseError:
-      # Raise a syntax error if the code is invalid python syntax.
-      try:
-        ast.parse(code)
-      except SyntaxError as e:
-        raise e
-      else:
-        raise
+    # Raise a syntax error if the code is invalid python syntax.
+    ast.parse(code)
+    raise
   return _WrapEndMarker(tree)
 
 
@@ -206,6 +207,18 @@ def _InsertNodeAt(new_node, target, after=False):
 _NODE_ANNOTATION_PREFIX = '_yapf_annotation_'
 
 
+def CopyYapfAnnotations(src, dst):
+  """Copy all YAPF annotations from the source node to the destination node.
+
+  Arguments:
+    src: the source node.
+    dst: the destination node.
+  """
+  for annotation in dir(src):
+    if annotation.startswith(_NODE_ANNOTATION_PREFIX):
+      setattr(dst, annotation, getattr(src, annotation, None))
+
+
 def GetNodeAnnotation(node, annotation, default=None):
   """Get annotation value from a node.
 
@@ -258,6 +271,28 @@ def RemoveSubtypeAnnotation(node, value):
     SetNodeAnnotation(node, Annotation.SUBTYPE, attr)
 
 
+def GetOpeningBracket(node):
+  """Get opening bracket value from a node.
+
+  Arguments:
+    node: the node.
+
+  Returns:
+    The opening bracket node or None if it couldn't find one.
+  """
+  return getattr(node, _NODE_ANNOTATION_PREFIX + 'container_bracket', None)
+
+
+def SetOpeningBracket(node, bracket):
+  """Set opening bracket value for a node.
+
+  Arguments:
+    node: the node.
+    bracket: opening bracket to set.
+  """
+  setattr(node, _NODE_ANNOTATION_PREFIX + 'container_bracket', bracket)
+
+
 def DumpNodeToString(node):
   """Dump a string representation of the given node. For debugging.
 
@@ -268,13 +303,15 @@ def DumpNodeToString(node):
     The string representation.
   """
   if isinstance(node, pytree.Leaf):
-    fmt = '{name}({value}) [lineno={lineno}, column={column}, prefix={prefix}]'
+    fmt = ('{name}({value}) [lineno={lineno}, column={column}, '
+           'prefix={prefix}, penalty={penalty}]')
     return fmt.format(
         name=NodeName(node),
         value=_PytreeNodeRepr(node),
         lineno=node.lineno,
         column=node.column,
-        prefix=repr(node.prefix))
+        prefix=repr(node.prefix),
+        penalty=GetNodeAnnotation(node, Annotation.SPLIT_PENALTY, None))
   else:
     fmt = '{node} [{len} children] [child_indent="{indent}"]'
     return fmt.format(

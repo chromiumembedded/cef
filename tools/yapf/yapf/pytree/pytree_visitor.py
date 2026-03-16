@@ -1,4 +1,4 @@
-# Copyright 2015-2017 Google Inc. All Rights Reserved.
+# Copyright 2015 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,16 +19,16 @@ and Leaf types. This module implements a visitor pattern for such trees.
 It also exports a basic "dumping" visitor that dumps a textual representation of
 a pytree into a stream.
 
-  PyTreeVisitor: a generic visitor pattern fo pytrees.
+  PyTreeVisitor: a generic visitor pattern for pytrees.
   PyTreeDumper: a configurable "dumper" for displaying pytrees.
   DumpPyTree(): a convenience function to dump a pytree.
 """
 
 import sys
 
-from lib2to3 import pytree
+from yapf_third_party._ylib2to3 import pytree
 
-from yapf.yapflib import pytree_utils
+from yapf.pytree import pytree_utils
 
 
 class PyTreeVisitor(object):

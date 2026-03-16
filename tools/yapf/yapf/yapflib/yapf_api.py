@@ -1,4 +1,4 @@
-# Copyright 2015-2017 Google Inc. All Rights Reserved.
+# Copyright 2015 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,54 +29,58 @@ These APIs have some common arguments:
     than a whole file.
   print_diff: (bool) Instead of returning the reformatted source, return a
     diff that turns the formatted source into reformatter source.
-  verify: (bool) True if reformatted code should be verified for syntax.
 """
 
+import codecs
 import difflib
 import re
-import sys
 
-from lib2to3.pgen2 import tokenize
-
-from yapf.yapflib import blank_line_calculator
-from yapf.yapflib import comment_splicer
-from yapf.yapflib import continuation_splicer
+from yapf.pyparser import pyparser
+from yapf.pytree import blank_line_calculator
+from yapf.pytree import comment_splicer
+from yapf.pytree import continuation_splicer
+from yapf.pytree import pytree_unwrapper
+from yapf.pytree import pytree_utils
+from yapf.pytree import split_penalty
+from yapf.pytree import subtype_assigner
+from yapf.yapflib import errors
 from yapf.yapflib import file_resources
-from yapf.yapflib import py3compat
-from yapf.yapflib import pytree_unwrapper
-from yapf.yapflib import pytree_utils
+from yapf.yapflib import identify_container
 from yapf.yapflib import reformatter
-from yapf.yapflib import split_penalty
 from yapf.yapflib import style
-from yapf.yapflib import subtype_assigner
 
 
 def FormatFile(filename,
                style_config=None,
                lines=None,
                print_diff=False,
-               verify=False,
                in_place=False,
                logger=None):
   """Format a single Python file and return the formatted code.
 
   Arguments:
     filename: (unicode) The file to reformat.
+    style_config: (string) Either a style name or a path to a file that contains
+      formatting style settings. If None is specified, use the default style
+      as set in style.DEFAULT_STYLE_FACTORY
+    lines: (list of tuples of integers) A list of tuples of lines, [start, end],
+      that we want to format. The lines are 1-based indexed. It can be used by
+      third-party code (e.g., IDEs) when reformatting a snippet of code rather
+      than a whole file.
+    print_diff: (bool) Instead of returning the reformatted source, return a
+      diff that turns the formatted source into reformatter source.
     in_place: (bool) If True, write the reformatted code back to the file.
     logger: (io streamer) A stream to output logging.
-    remaining arguments: see comment at the top of this module.
 
   Returns:
     Tuple of (reformatted_code, encoding, changed). reformatted_code is None if
-    the file is sucessfully written to (having used in_place). reformatted_code
+    the file is successfully written to (having used in_place). reformatted_code
     is a diff if print_diff is True.
 
   Raises:
     IOError: raised if there was an error reading the file.
     ValueError: raised if in_place and print_diff are both specified.
   """
-  _CheckPythonVersion()
-
   if in_place and print_diff:
     raise ValueError('Cannot pass both in_place and print_diff.')
 
@@ -86,26 +90,89 @@ def FormatFile(filename,
       style_config=style_config,
       filename=filename,
       lines=lines,
-      print_diff=print_diff,
-      verify=verify)
-  if reformatted_source.rstrip('\n'):
-    lines = reformatted_source.rstrip('\n').split('\n')
-    reformatted_source = newline.join(line for line in lines) + newline
+      print_diff=print_diff)
+  if newline != '\n':
+    reformatted_source = reformatted_source.replace('\n', newline)
   if in_place:
-    if original_source and original_source != reformatted_source:
+    if changed:
       file_resources.WriteReformattedCode(filename, reformatted_source,
-                                          in_place, encoding)
+                                          encoding, in_place)
     return None, encoding, changed
 
   return reformatted_source, encoding, changed
+
+
+def FormatTree(tree, style_config=None, lines=None):
+  """Format a parsed lib2to3 pytree.
+
+  This provides an alternative entry point to YAPF.
+
+  Arguments:
+    tree: (pytree.Node) The root of the pytree to format.
+    style_config: (string) Either a style name or a path to a file that contains
+      formatting style settings. If None is specified, use the default style
+      as set in style.DEFAULT_STYLE_FACTORY
+    lines: (list of tuples of integers) A list of tuples of lines, [start, end],
+      that we want to format. The lines are 1-based indexed. It can be used by
+      third-party code (e.g., IDEs) when reformatting a snippet of code rather
+      than a whole file.
+
+  Returns:
+    The source formatted according to the given formatting style.
+  """
+  style.SetGlobalStyle(style.CreateStyleFromConfig(style_config))
+
+  # Run passes on the tree, modifying it in place.
+  comment_splicer.SpliceComments(tree)
+  continuation_splicer.SpliceContinuations(tree)
+  subtype_assigner.AssignSubtypes(tree)
+  identify_container.IdentifyContainers(tree)
+  split_penalty.ComputeSplitPenalties(tree)
+  blank_line_calculator.CalculateBlankLines(tree)
+
+  llines = pytree_unwrapper.UnwrapPyTree(tree)
+  for lline in llines:
+    lline.CalculateFormattingInformation()
+
+  lines = _LineRangesToSet(lines)
+  _MarkLinesToFormat(llines, lines)
+  return reformatter.Reformat(_SplitSemicolons(llines), lines)
+
+
+def FormatAST(ast, style_config=None, lines=None):
+  """Format a parsed lib2to3 pytree.
+
+  This provides an alternative entry point to YAPF.
+
+  Arguments:
+    unformatted_source: (unicode) The code to format.
+    style_config: (string) Either a style name or a path to a file that contains
+      formatting style settings. If None is specified, use the default style
+      as set in style.DEFAULT_STYLE_FACTORY
+    lines: (list of tuples of integers) A list of tuples of lines, [start, end],
+      that we want to format. The lines are 1-based indexed. It can be used by
+      third-party code (e.g., IDEs) when reformatting a snippet of code rather
+      than a whole file.
+
+  Returns:
+    The source formatted according to the given formatting style.
+  """
+  style.SetGlobalStyle(style.CreateStyleFromConfig(style_config))
+
+  llines = pyparser.ParseCode(ast)
+  for lline in llines:
+    lline.CalculateFormattingInformation()
+
+  lines = _LineRangesToSet(lines)
+  _MarkLinesToFormat(llines, lines)
+  return reformatter.Reformat(_SplitSemicolons(llines), lines)
 
 
 def FormatCode(unformatted_source,
                filename='<unknown>',
                style_config=None,
                lines=None,
-               print_diff=False,
-               verify=False):
+               print_diff=False):
   """Format a string of Python code.
 
   This provides an alternative entry point to YAPF.
@@ -113,52 +180,37 @@ def FormatCode(unformatted_source,
   Arguments:
     unformatted_source: (unicode) The code to format.
     filename: (unicode) The name of the file being reformatted.
-    remaining arguments: see comment at the top of this module.
+    style_config: (string) Either a style name or a path to a file that contains
+      formatting style settings. If None is specified, use the default style
+      as set in style.DEFAULT_STYLE_FACTORY
+    lines: (list of tuples of integers) A list of tuples of lines, [start, end],
+      that we want to format. The lines are 1-based indexed. It can be used by
+      third-party code (e.g., IDEs) when reformatting a snippet of code rather
+      than a whole file.
+    print_diff: (bool) Instead of returning the reformatted source, return a
+      diff that turns the formatted source into reformatter source.
 
   Returns:
     Tuple of (reformatted_source, changed). reformatted_source conforms to the
     desired formatting style. changed is True if the source changed.
   """
-  _CheckPythonVersion()
-  style.SetGlobalStyle(style.CreateStyleFromConfig(style_config))
-  if not unformatted_source.endswith('\n'):
-    unformatted_source += '\n'
-  tree = pytree_utils.ParseCodeToTree(unformatted_source)
+  try:
+    tree = pytree_utils.ParseCodeToTree(unformatted_source)
+  except Exception as e:
+    e.filename = filename
+    raise errors.YapfError(errors.FormatErrorMsg(e))
 
-  # Run passes on the tree, modifying it in place.
-  comment_splicer.SpliceComments(tree)
-  continuation_splicer.SpliceContinuations(tree)
-  subtype_assigner.AssignSubtypes(tree)
-  split_penalty.ComputeSplitPenalties(tree)
-  blank_line_calculator.CalculateBlankLines(tree)
-
-  uwlines = pytree_unwrapper.UnwrapPyTree(tree)
-  for uwl in uwlines:
-    uwl.CalculateFormattingInformation()
-
-  _MarkLinesToFormat(uwlines, lines)
-  reformatted_source = reformatter.Reformat(uwlines, verify)
+  reformatted_source = FormatTree(tree, style_config=style_config, lines=lines)
 
   if unformatted_source == reformatted_source:
     return '' if print_diff else reformatted_source, False
 
-  code_diff = _GetUnifiedDiff(
-      unformatted_source, reformatted_source, filename=filename)
-
   if print_diff:
-    return code_diff, code_diff != ''
+    code_diff = _GetUnifiedDiff(
+        unformatted_source, reformatted_source, filename=filename)
+    return code_diff, code_diff.strip() != ''  # pylint: disable=g-explicit-bool-comparison # noqa
 
   return reformatted_source, True
-
-
-def _CheckPythonVersion():  # pragma: no cover
-  errmsg = 'yapf is only supported for Python 2.7 or 3.4+'
-  if sys.version_info[0] == 2:
-    if sys.version_info[1] < 7:
-      raise RuntimeError(errmsg)
-  elif sys.version_info[0] == 3:
-    if sys.version_info[1] < 4:
-      raise RuntimeError(errmsg)
 
 
 def ReadFile(filename, logger=None):
@@ -179,79 +231,74 @@ def ReadFile(filename, logger=None):
     IOError: raised if there was an error reading the file.
   """
   try:
-    with open(filename, 'rb') as fd:
-      encoding = tokenize.detect_encoding(fd.readline)[0]
-  except IOError as err:
-    if logger:
-      logger(err)
-    raise
+    encoding = file_resources.FileEncoding(filename)
 
-  try:
     # Preserves line endings.
-    with py3compat.open_with_encoding(
-        filename, mode='r', encoding=encoding, newline='') as fd:
+    with codecs.open(filename, mode='r', encoding=encoding) as fd:
       lines = fd.readlines()
 
     line_ending = file_resources.LineEnding(lines)
     source = '\n'.join(line.rstrip('\r\n') for line in lines) + '\n'
     return source, line_ending, encoding
-  except IOError as err:  # pragma: no cover
+  except IOError as e:  # pragma: no cover
     if logger:
-      logger(err)
+      logger(e)
+    e.args = (e.args[0], (filename, e.args[1][1], e.args[1][2], e.args[1][3]))
+    raise
+  except UnicodeDecodeError as e:  # pragma: no cover
+    if logger:
+      logger('Could not parse %s! Consider excluding this file with --exclude.',
+             filename)
+      logger(e)
+    e.args = (e.args[0], (filename, e.args[1][1], e.args[1][2], e.args[1][3]))
     raise
 
 
-DISABLE_PATTERN = r'^#.*\byapf:\s*disable\b'
-ENABLE_PATTERN = r'^#.*\byapf:\s*enable\b'
+def _SplitSemicolons(lines):
+  res = []
+  for line in lines:
+    res.extend(line.Split())
+  return res
 
 
-def _MarkLinesToFormat(uwlines, lines):
+DISABLE_PATTERN = r'^#.*\b(?:yapf:\s*disable|fmt: ?off)\b'
+ENABLE_PATTERN = r'^#.*\b(?:yapf:\s*enable|fmt: ?on)\b'
+
+
+def _LineRangesToSet(line_ranges):
+  """Return a set of lines in the range."""
+
+  if line_ranges is None:
+    return None
+
+  line_set = set()
+  for low, high in sorted(line_ranges):
+    line_set.update(range(low, high + 1))
+
+  return line_set
+
+
+def _MarkLinesToFormat(llines, lines):
   """Skip sections of code that we shouldn't reformat."""
   if lines:
-    for uwline in uwlines:
-      uwline.disable = True
-
-    # Sort and combine overlapping ranges.
-    lines = sorted(lines)
-    line_ranges = [lines[0]] if len(lines[0]) else []
-    index = 1
-    while index < len(lines):
-      current = line_ranges[-1]
-      if lines[index][0] <= current[1]:
-        # The ranges overlap, so combine them.
-        line_ranges[-1] = (current[0], max(lines[index][1], current[1]))
-      else:
-        line_ranges.append(lines[index])
-      index += 1
-
-    # Mark lines to format as not being disabled.
-    index = 0
-    for start, end in sorted(line_ranges):
-      while index < len(uwlines) and uwlines[index].last.lineno < start:
-        index += 1
-      if index >= len(uwlines):
-        break
-
-      while index < len(uwlines):
-        if uwlines[index].lineno > end:
-          break
-        if (uwlines[index].lineno >= start or
-            uwlines[index].last.lineno >= start):
-          uwlines[index].disable = False
-        index += 1
+    for uwline in llines:
+      uwline.disable = not lines.intersection(
+          range(uwline.lineno, uwline.last.lineno + 1))
 
   # Now go through the lines and disable any lines explicitly marked as
   # disabled.
   index = 0
-  while index < len(uwlines):
-    uwline = uwlines[index]
+  while index < len(llines):
+    uwline = llines[index]
     if uwline.is_comment:
       if _DisableYAPF(uwline.first.value.strip()):
         index += 1
-        while index < len(uwlines):
-          uwline = uwlines[index]
-          if uwline.is_comment and _EnableYAPF(uwline.first.value.strip()):
-            break
+        while index < len(llines):
+          uwline = llines[index]
+          line = uwline.first.value.strip()
+          if uwline.is_comment and _EnableYAPF(line):
+            if not _DisableYAPF(line):
+              break
           uwline.disable = True
           index += 1
     elif re.search(DISABLE_PATTERN, uwline.last.value.strip(), re.IGNORECASE):
@@ -260,15 +307,17 @@ def _MarkLinesToFormat(uwlines, lines):
 
 
 def _DisableYAPF(line):
-  return (
-      re.search(DISABLE_PATTERN, line.split('\n')[0].strip(), re.IGNORECASE) or
-      re.search(DISABLE_PATTERN, line.split('\n')[-1].strip(), re.IGNORECASE))
+  return (re.search(DISABLE_PATTERN,
+                    line.split('\n')[0].strip(), re.IGNORECASE) or
+          re.search(DISABLE_PATTERN,
+                    line.split('\n')[-1].strip(), re.IGNORECASE))
 
 
 def _EnableYAPF(line):
-  return (
-      re.search(ENABLE_PATTERN, line.split('\n')[0].strip(), re.IGNORECASE) or
-      re.search(ENABLE_PATTERN, line.split('\n')[-1].strip(), re.IGNORECASE))
+  return (re.search(ENABLE_PATTERN,
+                    line.split('\n')[0].strip(), re.IGNORECASE) or
+          re.search(ENABLE_PATTERN,
+                    line.split('\n')[-1].strip(), re.IGNORECASE))
 
 
 def _GetUnifiedDiff(before, after, filename='code'):

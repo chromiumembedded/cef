@@ -1,9 +1,8 @@
 Name: yapf
 Short Name: yapf
 URL: https://github.com/google/yapf
-Date: 28 May 2017
-Version: 0.16.2
-Revision: 9f168a12
+Date: 16 March 2026
+Version: 0.43.0
 License: Apache 2.0
 License File: LICENSE
 
@@ -11,4 +10,32 @@ Description:
 A formatter for Python files.
 
 Local Modifications:
-None
+- Added CreateChromiumStyle() to yapf/yapflib/style.py (Google style with
+  INDENT_DICTIONARY_VALUE, INDENT_WIDTH=2, JOIN_MULTIPLE_LINES=False, and
+  SPLIT_BEFORE_BITWISE_OPERATOR=True).
+- Vendored platformdirs (dependency of yapf_third_party._ylib2to3).
+
+Update Instructions:
+  # Download yapf source (from chromium/src/cef/tools).
+  pip3 download 'yapf==VERSION' --no-deps --no-binary :all: -d /tmp/yapf_dl
+  tar xzf /tmp/yapf_dl/yapf-VERSION.tar.gz -C /tmp/yapf_dl
+
+  # Download platformdirs source (yapf_third_party._ylib2to3 dependency).
+  pip3 download platformdirs --no-deps --no-binary :all: -d /tmp/yapf_dl
+  tar xzf /tmp/yapf_dl/platformdirs-*.tar.gz -C /tmp/yapf_dl
+
+  # Remove old files (keep README.cef and LICENSE).
+  rm -rf yapf/yapf yapf/yapf_third_party yapf/platformdirs yapf/__main__.py
+
+  # Copy new files.
+  cp -r /tmp/yapf_dl/yapf-VERSION/yapf yapf/yapf
+  cp -r /tmp/yapf_dl/yapf-VERSION/third_party/yapf_third_party yapf/yapf_third_party
+  cp -r /tmp/yapf_dl/platformdirs-*/src/platformdirs yapf/platformdirs
+  cp /tmp/yapf_dl/yapf-VERSION/yapf/__main__.py yapf/__main__.py
+
+  # Re-apply local modifications (see above).
+  # Update README.cef with new version/date.
+  # Test: cd cef && python3 ../cef/tools/yapf <<< 'x=1'
+
+  # Cleanup.
+  rm -rf /tmp/yapf_dl
