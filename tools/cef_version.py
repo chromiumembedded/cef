@@ -199,12 +199,27 @@ class VersionFormatter:
       cef_branch_name = git.get_branch_name(self.cef_path).split('/')[-1]
 
       cef_minor = cef_patch = 0
-      if cef_branch_name != 'HEAD' and cef_branch_name != 'master':
+      if cef_branch_name == 'master' or cef_branch_name == 'HEAD':
+        # On master (or detached HEAD, which is typically a checkout of a
+        # master commit) we can't compute MINOR from commit history (all
+        # commits are present), so read it from the last entry in the API
+        # versions file.
+        last_version = read_version_last(
+            os.path.join(self.cef_path, VERSIONS_JSON_FILE))
+        if last_version is not None:
+          major, revision = version_parse(last_version)
+          if major == int(chrome_major):
+            cef_minor = revision
+      else:
         cef_branch = self.get_cef_branch_version_components()
         cef_minor = cef_branch['MINOR']
         cef_patch = cef_branch['PATCH']
 
-      self._version_parts = {'MAJOR': int(chrome_major), 'MINOR': 0, 'PATCH': 0}
+      self._version_parts = {
+          'MAJOR': int(chrome_major),
+          'MINOR': cef_minor,
+          'PATCH': cef_patch
+      }
       self._version_string = '%s.%d.%d-%s.%s+%s+%s' % \
              (chrome_major, cef_minor, cef_patch, cef_branch_name, cef_commit['NUMBER'],
               cef_commit_hash, chrome_version_part)
