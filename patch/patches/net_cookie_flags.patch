@@ -7,7 +7,7 @@ index c10df92f30b1292a8243f376025e81afcefba78d..59e6208b3954635076022807edfc9a30
  LOAD_FLAG(IS_MAIN_FRAME_ORIGIN_RECENTLY_ACCESSED, 1 << 19)
  
 +// This load will not send any cookies. For CEF usage.
-+LOAD_FLAG(DO_NOT_SEND_COOKIES, 1 << 19)
++LOAD_FLAG(DO_NOT_SEND_COOKIES, 1 << 20)
 +
  // See note at top of file about why adding LoadFlags is often a bad idea.
 diff --git net/url_request/url_request_http_job.cc net/url_request/url_request_http_job.cc
