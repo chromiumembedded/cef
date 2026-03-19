@@ -58,6 +58,7 @@ extern const char kUseChromeStyleWindow[];
 extern const char kShowOverlayBrowser[];
 extern const char kUseAngle[];
 extern const char kOzonePlatform[];
+extern const char kAxViewportCollapse[];
 
 }  // namespace client::switches
 

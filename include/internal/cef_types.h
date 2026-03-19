@@ -711,6 +711,22 @@ typedef struct _cef_browser_settings_t {
   /// supported with Chrome style.
   ///
   cef_state_t chrome_zoom_bubble;
+
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+  ///
+  /// Controls whether CDP accessibility tree serialization collapses off-screen
+  /// nodes. When enabled, off-screen landmarks and headings are serialized as
+  /// summaries (role + name only) and other off-screen nodes are pruned.
+  /// This reduces snapshot size for AI agents using Playwright ariaSnapshot().
+  /// WARNING: This collapses the CDP accessibility tree and disables CDP
+  /// dynamic tree updates (nodesUpdated events). The DevTools Accessibility
+  /// panel will show an incomplete tree. Platform screen readers (NVDA, JAWS,
+  /// VoiceOver) are unaffected — they use a separate code path.
+  /// Can also be configured at runtime using
+  /// CefBrowserHost::SetAxViewportCollapse.
+  ///
+  cef_state_t ax_viewport_collapse;
+#endif
 } cef_browser_settings_t;
 
 ///

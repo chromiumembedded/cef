@@ -13,7 +13,7 @@ from wiki_format_util import wiki_format
 from yapf_util import yapf_format
 
 # File extensions that can be formatted.
-DEFAULT_LINT_WHITELIST_REGEX = r"(.*\.cpp|.*\.cc|.*\.c|.*\.h|.*\.java|.*\.mm|.*\.m|.*\.py|.*\.md)$"
+DEFAULT_LINT_WHITELIST_REGEX = r"(.*\.cpp|.*\.cc|.*\.c|.*\.h|.*\.inc|.*\.java|.*\.mm|.*\.m|.*\.py|.*\.md)$"
 DEFAULT_LINT_BLACKLIST_REGEX = r"$^"
 
 # Directories containing these path components will be ignored.
