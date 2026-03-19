@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Viewport Collapse Test Page</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 20px; }
+    section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+    h2 { margin-top: 0; }
+    .spacer { height: 200vh; } /* Push later sections well off-screen */
+  </style>
+</head>
+<body>
+
+<header role="banner">
+  <h1>Viewport Collapse Test</h1>
+  <nav role="navigation" aria-label="Main navigation">
+    <a href="#account">Account</a> |
+    <a href="#language">Language</a> |
+    <a href="#content">Content</a> |
+    <a href="#audio">Audio Quality</a> |
+    <a href="#display">Display</a> |
+    <a href="#storage">Storage</a>
+  </nav>
+</header>
+
+<main role="main">
+
+  <!-- These two sections should be IN the viewport -->
+  <section id="account" role="region" aria-label="Account">
+    <h2>Account</h2>
+    <p>Manage your account settings.</p>
+    <button>Edit login methods</button>
+    <button>Change password</button>
+    <label>Email: <input type="text" value="user@example.com"></label>
+  </section>
+
+  <section id="language" role="region" aria-label="Language">
+    <h2>Language</h2>
+    <label>Choose language:
+      <select>
+        <option selected>English</option>
+        <option>Spanish</option>
+        <option>French</option>
+        <option>German</option>
+        <option>Japanese</option>
+      </select>
+    </label>
+  </section>
+
+  <!-- Spacer to push remaining sections off-screen -->
+  <div class="spacer" aria-hidden="true"></div>
+
+  <!-- These sections should be OFF-screen and collapsed -->
+  <section id="content" role="region" aria-label="Content preferences">
+    <h2>Content preferences</h2>
+    <label><input type="checkbox" checked> Allow explicit content</label>
+    <p>When off, explicit music won't be played.</p>
+  </section>
+
+  <section id="audio" role="region" aria-label="Audio quality">
+    <h2>Audio quality</h2>
+    <label>Streaming quality:
+      <select>
+        <option>Automatic</option>
+        <option selected>High</option>
+        <option>Very high</option>
+      </select>
+    </label>
+    <label>Download quality:
+      <select>
+        <option selected>Normal</option>
+        <option>High</option>
+      </select>
+    </label>
+    <label><input type="checkbox"> Auto adjust quality</label>
+  </section>
+
+  <section id="display" role="region" aria-label="Display">
+    <h2>Display</h2>
+    <label><input type="checkbox"> Use compact library layout</label>
+    <label><input type="checkbox" checked> Show album art</label>
+    <button>Reset display settings</button>
+  </section>
+
+  <section id="storage" role="region" aria-label="Storage">
+    <h2>Storage</h2>
+    <p>Cache size: 2.4 GB</p>
+    <button>Clear cache</button>
+    <button>Manage downloads</button>
+  </section>
+
+</main>
+
+<footer role="contentinfo">
+  <p>&copy; 2026 Test App. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

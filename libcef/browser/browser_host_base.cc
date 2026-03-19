@@ -976,6 +976,20 @@ cef_runtime_style_t CefBrowserHostBase::GetRuntimeStyle() {
   return IsAlloyStyle() ? CEF_RUNTIME_STYLE_ALLOY : CEF_RUNTIME_STYLE_CHROME;
 }
 
+void CefBrowserHostBase::SetAxViewportCollapse(bool enabled) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefBrowserHostBase::SetAxViewportCollapse,
+                                 this, enabled));
+    return;
+  }
+
+  ax_viewport_collapse_ = enabled;
+  if (auto* web_contents = GetWebContents()) {
+    web_contents->OnWebPreferencesChanged();
+  }
+}
+
 void CefBrowserHostBase::ReplaceMisspelling(const CefString& word) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(

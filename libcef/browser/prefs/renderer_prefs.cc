@@ -5,6 +5,7 @@
 #include "cef/libcef/browser/prefs/renderer_prefs.h"
 
 #include "base/command_line.h"
+#include "cef/libcef/common/api_version_util.h"
 #include "cef/libcef/common/cef_switches.h"
 #include "content/public/common/content_switches.h"
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
@@ -93,6 +94,10 @@ void SetCefPrefs(const CefBrowserSettings& cef,
   SET_STATE(cef.text_area_resize, web.text_areas_are_resizable);
   SET_STATE(cef.tab_to_links, web.tabs_to_links);
   SET_STATE(cef.local_storage, web.local_storage_enabled);
+
+  if (CEF_API_IS_ADDED(CEF_EXPERIMENTAL)) {
+    SET_STATE(cef.ax_viewport_collapse, web.accessibility_viewport_collapse);
+  }
 
   // Never explicitly enable GPU-related functions in this method because the
   // GPU blacklist is not being checked here.
