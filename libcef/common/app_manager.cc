@@ -4,12 +4,10 @@
 
 #include "cef/libcef/common/app_manager.h"
 
-#include "base/command_line.h"
 #include "base/logging.h"
 #include "cef/libcef/common/net/scheme_info.h"
 #include "cef/libcef/common/scheme_registrar_impl.h"
 #include "content/public/browser/child_process_security_policy.h"
-#include "content/public/common/content_switches.h"
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
@@ -42,15 +40,17 @@ void CefAppManager::AddCustomScheme(const CefSchemeInfo* scheme_info) {
   DCHECK(!scheme_info_list_locked_);
   scheme_info_list_.push_back(*scheme_info);
 
-  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-  if (!command_line->HasSwitch(switches::kProcessType)) {
-    // Register as a Web-safe scheme in the browser process so that requests for
-    // the scheme from a render process will be allowed in
-    // resource_dispatcher_host_impl.cc ShouldServiceRequest.
-    content::ChildProcessSecurityPolicy* policy =
-        content::ChildProcessSecurityPolicy::GetInstance();
-    if (!policy->IsWebSafeScheme(scheme_info->scheme_name)) {
-      policy->RegisterWebSafeScheme(scheme_info->scheme_name);
+  // Custom schemes are registered with ChildProcessSecurityPolicy later, after
+  // FeatureList initialization, via RegisterCustomSchemesWithPolicy().
+}
+
+void CefAppManager::RegisterCustomSchemesWithPolicy() {
+  DCHECK(scheme_info_list_locked_);
+  content::ChildProcessSecurityPolicy* policy =
+      content::ChildProcessSecurityPolicy::GetInstance();
+  for (const auto& scheme_info : scheme_info_list_) {
+    if (!policy->IsWebSafeScheme(scheme_info.scheme_name)) {
+      policy->RegisterWebSafeScheme(scheme_info.scheme_name);
     }
   }
 }

@@ -236,6 +236,8 @@ cef_permission_request_types_t GetCefRequestType(
 #endif
     case permissions::RequestType::kRegisterProtocolHandler:
       return CEF_PERMISSION_TYPE_REGISTER_PROTOCOL_HANDLER;
+    case permissions::RequestType::kSensors:
+      return CEF_PERMISSION_TYPE_SENSORS;
     case permissions::RequestType::kStorageAccess:
       return CEF_PERMISSION_TYPE_STORAGE_ACCESS;
     case permissions::RequestType::kTopLevelStorageAccess:

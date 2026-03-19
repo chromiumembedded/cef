@@ -44,8 +44,7 @@ class AlloyWebContentsDialogHelper
   const raw_ptr<CefBrowserPlatformDelegate> browser_delegate_;
 
   // Used to notify WebContentsModalDialog.
-  base::ObserverList<web_modal::ModalDialogHostObserver>::Unchecked
-      observer_list_;
+  base::ObserverList<web_modal::ModalDialogHostObserver> observer_list_;
 
   base::WeakPtrFactory<AlloyWebContentsDialogHelper> weak_factory_;
 };

@@ -66,7 +66,7 @@ index 8af69cac78b7488d28f1f05ccb174793fe5148cd..9f74e511c263d147b5fbe81fe100d217
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 10497f25d8386ae2807d0a3389ba303f75ae1b20..0fa53b95a94d0adb149516257c2ad295d6124c9e 100644
+index 7aab80076a041fac6cd81f477456a6c9169c3cb5..4e48d067b540a96557ac9a76fb1a0d92d47be5df 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -278,6 +278,8 @@ viz_component("service") {
@@ -308,10 +308,10 @@ index 2f462f0deb5fc8a637457243fb5d5849fc214d14..695869b83cefaa24af93a2e11b39de05
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 8cff876deb9c2c6f7b7ddb443c8e723824e28cbd..274653305ed1e882ab6c80e4c2e0ea834f2a06a3 100644
+index 97f26777528c3b21255b74ccf411ff2d3b243215..9609957e567850a0f9db16be3eb04d576e4fe800 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
-@@ -34,7 +34,9 @@
+@@ -35,7 +35,9 @@
  #include "components/viz/common/frame_sinks/begin_frame_args.h"
  #include "components/viz/common/surfaces/frame_sink_id.h"
  #include "components/viz/common/surfaces/subtree_capture_id.h"
@@ -321,7 +321,7 @@ index 8cff876deb9c2c6f7b7ddb443c8e723824e28cbd..274653305ed1e882ab6c80e4c2e0ea83
  #include "mojo/public/cpp/bindings/associated_remote.h"
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "services/viz/privileged/mojom/compositing/display_private.mojom.h"
-@@ -146,6 +148,15 @@ class COMPOSITOR_EXPORT ExternalBeginFrameControllerClientFactory {
+@@ -147,6 +149,15 @@ class COMPOSITOR_EXPORT ExternalBeginFrameControllerClientFactory {
    CreateExternalBeginFrameControllerClient() = 0;
  };
  
@@ -337,7 +337,7 @@ index 8cff876deb9c2c6f7b7ddb443c8e723824e28cbd..274653305ed1e882ab6c80e4c2e0ea83
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -189,6 +200,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -190,6 +201,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -347,7 +347,7 @@ index 8cff876deb9c2c6f7b7ddb443c8e723824e28cbd..274653305ed1e882ab6c80e4c2e0ea83
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -630,6 +644,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -632,6 +646,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
        simple_begin_frame_observers_;
    std::unique_ptr<ui::HostBeginFrameObserver> host_begin_frame_observer_;
  

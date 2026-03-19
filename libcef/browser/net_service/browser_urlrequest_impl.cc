@@ -31,7 +31,7 @@
 #include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_response_headers.h"
-#include "services/network/public/cpp/originating_process.h"
+#include "services/network/public/cpp/originating_process_id.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 #include "services/network/public/cpp/simple_url_loader.h"
 #include "services/network/public/cpp/simple_url_loader_stream_consumer.h"
@@ -234,7 +234,7 @@ class CefBrowserURLRequest::Context
           static_cast<content::StoragePartitionImpl*>(
               browser_context->GetDefaultStoragePartition())
               ->CreateURLLoaderNetworkObserverForServiceOrSharedWorker(
-                  network::OriginatingProcess::browser(), url::Origin());
+                  network::OriginatingProcessId::browser(), url::Origin());
     }
 
     task_runner->PostTask(

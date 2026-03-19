@@ -11,6 +11,7 @@
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/file_dialog_runner.h"
 #include "cef/libcef/browser/permission_prompt.h"
+#include "cef/libcef/common/app_manager.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/views/chrome_constrained_window_views_client.h"
 #include "components/constrained_window/constrained_window_views.h"
@@ -58,6 +59,10 @@ void ChromeBrowserMainExtraPartsCef::PostBrowserStart() {
 }
 
 void ChromeBrowserMainExtraPartsCef::PreMainMessageLoopRun() {
+  // Register custom schemes with ChildProcessSecurityPolicy now that
+  // FeatureList has been initialized.
+  CefAppManager::Get()->RegisterCustomSchemesWithPolicy();
+
   background_task_runner_ = base::ThreadPool::CreateSingleThreadTaskRunner(
       {base::TaskPriority::BEST_EFFORT,
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});

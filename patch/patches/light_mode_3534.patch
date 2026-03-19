@@ -91,7 +91,7 @@ index 3deaaa681088a7fe66e52de2f21fd9e03010241b..013d69b0e3c5449d710d28b2076b8767
  
  NativeTheme::PreferredContrast NativeTheme::CalculatePreferredContrast() const {
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index 8e2849fc1e17fc55ad146134b7031538337c1f5c..624fff276fd4648e5d61aa05b6df55bab5ed0545 100644
+index 0e47893681f9cb55b29564288842613c08ec9159..4f878366d0aa2771399a779a2d75163e0b94c6f9 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
 @@ -534,13 +534,16 @@ class COMPONENT_EXPORT(NATIVE_THEME) NativeTheme {

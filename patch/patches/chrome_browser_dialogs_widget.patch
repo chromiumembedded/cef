@@ -167,10 +167,10 @@ index 9aae8250ba6bf364855ba53ecc9e817d40d9699e..09bd18e56e49df8bee669343abccf9ed
      DCHECK_EQ(parent_view, host->GetHostView());
      std::unique_ptr<ModalDialogHostObserver> observer =
 diff --git components/constrained_window/native_web_contents_modal_dialog_manager_views.cc components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
-index ed77d7f5fbee2ab4e84b82c9ce9baaf20189b020..75d8e7a8f1370016c4f605c93925623b43e24d17 100644
+index f989d38c439dc3d4c38d1f15bcd2ad13bc2206b2..848baa849a6201274d09fdc9d672ce8ec0050f99 100644
 --- components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
 +++ components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
-@@ -189,9 +189,20 @@ void NativeWebContentsModalDialogManagerViews::HostChanged(
+@@ -190,9 +190,20 @@ void NativeWebContentsModalDialogManagerViews::HostChanged(
    if (host_) {
      host_->AddObserver(this);
  
@@ -195,10 +195,10 @@ index ed77d7f5fbee2ab4e84b82c9ce9baaf20189b020..75d8e7a8f1370016c4f605c93925623b
  
      OnPositionRequiresUpdate();
 diff --git components/web_modal/modal_dialog_host.h components/web_modal/modal_dialog_host.h
-index cc25afde6afb9027efaed4ef8d23046433231305..8fb54dc6040bb9f2f2bb322204798abfb621eb80 100644
+index 8a9a2763923135309633ffdd8d8ceee407052a9a..4689a85ce8bf58d9775aefceb266a7a9e45f93f8 100644
 --- components/web_modal/modal_dialog_host.h
 +++ components/web_modal/modal_dialog_host.h
-@@ -35,6 +35,12 @@ class WEB_MODAL_EXPORT ModalDialogHost {
+@@ -34,6 +34,12 @@ class WEB_MODAL_EXPORT ModalDialogHost {
    // Returns the view against which the dialog is positioned and parented.
    virtual gfx::NativeView GetHostView() const = 0;
  

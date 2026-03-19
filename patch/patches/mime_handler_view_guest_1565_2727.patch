@@ -12,7 +12,7 @@ index 654fb9d77d1678dd5bd31692a94c14d644d0775a..f3fadcb127f5ad5380196426da1ceb8b
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 828b7cf7ef981dca939ea8842960176b6bfe8925..3a985bae4fc6270a024c6c89b2ffab0e01faa806 100644
+index 850e8688c769e62e6ed88182e1d46d00495d1a49..648eb2805418580ed83d8378f4d5ceab89a5907e 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -197,6 +197,8 @@ void MimeHandlerViewGuest::CreateInnerPage(

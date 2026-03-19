@@ -1123,7 +1123,15 @@ typedef enum {
   CEF_RESULT_CODE_TERMINATED_BY_OTHER_PROCESS_ON_COMMIT_FAILURE = 39,
 #endif
 
-#if CEF_API_ADDED(13900)
+#if CEF_API_ADDED(CEF_NEXT)
+  /// The isolated browser process launched but it was not possible to wait on
+  /// the exit of the process, so the browser must exit.
+  CEF_RESULT_CODE_INVALID_ISOLATED_BROWSER_PROCESS = 40,
+#endif
+
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_RESULT_CODE_CHROME_LAST = 41,
+#elif CEF_API_ADDED(13900)
   CEF_RESULT_CODE_CHROME_LAST = 40,
 #elif CEF_API_ADDED(13800)
   CEF_RESULT_CODE_CHROME_LAST = 39,
@@ -3676,6 +3684,10 @@ typedef enum {
   CEF_CPAIT_CONTEXTUAL_SIDE_PANEL,
   CEF_CPAIT_JS_OPTIMIZATIONS,
 #endif
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CPAIT_RECORD_REPLAY,
+  CEF_CPAIT_INDIGO,
+#endif
   CEF_CPAIT_NUM_VALUES,
 } cef_chrome_page_action_icon_type_t;
 
@@ -3862,6 +3874,9 @@ typedef enum {
 #if CEF_API_ADDED(14500)
   CEF_PERMISSION_TYPE_LOCAL_NETWORK = 1 << 26,
   CEF_PERMISSION_TYPE_LOOPBACK_NETWORK = 1 << 27,
+#endif
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_PERMISSION_TYPE_SENSORS = 1 << 28,
 #endif
 } cef_permission_request_types_t;
 

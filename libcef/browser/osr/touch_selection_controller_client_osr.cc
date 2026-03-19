@@ -16,6 +16,7 @@
 #include "content/public/browser/context_menu_params.h"
 #include "content/public/browser/render_view_host.h"
 #include "ui/base/clipboard/clipboard.h"
+#include "ui/base/clipboard/clipboard_format_type.h"
 #include "ui/base/data_transfer_policy/data_transfer_endpoint.h"
 #include "ui/base/mojom/menu_source_type.mojom-forward.h"
 #include "ui/gfx/geometry/point_conversions.h"
@@ -470,12 +471,12 @@ bool CefTouchSelectionControllerClientOSR::IsCommandIdEnabled(
     case QM_EDITFLAG_CAN_COPY:
       return readable && has_selection;
     case QM_EDITFLAG_CAN_PASTE: {
-      std::u16string result;
-      ui::DataTransferEndpoint data_dst = ui::DataTransferEndpoint(
-          ui::EndpointType::kDefault, {.notify_if_restricted = false});
-      ui::Clipboard::GetForCurrentThread()->ReadText(
-          ui::ClipboardBuffer::kCopyPaste, &data_dst, &result);
-      return editable && !result.empty();
+      ui::DataTransferEndpoint data_dst(ui::EndpointType::kDefault,
+                                        {.notify_if_restricted = false});
+      return editable &&
+             ui::Clipboard::GetForCurrentThread()->IsFormatAvailable(
+                 ui::ClipboardFormatType::PlainTextType(),
+                 ui::ClipboardBuffer::kCopyPaste, &data_dst);
     }
     default:
       return false;

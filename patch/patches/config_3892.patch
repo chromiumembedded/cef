@@ -1,8 +1,8 @@
 diff --git components/prefs/pref_service.h components/prefs/pref_service.h
-index 34f66f1af7c59cf16e16eac59e0c9b0af0b73d1b..46cd81c2c6eb6c22104184933b7dcc599a36984c 100644
+index 77f00e7274ca57ae28e96d6e7293e5d7204b64d9..c1ec10f24ad508b9c4faea91f86348a47baa0f11 100644
 --- components/prefs/pref_service.h
 +++ components/prefs/pref_service.h
-@@ -52,6 +52,10 @@ namespace base {
+@@ -51,6 +51,10 @@ namespace base {
  class FilePath;
  }
  
@@ -13,7 +13,7 @@ index 34f66f1af7c59cf16e16eac59e0c9b0af0b73d1b..46cd81c2c6eb6c22104184933b7dcc59
  namespace prefs {
  class ScopedDictionaryPrefUpdate;
  }
-@@ -436,6 +440,8 @@ class COMPONENTS_PREFS_EXPORT PrefService {
+@@ -435,6 +439,8 @@ class COMPONENTS_PREFS_EXPORT PrefService {
    // declared as a friend, too.
    friend class PrefChangeRegistrar;
    friend class subtle::PrefMemberBase;

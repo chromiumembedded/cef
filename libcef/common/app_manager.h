@@ -38,6 +38,10 @@ class CefAppManager {
   void AddCustomScheme(const CefSchemeInfo* scheme_info);
   bool HasCustomScheme(const std::string& scheme_name);
 
+  // Registers custom schemes with ChildProcessSecurityPolicy. Must be called
+  // in the browser process after FeatureList initialization.
+  void RegisterCustomSchemesWithPolicy();
+
   using SchemeInfoList = std::list<CefSchemeInfo>;
   const SchemeInfoList* GetCustomSchemes();
 

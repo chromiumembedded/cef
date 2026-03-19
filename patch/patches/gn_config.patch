@@ -78,7 +78,7 @@ index bd411669389525e8f03eb329a4cf700ad89b62f3..fba7843d79796b903b592b69e2e1f2c7
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 399674a0f6b813140d7dc6230beac31a06939b17..b4382278134ca1847047dd94de88cc8982d076d0 100644
+index 503cc9a40c00522c4b16b147837e7c1e640c2eb2..23cc07f39d1363611c48895e2f0c2848840df642 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -89,8 +89,8 @@ index 399674a0f6b813140d7dc6230beac31a06939b17..b4382278134ca1847047dd94de88cc89
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -518,6 +519,11 @@ template("chrome_extra_paks") {
-       deps += [ "//components/headless/command_handler" ]
+@@ -534,6 +535,11 @@ template("chrome_extra_paks") {
+       ]
      }
  
 +    if (enable_cef) {

@@ -59,10 +59,10 @@ index c3c7d35b433815a0b81965432225b06fe58439b9..9ea64c2d6839478bc05eba771d7c437d
                                   ax::mojom::NameFrom::kAttribute);
  
 diff --git chrome/browser/ui/views/profiles/profile_menu_coordinator.cc chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-index e23c58ca64842bf8a9686d1d60a168de17db7531..e1add15afa629508a0fac1e5cc76089aa0511e4f 100644
+index 1505ab0acedf17da5ccf37235b2b40abe2595437..d892f63e22f8cb2312b399543470feb34dbab9ab 100644
 --- chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-@@ -98,7 +98,9 @@ void ProfileMenuCoordinator::ShowWithPromoResults(
+@@ -88,7 +88,9 @@ void ProfileMenuCoordinator::ShowWithPromoResults(
        BrowserElements::From(browser)->GetElement(kToolbarAvatarButtonElementId);
    std::unique_ptr<ProfileMenuViewBase> bubble;
    const bool is_incognito = GetProfile()->IsIncognitoProfile();

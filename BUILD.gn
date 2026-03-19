@@ -1020,6 +1020,7 @@ source_set("libcef_static") {
     ]
 
     deps += [
+      "//chrome/browser/win:isolated_browser_support",
       "//chrome/install_static:secondary_module",
       "//chrome/chrome_elf",
     ]

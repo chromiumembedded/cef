@@ -1,8 +1,8 @@
 diff --git ui/accessibility/platform/ax_platform_node_win.cc ui/accessibility/platform/ax_platform_node_win.cc
-index 773834c969ff28b0038d27af2c0351120dba8fc2..5671df1afc7f9e5743e674ba132bf4e71da80672 100644
+index e8c6a9714b2f48975f37247fe1452d9840301ba1..0959b5a6938c106394e711979d071333e8557ced 100644
 --- ui/accessibility/platform/ax_platform_node_win.cc
 +++ ui/accessibility/platform/ax_platform_node_win.cc
-@@ -1642,6 +1642,10 @@ IFACEMETHODIMP AXPlatformNodeWin::accLocation(LONG* physical_pixel_left,
+@@ -1643,6 +1643,10 @@ IFACEMETHODIMP AXPlatformNodeWin::accLocation(LONG* physical_pixel_left,
        var_id, physical_pixel_left, physical_pixel_top, width, height, target);
    AXPlatform::GetInstance().OnMinimalPropertiesUsed();
  

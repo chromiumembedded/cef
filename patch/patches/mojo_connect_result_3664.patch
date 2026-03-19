@@ -236,10 +236,10 @@ index e6a9a30c47cd4db0f942536a42a3619222b6abda..31f46883503fbd9159dc08d1ba03184c
  }
  
 diff --git mojo/public/cpp/bindings/lib/interface_ptr_state.h mojo/public/cpp/bindings/lib/interface_ptr_state.h
-index 0cff2435770edb7a2d913cf37e3118ecc3fda815..648678e152338791296249c678b74a1fcee16fa4 100644
+index 443d0b74e0c92f5788076537b83a6e37e02100a4..aa39a01bbe4b3d635b0fbd023fa8fafbc2406093 100644
 --- mojo/public/cpp/bindings/lib/interface_ptr_state.h
 +++ mojo/public/cpp/bindings/lib/interface_ptr_state.h
-@@ -225,6 +225,15 @@ class InterfacePtrState : public InterfacePtrStateBase {
+@@ -230,6 +230,15 @@ class InterfacePtrState : public InterfacePtrStateBase {
          std::move(error_handler));
    }
  
@@ -316,7 +316,7 @@ index 731c6a67b11dfc510cf3835ede4fd9fb4b52796f..1d56536630359ff816cba53f427dbbba
    // Resets this Receiver to an unbound state. An unbound Receiver will NEVER
    // schedule method calls or disconnection notifications, and any pending tasks
 diff --git mojo/public/cpp/bindings/receiver_set.cc mojo/public/cpp/bindings/receiver_set.cc
-index ce9b460d4cad264371f41f8248790022cd533a49..b8fab574a469c3bc0bdcbca03192efefdecd9503 100644
+index ba36cf3bad0fefc3539b73a875d9b09889688e71..5de9edc62841dc4c8c9fd82cc303a38ef761f068 100644
 --- mojo/public/cpp/bindings/receiver_set.cc
 +++ mojo/public/cpp/bindings/receiver_set.cc
 @@ -70,9 +70,10 @@ void ReceiverSetState::Entry::DidDispatchOrReject() {
@@ -331,7 +331,7 @@ index ce9b460d4cad264371f41f8248790022cd533a49..b8fab574a469c3bc0bdcbca03192efef
 +  state_.OnDisconnect(id_, custom_reason_code, description, error_result);
  }
  
- ReceiverSetState::ReceiverSetState() : entries_(PassKey()) {}
+ ReceiverSetState::ReceiverSetState() = default;
 @@ -82,12 +83,21 @@ ReceiverSetState::~ReceiverSetState() = default;
  void ReceiverSetState::set_disconnect_handler(base::RepeatingClosure handler) {
    disconnect_handler_ = std::move(handler);
@@ -375,10 +375,10 @@ index ce9b460d4cad264371f41f8248790022cd533a49..b8fab574a469c3bc0bdcbca03192efef
  }
  
 diff --git mojo/public/cpp/bindings/receiver_set.h mojo/public/cpp/bindings/receiver_set.h
-index 621f69047a2b691cdc6ce371ee589265f903c6e6..a43c510bde2a7d6477fa979070f35186d5f199c8 100644
+index e27b8e81cb72ba10ac2ba2ddb59bdc6239606794..54c25368f462b6489ee03ca5e881ed9dc68667fc 100644
 --- mojo/public/cpp/bindings/receiver_set.h
 +++ mojo/public/cpp/bindings/receiver_set.h
-@@ -75,7 +75,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) ReceiverSetState {
+@@ -72,7 +72,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) ReceiverSetState {
      virtual void* GetContext() = 0;
      virtual void InstallDispatchHooks(
          std::unique_ptr<MessageFilter> filter,
@@ -388,7 +388,7 @@ index 621f69047a2b691cdc6ce371ee589265f903c6e6..a43c510bde2a7d6477fa979070f35186
      virtual void FlushForTesting() = 0;
      virtual void ResetWithReason(uint32_t custom_reason_code,
                                   const std::string& description) = 0;
-@@ -97,7 +98,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) ReceiverSetState {
+@@ -94,7 +95,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) ReceiverSetState {
      void WillDispatch();
      void DidDispatchOrReject();
      void OnDisconnect(uint32_t custom_reason_code,
@@ -398,7 +398,7 @@ index 621f69047a2b691cdc6ce371ee589265f903c6e6..a43c510bde2a7d6477fa979070f35186
  
      // RAW_PTR_EXCLUSION: Binary size increase.
      RAW_PTR_EXCLUSION ReceiverSetState& state_;
-@@ -133,6 +135,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) ReceiverSetState {
+@@ -130,6 +132,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) ReceiverSetState {
    void set_disconnect_handler(base::RepeatingClosure handler);
    void set_disconnect_with_reason_handler(
        RepeatingConnectionErrorWithReasonCallback handler);
@@ -407,7 +407,7 @@ index 621f69047a2b691cdc6ce371ee589265f903c6e6..a43c510bde2a7d6477fa979070f35186
  
    ReportBadMessageCallback GetBadMessageCallback();
    ReceiverId Add(std::unique_ptr<ReceiverState> receiver,
-@@ -145,11 +149,14 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) ReceiverSetState {
+@@ -142,11 +146,14 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) ReceiverSetState {
    void SetDispatchContext(void* context, ReceiverId receiver_id);
    void OnDisconnect(ReceiverId id,
                      uint32_t custom_reason_code,
@@ -423,7 +423,7 @@ index 621f69047a2b691cdc6ce371ee589265f903c6e6..a43c510bde2a7d6477fa979070f35186
    ReceiverId next_receiver_id_ = 0;
    EntryMap entries_;
    raw_ptr<void, DanglingUntriaged> current_context_ = nullptr;
-@@ -514,11 +521,12 @@ class ReceiverSetBase {
+@@ -509,11 +516,12 @@ class ReceiverSetBase {
      const void* GetContext() const override { return &context_; }
      void* GetContext() override { return &context_; }
  
@@ -441,10 +441,10 @@ index 621f69047a2b691cdc6ce371ee589265f903c6e6..a43c510bde2a7d6477fa979070f35186
      }
  
 diff --git mojo/public/cpp/bindings/remote.h mojo/public/cpp/bindings/remote.h
-index cb58d1d0ab728227a0b5597d84a3d412be4dcdfa..3bdaff1295dd540eae7d610ce342b32c41b75235 100644
+index 8dff5e3e88fd4a2485c673735c5cf85623502105..92c8950ccd228df9821487505786cfe6ea580580 100644
 --- mojo/public/cpp/bindings/remote.h
 +++ mojo/public/cpp/bindings/remote.h
-@@ -156,6 +156,11 @@ class Remote {
+@@ -158,6 +158,11 @@ class Remote {
      internal_state_.set_connection_error_with_reason_handler(
          std::move(handler));
    }

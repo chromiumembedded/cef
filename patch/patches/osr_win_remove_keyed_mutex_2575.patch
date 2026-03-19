@@ -1,8 +1,8 @@
 diff --git gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc
-index 4f1db7db3da9f792ed2a0352abf6940b0f03f4ff..955c8caed86cc7122b35bf81e20ed8a5259640ed 100644
+index 6f31a20329a7bc7cafb6384c3b8ec9ed7a11e64e..936ade7a42d9a5267597d544e886f48b91b92785 100644
 --- gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc
 +++ gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc
-@@ -378,7 +378,8 @@ gfx::GpuMemoryBufferHandle D3DImageBackingFactory::CreateGpuMemoryBufferHandle(
+@@ -379,7 +379,8 @@ gfx::GpuMemoryBufferHandle D3DImageBackingFactory::CreateGpuMemoryBufferHandle(
    // so make sure that the usage is one that we support.
    DCHECK(usage == gfx::BufferUsage::GPU_READ ||
           usage == gfx::BufferUsage::SCANOUT ||
@@ -12,7 +12,7 @@ index 4f1db7db3da9f792ed2a0352abf6940b0f03f4ff..955c8caed86cc7122b35bf81e20ed8a5
        << "Incorrect usage, usage=" << gfx::BufferUsageToString(usage);
  
    D3D11_TEXTURE2D_DESC desc = {
-@@ -392,7 +393,9 @@ gfx::GpuMemoryBufferHandle D3DImageBackingFactory::CreateGpuMemoryBufferHandle(
+@@ -393,7 +394,9 @@ gfx::GpuMemoryBufferHandle D3DImageBackingFactory::CreateGpuMemoryBufferHandle(
        D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
        0,
        D3D11_RESOURCE_MISC_SHARED_NTHANDLE |

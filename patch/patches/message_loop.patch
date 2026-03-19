@@ -30,7 +30,7 @@ index 4e20010e351905ec5c1daa576aecf8d6eeec48ac..588c3dbdcc204f235561290493d6ad0c
    }
    if (has_msg) {
 diff --git base/task/current_thread.cc base/task/current_thread.cc
-index e97435f1705a929ec02848b88b4fe05bdf7399e4..0bacc37506436fab4689a342aedf9dbc776f7b5c 100644
+index 97b9355dc2a0b2c8f86a868d597839af53adcfa6..14fa5274f51fe08bb3735df2f8eb0d87b624bc9b 100644
 --- base/task/current_thread.cc
 +++ base/task/current_thread.cc
 @@ -51,6 +51,8 @@ void CurrentThread::AddDestructionObserver(
@@ -43,7 +43,7 @@ index e97435f1705a929ec02848b88b4fe05bdf7399e4..0bacc37506436fab4689a342aedf9dbc
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/task/current_thread.h base/task/current_thread.h
-index d84dd367600fc673d3b7b55476d0c8b87cefe3f9..77cfbab4be989018369993aab69948e5b2580271 100644
+index ffd90d20a9ed1366555d3b18638a3c3559d06c90..05ed6fe922c13a96ddfe630dadf2c16feb9a2159 100644
 --- base/task/current_thread.h
 +++ base/task/current_thread.h
 @@ -166,6 +166,12 @@ class BASE_EXPORT CurrentThread {
@@ -59,7 +59,7 @@ index d84dd367600fc673d3b7b55476d0c8b87cefe3f9..77cfbab4be989018369993aab69948e5
    // Enables nested task processing in scope of an upcoming native message loop.
    // Some unwanted message loops may occur when using common controls or printer
    // functions. Hence, nested task processing is disabled by default to avoid
-@@ -237,6 +243,13 @@ class BASE_EXPORT CurrentThread {
+@@ -239,6 +245,13 @@ class BASE_EXPORT CurrentThread {
    friend class web::WebTaskEnvironment;
  
    raw_ptr<sequence_manager::internal::SequenceManagerImpl> current_;
