@@ -279,6 +279,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   void ExitFullscreen(bool will_cause_resize) override;
   bool IsRenderProcessUnresponsive() override;
   cef_runtime_style_t GetRuntimeStyle() override;
+  void SetAxViewportCollapse(bool enabled) override;
 
   // CefBrowser methods:
   bool IsValid() override;
@@ -385,6 +386,9 @@ class CefBrowserHostBase : public CefBrowserHost,
   }
   bool is_views_hosted() const { return is_views_hosted_; }
   SkColor GetBackgroundColor() const;
+  std::optional<bool> ax_viewport_collapse() const {
+    return ax_viewport_collapse_;
+  }
 
   // Returns true if windowless rendering is enabled.
   virtual bool IsWindowless() const = 0;
@@ -517,6 +521,9 @@ class CefBrowserHostBase : public CefBrowserHost,
     gfx::Size max;
   };
   std::optional<AutoResizeConstraints> auto_resize_;
+
+  // Runtime override for CDP accessibility tree viewport collapse.
+  std::optional<bool> ax_viewport_collapse_;
 
  private:
   IMPLEMENT_REFCOUNTING(CefBrowserHostBase);

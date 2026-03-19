@@ -241,6 +241,12 @@ void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
     settings->chrome_status_bubble = STATE_DISABLED;
     settings->chrome_zoom_bubble = STATE_DISABLED;
   }
+
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+  if (command_line_->HasSwitch(switches::kAxViewportCollapse)) {
+    settings->ax_viewport_collapse = STATE_ENABLED;
+  }
+#endif
 }
 
 void MainContextImpl::PopulateOsrSettings(OsrRendererSettings* settings) {
