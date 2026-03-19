@@ -726,6 +726,43 @@ void CefBrowserContentsDelegate::WebContentsDestroyed() {
   }
 }
 
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
+// does this help wayland? I don't know, I'm just targeting X11. If anyone
+// encounter similar problems on wayland, try it. in X11, we can't reliably know
+// `OnGotFocus()` when the user click the WebContents. We need to monitor the
+// focus changed throught the WebContentsObserver interface
+void CefBrowserContentsDelegate::DidGetUserInteraction(
+    const blink::WebInputEvent& event) {
+  auto wc = web_contents();
+  if (blink::WebInputEvent::IsMouseEventType(event.GetType())) {
+    if (wc != nullptr) {
+      if (wc->GetFocusedFrame() == nullptr) {
+        // DidGetUserInteraction : in rare cases, Chrome does not set focus to
+        // the WebContents after got mouse-click. this will lead to varies bugs
+        // in the following user interactions,
+        // 1. keyboard inputs will not work, but the caret(if any) is blinking
+        // indicating user can use their keyboard input
+        // 2. copy selected contents(through mouse left-click-and-drag) by
+        // keyboard shorcuts(typical ctrl+C) will not work We force to set it
+        // but should(should we?) further investigate the cause. At least all
+        // known usage cases meet user expectation(click and focus), or name me
+        // one exception you think inappropriate
+        wc->Focus();
+      }
+      if (client().get()) {
+        CefRefPtr<CefFocusHandler> handler = client()->GetFocusHandler();
+        if (handler.get()) {
+          handler->OnGotFocus(browser());
+        }
+        if (platform_delegate()) {
+          platform_delegate()->SetFocus(true);
+        }
+      }
+    }
+  }
+}
+#endif
+
 bool CefBrowserContentsDelegate::OnSetFocus(cef_focus_source_t source) {
   // SetFocus() might be called while inside the OnSetFocus() callback. If
   // so, don't re-enter the callback.
