@@ -214,18 +214,6 @@ index c87f079a6541866fa00cc96e7dfed11d743ba182..17c949f873124021ae69b2fe9d469913
  #if BUILDFLAG(IS_MAC)
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
-diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 0b91bcd4961918e4c601c99fcddf5f0afa57bba3..cc1d2a0be003bc8b82e0745a9efcab83f2d20011 100644
---- third_party/blink/renderer/core/exported/web_view_impl.cc
-+++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -3247,6 +3247,7 @@ void WebViewImpl::OnWindowShowStateChanged(
-         WasRestored();
-       }
-       break;
-+    case WindowShowState::kHidden:
-     case WindowShowState::kInactive:
-     case WindowShowState::kFullscreen:
-     case WindowShowState::kEnd:
 diff --git ui/aura/native_window_occlusion_tracker_win.cc ui/aura/native_window_occlusion_tracker_win.cc
 index 883f23810672adf94c8b86f8ec54dc6ac9e7acbb..5d1a2b11c2cea3b247077f96c35780e40efa70f5 100644
 --- ui/aura/native_window_occlusion_tracker_win.cc

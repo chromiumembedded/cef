@@ -426,6 +426,12 @@ void ChromeContentBrowserClientCef::OverrideWebPreferences(
   if (browser) {
     renderer_prefs::SetCefPrefs(browser->settings(), *prefs);
 
+    // Runtime override takes precedence over CefBrowserSettings.
+    if (browser->ax_viewport_collapse().has_value()) {
+      prefs->accessibility_viewport_collapse =
+          browser->ax_viewport_collapse().value();
+    }
+
     // Set the background color for the WebView.
     base_background_color = browser->GetBackgroundColor();
   } else {

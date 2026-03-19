@@ -550,6 +550,7 @@
     'ceftests_sources_common': [
       'tests/ceftests/api_version_unittest.cc',
       'tests/ceftests/audio_output_unittest.cc',
+      'tests/ceftests/ax_viewport_collapse_unittest.cc',
       'tests/ceftests/base/atomic_flag_unittest.cc',
       'tests/ceftests/base/bind_unittest.cc',
       'tests/ceftests/base/callback_helpers_unittest.cc',

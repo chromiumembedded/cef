@@ -1,0 +1,271 @@
+diff --git third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc
+index ca771db96607de17323123ed74d7e7852da754c1..175d14c8cfcc786244c77b7e819b9a72b2814351 100644
+--- third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc
++++ third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc
+@@ -232,6 +232,7 @@ bool StructTraits<blink::mojom::WebPreferencesDataView,
+   out->lazy_load_enabled = data.lazy_load_enabled();
+   out->allow_mixed_content_upgrades = data.allow_mixed_content_upgrades();
+   out->always_show_focus = data.always_show_focus();
++  out->accessibility_viewport_collapse = data.accessibility_viewport_collapse();
+   out->touch_drag_drop_enabled = data.touch_drag_drop_enabled();
+   out->touch_dragend_context_menu = data.touch_dragend_context_menu();
+   out->webxr_immersive_ar_allowed = data.webxr_immersive_ar_allowed();
+diff --git third_party/blink/public/common/web_preferences/web_preferences.h third_party/blink/public/common/web_preferences/web_preferences.h
+index 1c9f1a57ee1f9e295a7f4bb1b445ebf8d8a9e9f1..105225f8a24cbeb951e0b1b51d0d99ea4e8d39b1 100644
+--- third_party/blink/public/common/web_preferences/web_preferences.h
++++ third_party/blink/public/common/web_preferences/web_preferences.h
+@@ -415,6 +415,9 @@ struct BLINK_COMMON_EXPORT WebPreferences {
+   // forcing :focus-visible to match regardless of focus method).
+   bool always_show_focus = false;
+ 
++  // Whether CDP accessibility tree serialization collapses off-screen nodes.
++  bool accessibility_viewport_collapse = false;
++
+   // Whether touch input can trigger HTML drag-and-drop operations. The
+   // default value depends on the platform.
+   bool touch_drag_drop_enabled = false;
+diff --git third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h
+index db2ff72cf836d6e10ff30d00df2fe14896b214fe..86e1b8c8f2111e3f68ebef5b2b81f54f8c6f48ca 100644
+--- third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h
++++ third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h
+@@ -785,6 +785,11 @@ struct BLINK_COMMON_EXPORT StructTraits<blink::mojom::WebPreferencesDataView,
+     return r.always_show_focus;
+   }
+ 
++  static bool accessibility_viewport_collapse(
++      const blink::web_pref::WebPreferences& r) {
++    return r.accessibility_viewport_collapse;
++  }
++
+   static bool touch_drag_drop_enabled(
+       const blink::web_pref::WebPreferences& r) {
+     return r.touch_drag_drop_enabled;
+diff --git third_party/blink/public/mojom/webpreferences/web_preferences.mojom third_party/blink/public/mojom/webpreferences/web_preferences.mojom
+index 230fbc9018462e5f1f3f7a600ac3a0eef64ba459..c6d788bd1d04978eace77936ff0267d0023ff0ce 100644
+--- third_party/blink/public/mojom/webpreferences/web_preferences.mojom
++++ third_party/blink/public/mojom/webpreferences/web_preferences.mojom
+@@ -482,6 +482,9 @@ struct WebPreferences {
+   // forcing :focus-visible to match regardless of focus method).
+   bool always_show_focus;
+ 
++  // Whether CDP accessibility tree serialization collapses off-screen nodes.
++  bool accessibility_viewport_collapse;
++
+   // Whether touch input can trigger HTML drag-and-drop operations. The
+   // default value depends on the platform.
+   bool touch_drag_drop_enabled;
+diff --git third_party/blink/public/web/web_settings.h third_party/blink/public/web/web_settings.h
+index 42dcdc73fd3255fc4af472ddcc885dd9444f9bae..d21caf62ce8f7175f9ffbd7432013b9b48680d57 100644
+--- third_party/blink/public/web/web_settings.h
++++ third_party/blink/public/web/web_settings.h
+@@ -228,6 +228,7 @@ class WebSettings {
+   virtual void SetAccessibilityFontScaleFactor(float) = 0;
+   virtual void SetAccessibilityTextSizeContrastFactor(int) = 0;
+   virtual void SetAccessibilityAlwaysShowFocus(bool) = 0;
++  virtual void SetAccessibilityViewportCollapse(bool) = 0;
+   virtual void SetTextTrackKindUserPreference(TextTrackKindUserPreference) = 0;
+   virtual void SetTextTrackBackgroundColor(const WebString&) = 0;
+   virtual void SetTextTrackFontFamily(const WebString&) = 0;
+diff --git third_party/blink/renderer/core/exported/web_settings_impl.cc third_party/blink/renderer/core/exported/web_settings_impl.cc
+index e3532e382addf2efde5e60d0f4ae985cac8232a0..3a6551e8aeaba43d4c91b94211b99e5e620dbf10 100644
+--- third_party/blink/renderer/core/exported/web_settings_impl.cc
++++ third_party/blink/renderer/core/exported/web_settings_impl.cc
+@@ -175,6 +175,10 @@ void WebSettingsImpl::SetAccessibilityAlwaysShowFocus(bool always_show_focus) {
+   settings_->SetAccessibilityAlwaysShowFocus(always_show_focus);
+ }
+ 
++void WebSettingsImpl::SetAccessibilityViewportCollapse(bool enabled) {
++  settings_->SetAccessibilityViewportCollapse(enabled);
++}
++
+ void WebSettingsImpl::SetAccessibilityPasswordValuesEnabled(bool enabled) {
+   settings_->SetAccessibilityPasswordValuesEnabled(enabled);
+ }
+diff --git third_party/blink/renderer/core/exported/web_settings_impl.h third_party/blink/renderer/core/exported/web_settings_impl.h
+index 333634ea2567af0114a951ae47535ec42435cc9e..28bf3e044d69c8be0fed3d63f778bc551ce3797b 100644
+--- third_party/blink/renderer/core/exported/web_settings_impl.h
++++ third_party/blink/renderer/core/exported/web_settings_impl.h
+@@ -174,6 +174,7 @@ class CORE_EXPORT WebSettingsImpl final : public WebSettings {
+   void SetAccessibilityFontScaleFactor(float) override;
+   void SetAccessibilityTextSizeContrastFactor(int) override;
+   void SetAccessibilityAlwaysShowFocus(bool) override;
++  void SetAccessibilityViewportCollapse(bool) override;
+   void SetTextTrackKindUserPreference(TextTrackKindUserPreference) override;
+   void SetTextTrackBackgroundColor(const WebString&) override;
+   void SetTextTrackFontFamily(const WebString&) override;
+diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
+index 0b91bcd4961918e4c601c99fcddf5f0afa57bba3..a3384a6d50e9716aaccae1e3089f7d7c6ec70e94 100644
+--- third_party/blink/renderer/core/exported/web_view_impl.cc
++++ third_party/blink/renderer/core/exported/web_view_impl.cc
+@@ -1845,6 +1845,8 @@ void WebView::ApplyWebPreferences(const web_pref::WebPreferences& prefs,
+   settings->SetForceDarkModeEnabled(prefs.force_dark_mode_enabled);
+ 
+   settings->SetAccessibilityAlwaysShowFocus(prefs.always_show_focus);
++  settings->SetAccessibilityViewportCollapse(
++      prefs.accessibility_viewport_collapse);
+   settings->SetAutoplayPolicy(prefs.autoplay_policy);
+   settings->SetRequireTransientActivationForGetDisplayMedia(
+       prefs.require_transient_activation_for_get_display_media);
+@@ -3247,6 +3249,7 @@ void WebViewImpl::OnWindowShowStateChanged(
+         WasRestored();
+       }
+       break;
++    case WindowShowState::kHidden:
+     case WindowShowState::kInactive:
+     case WindowShowState::kFullscreen:
+     case WindowShowState::kEnd:
+diff --git third_party/blink/renderer/core/frame/settings.json5 third_party/blink/renderer/core/frame/settings.json5
+index 1dd5c9d92f71f5b62c422a46e8bd2a956ad95c8e..2cf44e9fa9887ce99fbb794c85a86ed8a7c63af2 100644
+--- third_party/blink/renderer/core/frame/settings.json5
++++ third_party/blink/renderer/core/frame/settings.json5
+@@ -1225,6 +1225,10 @@
+       name: "accessibilityIncludeSvgGElement",
+       initial: false,
+     },
++    {
++      name: "accessibilityViewportCollapse",
++      initial: false,
++    },
+     {
+       name: "bypassCSP",
+       initial: false,
+diff --git third_party/blink/renderer/modules/accessibility/BUILD.gn third_party/blink/renderer/modules/accessibility/BUILD.gn
+index f9de92e534a5eaaa012633b72e593a3075bbf48c..50bd9bac40ab76c1eda9eb3bc964ca41a087918f 100644
+--- third_party/blink/renderer/modules/accessibility/BUILD.gn
++++ third_party/blink/renderer/modules/accessibility/BUILD.gn
+@@ -2,6 +2,7 @@
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+ 
++import("//cef/libcef/features/features.gni")
+ import("//third_party/blink/renderer/modules/modules.gni")
+ 
+ blink_modules_sources("accessibility") {
+@@ -74,6 +75,17 @@ blink_modules_sources("accessibility") {
+     ]
+   }
+ 
++  if (enable_cef) {
++    sources += [
++      "//cef/libcef/renderer/accessibility/build_collapsed_summary_node.inc",
++      "//cef/libcef/renderer/accessibility/viewport_collapse.cc",
++      "//cef/libcef/renderer/accessibility/viewport_collapse.h",
++      "//cef/libcef/renderer/accessibility/walk_ax_nodes_with_collapse.inc",
++    ]
++    configs += [ "//cef/libcef/features:config" ]
++    deps += [ "//cef/libcef/features:deps" ]
++  }
++
+   if (is_android) {
+     defines = [ "REDUCE_AX_INLINE_TEXTBOXES" ]
+   }
+diff --git third_party/blink/renderer/modules/accessibility/inspector_accessibility_agent.cc third_party/blink/renderer/modules/accessibility/inspector_accessibility_agent.cc
+index 95e64bb4c18a52f9163fea8802dbf45cfc2dbc70..24c8a66e8f65124aabb5c93e19df445c18842406 100644
+--- third_party/blink/renderer/modules/accessibility/inspector_accessibility_agent.cc
++++ third_party/blink/renderer/modules/accessibility/inspector_accessibility_agent.cc
+@@ -6,6 +6,7 @@
+ 
+ #include <memory>
+ 
++#include "cef/libcef/features/features.h"
+ #include "third_party/blink/renderer/core/accessibility/ax_object_cache.h"
+ #include "third_party/blink/renderer/core/dom/dom_node_ids.h"
+ #include "third_party/blink/renderer/core/dom/element.h"
+@@ -29,6 +30,10 @@
+ #include "ui/accessibility/ax_mode.h"
+ #include "ui/accessibility/ax_node_data.h"
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/renderer/accessibility/viewport_collapse.h"
++#endif
++
+ namespace blink {
+ 
+ namespace {
+@@ -132,6 +137,10 @@ std::unique_ptr<protocol::Array<AXNode>> WalkAXNodesToDepth(
+   return nodes;
+ }
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/renderer/accessibility/walk_ax_nodes_with_collapse.inc"
++#endif
++
+ }  // namespace
+ 
+ using EnabledAgentsMultimap =
+@@ -245,7 +254,14 @@ protocol::Response InspectorAccessibilityAgent::getFullAXTree(
+   cache.UpdateAXForAllDocuments();
+   ScopedFreezeAXCache freeze(cache);
+ 
+-  *nodes = WalkAXNodesToDepth(cache, depth.value_or(-1));
++#if BUILDFLAG(ENABLE_CEF)
++  if (cef::IsViewportCollapseEnabled(cache.GetDocument())) {
++    *nodes = WalkAXNodesToDepthWithCollapse(cache, depth.value_or(-1));
++  } else
++#endif
++  {
++    *nodes = WalkAXNodesToDepth(cache, depth.value_or(-1));
++  }
+ 
+   return protocol::Response::Success();
+ }
+@@ -509,6 +525,15 @@ void InspectorAccessibilityAgent::AXReadyCallback(Document& document) {
+ }
+ 
+ void InspectorAccessibilityAgent::ProcessPendingDirtyNodes(Document& document) {
++#if BUILDFLAG(ENABLE_CEF)
++  // Suppress nodesUpdated events when viewport collapse is active.
++  // These events send uncollapsed data, creating an inconsistent tree.
++  // AI agents call getFullAXTree() directly without enable(), so they
++  // never receive these events anyway.
++  if (cef::IsViewportCollapseEnabled(document))
++    return;
++#endif
++
+   auto now = base::Time::Now();
+ 
+   if (!last_sync_times_.Contains(&document))
+diff --git third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.cc third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.cc
+index ad0547c3c362ea975bca43b53592d88afbd15603..6dac1c010b2b3a694d1c0c87b335f2009fa30079 100644
+--- third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.cc
++++ third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.cc
+@@ -4,6 +4,7 @@
+ 
+ #include "third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.h"
+ 
++#include "cef/libcef/features/features.h"
+ #include "third_party/blink/renderer/core/dom/dom_node_ids.h"
+ #include "third_party/blink/renderer/core/frame/local_frame.h"
+ #include "third_party/blink/renderer/core/inspector/identifiers_factory.h"
+@@ -922,3 +923,7 @@ std::unique_ptr<AXNode> BuildProtocolAXNodeForUnignoredAXObject(
+ }
+ 
+ }  // namespace blink
++
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/renderer/accessibility/build_collapsed_summary_node.inc"
++#endif
+diff --git third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.h third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.h
+index 2c8d5a8aada7230bc141feed9e1af2e6e95d3664..ee1829e828b30eb33e9f4834db7ed3f81280862c 100644
+--- third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.h
++++ third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.h
+@@ -8,6 +8,8 @@
+ #include "third_party/blink/renderer/core/accessibility/axid.h"
+ #include "third_party/blink/renderer/core/inspector/protocol/accessibility.h"
+ 
++#include "cef/libcef/features/features.h"
++
+ namespace blink {
+ 
+ class AXObject;
+@@ -25,6 +27,10 @@ std::unique_ptr<AXNode> BuildProtocolAXNodeForIgnoredAXObject(
+     bool force_name_and_role);
+ std::unique_ptr<AXNode> BuildProtocolAXNodeForUnignoredAXObject(AXObject&);
+ 
++#if BUILDFLAG(ENABLE_CEF)
++std::unique_ptr<AXNode> BuildCollapsedSummaryNode(AXObject& ax_object);
++#endif
++
+ }  // namespace blink
+ 
+ #endif  // THIRD_PARTY_BLINK_RENDERER_MODULES_ACCESSIBILITY_INSPECTOR_TYPE_BUILDER_HELPER_H_
