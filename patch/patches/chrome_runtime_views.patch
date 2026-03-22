@@ -895,7 +895,7 @@ index 9772955f288b583b2ec87971b4e8ef3bddcdb9ab..f86c8e221a50e1338b3f8a2f6600a818
  
  int BrowserViewLayoutImpl::GetDialogBottom(const ProposedLayout& layout) const {
 diff --git chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
-index 41457ef5f398e9f397f1a98b3420225d1ebecbe6..b1be3237d474014ce6ff587fc6389f4305ccf4ec 100644
+index 00e44960d0f744dc4445149b22c9066ebb643b20..2b01fb1e89769a08cef3e8e9d119f045fd99a139 100644
 --- chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
 +++ chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
 @@ -722,6 +722,11 @@ PictureInPictureBrowserFrameView::PictureInPictureBrowserFrameView(
@@ -1029,10 +1029,10 @@ index d76c4968196652a6abbd26b425d65fc3c47baee7..3e7e5c31f6c1ebd47c90eebabc8517dc
        case PageActionIconType::kPaymentsOfferNotification:
          add_page_action_icon(
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 324441f7f80d81af009d3c1ba2aae51d6b77001a..d65c24a02250fd585f47068a20120f7a5a248b57 100644
+index 4ad69dd085d4d0cb57604b00bc404b3026d55f20..bbc8891448b8071032ab5a015a419e095cf90bdb 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
-@@ -197,12 +197,14 @@ bool IsMigratedClickToCallBubble(
+@@ -198,12 +198,14 @@ bool IsMigratedClickToCallBubble(
  
  DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(ToolbarView, kToolbarElementId);
  
@@ -1049,7 +1049,7 @@ index 324441f7f80d81af009d3c1ba2aae51d6b77001a..d65c24a02250fd585f47068a20120f7a
    SetID(VIEW_ID_TOOLBAR);
    SetProperty(views::kElementIdentifierKey, kToolbarElementId);
  
-@@ -227,9 +229,24 @@ ToolbarView::~ToolbarView() {
+@@ -228,9 +230,24 @@ ToolbarView::~ToolbarView() {
    for (const auto& view_and_command : GetViewCommandMap()) {
      chrome::RemoveCommandObserver(browser_, view_and_command.second, this);
    }
@@ -1074,7 +1074,7 @@ index 324441f7f80d81af009d3c1ba2aae51d6b77001a..d65c24a02250fd585f47068a20120f7a
  #if defined(USE_AURA)
    // Avoid generating too many occlusion tracking calculation events before this
    // function returns. The occlusion status will be computed only once once this
-@@ -240,7 +257,7 @@ void ToolbarView::Init() {
+@@ -241,7 +258,7 @@ void ToolbarView::Init() {
  
    auto location_bar = std::make_unique<LocationBarView>(
        browser_, browser_->profile(), browser_->command_controller(), this,
@@ -1083,7 +1083,7 @@ index 324441f7f80d81af009d3c1ba2aae51d6b77001a..d65c24a02250fd585f47068a20120f7a
    // Make sure the toolbar shows by default.
    size_animation_.Reset(1);
  
-@@ -306,7 +323,8 @@ void ToolbarView::Init() {
+@@ -307,7 +324,8 @@ void ToolbarView::Init() {
    }
  
    std::unique_ptr<MediaToolbarButtonView> media_button;
@@ -1093,7 +1093,7 @@ index 324441f7f80d81af009d3c1ba2aae51d6b77001a..d65c24a02250fd585f47068a20120f7a
      media_button = std::make_unique<MediaToolbarButtonView>(
          browser_view_,
          std::make_unique<MediaToolbarButtonContextualMenu>(browser_));
-@@ -374,7 +392,7 @@ void ToolbarView::Init() {
+@@ -375,7 +393,7 @@ void ToolbarView::Init() {
    pinned_toolbar_actions_container_ = AddChildView(
        std::make_unique<PinnedToolbarActionsContainer>(browser_view_, this));
  
@@ -1102,7 +1102,7 @@ index 324441f7f80d81af009d3c1ba2aae51d6b77001a..d65c24a02250fd585f47068a20120f7a
      tab_search_button_ =
          pinned_toolbar_actions_container()->CreatePermanentButtonFor(
              kActionTabSearch);
-@@ -403,7 +421,8 @@ void ToolbarView::Init() {
+@@ -404,7 +422,8 @@ void ToolbarView::Init() {
  
    // Only show the Battery Saver button when it is not controlled by the OS. On
    // ChromeOS the battery icon in the shelf shows the same information.
@@ -1112,7 +1112,7 @@ index 324441f7f80d81af009d3c1ba2aae51d6b77001a..d65c24a02250fd585f47068a20120f7a
      battery_saver_button_ =
          AddChildView(std::make_unique<BatterySaverButton>(browser_view_));
    }
-@@ -448,7 +467,7 @@ void ToolbarView::Init() {
+@@ -449,7 +468,7 @@ void ToolbarView::Init() {
                                 browser_->profile()->IsGuestSession() ||
                                 browser_->profile()->IsRegularProfile();
  #endif
