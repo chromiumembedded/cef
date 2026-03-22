@@ -21,7 +21,7 @@ index 441a835365ce06c272b83ebd9a4301f50a8b4215..d3aa6d920e4ad644813df87bdda26bbc
  
        // Make an exception to allow most visited tiles to commit in third-party
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 5b79df01e0a5ee81919ebed7d689e430fe7fe305..3340e5e3c4c43c0d9f906256c645b61f9c5adf8d 100644
+index 7d101d40116bf743f940f32ba4c9b507aa9a235b..b6db486a315463c794a4f1a491a0f38ccacdbedf 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
 @@ -8993,7 +8993,8 @@ std::optional<url::Origin> NavigationRequest::GetOriginToCommit() {
@@ -84,10 +84,10 @@ index 5b79df01e0a5ee81919ebed7d689e430fe7fe305..3340e5e3c4c43c0d9f906256c645b61f
    // If the target of this navigation will be rendered in a RenderFrameHost,
    // then verify that the chosen origin is allowed to be accessed from that
 diff --git content/browser/renderer_host/navigation_request.h content/browser/renderer_host/navigation_request.h
-index 6711f6628169c92e2802f700d60456b2ea2f6f8e..9950e0658bebd368c14b5d63912cbf0c56f7828f 100644
+index f83465788fa8be46d92d717cc75de8dc9d605500..0e148de9c1344e5e7eb710f4591aac56da306eb4 100644
 --- content/browser/renderer_host/navigation_request.h
 +++ content/browser/renderer_host/navigation_request.h
-@@ -2395,7 +2395,8 @@ class CONTENT_EXPORT NavigationRequest
+@@ -2391,7 +2391,8 @@ class CONTENT_EXPORT NavigationRequest
    // situations where the final frame host hasn't been determined but the origin
    // is needed to create URLLoaderFactory.
    url::Origin GetOriginForURLLoaderFactoryBeforeResponse(
