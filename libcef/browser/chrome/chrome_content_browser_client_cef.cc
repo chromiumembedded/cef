@@ -623,6 +623,17 @@ bool ChromeContentBrowserClientCef::ConfigureNetworkContextParams(
       cert_verifier_creation_params);
 
   auto cef_context = CefBrowserContext::FromBrowserContext(context);
+  if (!cef_context) {
+    // The Profile may not be associated with a CefBrowserContext yet if this
+    // method is called during profile initialization (before the
+    // ChromeBrowserContext::ProfileCreated callback sets |profile_|). Try to
+    // find the CefBrowserContext by cache path instead, as the path mapping is
+    // registered before profile creation begins.
+    const auto& cache_path = Profile::FromBrowserContext(context)->GetPath();
+    if (!cache_path.empty()) {
+      cef_context = CefBrowserContext::FromCachePath(cache_path);
+    }
+  }
   network_context_params->cookieable_schemes =
       cef_context ? cef_context->GetCookieableSchemes()
                   : CefBrowserContext::GetGlobalCookieableSchemes();

@@ -15,6 +15,7 @@
 #include "include/cef_server.h"
 #include "include/cef_waitable_event.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "include/wrapper/cef_scoped_temp_dir.h"
 #include "tests/ceftests/routing_test_handler.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_server_observer.h"
@@ -722,6 +723,31 @@ class CompletionCallback : public CefCompletionCallback {
   IMPLEMENT_REFCOUNTING(CompletionCallback);
 };
 
+// Helper handler that invokes a callback when the request context is
+// initialized. Used for on-disk request contexts that initialize
+// asynchronously.
+class RequestContextInitHandler : public CefRequestContextHandler {
+ public:
+  using InitCallback = base::OnceCallback<void(CefRefPtr<CefRequestContext>)>;
+
+  explicit RequestContextInitHandler(InitCallback callback)
+      : callback_(std::move(callback)) {}
+
+  RequestContextInitHandler(const RequestContextInitHandler&) = delete;
+  RequestContextInitHandler& operator=(const RequestContextInitHandler&) =
+      delete;
+
+  void OnRequestContextInitialized(
+      CefRefPtr<CefRequestContext> request_context) override {
+    CEF_REQUIRE_UI_THREAD();
+    std::move(callback_).Run(request_context);
+  }
+
+ private:
+  InitCallback callback_;
+  IMPLEMENT_REFCOUNTING(RequestContextInitHandler);
+};
+
 class CookieTestSchemeHandler : public TestHandler {
  public:
   class SchemeHandler : public CefResourceHandler {
@@ -845,10 +871,12 @@ class CookieTestSchemeHandler : public TestHandler {
 
   CookieTestSchemeHandler(const std::string& scheme,
                           bool use_global,
-                          bool block_cookies = false)
+                          bool block_cookies = false,
+                          const std::string& cache_path = std::string())
       : scheme_(scheme),
         use_global_(use_global),
-        block_cookies_(block_cookies) {
+        block_cookies_(block_cookies),
+        cache_path_(cache_path) {
     url1_ = scheme + "://cookie-tests/cookie1.html";
     url2_ = scheme + "://cookie-tests/cookie2.html";
     url3_ = scheme + "://cookie-tests/cookie3.html";
@@ -857,9 +885,13 @@ class CookieTestSchemeHandler : public TestHandler {
   void RunTest() override {
     if (use_global_) {
       request_context_ = CefRequestContext::GetGlobalContext();
+      RunTestContinue();
     } else {
-      // Create the request context that will use an in-memory cache.
       CefRequestContextSettings settings;
+
+      if (!cache_path_.empty()) {
+        CefString(&settings.cache_path) = cache_path_;
+      }
 
       if (scheme_ == kCustomCookieScheme || block_cookies_) {
         if (!block_cookies_) {
@@ -869,9 +901,29 @@ class CookieTestSchemeHandler : public TestHandler {
         }
       }
 
-      request_context_ = CefRequestContext::CreateContext(settings, nullptr);
+      if (!cache_path_.empty()) {
+        // On-disk contexts require async initialization.
+        CefRefPtr<CefRequestContextHandler> handler =
+            new RequestContextInitHandler(base::BindOnce(
+                &CookieTestSchemeHandler::OnContextInitialized, this));
+        request_context_ = CefRequestContext::CreateContext(settings, handler);
+      } else {
+        request_context_ = CefRequestContext::CreateContext(settings, nullptr);
+        RunTestContinue();
+      }
     }
 
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  void OnContextInitialized(CefRefPtr<CefRequestContext> request_context) {
+    CEF_REQUIRE_UI_THREAD();
+    EXPECT_TRUE(request_context->IsSame(request_context_));
+    RunTestContinue();
+  }
+
+  void RunTestContinue() {
     // Register the scheme handler.
     request_context_->RegisterSchemeHandlerFactory(
         scheme_, "cookie-tests", new SchemeHandlerFactory(this));
@@ -880,9 +932,6 @@ class CookieTestSchemeHandler : public TestHandler {
 
     // Create the browser.
     CreateBrowser(url1_, request_context_);
-
-    // Time out the test after a reasonable period of time.
-    SetTestTimeout();
   }
 
   // Go to the next URL.
@@ -994,6 +1043,7 @@ class CookieTestSchemeHandler : public TestHandler {
   const std::string scheme_;
   const bool use_global_;
   const bool block_cookies_;
+  const std::string cache_path_;
   std::string url1_;
   std::string url2_;
   std::string url3_;
@@ -1040,6 +1090,26 @@ TEST(CookieTest, GetCookieManagerHttpInMemory) {
 TEST(CookieTest, GetCookieManagerHttpInMemoryBlocked) {
   CefRefPtr<CookieTestSchemeHandler> handler =
       new CookieTestSchemeHandler("https", false, true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Verify use of an on-disk cookie manager with HTTP to block all cookies.
+// This is a regression test for a bug where cookieable_schemes_exclude_defaults
+// was not respected for on-disk request contexts. During profile initialization
+// for disk-backed profiles, the CefBrowserContext was not yet associated with
+// the Profile, causing ConfigureNetworkContextParams to fall back to the global
+// cookieable_schemes instead of using the context's own settings.
+TEST(CookieTest, GetCookieManagerHttpOnDiskBlocked) {
+  CefScopedTempDir scoped_temp_dir;
+  EXPECT_TRUE(scoped_temp_dir.CreateUniqueTempDirUnderPath(
+      CefTestSuite::GetInstance()->root_cache_path()));
+  // Take ownership so the directory isn't deleted immediately. It will be
+  // cleaned up when the root_cache_path is deleted during test shutdown.
+  std::string cache_path = scoped_temp_dir.Take();
+
+  CefRefPtr<CookieTestSchemeHandler> handler = new CookieTestSchemeHandler(
+      "https", false, /*block_cookies=*/true, cache_path);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
