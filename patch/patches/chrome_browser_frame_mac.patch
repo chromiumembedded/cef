@@ -33,7 +33,7 @@ index 1423d061aa00c5e8c58bceb09f36d517821f8d06..dd7e20ed4850153fe5e1cc2d69acfd52
    ~BrowserNativeWidgetMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_native_widget_mac.mm chrome/browser/ui/views/frame/browser_native_widget_mac.mm
-index e82bafb11b6a9f999fae0863725e32c2616177bf..03373d7d80b34e14d1c4f6ed8f0fffce3d6c5491 100644
+index fc79b13d4d4c27fd35fb561ad9e5c2942e5d9e69..8c248eeb21e086b72f49cdd823c8e5e9be81c9c4 100644
 --- chrome/browser/ui/views/frame/browser_native_widget_mac.mm
 +++ chrome/browser/ui/views/frame/browser_native_widget_mac.mm
 @@ -214,7 +214,15 @@ void BrowserNativeWidgetMac::OnWidgetDestroyed(views::Widget* widget) {
@@ -53,7 +53,7 @@ index e82bafb11b6a9f999fae0863725e32c2616177bf..03373d7d80b34e14d1c4f6ed8f0fffce
    if (!browser || !chrome::SupportsCommand(browser, tag)) {
      result->enable = false;
      return;
-@@ -406,9 +414,16 @@ bool BrowserNativeWidgetMac::WillExecuteCommand(
+@@ -410,9 +418,16 @@ bool BrowserNativeWidgetMac::WillExecuteCommand(
    if (!browser_view_) {
      return false;
    }
@@ -72,7 +72,7 @@ index e82bafb11b6a9f999fae0863725e32c2616177bf..03373d7d80b34e14d1c4f6ed8f0fffce
    if (is_before_first_responder) {
      // The specification for this private extensions API is incredibly vague.
      // For now, we avoid triggering chrome commands prior to giving the
-@@ -440,12 +455,23 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
+@@ -444,12 +459,23 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {
