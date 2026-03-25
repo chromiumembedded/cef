@@ -41,6 +41,7 @@
 #include <vector>
 
 #include "include/cef_base.h"
+#include "include/cef_browser_capture.h"
 #include "include/cef_devtools_message_observer.h"
 #include "include/cef_drag_data.h"
 #include "include/cef_frame.h"
@@ -442,6 +443,14 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefRequestContext> GetRequestContext() = 0;
+
+  ///
+  /// Returns the browser capture service for this browser host. The returned
+  /// object exposes browser-scoped snapshot and annotated screenshot APIs. The
+  /// methods of the returned object may only be called in the browser process.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefBrowserCapture> GetCapture() = 0;
 
   ///
   /// Returns true if this browser can execute the specified zoom command. This

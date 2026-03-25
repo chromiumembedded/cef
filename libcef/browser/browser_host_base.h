@@ -13,6 +13,7 @@
 #include "cef/include/cef_client.h"
 #include "cef/include/cef_unresponsive_process_callback.h"
 #include "cef/include/views/cef_browser_view.h"
+#include "cef/libcef/browser/browser_capture_impl.h"
 #include "cef/libcef/browser/browser_contents_delegate.h"
 #include "cef/libcef/browser/browser_info.h"
 #include "cef/libcef/browser/browser_platform_delegate.h"
@@ -237,6 +238,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   void PrintToPDF(const CefString& path,
                   const CefPdfPrintSettings& settings,
                   CefRefPtr<CefPdfPrintCallback> callback) override;
+  CefRefPtr<CefBrowserCapture> GetCapture() override;
   void Find(const CefString& searchText,
             bool forward,
             bool matchCase,
@@ -508,6 +510,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   std::unique_ptr<CefDevToolsWindowRunner> devtools_window_runner_;
 
   std::unique_ptr<CefMediaStreamRegistrar> media_stream_registrar_;
+  CefRefPtr<CefBrowserCaptureImpl> browser_capture_;
 
   int next_popup_id_ = 1;
 

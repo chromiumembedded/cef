@@ -7,6 +7,7 @@
 #include <tuple>
 
 #include "base/logging.h"
+#include "cef/libcef/browser/browser_capture_impl.h"
 #include "cef/libcef/browser/browser_guest_util.h"
 #include "cef/libcef/browser/browser_info_manager.h"
 #include "cef/libcef/browser/browser_platform_delegate.h"
@@ -325,6 +326,7 @@ void CefBrowserHostBase::DestroyBrowser() {
   // The WebContents should no longer be observed.
   DCHECK(!contents_delegate_.web_contents());
 
+  browser_capture_ = nullptr;
   media_stream_registrar_.reset();
 
   platform_delegate_.reset();
@@ -350,6 +352,19 @@ CefRefPtr<CefClient> CefBrowserHostBase::GetClient() {
 
 CefRefPtr<CefRequestContext> CefBrowserHostBase::GetRequestContext() {
   return request_context_;
+}
+
+CefRefPtr<CefBrowserCapture> CefBrowserHostBase::GetCapture() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    DCHECK(false) << "called on invalid thread";
+    return nullptr;
+  }
+
+  if (!browser_capture_) {
+    browser_capture_ = new CefBrowserCaptureImpl(this);
+  }
+
+  return browser_capture_;
 }
 
 bool CefBrowserHostBase::CanZoom(cef_zoom_command_t command) {

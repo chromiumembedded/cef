@@ -379,6 +379,21 @@ CefRefPtr<CefCookieManager> CefRequestContextImpl::GetCookieManager(
   return cookie_manager.get();
 }
 
+CefRefPtr<CefStorageStateManager> CefRequestContextImpl::GetStorageStateManager(
+    CefRefPtr<CefCompletionCallback> callback) {
+  CefRefPtr<CefStorageStateManagerImpl> storage_state_manager;
+  {
+    base::AutoLock lock_scope(service_lock_);
+    if (!storage_state_manager_) {
+      storage_state_manager_ = new CefStorageStateManagerImpl();
+    }
+    storage_state_manager = storage_state_manager_;
+  }
+
+  InitializeStorageStateManagerInternal(storage_state_manager, callback);
+  return storage_state_manager.get();
+}
+
 bool CefRequestContextImpl::RegisterSchemeHandlerFactory(
     const CefString& scheme_name,
     const CefString& domain_name,
@@ -523,6 +538,14 @@ CefRefPtr<CefMediaRouter> CefRequestContextImpl::GetMediaRouter(
   CefRefPtr<CefMediaRouterImpl> media_router = new CefMediaRouterImpl();
   InitializeMediaRouterInternal(media_router, callback);
   return media_router.get();
+}
+
+CefRefPtr<CefBrowserSecurityPolicy> CefRequestContextImpl::GetSecurityPolicy() {
+  base::AutoLock lock_scope(service_lock_);
+  if (!security_policy_.get()) {
+    security_policy_ = new CefBrowserSecurityPolicyImpl();
+  }
+  return security_policy_.get();
 }
 
 CefRefPtr<CefValue> CefRequestContextImpl::GetWebsiteSetting(
@@ -1090,6 +1113,20 @@ void CefRequestContextImpl::InitializeMediaRouterInternal(
                                                    callback);
                         },
                         media_router, callback));
+}
+
+void CefRequestContextImpl::InitializeStorageStateManagerInternal(
+    CefRefPtr<CefStorageStateManagerImpl> storage_state_manager,
+    CefRefPtr<CefCompletionCallback> callback) {
+  GetBrowserContext(
+      content::GetUIThreadTaskRunner({}),
+      base::BindOnce(
+          [](CefRefPtr<CefStorageStateManagerImpl> storage_state_manager,
+             CefRefPtr<CefCompletionCallback> callback,
+             CefBrowserContext::Getter browser_context_getter) {
+            storage_state_manager->Initialize(browser_context_getter, callback);
+          },
+          storage_state_manager, callback));
 }
 
 CefBrowserContext* CefRequestContextImpl::browser_context() const {
