@@ -22,9 +22,10 @@ void RunSecurityCallback(CefRefPtr<CefBrowserSecurityCallback> callback) {
 
 CefBrowserSecurityPolicyImpl::CefBrowserSecurityPolicyImpl() = default;
 
-CefBrowserSecuritySettings CefBrowserSecurityPolicyImpl::GetSettings() {
+void CefBrowserSecurityPolicyImpl::GetSettings(
+    CefBrowserSecuritySettings& settings) {
   base::AutoLock lock_scope(lock_);
-  return settings_;
+  settings = settings_;
 }
 
 void CefBrowserSecurityPolicyImpl::SetSettings(

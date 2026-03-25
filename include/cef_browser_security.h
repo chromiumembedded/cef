@@ -66,7 +66,7 @@ class CefBrowserSecurityPolicy : public virtual CefBaseRefCounted {
   /// Returns a copy of the current security settings.
   ///
   /*--cef()--*/
-  virtual CefBrowserSecuritySettings GetSettings() = 0;
+  virtual void GetSettings(CefBrowserSecuritySettings& settings) = 0;
 
   ///
   /// Updates the current security settings. If |callback| is non-NULL it will

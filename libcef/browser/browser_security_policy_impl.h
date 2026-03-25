@@ -18,7 +18,7 @@ class CefBrowserSecurityPolicyImpl : public CefBrowserSecurityPolicy {
   CefBrowserSecurityPolicyImpl& operator=(const CefBrowserSecurityPolicyImpl&) =
       delete;
 
-  CefBrowserSecuritySettings GetSettings() override;
+  void GetSettings(CefBrowserSecuritySettings& settings) override;
   void SetSettings(const CefBrowserSecuritySettings& settings,
                    CefRefPtr<CefBrowserSecurityCallback> callback) override;
   CefString GetAllowedDomains() override;

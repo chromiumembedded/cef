@@ -550,6 +550,7 @@
     'ceftests_sources_common': [
       'tests/ceftests/api_version_unittest.cc',
       'tests/ceftests/audio_output_unittest.cc',
+      'tests/ceftests/auth_vault_unittest.cc',
       'tests/ceftests/base/atomic_flag_unittest.cc',
       'tests/ceftests/base/bind_unittest.cc',
       'tests/ceftests/base/callback_helpers_unittest.cc',
@@ -562,6 +563,7 @@
       'tests/ceftests/base/to_address_unittest.cc',
       'tests/ceftests/base/weak_ptr_unittest.cc',
       'tests/ceftests/browser_info_map_unittest.cc',
+      'tests/ceftests/browser_capture_unittest.cc',
       'tests/ceftests/browser_settings_unittest.cc',
       'tests/ceftests/certificate_error_unittest.cc',
       'tests/ceftests/command_line_unittest.cc',
@@ -619,6 +621,7 @@
       "tests/ceftests/shared_process_message_unittest.cc",
       'tests/ceftests/stream_unittest.cc',
       'tests/ceftests/stream_resource_handler_unittest.cc',
+      'tests/ceftests/storage_state_unittest.cc',
       'tests/ceftests/string_unittest.cc',
       'tests/ceftests/client_app_delegates.cc',
       'tests/ceftests/task_unittest.cc',
