@@ -2,7 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "base/files/file_util.h"
 #include "include/cef_auth_vault.h"
+#include "include/cef_parser.h"
 #include "include/cef_waitable_event.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
@@ -91,6 +93,23 @@ TEST(AuthVaultTest, SaveReadDeleteProfile) {
   save_event->Wait();
   EXPECT_TRUE(save_callback->success());
   EXPECT_FALSE(save_callback->path().empty());
+  EXPECT_TRUE(base::PathExists(base::FilePath(save_callback->path().ToString())));
+
+  std::string encrypted_payload;
+  EXPECT_TRUE(base::ReadFileToString(
+      base::FilePath(save_callback->path().ToString()), &encrypted_payload));
+  CefRefPtr<CefValue> payload_value =
+      CefParseJSON(encrypted_payload, JSON_PARSER_RFC);
+  ASSERT_TRUE(payload_value.get());
+  CefRefPtr<CefDictionaryValue> payload = payload_value->GetDictionary();
+  ASSERT_TRUE(payload.get());
+  EXPECT_TRUE(payload->GetBool("encrypted"));
+  EXPECT_EQ(1, payload->GetInt("version"));
+  EXPECT_FALSE(payload->GetString("iv").empty());
+  EXPECT_FALSE(payload->GetString("authTag").empty());
+  EXPECT_FALSE(payload->GetString("data").empty());
+  EXPECT_TRUE(
+      base::PathExists(base::FilePath(vault->GetEncryptionKeyPath().ToString())));
 
   auto read_event = CefWaitableEvent::CreateWaitableEvent(true, false);
   CefRefPtr<VaultReadCallback> read_callback =
