@@ -7,10 +7,13 @@
 #pragma once
 
 #include "base/memory/raw_ptr.h"
+#include "base/synchronization/lock.h"
 #include "cef/include/cef_request_context.h"
 #include "cef/libcef/browser/browser_context.h"
+#include "cef/libcef/browser/browser_security_policy_impl.h"
 #include "cef/libcef/browser/media_router/media_router_impl.h"
 #include "cef/libcef/browser/net_service/cookie_manager_impl.h"
+#include "cef/libcef/browser/storage_state_manager_impl.h"
 #include "cef/libcef/browser/thread_util.h"
 
 namespace content {
@@ -124,6 +127,9 @@ class CefRequestContextImpl : public CefRequestContext {
                    CefRefPtr<CefResolveCallback> callback) override;
   CefRefPtr<CefMediaRouter> GetMediaRouter(
       CefRefPtr<CefCompletionCallback> callback) override;
+  CefRefPtr<CefStorageStateManager> GetStorageStateManager(
+      CefRefPtr<CefCompletionCallback> callback) override;
+  CefRefPtr<CefBrowserSecurityPolicy> GetSecurityPolicy() override;
   CefRefPtr<CefValue> GetWebsiteSetting(
       const CefString& requesting_url,
       const CefString& top_level_url,
@@ -229,6 +235,9 @@ class CefRequestContextImpl : public CefRequestContext {
       CefRefPtr<CefCompletionCallback> callback);
   void InitializeMediaRouterInternal(CefRefPtr<CefMediaRouterImpl> media_router,
                                      CefRefPtr<CefCompletionCallback> callback);
+  void InitializeStorageStateManagerInternal(
+      CefRefPtr<CefStorageStateManagerImpl> storage_state_manager,
+      CefRefPtr<CefCompletionCallback> callback);
 
   CefBrowserContext* browser_context() const;
 
@@ -236,9 +245,12 @@ class CefRequestContextImpl : public CefRequestContext {
   raw_ptr<CefBrowserContext> browser_context_ = nullptr;
 
   Config config_;
+  mutable base::Lock state_lock_;
 
   std::unique_ptr<pref_helper::Registrar> pref_registrar_;
   std::unique_ptr<setting_helper::Registrar> setting_registrar_;
+  CefRefPtr<CefBrowserSecurityPolicyImpl> security_policy_;
+  CefRefPtr<CefStorageStateManagerImpl> storage_state_manager_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefRequestContextImpl);
 };

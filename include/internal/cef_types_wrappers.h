@@ -515,6 +515,71 @@ struct CefRequestContextSettingsTraits {
 using CefRequestContextSettings =
     CefStructBase<CefRequestContextSettingsTraits>;
 
+struct CefBrowserSecuritySettingsTraits {
+  using struct_type = cef_browser_security_settings_t;
+
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
+
+  static inline void clear(struct_type* s) {
+    cef_string_clear(&s->allowed_domains);
+    cef_string_clear(&s->action_policy_path);
+    cef_string_clear(&s->confirm_actions);
+  }
+
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
+    target->content_boundaries = src->content_boundaries;
+    target->max_output_chars = src->max_output_chars;
+    cef_string_set(src->allowed_domains.str, src->allowed_domains.length,
+                   &target->allowed_domains, copy);
+    cef_string_set(src->action_policy_path.str,
+                   src->action_policy_path.length,
+                   &target->action_policy_path, copy);
+    cef_string_set(src->confirm_actions.str, src->confirm_actions.length,
+                   &target->confirm_actions, copy);
+    target->confirm_interactive = src->confirm_interactive;
+  }
+};
+
+///
+/// Class representing browser security settings.
+///
+using CefBrowserSecuritySettings =
+    CefStructBase<CefBrowserSecuritySettingsTraits>;
+
+struct CefStorageStateInfoTraits {
+  using struct_type = cef_storage_state_info_t;
+
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
+
+  static inline void clear(struct_type* s) {
+    cef_string_clear(&s->session_name);
+    cef_string_clear(&s->persistence_name);
+    cef_string_clear(&s->state_path);
+    cef_string_clear(&s->state_dir);
+  }
+
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
+    cef_string_set(src->session_name.str, src->session_name.length,
+                   &target->session_name, copy);
+    cef_string_set(src->persistence_name.str, src->persistence_name.length,
+                   &target->persistence_name, copy);
+    cef_string_set(src->state_path.str, src->state_path.length,
+                   &target->state_path, copy);
+    cef_string_set(src->state_dir.str, src->state_dir.length,
+                   &target->state_dir, copy);
+    target->encrypted = src->encrypted;
+  }
+};
+
+///
+/// Class representing request-context storage state information.
+///
+using CefStorageStateInfo = CefStructBase<CefStorageStateInfoTraits>;
+
 struct CefBrowserSettingsTraits {
   using struct_type = cef_browser_settings_t;
 
@@ -678,6 +743,56 @@ class CefCursorInfo : public cef_cursor_info_t {
   CefCursorInfo() : cef_cursor_info_t{} {}
   CefCursorInfo(const cef_cursor_info_t& r) : cef_cursor_info_t(r) {}
 };
+
+struct CefSnapshotSettingsTraits {
+  using struct_type = cef_snapshot_settings_t;
+
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
+
+  static inline void clear(struct_type* s) { cef_string_clear(&s->selector); }
+
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
+    target->interactive_only = src->interactive_only;
+    target->compact = src->compact;
+    target->max_depth = src->max_depth;
+    cef_string_set(src->selector.str, src->selector.length, &target->selector,
+                   copy);
+  }
+};
+
+///
+/// Class representing snapshot settings.
+///
+using CefSnapshotSettings = CefStructBase<CefSnapshotSettingsTraits>;
+
+struct CefAnnotatedScreenshotSettingsTraits {
+  using struct_type = cef_annotated_screenshot_settings_t;
+
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
+
+  static inline void clear(struct_type* s) {
+    cef_string_clear(&s->format);
+    cef_string_clear(&s->output_dir);
+  }
+
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
+    target->annotate = src->annotate;
+    target->quality = src->quality;
+    cef_string_set(src->format.str, src->format.length, &target->format, copy);
+    cef_string_set(src->output_dir.str, src->output_dir.length,
+                   &target->output_dir, copy);
+  }
+};
+
+///
+/// Class representing annotated screenshot settings.
+///
+using CefAnnotatedScreenshotSettings =
+    CefStructBase<CefAnnotatedScreenshotSettingsTraits>;
 
 struct CefPdfPrintSettingsTraits {
   using struct_type = cef_pdf_print_settings_t;

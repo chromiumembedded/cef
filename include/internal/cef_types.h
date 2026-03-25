@@ -569,6 +569,140 @@ typedef struct _cef_request_context_settings_t {
 } cef_request_context_settings_t;
 
 ///
+/// Session persistence and saved-state metadata associated with a request
+/// context. This structure mirrors the higher-level session concepts exposed by
+/// browser automation tools while fitting within CEF's existing request
+/// context model.
+///
+typedef struct _cef_storage_state_info_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
+  ///
+  /// Optional request-context session identifier. Empty values imply the
+  /// default session.
+  ///
+  cef_string_t session_name;
+
+  ///
+  /// Optional persistence name used to automatically save and restore storage
+  /// state across browser restarts.
+  ///
+  cef_string_t persistence_name;
+
+  ///
+  /// Optional explicit state file path. If empty, an implementation-defined
+  /// default path may be used when |persistence_name| is non-empty.
+  ///
+  cef_string_t state_path;
+
+  ///
+  /// Optional path to the directory where state files should be stored.
+  ///
+  cef_string_t state_dir;
+
+  ///
+  /// Set to true (1) if state data should be encrypted at rest.
+  ///
+  int encrypted;
+} cef_storage_state_info_t;
+
+///
+/// Authentication profile metadata stored by the global auth vault service.
+///
+typedef struct _cef_auth_profile_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
+  ///
+  /// Unique profile name.
+  ///
+  cef_string_t name;
+
+  ///
+  /// Optional login URL associated with this profile.
+  ///
+  cef_string_t url;
+
+  ///
+  /// Username or login identifier associated with this profile.
+  ///
+  cef_string_t username;
+
+  ///
+  /// Optional selector for the username input field.
+  ///
+  cef_string_t username_selector;
+
+  ///
+  /// Optional selector for the password input field.
+  ///
+  cef_string_t password_selector;
+
+  ///
+  /// Optional selector for the form submission element.
+  ///
+  cef_string_t submit_selector;
+
+  ///
+  /// Optional creation timestamp metadata.
+  ///
+  cef_string_t created_at;
+
+  ///
+  /// Optional last-login timestamp metadata.
+  ///
+  cef_string_t last_login_at;
+} cef_auth_profile_t;
+
+///
+/// Security and policy settings associated with a request context. These
+/// values are advisory in the initial scaffold implementation and may be
+/// enforced by higher-level browser automation or network interception layers.
+///
+typedef struct _cef_browser_security_settings_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
+  ///
+  /// Set to true (1) to wrap page-sourced output in content-boundary markers.
+  ///
+  int content_boundaries;
+
+  ///
+  /// Maximum number of page-sourced characters to emit. Values less than or
+  /// equal to zero indicate no explicit limit.
+  ///
+  int max_output_chars;
+
+  ///
+  /// Comma-delimited allowed-domain patterns.
+  ///
+  cef_string_t allowed_domains;
+
+  ///
+  /// Optional path to a static action policy file.
+  ///
+  cef_string_t action_policy_path;
+
+  ///
+  /// Comma-delimited action categories that require confirmation.
+  ///
+  cef_string_t confirm_actions;
+
+  ///
+  /// Set to true (1) to enable interactive confirmation prompts.
+  ///
+  int confirm_interactive;
+} cef_browser_security_settings_t;
+
+///
 /// Browser initialization settings. Specify NULL or 0 to get the recommended
 /// default values. The consequences of using custom values may not be well
 /// tested. Many of these and other settings can also configured using command-
@@ -722,6 +856,72 @@ typedef struct _cef_browser_settings_t {
   ///
   cef_state_t chrome_zoom_bubble;
 } cef_browser_settings_t;
+
+///
+/// Snapshot capture settings. These values mirror the filtering options used
+/// by higher-level browser automation tools while remaining browser-instance
+/// scoped.
+///
+typedef struct _cef_snapshot_settings_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
+  ///
+  /// Set to true (1) to include only interactive elements.
+  ///
+  int interactive_only;
+
+  ///
+  /// Set to true (1) to remove empty structural elements from the result.
+  ///
+  int compact;
+
+  ///
+  /// Limit the maximum tree depth. Values less than or equal to zero imply no
+  /// explicit limit.
+  ///
+  int max_depth;
+
+  ///
+  /// Optional CSS selector used to scope the snapshot.
+  ///
+  cef_string_t selector;
+} cef_snapshot_settings_t;
+
+///
+/// Annotated screenshot settings used when capturing browser output with
+/// numbered element labels.
+///
+typedef struct _cef_annotated_screenshot_settings_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
+  ///
+  /// Set to true (1) to annotate interactive elements with numeric labels.
+  ///
+  int annotate;
+
+  ///
+  /// Screenshot format. Supported values are implementation defined (for
+  /// example, "png" or "jpeg").
+  ///
+  cef_string_t format;
+
+  ///
+  /// JPEG quality from 0-100. Values outside this range are implementation
+  /// defined.
+  ///
+  int quality;
+
+  ///
+  /// Optional default output directory for the generated screenshot.
+  ///
+  cef_string_t output_dir;
+} cef_annotated_screenshot_settings_t;
 
 ///
 /// Return value types.
