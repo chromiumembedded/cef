@@ -6,18 +6,25 @@
 
 #include <optional>
 #include <utility>
+#include <vector>
 
+#include "base/base64.h"
 #include "base/base_paths.h"
+#include "base/containers/span.h"
+#include "base/environment.h"
 #include "base/files/file_enumerator.h"
 #include "base/files/file_util.h"
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
 #include "base/path_service.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
 #include "base/task/thread_pool.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/common/values_impl.h"
+#include "crypto/aead.h"
+#include "crypto/random.h"
 
 namespace {
 
@@ -25,6 +32,8 @@ constexpr char kAgentBrowserDirectory[] = ".agent-browser";
 constexpr char kAuthDirectory[] = "auth";
 constexpr char kEncryptionKeyFile[] = ".encryption-key";
 constexpr char kJsonExtension[] = ".json";
+constexpr size_t kEncryptionKeyBytes = 32;
+constexpr size_t kNonceBytes = 12;
 
 base::FilePath GetHomeDirectory() {
   base::FilePath home_path;
@@ -62,6 +71,25 @@ bool IsProfileFile(const base::FilePath& path) {
   return base::EndsWith(path.BaseName().AsUTF8Unsafe(), kJsonExtension);
 }
 
+std::optional<std::vector<uint8_t>> ParseKeyHex(const std::string& hex) {
+  std::string key_hex = base::TrimWhitespaceASCII(hex, base::TRIM_ALL);
+  if (key_hex.size() != (kEncryptionKeyBytes * 2)) {
+    return std::nullopt;
+  }
+
+  std::vector<uint8_t> key;
+  key.reserve(kEncryptionKeyBytes);
+  for (size_t i = 0; i < key_hex.size(); i += 2) {
+    uint32_t value = 0;
+    if (!base::HexStringToUInt(key_hex.substr(i, 2), &value)) {
+      return std::nullopt;
+    }
+    key.push_back(static_cast<uint8_t>(value));
+  }
+
+  return key;
+}
+
 bool IsValidProfileName(const std::string& name) {
   if (name.empty()) {
     return false;
@@ -74,6 +102,175 @@ bool IsValidProfileName(const std::string& name) {
   }
 
   return true;
+}
+
+std::optional<std::vector<uint8_t>> GetEncryptionKeyFromEnv() {
+  auto env = base::Environment::Create();
+  std::string env_value;
+  if (!env->GetVar("AGENT_BROWSER_ENCRYPTION_KEY", &env_value)) {
+    return std::nullopt;
+  }
+  return ParseKeyHex(env_value);
+}
+
+std::optional<std::vector<uint8_t>> ReadEncryptionKeyFile(
+    const base::FilePath& path) {
+  std::string key_hex;
+  if (!base::ReadFileToString(path, &key_hex)) {
+    return std::nullopt;
+  }
+  return ParseKeyHex(key_hex);
+}
+
+bool WriteEncryptionKeyFile(const base::FilePath& path,
+                            const std::vector<uint8_t>& key) {
+  const std::string key_hex = base::HexEncode(key);
+  if (!base::WriteFile(path, key_hex + "\n")) {
+    return false;
+  }
+
+#if BUILDFLAG(IS_POSIX)
+  base::SetPosixFilePermissions(path, 0600);
+#endif
+  return true;
+}
+
+std::optional<std::vector<uint8_t>> EnsureEncryptionKey(
+    const base::FilePath& key_path) {
+  if (auto key = GetEncryptionKeyFromEnv()) {
+    return key;
+  }
+
+  if (auto key = ReadEncryptionKeyFile(key_path)) {
+    return key;
+  }
+
+  auto parent_dir = key_path.DirName();
+  if (parent_dir.empty() || !base::CreateDirectory(parent_dir)) {
+    return std::nullopt;
+  }
+
+#if BUILDFLAG(IS_POSIX)
+  base::SetPosixFilePermissions(parent_dir, 0700);
+#endif
+
+  std::vector<uint8_t> key(kEncryptionKeyBytes);
+  crypto::RandBytes(key);
+  if (!WriteEncryptionKeyFile(key_path, key)) {
+    return std::nullopt;
+  }
+
+  return key;
+}
+
+std::optional<std::string> EncryptProfileData(const std::string& plaintext,
+                                              const std::vector<uint8_t>& key) {
+  crypto::Aead aead(crypto::Aead::AES_256_GCM);
+  if (!aead.Init(key)) {
+    return std::nullopt;
+  }
+
+  std::vector<uint8_t> nonce(kNonceBytes);
+  crypto::RandBytes(nonce);
+
+  const std::vector<uint8_t> plaintext_bytes(plaintext.begin(), plaintext.end());
+  const std::vector<uint8_t> ciphertext =
+      aead.Seal(plaintext_bytes, nonce, std::vector<uint8_t>());
+
+  if (ciphertext.size() < aead.AuthTagLength()) {
+    return std::nullopt;
+  }
+
+  const size_t tag_offset = ciphertext.size() - aead.AuthTagLength();
+  const std::string data_bytes(
+      reinterpret_cast<const char*>(ciphertext.data()), tag_offset);
+  const std::string auth_tag_bytes(
+      reinterpret_cast<const char*>(ciphertext.data() + tag_offset),
+      ciphertext.size() - tag_offset);
+  const std::string nonce_bytes(reinterpret_cast<const char*>(nonce.data()),
+                                nonce.size());
+  const std::string data_b64 = base::Base64Encode(data_bytes);
+  const std::string auth_tag_b64 = base::Base64Encode(auth_tag_bytes);
+  const std::string nonce_b64 = base::Base64Encode(nonce_bytes);
+
+  base::Value::Dict payload;
+  payload.Set("version", 1);
+  payload.Set("encrypted", true);
+  payload.Set("iv", nonce_b64);
+  payload.Set("authTag", auth_tag_b64);
+  payload.Set("data", data_b64);
+
+  std::string output;
+  if (!base::JSONWriter::WriteWithOptions(
+          payload, base::JSONWriter::OPTIONS_PRETTY_PRINT, &output)) {
+    return std::nullopt;
+  }
+
+  return output;
+}
+
+std::optional<base::Value::Dict> DecryptProfileData(
+    const std::string& input,
+    const std::vector<uint8_t>& key) {
+  std::optional<base::Value::Dict> payload = base::JSONReader::ReadDict(input);
+  if (!payload.has_value()) {
+    return std::nullopt;
+  }
+
+  const std::string* iv_b64 = payload->FindString("iv");
+  const std::string* auth_tag_b64 = payload->FindString("authTag");
+  const std::string* data_b64 = payload->FindString("data");
+  if (!payload->FindBool("encrypted").value_or(false) || !iv_b64 ||
+      !auth_tag_b64 || !data_b64) {
+    return std::nullopt;
+  }
+
+  std::string nonce;
+  std::string auth_tag;
+  std::string ciphertext;
+  if (!base::Base64Decode(*iv_b64, &nonce) ||
+      !base::Base64Decode(*auth_tag_b64, &auth_tag) ||
+      !base::Base64Decode(*data_b64, &ciphertext)) {
+    return std::nullopt;
+  }
+
+  if (nonce.size() != kNonceBytes) {
+    return std::nullopt;
+  }
+
+  std::string combined = ciphertext + auth_tag;
+  crypto::Aead aead(crypto::Aead::AES_256_GCM);
+  if (!aead.Init(key)) {
+    return std::nullopt;
+  }
+
+  const std::vector<uint8_t> combined_bytes(combined.begin(), combined.end());
+  const std::vector<uint8_t> nonce_bytes(nonce.begin(), nonce.end());
+  const std::optional<std::vector<uint8_t>> plaintext =
+      aead.Open(combined_bytes, nonce_bytes, std::vector<uint8_t>());
+  if (!plaintext.has_value()) {
+    return std::nullopt;
+  }
+
+  return base::JSONReader::ReadDict(
+      std::string(plaintext->begin(), plaintext->end()));
+}
+
+std::optional<base::Value::Dict> ReadProfileDict(
+    const base::FilePath& path,
+    const base::FilePath& encryption_key_path) {
+  std::string input;
+  if (!base::ReadFileToString(path, &input)) {
+    return std::nullopt;
+  }
+
+  if (auto key = EnsureEncryptionKey(encryption_key_path)) {
+    if (auto decrypted = DecryptProfileData(input, *key)) {
+      return decrypted;
+    }
+  }
+
+  return base::JSONReader::ReadDict(input);
 }
 
 base::FilePath BuildProfilePath(const base::FilePath& directory,
@@ -110,8 +307,10 @@ struct AuthVaultListResult {
   std::vector<base::Value::Dict> profiles;
 };
 
-AuthVaultActionResult SaveProfileOnBlockingThread(base::FilePath directory,
-                                                  base::Value::Dict profile) {
+AuthVaultActionResult SaveProfileOnBlockingThread(
+    base::FilePath directory,
+    base::FilePath encryption_key_path,
+    base::Value::Dict profile) {
   AuthVaultActionResult result;
 
   const std::string* name = profile.FindString("name");
@@ -130,18 +329,38 @@ AuthVaultActionResult SaveProfileOnBlockingThread(base::FilePath directory,
     return result;
   }
 
+#if BUILDFLAG(IS_POSIX)
+  base::SetPosixFilePermissions(directory, 0700);
+#endif
+
+  const auto key = EnsureEncryptionKey(encryption_key_path);
+  if (!key.has_value()) {
+    result.error = "Failed to initialize encryption key.";
+    return result;
+  }
+
   const auto path = BuildProfilePath(directory, *name);
-  std::string data;
-  if (!base::JSONWriter::WriteWithOptions(profile, base::JSONWriter::OPTIONS_PRETTY_PRINT,
-                                          &data)) {
+  std::string plaintext;
+  if (!base::JSONWriter::WriteWithOptions(
+          profile, base::JSONWriter::OPTIONS_PRETTY_PRINT, &plaintext)) {
     result.error = "Failed to serialize auth profile.";
     return result;
   }
 
-  if (!base::WriteFile(path, data)) {
+  const auto encrypted = EncryptProfileData(plaintext, *key);
+  if (!encrypted.has_value()) {
+    result.error = "Failed to encrypt auth profile.";
+    return result;
+  }
+
+  if (!base::WriteFile(path, *encrypted)) {
     result.error = "Failed to write auth profile.";
     return result;
   }
+
+#if BUILDFLAG(IS_POSIX)
+  base::SetPosixFilePermissions(path, 0600);
+#endif
 
   result.success = true;
   result.path = path;
@@ -149,6 +368,7 @@ AuthVaultActionResult SaveProfileOnBlockingThread(base::FilePath directory,
 }
 
 AuthVaultReadResult ReadProfileOnBlockingThread(base::FilePath directory,
+                                                base::FilePath key_path,
                                                 std::string name) {
   AuthVaultReadResult result;
 
@@ -158,19 +378,13 @@ AuthVaultReadResult ReadProfileOnBlockingThread(base::FilePath directory,
   }
 
   const auto path = BuildProfilePath(directory, name);
-  std::string data;
-  if (!base::ReadFileToString(path, &data)) {
+  auto profile = ReadProfileDict(path, key_path);
+  if (!profile.has_value()) {
     result.error = "Auth profile does not exist.";
     return result;
   }
 
-  auto parsed = base::JSONReader::ReadDict(data);
-  if (!parsed.has_value()) {
-    result.error = "Auth profile could not be parsed.";
-    return result;
-  }
-
-  result.profile = MakeProfileMetadata(path, *parsed);
+  result.profile = MakeProfileMetadata(path, *profile);
   result.success = true;
   return result;
 }
@@ -195,7 +409,8 @@ AuthVaultActionResult DeleteProfileOnBlockingThread(base::FilePath directory,
   return result;
 }
 
-AuthVaultListResult ListProfilesOnBlockingThread(base::FilePath directory) {
+AuthVaultListResult ListProfilesOnBlockingThread(base::FilePath directory,
+                                                 base::FilePath key_path) {
   AuthVaultListResult result;
 
   if (directory.empty()) {
@@ -215,12 +430,7 @@ AuthVaultListResult ListProfilesOnBlockingThread(base::FilePath directory) {
       continue;
     }
 
-    std::string data;
-    if (!base::ReadFileToString(entry, &data)) {
-      continue;
-    }
-
-    auto parsed = base::JSONReader::ReadDict(data);
+    auto parsed = ReadProfileDict(entry, key_path);
     if (!parsed.has_value()) {
       continue;
     }
@@ -273,6 +483,7 @@ void CefAuthVaultImpl::SaveProfile(
   base::ThreadPool::PostTaskAndReplyWithResult(
       FROM_HERE, {base::MayBlock()},
       base::BindOnce(&SaveProfileOnBlockingThread, GetVaultPathInternal(),
+                     GetEncryptionKeyPathInternal(),
                      std::move(profile_value->GetDict())),
       base::BindOnce(&CefAuthVaultImpl::OnActionComplete, this, callback));
 }
@@ -289,7 +500,7 @@ void CefAuthVaultImpl::ReadProfile(
   base::ThreadPool::PostTaskAndReplyWithResult(
       FROM_HERE, {base::MayBlock()},
       base::BindOnce(&ReadProfileOnBlockingThread, GetVaultPathInternal(),
-                     name.ToString()),
+                     GetEncryptionKeyPathInternal(), name.ToString()),
       base::BindOnce(&CefAuthVaultImpl::OnReadComplete, this, callback));
 }
 
@@ -323,7 +534,8 @@ void CefAuthVaultImpl::VisitProfiles(CefRefPtr<CefAuthProfileVisitor> visitor) {
 
   base::ThreadPool::PostTaskAndReplyWithResult(
       FROM_HERE, {base::MayBlock()},
-      base::BindOnce(&ListProfilesOnBlockingThread, GetVaultPathInternal()),
+      base::BindOnce(&ListProfilesOnBlockingThread, GetVaultPathInternal(),
+                     GetEncryptionKeyPathInternal()),
       base::BindOnce(&CefAuthVaultImpl::OnVisitComplete, this, visitor));
 }
 
