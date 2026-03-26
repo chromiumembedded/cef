@@ -24,6 +24,7 @@ class Registrar;
 
 class CefBrowserInfoManager;
 class CefTraceSubscriber;
+class CefAuthVaultImpl;
 
 class CefContext {
  public:
@@ -80,6 +81,7 @@ class CefContext {
 
   CefTraceSubscriber* GetTraceSubscriber();
   pref_helper::Registrar* GetPrefRegistrar();
+  CefRefPtr<CefAuthVault> GetAuthVault();
 
   // Populate request context settings for the global system context based on
   // CefSettings and command-line flags.
@@ -123,6 +125,7 @@ class CefContext {
   std::unique_ptr<CefMainRunner> main_runner_;
   std::unique_ptr<CefTraceSubscriber> trace_subscriber_;
   std::unique_ptr<pref_helper::Registrar> pref_registrar_;
+  CefRefPtr<CefAuthVaultImpl> auth_vault_;
   std::unique_ptr<CefBrowserInfoManager> browser_info_manager_;
 
   std::optional<

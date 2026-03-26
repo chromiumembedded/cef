@@ -13,6 +13,7 @@
 #include "base/task/current_thread.h"
 #include "base/threading/thread_restrictions.h"
 #include "cef/libcef/browser/browser_info_manager.h"
+#include "cef/libcef/browser/auth_vault_impl.h"
 #include "cef/libcef/browser/prefs/pref_helper.h"
 #include "cef/libcef/browser/request_context_impl.h"
 #include "cef/libcef/browser/thread_util.h"
@@ -482,6 +483,13 @@ pref_helper::Registrar* CefContext::GetPrefRegistrar() {
     pref_registrar_->Init(g_browser_process->local_state());
   }
   return pref_registrar_.get();
+}
+
+CefAuthVault* CefContext::GetAuthVault() {
+  if (!auth_vault_) {
+    auth_vault_ = new CefAuthVaultImpl();
+  }
+  return auth_vault_.get();
 }
 
 void CefContext::PopulateGlobalRequestContextSettings(

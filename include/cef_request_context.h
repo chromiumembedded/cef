@@ -41,10 +41,12 @@
 #include <vector>
 
 #include "include/cef_callback.h"
+#include "include/cef_browser_security.h"
 #include "include/cef_cookie.h"
 #include "include/cef_media_router.h"
 #include "include/cef_preference.h"
 #include "include/cef_registration.h"
+#include "include/cef_storage_state.h"
 #include "include/cef_values.h"
 
 class CefRequestContextHandler;
@@ -256,6 +258,22 @@ class CefRequestContext : public CefPreferenceManager {
   /*--cef(optional_param=callback)--*/
   virtual CefRefPtr<CefMediaRouter> GetMediaRouter(
       CefRefPtr<CefCompletionCallback> callback) = 0;
+
+  ///
+  /// Returns the storage state manager for this context. If |callback| is
+  /// non-NULL it will be executed asynchronously on the UI thread after the
+  /// manager's context has been initialized.
+  ///
+  /*--cef(optional_param=callback)--*/
+  virtual CefRefPtr<CefStorageStateManager> GetStorageStateManager(
+      CefRefPtr<CefCompletionCallback> callback) = 0;
+
+  ///
+  /// Returns the browser security policy for this context. This method may be
+  /// called on any browser process thread.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefBrowserSecurityPolicy> GetSecurityPolicy() = 0;
 
   ///
   /// Returns the current value for |content_type| that applies for the
