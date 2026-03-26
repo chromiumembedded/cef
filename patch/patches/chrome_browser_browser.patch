@@ -853,10 +853,10 @@ index 8fcba62fa159924eaa33f5c9f1b57dc8ab5db863..25b96e03a9e2598a6c5a6dbf0ad60bf7
    }
  
 diff --git chrome/browser/ui/browser_window/internal/browser_window_features.cc chrome/browser/ui/browser_window/internal/browser_window_features.cc
-index 7a536f710ab99c9765911e4886f37927eedc439a..4302c6aa270a5a68139e63a50bb079876b3689cb 100644
+index 9ce3aad42c2927d4aa5788a58968b1a860706d2f..0b234281606c09c60636147627603b9e87251b3a 100644
 --- chrome/browser/ui/browser_window/internal/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/internal/browser_window_features.cc
-@@ -228,6 +228,15 @@ class ExtensionKeybindingRegistryDelegateTabStrip final
+@@ -229,6 +229,15 @@ class ExtensionKeybindingRegistryDelegateTabStrip final
  BrowserWindowFeatures::BrowserWindowFeatures() = default;
  BrowserWindowFeatures::~BrowserWindowFeatures() = default;
  
@@ -872,7 +872,7 @@ index 7a536f710ab99c9765911e4886f37927eedc439a..4302c6aa270a5a68139e63a50bb07987
  void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
    // This is used only for the controllers which will be created on demand
    // later.
-@@ -498,6 +507,9 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -497,6 +506,9 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
  #endif
  
    Profile* const profile = browser_->GetProfile();
@@ -882,7 +882,7 @@ index 7a536f710ab99c9765911e4886f37927eedc439a..4302c6aa270a5a68139e63a50bb07987
    BrowserView* const browser_view =
        BrowserView::GetBrowserViewForBrowser(browser);
    if (browser_view) {
-@@ -510,7 +522,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -509,7 +521,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
    // Features that are only enabled for normal browser windows (e.g. a window
    // with an omnibox and a tab strip). By default most features should be
    // instantiated in this block.
@@ -891,7 +891,7 @@ index 7a536f710ab99c9765911e4886f37927eedc439a..4302c6aa270a5a68139e63a50bb07987
      if (IsChromeLabsEnabled()) {
        chrome_labs_coordinator_ =
            std::make_unique<ChromeLabsCoordinator>(browser);
-@@ -640,7 +652,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -639,7 +651,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
        browser, browser->GetTabStripModel(), profile, browser->GetWindow(),
        browser->GetType(), browser->app_name(), browser->GetSessionID());
  
@@ -900,7 +900,7 @@ index 7a536f710ab99c9765911e4886f37927eedc439a..4302c6aa270a5a68139e63a50bb07987
      toast_service_ = std::make_unique<ToastService>(browser);
    }
  
-@@ -774,7 +786,9 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -773,7 +785,9 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
        GetUserDataFactory().CreateInstanceWithFactoryMethod(
            *browser_, &chrome::CreateImmersiveModeController, browser_view);
  
@@ -911,7 +911,7 @@ index 7a536f710ab99c9765911e4886f37927eedc439a..4302c6aa270a5a68139e63a50bb07987
      glic::GlicKeyedService* glic_service =
          glic::GlicKeyedService::Get(browser_view->GetProfile());
      if (glic_service) {
-@@ -840,16 +854,6 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -841,16 +855,6 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
      }
    }
  
@@ -928,7 +928,7 @@ index 7a536f710ab99c9765911e4886f37927eedc439a..4302c6aa270a5a68139e63a50bb07987
  #if !BUILDFLAG(IS_CHROMEOS)
    download_toolbar_ui_controller_ =
        std::make_unique<DownloadToolbarUIController>(browser_view);
-@@ -899,6 +903,38 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -900,6 +904,38 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
        browser_view);
  }
  
