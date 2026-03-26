@@ -808,7 +808,7 @@ index c6d1a3fe5bf70be55b1bc7f38a0aaba30020c8d9..89bb0ea02062b61f80d0e2673c71543a
    gfx::Size GetPreferredSize(
        const views::View* host,
 diff --git chrome/browser/ui/views/frame/layout/browser_view_layout_delegate.h chrome/browser/ui/views/frame/layout/browser_view_layout_delegate.h
-index 0fb2932ac6a5768ff53c69f2e5ad08af7e373d0c..75ea22fd8b9318d5c17ca651c057ec8c715fa6f4 100644
+index e600693d6fcf43a816d5dba5ec381b08c6161417..c31b6bcd80d405a3c2efaf43370f8ed7eddb3cf5 100644
 --- chrome/browser/ui/views/frame/layout/browser_view_layout_delegate.h
 +++ chrome/browser/ui/views/frame/layout/browser_view_layout_delegate.h
 @@ -36,6 +36,7 @@ class BrowserViewLayoutDelegate {
@@ -820,10 +820,10 @@ index 0fb2932ac6a5768ff53c69f2e5ad08af7e373d0c..75ea22fd8b9318d5c17ca651c057ec8c
    virtual bool IsBookmarkBarVisible() const = 0;
    virtual bool IsInfobarVisible() const = 0;
 diff --git chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.cc chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.cc
-index 6fa2362cd278527882fb70a80cca6b23a1c4addb..e1d0bed546f1e7fbc343584e93dba99321ab9723 100644
+index 9a69bb9a023455b38d5f94b4ed38692a2cc07dd4..c8bf0147669a10baaad55a213a4992382bd023b2 100644
 --- chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.cc
 +++ chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.cc
-@@ -89,6 +89,15 @@ views::LayoutAlignment BrowserViewLayoutDelegateImpl::GetWindowTitleAlignment()
+@@ -90,6 +90,15 @@ views::LayoutAlignment BrowserViewLayoutDelegateImpl::GetWindowTitleAlignment()
    return GetFrameView()->GetWindowTitleAlignment();
  }
  
@@ -840,7 +840,7 @@ index 6fa2362cd278527882fb70a80cca6b23a1c4addb..e1d0bed546f1e7fbc343584e93dba993
    return browser_view_->IsToolbarVisible();
  }
 diff --git chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.h chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.h
-index b302b461ac5946b99356b25a5baca2844bcd3a04..e259acd2b6878377788c794d2e1e190835b57bc6 100644
+index 9620306b25d7f9c104cdf8203b6e3a9fcb093a8d..07fdcee8dd00af7ed1adf2d5d1bcedd024ac6143 100644
 --- chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.h
 +++ chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.h
 @@ -31,6 +31,7 @@ class BrowserViewLayoutDelegateImpl : public BrowserViewLayoutDelegate {
@@ -981,10 +981,10 @@ index 64e203c67dd15834e1c44d384b6b30dcabb44a33..bcffdd51736c802eb2823788c8a759b3
  
  gfx::Size PictureInPictureBrowserFrameView::GetNonClientViewAreaSize() const {
 diff --git chrome/browser/ui/views/frame/shadow_overlay_view.cc chrome/browser/ui/views/frame/shadow_overlay_view.cc
-index f5de9348a07f481c3e103ea20fdad929837c7a71..0e47057626816304423e9edd941bd616f294eb55 100644
+index b2500544c7e1935aa90189bde38c5f7733ebc24e..42a2a944190ef2cf8170c7957bac53d6f2c1864f 100644
 --- chrome/browser/ui/views/frame/shadow_overlay_view.cc
 +++ chrome/browser/ui/views/frame/shadow_overlay_view.cc
-@@ -272,6 +272,9 @@ void ShadowOverlayView::VisibilityChanged(View* starting_from, bool visible) {
+@@ -270,6 +270,9 @@ void ShadowOverlayView::VisibilityChanged(View* starting_from, bool visible) {
  }
  
  void ShadowOverlayView::AddedToWidget() {
@@ -1028,10 +1028,10 @@ index 4bf996ee32d74bb52c045694aed40c3903fd5bec..96ca540ec612afc0d633e361f728bc8e
        case PageActionIconType::kBookmarkStar:
          add_page_action_icon(type, std::make_unique<StarView>(
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 7e2880e8f281f35b4fdfda7b403ee3d2d65d34db..babfa23195006186ff4707ac7585f17633181b20 100644
+index c16935b0a78658639a9ad86af10614172bfbb7da..463bb0323c9823992fde0beb9bd9e154baafa10b 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
-@@ -301,12 +301,14 @@ bool IsMigratedClickToCallBubble(
+@@ -308,12 +308,14 @@ bool IsMigratedClickToCallBubble(
  
  DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(ToolbarView, kToolbarElementId);
  
@@ -1048,9 +1048,9 @@ index 7e2880e8f281f35b4fdfda7b403ee3d2d65d34db..babfa23195006186ff4707ac7585f176
    SetID(VIEW_ID_TOOLBAR);
    SetProperty(views::kElementIdentifierKey, kToolbarElementId);
  
-@@ -337,9 +339,24 @@ ToolbarView::~ToolbarView() {
-   for (const auto& view_and_command : GetViewCommandMap()) {
-     chrome::RemoveCommandObserver(browser_, view_and_command.second, this);
+@@ -361,9 +363,24 @@ ToolbarView::~ToolbarView() {
+   if (glic_nudge_controller) {
+     glic_nudge_controller->SetToolbarDelegate(/*delegate=*/nullptr);
    }
 +
 +  browser_view_->WillDestroyToolbar();
@@ -1073,7 +1073,7 @@ index 7e2880e8f281f35b4fdfda7b403ee3d2d65d34db..babfa23195006186ff4707ac7585f176
  #if defined(USE_AURA)
    // Avoid generating too many occlusion tracking calculation events before this
    // function returns. The occlusion status will be computed only once once this
-@@ -359,7 +376,8 @@ void ToolbarView::Init() {
+@@ -383,7 +400,8 @@ void ToolbarView::Init() {
    } else {
      location_bar_view = std::make_unique<LocationBarView>(
          browser_, browser_->profile(), browser_->command_controller(), this,
@@ -1083,7 +1083,7 @@ index 7e2880e8f281f35b4fdfda7b403ee3d2d65d34db..babfa23195006186ff4707ac7585f176
    }
  
    // Make sure the toolbar shows by default.
-@@ -434,9 +452,11 @@ void ToolbarView::Init() {
+@@ -458,9 +476,11 @@ void ToolbarView::Init() {
  
    std::unique_ptr<MediaToolbarButtonView> media_button;
  #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
@@ -1098,7 +1098,7 @@ index 7e2880e8f281f35b4fdfda7b403ee3d2d65d34db..babfa23195006186ff4707ac7585f176
  #endif
  
    // Always add children in order from left to right, for accessibility.
-@@ -532,7 +552,7 @@ void ToolbarView::Init() {
+@@ -556,7 +576,7 @@ void ToolbarView::Init() {
        std::make_unique<PinnedToolbarActionsContainer>(browser_view_, this));
  
    if (!base::FeatureList::IsEnabled(tabs::kHorizontalTabStripComboButton) &&
@@ -1107,7 +1107,7 @@ index 7e2880e8f281f35b4fdfda7b403ee3d2d65d34db..babfa23195006186ff4707ac7585f176
      tab_search_button_ =
          pinned_toolbar_actions_container()->CreatePermanentButtonFor(
              kActionTabSearch);
-@@ -561,7 +581,8 @@ void ToolbarView::Init() {
+@@ -585,7 +605,8 @@ void ToolbarView::Init() {
  
    // Only show the Battery Saver button when it is not controlled by the OS. On
    // ChromeOS the battery icon in the shelf shows the same information.
@@ -1117,7 +1117,7 @@ index 7e2880e8f281f35b4fdfda7b403ee3d2d65d34db..babfa23195006186ff4707ac7585f176
      battery_saver_button_ =
          AddChildView(std::make_unique<BatterySaverButton>(browser_view_));
    }
-@@ -589,7 +610,7 @@ void ToolbarView::Init() {
+@@ -613,7 +634,7 @@ void ToolbarView::Init() {
                                 browser_->profile()->IsGuestSession() ||
                                 browser_->profile()->IsRegularProfile();
  #endif
@@ -1127,10 +1127,10 @@ index 7e2880e8f281f35b4fdfda7b403ee3d2d65d34db..babfa23195006186ff4707ac7585f176
  #if BUILDFLAG(ENABLE_WEBUI_TAB_STRIP)
    auto new_tab_button = std::make_unique<ToolbarButton>(base::BindRepeating(
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.h chrome/browser/ui/views/toolbar/toolbar_view.h
-index 61921cd54765d5cd37d51818306e1a3d0188da1f..d9480dba677bf30b9d0525ebd13fbb1cc14457fa 100644
+index f1cfb95fd657a9db6c0c960acf38cfd82d46a5a7..c253c897a0cbf039b6ce5439c388e0c6ea1752e4 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.h
 +++ chrome/browser/ui/views/toolbar/toolbar_view.h
-@@ -98,7 +98,8 @@ class ToolbarView : public views::AccessiblePaneView,
+@@ -109,7 +109,8 @@ class ToolbarView : public views::AccessiblePaneView,
  
    DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kToolbarElementId);
  
