@@ -209,13 +209,23 @@ export function computeStats(timings: number[]): PercentileStats {
 
   const sorted = [...timings].sort((a, b) => a - b);
   const n = sorted.length;
+  const first = sorted[0];
+  const last = sorted[n - 1];
+  if (first === undefined || last === undefined) {
+    return { p50: 0, p95: 0, p99: 0, min: 0, max: 0, mean: 0, stddev: 0 };
+  }
 
   const percentile = (p: number): number => {
     const idx = (p / 100) * (n - 1);
     const lower = Math.floor(idx);
     const upper = Math.ceil(idx);
-    if (lower === upper) return sorted[lower];
-    return sorted[lower] + (idx - lower) * (sorted[upper] - sorted[lower]);
+    const lowerValue = sorted[lower];
+    const upperValue = sorted[upper];
+    if (lowerValue === undefined || upperValue === undefined) {
+      return 0;
+    }
+    if (lower === upper) return lowerValue;
+    return lowerValue + (idx - lower) * (upperValue - lowerValue);
   };
 
   const mean = sorted.reduce((a, b) => a + b, 0) / n;
@@ -225,8 +235,8 @@ export function computeStats(timings: number[]): PercentileStats {
     p50: percentile(50),
     p95: percentile(95),
     p99: percentile(99),
-    min: sorted[0],
-    max: sorted[n - 1],
+    min: first,
+    max: last,
     mean,
     stddev: Math.sqrt(variance),
   };
@@ -295,18 +305,27 @@ export function toMarkdownTable(
   headers: string[],
   rows: string[][]
 ): string {
-  const widths = headers.map((h, i) =>
-    Math.max(h.length, ...rows.map((r) => (r[i] || "").length))
-  );
+  const widths = headers.map((header, index) => {
+    let width = header.length;
+    for (const row of rows) {
+      width = Math.max(width, (row[index] ?? "").length);
+    }
+    return width;
+  });
 
   const pad = (s: string, w: number) => s.padEnd(w);
   const sep = widths.map((w) => "-".repeat(w));
 
   const lines = [
-    `| ${headers.map((h, i) => pad(h, widths[i])).join(" | ")} |`,
+    `| ${headers
+      .map((header, index) => pad(header, widths[index] ?? header.length))
+      .join(" | ")} |`,
     `| ${sep.map((s) => s).join(" | ")} |`,
     ...rows.map(
-      (r) => `| ${r.map((c, i) => pad(c || "", widths[i])).join(" | ")} |`
+      (row) =>
+        `| ${row
+          .map((cell, index) => pad(cell || "", widths[index] ?? cell.length))
+          .join(" | ")} |`
     ),
   ];
 

@@ -1,5 +1,6 @@
 import type {
   AccuracyBenchmarkRun,
+  AccuracyResult,
   BenchmarkReport,
   DriverAccuracyReport,
   RankEntry,
@@ -24,7 +25,7 @@ function buildAccuracyReport(
   llmModel: string,
   pattern: "strong" | "steady"
 ): DriverAccuracyReport {
-  const results = ACCURACY_TASKS.map((task, index) => {
+  const results: AccuracyResult[] = ACCURACY_TASKS.map((task, index) => {
     const isStrong = pattern === "strong";
     const succeeds =
       task.difficulty === "easy"
@@ -45,6 +46,12 @@ function buildAccuracyReport(
     const tokenBase =
       task.difficulty === "easy" ? 1_200 : task.difficulty === "medium" ? 3_000 : 6_600;
 
+    const judgeVerdict: AccuracyResult["judgeVerdict"] = succeeds
+      ? "pass"
+      : partial
+        ? "partial"
+        : "fail";
+
     return {
       taskId: task.taskId,
       success: succeeds,
@@ -55,7 +62,7 @@ function buildAccuracyReport(
       llmCalls: succeeds ? (task.difficulty === "hard" ? 7 : 4) : 5,
       tokensUsed: tokenBase + index * (isStrong ? 55 : 70),
       error: succeeds ? undefined : partial ? "Judge marked trajectory partial." : "Agent diverged from target trajectory.",
-      judgeVerdict: succeeds ? "pass" : partial ? "partial" : "fail",
+      judgeVerdict,
       judgeConfidence: succeeds ? 0.92 : partial ? 0.61 : 0.48,
     };
   });
