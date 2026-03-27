@@ -60,8 +60,10 @@ class CefScreenshotCallback : public virtual CefBaseRefCounted {
 ///
 /// Browser-scoped capture and snapshot functionality. This interface provides
 /// the browser-host equivalent of agent-browser snapshot and annotated
-/// screenshot behaviors. Methods may be called on any browser process thread
-/// unless otherwise indicated.
+/// screenshot behaviors. The current implementation is scaffold-only and
+/// returns placeholder results while the capture pipeline is being completed.
+/// Methods may be called on any browser process thread unless otherwise
+/// indicated.
 ///
 /*--cef(source=library)--*/
 class CefBrowserCapture : public virtual CefBaseRefCounted {

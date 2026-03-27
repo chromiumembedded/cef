@@ -448,6 +448,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /// Returns the browser capture service for this browser host. The returned
   /// object exposes browser-scoped snapshot and annotated screenshot APIs. The
   /// methods of the returned object may only be called in the browser process.
+  /// This method must itself be called on the browser process UI thread.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBrowserCapture> GetCapture() = 0;

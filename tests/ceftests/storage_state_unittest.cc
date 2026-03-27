@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "base/files/file_util.h"
 #include "include/base/cef_callback.h"
 #include "include/cef_browser_security.h"
 #include "include/cef_request_context.h"
@@ -56,6 +57,60 @@ class TestStorageStateReadCallback : public CefStorageStateReadCallback {
   IMPLEMENT_REFCOUNTING(TestStorageStateReadCallback);
 };
 
+class TestStorageStateSuccessReadCallback : public CefStorageStateReadCallback {
+ public:
+  explicit TestStorageStateSuccessReadCallback(CefRefPtr<CefWaitableEvent> event)
+      : event_(event) {}
+
+  void OnComplete(bool success,
+                  const CefString& error,
+                  CefRefPtr<CefDictionaryValue> result) override {
+    EXPECT_TRUE(success);
+    EXPECT_TRUE(error.empty());
+    ASSERT_TRUE(result);
+    EXPECT_FALSE(result->GetString("filename").empty());
+    EXPECT_FALSE(result->GetString("path").empty());
+    EXPECT_TRUE(result->HasKey("size"));
+    EXPECT_TRUE(result->HasKey("modified"));
+    EXPECT_STREQ("Storage state scaffolding is not yet implemented.",
+                 result->GetString("summary").ToString().c_str());
+    event_->Signal();
+  }
+
+ private:
+  CefRefPtr<CefWaitableEvent> event_;
+
+  IMPLEMENT_REFCOUNTING(TestStorageStateSuccessReadCallback);
+};
+
+class TestStorageStateActionCallback : public CefStorageStateActionCallback {
+ public:
+  TestStorageStateActionCallback(CefRefPtr<CefWaitableEvent> event,
+                                 bool expected_success,
+                                 const char* expected_error)
+      : event_(event),
+        expected_success_(expected_success),
+        expected_error_(expected_error) {}
+
+  void OnComplete(bool success,
+                  const CefString& error,
+                  const CefString& path) override {
+    EXPECT_EQ(expected_success_, success);
+    EXPECT_STREQ(expected_error_.c_str(), error.ToString().c_str());
+    if (expected_success_) {
+      EXPECT_FALSE(path.empty());
+    }
+    event_->Signal();
+  }
+
+ private:
+  CefRefPtr<CefWaitableEvent> event_;
+  const bool expected_success_;
+  const std::string expected_error_;
+
+  IMPLEMENT_REFCOUNTING(TestStorageStateActionCallback);
+};
+
 class TestSecurityCallback : public CefBrowserSecurityCallback {
  public:
   explicit TestSecurityCallback(CefRefPtr<CefWaitableEvent> event)
@@ -104,21 +159,71 @@ TEST(StorageStateTest, RequestContextManagerAccessAndDefaults) {
 }
 
 TEST(StorageStateTest, RequestContextListAndShowScaffoldBehavior) {
-  auto context = CefRequestContext::GetGlobalContext();
-  ASSERT_TRUE(context.get());
-
-  auto manager = context->GetStorageStateManager(nullptr);
-  ASSERT_TRUE(manager.get());
-
   auto list_event = CefWaitableEvent::CreateWaitableEvent(true, false);
-  manager->List(new TestStorageStateListCallback(list_event));
-  list_event->Wait();
+  auto show_success_event = CefWaitableEvent::CreateWaitableEvent(true, false);
+  auto show_missing_event = CefWaitableEvent::CreateWaitableEvent(true, false);
+  auto show_invalid_event = CefWaitableEvent::CreateWaitableEvent(true, false);
+  auto save_event = CefWaitableEvent::CreateWaitableEvent(true, false);
+  auto load_event = CefWaitableEvent::CreateWaitableEvent(true, false);
 
-  auto show_event = CefWaitableEvent::CreateWaitableEvent(true, false);
-  manager->Show("/tmp/cef-storage-state-does-not-exist.json",
-                new TestStorageStateReadCallback(
-                    show_event, "State file does not exist."));
-  show_event->Wait();
+  CefPostTask(
+      TID_UI, base::BindOnce(
+                  [](CefRefPtr<CefWaitableEvent> list_event,
+                     CefRefPtr<CefWaitableEvent> show_success_event,
+                     CefRefPtr<CefWaitableEvent> show_missing_event,
+                     CefRefPtr<CefWaitableEvent> show_invalid_event,
+                     CefRefPtr<CefWaitableEvent> save_event,
+                     CefRefPtr<CefWaitableEvent> load_event) {
+                    auto context = CefRequestContext::GetGlobalContext();
+                    ASSERT_TRUE(context.get());
+
+                    auto manager = context->GetStorageStateManager(nullptr);
+                    ASSERT_TRUE(manager.get());
+
+                    manager->List(new TestStorageStateListCallback(list_event));
+
+                    const auto default_path =
+                        base::FilePath(manager->GetDefaultStatePath().ToString());
+                    ASSERT_FALSE(default_path.empty());
+                    ASSERT_TRUE(base::CreateDirectory(default_path.DirName()));
+                    ASSERT_TRUE(base::WriteFile(default_path, "{}"));
+
+                    manager->Show(default_path.BaseName().AsUTF8Unsafe(),
+                                  new TestStorageStateSuccessReadCallback(
+                                      show_success_event));
+
+                    const auto missing_path = default_path.DirName().AppendASCII(
+                        "missing-storage-state.json");
+                    manager->Show(missing_path.BaseName().AsUTF8Unsafe(),
+                                  new TestStorageStateReadCallback(
+                                      show_missing_event,
+                                      "State file does not exist."));
+
+                    manager->Show("/tmp/cef-storage-state-does-not-exist.json",
+                                  new TestStorageStateReadCallback(
+                                      show_invalid_event,
+                                      "State path must reference a managed session file."));
+
+                    manager->Save(
+                        "../escape.json", nullptr,
+                        new TestStorageStateActionCallback(
+                            save_event, false,
+                            "State path must reference a managed session file."));
+                    manager->Load(
+                        "../escape.json", nullptr,
+                        new TestStorageStateActionCallback(
+                            load_event, false,
+                            "State path must reference a managed session file."));
+                  },
+                  list_event, show_success_event, show_missing_event,
+                  show_invalid_event, save_event, load_event));
+
+  list_event->Wait();
+  show_success_event->Wait();
+  show_missing_event->Wait();
+  show_invalid_event->Wait();
+  save_event->Wait();
+  load_event->Wait();
 }
 
 TEST(StorageStateTest, BrowserSecurityPolicyRoundTrip) {
