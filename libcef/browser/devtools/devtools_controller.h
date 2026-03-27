@@ -67,6 +67,11 @@ class CefDevToolsController : public content::DevToolsAgentHostClient {
   void DispatchProtocolMessage(content::DevToolsAgentHost* agent_host,
                                base::span<const uint8_t> message) override;
 
+  // Overload that skips validation for trusted internal messages.
+  void DispatchProtocolMessage(content::DevToolsAgentHost* agent_host,
+                               base::span<const uint8_t> message,
+                               bool trusted);
+
   bool EnsureAgentHost();
 
   const raw_ptr<content::WebContents> inspected_contents_;

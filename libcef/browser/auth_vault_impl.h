@@ -6,6 +6,9 @@
 #define CEF_LIBCEF_BROWSER_AUTH_VAULT_IMPL_H_
 #pragma once
 
+#include <set>
+#include <string>
+
 #include "base/files/file_path.h"
 #include "cef/include/cef_auth_vault.h"
 
@@ -34,10 +37,16 @@ class CefAuthVaultImpl : public CefAuthVault {
       CefRefPtr<CefAuthVaultActionCallback> callback) override;
   void VisitProfiles(CefRefPtr<CefAuthProfileVisitor> visitor) override;
 
+  // Per-profile dirty tracking to avoid redundant re-encryption.
+  void MarkProfileDirty(const std::string& profile_name);
+  bool IsProfileDirty(const std::string& profile_name) const;
+  void ClearProfileDirty(const std::string& profile_name);
+
  private:
   ~CefAuthVaultImpl() override = default;
 
   void OnActionComplete(CefRefPtr<CefAuthVaultActionCallback> callback,
+                        const std::string& profile_name,
                         AuthVaultActionResult result);
   void OnReadComplete(CefRefPtr<CefAuthVaultReadCallback> callback,
                       AuthVaultReadResult result);
@@ -50,6 +59,13 @@ class CefAuthVaultImpl : public CefAuthVault {
                          const base::FilePath& path);
   base::FilePath GetVaultPathInternal() const;
   base::FilePath GetEncryptionKeyPathInternal() const;
+
+  // Per-profile dirty tracking to avoid redundant re-encryption.
+  std::set<std::string> dirty_profiles_;
+
+  // Cached vault path and encryption key path (computed once).
+  mutable base::FilePath cached_vault_path_;
+  mutable base::FilePath cached_encryption_key_path_;
 
   IMPLEMENT_REFCOUNTING(CefAuthVaultImpl);
 };

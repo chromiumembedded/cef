@@ -628,8 +628,11 @@ void CefBrowserPlatformDelegateOsr::AccessibilityEventReceived(
     const ui::AXUpdatesAndEvents& details) {
   if (auto handler = browser_->client()->GetRenderHandler()) {
     if (auto acc_handler = handler->GetAccessibilityHandler()) {
+      // Bump generation on each event to track DOM freshness.
+      ++ax_generation_;
       acc_handler->OnAccessibilityTreeChange(
-          osr_accessibility_util::ParseAccessibilityEventData(details));
+          osr_accessibility_util::ParseAccessibilityEventDataCached(
+              details, ax_generation_, ax_transform_cache_));
     }
   }
 }
@@ -640,8 +643,8 @@ void CefBrowserPlatformDelegateOsr::AccessibilityLocationChangesReceived(
   if (auto handler = browser_->client()->GetRenderHandler()) {
     if (auto acc_handler = handler->GetAccessibilityHandler()) {
       acc_handler->OnAccessibilityLocationChange(
-          osr_accessibility_util::ParseAccessibilityLocationData(tree_id,
-                                                                 details));
+          osr_accessibility_util::ParseAccessibilityLocationDataCached(
+              tree_id, details, ax_generation_, ax_transform_cache_));
     }
   }
 }

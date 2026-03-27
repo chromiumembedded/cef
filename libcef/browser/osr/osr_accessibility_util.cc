@@ -595,4 +595,85 @@ CefRefPtr<CefValue> ParseAccessibilityLocationData(
   return value;
 }
 
+AXTreeTransformCache::AXTreeTransformCache() = default;
+AXTreeTransformCache::~AXTreeTransformCache() = default;
+
+CefRefPtr<CefValue> AXTreeTransformCache::GetCachedEventData(
+    const ui::AXTreeID& tree_id,
+    uint64_t generation) const {
+  auto key = tree_id.ToString();
+  auto it = event_cache_.find(key);
+  if (it != event_cache_.end() && it->second.generation == generation) {
+    ++hit_count_;
+    return it->second.value;
+  }
+  ++miss_count_;
+  return nullptr;
+}
+
+void AXTreeTransformCache::PutEventData(const ui::AXTreeID& tree_id,
+                                        uint64_t generation,
+                                        CefRefPtr<CefValue> value) {
+  auto key = tree_id.ToString();
+  event_cache_[key] = {generation, value};
+}
+
+CefRefPtr<CefValue> AXTreeTransformCache::GetCachedLocationData(
+    const ui::AXTreeID& tree_id,
+    uint64_t generation) const {
+  auto key = tree_id.ToString();
+  auto it = location_cache_.find(key);
+  if (it != location_cache_.end() && it->second.generation == generation) {
+    ++hit_count_;
+    return it->second.value;
+  }
+  ++miss_count_;
+  return nullptr;
+}
+
+void AXTreeTransformCache::PutLocationData(const ui::AXTreeID& tree_id,
+                                           uint64_t generation,
+                                           CefRefPtr<CefValue> value) {
+  auto key = tree_id.ToString();
+  location_cache_[key] = {generation, value};
+}
+
+void AXTreeTransformCache::InvalidateTree(const ui::AXTreeID& tree_id) {
+  auto key = tree_id.ToString();
+  event_cache_.erase(key);
+  location_cache_.erase(key);
+}
+
+void AXTreeTransformCache::InvalidateAll() {
+  event_cache_.clear();
+  location_cache_.clear();
+}
+
+CefRefPtr<CefValue> ParseAccessibilityEventDataCached(
+    const ui::AXUpdatesAndEvents& details,
+    uint64_t generation,
+    AXTreeTransformCache& cache) {
+  auto cached = cache.GetCachedEventData(details.ax_tree_id, generation);
+  if (cached) {
+    return cached;
+  }
+  auto value = ParseAccessibilityEventData(details);
+  cache.PutEventData(details.ax_tree_id, generation, value);
+  return value;
+}
+
+CefRefPtr<CefValue> ParseAccessibilityLocationDataCached(
+    const ui::AXTreeID& tree_id,
+    const ui::AXLocationAndScrollUpdates& details,
+    uint64_t generation,
+    AXTreeTransformCache& cache) {
+  auto cached = cache.GetCachedLocationData(tree_id, generation);
+  if (cached) {
+    return cached;
+  }
+  auto value = ParseAccessibilityLocationData(tree_id, details);
+  cache.PutLocationData(tree_id, generation, value);
+  return value;
+}
+
 }  // namespace osr_accessibility_util

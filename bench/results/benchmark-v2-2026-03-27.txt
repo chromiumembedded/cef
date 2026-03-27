@@ -1,0 +1,351 @@
+========================================================================
+  agent-browser-bench v0.2.0 -- Real Agentic Tasks
+  Date:       2026-03-27 02:05:20 UTC
+  Machine:    52 cores, Linux
+  Tasks:      6 (indeed, amazon, flights, hn, wikipedia, httpbin)
+  Frameworks: 4 (sequential, full machine each)
+========================================================================
+
+>>> Cleaning up before agent-browser v0.22.3...
+
+========================================================================
+  agent-browser v0.22.3
+========================================================================
+
+  --- Task 1: Job Search (indeed.com) ---
+  navigate                                    412ms  OK    
+  fill_what                                   153ms  FAIL  BLOCKED BY SITE
+  fill_where                                  153ms  FAIL  BLOCKED BY SITE
+  click_search                                153ms  FAIL  BLOCKED BY SITE
+  snapshot_results                            158ms  OK    
+  eval_job_cards                              153ms  OK    
+  screenshot                                  181ms  OK    
+[32m✓[0m Browser closed
+
+  --- Task 2: Product Comparison (amazon.com) ---
+  navigate                                    751ms  OK    
+  fill_search                                 254ms  FAIL  BLOCKED BY SITE
+  click_search                                172ms  OK    
+  snapshot_results                            235ms  OK    
+  eval_first                                  153ms  OK    
+  click_first                                 158ms  FAIL  BLOCKED BY SITE
+  eval_product                                189ms  OK    
+  go_back                                     376ms  OK    
+  click_second                                155ms  FAIL  BLOCKED BY SITE
+  eval_product_2                              154ms  OK    
+  screenshot                                  395ms  OK    
+[32m✓[0m Browser closed
+
+  --- Task 3: Travel Research (google.com/travel/flights) ---
+  navigate                                   1233ms  OK    
+  eval_find_inputs                            155ms  OK    
+  fill_origin                                 157ms  OK    
+  fill_dest                                   156ms  OK    
+  snapshot                                    175ms  OK    
+  eval_flights                                153ms  OK    
+  screenshot                                  187ms  OK    
+[32m✓[0m Browser closed
+
+  --- Task 4: News Aggregation (news.ycombinator.com) ---
+  navigate                                    639ms  OK    
+  snapshot_front                              203ms  OK    
+  eval_stories                                154ms  OK    
+  screenshot                                  193ms  OK    
+  click_more                                  155ms  OK    
+  eval_page2                                  153ms  OK    
+  click_comments                              156ms  OK    
+  eval_comments                               153ms  OK    
+  snapshot_comments                           198ms  OK    
+[32m✓[0m Browser closed
+
+  --- Task 5: Reference Lookup (wikipedia.org) ---
+  navigate                                   1021ms  OK    
+  click_first                                 154ms  FAIL  BLOCKED BY SITE
+  eval_toc                                    159ms  OK    
+  eval_infobox                                153ms  OK    
+  eval_scroll                                 156ms  OK    
+  eval_history_tbl                            153ms  OK    
+  screenshot                                  203ms  OK    
+  snapshot_article                            367ms  OK    
+[32m✓[0m Browser closed
+
+  --- Task 6: Form Submission (httpbin.org/forms/post) ---
+  navigate                                    593ms  OK    
+  snapshot_form                               158ms  OK    
+  fill_name                                   154ms  OK    
+  fill_phone                                  155ms  OK    
+  fill_email                                  154ms  OK    
+  fill_comments                               154ms  OK    
+  click_radio                                 154ms  OK    
+  click_topping_1                             154ms  OK    
+  click_topping_2                             153ms  OK    
+  submit                                      152ms  FAIL  BLOCKED BY SITE
+  eval_response                               153ms  OK    
+  snapshot_response                           157ms  OK    
+  screenshot                                  180ms  OK    
+[32m✓[0m Browser closed
+
+  Total wall time: 14.9s
+
+>>> Cleaning up before Playwright v1.58.0 (browser-use/stagehand)...
+
+========================================================================
+  Playwright v1.58.0 (browser-use/stagehand)
+========================================================================
+
+  --- Task 1: Job Search (indeed.com) ---
+  navigate                                    353ms  OK    
+  fill_what                                   277ms  OK    
+  fill_where                                   99ms  OK    
+  click_search                                178ms  OK    
+  wait_results                                  2ms  OK    
+  eval_job_cards                                3ms  OK    0 items
+  snapshot                                     72ms  OK    802798b
+  screenshot                                   73ms  OK    
+
+  --- Task 2: Product Comparison (amazon.com) ---
+  navigate                                    361ms  OK    
+  fill_search                                 386ms  OK    
+  click_search                                163ms  OK    
+  wait_results                               1001ms  OK    
+  snapshot                                    155ms  OK    1450258b
+  eval_first                                   43ms  OK    4 items
+  click_first                               30001ms  FAIL  Page.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("[data-c
+  wait_product                                  3ms  OK    
+  eval_product                                  2ms  OK    4 items
+  go_back                                     652ms  OK    
+  click_second                              29999ms  FAIL  Page.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("[data-c
+  eval_product_2                                2ms  OK    2 items
+  screenshot                                  162ms  OK    
+
+  --- Task 3: Travel Research (google.com/travel/flights) ---
+  navigate                                    639ms  OK    
+  eval_find_inputs                            203ms  OK    8 items
+  fill_origin                                 120ms  OK    
+  fill_dest                                     8ms  OK    
+  snapshot                                    156ms  OK    1888931b
+  eval_flights                                  2ms  OK    5 items
+  screenshot                                   49ms  OK    
+
+  --- Task 4: News Aggregation (news.ycombinator.com) ---
+  navigate                                    163ms  OK    
+  snapshot                                      6ms  OK    35043b
+  eval_stories                                  4ms  OK    30 items
+  screenshot                                   64ms  OK    
+  click_more                                   90ms  OK    
+  wait_page2                                    3ms  OK    
+  eval_page2                                   10ms  OK    30 items
+  click_comments                                2ms  OK    
+  wait_comments                                 2ms  OK    
+  eval_comments                                33ms  FAIL  Page.evaluate: Execution context was destroyed, most likely because of a navigat
+  snapshot_comments                            22ms  OK    51643b
+
+  --- Task 5: Reference Lookup (wikipedia.org) ---
+  navigate                                    423ms  OK    
+  click_first                               30001ms  FAIL  Page.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator(".mw-sea
+  wait_article                                  2ms  OK    
+  eval_toc                                     19ms  OK    2309 items
+  eval_infobox                                  2ms  OK    13 items
+  eval_scroll                                   1ms  OK    
+  eval_history_tbl                              4ms  OK    0 items
+  screenshot                                   73ms  OK    
+  snapshot_article                             57ms  OK    650563b
+
+  --- Task 6: Form Submission (httpbin.org/forms/post) ---
+  navigate                                    167ms  OK    
+  snapshot_form                                 3ms  OK    1419b
+  fill_name                                    20ms  OK    
+  fill_phone                                    4ms  OK    
+  fill_email                                    4ms  OK    
+  fill_comments                                 3ms  OK    
+  click_radio                                  38ms  OK    
+  click_topping_1                              32ms  OK    
+  click_topping_2                              33ms  OK    
+  submit                                    30000ms  FAIL  Page.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("button[
+  wait_response                                 2ms  OK    
+  eval_response                                 2ms  OK    295b
+  verify_values                                 2ms  OK    3 items
+  snapshot_response                             1ms  OK    1419b
+  screenshot                                   45ms  OK    
+
+  Total wall time: 127.0s
+
+>>> Cleaning up before CDP Raw (Chrome DevTools Protocol)...
+
+========================================================================
+  CDP Raw (Chrome DevTools Protocol)
+========================================================================
+
+  --- Task 1: Job Search (indeed.com) ---
+  navigate                                     64ms  OK    
+  fill_what                                     8ms  OK    
+  fill_where                                    1ms  OK    
+  click_search                                  1ms  OK    
+  wait_results                                  2ms  OK    
+  eval_job_cards                                1ms  OK    2b
+  ax_tree                                       7ms  OK    1 items
+  screenshot                                   28ms  OK    1 items
+
+  --- Task 2: Product Comparison (amazon.com) ---
+  navigate                                    260ms  OK    
+  fill_search                                   1ms  OK    
+  click_search                                  1ms  OK    
+  wait_results                                  2ms  OK    
+  ax_tree                                       2ms  OK    1 items
+  eval_first                                    1ms  OK    2b
+  click_first                                  10ms  OK    
+  wait_product                                  2ms  OK    
+  eval_product                                  2ms  OK    2b
+  go_back                                       2ms  OK    
+  wait_back                                     2ms  OK    
+  click_second                                 26ms  OK    
+  eval_product_2                                9ms  OK    2b
+  screenshot                                   45ms  OK    1 items
+
+  --- Task 3: Travel Research (google.com/travel/flights) ---
+  navigate                                    360ms  OK    
+  eval_find_inputs                            170ms  OK    477b
+  fill_origin                                  40ms  OK    3b
+  fill_dest                                    44ms  OK    3b
+  ax_tree                                      67ms  OK    1 items
+  eval_flights                                  6ms  OK    248b
+  screenshot                                   35ms  OK    1 items
+
+  --- Task 4: News Aggregation (news.ycombinator.com) ---
+  navigate                                    165ms  OK    
+  ax_tree                                      77ms  OK    1 items
+  eval_stories                                  2ms  OK    4544b
+  screenshot                                   50ms  OK    1 items
+  click_more                                    2ms  OK    
+  wait_page2                                    2ms  OK    
+  eval_page2                                   36ms  OK    2b
+  click_comments                                2ms  OK    
+  wait_comments                                41ms  OK    
+  eval_comments                                12ms  OK    850b
+  ax_tree_comments                            102ms  OK    1 items
+
+  --- Task 5: Reference Lookup (wikipedia.org) ---
+  navigate                                    385ms  OK    
+  click_first                                   7ms  OK    
+  wait_article                                  2ms  OK    
+  ax_tree                                     440ms  OK    1 items
+  eval_toc                                      8ms  OK    33332b
+  eval_infobox                                  1ms  OK    819b
+  eval_scroll                                   1ms  OK    
+  eval_history_tbl                              4ms  OK    2b
+  screenshot                                  974ms  OK    1 items
+
+  --- Task 6: Form Submission (httpbin.org/forms/post) ---
+  navigate                                    120ms  OK    
+  ax_tree_form                                  8ms  OK    1 items
+  fill_name                                     4ms  OK    8b
+  fill_phone                                    1ms  OK    8b
+  fill_email                                    1ms  OK    16b
+  fill_comments                                 1ms  OK    55b
+  set_radio                                     1ms  OK    
+  set_topping_1                                 1ms  OK    
+  set_topping_2                                 1ms  OK    
+  submit                                        1ms  OK    
+  wait_response                                 2ms  OK    
+  eval_response                                 1ms  OK    278b
+  verify_values                                 2ms  OK    54b
+  screenshot                                   37ms  OK    1 items
+
+  Total wall time: 4.2s
+
+>>> Cleaning up before CEF (zun fork, cefclient)...
+
+========================================================================
+  CEF (zun fork, cefclient)
+========================================================================
+  Connected to CEF at ws://127.0.0.1:9333/devtools/browser/c4013cee-fa6a-4e55-a7b2-45ccd4bb26d3
+
+  --- Task 1: Job Search (indeed.com) ---
+  navigate                                      0ms  FAIL  'Page.navigate' wasn't found
+  fill_what                                     0ms  FAIL  'Runtime.evaluate' wasn't found
+  fill_where                                    0ms  FAIL  'Runtime.evaluate' wasn't found
+  click_search                                  0ms  FAIL  'Runtime.evaluate' wasn't found
+  wait_load                                  3003ms  OK    
+  eval_job_cards                                1ms  FAIL  'Runtime.evaluate' wasn't found
+  ax_tree                                       0ms  FAIL  'Accessibility.getFullAXTree' wasn't found
+  screenshot                                    0ms  FAIL  'Page.captureScreenshot' wasn't found
+
+  --- Task 2: Product Comparison (amazon.com) ---
+  navigate                                      0ms  FAIL  'Page.navigate' wasn't found
+  fill_search                                   0ms  FAIL  'Runtime.evaluate' wasn't found
+  click_search                                  0ms  FAIL  'Runtime.evaluate' wasn't found
+  wait_results                               3003ms  OK    
+  ax_tree                                       1ms  FAIL  'Accessibility.getFullAXTree' wasn't found
+  eval_first                                    0ms  FAIL  'Runtime.evaluate' wasn't found
+  click_first                                   0ms  FAIL  'Runtime.evaluate' wasn't found
+  wait_product                               3003ms  OK    
+  eval_product                                  1ms  FAIL  'Runtime.evaluate' wasn't found
+  go_back                                       0ms  FAIL  'Runtime.evaluate' wasn't found
+  wait_back                                  2002ms  OK    
+  click_second                                  1ms  FAIL  'Runtime.evaluate' wasn't found
+  eval_product_2                                0ms  FAIL  'Runtime.evaluate' wasn't found
+  screenshot                                    0ms  FAIL  'Page.captureScreenshot' wasn't found
+
+  --- Task 3: Travel Research (google.com/travel/flights) ---
+  navigate                                      0ms  FAIL  'Page.navigate' wasn't found
+  eval_find_inputs                              0ms  FAIL  'Runtime.evaluate' wasn't found
+  fill_origin                                   0ms  FAIL  'Runtime.evaluate' wasn't found
+  fill_dest                                     0ms  FAIL  'Runtime.evaluate' wasn't found
+  ax_tree                                       0ms  FAIL  'Accessibility.getFullAXTree' wasn't found
+  eval_flights                                  0ms  FAIL  'Runtime.evaluate' wasn't found
+  screenshot                                    0ms  FAIL  'Page.captureScreenshot' wasn't found
+
+  --- Task 4: News Aggregation (news.ycombinator.com) ---
+  navigate                                      0ms  FAIL  'Page.navigate' wasn't found
+  ax_tree                                       0ms  FAIL  'Accessibility.getFullAXTree' wasn't found
+  eval_stories                                  0ms  FAIL  'Runtime.evaluate' wasn't found
+  screenshot                                    0ms  FAIL  'Page.captureScreenshot' wasn't found
+  click_more                                    0ms  FAIL  'Runtime.evaluate' wasn't found
+  wait_page2                                 2002ms  OK    
+  eval_page2                                    1ms  FAIL  'Runtime.evaluate' wasn't found
+  click_comments                                0ms  FAIL  'Runtime.evaluate' wasn't found
+  wait_comments                              2002ms  OK    
+  eval_comments                                 1ms  FAIL  'Runtime.evaluate' wasn't found
+  ax_tree_comments                              0ms  FAIL  'Accessibility.getFullAXTree' wasn't found
+
+  --- Task 5: Reference Lookup (wikipedia.org) ---
+  navigate                                      0ms  FAIL  'Page.navigate' wasn't found
+  click_first                                   0ms  FAIL  'Runtime.evaluate' wasn't found
+  wait_article                               3003ms  OK    
+  ax_tree                                       1ms  FAIL  'Accessibility.getFullAXTree' wasn't found
+  eval_toc                                      0ms  FAIL  'Runtime.evaluate' wasn't found
+  eval_infobox                                  0ms  FAIL  'Runtime.evaluate' wasn't found
+  eval_scroll                                   0ms  FAIL  'Runtime.evaluate' wasn't found
+  eval_history_tbl                              0ms  FAIL  'Runtime.evaluate' wasn't found
+  screenshot                                    0ms  FAIL  'Page.captureScreenshot' wasn't found
+
+  --- Task 6: Form Submission (httpbin.org/forms/post) ---
+  navigate                                      0ms  FAIL  'Page.navigate' wasn't found
+  ax_tree_form                                  0ms  FAIL  'Accessibility.getFullAXTree' wasn't found
+  fill_name                                     0ms  FAIL  'Runtime.evaluate' wasn't found
+  fill_phone                                    0ms  FAIL  'Runtime.evaluate' wasn't found
+  fill_email                                    0ms  FAIL  'Runtime.evaluate' wasn't found
+  fill_comments                                 0ms  FAIL  'Runtime.evaluate' wasn't found
+  set_radio                                     0ms  FAIL  'Runtime.evaluate' wasn't found
+  set_topping_1                                 0ms  FAIL  'Runtime.evaluate' wasn't found
+  set_topping_2                                 0ms  FAIL  'Runtime.evaluate' wasn't found
+  submit                                        0ms  FAIL  'Runtime.evaluate' wasn't found
+  wait_response                              2000ms  OK    
+  eval_response                                 0ms  FAIL  'Runtime.evaluate' wasn't found
+  verify_values                                 0ms  FAIL  'Runtime.evaluate' wasn't found
+  screenshot                                    0ms  FAIL  'Page.captureScreenshot' wasn't found
+
+  Total wall time: 24.2s
+
+========================================================================
+  BENCHMARK COMPLETE
+  2026-03-27 02:08:35 UTC
+========================================================================

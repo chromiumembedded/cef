@@ -1,0 +1,476 @@
+User-Zero-Native (zun) | Performance Review Catalog
+=============================================
+
+Each item has:
+- **Effort**: [S]mall / [M]edium / [L]arge (from original roadmap)
+- **Impact**: estimated perf gain — S (minor), M (moderate), L (major)
+- **Action**: + add / - remove/replace
+- **Where**: specific files to modify
+- **Agent-safe**: whether this can ship without breaking agents trained on vanilla Chrome
+- **Status**: ACTIVE / SCRAPPED / CONDITIONAL
+
+=============================================
+## REVIEW DECISIONS
+=============================================
+
+### Fingerprinting policy
+Speed-based fingerprinting (unnaturally low latency, low variance, machine-precise
+inter-action timing) is explicitly acceptable and not a concern. Only structural
+fingerprinting matters — missing JS execution artifacts, observable API differences,
+cross-session state leaks.
+
+### Agent compatibility constraint
+Agents are trained on vanilla Chrome CDP behavior. Any change that alters what the
+agent observes through CDP (Runtime.evaluate return shapes, event sequences, error
+formats, session isolation) is not viable. Changes must be either transparent to the
+agent or additive (new CDP domains/methods the agent can opt into after retraining).
+
+### Scrapped items (3)
+- **1.2** — Cannot replace Runtime.evaluate internals. Agents depend on RemoteObject
+  shape (type/value/objectId), ExceptionDetails format, and V8 stack traces. Typed
+  mojo methods can't produce these. Complex JS expressions (closures, chained calls)
+  can't be mapped to pre-defined methods. The reduced alternative (optimize path to
+  V8 without changing CDP contract) has much lower value for high complexity.
+- **1.3** — Cannot bypass CDP as external protocol. Agents only speak CDP over
+  WebSocket/pipe. A native mojo automation plane is unreachable from the agent. The
+  reduced alternative (use native plane as CDP backend, short-circuiting known methods
+  inside devtools_controller.cc) preserves the CDP contract but the implementation
+  complexity of parsing CDP methods and routing them to mojo is comparable to the
+  existing DevTools dispatch it replaces.
+- **7.2** — Cannot implicitly share CefBrowserContext across sessions by policy match.
+  A BrowserContext owns cookies, localStorage, IndexedDB, HTTP cache, service workers,
+  and permissions. Two sessions with identical policies but different identities would
+  corrupt each other's state silently. The reduced alternative (explicit opt-in via
+  same session_name) is already how GetOrCreateForBrowserContext works today — there's
+  nothing to build.
+
+=============================================
+## 1. LATENCY
+=============================================
+
+### 1.1  [Effort S] Remove UI-thread reposts; return cached context services directly; bypass JSON
+- **Impact**: M
+- **Agent-safe**: Yes — same CDP commands, same responses, just faster internal dispatch
+- **Status**: ACTIVE
+- **Action**: - Remove unnecessary `CEF_POST_TASK(CEF_UIT, ...)` guards; cache service pointers
+- **Where (remove UI-thread reposts)**:
+  - `libcef/browser/browser_host_base.cc:733-774` — `SendDevToolsMessage()` and `ExecuteDevToolsMethod()` both check `CEF_CURRENTLY_ON_UIT()` and repost
+  - `libcef/browser/frame_host_impl.cc:624-652` — `SendToRenderFrame()` reposts all frame actions to UI thread
+  - `libcef/browser/frame_host_impl.cc:54-75` — `EXEC_WEBCONTENTS_COMMAND` macro forces UI-thread repost for edit commands
+- **Where (bypass JSON)**:
+  - `libcef/browser/devtools/devtools_controller.cc:42-73` — `ExecuteDevToolsMethod()` serializes params to JSON via `base::JSONWriter::Write()`
+  - `libcef/browser/devtools/devtools_controller.cc:95-127` — `DispatchProtocolMessage()` re-parses JSON via `devtools_util::ProtocolParser`
+- **Where (cache context services)**:
+  - `libcef/browser/devtools/devtools_protocol_manager.cc:110-148` — `EnsureController()` recreated per call
+
+---
+
+### 1.2  [Effort M] Replace generic JS eval with internal frame hooks; persistent in-memory element refs
+- **Impact**: L
+- **Agent-safe**: NO
+- **Status**: SCRAPPED
+- **Reason**: Agents send arbitrary JS through CDP `Runtime.evaluate` and expect Chrome's
+  `RemoteObject` back — a specific shape with `type`, `value`, `subtype`, `objectId`,
+  `className`, `description`. Typed mojo methods cannot produce this. Agents use `objectId`
+  from one call in follow-up `Runtime.callFunctionOn` calls — that's V8 heap-level state.
+  Agents send complex expressions (querySelectorAll + forEach, ternaries, closures) that
+  can't map to pre-defined methods. JS errors return as `ExceptionDetails` with `lineNumber`,
+  `columnNumber`, `scriptId`, `stackTrace` — internal hooks produce none of that.
+  Additionally, bypassing V8 creates high fingerprinting risk: no `performance.getEntries()`
+  script entries, no V8 stack traces in MutationObserver callbacks, missing microtask
+  checkpoints, `document.currentScript` is null.
+- **Reduced alternative considered**: Keep `Runtime.evaluate` going through V8 exactly as
+  Chrome does; optimize the path to V8 (remove UI-thread repost, cache V8 context). Much
+  lower value-to-complexity ratio — the thread-hop removal is already covered by 1.1.
+- **Action**: - Replace `ExecuteJavaScript` path with typed mojo methods; + add element ref cache
+- **Where (current JS eval path — browser side)**:
+  - `libcef/browser/frame_host_impl.cc:178-182` — `ExecuteJavaScript()` delegates to `SendJavaScript()`
+  - `libcef/browser/frame_host_impl.cc:423-444` — `SendJavaScript()` wraps code string, sends via mojo
+- **Where (current JS eval path — renderer side)**:
+  - `libcef/renderer/frame_impl.cc:169-172` — `ExecuteJavaScript()` → `SendJavaScript()`
+  - `libcef/renderer/frame_impl.cc:874-886` — `SendJavaScript()` calls `frame->ExecuteScript(blink::WebScriptSource(...))`
+  - `libcef/renderer/frame_impl.cc:453-469` — `ExecuteOnLocalFrame()` queues until V8 context ready
+- **Where (add typed mojo methods)**:
+  - `libcef/common/mojom/cef.mojom:51-85` — `RenderFrame` interface; add `GetElementById()`, `QuerySelector()`, etc.
+- **Where (add element ref cache)**:
+  - `libcef/renderer/frame_impl.h:209+` — add element ID → WebNode map member
+  - `libcef/renderer/dom_node_impl.h:14-60` — existing DOM node wrapper; extend for persistent refs
+
+---
+
+### 1.3  [Effort L] Native automation plane; bypass CDP/daemon roundtrips; zero-orchestration sessions
+- **Impact**: L
+- **Agent-safe**: NO
+- **Status**: SCRAPPED
+- **Reason**: Agents connect over CDP (WebSocket or pipe) and send JSON like
+  `{"id":1,"method":"Page.navigate","params":{"url":"..."}}`. That's the only protocol
+  they speak. A native mojo `AutomationFrame` interface is unreachable from the agent —
+  there's no way for the agent to discover or call it. Removing CDP breaks all agents.
+- **Reduced alternative considered**: Keep CDP as external wire protocol. Inside the browser
+  process, when a CDP message arrives at `devtools_controller.cc`, parse the method name
+  and short-circuit known methods directly to the frame via mojo instead of routing through
+  `DevToolsAgentHost::DispatchProtocolMessage`. The agent still sends/receives CDP JSON.
+  However, the implementation complexity of maintaining a parallel method-name→mojo dispatch
+  table, handling all CDP response serialization, and keeping it in sync with upstream
+  Chromium DevTools protocol changes is comparable to the existing DevTools dispatch layer
+  it replaces. Net benefit too small for the maintenance burden.
+- **Action**: + Add native automation mojo interface bypassing CDP entirely
+- **Where (current CDP path to bypass)**:
+  - `libcef/browser/devtools/devtools_protocol_manager.h:23-55` — CDP message dispatch entry
+  - `libcef/browser/devtools/devtools_protocol_manager.cc:110-148` — controller creation + message routing
+  - `libcef/browser/devtools/devtools_controller.h:22-79` — CDP controller with agent_host
+  - `libcef/browser/devtools/devtools_controller.cc:30-74` — JSON serialize → `DevToolsAgentHost::DispatchProtocolMessage()`
+- **Where (add native automation plane)**:
+  - `libcef/common/mojom/cef.mojom` — add `AutomationFrame` interface with binary protocol
+  - NEW `libcef/browser/automation_host.{h,cc}` — direct frame access, session mgmt
+  - NEW `libcef/renderer/automation_impl.{h,cc}` — implements `AutomationFrame`, direct DOM access
+
+=============================================
+## 2. THROUGHPUT
+=============================================
+
+### 2.1  [Effort S] Coalesce callbacks; cache directory state for vault ops; reuse policy/config objects
+- **Impact**: S
+- **Agent-safe**: Yes
+- **Status**: ACTIVE (low priority — S impact)
+- **Action**: + Add callback coalescing; cache vault directory enumeration; reuse config structs
+- **Where (callback coalescing)**:
+  - `libcef/browser/auth_vault_impl.cc:550-630` — `OnActionComplete()`, `OnReadComplete()`, `OnVisitComplete()`, `RunActionCallback()` — each creates separate callback
+  - `libcef/browser/storage_state_manager_impl.cc` — `OnListComplete()`, `OnReadComplete()`, `OnActionComplete()` per-call wrappers
+- **Where (cache directory state)**:
+  - `libcef/browser/auth_vault_impl.cc:412-443` — `ListProfilesOnBlockingThread()` enumerates directory every call
+  - `libcef/browser/auth_vault_impl.cc:632-638` — `GetVaultPathInternal()`, `GetEncryptionKeyPathInternal()` — recalculated each time
+  - `libcef/browser/storage_state_manager_impl.cc:92-119` — `ListStatesOnBlockingThread()` re-enumerates per call
+- **Where (reuse policy/config objects)**:
+  - `libcef/browser/request_context_impl.h:172-195` — `Config` struct already exists; ensure reuse via `GetOrCreateForBrowserContext()`
+  - `libcef/browser/browser_host_base.h:32-107` — `CefBrowserCreateParams` settings copied per browser
+
+---
+
+### 2.2  [Effort M] Multi-op APIs (navigate+wait+snapshot); batch DOM/accessibility in single pass
+- **Impact**: M
+- **Agent-safe**: Yes — additive new CDP methods; existing methods unchanged
+- **Status**: ACTIVE (deferred value — agent benefits only after retraining to use new methods)
+- **Action**: + Add compound API methods; batch AX+DOM fetch
+- **Where (current sequential ops to combine)**:
+  - `libcef/browser/browser_host_base.h:288-295` — `GoBack()`, `GoForward()`, `Reload()`, `StopLoad()` — individual nav ops
+  - `libcef/browser/browser_capture_impl.h:23-28` — `Snapshot()`, `CaptureAnnotatedScreenshot()` — separate from nav
+  - `libcef/browser/frame_host_impl.h:78` — `VisitDOM()` — separate DOM visitor call
+- **Where (batch DOM/AX)**:
+  - `libcef/common/mojom/cef.mojom:63-70` — `SendCommandWithResponse()` — add batch variant
+  - `include/internal/cef_types.h:865-891` — `cef_snapshot_settings_t` — extend for combined ops
+
+---
+
+### 2.3  [Effort L] Internal agent scheduler; pooled request contexts; machine-workload optimization
+- **Impact**: L
+- **Agent-safe**: Yes — internal scheduling, transparent to agent
+- **Status**: ACTIVE
+- **Action**: + Add scheduler, context pool, workload balancer
+- **Where (scheduling primitives)**:
+  - `libcef/browser/thread_util.h:53-83` — `CEF_POST_TASK`, `CEF_POST_BLOCKING_TASK`, `CEF_POST_BACKGROUND_TASK` macros
+  - `libcef/browser/auth_vault_impl.cc:483-535` — `base::ThreadPool::PostTaskAndReplyWithResult()` for I/O
+- **Where (context pooling base)**:
+  - `libcef/browser/request_context_impl.h:50-61` — `GetOrCreateForRequestContext()`, `GetOrCreateForBrowserContext()` — extend to pool
+  - `libcef/browser/browser_context.h:42-100` — `FromCachePath()` lookup; add pool manager
+- **Where (add scheduler)**:
+  - NEW `libcef/browser/agent_scheduler.{h,cc}` — priority queue, concurrency limits, workload balancing
+
+=============================================
+## 3. STATE PERSISTENCE EFFICIENCY
+=============================================
+
+### 3.1  [Effort S] Dirty-only saves; stop full-export behavior; avoid redundant vault/session writes
+- **Impact**: M
+- **Agent-safe**: Yes — internal I/O optimization, invisible to pages and agents
+- **Status**: ACTIVE
+- **Action**: + Add dirty flags; - remove unconditional full writes
+- **Where (full-export to replace)**:
+  - `libcef/browser/storage_state_manager_impl.cc:382-398` — `Save()` exports entire state
+  - `libcef/browser/auth_vault_impl.cc:483` — `SaveProfileOnBlockingThread()` always re-encrypts full profile
+- **Where (add dirty tracking)**:
+  - `libcef/browser/storage_state_manager_impl.h:90-102` — add `dirty_` flag, `modified_origins_` set
+  - `libcef/browser/auth_vault_impl.h:40-50` — add per-profile dirty bit
+
+---
+
+### 3.2  [Effort M] Origin-level dirty tracking (cookies/localStorage); separate metadata from payload
+- **Impact**: M
+- **Agent-safe**: Yes — internal persistence bookkeeping
+- **Status**: ACTIVE
+- **Action**: + Add per-origin change tracking; refactor profile serialization
+- **Where (cookie persistence)**:
+  - `libcef/browser/net_service/cookie_manager_impl.cc` — `VisitAllCookies()`, `SetCookie()`, `FlushStore()` — no origin-level tracking
+  - `libcef/browser/net_service/cookie_helper.cc` — `LoadCookies()`, `SaveCookies()` — full import/export
+- **Where (metadata separation already started)**:
+  - `libcef/browser/auth_vault_impl.cc:281-290` — `MakeProfileMetadata()` separates password from metadata — extend pattern
+- **Where (add origin tracking)**:
+  - `libcef/browser/browser_context.h` — add `dirty_origins_` set to context
+  - `include/internal/cef_types.h:577-610` — `cef_storage_state_info_t` — add per-origin metadata fields
+
+---
+
+### 3.3  [Effort L] Incremental journaling (Profile-native); replace full import/export snapshots
+- **Impact**: L
+- **Agent-safe**: Yes — on-disk format change, invisible to pages and agents
+- **Status**: ACTIVE
+- **Action**: + Add append-only journal format; - remove full JSON snapshot writes
+- **Where (current full-snapshot code to replace)**:
+  - `libcef/browser/auth_vault_impl.cc` — `SaveProfileOnBlockingThread()` — writes full encrypted JSON blob
+  - `libcef/browser/storage_state_manager_impl.cc` — `Save()`/`Load()` — full `.json`/`.json.enc` snapshots
+- **Where (add journaling)**:
+  - NEW `libcef/browser/state_journal.{h,cc}` — append-only log, compaction, recovery
+  - `libcef/browser/browser_context.cc` — integrate journal with Profile preference system
+
+=============================================
+## 4. CACHING
+=============================================
+
+### 4.1  [Effort S] Cache auth profiles and security policies; cache default path/directory resolution
+- **Impact**: S
+- **Agent-safe**: Yes
+- **Status**: ACTIVE (low priority — S impact)
+- **Action**: + Add in-memory LRU caches for profiles, policies, paths
+- **Where (auth profile — no cache currently)**:
+  - `libcef/browser/auth_vault_impl.cc` — `ReadProfile()` hits disk every call; add LRU cache
+- **Where (security policy — partial cache)**:
+  - `libcef/browser/browser_security_policy_impl.cc:23-60` — `SetSettings()` stores in memory, but `action_policy_path` file re-read not cached
+- **Where (path resolution — recalculated)**:
+  - `libcef/browser/path_util_impl.cc` — `CefPathProvider()` calls `base::PathService` each time
+  - `libcef/browser/storage_state_manager_impl.cc:29-72` — `GetHomeDirectory()`, `GetDefaultSessionsDirectory()` recalculated per call
+  - `libcef/browser/auth_vault_impl.cc:632-638` — `GetVaultPathInternal()`, `GetEncryptionKeyPathInternal()` recalculated
+
+---
+
+### 4.2  [Effort M] Cache AX-tree transforms and selector mappings; per-origin state summaries
+- **Impact**: M
+- **Agent-safe**: CONDITIONAL — safe only if cache is invalidated on any DOM mutation
+- **Status**: ACTIVE
+- **Condition**: Cache must be keyed to a DOM generation counter. Any DOM change (via Blink's
+  `AXObjectCache` dirty notifications or MutationObserver infrastructure) bumps the counter,
+  invalidating the cache. Reads from the same DOM state are safe to cache. If stale cached
+  data drives actions (clicking elements at cached positions), anti-bot systems that
+  intentionally shift elements between renders will detect stale-coordinate automation.
+- **Action**: + Add transform result cache; selector→node mapping cache; origin state cache
+- **Where (AX-tree transforms)**:
+  - `libcef/browser/osr/osr_accessibility_util.cc` — `ParseAccessibilityEventData()`, `ParseAccessibilityLocationData()` — converts `ui::AXUpdatesAndEvents` to `CefValue` each time
+- **Where (selector mappings)**:
+  - `libcef/browser/auth_vault_impl.cc:593-603` — profile has `username_selector`, `password_selector`, `submit_selector` — re-resolved each use
+  - `include/internal/cef_types.h:865-891` — `cef_snapshot_settings_t.selector` — CSS selector parsed each snapshot
+- **Where (DOM node cache already exists)**:
+  - `libcef/renderer/dom_document_impl.h` — `NodeMap node_map_` — extend this pattern
+
+---
+
+### 4.3  [Effort L] Agent-oriented page model cache; compact AX representations; incremental diffs
+- **Impact**: L
+- **Agent-safe**: CONDITIONAL — same DOM-mutation invalidation requirement as 4.2
+- **Status**: ACTIVE
+- **Condition**: Same as 4.2. The entire cached page model must be invalidated on DOM mutation.
+  Additionally, if the cached model drives actions and the page has moved elements since the
+  cache was built, the click lands on wrong coordinates. Anti-bot systems intentionally move
+  elements by small pixel offsets between renders to catch stale-coordinate automation.
+  Needs DOM generation counter tied to Blink's AXObjectCache dirty tracking.
+- **Action**: + Add persistent page model with diff tracking
+- **Where (snapshot capture to cache)**:
+  - `libcef/browser/browser_capture_impl.{h,cc}` — `Snapshot()`, `CaptureAnnotatedScreenshot()` — no result caching
+  - `include/cef_browser_capture.h:44-87` — capture API to extend with cache + diff support
+- **Where (AX compaction)**:
+  - `libcef/browser/osr/osr_accessibility_util.cc` — full CefValue tree each time; add compact binary format
+  - `include/cef_accessibility_handler.h` — `OnAccessibilityTreeChange()` — receives full updates; add incremental diff mode
+- **Where (add page model)**:
+  - NEW `libcef/browser/page_model_cache.{h,cc}` — cached page state, AX diffs, selector mappings
+
+=============================================
+## 5. POLICY ENFORCEMENT COST
+=============================================
+
+### 5.1  [Effort S] Quick allow/deny pre-checks; cache compiled domain matchers; normalize policy once
+- **Impact**: S
+- **Agent-safe**: Yes
+- **Status**: ACTIVE (low priority — S impact)
+- **Action**: + Pre-compile domain patterns; cache match results; normalize on `SetSettings()`
+- **Where (domain matching — recompiled each check)**:
+  - `libcef/browser/origin_whitelist_impl.cc:166-192` — `IsMatch()` evaluates `DomainIs()` per request
+- **Where (policy settings — not pre-compiled)**:
+  - `libcef/browser/browser_security_policy_impl.cc:23-60` — `SetSettings()` stores raw strings; `GetAllowedDomains()` and `GetConfirmActionCategories()` return raw comma-delimited strings
+  - `include/internal/cef_types.h:667-703` — `allowed_domains`, `confirm_actions` stored as raw `cef_string_t`
+- **Where (add pre-compilation)**:
+  - `libcef/browser/browser_security_policy_impl.h` — add `compiled_domain_matchers_` member, populate on `SetSettings()`
+
+---
+
+### 5.2  [Effort M] Early-interception at request creation; use precomputed, context-scoped objects
+- **Impact**: M
+- **Agent-safe**: Yes — must return `net::ERR_BLOCKED_BY_CLIENT` to match Chrome error shape
+- **Status**: ACTIVE
+- **Condition**: Blocked requests must return standard Chrome network error codes so the agent's
+  error handling recognizes them. The failure *shape* (error code, no response headers, no body)
+  must match what Chrome produces for client-blocked requests.
+- **Action**: + Move policy checks before expensive request setup
+- **Where (current late interception)**:
+  - `libcef/browser/net_service/resource_request_handler_wrapper.cc:518-614` — `OnBeforeRequest()` — handler retrieval, scheme checks, cookie filter all happen after request is already constructed
+  - `libcef/browser/net_service/proxy_url_loader_factory.h:56-69` — `OnBeforeRequest()`, `ShouldInterceptRequest()` — virtual dispatch per request
+- **Where (context-scoped policy object)**:
+  - `libcef/browser/request_context_impl.cc:543-549` — `GetSecurityPolicy()` creates `CefBrowserSecurityPolicyImpl` lazily; extend with precomputed deny list
+- **Where (enforcement scaffold — not yet active)**:
+  - `libcef/browser/browser_security_policy_impl.cc` — comment: "Enforcement is not yet implemented in this scaffold"
+
+---
+
+### 5.3  [Effort L] Deep-native pipeline enforcement; reject unauthorized work before expensive stages
+- **Impact**: M
+- **Agent-safe**: Yes — same Chrome error shape requirement as 5.2
+- **Status**: ACTIVE
+- **Condition**: Same as 5.2 — blocked requests must produce standard `net::ERR_BLOCKED_BY_CLIENT`
+  errors indistinguishable from Chrome's built-in blocking behavior.
+- **Action**: + Inject policy checks at pipeline entry points before resource allocation
+- **Where (pipeline stages to guard)**:
+  - `libcef/browser/net_service/resource_request_handler_wrapper.cc:93-156` — `PendingRequest` struct queues requests; add pre-check before queuing
+  - `libcef/browser/net_service/resource_request_handler_wrapper.cc:539-604` — request setup (trusted params, headers, handler lookup) — reject before this
+- **Where (permission system)**:
+  - `libcef/browser/permission_prompt.cc:274-327` — `CreatePermissionPromptImpl()` — late in pipeline; move check earlier
+- **Where (Chromium integration patches)**:
+  - `patch/patches/browser_security_policy_1081397.patch` — non-standard scheme handling
+  - `patch/patches/content_initiator_policy_323753235.patch` — initiator policy enforcement
+
+=============================================
+## 6. BATCHING
+=============================================
+
+### 6.1  [Effort S] Internal helper APIs for sequences; reuse callback objects for related operations
+- **Impact**: S
+- **Agent-safe**: Yes
+- **Status**: ACTIVE (low priority — S impact)
+- **Action**: + Add sequence helpers; pool callback wrappers
+- **Where (current per-call callback patterns)**:
+  - `libcef/browser/frame_host_impl.h:178-210` — `RenderFrameAction` queue; actions queued individually
+  - `libcef/browser/frame_host_impl.cc:29-49` — `StringVisitCallback`, `ViewTextCallback` — new wrapper per call
+  - `libcef/browser/storage_state_manager_impl.h:65-88` — separate callback types per op (`OnListComplete`, `OnReadComplete`, `OnActionComplete`)
+- **Where (add sequence helpers)**:
+  - `libcef/browser/frame_host_impl.h` — add `ExecuteSequence(vector<RenderFrameAction>)` method
+  - `include/cef_callback.h` — add reusable callback pool type
+
+---
+
+### 6.2  [Effort M] Transactional ops (click+wait+snapshot); batch element queries against one DOM fetch
+- **Impact**: M
+- **Agent-safe**: Yes — additive new methods; existing CDP commands unchanged
+- **Status**: ACTIVE (deferred value — agent benefits only after retraining to use new methods)
+- **Action**: + Add compound operations; batch DOM queries
+- **Where (current individual ops)**:
+  - `libcef/browser/browser_capture_impl.h:23-28` — `Snapshot()` is standalone call
+  - `libcef/browser/frame_host_impl.cc:157-165` — `GetSource()`, `GetText()` — each sends separate mojo message
+  - `libcef/browser/frame_host_impl.h:78` — `VisitDOM()` — separate DOM round-trip
+- **Where (mojo interface to extend)**:
+  - `libcef/common/mojom/cef.mojom:63-70` — `SendCommandWithResponse()` — add batch command variant
+- **Where (snapshot settings to extend)**:
+  - `include/internal/cef_types.h:861-891` — `cef_snapshot_settings_t` — add `wait_for_nav`, `click_selector` fields for compound ops
+
+---
+
+### 6.3  [Effort L] Native "automation program" model; single-batch instructions; one-payload results
+- **Impact**: L
+- **Agent-safe**: Yes — additive new API; existing CDP surface untouched
+- **Status**: ACTIVE (deferred value — agent benefits only after retraining to use new methods)
+- **Action**: + Add automation program execution engine
+- **Where (existing scaffold to build on)**:
+  - `include/cef_browser_capture.h:62` — comment referencing "agent-browser snapshot and annotated screenshot behaviors"
+  - `include/cef_browser_security.h` — `action_policy_path` for action policy files — extend to instruction format
+  - `include/cef_auth_vault.h` — profile-based auth for batched auth flows
+  - `include/cef_storage_state.h:106-150` — `Save()`/`Load()` for session state around program execution
+- **Where (add program model)**:
+  - NEW `include/cef_automation_program.h` — program definition, instruction set, result payload
+  - NEW `libcef/browser/automation_program.{h,cc}` — execution engine, instruction dispatch, result aggregation
+  - `libcef/common/mojom/cef.mojom` — add `ExecuteProgram(AutomationProgram)` method
+
+=============================================
+## 7. MEMORY / SESSION REUSE
+=============================================
+
+### 7.1  [Effort S] Reuse service objects per context; retain hot metadata in memory during lifecycles
+- **Impact**: S
+- **Agent-safe**: Yes
+- **Status**: ACTIVE (low priority — S impact)
+- **Action**: + Cache service instances; keep metadata warm
+- **Where (service objects recreated)**:
+  - `libcef/browser/request_context_impl.h:172-195` — `Config` struct has service refs; ensure single-instance
+  - `libcef/browser/net_service/url_loader_factory_getter.h` — `lazy_factory_` pattern already exists; replicate elsewhere
+  - `libcef/browser/net_service/cookie_manager_impl.h:23-25` — per-context cookie manager; ensure singleton per context
+- **Where (metadata not retained)**:
+  - `libcef/browser/auth_vault_impl.h` — profile metadata discarded after read; keep hot
+  - `libcef/browser/storage_state_manager_impl.h:90-102` — session metadata re-enumerated; cache in memory
+
+---
+
+### 7.2  [Effort M] Deliberate context reuse for compatible policies; support warm browser reuse
+- **Impact**: M
+- **Agent-safe**: NO
+- **Status**: SCRAPPED
+- **Reason**: A CefBrowserContext owns the cookie jar, localStorage, IndexedDB, HTTP cache,
+  service workers, and permissions. If agent A and agent B share a context because their
+  policies match, agent A logs into bank.com and agent B now has those session cookies.
+  Agent A sets localStorage and agent B reads it. Agent A's service worker intercepts agent
+  B's fetches. The agents don't error — they see wrong data and make wrong decisions silently.
+  Policy compatibility (what you're allowed to do) is not identity isolation (who you are).
+  Two sessions can have identical policies but completely different identities.
+- **Reduced alternative considered**: Only reuse contexts when the caller explicitly passes
+  the same `session_name` in CefRequestContextSettings. However, this is already how
+  `GetOrCreateForBrowserContext` works today via cache-path lookup — there is nothing new
+  to build.
+- **Action**: + Add policy compatibility check; reuse contexts when policies match
+- **Where (context creation — currently per-request)**:
+  - `libcef/browser/browser_context.cc:31-147` — `ImplManager` manages all contexts; `FromCachePath()` looks up by path only
+  - `libcef/browser/request_context_impl.cc:259-271` — `ExecuteWhenBrowserContextInitialized()` defers but doesn't reuse
+- **Where (add compatibility matching)**:
+  - `libcef/browser/browser_context.h:42-100` — add `IsCompatibleWith(settings)` method
+  - `libcef/browser/request_context_impl.h:50-61` — extend `GetOrCreateForRequestContext()` with policy matching
+
+---
+
+### 7.3  [Effort L] Session pools; prewarmed browsers/contexts; preloaded auth and profile state
+- **Impact**: L
+- **Agent-safe**: CONDITIONAL — must reset all web-visible state on assignment
+- **Status**: ACTIVE
+- **Condition**: Prewarm the process and renderer infrastructure only. On assignment to an agent,
+  must reset: cookies, localStorage, IndexedDB, HTTP cache, service workers, permissions,
+  and `performance.timeOrigin`. The win is skipping process spawn + renderer init (~200-500ms),
+  not skipping state setup. If cookies/auth are preloaded before navigation, the first request
+  arrives with cookies a real browser would only have after visiting the auth page — request
+  ordering forensics can detect this. Preloaded auth must replay auth flows, not inject cookies.
+  A prewarmed browser's `performance.timeOrigin` reflects creation time, not assignment time —
+  pages can detect the gap via `Date.now() - performance.timeOrigin`.
+- **Action**: + Add session/context pool manager with prewarming
+- **Where (current creation paths to pool)**:
+  - `libcef/browser/browser_host_create.cc` — `CefBrowserHost::CreateBrowser()` — creates from scratch each time
+  - `libcef/browser/alloy/alloy_browser_host_impl.cc` — `Create()`, `CreateInternal()` — full WebContents setup per call
+  - `libcef/browser/browser_info_manager.h` — `CreateBrowserInfo()` — per-browser ID allocation
+- **Where (add pool)**:
+  - NEW `libcef/browser/session_pool.{h,cc}` — prewarmed context/browser pool, LRU eviction, auth preloading
+  - `libcef/browser/browser_context.h` — integrate pool with `Getter` callback pattern
+  - `libcef/browser/auth_vault_impl.cc` — preload profiles into pool on startup
+
+=============================================
+## SUMMARY: Active items by priority
+=============================================
+
+### Immediate value (agent benefits without retraining)
+| #   | Item                                        | Effort | Impact | Condition                          |
+|-----|---------------------------------------------|--------|--------|------------------------------------|
+| 1.1 | Remove UI-thread reposts; bypass JSON       | S      | M      | None                               |
+| 3.1 | Dirty-only saves; stop full exports         | S      | M      | None                               |
+| 3.2 | Origin-level dirty tracking                 | M      | M      | None                               |
+| 4.2 | Cache AX-tree transforms                    | M      | M      | DOM-mutation invalidation required  |
+| 5.2 | Early request interception                  | M      | M      | Chrome error shapes required        |
+| 5.3 | Deep-native pipeline enforcement            | L      | M      | Chrome error shapes required        |
+| 3.3 | Incremental journaling                      | L      | L      | None                               |
+| 4.3 | Page model cache; compact AX; diffs         | L      | L      | DOM-mutation invalidation required  |
+| 7.3 | Session pools; prewarmed browsers           | L      | L      | Web-state reset on assignment       |
+
+### Deferred value (agent needs retraining to use new APIs)
+| #   | Item                                        | Effort | Impact | Condition                          |
+|-----|---------------------------------------------|--------|--------|------------------------------------|
+| 2.2 | Multi-op APIs (navigate+wait+snapshot)      | M      | M      | Additive — old APIs unchanged      |
+| 2.3 | Agent scheduler; pooled contexts            | L      | L      | None — internal scheduling         |
+| 6.2 | Transactional ops (click+wait+snapshot)     | M      | M      | Additive — old APIs unchanged      |
+| 6.3 | Native automation program model             | L      | L      | Additive — old APIs unchanged      |
