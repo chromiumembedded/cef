@@ -83,6 +83,23 @@ export interface SpeedBenchmarkRun {
 // ============================================================
 
 export type TaskDifficulty = "easy" | "medium" | "hard";
+export type DataOrigin =
+  | "first_party"
+  | "derived"
+  | "public_leaderboard"
+  | "vendor_report";
+export type DataTrust = "trusted" | "untrusted";
+
+export interface DataProvenance {
+  /** Where the data came from */
+  origin: DataOrigin;
+  /** Whether this data is safe to blend into first-party aggregates */
+  trust: DataTrust;
+  /** Human-readable source or collection path */
+  collectedFrom: string;
+  /** Extra context for downstream renderers */
+  notes?: string;
+}
 
 export interface AccuracyTask {
   /** Task ID from Online-Mind2Web */
@@ -128,6 +145,8 @@ export interface DriverAccuracyReport {
   version: string;
   /** LLM used for agent decisions */
   llmModel: string;
+  /** Provenance for the run data backing this report */
+  provenance: DataProvenance;
   /** Per-task results */
   results: AccuracyResult[];
   /** Aggregate accuracy */
@@ -150,12 +169,76 @@ export interface AccuracyBenchmarkRun {
   hardware: HardwareInfo;
   /** LLM model used across all drivers */
   llmModel: string;
+  /** Provenance for the task-run data included in this benchmark */
+  provenance: DataProvenance;
   /** Task set used */
   tasks: AccuracyTask[];
   /** All driver reports */
   drivers: DriverAccuracyReport[];
   /** Overall ranking by accuracy */
   ranking: RankEntry[];
+  /**
+   * Distilled trajectory summaries derived from the trusted run data above.
+   * External leaderboard scores are excluded from these aggregates.
+   */
+  trajectoryDistillation?: TrajectoryDistillationReport;
+}
+
+export interface TrajectorySummary {
+  /** Number of trajectories distilled into this summary */
+  sampleCount: number;
+  /** Binary task success rate */
+  successRate: number;
+  /** Weighted success rate using judge verdicts (pass=1, partial=0.5) */
+  judgeAdjustedSuccessRate: number;
+  /** Fraction of trajectories marked partial by the judge */
+  partialRate: number;
+  /** Fraction of trajectories that failed */
+  failureRate: number;
+  /** Mean step count across all trajectories */
+  avgSteps: number;
+  /** Mean wall-clock time across all trajectories */
+  avgTimeMs: number;
+  /** Mean token usage across all trajectories */
+  avgTokens: number;
+  /** Mean browser-time share of total execution time */
+  avgBrowserShare: number;
+  /** Mean LLM-time share of total execution time */
+  avgLlmShare: number;
+  /** Judge-adjusted success divided by average steps */
+  stepNormalizedEfficiency: number;
+  /** Judge-adjusted success divided by average tokens */
+  tokenEfficiency: number;
+}
+
+export interface TaskTrajectoryDistillation extends TrajectorySummary {
+  taskId: string;
+  difficulty: TaskDifficulty;
+  domain: string;
+}
+
+export interface DriverTrajectoryDistillation {
+  driverName: string;
+  displayName: string;
+  provenance: DataProvenance;
+  overall: TrajectorySummary;
+  byDifficulty: Record<TaskDifficulty, TrajectorySummary>;
+  byDomain: Record<string, TrajectorySummary>;
+  perTask: Record<string, TaskTrajectoryDistillation>;
+}
+
+export interface TrajectoryDistillationReport {
+  /** How the distillation was computed */
+  methodology: string;
+  /** Provenance for the derived summary itself */
+  provenance: DataProvenance;
+  /** One distilled view per trusted driver report */
+  drivers: DriverTrajectoryDistillation[];
+  /**
+   * External scores intentionally kept out of all aggregates. These are
+   * contextual inputs only and may be untrusted.
+   */
+  excludedExternalScores: ExternalScore[];
 }
 
 // ============================================================
@@ -192,8 +275,11 @@ export interface RankEntry {
 // ============================================================
 
 export interface BenchmarkReport {
-  /** Report version for schema evolution */
-  schemaVersion: "1.0.0";
+  /**
+   * Report version for schema evolution.
+   * Version 1.1.0 adds provenance and trajectory distillation metadata.
+   */
+  schemaVersion: "1.0.0" | "1.1.0";
   /** Report title */
   title: string;
   /** Report description */
@@ -211,7 +297,10 @@ export interface BenchmarkReport {
   /** Contestants metadata */
   contestants: ContestantInfo[];
 
-  /** Published leaderboard scores for context */
+  /**
+   * Published third-party scores for context only. These must never be merged
+   * into first-party rankings or trajectory distillation.
+   */
   externalScores?: ExternalScore[];
 }
 
@@ -242,4 +331,6 @@ export interface ExternalScore {
   sourceUrl: string;
   /** Date of the result */
   date: string;
+  /** Provenance and trust annotation for downstream consumers */
+  provenance: DataProvenance;
 }

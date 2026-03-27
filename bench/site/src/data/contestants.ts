@@ -1,4 +1,26 @@
-import type { ContestantInfo, ExternalScore } from "../types/benchmark";
+import type {
+  ContestantInfo,
+  DataProvenance,
+  ExternalScore,
+} from "../types/benchmark";
+
+const VENDOR_REPORTED_PROVENANCE: DataProvenance = {
+  origin: "vendor_report",
+  trust: "untrusted",
+  collectedFrom: "https://browser-use.com/posts/online-mind2web-benchmark",
+  notes:
+    "Vendor-published benchmark figures are kept for context only and must " +
+    "not be merged into first-party rankings or trajectory distillation.",
+};
+
+const PUBLIC_LEADERBOARD_PROVENANCE: DataProvenance = {
+  origin: "public_leaderboard",
+  trust: "untrusted",
+  collectedFrom: "https://leaderboard.steel.dev/",
+  notes:
+    "Third-party leaderboard snapshot retained as contextual data only. " +
+    "Treat as untrusted until independently reproduced.",
+};
 
 export const CONTESTANTS: ContestantInfo[] = [
   {
@@ -27,8 +49,8 @@ export const CONTESTANTS: ContestantInfo[] = [
     name: "browser-use",
     displayName: "Browser Use",
     description:
-      "Python browser automation framework with agent loop, " +
-      "97% on Online-Mind2Web, auto-research optimization",
+      "Python browser automation framework with agent loop and " +
+      "auto-research optimization",
     url: "https://github.com/browser-use/browser-use",
     language: "Python",
     license: "MIT",
@@ -70,6 +92,7 @@ export const EXTERNAL_SCORES: ExternalScore[] = [
     score: 97,
     sourceUrl: "https://browser-use.com/posts/online-mind2web-benchmark",
     date: "2026-03",
+    provenance: VENDOR_REPORTED_PROVENANCE,
   },
   {
     benchmark: "Online-Mind2Web",
@@ -77,6 +100,7 @@ export const EXTERNAL_SCORES: ExternalScore[] = [
     score: 88,
     sourceUrl: "https://browser-use.com/posts/online-mind2web-benchmark",
     date: "2026-03",
+    provenance: VENDOR_REPORTED_PROVENANCE,
   },
   {
     benchmark: "Online-Mind2Web",
@@ -84,6 +108,7 @@ export const EXTERNAL_SCORES: ExternalScore[] = [
     score: 61,
     sourceUrl: "https://browser-use.com/posts/online-mind2web-benchmark",
     date: "2026-03",
+    provenance: VENDOR_REPORTED_PROVENANCE,
   },
   {
     benchmark: "Online-Mind2Web",
@@ -91,6 +116,7 @@ export const EXTERNAL_SCORES: ExternalScore[] = [
     score: 65,
     sourceUrl: "https://browser-use.com/posts/online-mind2web-benchmark",
     date: "2026-03",
+    provenance: VENDOR_REPORTED_PROVENANCE,
   },
   {
     benchmark: "Online-Mind2Web",
@@ -98,6 +124,7 @@ export const EXTERNAL_SCORES: ExternalScore[] = [
     score: 69,
     sourceUrl: "https://browser-use.com/posts/online-mind2web-benchmark",
     date: "2026-03",
+    provenance: VENDOR_REPORTED_PROVENANCE,
   },
 
   // WebVoyager (steel.dev leaderboard)
@@ -107,6 +134,7 @@ export const EXTERNAL_SCORES: ExternalScore[] = [
     score: 97.1,
     sourceUrl: "https://leaderboard.steel.dev/",
     date: "2026-02",
+    provenance: PUBLIC_LEADERBOARD_PROVENANCE,
   },
   {
     benchmark: "WebVoyager",
@@ -114,6 +142,7 @@ export const EXTERNAL_SCORES: ExternalScore[] = [
     score: 89.1,
     sourceUrl: "https://leaderboard.steel.dev/",
     date: "2026-02",
+    provenance: PUBLIC_LEADERBOARD_PROVENANCE,
   },
   {
     benchmark: "WebVoyager",
@@ -121,6 +150,7 @@ export const EXTERNAL_SCORES: ExternalScore[] = [
     score: 87,
     sourceUrl: "https://leaderboard.steel.dev/",
     date: "2026-02",
+    provenance: PUBLIC_LEADERBOARD_PROVENANCE,
   },
   {
     benchmark: "WebVoyager",
@@ -128,5 +158,6 @@ export const EXTERNAL_SCORES: ExternalScore[] = [
     score: 65,
     sourceUrl: "https://leaderboard.steel.dev/",
     date: "2026-02",
+    provenance: PUBLIC_LEADERBOARD_PROVENANCE,
   },
 ];

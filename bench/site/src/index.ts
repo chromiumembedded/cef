@@ -22,6 +22,13 @@ export type {
   ExternalScore,
   TaskCategory,
   TaskDifficulty,
+  DataOrigin,
+  DataTrust,
+  DataProvenance,
+  TrajectorySummary,
+  TaskTrajectoryDistillation,
+  DriverTrajectoryDistillation,
+  TrajectoryDistillationReport,
 } from "./types/benchmark";
 
 // Data
@@ -39,4 +46,6 @@ export {
   taskWinner,
   speedup,
   toMarkdownTable,
+  buildTrajectoryDistillationReport,
+  buildTrajectorySummary,
 } from "./data/stats";
