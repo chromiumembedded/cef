@@ -291,8 +291,8 @@ void CefStorageStateManagerImpl::Initialize(
 
   if (initialized_) {
     if (callback) {
-      CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefCompletionCallback::OnComplete,
-                                            callback.get()));
+      CEF_POST_TASK(CEF_UIT,
+                    base::BindOnce(&CefCompletionCallback::OnComplete, callback));
     }
     return;
   }
@@ -308,8 +308,8 @@ void CefStorageStateManagerImpl::Initialize(
   }
 
   if (callback) {
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefCompletionCallback::OnComplete,
-                                          callback.get()));
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefCompletionCallback::OnComplete, callback));
   }
 }
 

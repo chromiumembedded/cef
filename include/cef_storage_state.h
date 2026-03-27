@@ -179,8 +179,8 @@ class CefStorageStateManager : public virtual CefBaseRefCounted {
       CefRefPtr<CefStorageStateReadCallback> callback) = 0;
 
   ///
-  /// Set the automatic state persistence session name. An empty value disables
-  /// automatic path naming. Non-empty values must match
+  /// Set the automatic state persistence session name. An empty value restores
+  /// the default session file naming. Non-empty values must match
   /// /^[A-Za-z0-9_-]+$/.
   ///
   /*--cef(optional_param=session_name)--*/
