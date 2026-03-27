@@ -282,12 +282,6 @@ std::optional<base::Value::Dict> ReadProfileDict(
     return std::nullopt;
   }
 
-  if (auto key = EnsureEncryptionKey(encryption_key_path)) {
-    if (auto decrypted = DecryptProfileData(input, *key)) {
-      return decrypted;
-    }
-  }
-
   return payload;
 }
 

@@ -12,6 +12,7 @@
 #include <string>
 
 #include "base/observer_list.h"
+#include "base/synchronization/lock.h"
 #include "base/task/current_thread.h"
 #include "base/threading/platform_thread.h"
 #include "cef/include/cef_app.h"
@@ -125,6 +126,7 @@ class CefContext {
   std::unique_ptr<CefMainRunner> main_runner_;
   std::unique_ptr<CefTraceSubscriber> trace_subscriber_;
   std::unique_ptr<pref_helper::Registrar> pref_registrar_;
+  mutable base::Lock service_lock_;
   CefRefPtr<CefAuthVaultImpl> auth_vault_;
   std::unique_ptr<CefBrowserInfoManager> browser_info_manager_;
 
