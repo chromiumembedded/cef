@@ -40,6 +40,7 @@
 
 #include "include/cef_base.h"
 #include "include/cef_string_visitor.h"
+#include "include/cef_values.h"
 
 ///
 /// Callback interface for CefBrowserCapture::CaptureAnnotatedScreenshot.
@@ -58,6 +59,27 @@ class CefScreenshotCallback : public virtual CefBaseRefCounted {
 };
 
 ///
+/// Callback interface for CefBrowserCapture::EvalThenSnapshot.
+///
+/*--cef(source=client)--*/
+class CefEvalSnapshotCallback : public virtual CefBaseRefCounted {
+ public:
+  ///
+  /// Called when both the JavaScript evaluation and snapshot are complete.
+  /// |eval_success| indicates if the JS executed without error.
+  /// |eval_result| contains the JS return value (may be null).
+  /// |eval_error| contains the JS error message if eval_success is false.
+  /// |snapshot| contains the page snapshot text.
+  ///
+  /*--cef(optional_param=eval_result,optional_param=eval_error,
+          optional_param=snapshot)--*/
+  virtual void OnComplete(bool eval_success,
+                           CefRefPtr<CefValue> eval_result,
+                           const CefString& eval_error,
+                           const CefString& snapshot) = 0;
+};
+
+///
 /// Browser-scoped capture and snapshot functionality. This interface provides
 /// the browser-host equivalent of agent-browser snapshot and annotated
 /// screenshot behaviors. Methods may be called on any browser process thread
@@ -73,6 +95,17 @@ class CefBrowserCapture : public virtual CefBaseRefCounted {
   /*--cef()--*/
   virtual void Snapshot(const CefSnapshotSettings& settings,
                         CefRefPtr<CefStringVisitor> callback) = 0;
+
+  ///
+  /// Execute JavaScript and capture a snapshot in a single pipelined call.
+  /// The JavaScript is evaluated first, then the snapshot is captured
+  /// immediately after (without an additional IPC round-trip for scheduling).
+  /// This is the optimal pattern for coding agent workflows.
+  ///
+  /*--cef()--*/
+  virtual void EvalThenSnapshot(const CefString& code,
+                                 const CefSnapshotSettings& settings,
+                                 CefRefPtr<CefEvalSnapshotCallback> callback) = 0;
 
   ///
   /// Capture a screenshot of the current page. If |path| is empty a default

@@ -64,6 +64,10 @@ int CefDevToolsController::ExecuteDevToolsMethod(
   }
 
   std::string protocol_message;
+  // Pre-size to avoid reallocation. Estimate: ~64 bytes overhead for
+  // {"id":NNN,"method":"..."} plus method name plus params.
+  protocol_message.reserve(64 + method.size() +
+                           (params ? params->size() * 32 : 0));
   if (!base::JSONWriter::Write(message, &protocol_message)) {
     return 0;
   }
@@ -95,13 +99,21 @@ void CefDevToolsController::RemoveObserver(Observer* observer) {
 void CefDevToolsController::DispatchProtocolMessage(
     content::DevToolsAgentHost* agent_host,
     base::span<const uint8_t> message) {
+  DispatchProtocolMessage(agent_host, message, /*trusted=*/false);
+}
+
+void CefDevToolsController::DispatchProtocolMessage(
+    content::DevToolsAgentHost* agent_host,
+    base::span<const uint8_t> message,
+    bool trusted) {
   if (observers_.empty()) {
     return;
   }
 
   std::string_view str_message(reinterpret_cast<const char*>(message.data()),
                                message.size());
-  if (!devtools_util::ProtocolParser::IsValidMessage(str_message)) {
+  if (!trusted &&
+      !devtools_util::ProtocolParser::IsValidMessage(str_message)) {
     LOG(WARNING) << "Invalid message: " << str_message.substr(0, 100);
     return;
   }

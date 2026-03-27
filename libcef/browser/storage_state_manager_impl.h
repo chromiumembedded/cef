@@ -8,11 +8,16 @@
 
 #include "base/files/file_path.h"
 #include "base/functional/callback.h"
+#include "base/time/time.h"
+#include "base/values.h"
 #include "cef/include/cef_storage_state.h"
+#include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
 #include "cef/libcef/browser/browser_context.h"
+#include "cef/libcef/browser/state_journal.h"
 #include "cef/libcef/browser/thread_util.h"
 
 struct StorageStateListResult;
@@ -52,6 +57,12 @@ class CefStorageStateManagerImpl : public CefStorageStateManager {
   CefString GetSessionName() override;
   CefString GetDefaultStateDirectory() override;
   CefString GetDefaultStatePath() override;
+
+  // Dirty tracking: only save when state has actually changed.
+  void MarkDirty(const std::string& origin = std::string());
+  void ClearDirty();
+  bool IsDirty() const;
+  const std::set<std::string>& GetModifiedOrigins() const;
 
   // Called on the UI thread after object creation and before any other object
   // methods are executed on the UI thread.
@@ -101,6 +112,23 @@ class CefStorageStateManagerImpl : public CefStorageStateManager {
   bool initialized_ = false;
   std::vector<base::OnceClosure> init_callbacks_;
   std::string session_name_;
+
+  // Dirty tracking: only save when state has actually changed.
+  // Defaults to true so the first save always proceeds.
+  bool dirty_ = true;
+  std::set<std::string> modified_origins_;
+
+  // Cached directory listing to avoid re-enumeration.
+  struct CachedDirectoryState {
+    base::TimeTicks last_enumerated;
+    std::vector<base::Value::Dict> entries;
+    base::FilePath directory;
+    bool valid = false;
+  };
+  CachedDirectoryState cached_directory_state_;
+
+  // Incremental state journal for efficient persistence.
+  std::unique_ptr<CefStateJournal> journal_;
 
   IMPLEMENT_REFCOUNTING(CefStorageStateManagerImpl);
 };
