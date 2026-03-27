@@ -60,6 +60,21 @@ SET_CEF_TARGET_OUT_DIR()
 #
 
 if(OS_LINUX)
+  # The external message pump mode shares loop helpers with cefclient.
+  list(APPEND CEFSIMPLE_SRCS
+    ../shared/browser/main_message_loop.cc
+    ../shared/browser/main_message_loop.h
+    ../shared/browser/main_message_loop_external_pump.cc
+    ../shared/browser/main_message_loop_external_pump.h
+    ../shared/browser/main_message_loop_external_pump_linux.cc
+    ../shared/browser/main_message_loop_std.cc
+    ../shared/browser/main_message_loop_std.h
+    ../shared/common/client_switches.cc
+    ../shared/common/client_switches.h
+    )
+
+  FIND_LINUX_LIBRARIES("gmodule-2.0 gtk+-3.0 gthread-2.0")
+
   # Executable target.
   add_executable(${CEF_TARGET} ${CEFSIMPLE_SRCS})
   SET_EXECUTABLE_TARGET_PROPERTIES(${CEF_TARGET})

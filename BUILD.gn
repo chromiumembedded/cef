@@ -2668,6 +2668,12 @@ if (is_mac) {
         ]
       }
 
+      if (cef_use_gtk) {
+        configs += [
+          ":gtk",
+        ]
+      }
+
       if (!is_component_build) {
         # Set rpath to find our own libfreetype even in a non-component build.
         configs += [ "//build/config/gcc:rpath_for_built_shared_libraries" ]
