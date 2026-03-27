@@ -8,6 +8,7 @@
 #include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/alloy/browser_platform_delegate_alloy.h"
 #include "cef/libcef/browser/native/browser_platform_delegate_native.h"
+#include "cef/libcef/browser/osr/osr_accessibility_util.h"
 
 class CefRenderWidgetHostViewOSR;
 class CefWebContentsViewOSR;
@@ -137,6 +138,11 @@ class CefBrowserPlatformDelegateOsr
   // document has registered an interest in the dropped data and the renderer
   // process should pass the data to the document on drop.
   bool document_is_handling_drag_ = false;
+
+  // AX-tree transform cache for this browser instance.
+  // Generation counter is bumped on each accessibility event to track freshness.
+  osr_accessibility_util::AXTreeTransformCache ax_transform_cache_;
+  uint64_t ax_generation_ = 0;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_OSR_BROWSER_PLATFORM_DELEGATE_OSR_H_

@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "dependencies": {
+    "@browserbasehq/stagehand": "^3.2.0",
+    "chrome-devtools-mcp": "latest"
+  }
+}

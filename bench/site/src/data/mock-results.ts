@@ -1,0 +1,150 @@
+import type { BenchmarkReport } from "../types/benchmark";
+import { CONTESTANTS, EXTERNAL_SCORES } from "./contestants";
+
+/**
+ * Mock benchmark results for development.
+ * Replace with real data from bench/results/latest.json after running.
+ */
+export const MOCK_REPORT: BenchmarkReport = {
+  schemaVersion: "1.0.0",
+  title: "agent-browser-bench v0.1.0",
+  description:
+    "Infrastructure speed benchmark for browser automation frameworks. " +
+    "Measures raw operation latency — no LLM in the loop.",
+  generatedAt: new Date().toISOString(),
+  repoUrl: "https://github.com/maceip/cef",
+  contestants: CONTESTANTS,
+  externalScores: EXTERNAL_SCORES,
+  speed: {
+    runId: "mock-001",
+    timestamp: new Date().toISOString(),
+    hardware: {
+      cpu: "52-core Intel Xeon",
+      cores: 52,
+      ramGb: 442,
+      os: "Ubuntu 22.04 (Linux 6.8, NVIDIA GPU)",
+      disk: "5.4TB NVMe",
+    },
+    drivers: [
+      {
+        driverName: "zun",
+        displayName: "zun (CEF)",
+        version: "0.1.0",
+        setupTime: 180,
+        teardownTime: 50,
+        results: [],
+        stats: {
+          cold_start: {
+            p50: 180,
+            p95: 220,
+            p99: 250,
+            min: 160,
+            max: 260,
+            mean: 195,
+            stddev: 25,
+          },
+          navigate_complex: {
+            p50: 850,
+            p95: 1100,
+            p99: 1300,
+            min: 780,
+            max: 1400,
+            mean: 900,
+            stddev: 120,
+          },
+          snapshot_full: {
+            p50: 45,
+            p95: 80,
+            p99: 120,
+            min: 30,
+            max: 130,
+            mean: 55,
+            stddev: 20,
+          },
+          snapshot_interactive: {
+            p50: 20,
+            p95: 35,
+            p99: 50,
+            min: 15,
+            max: 55,
+            mean: 25,
+            stddev: 10,
+          },
+          screenshot_plain: {
+            p50: 65,
+            p95: 100,
+            p99: 130,
+            min: 50,
+            max: 140,
+            mean: 75,
+            stddev: 20,
+          },
+          screenshot_annotated: {
+            p50: 120,
+            p95: 180,
+            p99: 220,
+            min: 95,
+            max: 230,
+            mean: 135,
+            stddev: 30,
+          },
+          eval_simple: {
+            p50: 3,
+            p95: 8,
+            p99: 12,
+            min: 2,
+            max: 15,
+            mean: 4,
+            stddev: 2,
+          },
+          eval_complex: {
+            p50: 25,
+            p95: 45,
+            p99: 60,
+            min: 18,
+            max: 65,
+            mean: 30,
+            stddev: 10,
+          },
+          click_wait_snapshot: {
+            p50: 890,
+            p95: 1200,
+            p99: 1500,
+            min: 750,
+            max: 1600,
+            mean: 950,
+            stddev: 150,
+          },
+          navigate_10x: {
+            p50: 7500,
+            p95: 9000,
+            p99: 10000,
+            min: 6800,
+            max: 10500,
+            mean: 8000,
+            stddev: 800,
+          },
+          state_save_load: {
+            p50: 30,
+            p95: 55,
+            p99: 70,
+            min: 22,
+            max: 75,
+            mean: 35,
+            stddev: 12,
+          },
+        },
+      },
+    ],
+    winners: {},
+    ranking: [
+      {
+        rank: 1,
+        driverName: "zun",
+        displayName: "zun (CEF)",
+        score: 0,
+        scoreLabel: "Geometric mean of p50s (ms)",
+      },
+    ],
+  },
+};
