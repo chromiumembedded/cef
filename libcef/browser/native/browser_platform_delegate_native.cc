@@ -47,3 +47,7 @@ void CefBrowserPlatformDelegateNative::NotifyScreenInfoChanged() {
 
   render_widget_host->NotifyScreenInfoChanged();
 }
+
+base::WeakPtr<CefBrowserPlatformDelegateNative> CefBrowserPlatformDelegateNative::GetWeakPtr() {
+  return weak_ptr_factory_.GetWeakPtr();
+}
