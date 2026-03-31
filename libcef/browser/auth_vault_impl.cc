@@ -257,6 +257,12 @@ std::optional<base::Value::Dict> DecryptProfileData(
       std::string(plaintext->begin(), plaintext->end()));
 }
 
+bool LooksLikeEncryptedPayload(const base::Value::Dict& payload) {
+  return payload.FindBool("encrypted").value_or(false) &&
+         payload.FindString("iv") && payload.FindString("authTag") &&
+         payload.FindString("data");
+}
+
 std::optional<base::Value::Dict> ReadProfileDict(
     const base::FilePath& path,
     const base::FilePath& encryption_key_path) {
@@ -265,13 +271,19 @@ std::optional<base::Value::Dict> ReadProfileDict(
     return std::nullopt;
   }
 
-  if (auto key = EnsureEncryptionKey(encryption_key_path)) {
-    if (auto decrypted = DecryptProfileData(input, *key)) {
-      return decrypted;
-    }
+  std::optional<base::Value::Dict> payload = base::JSONReader::ReadDict(input);
+  if (!payload.has_value()) {
+    return std::nullopt;
   }
 
-  return base::JSONReader::ReadDict(input);
+  if (LooksLikeEncryptedPayload(*payload)) {
+    if (auto key = EnsureEncryptionKey(encryption_key_path)) {
+      return DecryptProfileData(input, *key);
+    }
+    return std::nullopt;
+  }
+
+  return payload;
 }
 
 base::FilePath BuildProfilePath(const base::FilePath& directory,
@@ -474,8 +486,10 @@ void CefAuthVaultImpl::SaveProfile(
     CefRefPtr<CefDictionaryValue> profile,
     CefRefPtr<CefAuthVaultActionCallback> callback) {
   if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefAuthVaultImpl::SaveProfile, this,
-                                          profile, callback));
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefAuthVaultImpl::SaveProfile,
+                                 CefRefPtr<CefAuthVaultImpl>(this), profile,
+                                 callback));
     return;
   }
 
@@ -508,16 +522,18 @@ void CefAuthVaultImpl::SaveProfile(
       base::BindOnce(&SaveProfileOnBlockingThread, GetVaultPathInternal(),
                      GetEncryptionKeyPathInternal(),
                      std::move(profile_value->GetDict())),
-      base::BindOnce(&CefAuthVaultImpl::OnActionComplete, this, callback,
-                     profile_name));
+      base::BindOnce(&CefAuthVaultImpl::OnActionComplete,
+                     CefRefPtr<CefAuthVaultImpl>(this), callback));
 }
 
 void CefAuthVaultImpl::ReadProfile(
     const CefString& name,
     CefRefPtr<CefAuthVaultReadCallback> callback) {
   if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefAuthVaultImpl::ReadProfile, this,
-                                          name, callback));
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefAuthVaultImpl::ReadProfile,
+                                 CefRefPtr<CefAuthVaultImpl>(this), name,
+                                 callback));
     return;
   }
 
@@ -525,7 +541,8 @@ void CefAuthVaultImpl::ReadProfile(
       FROM_HERE, {base::MayBlock()},
       base::BindOnce(&ReadProfileOnBlockingThread, GetVaultPathInternal(),
                      GetEncryptionKeyPathInternal(), name.ToString()),
-      base::BindOnce(&CefAuthVaultImpl::OnReadComplete, this, callback));
+      base::BindOnce(&CefAuthVaultImpl::OnReadComplete,
+                     CefRefPtr<CefAuthVaultImpl>(this), callback));
 }
 
 void CefAuthVaultImpl::DeleteProfile(
@@ -533,7 +550,8 @@ void CefAuthVaultImpl::DeleteProfile(
     CefRefPtr<CefAuthVaultActionCallback> callback) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
-                  base::BindOnce(&CefAuthVaultImpl::DeleteProfile, this, name,
+                  base::BindOnce(&CefAuthVaultImpl::DeleteProfile,
+                                 CefRefPtr<CefAuthVaultImpl>(this), name,
                                  callback));
     return;
   }
@@ -542,14 +560,15 @@ void CefAuthVaultImpl::DeleteProfile(
       FROM_HERE, {base::MayBlock()},
       base::BindOnce(&DeleteProfileOnBlockingThread, GetVaultPathInternal(),
                      name.ToString()),
-      base::BindOnce(&CefAuthVaultImpl::OnActionComplete, this, callback,
-                     std::string()));
+      base::BindOnce(&CefAuthVaultImpl::OnActionComplete,
+                     CefRefPtr<CefAuthVaultImpl>(this), callback));
 }
 
 void CefAuthVaultImpl::VisitProfiles(CefRefPtr<CefAuthProfileVisitor> visitor) {
   if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefAuthVaultImpl::VisitProfiles,
-                                          this, visitor));
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefAuthVaultImpl::VisitProfiles,
+                                 CefRefPtr<CefAuthVaultImpl>(this), visitor));
     return;
   }
 
@@ -561,7 +580,8 @@ void CefAuthVaultImpl::VisitProfiles(CefRefPtr<CefAuthProfileVisitor> visitor) {
       FROM_HERE, {base::MayBlock()},
       base::BindOnce(&ListProfilesOnBlockingThread, GetVaultPathInternal(),
                      GetEncryptionKeyPathInternal()),
-      base::BindOnce(&CefAuthVaultImpl::OnVisitComplete, this, visitor));
+      base::BindOnce(&CefAuthVaultImpl::OnVisitComplete,
+                     CefRefPtr<CefAuthVaultImpl>(this), visitor));
 }
 
 CefString CefAuthVaultImpl::GetVaultPath() {

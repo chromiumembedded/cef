@@ -126,7 +126,9 @@ TEST(AuthVaultTest, SaveReadDeleteProfile) {
   EXPECT_STREQ("https://example.com/login",
                read_callback->profile()->GetString("url").ToString().c_str());
   EXPECT_TRUE(read_callback->profile()->GetBool("encrypted"));
+  EXPECT_TRUE(read_callback->profile()->GetBool("has_password"));
   EXPECT_FALSE(read_callback->profile()->GetString("path").empty());
+  EXPECT_FALSE(read_callback->profile()->HasKey("password"));
 
   auto delete_event = CefWaitableEvent::CreateWaitableEvent(true, false);
   CefRefPtr<VaultActionCallback> delete_callback =
@@ -134,4 +136,39 @@ TEST(AuthVaultTest, SaveReadDeleteProfile) {
   vault->DeleteProfile(name, delete_callback);
   delete_event->Wait();
   EXPECT_TRUE(delete_callback->success());
+  EXPECT_FALSE(base::PathExists(base::FilePath(save_callback->path().ToString())));
+}
+
+TEST(AuthVaultTest, RejectsInvalidProfileName) {
+  CefRefPtr<CefAuthVault> vault = CefAuthVault::GetGlobalVault();
+  ASSERT_TRUE(vault);
+
+  CefRefPtr<CefDictionaryValue> profile = CefDictionaryValue::Create();
+  profile->SetString("name", "../escape");
+
+  auto save_event = CefWaitableEvent::CreateWaitableEvent(true, false);
+  CefRefPtr<VaultActionCallback> save_callback =
+      new VaultActionCallback(save_event);
+  vault->SaveProfile(profile, save_callback);
+  save_event->Wait();
+
+  EXPECT_FALSE(save_callback->success());
+  EXPECT_STREQ("Profile name must match /^[A-Za-z0-9_-]+$/.",
+               save_callback->error().ToString().c_str());
+}
+
+TEST(AuthVaultTest, MissingProfileReadFails) {
+  CefRefPtr<CefAuthVault> vault = CefAuthVault::GetGlobalVault();
+  ASSERT_TRUE(vault);
+
+  auto read_event = CefWaitableEvent::CreateWaitableEvent(true, false);
+  CefRefPtr<VaultReadCallback> read_callback =
+      new VaultReadCallback(read_event);
+  vault->ReadProfile("missing-cef-auth-profile", read_callback);
+  read_event->Wait();
+
+  EXPECT_FALSE(read_callback->success());
+  EXPECT_FALSE(read_callback->profile());
+  EXPECT_STREQ("Auth profile does not exist.",
+               read_callback->error().ToString().c_str());
 }

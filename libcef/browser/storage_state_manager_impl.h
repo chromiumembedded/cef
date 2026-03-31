@@ -107,6 +107,7 @@ class CefStorageStateManagerImpl : public CefStorageStateManager {
                          bool success,
                          const std::string& error,
                          const base::FilePath& path);
+  base::FilePath ResolveManagedStatePath(const CefString& path) const;
 
   CefBrowserContext::Getter browser_context_getter_;
   bool initialized_ = false;

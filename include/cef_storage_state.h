@@ -114,9 +114,10 @@ class CefStorageStateManager : public virtual CefBaseRefCounted {
   ///
   /// Save storage state for the associated request context. When |path| is
   /// empty the default path derived from GetDefaultStatePath() will be used.
-  /// |browser| can be used to scope export to a specific browser instance for
-  /// future implementations that need a live page context. |callback| will be
-  /// executed on completion.
+  /// Non-empty values must reference a managed session file in the default
+  /// state directory. |browser| can be used to scope export to a specific
+  /// browser instance for future implementations that need a live page
+  /// context. |callback| will be executed on completion.
   ///
   /*--cef(optional_param=path,optional_param=browser,optional_param=callback)--*/
   virtual void Save(const CefString& path,
@@ -126,7 +127,8 @@ class CefStorageStateManager : public virtual CefBaseRefCounted {
   ///
   /// Load storage state for the associated request context from |path|. When
   /// |browser| is specified it may be used to apply page-scoped storage in
-  /// future implementations. |callback| will be executed on completion.
+  /// future implementations. |path| must reference a managed session file in
+  /// the default state directory. |callback| will be executed on completion.
   ///
   /*--cef(optional_param=browser,optional_param=callback)--*/
   virtual void Load(const CefString& path,
@@ -141,16 +143,17 @@ class CefStorageStateManager : public virtual CefBaseRefCounted {
   virtual void List(CefRefPtr<CefStorageStateListCallback> callback) = 0;
 
   ///
-  /// Read metadata for the state file at |path|. |callback| will be executed
-  /// on completion.
+  /// Read metadata for the managed state file at |path|. |path| may be either
+  /// a file name in the default state directory or an absolute path within
+  /// that directory. |callback| will be executed on completion.
   ///
   /*--cef(optional_param=callback)--*/
   virtual void Show(const CefString& path,
                     CefRefPtr<CefStorageStateReadCallback> callback) = 0;
 
   ///
-  /// Rename the state file at |path| using |new_name| as the file stem.
-  /// |callback| will be executed on completion.
+  /// Rename the managed state file at |path| using |new_name| as the file
+  /// stem. |callback| will be executed on completion.
   ///
   /*--cef(optional_param=callback)--*/
   virtual void Rename(const CefString& path,
@@ -158,8 +161,8 @@ class CefStorageStateManager : public virtual CefBaseRefCounted {
                       CefRefPtr<CefStorageStateActionCallback> callback) = 0;
 
   ///
-  /// Clear the state file at |path|. When |path| is empty all default state
-  /// files will be removed. |callback| will be executed on completion.
+  /// Clear the managed state file at |path|. When |path| is empty all default
+  /// state files will be removed. |callback| will be executed on completion.
   ///
   /*--cef(optional_param=path,optional_param=callback)--*/
   virtual void Clear(const CefString& path,
@@ -176,8 +179,9 @@ class CefStorageStateManager : public virtual CefBaseRefCounted {
       CefRefPtr<CefStorageStateReadCallback> callback) = 0;
 
   ///
-  /// Set the automatic state persistence session name. An empty value disables
-  /// automatic path naming.
+  /// Set the automatic state persistence session name. An empty value restores
+  /// the default session file naming. Non-empty values must match
+  /// /^[A-Za-z0-9_-]+$/.
   ///
   /*--cef(optional_param=session_name)--*/
   virtual void SetSessionName(const CefString& session_name) = 0;

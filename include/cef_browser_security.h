@@ -57,7 +57,9 @@ class CefBrowserSecurityCallback : public virtual CefBaseRefCounted {
 };
 
 ///
-/// Per-request-context browser security policy settings.
+/// Per-request-context browser security policy settings. The current
+/// implementation stores and exposes these settings but does not yet enforce
+/// them automatically.
 ///
 /*--cef(source=library)--*/
 class CefBrowserSecurityPolicy : public virtual CefBaseRefCounted {

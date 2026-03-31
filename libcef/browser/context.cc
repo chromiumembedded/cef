@@ -486,6 +486,7 @@ pref_helper::Registrar* CefContext::GetPrefRegistrar() {
 }
 
 CefAuthVault* CefContext::GetAuthVault() {
+  base::AutoLock lock_scope(service_lock_);
   if (!auth_vault_) {
     auth_vault_ = new CefAuthVaultImpl();
   }
