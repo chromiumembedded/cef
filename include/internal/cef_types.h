@@ -888,13 +888,6 @@ typedef struct _cef_snapshot_settings_t {
   /// Optional CSS selector used to scope the snapshot.
   ///
   cef_string_t selector;
-
-  ///
-  /// Output format for the snapshot. 0 (default) = accessibility tree text,
-  /// 1 = TSV (tab-separated: ref, role, name, value, bounds),
-  /// 2 = markdown table.
-  ///
-  int output_format;
 } cef_snapshot_settings_t;
 
 ///
@@ -4370,96 +4363,6 @@ typedef struct _cef_task_info_t {
   /// has this value set to true because it is the aggregate of all processes).
   int is_gpu_memory_inflated;
 } cef_task_info_t;
-
-///
-/// Structure representing a compound browser operation that combines
-/// navigation, waiting, and snapshot capture into a single batched call.
-/// This reduces IPC round-trips from N to 1 for common multi-step operations.
-///
-typedef struct _cef_compound_operation_t {
-  ///
-  /// Size of this structure.
-  ///
-  size_t size;
-
-  ///
-  /// Optional: URL to navigate to before other operations.
-  /// If empty, operates on current page.
-  ///
-  cef_string_t navigate_url;
-
-  ///
-  /// Optional: CSS selector to click before snapshot.
-  /// If empty, no click is performed.
-  ///
-  cef_string_t click_selector;
-
-  ///
-  /// Wait condition after navigation/click. 0 = none, 1 = load,
-  /// 2 = networkidle, 3 = selector visible.
-  ///
-  int wait_condition;
-
-  ///
-  /// CSS selector to wait for (used when wait_condition == 3).
-  ///
-  cef_string_t wait_selector;
-
-  ///
-  /// Timeout in milliseconds for wait conditions. 0 = default (30000ms).
-  ///
-  int timeout_ms;
-
-  ///
-  /// Whether to capture a text snapshot after the operation completes.
-  ///
-  int capture_snapshot;
-
-  ///
-  /// Snapshot settings (used when capture_snapshot is true).
-  ///
-  cef_snapshot_settings_t snapshot_settings;
-
-  ///
-  /// Whether to capture a screenshot after the operation completes.
-  ///
-  int capture_screenshot;
-
-  ///
-  /// Screenshot settings (used when capture_screenshot is true).
-  ///
-  cef_annotated_screenshot_settings_t screenshot_settings;
-} cef_compound_operation_t;
-
-///
-/// Structure representing a batch of element queries to execute against
-/// a single DOM fetch, reducing per-query IPC overhead.
-///
-typedef struct _cef_batch_query_t {
-  ///
-  /// Size of this structure.
-  ///
-  size_t size;
-
-  ///
-  /// CSS selectors to query, separated by newlines.
-  /// Results are returned in the same order.
-  ///
-  cef_string_t selectors;
-
-  ///
-  /// What to extract from each matched element:
-  /// 0 = exists (bool), 1 = text content, 2 = outer HTML,
-  /// 3 = attributes as JSON, 4 = bounding rect as JSON.
-  ///
-  int extract_mode;
-
-  ///
-  /// If true, query returns all matches per selector (querySelectorAll).
-  /// If false, returns only the first match (querySelector).
-  ///
-  int select_all;
-} cef_batch_query_t;
 
 #ifdef __cplusplus
 }

@@ -44,30 +44,11 @@
 #include "include/cef_request.h"
 #include "include/cef_stream.h"
 #include "include/cef_string_visitor.h"
-#include "include/cef_values.h"
 
 class CefBrowser;
 class CefURLRequest;
 class CefURLRequestClient;
 class CefV8Context;
-
-///
-/// Callback interface for CefFrame::ExecuteJavaScriptWithResult.
-///
-/*--cef(source=client)--*/
-class CefJavaScriptResultCallback : public virtual CefBaseRefCounted {
- public:
-  ///
-  /// Called with the result of JavaScript execution. |success| is true if
-  /// execution completed without error. |result| contains the return value
-  /// serialized as a CefValue (may be null for void results). |error|
-  /// contains the error message if |success| is false.
-  ///
-  /*--cef(optional_param=result,optional_param=error)--*/
-  virtual void OnComplete(bool success,
-                          CefRefPtr<CefValue> result,
-                          const CefString& error) = 0;
-};
 
 ///
 /// Class used to represent a frame in the browser window. When used in the
@@ -181,21 +162,6 @@ class CefFrame : public virtual CefBaseRefCounted {
   virtual void ExecuteJavaScript(const CefString& code,
                                  const CefString& script_url,
                                  int start_line) = 0;
-
-  ///
-  /// Execute JavaScript in this frame and return the result asynchronously.
-  /// The result is serialized as a CefValue (supports dict, list, string,
-  /// number, bool, null). Complex objects are serialized via JSON.stringify.
-  /// If execution fails, |result| will be null and |error| will contain
-  /// the error message. This method is optimized for coding agent workflows
-  /// where structured DOM data extraction is the primary use case.
-  ///
-  /*--cef(optional_param=script_url)--*/
-  virtual void ExecuteJavaScriptWithResult(
-      const CefString& code,
-      const CefString& script_url,
-      int start_line,
-      CefRefPtr<CefJavaScriptResultCallback> callback) = 0;
 
   ///
   /// Returns true if this is the main (top-level) frame.

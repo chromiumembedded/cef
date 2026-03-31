@@ -367,14 +367,6 @@ CefRefPtr<CefBrowserCapture> CefBrowserHostBase::GetCapture() {
   return browser_capture_;
 }
 
-CefElementRefIndex& CefBrowserHostBase::GetElementRefIndex() {
-  // Ensure the capture impl exists (creates it if needed).
-  if (!browser_capture_) {
-    browser_capture_ = new CefBrowserCaptureImpl(this);
-  }
-  return browser_capture_->GetRefIndex();
-}
-
 bool CefBrowserHostBase::CanZoom(cef_zoom_command_t command) {
   // Verify that this method is being called on the UI thread.
   if (!CEF_CURRENTLY_ON_UIT()) {
@@ -744,25 +736,18 @@ bool CefBrowserHostBase::SendDevToolsMessage(const void* message,
     return false;
   }
 
-  if (CEF_CURRENTLY_ON_UIT()) [[likely]] {
-    return SendDevToolsMessageDirect(message, message_size);
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    std::string message_str(static_cast<const char*>(message), message_size);
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::BindOnce(
+            [](CefRefPtr<CefBrowserHostBase> self, std::string message_str) {
+              self->SendDevToolsMessage(message_str.data(), message_str.size());
+            },
+            CefRefPtr<CefBrowserHostBase>(this), std::move(message_str)));
+    return false;
   }
 
-  std::string message_str(static_cast<const char*>(message), message_size);
-  CEF_POST_TASK(
-      CEF_UIT,
-      base::BindOnce(
-          [](CefRefPtr<CefBrowserHostBase> self, std::string message_str) {
-            self->SendDevToolsMessageDirect(message_str.data(),
-                                            message_str.size());
-          },
-          CefRefPtr<CefBrowserHostBase>(this), std::move(message_str)));
-  return false;
-}
-
-bool CefBrowserHostBase::SendDevToolsMessageDirect(const void* message,
-                                                   size_t message_size) {
-  CEF_REQUIRE_UIT();
   if (!EnsureDevToolsProtocolManager()) {
     return false;
   }
@@ -773,22 +758,14 @@ int CefBrowserHostBase::ExecuteDevToolsMethod(
     int message_id,
     const CefString& method,
     CefRefPtr<CefDictionaryValue> params) {
-  if (CEF_CURRENTLY_ON_UIT()) [[likely]] {
-    return ExecuteDevToolsMethodDirect(message_id, method, params);
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT, base::BindOnce(base::IgnoreResult(
+                                    &CefBrowserHostBase::ExecuteDevToolsMethod),
+                                this, message_id, method, params));
+    return 0;
   }
 
-  CEF_POST_TASK(
-      CEF_UIT, base::BindOnce(base::IgnoreResult(
-                                   &CefBrowserHostBase::ExecuteDevToolsMethod),
-                               this, message_id, method, params));
-  return 0;
-}
-
-int CefBrowserHostBase::ExecuteDevToolsMethodDirect(
-    int message_id,
-    const CefString& method,
-    CefRefPtr<CefDictionaryValue> params) {
-  CEF_REQUIRE_UIT();
   if (!EnsureDevToolsProtocolManager()) {
     return 0;
   }
@@ -1700,49 +1677,4 @@ bool CefBrowserHostBase::EnsureFileDialogManager() {
     file_dialog_manager_ = std::make_unique<CefFileDialogManager>(this);
   }
   return true;
-}
-
-void CefBrowserHostBase::ExecuteAutomationProgram(
-    CefRefPtr<CefAutomationProgram> program,
-    CefRefPtr<CefAutomationProgramCallback> callback) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::BindOnce(&CefBrowserHostBase::ExecuteAutomationProgram, this,
-                       program, callback));
-    return;
-  }
-
-  if (!callback) {
-    return;
-  }
-
-  // Validate the program is non-null and has instructions.
-  if (!program) {
-    callback->OnComplete(/*success=*/false, /*results=*/nullptr,
-                         /*failed_index=*/-1,
-                         "Automation program is null.");
-    return;
-  }
-
-  const int instruction_count = program->GetInstructionCount();
-  if (instruction_count <= 0) {
-    callback->OnComplete(/*success=*/false, /*results=*/nullptr,
-                         /*failed_index=*/-1,
-                         "Automation program has no instructions.");
-    return;
-  }
-
-  LOG(INFO) << "ExecuteAutomationProgram: " << instruction_count
-            << " instruction(s) to execute.";
-
-  // Create a results list with one entry per instruction (each set to
-  // "pending"). The actual instruction dispatch engine is future work.
-  CefRefPtr<CefListValue> results = CefListValue::Create();
-  for (int i = 0; i < instruction_count; ++i) {
-    results->SetString(i, "pending");
-  }
-
-  callback->OnComplete(/*success=*/true, results,
-                       /*failed_index=*/-1, /*error=*/CefString());
 }

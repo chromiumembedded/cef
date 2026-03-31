@@ -747,10 +747,7 @@ class CefCursorInfo : public cef_cursor_info_t {
 struct CefSnapshotSettingsTraits {
   using struct_type = cef_snapshot_settings_t;
 
-  static inline void init(struct_type* s) {
-    s->size = sizeof(struct_type);
-    s->output_format = 0;
-  }
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
 
   static inline void clear(struct_type* s) { cef_string_clear(&s->selector); }
 
@@ -762,7 +759,6 @@ struct CefSnapshotSettingsTraits {
     target->max_depth = src->max_depth;
     cef_string_set(src->selector.str, src->selector.length, &target->selector,
                    copy);
-    target->output_format = src->output_format;
   }
 };
 
@@ -958,91 +954,5 @@ struct CefLinuxWindowPropertiesTraits {
 /// for the window managers to correct group and display the window.
 ///
 using CefLinuxWindowProperties = CefStructBase<CefLinuxWindowPropertiesTraits>;
-
-struct CefCompoundOperationTraits {
-  using struct_type = cef_compound_operation_t;
-
-  static inline void init(struct_type* s) {
-    s->size = sizeof(struct_type);
-    s->wait_condition = 0;
-    s->timeout_ms = 0;
-    s->capture_snapshot = 0;
-    s->capture_screenshot = 0;
-    // Initialize nested structs.
-    memset(&s->snapshot_settings, 0, sizeof(s->snapshot_settings));
-    s->snapshot_settings.size = sizeof(cef_snapshot_settings_t);
-    memset(&s->screenshot_settings, 0, sizeof(s->screenshot_settings));
-    s->screenshot_settings.size = sizeof(cef_annotated_screenshot_settings_t);
-  }
-
-  static inline void clear(struct_type* s) {
-    cef_string_clear(&s->navigate_url);
-    cef_string_clear(&s->click_selector);
-    cef_string_clear(&s->wait_selector);
-    cef_string_clear(&s->snapshot_settings.selector);
-    cef_string_clear(&s->screenshot_settings.format);
-    cef_string_clear(&s->screenshot_settings.output_dir);
-  }
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    target->wait_condition = src->wait_condition;
-    target->timeout_ms = src->timeout_ms;
-    target->capture_snapshot = src->capture_snapshot;
-    target->capture_screenshot = src->capture_screenshot;
-    target->snapshot_settings = src->snapshot_settings;
-    target->screenshot_settings = src->screenshot_settings;
-
-    cef_string_set(src->navigate_url.str, src->navigate_url.length,
-                   &target->navigate_url, copy);
-    cef_string_set(src->click_selector.str, src->click_selector.length,
-                   &target->click_selector, copy);
-    cef_string_set(src->wait_selector.str, src->wait_selector.length,
-                   &target->wait_selector, copy);
-    cef_string_set(src->snapshot_settings.selector.str,
-                   src->snapshot_settings.selector.length,
-                   &target->snapshot_settings.selector, copy);
-    cef_string_set(src->screenshot_settings.format.str,
-                   src->screenshot_settings.format.length,
-                   &target->screenshot_settings.format, copy);
-    cef_string_set(src->screenshot_settings.output_dir.str,
-                   src->screenshot_settings.output_dir.length,
-                   &target->screenshot_settings.output_dir, copy);
-  }
-};
-
-///
-/// Class representing compound operation settings.
-///
-using CefCompoundOperation = CefStructBase<CefCompoundOperationTraits>;
-
-struct CefBatchQueryTraits {
-  using struct_type = cef_batch_query_t;
-
-  static inline void init(struct_type* s) {
-    s->size = sizeof(struct_type);
-    s->extract_mode = 0;
-    s->select_all = 0;
-  }
-
-  static inline void clear(struct_type* s) {
-    cef_string_clear(&s->selectors);
-  }
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    target->extract_mode = src->extract_mode;
-    target->select_all = src->select_all;
-    cef_string_set(src->selectors.str, src->selectors.length,
-                   &target->selectors, copy);
-  }
-};
-
-///
-/// Class representing batch query settings.
-///
-using CefBatchQuery = CefStructBase<CefBatchQueryTraits>;
 
 #endif  // CEF_INCLUDE_INTERNAL_CEF_TYPES_WRAPPERS_H_

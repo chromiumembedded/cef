@@ -14,7 +14,6 @@
 
 #include "base/memory/raw_ptr.h"
 #include "base/synchronization/lock.h"
-#include "cef/include/cef_compound_operation.h"
 #include "cef/include/cef_frame.h"
 #include "cef/libcef/common/mojom/cef.mojom.h"
 #include "content/public/browser/global_routing_id.h"
@@ -68,11 +67,6 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   void ExecuteJavaScript(const CefString& jsCode,
                          const CefString& scriptUrl,
                          int startLine) override;
-  void ExecuteJavaScriptWithResult(
-      const CefString& code,
-      const CefString& script_url,
-      int start_line,
-      CefRefPtr<CefJavaScriptResultCallback> callback) override;
   bool IsMain() override;
   bool IsFocused() override;
   CefString GetName() override;
@@ -87,11 +81,6 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
       CefRefPtr<CefURLRequestClient> client) override;
   void SendProcessMessage(CefProcessId target_process,
                           CefRefPtr<CefProcessMessage> message) override;
-
-  // Execute a batch of element queries against the DOM. This is a scaffold --
-  // the actual DOM query logic is future work.
-  void ExecuteBatchQuery(const CefBatchQuery& query,
-                         CefRefPtr<CefBatchQueryCallback> callback);
 
   void SetFocused(bool focused);
   void RefreshAttributes();

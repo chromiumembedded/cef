@@ -20,7 +20,6 @@ class SimpleApp : public CefApp, public CefBrowserProcessHandler {
   // CefBrowserProcessHandler methods:
   void OnContextInitialized() override;
   CefRefPtr<CefClient> GetDefaultClient() override;
-  void OnScheduleMessagePumpWork(int64_t delay_ms) override;
 
  private:
   // Include the default reference counting implementation.

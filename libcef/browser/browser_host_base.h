@@ -10,13 +10,10 @@
 #include "base/observer_list.h"
 #include "base/synchronization/lock.h"
 #include "cef/include/cef_browser.h"
-#include "cef/libcef/browser/action_trace.h"
 #include "cef/include/cef_client.h"
-#include "cef/include/cef_automation_program.h"
 #include "cef/include/cef_unresponsive_process_callback.h"
 #include "cef/include/views/cef_browser_view.h"
 #include "cef/libcef/browser/browser_capture_impl.h"
-#include "cef/libcef/browser/page_model_cache.h"
 #include "cef/libcef/browser/browser_contents_delegate.h"
 #include "cef/libcef/browser/browser_info.h"
 #include "cef/libcef/browser/browser_platform_delegate.h"
@@ -454,29 +451,6 @@ class CefBrowserHostBase : public CefBrowserHost,
   // the UI thread.
   int GetNextPopupId();
 
-  // Returns the page model cache for this browser. Thread-safe.
-  CefPageModelCache& GetPageModelCache() { return page_model_cache_; }
-
-  // Returns the action trace for this browser. Thread-safe.
-  CefActionTrace& GetActionTrace() { return action_trace_; }
-
-  // Execute an automation program against this browser. The program's
-  // instructions are dispatched sequentially. This is a scaffold -- the actual
-  // instruction dispatch engine is future work.
-  void ExecuteAutomationProgram(
-      CefRefPtr<CefAutomationProgram> program,
-      CefRefPtr<CefAutomationProgramCallback> callback);
-
-  // Get the element ref index from the browser's capture implementation.
-  CefElementRefIndex& GetElementRefIndex();
-
-  // Fast-path DevTools methods for internal callers that are already on UIT.
-  // These skip the thread check and avoid unnecessary copies.
-  bool SendDevToolsMessageDirect(const void* message, size_t message_size);
-  int ExecuteDevToolsMethodDirect(int message_id,
-                                  const CefString& method,
-                                  CefRefPtr<CefDictionaryValue> params);
-
  protected:
   bool EnsureDevToolsProtocolManager();
   void InitializeDevToolsRegistrationOnUIThread(
@@ -537,8 +511,6 @@ class CefBrowserHostBase : public CefBrowserHost,
 
   std::unique_ptr<CefMediaStreamRegistrar> media_stream_registrar_;
   CefRefPtr<CefBrowserCaptureImpl> browser_capture_;
-  CefPageModelCache page_model_cache_;
-  CefActionTrace action_trace_;
 
   int next_popup_id_ = 1;
 

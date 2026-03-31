@@ -51,7 +51,7 @@ class CefDevToolsController : public content::DevToolsAgentHostClient {
   bool SendDevToolsMessage(const std::string_view& message);
   int ExecuteDevToolsMethod(int message_id,
                             const std::string& method,
-                            const base::Value::Dict* params);
+                            const base::DictValue* params);
 
   // |observer| must outlive this object or be removed.
   void AddObserver(Observer* observer);
@@ -66,11 +66,6 @@ class CefDevToolsController : public content::DevToolsAgentHostClient {
   void AgentHostClosed(content::DevToolsAgentHost* agent_host) override;
   void DispatchProtocolMessage(content::DevToolsAgentHost* agent_host,
                                base::span<const uint8_t> message) override;
-
-  // Overload that skips validation for trusted internal messages.
-  void DispatchProtocolMessage(content::DevToolsAgentHost* agent_host,
-                               base::span<const uint8_t> message,
-                               bool trusted);
 
   bool EnsureAgentHost();
 

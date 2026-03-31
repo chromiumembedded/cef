@@ -4,21 +4,18 @@
 
 #include "cef/libcef/browser/frame_host_impl.h"
 
-#include "base/json/json_reader.h"
 #include "cef/include/cef_request.h"
 #include "cef/include/cef_stream.h"
 #include "cef/include/cef_v8.h"
 #include "cef/include/test/cef_test_helpers.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/net_service/browser_urlrequest_impl.h"
-#include "cef/libcef/browser/page_model_cache.h"
 #include "cef/libcef/common/frame_util.h"
 #include "cef/libcef/common/net/url_util.h"
 #include "cef/libcef/common/process_message_impl.h"
 #include "cef/libcef/common/process_message_smr_impl.h"
 #include "cef/libcef/common/request_impl.h"
 #include "cef/libcef/common/string_util.h"
-#include "cef/libcef/common/values_impl.h"
 #include "cef/libcef/common/task_runner_impl.h"
 #include "content/browser/renderer_host/frame_tree_node.h"
 #include "content/public/browser/navigation_controller.h"
@@ -58,7 +55,7 @@ void ExecWebContentsCommand(CefFrameHostImpl* fh,
                             CefFrameHostImplCommand fh_func,
                             WebContentsCommand wc_func,
                             const std::string& command) {
-  if (!CEF_CURRENTLY_ON_UIT()) [[unlikely]] {
+  if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, base::BindOnce(fh_func, fh));
     return;
   }
@@ -182,204 +179,6 @@ void CefFrameHostImpl::ExecuteJavaScript(const CefString& jsCode,
                                          const CefString& scriptUrl,
                                          int startLine) {
   SendJavaScript(jsCode, scriptUrl, startLine);
-}
-
-namespace {
-
-// Observer that captures a single DevTools method result and forwards it to
-// the CefJavaScriptResultCallback. Self-destructs after receiving the expected
-// message by releasing the CefRegistration handle.
-class EvalResultObserver : public CefDevToolsMessageObserver {
- public:
-  EvalResultObserver(int expected_message_id,
-                     CefRefPtr<CefJavaScriptResultCallback> callback)
-      : expected_message_id_(expected_message_id), callback_(callback) {}
-
-  void SetRegistration(CefRefPtr<CefRegistration> registration) {
-    registration_ = registration;
-  }
-
-  bool OnDevToolsMessage(CefRefPtr<CefBrowser> browser,
-                         const void* message,
-                         size_t message_size) override {
-    return false;
-  }
-
-  void OnDevToolsMethodResult(CefRefPtr<CefBrowser> browser,
-                              int message_id,
-                              bool success,
-                              const void* result,
-                              size_t result_size) override {
-    if (message_id != expected_message_id_) {
-      return;
-    }
-
-    if (!success) {
-      // Parse the error object from the CDP response.
-      std::string error_str;
-      if (result && result_size > 0) {
-        std::string result_json(static_cast<const char*>(result), result_size);
-        auto parsed = base::JSONReader::ReadDict(result_json);
-        if (parsed) {
-          const std::string* msg = parsed->FindString("message");
-          error_str = msg ? *msg : result_json;
-        } else {
-          error_str = result_json;
-        }
-      } else {
-        error_str = "JavaScript execution failed.";
-      }
-      callback_->OnComplete(false, nullptr, error_str);
-      registration_ = nullptr;
-      return;
-    }
-
-    // Parse the CDP result JSON. The structure for Runtime.evaluate is:
-    // { "result": { "type": "...", "value": ... }, "exceptionDetails": {...} }
-    if (!result || result_size == 0) {
-      callback_->OnComplete(true, nullptr, CefString());
-      registration_ = nullptr;
-      return;
-    }
-
-    std::string result_json(static_cast<const char*>(result), result_size);
-    auto parsed = base::JSONReader::ReadDict(result_json);
-    if (!parsed) {
-      callback_->OnComplete(false, nullptr, "Failed to parse CDP response.");
-      registration_ = nullptr;
-      return;
-    }
-
-    // Check for exception details.
-    const base::Value::Dict* exception_details =
-        parsed->FindDict("exceptionDetails");
-    if (exception_details) {
-      const base::Value::Dict* exception_obj =
-          exception_details->FindDict("exception");
-      std::string error_msg = "JavaScript exception";
-      if (exception_obj) {
-        const std::string* desc = exception_obj->FindString("description");
-        if (desc) {
-          error_msg = *desc;
-        } else {
-          const std::string* val = exception_obj->FindString("value");
-          if (val) {
-            error_msg = *val;
-          }
-        }
-      } else {
-        const std::string* text = exception_details->FindString("text");
-        if (text) {
-          error_msg = *text;
-        }
-      }
-      callback_->OnComplete(false, nullptr, error_msg);
-      registration_ = nullptr;
-      return;
-    }
-
-    // Extract result.value from the CDP response.
-    const base::Value::Dict* result_obj = parsed->FindDict("result");
-    if (result_obj) {
-      const std::string* type = result_obj->FindString("type");
-      if (type && *type == "undefined") {
-        // void result.
-        callback_->OnComplete(true, nullptr, CefString());
-        registration_ = nullptr;
-        return;
-      }
-
-      const base::Value* value = result_obj->Find("value");
-      if (value) {
-        CefRefPtr<CefValueImpl> cef_val =
-            new CefValueImpl(value->Clone());
-        callback_->OnComplete(true, cef_val.get(), CefString());
-        registration_ = nullptr;
-        return;
-      }
-
-      // No value but also no exception -- might be a non-serializable result
-      // (e.g. a function). Return the description if available.
-      const std::string* description = result_obj->FindString("description");
-      if (description) {
-        CefRefPtr<CefValueImpl> cef_val =
-            new CefValueImpl(base::Value(*description));
-        callback_->OnComplete(true, cef_val.get(), CefString());
-        registration_ = nullptr;
-        return;
-      }
-    }
-
-    // Fallback: no result value.
-    callback_->OnComplete(true, nullptr, CefString());
-    registration_ = nullptr;
-  }
-
-  void OnDevToolsAgentDetached(CefRefPtr<CefBrowser> browser) override {
-    // If the agent detaches before we get our result, notify failure.
-    if (callback_) {
-      callback_->OnComplete(false, nullptr, "DevTools agent detached.");
-      callback_ = nullptr;
-    }
-    registration_ = nullptr;
-  }
-
- private:
-  const int expected_message_id_;
-  CefRefPtr<CefJavaScriptResultCallback> callback_;
-  CefRefPtr<CefRegistration> registration_;
-
-  IMPLEMENT_REFCOUNTING(EvalResultObserver);
-};
-
-}  // namespace
-
-void CefFrameHostImpl::ExecuteJavaScriptWithResult(
-    const CefString& code,
-    const CefString& script_url,
-    int start_line,
-    CefRefPtr<CefJavaScriptResultCallback> callback) {
-  if (!callback) {
-    return;
-  }
-
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::BindOnce(
-                      &CefFrameHostImpl::ExecuteJavaScriptWithResult, this,
-                      code, script_url, start_line, callback));
-    return;
-  }
-
-  auto browser = GetBrowserHostBase();
-  if (!browser) {
-    callback->OnComplete(false, nullptr, "Browser not available.");
-    return;
-  }
-
-  // Build Runtime.evaluate params.
-  auto params = CefDictionaryValue::Create();
-  params->SetString("expression", code);
-  params->SetBool("returnByValue", true);
-  params->SetBool("awaitPromise", true);
-  params->SetBool("userGesture", true);
-
-  // Execute the DevTools method first to get the message ID. This returns a
-  // message ID > 0 on success. The result callback is asynchronous so we can
-  // safely register the observer after obtaining the ID.
-  int message_id =
-      browser->ExecuteDevToolsMethod(0, "Runtime.evaluate", params);
-  if (message_id == 0) {
-    callback->OnComplete(false, nullptr, "Failed to execute DevTools method.");
-    return;
-  }
-
-  // Register an observer to capture the result for this specific message ID.
-  CefRefPtr<EvalResultObserver> observer =
-      new EvalResultObserver(message_id, callback);
-  CefRefPtr<CefRegistration> registration =
-      browser->AddDevToolsMessageObserver(observer.get());
-  observer->SetRegistration(registration);
 }
 
 bool CefFrameHostImpl::IsMain() {
@@ -518,14 +317,6 @@ void CefFrameHostImpl::RefreshAttributes() {
   if (!render_frame_host_) {
     return;
   }
-
-  // Bump the page model cache generation -- frame attributes are refreshed
-  // after navigation, meaning the DOM content has changed.
-  if (auto browser = GetBrowserHostBase()) {
-    browser->GetPageModelCache().BumpGeneration(
-        render_frame_host_->GetFrameTreeNodeId());
-  }
-
   url_ = render_frame_host_->GetLastCommittedURL().spec();
 
   // Use the assigned name if it is non-empty. This represents the name property
@@ -583,12 +374,6 @@ void CefFrameHostImpl::LoadURLWithExtras(const std::string& url,
     // Load via the browser using NavigationController.
     auto browser = GetBrowserHostBase();
     if (browser) {
-      // Invalidate the page model cache -- a new navigation is starting.
-      if (render_frame_host_) {
-        browser->GetPageModelCache().BumpGeneration(
-            render_frame_host_->GetFrameTreeNodeId());
-      }
-
       content::OpenURLParams params(
           gurl, referrer, WindowOpenDisposition::CURRENT_TAB, transition,
           /*is_renderer_initiated=*/false);
@@ -838,7 +623,7 @@ CefRefPtr<CefBrowserHostBase> CefFrameHostImpl::GetBrowserHostBase() const {
 
 void CefFrameHostImpl::SendToRenderFrame(const std::string& function_name,
                                          RenderFrameAction action) {
-  if (!CEF_CURRENTLY_ON_UIT()) [[unlikely]] {
+  if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
                   base::BindOnce(&CefFrameHostImpl::SendToRenderFrame, this,
                                  function_name, std::move(action)));
@@ -926,14 +711,6 @@ void CefFrameHostImpl::FrameAttached(
   render_frame_.set_disconnect_handler(
       base::BindOnce(&CefFrameHostImpl::OnRenderFrameDisconnect, this));
 
-  // Invalidate the page model cache for this frame -- the DOM may have changed.
-  if (render_frame_host_) {
-    if (auto browser = browser_info->browser()) {
-      browser->GetPageModelCache().BumpGeneration(
-          render_frame_host_->GetFrameTreeNodeId());
-    }
-  }
-
   // Notify the renderer process that it can start sending messages.
   render_frame_->FrameAttachedAck(/*allow=*/true);
 
@@ -981,52 +758,6 @@ std::string CefFrameHostImpl::GetDebugString() const {
          (frame_token_ ? frame_util::GetFrameDebugString(*frame_token_)
                        : "(null)") +
          (is_main_frame_ ? " (main)" : " (sub)");
-}
-
-void CefFrameHostImpl::ExecuteBatchQuery(
-    const CefBatchQuery& query,
-    CefRefPtr<CefBatchQueryCallback> callback) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CefBatchQuery query_copy = query;
-    CEF_POST_TASK(CEF_UIT,
-                  base::BindOnce(&CefFrameHostImpl::ExecuteBatchQuery, this,
-                                 query_copy, callback));
-    return;
-  }
-
-  if (!callback) {
-    return;
-  }
-
-  // Parse the selectors string (split by newlines).
-  CefString selectors_str(&query.selectors);
-  std::string selectors = selectors_str.ToString();
-  std::vector<std::string> selector_list;
-
-  size_t start = 0;
-  size_t pos = selectors.find('\n');
-  while (pos != std::string::npos) {
-    std::string sel = selectors.substr(start, pos - start);
-    if (!sel.empty()) {
-      selector_list.push_back(sel);
-    }
-    start = pos + 1;
-    pos = selectors.find('\n', start);
-  }
-  if (start < selectors.size()) {
-    std::string sel = selectors.substr(start);
-    if (!sel.empty()) {
-      selector_list.push_back(sel);
-    }
-  }
-
-  // Create a results list with one entry per selector.
-  CefRefPtr<CefListValue> results = CefListValue::Create();
-  for (size_t i = 0; i < selector_list.size(); ++i) {
-    results->SetString(i, "query not yet implemented");
-  }
-
-  callback->OnComplete(/*success=*/true, results, /*error=*/CefString());
 }
 
 void CefExecuteJavaScriptWithUserGestureForTests(CefRefPtr<CefFrame> frame,

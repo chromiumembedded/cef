@@ -496,18 +496,12 @@ source_set("libcef_static") {
     "libcef/browser/alloy/dialogs/alloy_constrained_window_views_client.h",
     "libcef/browser/alloy/dialogs/alloy_web_contents_dialog_helper.cc",
     "libcef/browser/alloy/dialogs/alloy_web_contents_dialog_helper.h",
-    "libcef/browser/action_trace.cc",
-    "libcef/browser/action_trace.h",
-    "libcef/browser/agent_scheduler.cc",
-    "libcef/browser/agent_scheduler.h",
     "libcef/browser/audio_capturer.cc",
     "libcef/browser/audio_capturer.h",
     "libcef/browser/audio_loopback_stream_creator.cc",
     "libcef/browser/audio_loopback_stream_creator.h",
     "libcef/browser/auth_vault_impl.cc",
     "libcef/browser/auth_vault_impl.h",
-    "libcef/browser/automation_program_impl.cc",
-    "libcef/browser/automation_program_impl.h",
     "libcef/browser/browser_contents_delegate.cc",
     "libcef/browser/browser_contents_delegate.h",
     "libcef/browser/browser_capture_impl.cc",
@@ -592,8 +586,6 @@ source_set("libcef_static") {
     "libcef/browser/devtools/devtools_protocol_manager.h",
     "libcef/browser/devtools/devtools_window_runner.cc",
     "libcef/browser/devtools/devtools_window_runner.h",
-    "libcef/browser/element_ref.cc",
-    "libcef/browser/element_ref.h",
     "libcef/browser/download_item_impl.cc",
     "libcef/browser/download_item_impl.h",
     "libcef/browser/download_manager_delegate.cc",
@@ -694,8 +686,6 @@ source_set("libcef_static") {
     "libcef/browser/osr/video_consumer_osr.h",
     "libcef/browser/osr/web_contents_view_osr.cc",
     "libcef/browser/osr/web_contents_view_osr.h",
-    "libcef/browser/page_model_cache.cc",
-    "libcef/browser/page_model_cache.h",
     "libcef/browser/path_util_impl.cc",
     "libcef/browser/permission_prompt.cc",
     "libcef/browser/permission_prompt.h",
@@ -720,26 +710,18 @@ source_set("libcef_static") {
     "libcef/browser/scheme_impl.cc",
     "libcef/browser/server_impl.cc",
     "libcef/browser/server_impl.h",
-    "libcef/browser/session_pool.cc",
-    "libcef/browser/session_pool.h",
     "libcef/browser/setting_helper.cc",
     "libcef/browser/setting_helper.h",
     "libcef/browser/simple_menu_model_impl.cc",
     "libcef/browser/simple_menu_model_impl.h",
-    "libcef/browser/snapshot_formatter.cc",
-    "libcef/browser/snapshot_formatter.h",
     "libcef/browser/ssl_info_impl.cc",
     "libcef/browser/ssl_info_impl.h",
     "libcef/browser/ssl_status_impl.cc",
     "libcef/browser/ssl_status_impl.h",
-    "libcef/browser/stealth_config.cc",
-    "libcef/browser/stealth_config.h",
-    "libcef/browser/state_journal.cc",
-    "libcef/browser/state_journal.h",
-    "libcef/browser/storage_state_manager_impl.cc",
-    "libcef/browser/storage_state_manager_impl.h",
     "libcef/browser/stream_impl.cc",
     "libcef/browser/stream_impl.h",
+    "libcef/browser/storage_state_manager_impl.cc",
+    "libcef/browser/storage_state_manager_impl.h",
     "libcef/browser/task_manager_impl.cc",
     "libcef/browser/task_manager_impl.h",
     "libcef/browser/trace_impl.cc",
@@ -1923,7 +1905,6 @@ source_set("gtest_teamcity") {
   sources = [
     "tests/gtest/teamcity/include/teamcity_gtest.h",
     "tests/gtest/teamcity/src/teamcity_gtest.cpp",
-    "tests/gtest/teamcity/src/teamcity_gtest.h",
     "tests/gtest/teamcity/src/teamcity_messages.cpp",
     "tests/gtest/teamcity/src/teamcity_messages.h",
   ]
@@ -2683,12 +2664,6 @@ if (is_mac) {
       if (ozone_platform_x11) {
         libs = [
           "X11",
-        ]
-      }
-
-      if (cef_use_gtk) {
-        configs += [
-          ":gtk",
         ]
       }
 

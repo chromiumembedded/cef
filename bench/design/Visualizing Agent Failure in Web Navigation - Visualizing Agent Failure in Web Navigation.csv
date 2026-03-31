@@ -1,5 +1,0 @@
-Graph Element,Mind2Web Benchmark Variable,Agent Impact
-Pachinko Bins,Task Completion Accuracy,"Quantifies the ""Hallucination"" rate of smaller models."
-Turbulence Zones,Dynamic Content/Network Latency,Shows how Swift agents fail on slow-loading SPA (Single Page Apps).
-Cladogram Branching,Action Sequence Length,"Higher branching indicates poor ""path-finding"" efficiency."
-Extinction Nodes,Terminal Failure (Unrecoverable),"Identifies specific DOM triggers that ""kill"" the agent's logic."

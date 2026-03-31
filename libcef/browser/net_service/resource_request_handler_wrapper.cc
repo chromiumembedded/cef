@@ -8,7 +8,6 @@
 
 #include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/browser_host_base.h"
-#include "cef/libcef/browser/browser_security_policy_impl.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/iothread_state.h"
 #include "cef/libcef/browser/net_service/cookie_helper.h"
@@ -278,17 +277,6 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
         // These references will be released in OnDestroyed().
         browser_ = browser;
         frame_ = frame;
-
-        // Retrieve the pre-compiled security policy for early request
-        // interception (items 5.2/5.3).
-        auto request_context = browser->request_context();
-        if (request_context) {
-          auto policy = request_context->GetSecurityPolicy();
-          if (policy) {
-            security_policy_ =
-                static_cast<CefBrowserSecurityPolicyImpl*>(policy.get());
-          }
-        }
       }
 
       global_id_ = global_id;
@@ -336,9 +324,6 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     bool is_download_ = false;
     CefString request_initiator_;
     base::RepeatingClosure unhandled_request_callback_;
-
-    // Pre-compiled security policy for early request interception.
-    CefRefPtr<CefBrowserSecurityPolicyImpl> security_policy_;
 
     // Default values for standard headers.
     std::string accept_language_;
@@ -548,14 +533,6 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       pending_requests_.push_back(std::make_unique<PendingRequest>(
           request_id, request, request_was_redirected, std::move(callback),
           std::move(cancel_callback)));
-      return;
-    }
-
-    // [5.2/5.3] Early policy enforcement: reject unauthorized requests before
-    // expensive handler lookups, header setup, and cookie processing.
-    if (init_state_->security_policy_ &&
-        init_state_->security_policy_->ShouldBlockRequest(request->url)) {
-      std::move(cancel_callback).Run(net::ERR_BLOCKED_BY_CLIENT);
       return;
     }
 

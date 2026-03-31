@@ -12,7 +12,6 @@
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefsimple/simple_handler.h"
-#include "tests/shared/browser/main_message_loop_external_pump.h"
 
 namespace {
 
@@ -188,10 +187,4 @@ void SimpleApp::OnContextInitialized() {
 CefRefPtr<CefClient> SimpleApp::GetDefaultClient() {
   // Called when a new browser window is created via Chrome style UI.
   return SimpleHandler::GetInstance();
-}
-
-void SimpleApp::OnScheduleMessagePumpWork(int64_t delay_ms) {
-  if (auto* message_pump = client::MainMessageLoopExternalPump::Get()) {
-    message_pump->OnScheduleMessagePumpWork(delay_ms);
-  }
 }

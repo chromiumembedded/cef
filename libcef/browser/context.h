@@ -16,9 +16,7 @@
 #include "base/task/current_thread.h"
 #include "base/threading/platform_thread.h"
 #include "cef/include/cef_app.h"
-#include "cef/libcef/browser/agent_scheduler.h"
 #include "cef/libcef/browser/main_runner.h"
-#include "cef/libcef/browser/session_pool.h"
 #include "third_party/skia/include/core/SkColor.h"
 
 namespace pref_helper {
@@ -85,8 +83,6 @@ class CefContext {
   CefTraceSubscriber* GetTraceSubscriber();
   pref_helper::Registrar* GetPrefRegistrar();
   CefRefPtr<CefAuthVault> GetAuthVault();
-  CefAgentScheduler* GetAgentScheduler() const { return agent_scheduler_.get(); }
-  CefSessionPool* GetSessionPool() const { return session_pool_.get(); }
 
   // Populate request context settings for the global system context based on
   // CefSettings and command-line flags.
@@ -133,8 +129,6 @@ class CefContext {
   mutable base::Lock service_lock_;
   CefRefPtr<CefAuthVaultImpl> auth_vault_;
   std::unique_ptr<CefBrowserInfoManager> browser_info_manager_;
-  std::unique_ptr<CefAgentScheduler> agent_scheduler_;
-  std::unique_ptr<CefSessionPool> session_pool_;
 
   std::optional<
       base::CurrentThread::ScopedAllowApplicationTasksInNativeNestedLoop>

@@ -14,7 +14,6 @@
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
-#include "tests/shared/browser/main_message_loop_external_pump.h"
 
 namespace {
 
@@ -100,12 +99,7 @@ void SimpleHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   }
 
   if (browser_list_.empty()) {
-    // All browser windows have closed. Quit the application-owned main loop
-    // when using external pump integration, otherwise quit the native CEF loop.
-    if (auto* message_pump = client::MainMessageLoopExternalPump::Get()) {
-      message_pump->Quit();
-      return;
-    }
+    // All browser windows have closed. Quit the application message loop.
     CefQuitMessageLoop();
   }
 }
