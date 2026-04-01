@@ -92,6 +92,12 @@ void CefBrowserPlatformDelegateChromeViews::BrowserDestroyed(
   CefBrowserPlatformDelegateChrome::BrowserDestroyed(browser);
   // |browser_view_| may be destroyed before this callback arrives.
   if (browser_view_) {
+    CefRefPtr<CefWindow> window = browser_view_->GetWindow();
+    if (window) {
+      CefRefPtr<CefViewDelegate> delegate = window->GetDelegate();
+      if (delegate)
+        delegate->ClearNativeDelegate();
+    }
     browser_view_->BrowserDestroyed(browser);
   }
   browser_view_ = nullptr;
