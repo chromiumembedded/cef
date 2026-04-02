@@ -108,7 +108,7 @@ index 2fc43cab979927dcac35fdc01e79c4f333ae95c8..75609a8a989cae6b3644ba3afccb3f3c
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index ec0d91aca6509e1fa9e93cb24c75a41dc0855154..ac4b048bbd21f53a81277a17b9a88920dd64ee9f 100644
+index 00b9254990f2428a5e3205448d75bf7ede720454..b5cbb1ade0cd13eeddafc02a6256a60a7a0aa2fe 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
@@ -152,7 +152,7 @@ index ec0d91aca6509e1fa9e93cb24c75a41dc0855154..ac4b048bbd21f53a81277a17b9a88920
    # TODO(crbug.com/41437292): Remove this circular dependency.
    # Any circular includes must depend on the target "//chrome/browser:browser_public_dependencies".
    # These are all-platform circular includes.
-@@ -5346,6 +5359,7 @@ static_library("ui") {
+@@ -5345,6 +5358,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [
        "//components/printing/browser",
@@ -1023,7 +1023,7 @@ index 6a856b5aa45896e747c6b4f0f3d4c3286778f29b..9916b2e992ebe760126a50f9886425f8
    // browser window. Do not use this method to find a specific tab.
    virtual std::vector<tabs::TabInterface*> GetAllTabInterfaces() = 0;
 diff --git chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
-index f58acb61576d77fd77303344c098de4ed67134b2..77aa593f535d847b4ff8d4ec54148006ec754f50 100644
+index b89bc42f2bfe090103072406ae743286e6421962..e9c1327f851e6932d0d03cbce9259789df207c6e 100644
 --- chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
 +++ chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
 @@ -276,8 +276,7 @@ HorizontalTabStripRegionView::HorizontalTabStripRegionView(

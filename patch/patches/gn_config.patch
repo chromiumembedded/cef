@@ -78,7 +78,7 @@ index bd411669389525e8f03eb329a4cf700ad89b62f3..fba7843d79796b903b592b69e2e1f2c7
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 503cc9a40c00522c4b16b147837e7c1e640c2eb2..23cc07f39d1363611c48895e2f0c2848840df642 100644
+index cac128df9ab42bcb4b594337f6bf255b813eace8..b3428ae8d29a56e1b8fc1fc85936cf12c4fa7f27 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@

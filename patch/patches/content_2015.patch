@@ -153,10 +153,10 @@ index 1f6c015c361b3146db760643e3670a110634d75b..827b4616c3091265d564de35db8df44a
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 1416e23beb20e7c18b5cfa61f922c68b7ce65c48..252c84709d2eed1b1feb52249142a5825e4f84af 100644
+index da33f8025c9e4c0a6c1e452acc5616aed4890986..067e94661e43d93535a390712767bb713761c9b7 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -504,6 +504,8 @@ void RenderThreadImpl::Init() {
+@@ -506,6 +506,8 @@ void RenderThreadImpl::Init() {
        GetContentClient()->renderer()->CreateURLLoaderThrottleProvider(
            blink::URLLoaderThrottleProviderType::kFrame);
  
@@ -166,10 +166,10 @@ index 1416e23beb20e7c18b5cfa61f922c68b7ce65c48..252c84709d2eed1b1feb52249142a582
        base::BindRepeating(&RenderThreadImpl::OnRendererInterfaceReceiver,
                            base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 78f0ab75486f90ad9bda568cd28c20ec0c48f298..661d6735aff66a3b3f681f92f131c1018578a0cf 100644
+index c5a601f43df9da319582075bcaa6237f472acc6c..c05f04b41624794379cf7360a18a5e92bc001d96 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -1103,6 +1103,15 @@ RendererBlinkPlatformImpl::GetCpuPerformanceTier() {
+@@ -1111,6 +1111,15 @@ RendererBlinkPlatformImpl::GetCpuPerformanceTier() {
  
  //------------------------------------------------------------------------------
  
