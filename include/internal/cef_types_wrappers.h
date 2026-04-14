@@ -470,7 +470,9 @@ struct CefSettingsTraits {
 #endif
 
 #if CEF_API_ADDED(14600)
-    target->use_views_default_popup = src->use_views_default_popup;
+    if (CEF_MEMBER_EXISTS(src, use_views_default_popup)) {
+      target->use_views_default_popup = src->use_views_default_popup;
+    }
 #endif
   }
 };
