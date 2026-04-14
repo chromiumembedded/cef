@@ -20,11 +20,13 @@ template <typename T>
 struct HasValidSize<T,
                     typename std::enable_if_t<
                         std::is_same<decltype(T::size), std::size_t>::value>> {
-  bool operator()(const T* s) { return s->size == sizeof(*s); }
+  bool operator()(const T* s) { return s->size > 0 && s->size <= sizeof(*s); }
 };
 template <typename T>
 struct HasValidSize<T, decltype(void(T::base.size))> {
-  bool operator()(const T* s) { return s->base.size == sizeof(*s); }
+  bool operator()(const T* s) {
+    return s->base.size > 0 && s->base.size <= sizeof(*s);
+  }
 };
 
 template <typename T>
