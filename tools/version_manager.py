@@ -73,12 +73,13 @@ def compute_api_hashes(api_version: str,
     sandbox_files = [os.path.join(src_dir, f) for f in SANDBOX_COMPAT_FILES]
     hashes['sandbox_compat'] = calculate_sandbox_compat_hash(sandbox_files)
 
-    if api_version in UNTRACKED_VERSIONS:
-      label = version_label(api_version)
-      label = label[0:1].upper() + label[1:]
-      hashes['comment'] = f'{label} last updated {get_date()}.'
-    else:
-      hashes['comment'] = f'Added {get_date()}.'
+    if not os.environ.get("SOURCE_DATE_EPOCH"):
+      if api_version in UNTRACKED_VERSIONS:
+        label = version_label(api_version)
+        label = label[0:1].upper() + label[1:]
+        hashes['comment'] = f'{label} last updated {get_date()}.'
+      else:
+        hashes['comment'] = f'Added {get_date()}.'
   return hashes
 
 
