@@ -187,7 +187,7 @@ class AxViewportCollapseTestHandler : public TestHandler {
 
 // Test page with landmarks, headings, and interactive elements.
 // A large spacer pushes the "offscreen" section out of the viewport.
-const char kTestUrl[] = "https://tests/AxViewportCollapse";
+const char kTestUrl[] = "https://ax-collapse-tests/AxViewportCollapse";
 
 const char kTestHtml[] = R"(
 <html>
@@ -271,7 +271,8 @@ class CollapseEnabledHandler : public AxViewportCollapseTestHandler {
 };
 
 // Page with headings at different levels off-screen.
-const char kHeadingTestUrl[] = "https://tests/AxViewportCollapseHeading";
+const char kHeadingTestUrl[] =
+    "https://ax-collapse-tests/AxViewportCollapseHeading";
 
 const char kHeadingTestHtml[] = R"(
 <html>
@@ -347,7 +348,8 @@ class ChildIdsFilteredHandler : public AxViewportCollapseTestHandler {
 };
 
 // Page with position:fixed child inside off-screen parent.
-const char kFixedTestUrl[] = "https://tests/AxViewportCollapseFixed";
+const char kFixedTestUrl[] =
+    "https://ax-collapse-tests/AxViewportCollapseFixed";
 
 const char kFixedTestHtml[] = R"(
 <html>
@@ -382,7 +384,8 @@ class FixedPositionVisibleHandler : public AxViewportCollapseTestHandler {
 };
 
 // Page with nested off-screen structure.
-const char kNestedTestUrl[] = "https://tests/AxViewportCollapseNested";
+const char kNestedTestUrl[] =
+    "https://ax-collapse-tests/AxViewportCollapseNested";
 
 const char kNestedTestHtml[] = R"(
 <html>
@@ -472,7 +475,8 @@ class RuntimeToggleHandler : public AxViewportCollapseTestHandler {
 };
 
 // Small page that fits entirely in the viewport.
-const char kAllVisibleTestUrl[] = "https://tests/AxViewportCollapseAllVisible";
+const char kAllVisibleTestUrl[] =
+    "https://ax-collapse-tests/AxViewportCollapseAllVisible";
 
 const char kAllVisibleTestHtml[] = R"(
 <html>
@@ -518,7 +522,7 @@ class AllVisibleHandler : public AxViewportCollapseTestHandler {
 // Page with a landmark at 400px down. TestHandler creates an 800x600 window
 // (~550px content height). At 100% zoom the nav is visible. At 300% zoom the
 // viewport shrinks to ~183 CSS pixels tall, pushing the nav off-screen.
-const char kZoomTestUrl[] = "https://tests/AxViewportCollapseZoom";
+const char kZoomTestUrl[] = "https://ax-collapse-tests/AxViewportCollapseZoom";
 
 const char kZoomTestHtml[] = R"(
 <html>
@@ -571,6 +575,12 @@ class ZoomedCollapseHandler : public TestHandler {
   }
 
   void DestroyTest() override {
+    // Reset zoom so it doesn't leak into subsequent tests. CEF stores zoom
+    // per-host in HostZoomMap, and every ceftest here uses https://tests/...,
+    // so a lingering zoom level will affect unrelated tests (e.g. DOMTest).
+    if (auto browser = GetBrowser()) {
+      browser->GetHost()->SetZoomLevel(0);
+    }
     registration_ = nullptr;
     EXPECT_EQ(2, tree_fetch_ct_);
     TestHandler::DestroyTest();
