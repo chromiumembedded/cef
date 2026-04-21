@@ -1,5 +1,5 @@
 diff --git chrome/browser/task_manager/sampling/task_manager_impl.cc chrome/browser/task_manager/sampling/task_manager_impl.cc
-index 71b5a73e89f61..f079e160581d7 100644
+index 71b5a73e89f61d482dfe817168a055ece9cc1bba..f079e160581d7a2126b5a9aa5b50a4f865094807 100644
 --- chrome/browser/task_manager/sampling/task_manager_impl.cc
 +++ chrome/browser/task_manager/sampling/task_manager_impl.cc
 @@ -683,6 +683,11 @@ void TaskManagerImpl::StopUpdating() {

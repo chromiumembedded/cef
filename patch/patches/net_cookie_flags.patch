@@ -25,7 +25,7 @@ index 86a601592cbc5ee99c6e4b115f62c18fce70802d..f69fb5c32e49220941f762bdad7371dd
  
  bool URLRequestHttpJob::ShouldRecordPartitionedCookieUsage() const {
 diff --git services/network/cors/cors_url_loader_factory.cc services/network/cors/cors_url_loader_factory.cc
-index 6a1eb075b0ed581bf81c43a0439da12eff20664c..68cd638f30f0d7d242d4948e6c107bd8373730af 100644
+index bf02d6663b47413e47ebfe9ae4ba5799787f69ae..cbc416703678140e0f5d233b523c65f56bfd1937 100644
 --- services/network/cors/cors_url_loader_factory.cc
 +++ services/network/cors/cors_url_loader_factory.cc
 @@ -655,7 +655,8 @@ bool CorsURLLoaderFactory::IsValidRequest(

@@ -122,10 +122,10 @@ index bda68e8fb5eb322decef71a674cd486390b5c972..d23ed942274964c68b06feb4984fe9a0
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 68b3acc5a4e67fee975fd982f252cbf46c28ccac..fbc997e34c5ccb0636052aa6b6f2c7ad91b0b637 100644
+index 1f070b2d00e2b0848939433172066b735702c596..760006ffde3ff9dc97c2586c45c8ea1620a58e39 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -3013,22 +3013,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -3012,22 +3012,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
              pref_service.get(), network_service_->network_quality_estimator());
    }
  

@@ -166,10 +166,10 @@ index 11b31e6dd0812993348887ef6b5300e7ea9f348d..961f4cc95c305f355d1cb35b0e46b9d1
        base::BindRepeating(&RenderThreadImpl::OnRendererInterfaceReceiver,
                            base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 416d53d0cce178de992074b0c0371bca2e4ed900..eca8213353074e3a73986fec75abbee1d9267b41 100644
+index 23a05a16b40b859465f7953aef8052686cbeece9..9c76f38af59834e765db3d32292e8433b017dadf 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -1116,6 +1116,15 @@ RendererBlinkPlatformImpl::GetCpuPerformanceTier() {
+@@ -1120,6 +1120,15 @@ RendererBlinkPlatformImpl::GetCpuPerformanceTier() {
  
  //------------------------------------------------------------------------------
  

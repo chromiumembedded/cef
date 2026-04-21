@@ -308,7 +308,7 @@ index 2f462f0deb5fc8a637457243fb5d5849fc214d14..695869b83cefaa24af93a2e11b39de05
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 97f26777528c3b21255b74ccf411ff2d3b243215..9609957e567850a0f9db16be3eb04d576e4fe800 100644
+index fbe5a8e6458970652723f91a426541220b394a18..0390a688b86e3612e9525dd28ccbc691251cad36 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -35,7 +35,9 @@
@@ -347,7 +347,7 @@ index 97f26777528c3b21255b74ccf411ff2d3b243215..9609957e567850a0f9db16be3eb04d57
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -632,6 +646,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -631,6 +645,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
        simple_begin_frame_observers_;
    std::unique_ptr<ui::HostBeginFrameObserver> host_begin_frame_observer_;
  
