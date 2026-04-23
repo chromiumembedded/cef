@@ -1084,7 +1084,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /// WARNING: This collapses the CDP accessibility tree and disables CDP
   /// dynamic tree updates (nodesUpdated events). The DevTools Accessibility
   /// panel will show an incomplete tree. Platform screen readers (NVDA, JAWS,
-  /// VoiceOver) are unaffected — they use a separate code path.
+  /// VoiceOver) are unaffected - they use a separate code path.
   ///
   /*--cef(added=experimental)--*/
   virtual void SetAxViewportCollapse(bool enabled) = 0;
