@@ -156,6 +156,7 @@ COMMON_LINKOPTS = [
 
 COMMON_COPTS = [
     "/GF",  # Enable string pooling
+    "/utf-8",  # Treat source and execution character sets as UTF-8
 ]
 
 COMMON_COPTS_DEBUG = [

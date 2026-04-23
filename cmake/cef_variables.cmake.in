@@ -405,6 +405,7 @@ if(OS_WINDOWS)
     /Gy           # Enable function-level linking
     /GF           # Enable string pooling
     /GR-          # Disable run-time type information
+    /utf-8        # Treat source and execution character sets as UTF-8
     /W4           # Warning level 4
     /WX           # Treat warnings as errors
     /wd4100       # Ignore "unreferenced formal parameter" warning
