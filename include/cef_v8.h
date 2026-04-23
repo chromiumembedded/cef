@@ -598,7 +598,7 @@ class CefV8Value : public virtual CefBaseRefCounted {
   ///
   /// Create a new CefV8Value object of type ArrayBuffer from a backing store
   /// previously created with CefV8BackingStore::Create(). This is a zero-copy
-  /// operation — the ArrayBuffer uses the memory already allocated by the
+  /// operation - the ArrayBuffer uses the memory already allocated by the
   /// backing store. The backing store is consumed and becomes invalid after
   /// this call. This method should only be called from within the scope of a
   /// CefRenderProcessHandler, CefV8Handler or CefV8Accessor callback, or in
