@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index a157e311276f5bb780a0cfc12310f64b61d7bd51..f13731aaabb8e53f019ed8457f23683a997bd116 100644
+index 738696abf04fa40bb22f06080e2fd8d5302f7225..e37b6653c5623ac50649c64e90da78ad26ff7967 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
 @@ -581,6 +581,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
@@ -24,7 +24,7 @@ index a157e311276f5bb780a0cfc12310f64b61d7bd51..f13731aaabb8e53f019ed8457f23683a
    // The order of commands in this switch statement must match the function
    // declaration order in browser.h!
    switch (id) {
-@@ -1512,12 +1520,14 @@ void BrowserCommandController::TabRestoreServiceLoaded(
+@@ -1515,12 +1523,14 @@ void BrowserCommandController::TabRestoreServiceLoaded(
  
  bool BrowserCommandController::IsShowingMainUI() {
    return browser_->SupportsWindowFeature(
@@ -1013,10 +1013,10 @@ index 7f176a5a9a5c7660b9f9855a8ec912212cd72c4a..5c48c1341bd68ae5eedf6313a4a9ce61
        case PageActionIconType::kBookmarkStar:
          add_page_action_icon(type, std::make_unique<StarView>(
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index a8eadfc9e614d9fcf4b2e97594f63b8fd889293e..357e301c5b84b19f17a9fa281a26842ea61a883c 100644
+index 1701b7550912ab4dba2ce3741af6016394afe37e..00b5a85dcd314d76b9bd0db59cd7210795b2641d 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
-@@ -250,12 +250,14 @@ bool IsPositionInWindowCaptionForView(const views::View* view,
+@@ -251,12 +251,14 @@ bool IsPositionInWindowCaptionForView(const views::View* view,
  
  DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(ToolbarView, kToolbarElementId);
  
@@ -1033,7 +1033,7 @@ index a8eadfc9e614d9fcf4b2e97594f63b8fd889293e..357e301c5b84b19f17a9fa281a26842e
    SetID(VIEW_ID_TOOLBAR);
    SetProperty(views::kElementIdentifierKey, kToolbarElementId);
  
-@@ -303,9 +305,24 @@ ToolbarView::~ToolbarView() {
+@@ -304,9 +306,24 @@ ToolbarView::~ToolbarView() {
    if (glic_nudge_controller) {
      glic_nudge_controller->SetToolbarDelegate(/*delegate=*/nullptr);
    }
@@ -1058,7 +1058,7 @@ index a8eadfc9e614d9fcf4b2e97594f63b8fd889293e..357e301c5b84b19f17a9fa281a26842e
  #if defined(USE_AURA)
    // Avoid generating too many occlusion tracking calculation events before this
    // function returns. The occlusion status will be computed only once once this
-@@ -325,7 +342,8 @@ void ToolbarView::Init() {
+@@ -326,7 +343,8 @@ void ToolbarView::Init() {
    } else {
      location_bar_view = std::make_unique<LocationBarView>(
          browser_, browser_->profile(), browser_->command_controller(), this,
@@ -1068,7 +1068,7 @@ index a8eadfc9e614d9fcf4b2e97594f63b8fd889293e..357e301c5b84b19f17a9fa281a26842e
    }
  
    // Make sure the toolbar shows by default.
-@@ -400,9 +418,11 @@ void ToolbarView::Init() {
+@@ -401,9 +419,11 @@ void ToolbarView::Init() {
  
    std::unique_ptr<MediaToolbarButtonView> media_button;
  #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
@@ -1083,7 +1083,7 @@ index a8eadfc9e614d9fcf4b2e97594f63b8fd889293e..357e301c5b84b19f17a9fa281a26842e
  #endif
  
    // Always add children in order from left to right, for accessibility.
-@@ -507,7 +527,7 @@ void ToolbarView::Init() {
+@@ -508,7 +528,7 @@ void ToolbarView::Init() {
    }
  
    if (!base::FeatureList::IsEnabled(tabs::kHorizontalTabStripComboButton) &&
@@ -1092,7 +1092,7 @@ index a8eadfc9e614d9fcf4b2e97594f63b8fd889293e..357e301c5b84b19f17a9fa281a26842e
      CHECK(!features::IsWebUIPinnedToolbarActionsEnabled())
          << "WebUIPinnedToolbarActions does not support "
             "CreatePermanentButtonFor, consider enabling "
-@@ -542,7 +562,8 @@ void ToolbarView::Init() {
+@@ -543,7 +563,8 @@ void ToolbarView::Init() {
  
    // Only show the Battery Saver button when it is not controlled by the OS. On
    // ChromeOS the battery icon in the shelf shows the same information.
@@ -1102,7 +1102,7 @@ index a8eadfc9e614d9fcf4b2e97594f63b8fd889293e..357e301c5b84b19f17a9fa281a26842e
      battery_saver_button_ =
          AddChildView(std::make_unique<BatterySaverButton>(browser_view_));
    }
-@@ -587,7 +608,7 @@ void ToolbarView::Init() {
+@@ -588,7 +609,7 @@ void ToolbarView::Init() {
                                 browser_->profile()->IsGuestSession() ||
                                 browser_->profile()->IsRegularProfile();
  #endif
@@ -1112,7 +1112,7 @@ index a8eadfc9e614d9fcf4b2e97594f63b8fd889293e..357e301c5b84b19f17a9fa281a26842e
  #if BUILDFLAG(ENABLE_WEBUI_TAB_STRIP)
    auto new_tab_button = std::make_unique<ToolbarButton>(base::BindRepeating(
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.h chrome/browser/ui/views/toolbar/toolbar_view.h
-index 6ccd6901d44838045b6173828be810f68b0867cf..e6195d8c8f98bd6ddaeba01998c7de1821364240 100644
+index 169e752f0496af3afb5fa54c80fc06c284db0092..b03bf646557311cdf2175dfe47d7777e6950d756 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.h
 +++ chrome/browser/ui/views/toolbar/toolbar_view.h
 @@ -110,7 +110,8 @@ class ToolbarView : public views::AccessiblePaneView,
