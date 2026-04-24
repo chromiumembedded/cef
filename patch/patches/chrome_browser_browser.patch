@@ -1023,10 +1023,10 @@ index 6a856b5aa45896e747c6b4f0f3d4c3286778f29b..9916b2e992ebe760126a50f9886425f8
    // browser window. Do not use this method to find a specific tab.
    virtual std::vector<tabs::TabInterface*> GetAllTabInterfaces() = 0;
 diff --git chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
-index b89bc42f2bfe090103072406ae743286e6421962..e9c1327f851e6932d0d03cbce9259789df207c6e 100644
+index 11fbfe4bc7acacd18e25e0819a89811b377bcd98..8ee69250a904af4d1b89d065b17c1d409a9f08e0 100644
 --- chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
 +++ chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
-@@ -276,8 +276,7 @@ HorizontalTabStripRegionView::HorizontalTabStripRegionView(
+@@ -277,8 +277,7 @@ HorizontalTabStripRegionView::HorizontalTabStripRegionView(
    // Add and configure the TabSearchContainer and TabStripComboButton.
    std::unique_ptr<TabSearchContainer> tab_search_container;
    std::unique_ptr<TabStripActionContainer> tab_strip_action_container;

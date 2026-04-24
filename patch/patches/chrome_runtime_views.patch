@@ -1028,7 +1028,7 @@ index 4bf996ee32d74bb52c045694aed40c3903fd5bec..96ca540ec612afc0d633e361f728bc8e
        case PageActionIconType::kBookmarkStar:
          add_page_action_icon(type, std::make_unique<StarView>(
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index c16935b0a78658639a9ad86af10614172bfbb7da..463bb0323c9823992fde0beb9bd9e154baafa10b 100644
+index 1cf41ed40cff86e73de855995614f0afe074c36a..ddeb27f79b3b2df97ea1252087c19f30ad9f8be2 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -308,12 +308,14 @@ bool IsMigratedClickToCallBubble(
@@ -1127,7 +1127,7 @@ index c16935b0a78658639a9ad86af10614172bfbb7da..463bb0323c9823992fde0beb9bd9e154
  #if BUILDFLAG(ENABLE_WEBUI_TAB_STRIP)
    auto new_tab_button = std::make_unique<ToolbarButton>(base::BindRepeating(
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.h chrome/browser/ui/views/toolbar/toolbar_view.h
-index f1cfb95fd657a9db6c0c960acf38cfd82d46a5a7..c253c897a0cbf039b6ce5439c388e0c6ea1752e4 100644
+index 1133340f27a5919820adc29e3553f1c6ca9a1949..ed4180d95c6334e1dac157ff0db676cabf1a7163 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.h
 +++ chrome/browser/ui/views/toolbar/toolbar_view.h
 @@ -109,7 +109,8 @@ class ToolbarView : public views::AccessiblePaneView,
