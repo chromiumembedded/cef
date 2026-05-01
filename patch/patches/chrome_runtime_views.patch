@@ -1013,7 +1013,7 @@ index 7f176a5a9a5c7660b9f9855a8ec912212cd72c4a..5c48c1341bd68ae5eedf6313a4a9ce61
        case PageActionIconType::kBookmarkStar:
          add_page_action_icon(type, std::make_unique<StarView>(
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 1701b7550912ab4dba2ce3741af6016394afe37e..00b5a85dcd314d76b9bd0db59cd7210795b2641d 100644
+index f3f6556177d64d77ad09d5b47f206740c7bf5cf7..57416e9c7094da9e71d8dd5991666e151af8b6f6 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -251,12 +251,14 @@ bool IsPositionInWindowCaptionForView(const views::View* view,
@@ -1068,7 +1068,7 @@ index 1701b7550912ab4dba2ce3741af6016394afe37e..00b5a85dcd314d76b9bd0db59cd72107
    }
  
    // Make sure the toolbar shows by default.
-@@ -401,9 +419,11 @@ void ToolbarView::Init() {
+@@ -402,9 +420,11 @@ void ToolbarView::Init() {
  
    std::unique_ptr<MediaToolbarButtonView> media_button;
  #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
@@ -1083,7 +1083,7 @@ index 1701b7550912ab4dba2ce3741af6016394afe37e..00b5a85dcd314d76b9bd0db59cd72107
  #endif
  
    // Always add children in order from left to right, for accessibility.
-@@ -508,7 +528,7 @@ void ToolbarView::Init() {
+@@ -509,7 +529,7 @@ void ToolbarView::Init() {
    }
  
    if (!base::FeatureList::IsEnabled(tabs::kHorizontalTabStripComboButton) &&
@@ -1092,7 +1092,7 @@ index 1701b7550912ab4dba2ce3741af6016394afe37e..00b5a85dcd314d76b9bd0db59cd72107
      CHECK(!features::IsWebUIPinnedToolbarActionsEnabled())
          << "WebUIPinnedToolbarActions does not support "
             "CreatePermanentButtonFor, consider enabling "
-@@ -543,7 +563,8 @@ void ToolbarView::Init() {
+@@ -544,7 +564,8 @@ void ToolbarView::Init() {
  
    // Only show the Battery Saver button when it is not controlled by the OS. On
    // ChromeOS the battery icon in the shelf shows the same information.
@@ -1102,7 +1102,7 @@ index 1701b7550912ab4dba2ce3741af6016394afe37e..00b5a85dcd314d76b9bd0db59cd72107
      battery_saver_button_ =
          AddChildView(std::make_unique<BatterySaverButton>(browser_view_));
    }
-@@ -588,7 +609,7 @@ void ToolbarView::Init() {
+@@ -589,7 +610,7 @@ void ToolbarView::Init() {
                                 browser_->profile()->IsGuestSession() ||
                                 browser_->profile()->IsRegularProfile();
  #endif
