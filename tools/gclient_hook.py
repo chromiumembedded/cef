@@ -144,6 +144,11 @@ for dir, config in configs.items():
   # Generate the Ninja config.
   cmd = ['gn', 'gen', os.path.join('out', dir)]
   if 'GN_ARGUMENTS' in os.environ.keys():
+    if os.environ['GN_ARGUMENTS'].find("--args") >= 0:
+      print(
+          "you must use GN_DEFINES to pass gn variables and not via --args in GN_ARGUMENTS"
+      )
+      sys.exit(1)
     cmd.extend(os.environ['GN_ARGUMENTS'].split(' '))
   RunAction(src_dir, cmd)
   if platform == 'windows':
