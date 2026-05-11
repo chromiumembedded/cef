@@ -1,8 +1,8 @@
 diff --git gclient.py gclient.py
-index 1cc8fb8da0d93acc8f32eceb49fe4aa4bf95945c..424c277ee556b8db6b18df47822560cc5f103fc7 100755
+index 933a4be3531e5275ecdd498229b6733af4fc632b..f5e86d9e579e15fc79214f6ec371f3a19df10640 100755
 --- gclient.py
 +++ gclient.py
-@@ -1000,7 +1000,8 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
+@@ -1002,7 +1002,8 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
          if self.git_dependencies_state == gclient_eval.SUBMODULES:
              deps.update(self.ParseGitSubmodules())
  
@@ -12,7 +12,7 @@ index 1cc8fb8da0d93acc8f32eceb49fe4aa4bf95945c..424c277ee556b8db6b18df47822560cc
              # Git submodules are used - get their state.
              self._known_dependency_diff = self.CreateSCM().GetSubmoduleDiff()
              self._dependency_index_state = self.CreateSCM(
-@@ -1218,7 +1219,7 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
+@@ -1220,7 +1221,7 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
              self.FuzzyMatchUrl(revision_overrides), None)
          if not revision_override and not self.managed:
              revision_override = 'unmanaged'
@@ -21,3 +21,17 @@ index 1cc8fb8da0d93acc8f32eceb49fe4aa4bf95945c..424c277ee556b8db6b18df47822560cc
              # Create a shallow copy to mutate revision.
              options = copy.copy(options)
              options.revision = revision_override
+@@ -2968,7 +2969,12 @@ class CipdDependency(Dependency):
+         if dep_value.get('version_file'):
+             fp = os.path.join(parent.root.root_dir, parent.name,
+                               dep_value['version_file'])
+-            version = gclient_utils.FileRead(fp).strip()
++            if os.path.isfile(fp):
++                version = gclient_utils.FileRead(fp).strip()
++            elif not should_process:
++                version = 'unknown'
++            else:
++                raise FileNotFoundError(fp)
+         else:
+             version = dep_value['version']
+         url = urllib.parse.urljoin(cipd_root.service_url,

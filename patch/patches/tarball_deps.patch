@@ -1,7 +1,16 @@
 diff --git DEPS DEPS
-index d30020c5a35a16a822521ad97c6c2aed6ce61746..9fbce11ad00260775d236c36468f192abbf1d85d 100644
+index d30020c5a35a16a822521ad97c6c2aed6ce61746..ba4a0d00a4e628b730504b7d1547ae57e3caeadf 100644
 --- DEPS
 +++ DEPS
+@@ -2060,7 +2060,7 @@ deps = {
+     Var('chromium_git') + '/chromium/web-tests.git' + '@' + Var('crossbench_web_tests_revision'),
+ 
+   'src/third_party/depot_tools':
+-    Var('chromium_git') + '/chromium/tools/depot_tools.git' + '@' + '2e88a3f08bd8c4a0014eae82729beca935f7f188',
++    Var('chromium_git') + '/chromium/tools/depot_tools.git' + '@' + '41c40cfaec7ee3bf0423c59925d8b23982a601f1',
+ 
+   'src/third_party/devtools-frontend/src':
+     Var('chromium_git') + '/devtools/devtools-frontend' + '@' + Var('devtools_frontend_revision'),
 @@ -4218,6 +4218,7 @@ hooks = [
      # Update LASTCHANGE.
      'name': 'lastchange',
