@@ -1,5 +1,5 @@
 diff --git gclient.py gclient.py
-index c685e8a618e4ae942036528d39c97a8a340eb042..a5e222931d2b0ac8f3298a0b34114251786127aa 100755
+index 933a4be3531e5275ecdd498229b6733af4fc632b..f5e86d9e579e15fc79214f6ec371f3a19df10640 100755
 --- gclient.py
 +++ gclient.py
 @@ -1002,7 +1002,8 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
@@ -21,3 +21,17 @@ index c685e8a618e4ae942036528d39c97a8a340eb042..a5e222931d2b0ac8f3298a0b34114251
              # Create a shallow copy to mutate revision.
              options = copy.copy(options)
              options.revision = revision_override
+@@ -2968,7 +2969,12 @@ class CipdDependency(Dependency):
+         if dep_value.get('version_file'):
+             fp = os.path.join(parent.root.root_dir, parent.name,
+                               dep_value['version_file'])
+-            version = gclient_utils.FileRead(fp).strip()
++            if os.path.isfile(fp):
++                version = gclient_utils.FileRead(fp).strip()
++            elif not should_process:
++                version = 'unknown'
++            else:
++                raise FileNotFoundError(fp)
+         else:
+             version = dep_value['version']
+         url = urllib.parse.urljoin(cipd_root.service_url,
