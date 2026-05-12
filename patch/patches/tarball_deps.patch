@@ -1,7 +1,25 @@
 diff --git DEPS DEPS
-index 6fe4536b7acda545ae9098906875cfe37a480283..a0b747824b907d312f2ed35bdaf06d80f105c53f 100644
+index 6fe4536b7acda545ae9098906875cfe37a480283..fe4655a015c3c4bb92ef21feb162ca493b31b22e 100644
 --- DEPS
 +++ DEPS
+@@ -1220,7 +1220,7 @@ deps = {
+       'packages': [
+           {
+               'package': 'chromium/android_webview/tools/orderfiles/arm',
+-              'version_file': 'android_webview/tools/android-webview-arm.orderfile.txt',
++              'version': 'unknown',
+           },
+       ],
+       'condition': 'checkout_android and non_git_source',
+@@ -1231,7 +1231,7 @@ deps = {
+       'packages': [
+           {
+               'package': 'chromium/android_webview/tools/orderfiles/arm64',
+-              'version_file': 'android_webview/tools/android-webview-arm64.orderfile.txt',
++              'version': 'unknown',
+           },
+       ],
+       'condition': 'checkout_android and non_git_source',
 @@ -4246,6 +4246,7 @@ hooks = [
      # Update LASTCHANGE.
      'name': 'lastchange',
