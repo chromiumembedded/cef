@@ -13,7 +13,7 @@ The Chromium Embedded Framework (CEF) is a simple framework for embedding Chromi
 * Issue Tracker - https://github.com/chromiumembedded/cef/issues
 * C++ API Docs - [Stable release docs](https://cef-builds.spotifycdn.com/docs/stable.html) / [Beta release docs](https://cef-builds.spotifycdn.com/docs/beta.html)
 * Downloads - https://cef-builds.spotifycdn.com/index.html
-* Donations - http://www.magpcss.org/ceforum/donate.php
+* Donations - https://github.com/sponsors/magreenblatt
 
 # Introduction
 
@@ -26,7 +26,7 @@ CEF is a BSD-licensed open source project founded by Marshall Greenblatt in 2008
 
 CEF supports a wide range of programming languages and operating systems and can be easily integrated into both new and existing applications. It was designed from the ground up with both performance and ease of use in mind. The base framework includes C and C++ programming interfaces exposed via native libraries that insulate the host application from Chromium and Blink implementation details. It provides close integration between the browser and the host application including support for custom plugins, protocols, JavaScript objects and JavaScript extensions. The host application can optionally control resource loading, navigation, context menus, printing and more, while taking advantage of the same performance and HTML5 technologies available in the Google Chrome Web browser.
 
-Numerous individuals and organizations contribute time and resources to support CEF development, but more involvement from the community is always welcome. This includes support for both the core CEF project and external projects that integrate CEF with additional programming languages and frameworks (see the "External Projects" section below). If you are interested in donating time to help with CEF development please see the "Helping Out" section below. If you are interested in donating money to support general CEF development and infrastructure efforts please visit the [CEF Donations](http://www.magpcss.org/ceforum/donate.php) page.
+Numerous individuals and organizations contribute time and resources to support CEF development, but more involvement from the community is always welcome. This includes support for both the core CEF project and external projects that integrate CEF with additional programming languages and frameworks (see the "External Projects" section below). If you are interested in donating time to help with CEF development please see the "Helping Out" section below. If you are interested in donating money to support general CEF development and infrastructure efforts please visit the [CEF Sponsors](https://github.com/sponsors/magreenblatt) page.
 
 # Getting Started
 
