@@ -33,7 +33,7 @@ index 1423d061aa00c5e8c58bceb09f36d517821f8d06..dd7e20ed4850153fe5e1cc2d69acfd52
    ~BrowserNativeWidgetMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_native_widget_mac.mm chrome/browser/ui/views/frame/browser_native_widget_mac.mm
-index d6d2a757c2b63c8ae11ef760e69928ac4904c4e7..02502381af8193c7fcf42915e69100d373ffa5f7 100644
+index d6d2a757c2b63c8ae11ef760e69928ac4904c4e7..607d55357fcdb53518952754bd0e40aad8a80d12 100644
 --- chrome/browser/ui/views/frame/browser_native_widget_mac.mm
 +++ chrome/browser/ui/views/frame/browser_native_widget_mac.mm
 @@ -216,7 +216,15 @@ void BrowserNativeWidgetMac::OnWidgetDestroyed(views::Widget* widget) {
@@ -99,3 +99,21 @@ index d6d2a757c2b63c8ae11ef760e69928ac4904c4e7..02502381af8193c7fcf42915e69100d3
  
    if (command == IDC_TOGGLE_VERTICAL_TABS) {
      if (auto* controller =
+@@ -461,10 +487,13 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
+           is_vertical, tabs::VerticalTabStripEntryPoint::kMacViewMenu);
+     }
+   } else if (command == IDC_CLEAR_BROWSING_DATA) {
+-    views::ElementTrackerViews::GetInstance()->NotifyCustomEvent(
+-        browsing_data_important_sites_util::
+-            kOpenClearBrowsingDataDialogViaAcceleratorEventId,
+-        browser_view_);
++    if (BrowserView* browser_view =
++            BrowserView::GetBrowserViewForBrowser(browser)) {
++      views::ElementTrackerViews::GetInstance()->NotifyCustomEvent(
++          browsing_data_important_sites_util::
++              kOpenClearBrowsingDataDialogViaAcceleratorEventId,
++          browser_view);
++    }
+   }
+ 
+   chrome::ExecuteCommandWithDisposition(browser, command,
