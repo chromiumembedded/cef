@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/frame/browser_window_property_manager_win.cc chrome/browser/ui/views/frame/browser_window_property_manager_win.cc
-index 1a62480aee22c86dc9f570fc2d1406dc37b92e0e..9da572856c03b310a675e45318ae9ffe8bd55601 100644
+index 6fa6bffa839d15e911a39f0ee2ce9be2dd09f5f3..18d2092df12b8dd9175647f2a88c2f9f01e3163c 100644
 --- chrome/browser/ui/views/frame/browser_window_property_manager_win.cc
 +++ chrome/browser/ui/views/frame/browser_window_property_manager_win.cc
 @@ -8,6 +8,7 @@
@@ -25,5 +25,5 @@ index 1a62480aee22c86dc9f570fc2d1406dc37b92e0e..9da572856c03b310a675e45318ae9ffe
 +#endif
 +
    // Set the app user model id for this application to that of the application
-   // name. See http://crbug.com/7028.
+   // name. See http://crbug.com/41308099.
    std::wstring app_id =

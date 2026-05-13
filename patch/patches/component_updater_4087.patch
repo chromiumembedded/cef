@@ -1,8 +1,8 @@
 diff --git components/component_updater/component_updater_service.h components/component_updater/component_updater_service.h
-index d8d54fa1b2475717cdb793f63012530fc43ed663..05312ee4215d49fe3d548d4c847b964ad2271b1d 100644
+index c16c8bbd9b59b10a7c281a718d97026d7713fe76..5dbb7a21db7f52790dbd1535c41004ecc7cc714c 100644
 --- components/component_updater/component_updater_service.h
 +++ components/component_updater/component_updater_service.h
-@@ -19,6 +19,7 @@
+@@ -21,6 +21,7 @@
  #include "build/build_config.h"
  #include "components/update_client/update_client.h"
  
@@ -10,7 +10,7 @@ index d8d54fa1b2475717cdb793f63012530fc43ed663..05312ee4215d49fe3d548d4c847b964a
  class ComponentsHandler;
  class PluginObserver;
  
-@@ -235,6 +236,7 @@ class OnDemandUpdater {
+@@ -242,6 +243,7 @@ class OnDemandUpdater {
    friend class ash::SmartDimComponentIntegrationTest;
    friend class CrOSComponentInstaller;
  #endif  // BUILDFLAG(IS_CHROMEOS)

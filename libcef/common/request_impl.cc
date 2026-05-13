@@ -555,7 +555,7 @@ void CefRequestImpl::Get(const cef::mojom::RequestParamsPtr& params,
     const blink::WebString& referrer =
         blink::WebSecurityPolicy::GenerateReferrerHeader(
             params->referrer->policy, params->url,
-            blink::WebString::FromUTF8(params->referrer->url.spec()));
+            blink::WebString::FromUtf8(params->referrer->url.spec()));
     if (!referrer.IsEmpty()) {
       request.SetReferrerString(referrer);
       request.SetReferrerPolicy(params->referrer->policy);
@@ -566,8 +566,8 @@ void CefRequestImpl::Get(const cef::mojom::RequestParamsPtr& params,
   if (!params->headers.empty()) {
     for (net::HttpUtil::HeadersIterator i(params->headers, "\n\r");
          i.GetNext();) {
-      request.AddHttpHeaderField(blink::WebString::FromUTF8(i.name()),
-                                 blink::WebString::FromUTF8(i.values()));
+      request.AddHttpHeaderField(blink::WebString::FromUtf8(i.name()),
+                                 blink::WebString::FromUtf8(i.values()));
       headerMap.insert(std::make_pair(i.name(), i.values()));
     }
   }

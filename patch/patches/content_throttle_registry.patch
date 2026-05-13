@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/navigation_throttle_registry_impl.cc content/browser/renderer_host/navigation_throttle_registry_impl.cc
-index b164b0055212c91c85424d2fcbb9650014b853fc..772ae324fae99dc0eb3a70accf021aa62e5b04e5 100644
+index 2bbc7d8c31b0ea692f103c48dc5e8dd0c7a0c503..acd3845480558cc877c0251f81fe266e1acb042e 100644
 --- content/browser/renderer_host/navigation_throttle_registry_impl.cc
 +++ content/browser/renderer_host/navigation_throttle_registry_impl.cc
-@@ -276,12 +276,17 @@ NavigationHandle& NavigationThrottleRegistryImpl::GetNavigationHandle() {
+@@ -276,13 +276,18 @@ NavigationHandle& NavigationThrottleRegistryImpl::GetNavigationHandle() {
  }
  
  void NavigationThrottleRegistryImpl::AddThrottle(
@@ -10,8 +10,9 @@ index b164b0055212c91c85424d2fcbb9650014b853fc..772ae324fae99dc0eb3a70accf021aa6
 +    std::unique_ptr<NavigationThrottle> navigation_throttle,
 +    bool first) {
    CHECK(navigation_throttle);
-   TRACE_EVENT1("navigation", "NavigationThrottleRegistryImpl::AddThrottle",
-                "navigation_throttle", navigation_throttle->GetNameForLogging());
+   TRACE_EVENT(TRACE_DISABLED_BY_DEFAULT("navigation"),
+               "NavigationThrottleRegistryImpl::AddThrottle",
+               "navigation_throttle", navigation_throttle->GetNameForLogging());
    CHECK(!navigation_request_->IsInitialWebUISyncNavigation());
 -  throttles_.push_back(std::move(navigation_throttle));
 +  if (first) {
@@ -23,7 +24,7 @@ index b164b0055212c91c85424d2fcbb9650014b853fc..772ae324fae99dc0eb3a70accf021aa6
  
  bool NavigationThrottleRegistryImpl::HasThrottle(const std::string& name) {
 diff --git content/browser/renderer_host/navigation_throttle_registry_impl.h content/browser/renderer_host/navigation_throttle_registry_impl.h
-index b59d2f39b1b587b64130a248ad93a0b613b9e859..a102685b7d5c7171c4531e942b6ab10039e6ee41 100644
+index fc44a4a0ca10b61ba2414adde737182da0d0bec4..009ae07219c20d5ff43e07388f73513a2c25f4d5 100644
 --- content/browser/renderer_host/navigation_throttle_registry_impl.h
 +++ content/browser/renderer_host/navigation_throttle_registry_impl.h
 @@ -135,7 +135,8 @@ class CONTENT_EXPORT NavigationThrottleRegistryImpl
@@ -35,9 +36,9 @@ index b59d2f39b1b587b64130a248ad93a0b613b9e859..a102685b7d5c7171c4531e942b6ab100
 +      bool first = false) override;
    bool HasThrottle(const std::string& name) override;
    bool EraseThrottleForTesting(const std::string& name) override;
-   bool IsHTTPOrHTTPS() override;
+ 
 diff --git content/public/browser/navigation_throttle_registry.h content/public/browser/navigation_throttle_registry.h
-index eb84b25e92132ad7cd05ce5e5fd30f9260db989d..872f3f4826dae186a66dfdca1a16727847340ea7 100644
+index d541287beae6717847de91d53f3cf1f5c084f2fa..3132993cf0bd518d3c0c7575676c40ede0ba39da 100644
 --- content/public/browser/navigation_throttle_registry.h
 +++ content/public/browser/navigation_throttle_registry.h
 @@ -28,7 +28,8 @@ class CONTENT_EXPORT NavigationThrottleRegistry {

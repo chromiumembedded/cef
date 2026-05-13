@@ -198,8 +198,8 @@ void CefRenderManager::ModifyCrossOriginWhitelistEntry(
   GURL gurl = GURL(entry->source_origin);
   if (add) {
     blink::WebSecurityPolicy::AddOriginAccessAllowListEntry(
-        gurl, blink::WebString::FromUTF8(entry->target_protocol),
-        blink::WebString::FromUTF8(entry->target_domain),
+        gurl, blink::WebString::FromUtf8(entry->target_protocol),
+        blink::WebString::FromUtf8(entry->target_domain),
         /*destination_port=*/0,
         entry->allow_target_subdomains
             ? network::mojom::CorsDomainMatchMode::kAllowSubdomains
@@ -229,7 +229,7 @@ void CefRenderManager::WebKitInitialized() {
     // they use url/url_util.h APIs instead.
     for (const auto& info : *schemes) {
       const blink::WebString& scheme =
-          blink::WebString::FromUTF8(info.scheme_name);
+          blink::WebString::FromUtf8(info.scheme_name);
       if (info.is_display_isolated) {
         blink::WebSecurityPolicy::RegisterURLSchemeAsDisplayIsolated(scheme);
       }

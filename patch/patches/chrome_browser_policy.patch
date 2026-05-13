@@ -1,8 +1,8 @@
 diff --git chrome/browser/policy/BUILD.gn chrome/browser/policy/BUILD.gn
-index f0a86e5520f3369e6900e109cbdc54a0f6e4d698..427e0ee3d6d49143d1fb67d51ae857beccc0e173 100644
+index a698bf8257fe4e2984fb25b2df3865d5634c8c0d..e70c3c4e7b7d6eedbb997129681ea2b4a98d7188 100644
 --- chrome/browser/policy/BUILD.gn
 +++ chrome/browser/policy/BUILD.gn
-@@ -23,6 +23,7 @@ source_set("path_parser") {
+@@ -27,6 +27,7 @@ source_set("path_parser") {
      "//base",
      "//chrome/common:constants",
      "//components/policy:generated",
@@ -382,7 +382,7 @@ index eae95c5f35740f6d72fbdd26b74d6726f6bf29d2..38b73caa7080835bc749623b96f034d3
        cur = base::FilePath(policy::kPolicyPath);
        break;
 diff --git chrome/common/chrome_paths.h chrome/common/chrome_paths.h
-index 9b3e9be1f14c1d40c31a93c27db966fb7ff96e44..9e47a5f07529fc8a27c9cc727a856336db76368c 100644
+index 01ac4e4c83af8d7e1009dbd97ddb9c34fbfde916..24c4839c930012cf34f8c9b8ca5354dfecb3fdc1 100644
 --- chrome/common/chrome_paths.h
 +++ chrome/common/chrome_paths.h
 @@ -7,6 +7,7 @@
@@ -393,7 +393,7 @@ index 9b3e9be1f14c1d40c31a93c27db966fb7ff96e44..9e47a5f07529fc8a27c9cc727a856336
  #include "extensions/buildflags/buildflags.h"
  #include "third_party/widevine/cdm/buildflags.h"
  
-@@ -52,7 +53,7 @@ enum {
+@@ -49,7 +50,7 @@ enum {
  #if BUILDFLAG(IS_MAC)
    DIR_OUTER_BUNDLE,  // Directory that is the outermost Chromium bundle.
  #endif

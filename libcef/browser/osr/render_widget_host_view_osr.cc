@@ -825,6 +825,10 @@ viz::SurfaceId CefRenderWidgetHostViewOSR::GetCurrentSurfaceId() const {
                                : viz::SurfaceId();
 }
 
+bool CefRenderWidgetHostViewOSR::HasSavedCompositorFrame() const {
+  return delegated_frame_host_ && delegated_frame_host_->HasSavedFrame();
+}
+
 void CefRenderWidgetHostViewOSR::ImeSetComposition(
     const CefString& text,
     const std::vector<CefCompositionUnderline>& underlines,

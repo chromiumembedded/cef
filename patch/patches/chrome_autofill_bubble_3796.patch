@@ -83,13 +83,13 @@ index 38ab8a7599cb3d6031efd8453c0f7f3c3e0e479a..0fbe1cbb7609c4323bf10a19ac9a6cca
    // Verify if user is eligible for iOS promo, and attempt showing if they are.
    ios_promos_utils::VerifyIOSPromoEligibility(
 diff --git chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
-index 9c4855248d1c65c7ae68711e166812e2ed48d178..4d20824ef7722e13017c9745c97f9a8544da332b 100644
+index c807dc00a6126a4342e82d34ae4216990773e1dd..adfbfa25835bc7dc4f4d528223a37bd77249d278 100644
 --- chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
 +++ chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
-@@ -821,6 +821,9 @@ void SaveCardBubbleControllerImpl::DoShowBubble() {
-   }
- 
-   BrowserWindowInterface* browser = chrome::FindBrowserWithTab(web_contents());
+@@ -825,6 +825,9 @@ void SaveCardBubbleControllerImpl::DoShowBubble() {
+   BrowserWindowInterface* browser =
+       GlobalBrowserCollection::GetInstance()->FindBrowserWithTab(
+           web_contents());
 +  if (!browser) {
 +    return;
 +  }

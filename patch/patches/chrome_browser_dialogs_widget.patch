@@ -1,10 +1,10 @@
 diff --git chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc
-index d6e0cbb8efbfd88707efe834bc7dab56c52e606e..254e43478393e87860e01c85d203f0435ad68a5f 100644
+index 39077439744412b5812c380d788c1a3449d1772b..0bfcaad0722cc9cb5838e842df6729d005fbcb60 100644
 --- chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc
 +++ chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc
-@@ -99,7 +99,7 @@ javascript_dialogs::AppModalDialogView* CreateViewsJavaScriptDialog(
-   gfx::NativeWindow parent_window =
-       controller->web_contents()->GetTopLevelNativeWindow();
+@@ -100,7 +100,7 @@ javascript_dialogs::AppModalDialogView* CreateViewsJavaScriptDialog(
+   web_contents->GetDelegate()->ActivateContents(web_contents);
+   gfx::NativeWindow parent_window = web_contents->GetTopLevelNativeWindow();
  #if defined(USE_AURA)
 -  if (!parent_window->GetRootWindow()) {
 +  if (parent_window && !parent_window->GetRootWindow()) {

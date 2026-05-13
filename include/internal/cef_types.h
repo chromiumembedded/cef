@@ -3725,6 +3725,10 @@ typedef enum {
   CEF_CPAIT_FEDERATION,
   CEF_CPAIT_GLIC,
 #endif
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CPAIT_ANCHORED_CONTEXTUAL_CUE,
+  CEF_CPAIT_WEB_AUTHN_AMBIENT_SIGNIN,
+#endif
   CEF_CPAIT_NUM_VALUES,
 } cef_chrome_page_action_icon_type_t;
 

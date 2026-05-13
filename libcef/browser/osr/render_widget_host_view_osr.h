@@ -187,6 +187,7 @@ class CefRenderWidgetHostViewOSR
 #endif
 
   viz::SurfaceId GetCurrentSurfaceId() const override;
+  bool HasSavedCompositorFrame() const override;
   void ImeCompositionRangeChanged(
       const gfx::Range& range,
       const std::optional<std::vector<gfx::Rect>>& character_bounds) override;

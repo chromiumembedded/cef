@@ -1,5 +1,5 @@
 diff --git chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
-index b403a29bae1462b2780d435da8ebc4d24d95a18b..77329762b1aa06a4120d12bd47f57b8e94558322 100644
+index 3255ef3d3f1c67a1deed85b867dc656ba11d3845..6a34cc1bfb741f981893f3def63df2aee6971767 100644
 --- chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
 +++ chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
 @@ -35,6 +35,7 @@
@@ -10,7 +10,7 @@ index b403a29bae1462b2780d435da8ebc4d24d95a18b..77329762b1aa06a4120d12bd47f57b8e
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/buildflags.h"
-@@ -936,9 +937,11 @@ void RecordStartupMetrics() {
+@@ -938,9 +939,11 @@ void RecordStartupMetrics() {
    key_credential_manager_support::ReportKeyCredentialManagerSupport();
  #endif  // BUILDFLAG(IS_WIN)
  
@@ -21,4 +21,4 @@ index b403a29bae1462b2780d435da8ebc4d24d95a18b..77329762b1aa06a4120d12bd47f57b8e
 +#endif  // !BUILDFLAG(ENABLE_CEF)
  
    // Record whether Chrome is the default browser or not.
-   // Disabled on Linux due to hanging browser tests, see crbug.com/1216328.
+   // Disabled on Linux due to hanging browser tests, see crbug.com/40770414.

@@ -1,5 +1,5 @@
 diff --git chrome/common/features.gni chrome/common/features.gni
-index d4b2291c8f4578f62e5d1896f693f482f35724b9..340c369c65546575ea7dd482af67955df6e3b5d0 100644
+index d8fd343ab175c2b0980ac0599a30dc0fc7f4c516..8ea5e8f1510d51368c7b42b435a08b3b7a34d4dc 100644
 --- chrome/common/features.gni
 +++ chrome/common/features.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -9,7 +9,7 @@ index d4b2291c8f4578f62e5d1896f693f482f35724b9..340c369c65546575ea7dd482af67955d
 +import("//cef/libcef/features/features.gni")
  import("//components/compose/features.gni")
  import("//components/safe_browsing/buildflags.gni")
- import("//components/sharing_message/buildflags.gni")
+ import("//components/signin/features.gni")
 @@ -33,7 +34,7 @@ assert(use_blink, "Chromium without blink shouldn't use anything in //chrome")
  declare_args() {
    # Enables the build to have logging enabled by default.

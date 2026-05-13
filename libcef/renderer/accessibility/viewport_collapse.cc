@@ -30,7 +30,8 @@ blink::PhysicalRect ComputeViewportRect(blink::Document& document) {
   // combine both: start from the visual viewport rect (which has the correct
   // size and visual viewport offset) and add the layout viewport scroll.
   auto rect = blink::PhysicalRect(
-      frame_view->GetPage()->GetVisualViewport().VisibleContentRect());
+      frame_view->GetPage()->GetVisualViewport().VisibleContentRect(
+          blink::kExcludeScrollbars));
   if (auto* layout_viewport = frame_view->LayoutViewport()) {
     blink::ScrollOffset scroll = layout_viewport->GetScrollOffset();
     rect.offset.left += blink::LayoutUnit(scroll.x());

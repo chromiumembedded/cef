@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index 58dbcfe8123b200525148036cac2b07485c0fb43..f91427e83f337f446983560a1a6868176457573e 100644
+index 6104d7f3cac964f50b7f3913a20f3ca52832a834..f59bf272249dfd79a732c67ac2d8ee010cccb9ee 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
-@@ -1074,12 +1074,14 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
+@@ -1083,12 +1083,14 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
    UMA_HISTOGRAM_ENUMERATION("WrenchMenu.MenuAction", MENU_ACTION_MENU_OPENED,
                              LIMIT_MENU_ACTION);
  
@@ -23,7 +23,7 @@ index 58dbcfe8123b200525148036cac2b07485c0fb43..f91427e83f337f446983560a1a686817
  }
  
  void AppMenu::RunMenu(views::Widget* parent,
-@@ -1091,7 +1093,8 @@ void AppMenu::RunMenu(views::Widget* parent,
+@@ -1100,7 +1102,8 @@ void AppMenu::RunMenu(views::Widget* parent,
    menu_runner_->RunMenuAt(
        parent, nullptr, anchor_screen_bounds,
        views::MenuAnchorPosition::kTopRight, ui::mojom::MenuSourceType::kNone,
@@ -184,7 +184,7 @@ index 0177c78be91e7b51fdda6efcf7c7a9fd2f684b8a..c719b78918641abdb1e18d8b94aa93af
    LabelButtonImageContainer* image_container() {
      return image_container_.get();
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index ac350ea7f8b740653d957e08f053cd3ee5d4a96e..f570a4a35c0d635ca61e9159ea0e4a0fcf47530b 100644
+index cf0139f0db001e764ad8fe14ca3d9379baeeae3f..bbed7ad667b768a9343266ec1f395b38467e6761 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -57,12 +57,29 @@ enum LabelPropertyKey {
@@ -217,8 +217,8 @@ index ac350ea7f8b740653d957e08f053cd3ee5d4a96e..f570a4a35c0d635ca61e9159ea0e4a0f
  }  // namespace
  
  namespace views {
-@@ -536,6 +553,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
-   OnDisplayTextTruncation();
+@@ -544,6 +561,15 @@ gfx::DirectionalityMode Label::GetDirectionalityMode() const {
+   return full_text_->directionality_mode();
  }
  
 +void Label::SetDrawStringsFlags(int flags) {
@@ -233,7 +233,7 @@ index ac350ea7f8b740653d957e08f053cd3ee5d4a96e..f570a4a35c0d635ca61e9159ea0e4a0f
  void Label::SetCustomTooltipText(std::u16string_view tooltip_text) {
    custom_tooltip_text_ = std::u16string(tooltip_text);
  
-@@ -880,6 +906,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -888,6 +914,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
      }
    }
  
@@ -251,12 +251,12 @@ index ac350ea7f8b740653d957e08f053cd3ee5d4a96e..f570a4a35c0d635ca61e9159ea0e4a0f
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 0d89a9cd05ec22adf56cb0aaf0593b644abeb560..f05bcc3d41aa2322fbe4ba253dcfe555961aecae 100644
+index b1ccc704de42f1acb2ad3cdcf8102f44a5fcc547..1d0dc681104c339a48da896b580b94b32a35b062 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
-@@ -241,6 +241,10 @@ class VIEWS_EXPORT Label : public View,
-   gfx::ElideBehavior GetElideBehavior() const;
-   void SetElideBehavior(gfx::ElideBehavior elide_behavior);
+@@ -245,6 +245,10 @@ class VIEWS_EXPORT Label : public View,
+   void SetDirectionalityMode(gfx::DirectionalityMode mode);
+   gfx::DirectionalityMode GetDirectionalityMode() const;
  
 +  // Get or set the flags that control display of accelerator characters.
 +  void SetDrawStringsFlags(int flags);
@@ -265,7 +265,7 @@ index 0d89a9cd05ec22adf56cb0aaf0593b644abeb560..f05bcc3d41aa2322fbe4ba253dcfe555
    // Sets the custom local tooltip text.  Default behavior for a label
    // (single-line) is to show the full text if it is wider than its bounds.
    // Calling this overrides the default behavior and lets you set a custom
-@@ -552,6 +556,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -556,6 +560,7 @@ class VIEWS_EXPORT Label : public View,
    int max_width_ = 0;
    // This is used in single-line mode.
    int max_width_single_line_ = 0;
@@ -274,7 +274,7 @@ index 0d89a9cd05ec22adf56cb0aaf0593b644abeb560..f05bcc3d41aa2322fbe4ba253dcfe555
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 63f140c698fb1e5ba1f93c24bfe19bc3f87cec19..db3b1047a58a7b323852085dccf97476b9986571 100644
+index 532edde92c72df424a8898594c9ec195bf7575b3..6c28e6ab97a585d98970721409b8e7a862bb4182 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -612,7 +612,8 @@ void MenuController::Run(Widget* parent,
@@ -295,7 +295,7 @@ index 63f140c698fb1e5ba1f93c24bfe19bc3f87cec19..db3b1047a58a7b323852085dccf97476
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2499,6 +2501,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2493,6 +2495,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -303,7 +303,7 @@ index 63f140c698fb1e5ba1f93c24bfe19bc3f87cec19..db3b1047a58a7b323852085dccf97476
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3230,7 +3233,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -3224,7 +3227,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -316,7 +316,7 @@ index 63f140c698fb1e5ba1f93c24bfe19bc3f87cec19..db3b1047a58a7b323852085dccf97476
      return;
    }
  
-@@ -3255,6 +3262,7 @@ void MenuController::CloseSubmenu() {
+@@ -3249,6 +3256,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
@@ -809,18 +809,18 @@ index 8038c157ff59292c242c41b86394e5e19cf6d640..ca46ede189e018c9ed571717e9a7e084
    if (root_location != root_current_location &&
        !g_ozone_ui_controls_test_helper->MustUseUiControlsForMoveCursorTo() &&
 diff --git ui/views/view.h ui/views/view.h
-index ea27a73076554aa286c67a506fe5e0f60986d733..6d27c9e7efe4589aa2630338372226476b952314 100644
+index 3d016a2264721cc6e10efb506181962023b66bb0..eb2fa71e11f2272b2d7ae172d121e682380f6f08 100644
 --- ui/views/view.h
 +++ ui/views/view.h
-@@ -26,6 +26,7 @@
- #include "base/memory/ptr_util.h"
+@@ -27,6 +27,7 @@
  #include "base/memory/raw_ptr.h"
  #include "base/observer_list.h"
+ #include "base/scoped_observation.h"
 +#include "base/supports_user_data.h"
  #include "base/types/pass_key.h"
  #include "build/build_config.h"
  #include "third_party/skia/include/core/SkPath.h"
-@@ -300,7 +301,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -299,7 +300,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::EventTarget,
                            public ui::EventHandler,
                            public ui::PropertyHandler,
@@ -830,7 +830,7 @@ index ea27a73076554aa286c67a506fe5e0f60986d733..6d27c9e7efe4589aa263033837222647
    // Do not remove this macro!
    // The macro is maintained by the memory safety team.
    ADVANCED_MEMORY_SAFETY_CHECKS();
-@@ -652,7 +654,7 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -649,7 +651,7 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
  
    // Return the preferred height for a specific width. It is a helper function
    // of GetPreferredSize(SizeBounds(w, SizeBound())).height().

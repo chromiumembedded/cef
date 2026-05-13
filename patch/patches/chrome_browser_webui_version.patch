@@ -124,7 +124,7 @@ index 7d1beedfffbfdd34323cfb749bec83187b54778e..d4c79e26e51deb9a32fb9649a1c21a18
    // Factory for the creating refs in callbacks.
    base::WeakPtrFactory<VersionHandler> weak_ptr_factory_{this};
 diff --git chrome/browser/ui/webui/version/version_ui.cc chrome/browser/ui/webui/version/version_ui.cc
-index 66ec30207e57c61db1275b8fd45c17ceb0c2ecf4..8c14c73432ff48095de53afc8b13db20d81b9a5d 100644
+index 8353f5d5a5734e8fc116dcc0f0221891ff3ea9ff..fcb80273186b9709e106a500e8eb5e3795f0bd8f 100644
 --- chrome/browser/ui/webui/version/version_ui.cc
 +++ chrome/browser/ui/webui/version/version_ui.cc
 @@ -19,6 +19,7 @@
@@ -295,7 +295,7 @@ index 3b689206909bf911f4e1d1ed97285a38af615136..83b41ccdc28138ff6ac314ca46dfd7a2
  
      <div id="messages" role="alert" aria-live="polite" aria-relevant="additions">
 diff --git components/webui/version/resources/about_version.ts components/webui/version/resources/about_version.ts
-index 178845ee73fd05ba5b2ba3071a39d57a2fc2480f..013731729237c3a44b09576b100925c575061624 100644
+index 09359c34e23a400a49a46e101c01c88883362799..9764d938f832094d9f1e6dddb61b561dc8f8de62 100644
 --- components/webui/version/resources/about_version.ts
 +++ components/webui/version/resources/about_version.ts
 @@ -72,9 +72,21 @@ function handleVariationInfo(

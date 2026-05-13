@@ -9,8 +9,8 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_window.h"
-#include "chrome/browser/ui/chrome_web_modal_dialog_manager_delegate.h"
 #include "chrome/common/pref_names.h"
+#include "components/tabs/public/tab_interface.h"
 #include "ui/display/display.h"
 #include "ui/display/screen.h"
 #include "ui/gfx/geometry/point.h"
@@ -53,9 +53,8 @@ CefWindowHandle CefBrowserPlatformDelegateChrome::GetHostWindowHandle() const {
 web_modal::WebContentsModalDialogHost*
 CefBrowserPlatformDelegateChrome::GetWebContentsModalDialogHost() const {
   if (chrome_browser_) {
-    ChromeWebModalDialogManagerDelegate* manager = chrome_browser_;
-    return manager->GetWebContentsModalDialogHost(
-        chrome_browser_->tab_strip_model()->GetActiveWebContents());
+    return chrome_browser_->GetWebContentsModalDialogHostForTab(
+        chrome_browser_->GetActiveTabInterface());
   }
   DCHECK(false);
   return nullptr;

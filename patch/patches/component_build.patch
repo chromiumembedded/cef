@@ -46,7 +46,7 @@ index 09d80f2ba678df9ab1b9b2b74ad66d4546036fb2..5dbff44c280a145c65146279a971620f
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index b229de2731dc6a86b9909322c0d0e94e8f2e7eb7..1d55f8ee98f93d77252badbb9fc8f67078c0907f 100644
+index f319a40fb9fc34281aa3c8afc22da84fd38d7285..7553e62fd81521a262d1532328595d511aa36f28 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -3,6 +3,7 @@

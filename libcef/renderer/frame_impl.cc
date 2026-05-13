@@ -843,7 +843,7 @@ void CefFrameImpl::SendCommand(const std::string& command) {
       __FUNCTION__,
       base::BindOnce(
           [](const std::string& command, blink::WebLocalFrame* frame) {
-            frame->ExecuteCommand(blink::WebString::FromUTF8(command));
+            frame->ExecuteCommand(blink::WebString::FromUtf8(command));
           },
           command));
 }

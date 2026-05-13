@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
-index b52c29cfc0090ab662808ececdb848d3bcdb65aa..cb30493ae74200f1127e4420bd457f0dcc94b2c7 100644
+index 224d2d57fdd1491d7949d2ccd9e0995bf4ead00d..501adae850a2a50f988d46a591cb7009c9f4c458 100644
 --- chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 +++ chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 @@ -7,6 +7,7 @@
@@ -33,7 +33,7 @@ index b52c29cfc0090ab662808ececdb848d3bcdb65aa..cb30493ae74200f1127e4420bd457f0d
  JavaScriptTabModalDialogManagerDelegateDesktop::
      JavaScriptTabModalDialogManagerDelegateDesktop(
          content::WebContents* web_contents)
-@@ -82,6 +99,9 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
+@@ -87,6 +104,9 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
    BrowserWindowInterface* browser =
        GetLastActiveBrowserWindowInterfaceWithAnyProfile();
    if (!browser) {
@@ -42,24 +42,21 @@ index b52c29cfc0090ab662808ececdb848d3bcdb65aa..cb30493ae74200f1127e4420bd457f0d
 +    }
      // It's rare, but there are crashes from where sites are trying to show
      // dialogs in the split second of time between when their Browser is gone
-     // and they're gone. In that case, bail. https://crbug.com/1142806
-@@ -99,6 +119,9 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
+     // and they're gone. In that case, bail. https://crbug.com/40727952
+@@ -104,6 +124,9 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
  }
  
  bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
 +  if (IsAlloyContents(web_contents_)) {
 +    return false;
 +  }
-   tabs::TabInterface* tab = tabs::TabInterface::GetFromContents(web_contents_);
-   BrowserWindowInterface* browser = tab->GetBrowserWindowInterface();
-   return browser &&
-@@ -107,7 +130,11 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
- }
- 
+   tabs::TabInterface* tab =
+       tabs::TabInterface::MaybeGetFromContents(web_contents_);
+   if (!tab) {
+@@ -119,6 +142,9 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
  bool JavaScriptTabModalDialogManagerDelegateDesktop::CanShowModalUI() {
--  tabs::TabInterface* tab = tabs::TabInterface::GetFromContents(web_contents_);
-+  tabs::TabInterface* tab =
-+      tabs::TabInterface::MaybeGetFromContents(web_contents_);
+   tabs::TabInterface* tab =
+       tabs::TabInterface::MaybeGetFromContents(web_contents_);
 +  if (!tab && IsAlloyContents(web_contents_)) {
 +    return true;
 +  }

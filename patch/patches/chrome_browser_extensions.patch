@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/chrome_extensions_api_client.cc chrome/browser/extensions/api/chrome_extensions_api_client.cc
-index 20cad69bfdbb22fbcea362cc7ea6acebe0a260a8..a5b53ac7157a6173aaacf2cd5d8ecb01f9bae177 100644
+index 7aa8718b6057e01a6e216171f926aa5b14f78b41..e3930e977b2a031af0033d9f3d5da4c207b80ae4 100644
 --- chrome/browser/extensions/api/chrome_extensions_api_client.cc
 +++ chrome/browser/extensions/api/chrome_extensions_api_client.cc
 @@ -16,6 +16,7 @@
@@ -34,10 +34,10 @@ index 20cad69bfdbb22fbcea362cc7ea6acebe0a260a8..a5b53ac7157a6173aaacf2cd5d8ecb01
  #endif
  
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index 028e90352968212a19148ea1bfa83741ea009c7b..ad40335bc01d22a1a5817b6bc78c1c6099dd75d7 100644
+index d5680fd9b1be1dd854e7fa2308a6684bb0d0c3d6..5f481ddf0da3bda320e5fd1869e7ee1017414d51 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
-@@ -2384,31 +2384,31 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2379,31 +2379,31 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  
    // tabs_internal::GetTabById may return a null window for prerender tabs.
@@ -90,7 +90,7 @@ index 028e90352968212a19148ea1bfa83741ea009c7b..ad40335bc01d22a1a5817b6bc78c1c60
  
    if (params->update_properties.muted &&
        !SetTabAudioMuted(contents, *params->update_properties.muted,
-@@ -2449,7 +2449,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2444,7 +2444,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  #endif
  
@@ -99,7 +99,7 @@ index 028e90352968212a19148ea1bfa83741ea009c7b..ad40335bc01d22a1a5817b6bc78c1c60
      bool pinned = *params->update_properties.pinned;
  
      if (target_tab->IsPinned() != pinned) {
-@@ -2479,7 +2479,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2474,7 +2474,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
@@ -110,7 +110,7 @@ index 028e90352968212a19148ea1bfa83741ea009c7b..ad40335bc01d22a1a5817b6bc78c1c60
        return RespondNow(Error(ErrorUtils::FormatErrorMessage(
            tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
-index 5789b0e87311dfc0a5310dcdc55342058da4a9aa..68b005b83720631689f5bd7d401d56e3f6a7be0d 100644
+index b87b0c9e6938fcbe79e8394afe5328e7def7b45e..f088568cf8e77a0ec67f38af253536e3a25eb765 100644
 --- chrome/browser/extensions/extension_tab_util.cc
 +++ chrome/browser/extensions/extension_tab_util.cc
 @@ -70,6 +70,7 @@
@@ -132,7 +132,7 @@ index 5789b0e87311dfc0a5310dcdc55342058da4a9aa..68b005b83720631689f5bd7d401d56e3
  using content::NavigationEntry;
  using content::WebContents;
  using extensions::mojom::APIPermissionID;
-@@ -663,6 +668,14 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
+@@ -666,6 +671,14 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
      }
    }
  

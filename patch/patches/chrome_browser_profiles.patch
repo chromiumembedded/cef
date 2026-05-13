@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index 08eaa73513559c1936bdab32ec3a07a80ab6bac6..a60536cb65d96012f0af90156067c38138b1e6d6 100644
+index a42a144af7e12d864c2a35833cdeb6f21558be6e..79faa609726714cb0b0b06069437dfabaeb92c71 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -639,7 +639,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -634,7 +634,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -14,18 +14,18 @@ index 08eaa73513559c1936bdab32ec3a07a80ab6bac6..a60536cb65d96012f0af90156067c381
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index 9fbd8722baf2ce422c1c12b84780e9ec5111555d..a34ce3433763ee99b9a1cf533072d941f1f8cab1 100644
+index 8905fccd5148e5dd6cbc71e5ded09dfbcad015b3..2ca7b438534e775b63a9fe27ea418b2359714371 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
-@@ -94,6 +94,7 @@ std::set<content::BrowserContext*>& GetProfileInstances() {
- 
- namespace {
- 
-+const char kCEFOTRProfileIDPrefix[] = "CEF::BrowserContext";
- const char kDevToolsOTRProfileIDPrefix[] = "Devtools::BrowserContext";
- const char kMediaRouterOTRProfileIDPrefix[] = "MediaRouter::Presentation";
- const char kTestOTRProfileIDPrefix[] = "Test::OTR";
-@@ -114,6 +115,8 @@ bool Profile::OTRProfileID::AllowsBrowserWindows() const {
+@@ -103,6 +103,7 @@ constexpr char kPrimaryOTRProfileID[] = "profile::primary_otr";
+ // differentiated by such prefixes. Consult with the profile owners before
+ // proceeding if you believe a new prefix is strictly necessary.
+ // See `chrome/browser/PRESUBMIT.py` which enforces this via a warning.
++constexpr char kCEFOTRProfileIDPrefix[] = "CEF::BrowserContext";
+ constexpr char kDevToolsOTRProfileIDPrefix[] = "Devtools::BrowserContext";
+ constexpr char kMediaRouterOTRProfileIDPrefix[] = "MediaRouter::Presentation";
+ constexpr char kTestOTRProfileIDPrefix[] = "Test::OTR";
+@@ -123,6 +124,8 @@ bool Profile::OTRProfileID::AllowsBrowserWindows() const {
    // DevTools::BrowserContext, MediaRouter::Presentation, and
    // CaptivePortal::Signin are exceptions to this ban.
    if (*this == PrimaryID() || IsDevTools() ||
@@ -34,7 +34,7 @@ index 9fbd8722baf2ce422c1c12b84780e9ec5111555d..a34ce3433763ee99b9a1cf533072d941
        base::StartsWith(profile_id_, kMediaRouterOTRProfileIDPrefix,
                         base::CompareCase::SENSITIVE)) {
      return true;
-@@ -154,6 +157,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
+@@ -163,6 +166,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
        base::Uuid::GenerateRandomV4().AsLowercaseString().c_str()));
  }
  
@@ -52,11 +52,11 @@ index 9fbd8722baf2ce422c1c12b84780e9ec5111555d..a34ce3433763ee99b9a1cf533072d941
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index fde81ad289fb9f0679829abd35270e44262fac16..008da44dcdacff131ffa3feb9097b55793b96e7d 100644
+index 97e16c6ce952ce11a5d6e445fe599a3f6687bcd8..950e56fb1405c82a272ab0d3212be49f9f28c14e 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
-@@ -91,6 +91,10 @@ class Profile : public content::BrowserContext {
-     // be applicable to run. Please see crbug.com/1098697#c3 for more details.
+@@ -88,6 +88,10 @@ class Profile : public content::BrowserContext {
+     // details.
      static OTRProfileID CreateUnique(const std::string& profile_id_prefix);
  
 +    // Creates a unique OTR profile id to be used for CEF browser contexts.
@@ -66,7 +66,7 @@ index fde81ad289fb9f0679829abd35270e44262fac16..008da44dcdacff131ffa3feb9097b557
      // Creates a unique OTR profile id to be used for DevTools browser contexts.
      static OTRProfileID CreateUniqueForDevTools();
  
-@@ -499,6 +503,9 @@ class Profile : public content::BrowserContext {
+@@ -492,6 +496,9 @@ class Profile : public content::BrowserContext {
    static Profile* FromJavaObject(const jni_zero::JavaRef<jobject>& obj);
    jni_zero::ScopedJavaLocalRef<jobject> GetJavaObject() const;
  #endif  // BUILDFLAG(IS_ANDROID)
@@ -76,7 +76,7 @@ index fde81ad289fb9f0679829abd35270e44262fac16..008da44dcdacff131ffa3feb9097b557
   protected:
    // Creates an OffTheRecordProfile which points to this Profile.
    static std::unique_ptr<Profile> CreateOffTheRecordProfile(
-@@ -511,7 +518,6 @@ class Profile : public content::BrowserContext {
+@@ -504,7 +511,6 @@ class Profile : public content::BrowserContext {
        Profile*,
        bool incognito_pref_store);
  
@@ -85,7 +85,7 @@ index fde81ad289fb9f0679829abd35270e44262fac16..008da44dcdacff131ffa3feb9097b557
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 6bb023367ec7092507fb25d9382ee978506a4b77..5504f69edb52e9b0efbdf0ef870e9473dca9f426 100644
+index b253e452ee4f8623550cdf0f7df1bed4101f1573..2d8bcb9a8127dc157b24c3f2aff5f44e6160e018 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
 @@ -39,6 +39,7 @@
@@ -96,8 +96,8 @@ index 6bb023367ec7092507fb25d9382ee978506a4b77..5504f69edb52e9b0efbdf0ef870e9473
  #include "chrome/browser/background/background_contents_service_factory.h"
  #include "chrome/browser/background_fetch/background_fetch_delegate_factory.h"
  #include "chrome/browser/background_fetch/background_fetch_delegate_impl.h"
-@@ -231,6 +232,10 @@
- #include "chrome/browser/background/extensions/background_mode_manager.h"
+@@ -233,6 +234,10 @@
+ #include "chrome/browser/background/extensions/background_mode_manager.h"  // nogncheck crbug.com/40147906
  #endif
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -105,9 +105,9 @@ index 6bb023367ec7092507fb25d9382ee978506a4b77..5504f69edb52e9b0efbdf0ef870e9473
 +#endif
 +
  #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
- #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"
- #include "chrome/browser/extensions/extension_special_storage_policy.h"
-@@ -279,6 +284,12 @@ class ScopedAllowBlockingForProfile : public base::ScopedAllowBlocking {};
+ #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"  // nogncheck crbug.com/40147906
+ #include "chrome/browser/extensions/extension_special_storage_policy.h"  // nogncheck crbug.com/40147906
+@@ -281,6 +286,12 @@ class ScopedAllowBlockingForProfile : public base::ScopedAllowBlocking {};
  
  namespace {
  
@@ -120,7 +120,7 @@ index 6bb023367ec7092507fb25d9382ee978506a4b77..5504f69edb52e9b0efbdf0ef870e9473
  #if BUILDFLAG(ENABLE_SESSION_SERVICE)
  // Delay before we explicitly create the SessionService.
  static constexpr base::TimeDelta kCreateSessionServiceDelay =
-@@ -1015,7 +1026,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1017,7 +1028,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -131,7 +131,7 @@ index 6bb023367ec7092507fb25d9382ee978506a4b77..5504f69edb52e9b0efbdf0ef870e9473
  
    return raw_otr_profile;
  }
-@@ -1332,6 +1345,12 @@ ProfileImpl::GetStorageNotificationService() {
+@@ -1329,6 +1342,12 @@ ProfileImpl::GetStorageNotificationService() {
  #if BUILDFLAG(IS_ANDROID)
    return nullptr;
  #else

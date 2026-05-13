@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index 218548918c62a93a519d694e3da621a20cfec817..032a920b95f00c37c2f2c5a55c0f0211bddabe14 100644
+index ff55cbd02c07cd39aff3788fcdb76eac32eb81f1..ffc571493c5f37abd13b8912435ce2772e93d3a5 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -10,25 +10,23 @@ index 218548918c62a93a519d694e3da621a20cfec817..032a920b95f00c37c2f2c5a55c0f0211
  import("//chrome/process_version_rc_template.gni")
  import("//testing/test.gni")
  
-@@ -100,9 +101,6 @@ source_set("constants") {
+@@ -94,14 +95,13 @@ source_set("constants") {
  
  static_library("crash") {
    sources = [
 -    "../app/chrome_crash_reporter_client_win.cc",
 -    "../app/chrome_crash_reporter_client_win.h",
--    "../common/chrome_result_codes.h",
      "crash/crash_helper.cc",
      "crash/crash_helper.h",
    ]
-@@ -110,6 +108,7 @@ static_library("crash") {
+   deps = [
      ":constants",
      "//base",  # This needs to go.  DEP of app, crash_keys, client.
-     "//base:base_static",  # pe_image
 +    "//cef/libcef/features:buildflags",
      "//chrome/install_static:install_static_util",
      "//components/crash/core/app",
      "//components/crash/core/common",  # crash_keys
-@@ -118,6 +117,17 @@ static_library("crash") {
+@@ -109,6 +109,17 @@ static_library("crash") {
      "//sandbox/policy:win_hook_util",
      "//third_party/crashpad/crashpad/client",  # DumpWithoutCrash
    ]

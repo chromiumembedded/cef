@@ -4,6 +4,7 @@
 
 #include "cef/libcef/browser/osr/software_output_device_proxy.h"
 
+#include "base/logging.h"
 #include "base/memory/shared_memory_mapping.h"
 #include "base/trace_event/trace_event.h"
 #include "components/viz/common/resources/shared_image_format.h"

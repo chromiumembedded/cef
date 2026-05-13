@@ -1,8 +1,8 @@
 diff --git BUILD.gn BUILD.gn
-index 382c7d3ed44eab5df1f33082d0d0ef85121bc47c..0cf5e00f69e92efb81138bf3c67d6dc27438d5a3 100644
+index dd22a8954e19e836405a7e6a2fcdb3241abbbf3d..aa79a7bb07c964eda631c482e9a9e0d87cdbd829 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -12,6 +12,7 @@ import("//build/config/mips.gni")
+@@ -14,6 +14,7 @@ import("//build/config/mips.gni")
  import("//build/config/riscv.gni")
  import("//build/config/sanitizers/sanitizers.gni")
  import("//build_overrides/build.gni")
@@ -10,7 +10,7 @@ index 382c7d3ed44eab5df1f33082d0d0ef85121bc47c..0cf5e00f69e92efb81138bf3c67d6dc2
  import("//third_party/icu/config.gni")
  
  import("gni/cluster_build.gni")
-@@ -489,6 +490,9 @@ declare_args() {
+@@ -486,6 +487,9 @@ declare_args() {
    # Experimental testing mode where various limits are artificially set lower.
    v8_lower_limits_mode = false
  

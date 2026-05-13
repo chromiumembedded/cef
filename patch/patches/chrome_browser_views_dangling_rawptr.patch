@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/bubble/webui_bubble_manager.h chrome/browser/ui/views/bubble/webui_bubble_manager.h
-index 62fd5c2aa247ebb0b0e4ea75f5403ff8c102f3f4..52c5ac90e857906b96b02cb34c7abb46d3903b80 100644
+index 9a66688d511ba8bcd239b48272bfb17cb20d038e..fc1c453e6bc5ab85417bc070c6369ff00b202940 100644
 --- chrome/browser/ui/views/bubble/webui_bubble_manager.h
 +++ chrome/browser/ui/views/bubble/webui_bubble_manager.h
 @@ -28,6 +28,7 @@

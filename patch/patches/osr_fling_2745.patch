@@ -32,7 +32,7 @@ index 6e331ee24bddf1b6f4b0f99d40c94504707dbba8..ab6c61c2e57ac8a93d7f1413b2627c3b
  
  }  // namespace input
 diff --git components/input/render_input_router.h components/input/render_input_router.h
-index d80c3a2fee9aabdee4af8eedb01808c8646b7642..ab5c15fa88f6a2ae8f9853a527c5a33e7549a922 100644
+index 3e47a795e9f4d1e25fab5fefb3addf1ff3911f7c..6d9f03071346c52e31c40167a9edb30d17640d9d 100644
 --- components/input/render_input_router.h
 +++ components/input/render_input_router.h
 @@ -67,6 +67,7 @@ class COMPONENT_EXPORT(INPUT) RenderInputRouter
@@ -58,10 +58,10 @@ index 79df9203ec3b63fbfb30ceb0c402d7cd4595c628..60abc7b2ac845bc02d03b343719b2ce5
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index fe46ebe4e5bcda2eff543aa5b5a2310628a3ea5a..ea389c7fa06b5d808decafc9912365a28c77d918 100644
+index 2a113539548c99a1b97723d99475391984fbbca3..b0cc7d29f3696a4dac2457a047182987ab4427f1 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3834,6 +3834,11 @@ void RenderWidgetHostImpl::StopFling() {
+@@ -3916,6 +3916,11 @@ void RenderWidgetHostImpl::StopFling() {
    GetRenderInputRouter()->StopFling();
  }
  
@@ -74,10 +74,10 @@ index fe46ebe4e5bcda2eff543aa5b5a2310628a3ea5a..ea389c7fa06b5d808decafc9912365a2
      uint16_t angle,
      display::mojom::ScreenOrientation type) {
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 37b2ca1000ead76ec7e403bf1e2dc647bcee74ce..d2c9d994fc3ddf87f432bb2e2d01d30ea27d720a 100644
+index 26ee661ae532159ba33d3c96627eca9e91097870..f8e8ad766b5f3383018859068802ae6fb2eae230 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -868,6 +868,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -875,6 +875,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();

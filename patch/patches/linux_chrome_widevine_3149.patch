@@ -1,16 +1,16 @@
 diff --git chrome/common/media/component_widevine_cdm_hint_file_linux.cc chrome/common/media/component_widevine_cdm_hint_file_linux.cc
-index 108a82ac47ed2569e87acdc9a1805afc3516d8ae..17ed3f0425d3bb1256e9047fa10bb2aa82fa021f 100644
+index 5cffcdac812a0943143a7bc0943ef8a931af2302..4e4724963c537c6a37f2023fb4cae99dc822ca2c 100644
 --- chrome/common/media/component_widevine_cdm_hint_file_linux.cc
 +++ chrome/common/media/component_widevine_cdm_hint_file_linux.cc
-@@ -18,6 +18,7 @@
- #include "base/values.h"
+@@ -19,6 +19,7 @@
  #include "base/version.h"
+ #include "build/branding_buildflags.h"
  #include "chrome/common/chrome_paths.h"
 +#include "third_party/widevine/cdm/widevine_cdm_common.h"
  
  namespace {
  
-@@ -25,6 +26,26 @@ namespace {
+@@ -26,6 +27,26 @@ namespace {
  const char kPath[] = "Path";
  const char kLastBundledVersion[] = "LastBundledVersion";
  
@@ -37,7 +37,7 @@ index 108a82ac47ed2569e87acdc9a1805afc3516d8ae..17ed3f0425d3bb1256e9047fa10bb2aa
  // Returns the hint file contents as a base::DictValue. Returned result may be
  // an empty dictionary if the hint file does not exist or is formatted
  // incorrectly.
-@@ -66,8 +87,7 @@ bool UpdateWidevineCdmHintFile(const base::FilePath& cdm_base_path,
+@@ -67,8 +88,7 @@ bool UpdateWidevineCdmHintFile(const base::FilePath& cdm_base_path,
    DCHECK(!cdm_base_path.empty());
  
    base::FilePath hint_file_path;
@@ -45,5 +45,5 @@ index 108a82ac47ed2569e87acdc9a1805afc3516d8ae..17ed3f0425d3bb1256e9047fa10bb2aa
 -                               &hint_file_path));
 +  CHECK(GetHintFilePath(&hint_file_path));
  
-   base::DictValue dict;
-   dict.Set(kPath, cdm_base_path.value());
+ #if BUILDFLAG(CHROME_FOR_TESTING)
+   // Chrome for Testing may store components in a directory other than the user

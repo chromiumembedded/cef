@@ -1,25 +1,26 @@
 diff --git chrome/browser/ui/extensions/extension_dialog_utils_views.cc chrome/browser/ui/extensions/extension_dialog_utils_views.cc
-index aabc0f3b09b4cf062506c92d5c749ead3aad7a23..9dc32dd1b624fc04ec88695b1be24c8407e014d8 100644
+index 011fcf743fae8e210afd22f55022c54e54ef3d93..cdac0f22808ae9608784d7a56afbf38ad91a82dc 100644
 --- chrome/browser/ui/extensions/extension_dialog_utils_views.cc
 +++ chrome/browser/ui/extensions/extension_dialog_utils_views.cc
-@@ -89,10 +89,9 @@ void ShowDialog(BrowserWindowInterface* browser,
+@@ -89,10 +89,10 @@ void ShowDialog(BrowserWindowInterface* browser,
                  std::unique_ptr<ui::DialogModel> dialog_model) {
    ToolbarButtonProvider* toolbar_button_provider =
        BrowserView::GetBrowserViewForBrowser(browser)->toolbar_button_provider();
 -  CHECK(toolbar_button_provider);
  
--  views::View* const anchor_view =
--      toolbar_button_provider->GetDefaultExtensionDialogAnchorView();
-+  views::View* const anchor_view = toolbar_button_provider ?
-+      toolbar_button_provider->GetDefaultExtensionDialogAnchorView() : nullptr;
+-  views::BubbleAnchor anchor =
+-      toolbar_button_provider->GetDefaultExtensionDialogAnchor();
++  views::BubbleAnchor anchor = toolbar_button_provider
++      ? toolbar_button_provider->GetDefaultExtensionDialogAnchor()
++      : views::BubbleAnchor();
    auto bubble = std::make_unique<views::BubbleDialogModelHost>(
-       std::move(dialog_model), std::move(anchor_view),
+       std::move(dialog_model), std::move(anchor),
        views::BubbleBorder::TOP_RIGHT);
 diff --git chrome/browser/ui/views/certificate_selector.cc chrome/browser/ui/views/certificate_selector.cc
-index f33e742199d99d9c78b090d8ba161cc7bf1abcac..ee6dc7ff4c2bccad0c034b980ca6bffa557de0bc 100644
+index e752e22e93dd44c3714887ae247b8b14b72ac998..b59518208116335c817697c4d6ccb47fad9fbc7a 100644
 --- chrome/browser/ui/views/certificate_selector.cc
 +++ chrome/browser/ui/views/certificate_selector.cc
-@@ -335,8 +335,13 @@ void CertificateSelector::ViewCertButtonPressed() {
+@@ -334,8 +334,13 @@ void CertificateSelector::ViewCertButtonPressed() {
    if (!cert) {
      return;
    }

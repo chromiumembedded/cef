@@ -4,6 +4,7 @@
 
 #include "cef/libcef/browser/osr/synthetic_gesture_target_osr.h"
 
+#include "base/logging.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "ui/events/gesture_detection/gesture_configuration.h"
 

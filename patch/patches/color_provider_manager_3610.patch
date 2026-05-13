@@ -1,8 +1,8 @@
 diff --git ui/color/color_provider_manager.cc ui/color/color_provider_manager.cc
-index aabe78905dc2626617a617b9c9b09d9b3ec4b793..e75e6ab13d072795ee90df30152ab2d770dcf5cc 100644
+index eef830298ca5501b9120f166a5d47348d52e8c10..d2abadb233012ac390c50242dd384eefe399622f 100644
 --- ui/color/color_provider_manager.cc
 +++ ui/color/color_provider_manager.cc
-@@ -46,6 +46,15 @@ std::optional<GlobalManager>& GetGlobalManager() {
+@@ -44,6 +44,15 @@ std::optional<GlobalManager>& GetGlobalManager() {
  
  }  // namespace
  
@@ -18,7 +18,7 @@ index aabe78905dc2626617a617b9c9b09d9b3ec4b793..e75e6ab13d072795ee90df30152ab2d7
  ColorProviderManager::ColorProviderManager() {
    ResetColorProviderInitializerList();
  }
-@@ -89,6 +98,16 @@ void ColorProviderManager::ResetColorProviderInitializerList() {
+@@ -87,6 +96,16 @@ void ColorProviderManager::ResetColorProviderInitializerList() {
  void ColorProviderManager::ResetColorProviderCache() {
    if (!color_providers_.empty()) {
      color_providers_.clear();
