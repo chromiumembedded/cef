@@ -1675,13 +1675,11 @@ struct PostResource : CookieResource {
   bool is_cross_origin;
 
   void InitOrigin(HandlerType main_handler) {
-    // Origin is always "null" for non-HTTP(S) schemes.
-    // This should only be "null" for non-standard schemes, but Blink is likely
-    // using SchemeIsHTTPOrHTTPS() when submitting the form request.
-    main_origin = IsNonStandardType(main_handler) ||
-                          main_handler == HandlerType::CUSTOM_STANDARD_SCHEME
-                      ? "null"
-                      : GetOrigin(main_handler);
+    // Non-standard schemes have opaque origins, which serialize as "null".
+    // Registered standard schemes (HTTP(S), SERVER, CUSTOM_STANDARD_SCHEME)
+    // use their actual origin URL.
+    main_origin =
+        IsNonStandardType(main_handler) ? "null" : GetOrigin(main_handler);
 
     // True if the request is considered cross-origin. Any requests between
     // non-standard schemes are considered cross-origin (due to the "null"

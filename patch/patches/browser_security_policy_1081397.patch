@@ -21,10 +21,26 @@ index 685d4379610ef846b55d7bea01fec6cb228672c9..81676d5c5041fb5cdbe0e88e4fc728d5
  
        // Make an exception to allow most visited tiles to commit in third-party
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 9ec42c6dc1c2ce18e448d905087f6ae7fe96d94c..f272e00b8e23ee9a6425f612bdf4e2b16f44c59a 100644
+index 9ec42c6dc1c2ce18e448d905087f6ae7fe96d94c..c3fd41529f3c7e11b471aae5b00f93742a5dd336 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -9149,7 +9149,8 @@ std::optional<url::Origin> NavigationRequest::GetOriginToCommit() {
+@@ -380,8 +380,13 @@ void AddAdditionalRequestHeaders(
+     blink::mojom::Referrer* referrer,
+     FrameTreeNode* frame_tree_node,
+     bool is_browser_initiated) {
+-  if (!url.SchemeIsHTTPOrHTTPS())
+-    return;
++  // The upstream early-return for non-HTTP(S) URLs is removed so that
++  // embedder-registered custom standard schemes (CEF schemes declared as
++  // SECURE and CORS_ENABLED) get the same Origin, User-Agent and referrer
++  // treatment as HTTP(S). Prior to https://crrev.com/c/7617635 this was
++  // partly handled in Blink via SetHTTPOriginToMatchReferrerPolicyIfNeeded,
++  // removed on the premise that the browser process would add the Origin
++  // header here -- which only held true if this function actually ran.
+ 
+   bool is_reload = NavigationTypeUtils::IsReload(navigation_type);
+   bool is_history = NavigationTypeUtils::IsHistory(navigation_type);
+@@ -9149,7 +9154,8 @@ std::optional<url::Origin> NavigationRequest::GetOriginToCommit() {
  }
  
  url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
@@ -34,7 +50,7 @@ index 9ec42c6dc1c2ce18e448d905087f6ae7fe96d94c..f272e00b8e23ee9a6425f612bdf4e2b1
    // Calculate an approximation of the origin. The sandbox/csp are ignored.
    url::Origin origin = GetOriginForURLLoaderFactoryUnchecked();
  
-@@ -9166,6 +9167,17 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
+@@ -9166,6 +9172,17 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
    bool use_opaque_origin =
        (sandbox_flags & network::mojom::WebSandboxFlags::kOrigin) ==
        network::mojom::WebSandboxFlags::kOrigin;
@@ -52,7 +68,7 @@ index 9ec42c6dc1c2ce18e448d905087f6ae7fe96d94c..f272e00b8e23ee9a6425f612bdf4e2b1
    if (use_opaque_origin) {
      origin = origin.DeriveNewOpaqueOrigin();
    }
-@@ -9226,8 +9238,9 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
+@@ -9226,8 +9243,9 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
      return GetRenderFrameHost()->GetLastCommittedOrigin();
    }
  
@@ -64,7 +80,7 @@ index 9ec42c6dc1c2ce18e448d905087f6ae7fe96d94c..f272e00b8e23ee9a6425f612bdf4e2b1
  
    SCOPED_CRASH_KEY_BOOL("Bug1454273", "is_in_main_frame", IsInMainFrame());
    SCOPED_CRASH_KEY_STRING256(
-@@ -9262,10 +9275,17 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
+@@ -9262,10 +9280,17 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
        DetermineInitiatorRelationship(initiator_rfh,
                                       frame_tree_node_->current_frame_host()));
  
