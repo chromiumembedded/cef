@@ -31,6 +31,7 @@
 #include "components/embedder_support/switches.h"
 #include "components/lens/lens_features.h"
 #include "components/variations/service/buildflags.h"
+#include "content/common/features.h"
 #include "content/public/common/content_switches.h"
 #include "net/base/features.h"
 #include "sandbox/policy/switches.h"
@@ -360,6 +361,17 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
                             disable_features);
     // -- "Search with Google Lens" support.
     DisableFeatureByDefault(lens::features::kLensOverlay, disable_features);
+
+    // Disable features that break CEF APIs.
+    // -- KillOnInvalidNavigationHeaders kills the renderer when a navigation
+    //    request carries headers outside the browser allowlist (Origin,
+    //    Content-Type, User-Agent, Upgrade-Insecure-Requests, Sec-Purpose,
+    //    DNT). CefRequest::SetHeaderMap + CefFrame::LoadRequest legitimately
+    //    attaches arbitrary client-supplied headers, so the check kills the
+    //    renderer on any such navigation. Disabling restores prior behavior
+    //    pending a proper fix. See issue #4177.
+    DisableFeatureByDefault(features::kKillOnInvalidNavigationHeaders,
+                            disable_features);
 
     if (!disable_features.empty()) {
       DCHECK(!base::FeatureList::GetInstance());
