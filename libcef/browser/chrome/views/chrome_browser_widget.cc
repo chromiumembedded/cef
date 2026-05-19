@@ -15,6 +15,11 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
 
+#if BUILDFLAG(IS_LINUX)
+#include "cef/libcef/browser/views/linux_frame_view.h"
+#include "ui/views/view_utils.h"
+#endif
+
 #if BUILDFLAG(IS_MAC)
 #include "cef/libcef/browser/views/native_widget_mac.h"
 #include "cef/libcef/browser/views/view_util.h"
@@ -243,6 +248,18 @@ void ChromeBrowserWidget::OnNativeWidgetDestroyed() {
     // because |browser_view()| is nullptr.
     Widget::OnNativeWidgetDestroyed();
   }
+}
+
+gfx::Insets ChromeBrowserWidget::GetCustomInsetsInDIP() const {
+#if BUILDFLAG(IS_LINUX)
+  if (non_client_view() && non_client_view()->frame_view()) {
+    if (auto* linux_frame = views::AsViewClass<LinuxFrameView>(
+            non_client_view()->frame_view())) {
+      return linux_frame->GetFrameBorderInsets();
+    }
+  }
+#endif
+  return Widget::GetCustomInsetsInDIP();
 }
 
 void ChromeBrowserWidget::OnNativeThemeUpdated(

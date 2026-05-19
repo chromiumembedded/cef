@@ -1042,12 +1042,16 @@ source_set("libcef_static") {
       "libcef/browser/osr/browser_platform_delegate_osr_linux.h",
       "libcef/browser/printing/print_dialog_linux.cc",
       "libcef/browser/printing/print_dialog_linux.h",
+      "libcef/browser/views/linux_frame_view.cc",
+      "libcef/browser/views/linux_frame_view.h",
       "libcef/common/util_linux.h",
       "libcef/common/util_linux.cc",
     ]
 
     deps += [
       "//third_party/fontconfig",
+      "//ui/linux:linux_ui",
+      "//ui/linux:linux_ui_factory",
     ]
 
     if (ozone_platform_x11) {
