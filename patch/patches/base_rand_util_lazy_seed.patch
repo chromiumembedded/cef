@@ -1,0 +1,67 @@
+diff --git base/rand_util.cc base/rand_util.cc
+index ee86984a222c44d29c83da0134a93b0e7ddaa1e4..5580637cc84be708c8fe65b535fae219555515c3 100644
+--- base/rand_util.cc
++++ base/rand_util.cc
+@@ -135,17 +135,28 @@ std::vector<uint8_t> RandBytesAsVector(size_t length) {
+   return result;
+ }
+ 
+-InsecureRandomGenerator::InsecureRandomGenerator() {
+-  a_ = base::RandUint64();
+-  b_ = base::RandUint64();
+-}
++InsecureRandomGenerator::InsecureRandomGenerator() = default;
+ 
+ void InsecureRandomGenerator::ReseedForTesting(uint64_t seed) {
++  // `(0, 0)` is reserved as the "unseeded" sentinel; see header.
++  CHECK_NE(seed, 0u);
+   a_ = seed;
+   b_ = seed;
+ }
+ 
+ uint64_t InsecureRandomGenerator::RandUint64() const {
++  // Lazy seed on first use. Done here rather than in the constructor so that
++  // constructing an `InsecureRandomGenerator` (e.g. as part of a dynamic-init
++  // `thread_local`) is allocator-safe: `base::RandUint64()` can call into
++  // BoringSSL, which may allocate. `(0, 0)` is XorShift128+'s unique fixed
++  // point, so it cannot occur post-seeding and is safe to use as the sentinel.
++  if (a_ == 0 && b_ == 0) [[unlikely]] {
++    do {
++      a_ = base::RandUint64();
++      b_ = base::RandUint64();
++    } while (a_ == 0 && b_ == 0);  // ~2^-128; effectively never iterates.
++  }
++
+   // Using XorShift128+, which is simple and widely used. See
+   // https://en.wikipedia.org/wiki/Xorshift#xorshift+ for details.
+   uint64_t t = a_;
+diff --git base/rand_util.h base/rand_util.h
+index f05e61c3b2b2150872ca59ab32b03c6ea811c173..725966f7ac599d0a2c8ba1756e6408b5e5362d5a 100644
+--- base/rand_util.h
++++ base/rand_util.h
+@@ -247,8 +247,12 @@ class MetricsSubSampler;
+ // system call to generate a new number, except to seed it.  This should *never*
+ // be used for cryptographic applications, and is not thread-safe.
+ //
+-// It is seeded using base::RandUint64() in the constructor, meaning that it
+-// doesn't need to be seeded. It can be re-seeded though, with
++// It is lazily seeded using base::RandUint64() on first use, meaning that it
++// doesn't need to be seeded. Seeding is deferred (rather than done in the
++// constructor) so that constructing one is allocator-safe: base::RandUint64()
++// can call into BoringSSL, which may allocate, and constructing this object on
++// a malloc-critical path (e.g. as part of a dynamic-init thread_local) would
++// otherwise cause reentrant malloc. It can be re-seeded though, with
+ // ReseedForTesting(). Its period is long enough that it should not need to be
+ // re-seeded during use.
+ //
+@@ -267,6 +271,10 @@ class BASE_EXPORT InsecureRandomGenerator {
+   InsecureRandomGenerator();
+   // State. These are mutable to allow Rand* functions to be declared as const.
+   // This, in turn, enables use of `MetricsSubSampler` in const contexts.
++  //
++  // `(0, 0)` doubles as the "unseeded" sentinel: it is the unique fixed point
++  // of XorShift128+, so seeded state can never reach it, and it is also the
++  // default value of the members. See `RandUint64()` for the lazy-seed path.
+   mutable uint64_t a_ = 0, b_ = 0;
+ 
+   // Before adding a new friend class, make sure that the overhead of
