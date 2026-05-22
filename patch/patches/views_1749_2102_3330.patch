@@ -274,7 +274,7 @@ index b1ccc704de42f1acb2ad3cdcf8102f44a5fcc547..1d0dc681104c339a48da896b580b94b3
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 532edde92c72df424a8898594c9ec195bf7575b3..6c28e6ab97a585d98970721409b8e7a862bb4182 100644
+index 73d04447da2a71deee422ec2472c01fde0ade9b6..996ad4e7ff2849edeb75284f4e7fac588155420c 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -612,7 +612,8 @@ void MenuController::Run(Widget* parent,

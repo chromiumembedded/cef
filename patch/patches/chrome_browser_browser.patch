@@ -109,7 +109,7 @@ index 57616fddba15ba4127067929984f73f3640d84bd..d3192c744284c139ff096bde66f6e525
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 7a3315c26dc61e5d608cd83b00c6b082018d8091..2a69912816537392559ba14d03fbd2883b825715 100644
+index 6008bd1c84476e62c907aea20711a2e6f09311a6..2f3c7bedcf4cfe6ddb4cf472ed8f457546a33db8 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
@@ -139,7 +139,7 @@ index 7a3315c26dc61e5d608cd83b00c6b082018d8091..2a69912816537392559ba14d03fbd288
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/app:chrome_dll_resources",
-@@ -799,6 +805,13 @@ static_library("ui") {
+@@ -800,6 +806,13 @@ static_library("ui") {
      deps += [ "//chrome/browser/rlz" ]
    }
  
@@ -153,7 +153,7 @@ index 7a3315c26dc61e5d608cd83b00c6b082018d8091..2a69912816537392559ba14d03fbd288
    # TODO(crbug.com/41437292): Remove this circular dependency.
    # Any circular includes must depend on the target "//chrome/browser:browser_public_dependencies".
    # These are all-platform circular includes.
-@@ -5529,6 +5542,7 @@ static_library("ui") {
+@@ -5530,6 +5543,7 @@ static_library("ui") {
        "//chrome/browser/printing",
        "//chrome/browser/printing:impl",
        "//components/printing/browser",

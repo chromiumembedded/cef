@@ -153,10 +153,10 @@ index 47dec1364f17eee55756f40f63ee2cdc3b33ed8b..cd8f0b3d64494a2da43b2a287f7c1ca0
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 55bb42094ebf3ac1a8ba0b7c552122e50372114d..fa20a22eb96d2ab11f92934e4ae96138202e8a9e 100644
+index 434e95fa9cf721003eaa9839b114f27b1229d7ea..77f9fe791d0e707cf3e794824a4aeb3ea9d08000 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -519,6 +519,8 @@ void RenderThreadImpl::Init() {
+@@ -553,6 +553,8 @@ void RenderThreadImpl::Init() {
        GetContentClient()->renderer()->CreateURLLoaderThrottleProvider(
            blink::URLLoaderThrottleProviderType::kFrame);
  

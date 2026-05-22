@@ -36,10 +36,10 @@ index ee86984a222c44d29c83da0134a93b0e7ddaa1e4..5580637cc84be708c8fe65b535fae219
    // https://en.wikipedia.org/wiki/Xorshift#xorshift+ for details.
    uint64_t t = a_;
 diff --git base/rand_util.h base/rand_util.h
-index f05e61c3b2b2150872ca59ab32b03c6ea811c173..725966f7ac599d0a2c8ba1756e6408b5e5362d5a 100644
+index 7b2d67de23d217e3992f3f1d71010a0ef0e5560c..8f8a221b57dc06d6770426163be75829ab6f9466 100644
 --- base/rand_util.h
 +++ base/rand_util.h
-@@ -247,8 +247,12 @@ class MetricsSubSampler;
+@@ -248,8 +248,12 @@ class MetricsSubSampler;
  // system call to generate a new number, except to seed it.  This should *never*
  // be used for cryptographic applications, and is not thread-safe.
  //
@@ -54,7 +54,7 @@ index f05e61c3b2b2150872ca59ab32b03c6ea811c173..725966f7ac599d0a2c8ba1756e6408b5
  // ReseedForTesting(). Its period is long enough that it should not need to be
  // re-seeded during use.
  //
-@@ -267,6 +271,10 @@ class BASE_EXPORT InsecureRandomGenerator {
+@@ -268,6 +272,10 @@ class BASE_EXPORT InsecureRandomGenerator {
    InsecureRandomGenerator();
    // State. These are mutable to allow Rand* functions to be declared as const.
    // This, in turn, enables use of `MetricsSubSampler` in const contexts.

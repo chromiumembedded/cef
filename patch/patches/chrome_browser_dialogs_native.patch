@@ -1,54 +1,8 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index 94f809da0d7d553591766ee42655f573eb92b1b7..c32e1b1be25f13c8c8ced4a2b55c48bcb5f33f61 100644
+index b8a24fda3ec85b3dc866fdc8c9e06b3e10147cd8..c32e1b1be25f13c8c8ced4a2b55c48bcb5f33f61 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
-@@ -67,30 +67,6 @@ using content::WebContents;
- 
- DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kCancelButtonId);
- 
--WEB_CONTENTS_USER_DATA_KEY_IMPL(FileSelectHelper::ActiveHelpers);
--
--FileSelectHelper::ActiveHelpers::ActiveHelpers(
--    content::WebContents* web_contents)
--    : content::WebContentsUserData<ActiveHelpers>(*web_contents) {}
--
--FileSelectHelper::ActiveHelpers::~ActiveHelpers() = default;
--
--// static
--void FileSelectHelper::ActiveHelpers::Add(
--    content::WebContents* tab,
--    scoped_refptr<FileSelectHelper> helper) {
--  GetOrCreateForWebContents(tab)->helpers_.insert(std::move(helper));
--}
--
--// static
--void FileSelectHelper::ActiveHelpers::Remove(FileSelectHelper* helper) {
--  if (helper->web_contents_) {
--    if (auto* active_helpers = FromWebContents(helper->web_contents_)) {
--      active_helpers->helpers_.erase(helper);
--    }
--  }
--}
--
- namespace {
- 
- void DeleteFiles(std::vector<base::FilePath> paths) {
-@@ -142,13 +118,8 @@ FileSelectHelper::FileSelectHelper(Profile* profile)
- FileSelectHelper::~FileSelectHelper() {
-   // There may be pending file dialogs, we need to tell them that we've gone
-   // away so they don't try and call back to us.
--  if (select_file_dialog_) {
-+  if (select_file_dialog_)
-     select_file_dialog_->ListenerDestroyed();
--  }
--
--  if (!temporary_files_.empty()) {
--    DeleteTemporaryFiles();
--  }
- }
- 
- void FileSelectHelper::FileSelected(const ui::SelectedFileInfo& file,
-@@ -288,6 +259,12 @@ void FileSelectHelper::OnListDone(int error) {
+@@ -259,6 +259,12 @@ void FileSelectHelper::OnListDone(int error) {
    }
  
    if (dialog_type_ == ui::SelectFileDialog::SELECT_UPLOAD_FOLDER) {
@@ -61,24 +15,7 @@ index 94f809da0d7d553591766ee42655f573eb92b1b7..c32e1b1be25f13c8c8ced4a2b55c48bc
      auto model = CreateConfirmationDialog(
          entry->display_name_, std::move(chooser_files),
          base::BindOnce(&FileSelectHelper::PerformContentAnalysisIfNeeded,
-@@ -440,6 +417,16 @@ void FileSelectHelper::DeleteTemporaryFiles() {
-       base::BindOnce(&DeleteFiles, std::move(temporary_files_)));
- }
- 
-+void FileSelectHelper::CleanUp() {
-+  if (!temporary_files_.empty()) {
-+    DeleteTemporaryFiles();
-+
-+    // Now that the temporary files have been scheduled for deletion, there
-+    // is no longer any reason to keep this instance around.
-+    Release();
-+  }
-+}
-+
- bool FileSelectHelper::AbortIfWebContentsDestroyed() {
-   if (abort_on_missing_web_contents_in_tests_ &&
-       (render_frame_host_ == nullptr || web_contents_ == nullptr)) {
-@@ -476,31 +463,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -457,31 +463,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    std::vector<base::FilePath::StringType>* extensions =
        &file_type->extensions.back();
  
@@ -134,7 +71,7 @@ index 94f809da0d7d553591766ee42655f573eb92b1b7..c32e1b1be25f13c8c8ced4a2b55c48bc
      if (extensions->size() > old_extension_size)
        valid_type_count++;
    }
-@@ -517,12 +524,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -498,12 +524,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    //    dialog uses the first extension in the list to form the description,
    //    like "EHTML Files". This is not what we want.
    if (valid_type_count > 1 ||
@@ -167,7 +104,7 @@ index 94f809da0d7d553591766ee42655f573eb92b1b7..c32e1b1be25f13c8c8ced4a2b55c48bc
    }
  
    return file_type;
-@@ -532,19 +555,16 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -513,7 +555,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
  void FileSelectHelper::RunFileChooser(
      content::RenderFrameHost* render_frame_host,
      scoped_refptr<content::FileSelectListener> listener,
@@ -177,156 +114,19 @@ index 94f809da0d7d553591766ee42655f573eb92b1b7..c32e1b1be25f13c8c8ced4a2b55c48bc
    Profile* profile = Profile::FromBrowserContext(
        render_frame_host->GetProcess()->GetBrowserContext());
  
--  // The `FileSelectHelper::ActiveHelpers` will keep this instance alive for the
--  // duration of the operation on this tab. Asynchronous tasks (like zipping
--  // or content analysis) may also hold a reference.
-+  // FileSelectHelper will keep itself alive until it sends the result
-+  // message.
+@@ -521,6 +564,7 @@ void FileSelectHelper::RunFileChooser(
+   // message.
    scoped_refptr<FileSelectHelper> file_select_helper(
        new FileSelectHelper(profile));
--  auto* web_contents = WebContents::FromRenderFrameHost(render_frame_host);
--  if (web_contents) {
--    ActiveHelpers::Add(web_contents, file_select_helper);
--  }
 +  file_select_helper->run_from_cef_ = run_from_cef;
    file_select_helper->RunFileChooser(render_frame_host, std::move(listener),
                                       params.Clone());
  }
-@@ -555,14 +575,10 @@ void FileSelectHelper::EnumerateDirectory(
-     scoped_refptr<content::FileSelectListener> listener,
-     const base::FilePath& path) {
-   Profile* profile = Profile::FromBrowserContext(tab->GetBrowserContext());
--  // The `FileSelectHelper::ActiveHelpers` will keep this instance alive for the
--  // duration of the operation on this tab. Asynchronous tasks (like zipping
--  // or content analysis) may also hold a reference.
-+  // FileSelectHelper will keep itself alive until it sends the result
-+  // message.
-   scoped_refptr<FileSelectHelper> file_select_helper(
-       new FileSelectHelper(profile));
--  if (tab) {
--    ActiveHelpers::Add(tab, file_select_helper);
--  }
-   file_select_helper->EnumerateDirectoryImpl(tab, std::move(listener), path);
- }
- 
-@@ -610,6 +626,13 @@ void FileSelectHelper::RunFileChooser(
-       FROM_HERE, {base::MayBlock()},
-       base::BindOnce(&FileSelectHelper::GetFileTypesInThreadPool, this,
-                      std::move(params)));
-+
-+  // Because this class returns notifications to the RenderViewHost, it is
-+  // difficult for callers to know how long to keep a reference to this
-+  // instance. We AddRef() here to keep the instance alive after we return
-+  // to the caller, until the last callback is received from the file dialog.
-+  // At that point, we must call RunFileChooserEnd().
-+  AddRef();
- }
- 
- void FileSelectHelper::GetFileTypesInThreadPool(FileChooserParamsPtr params) {
-@@ -696,8 +719,8 @@ void FileSelectHelper::RunFileChooserOnUIThread(
- }
- 
- // This method is called when we receive the last callback from the file chooser
--// dialog or if the renderer was destroyed. Perform any cleanup and unregister
--// from the tab-scoped manager.
-+// dialog or if the renderer was destroyed. Perform any cleanup and release the
-+// reference we added in RunFileChooser().
- void FileSelectHelper::RunFileChooserEnd() {
- #if !BUILDFLAG(IS_ANDROID)
-   // Ensure picture-in-picture occlusion mitigation stops, even if we need to
-@@ -711,11 +734,20 @@ void FileSelectHelper::RunFileChooserEnd() {
-   // If there are temporary files, then this instance needs to stick around
-   // until web_contents_ is destroyed, so that this instance can delete the
-   // temporary files.
--  if (!temporary_files_.empty()) {
-+  if (!temporary_files_.empty())
-     return;
-+
-+  if (listener_)
-+    listener_->FileSelectionCanceled();
-+  render_frame_host_ = nullptr;
-+  web_contents_ = nullptr;
-+  // If the dialog was actually opened, dispose of our reference.
-+  if (select_file_dialog_) {
-+    select_file_dialog_->ListenerDestroyed();
-+    select_file_dialog_.reset();
-   }
- 
--  ActiveHelpers::Remove(this);
-+  Release();
- }
- 
- void FileSelectHelper::EnumerateDirectoryImpl(
-@@ -727,6 +759,12 @@ void FileSelectHelper::EnumerateDirectoryImpl(
-   dialog_type_ = ui::SelectFileDialog::SELECT_NONE;
-   web_contents_ = tab;
-   listener_ = std::move(listener);
-+  // Because this class returns notifications to the RenderViewHost, it is
-+  // difficult for callers to know how long to keep a reference to this
-+  // instance. We AddRef() here to keep the instance alive after we return
-+  // to the caller, until the last callback is received from the enumeration
-+  // code. At that point, we must call EnumerateDirectoryEnd().
-+  AddRef();
- #if BUILDFLAG(IS_ANDROID)
-   if (path.IsContentUri()) {
-     base::ThreadPool::PostTaskAndReplyWithResult(
-@@ -739,9 +777,10 @@ void FileSelectHelper::EnumerateDirectoryImpl(
- }
- 
- // This method is called when we receive the last callback from the enumeration
--// code. Perform any cleanup and unregister from the tab-scoped manager.
-+// code. Perform any cleanup and release the reference we added in
-+// EnumerateDirectoryImpl().
- void FileSelectHelper::EnumerateDirectoryEnd() {
--  ActiveHelpers::Remove(this);
-+  Release();
- }
- 
- void FileSelectHelper::RenderFrameHostChanged(
-@@ -768,6 +807,7 @@ void FileSelectHelper::WebContentsDestroyed() {
-   render_frame_host_ = nullptr;
-   web_contents_ = nullptr;
-   profile_ = nullptr;
-+  CleanUp();
- }
- 
- void FileSelectHelper::OnTabDeactivated(tabs::TabInterface* tab) {
 diff --git chrome/browser/file_select_helper.h chrome/browser/file_select_helper.h
-index e2599cf85006370a4a152e95e394f5aa81af30f2..ba572985c16f306e37d37f2948d8041bbeb6a635 100644
+index 37c575db8a2c4a92f4b89691f4357ef7206b2710..ba572985c16f306e37d37f2948d8041bbeb6a635 100644
 --- chrome/browser/file_select_helper.h
 +++ chrome/browser/file_select_helper.h
-@@ -18,7 +18,6 @@
- #include "components/enterprise/common/files_scan_data.h"
- #include "content/public/browser/browser_thread.h"
- #include "content/public/browser/web_contents_observer.h"
--#include "content/public/browser/web_contents_user_data.h"
- #include "net/base/directory_lister.h"
- #include "third_party/blink/public/mojom/choosers/file_chooser.mojom.h"
- #include "ui/shell_dialogs/select_file_dialog.h"
-@@ -63,22 +62,6 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
-                          public content::WebContentsObserver,
-                          private net::DirectoryLister::DirectoryListerDelegate {
-  public:
--  // Tab-scoped container that anchors the lifetime of active operations.
--  class ActiveHelpers : public content::WebContentsUserData<ActiveHelpers> {
--   public:
--    ~ActiveHelpers() override;
--
--    static void Add(content::WebContents* tab,
--                    scoped_refptr<FileSelectHelper> helper);
--    static void Remove(FileSelectHelper* helper);
--
--   private:
--    friend WebContentsUserData;
--    explicit ActiveHelpers(content::WebContents* web_contents);
--    std::set<scoped_refptr<FileSelectHelper>> helpers_;
--    WEB_CONTENTS_USER_DATA_KEY_DECL();
--  };
--
-   FileSelectHelper(const FileSelectHelper&) = delete;
-   FileSelectHelper& operator=(const FileSelectHelper&) = delete;
- 
-@@ -86,7 +69,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -69,7 +69,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    static void RunFileChooser(
        content::RenderFrameHost* render_frame_host,
        scoped_refptr<content::FileSelectListener> listener,
@@ -336,48 +136,16 @@ index e2599cf85006370a4a152e95e394f5aa81af30f2..ba572985c16f306e37d37f2948d8041b
  
    // Enumerates all the files in directory.
    static void EnumerateDirectory(
-@@ -94,10 +78,6 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
-       scoped_refptr<content::FileSelectListener> listener,
-       const base::FilePath& path);
- 
--  base::WeakPtr<FileSelectHelper> GetWeakPtr() {
--    return weak_ptr_factory_.GetWeakPtr();
--  }
--
-  private:
-   friend class base::RefCountedThreadSafe<FileSelectHelper>;
-   friend class base::DeleteHelper<FileSelectHelper>;
-@@ -138,7 +118,6 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
-   FRIEND_TEST_ALL_PREFIXES(FileSelectHelperTest, GetFileTypesFromAcceptType);
-   FRIEND_TEST_ALL_PREFIXES(FileSelectHelperTest, MultipleFileExtensionsForMime);
-   FRIEND_TEST_ALL_PREFIXES(FileSelectHelperTest, ConfirmationDialog);
--  FRIEND_TEST_ALL_PREFIXES(FileSelectHelperTest, TaskKeepsAlive);
-   FRIEND_TEST_ALL_PREFIXES(policy::DlpFilesControllerAshBrowserTest,
-                            FilesUploadCallerPassed);
- 
-@@ -270,6 +249,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
-   // vector.
-   void DeleteTemporaryFiles();
- 
-+  // Cleans up when the initiator of the file chooser is no longer valid.
-+  void CleanUp();
-+
-   // Calls RunFileChooserEnd() if the webcontents was destroyed. Returns true
-   // if the file chooser operation shouldn't proceed.
-   bool AbortIfWebContentsDestroyed();
-@@ -357,7 +339,12 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -338,6 +339,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    std::unique_ptr<ScopedTuckPictureInPicture> scoped_tuck_picture_in_picture_;
  #endif  // !BUILDFLAG(IS_ANDROID)
  
 +  // Set to true if this dialog was triggered via CEF.
 +  bool run_from_cef_ = false;
 +
-+#if BUILDFLAG(IS_CHROMEOS)
+ #if BUILDFLAG(IS_CHROMEOS)
    base::WeakPtrFactory<FileSelectHelper> weak_ptr_factory_{this};
-+#endif  // BUILDFLAG(IS_CHROMEOS)
- };
- 
- #endif  // CHROME_BROWSER_FILE_SELECT_HELPER_H_
+ #endif  // BUILDFLAG(IS_CHROMEOS)
 diff --git chrome/browser/ui/select_file_policy/chrome_select_file_policy.h chrome/browser/ui/select_file_policy/chrome_select_file_policy.h
 index 993b89dca34875d458370dc0730a98fb36bf7bff..d82beccf7014fe79c84b82d549d4015ee5c23b95 100644
 --- chrome/browser/ui/select_file_policy/chrome_select_file_policy.h

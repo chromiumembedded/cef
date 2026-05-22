@@ -212,10 +212,10 @@ index 8a9a2763923135309633ffdd8d8ceee407052a9a..4689a85ce8bf58d9775aefceb266a7a9
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
  
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index d0f6ba928790d83a8b54e8abb8f45ee9f0d25443..3224b9109ac806ad870df770da38297f6168cbcc 100644
+index 24a97c5ca84423bf4fd94ae0f5f7b84dc806d121..2bf370b9210bb235d132612dab3416740f80c794 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
-@@ -110,10 +110,12 @@ DialogDelegate::DialogDelegate() {
+@@ -107,10 +107,12 @@ DialogDelegate::DialogDelegate() {
  // static
  Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
                                             gfx::NativeWindow context,
@@ -230,7 +230,7 @@ index d0f6ba928790d83a8b54e8abb8f45ee9f0d25443..3224b9109ac806ad870df770da38297f
    widget->Init(std::move(params));
    return widget;
  }
-@@ -122,15 +124,17 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
+@@ -119,15 +121,17 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
  Widget* DialogDelegate::CreateDialogWidget(
      std::unique_ptr<WidgetDelegate> delegate,
      gfx::NativeWindow context,
@@ -252,7 +252,7 @@ index d0f6ba928790d83a8b54e8abb8f45ee9f0d25443..3224b9109ac806ad870df770da38297f
  #else
    return true;
  #endif
-@@ -141,7 +145,8 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -138,7 +142,8 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
      WidgetDelegate* delegate,
      gfx::NativeWindow context,
      gfx::NativeView parent,
@@ -262,7 +262,7 @@ index d0f6ba928790d83a8b54e8abb8f45ee9f0d25443..3224b9109ac806ad870df770da38297f
    DialogDelegate* dialog = delegate->AsDialogDelegate();
  
    views::Widget::InitParams params(
-@@ -151,7 +156,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -148,7 +153,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
    params.bounds = bounds;
  
    if (dialog) {
@@ -271,7 +271,7 @@ index d0f6ba928790d83a8b54e8abb8f45ee9f0d25443..3224b9109ac806ad870df770da38297f
    }
  
    if (!dialog || dialog->use_custom_frame()) {
-@@ -165,6 +170,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -162,6 +167,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
    }
    params.context = context;
    params.parent = parent;
@@ -280,7 +280,7 @@ index d0f6ba928790d83a8b54e8abb8f45ee9f0d25443..3224b9109ac806ad870df770da38297f
    // Web-modal (ui::mojom::ModalType::kChild) dialogs with parents are marked as
    // child widgets to prevent top-level window behavior (independent movement,
 diff --git ui/views/window/dialog_delegate.h ui/views/window/dialog_delegate.h
-index afdf4e3c328cbf2afc2eddf793eb7eb76e7f7da7..4105bf39440242d073cb600e73db680f45be5f9b 100644
+index 0b9ad000922f4394a730a557f075778c3cceaac4..eb953bf0c60c7e7e42c9db4aa8d5635520b3cb4b 100644
 --- ui/views/window/dialog_delegate.h
 +++ ui/views/window/dialog_delegate.h
 @@ -308,13 +308,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {

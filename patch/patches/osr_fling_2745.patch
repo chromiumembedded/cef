@@ -74,7 +74,7 @@ index 2a113539548c99a1b97723d99475391984fbbca3..b0cc7d29f3696a4dac2457a047182987
      uint16_t angle,
      display::mojom::ScreenOrientation type) {
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 26ee661ae532159ba33d3c96627eca9e91097870..f8e8ad766b5f3383018859068802ae6fb2eae230 100644
+index 3c54f2f0abda38fb6024f319d97096a64b7386cb..9a9499ecfa6339b9b0bf77d9139b336433e68909 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
 @@ -875,6 +875,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
