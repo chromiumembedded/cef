@@ -382,7 +382,7 @@ typedef enum {
   /// Stores per origin metadata for cookie controls.
   CEF_CONTENT_SETTING_TYPE_COOKIE_CONTROLS_METADATA,
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14900)
   CEF_CONTENT_SETTING_TYPE_TPCD_HEURISTICS_GRANTS_DEPRECATED,
 #else
   /// Content Setting for temporary 3PC accesses granted by user behavior
@@ -390,7 +390,7 @@ typedef enum {
   CEF_CONTENT_SETTING_TYPE_TPCD_HEURISTICS_GRANTS,
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14900)
   CEF_CONTENT_SETTING_TYPE_TPCD_METADATA_GRANTS_DEPRECATED,
 #else
   /// Content Setting for 3PC accesses granted by metadata delivered via the
