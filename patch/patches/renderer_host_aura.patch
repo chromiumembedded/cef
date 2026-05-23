@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 63a7dc99a9596f22379436c32325936ebd8d14e6..acdff69a767c09199a06d5394412cb33bfb8b5df 100644
+index 678d725a958487a1786f5ffcc3a90918d502ced0..645dd94132b54c134fac336dc11c53af62f908f4 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -8,6 +8,7 @@
@@ -41,7 +41,7 @@ index 63a7dc99a9596f22379436c32325936ebd8d14e6..acdff69a767c09199a06d5394412cb33
    aura::Window* top_level = window_->GetToplevelWindow();
    gfx::Rect bounds(top_level->GetBoundsInScreen());
  
-@@ -2783,6 +2794,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -2792,6 +2803,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    window_->layer()->SetColor(GetBackgroundColor() ? *GetBackgroundColor()
                                                    : SK_ColorWHITE);
    UpdateFrameSinkIdRegistration();
