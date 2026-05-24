@@ -238,7 +238,7 @@ index b0619927b062c86c3014741d120d36da56920742..abb1a674b81a38d8654c8df9af2b6e88
   protected:
    RenderViewContextMenuViews(content::RenderFrameHost& render_frame_host,
 diff --git chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc
-index ef7ca0d58a40a409b64a55aefa97ea2c5909a1d7..1d441957960cec657960782c1f2fc5a57e61d6f1 100644
+index 3e581799d83518b8d467a9671a78e8f6ea593e4b..e83d15869be0a2dd9d9ad6835f31ec6779e11f9f 100644
 --- chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc
 +++ chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc
 @@ -100,6 +100,10 @@ void ChromeWebContentsViewDelegateViews::ShowMenu(
@@ -253,34 +253,34 @@ index ef7ca0d58a40a409b64a55aefa97ea2c5909a1d7..1d441957960cec657960782c1f2fc5a5
      content::RenderFrameHost& render_frame_host,
      const content::ContextMenuParams& params) {
 diff --git chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h
-index 27a74ea974ec860e564be37eabc81069294a2df6..d6ce4bbf36193af18cf9cfd6b44cf788722f5d25 100644
+index 11b494e1859b091e49901a5d8ec07804ce8231e7..091e23b39b9884fe1e6c64677c178fc279332fd5 100644
 --- chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h
 +++ chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h
-@@ -65,6 +65,7 @@ class ChromeWebContentsViewDelegateViews
-       content::RenderFrameHost& render_frame_host,
-       const content::ContextMenuParams& params) override;
+@@ -70,6 +70,7 @@ class ChromeWebContentsViewDelegateViews
+       base::OnceCallback<void(std::unique_ptr<RenderViewContextMenuBase>)>
+           callback) override;
    void ShowMenu(std::unique_ptr<RenderViewContextMenuBase> menu) override;
 +  bool IsMenuRunning() override;
  
   private:
    void OnReadAvailableTypes(
 diff --git chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.h chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.h
-index f367a450ee6ad8ee26df5c3f6fb18cc28a3ce737..c5e1c4ba4ee37c7e8c9c285181a7112cfac24181 100644
+index e5c0a40841d38d0b7b163808090da145fbce7aa5..5367e9cebadb66bda847687ebdccc05c32d88065 100644
 --- chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.h
 +++ chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.h
-@@ -64,6 +64,7 @@ class ChromeWebContentsViewDelegateViewsMac
-       content::RenderFrameHost& render_frame_host,
-       const content::ContextMenuParams& params) override;
+@@ -69,6 +69,7 @@ class ChromeWebContentsViewDelegateViewsMac
+       base::OnceCallback<void(std::unique_ptr<RenderViewContextMenuBase>)>
+           callback) override;
    void ShowMenu(std::unique_ptr<RenderViewContextMenuBase> menu) override;
 +  bool IsMenuRunning() override;
  
   private:
    void OnReadAvailableTypes(
 diff --git chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.mm chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.mm
-index d7b6c91979fdcfb754cddceb8cd3280f858269a2..cb48c85c4978afc5331dc50d836367ebd7fc5ff1 100644
+index 0e04d0ad120faf4b32d6781fb914e11c49d9b46c..b0cb68984289cab891485d8a97f23b65c5791991 100644
 --- chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.mm
 +++ chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.mm
-@@ -194,6 +194,10 @@ void ChromeWebContentsViewDelegateViewsMac::ShowMenu(
+@@ -211,6 +211,10 @@ void ChromeWebContentsViewDelegateViewsMac::ShowMenu(
    context_menu_->Show();
  }
  
@@ -292,10 +292,10 @@ index d7b6c91979fdcfb754cddceb8cd3280f858269a2..cb48c85c4978afc5331dc50d836367eb
  ChromeWebContentsViewDelegateViewsMac::GetActiveRenderWidgetHostView() const {
    return web_contents_->GetTopLevelRenderWidgetHostView();
 diff --git components/renderer_context_menu/context_menu_delegate.h components/renderer_context_menu/context_menu_delegate.h
-index 042428f77f4ad021d82db228772d82dc9cd9216c..e4efd98ca45d5be49b17d75533719b3ac157767d 100644
+index 993cac555dd9ef936771a6e01f42666b734af13e..3d2847bb60fad63dece4a68b2ed1667d5a838657 100644
 --- components/renderer_context_menu/context_menu_delegate.h
 +++ components/renderer_context_menu/context_menu_delegate.h
-@@ -45,6 +45,8 @@ class ContextMenuDelegate {
+@@ -55,6 +55,8 @@ class ContextMenuDelegate {
    // Displays the context menu.
    virtual void ShowMenu(std::unique_ptr<RenderViewContextMenuBase> menu) = 0;
  
