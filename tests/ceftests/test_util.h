@@ -108,6 +108,10 @@ std::string ComputeNativeWindowTitle(bool use_alloy_style);
 // Returns true if running on the Wayland platform (Linux only).
 bool IsRunningOnWayland();
 
+// Returns true if running on X11 with a compositing window manager (Linux
+// only).
+bool IsRunningOnX11WithCompositor();
+
 // Returns true if BFCache is enabled.
 bool IsBFCacheEnabled();
 
