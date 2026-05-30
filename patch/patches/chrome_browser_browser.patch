@@ -109,7 +109,7 @@ index 57616fddba15ba4127067929984f73f3640d84bd..d3192c744284c139ff096bde66f6e525
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 6008bd1c84476e62c907aea20711a2e6f09311a6..2f3c7bedcf4cfe6ddb4cf472ed8f457546a33db8 100644
+index 5ef79ef4e8bbadb7ad52fcb94f994e3f7b856d19..9bb9b09c7508ce8140088d523336ff2984406626 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
@@ -120,7 +120,7 @@ index 6008bd1c84476e62c907aea20711a2e6f09311a6..2f3c7bedcf4cfe6ddb4cf472ed8f4575
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/captive_portal/core/features.gni")
-@@ -221,6 +222,10 @@ static_library("ui") {
+@@ -223,6 +224,10 @@ static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -131,7 +131,7 @@ index 6008bd1c84476e62c907aea20711a2e6f09311a6..2f3c7bedcf4cfe6ddb4cf472ed8f4575
    public_deps = [
      # WARNING WARNING WARNING
      # New dependencies outside of //chrome/browser should be added to
-@@ -268,6 +273,7 @@ static_library("ui") {
+@@ -270,6 +275,7 @@ static_library("ui") {
      "//build/config/linux/dbus:buildflags",
      "//build/util:chromium_git_revision",
      "//cc/paint",
@@ -139,7 +139,7 @@ index 6008bd1c84476e62c907aea20711a2e6f09311a6..2f3c7bedcf4cfe6ddb4cf472ed8f4575
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/app:chrome_dll_resources",
-@@ -800,6 +806,13 @@ static_library("ui") {
+@@ -803,6 +809,13 @@ static_library("ui") {
      deps += [ "//chrome/browser/rlz" ]
    }
  
@@ -153,7 +153,7 @@ index 6008bd1c84476e62c907aea20711a2e6f09311a6..2f3c7bedcf4cfe6ddb4cf472ed8f4575
    # TODO(crbug.com/41437292): Remove this circular dependency.
    # Any circular includes must depend on the target "//chrome/browser:browser_public_dependencies".
    # These are all-platform circular includes.
-@@ -5530,6 +5543,7 @@ static_library("ui") {
+@@ -5531,6 +5544,7 @@ static_library("ui") {
        "//chrome/browser/printing",
        "//chrome/browser/printing:impl",
        "//components/printing/browser",
