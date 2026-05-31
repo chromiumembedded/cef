@@ -870,3 +870,290 @@ TEST(DownloadTest, PauseResume) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
+
+namespace {
+
+const char kTestDomain3135[] = "test-download-3135.com";
+const char kTestStartUrl3135[] = "https://test-download-3135.com/test.html";
+const char kTestDownloadUrl3135[] = "https://test-download-3135.com/order.xls";
+
+// UTF-8 encoded Chinese filename (订单报表 = order report)
+const char kTestChineseFileName[] =
+    "\xe8\xae\xa2\xe5\x8d\x95\xe6\x8a\xa5\xe8\xa1\xa8_2021-05-25.xls";
+
+// Scenario A: filename* with explicit UTF-8 charset (RFC 5987)
+// filename*=UTF-8''%E8%AE%A2%E5%8D%95%E6%8A%A5%E8%A1%A8_2021-05-25.xls
+const char kTestContentDispositionRFC5987[] =
+    "attachment; "
+    "filename*=UTF-8''%E8%AE%A2%E5%8D%95%E6%8A%A5%E8%A1%A8_2021-05-25.xls";
+
+// Scenario B: filename with charset=utf-8 parameter (the JD.com style from
+// issue #3135)
+const char kTestContentDispositionCharsetParam[] =
+    "attachment;charset=utf-8;filename="
+    "\xe8\xae\xa2\xe5\x8d\x95\xe6\x8a\xa5\xe8\xa1\xa8_2021-05-25.xls";
+
+// Scenario C: filename with raw UTF-8, no charset parameter
+const char kTestContentDispositionRawUTF8[] =
+    "attachment; filename="
+    "\xe8\xae\xa2\xe5\x8d\x95\xe6\x8a\xa5\xe8\xa1\xa8_2021-05-25.xls";
+
+using ChineseFilenameDisposition = std::string;
+
+class DownloadChineseFilenameTest : public TestHandler {
+ public:
+  DownloadChineseFilenameTest(
+      const ChineseFilenameDisposition& content_disposition,
+      const std::string& charset = {})
+      : content_disposition_(content_disposition), charset_(charset) {}
+
+  void RunTest() override {
+    EXPECT_TRUE(temp_dir_.CreateUniqueTempDir());
+    test_path_ =
+        client::file_util::JoinPath(temp_dir_.GetPath(), kTestChineseFileName);
+
+    CreateTestRequestContext(
+        TEST_RC_MODE_CUSTOM_WITH_HANDLER, /*cache_path=*/"",
+        base::BindOnce(&DownloadChineseFilenameTest::RunTestContinue, this));
+
+    SetTestTimeout();
+  }
+
+  void RunTestContinue(CefRefPtr<CefRequestContext> request_context) {
+    EXPECT_UI_THREAD();
+
+    CefRefPtr<CefSchemeHandlerFactory> scheme_factory =
+        new DownloadChineseFilenameSchemeHandlerFactory(
+            content_disposition_, charset_, &got_download_request_);
+
+    request_context->RegisterSchemeHandlerFactory("https", kTestDomain3135,
+                                                  scheme_factory);
+
+    AddResource(kTestStartUrl3135,
+                "<html><body>Download Test</body></html>", "text/html");
+    CreateBrowser(kTestStartUrl3135, request_context);
+  }
+
+  CefRefPtr<CefDownloadHandler> GetDownloadHandler() override { return this; }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    browser->GetHost()->StartDownload(kTestDownloadUrl3135);
+  }
+
+  bool OnBeforeDownload(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefDownloadItem> download_item,
+      const CefString& suggested_name,
+      CefRefPtr<CefBeforeDownloadCallback> callback) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    EXPECT_FALSE(got_on_before_download_);
+    got_on_before_download_.yes();
+
+    // Verify the Chinese filename is correctly decoded, not garbled.
+    const std::string suggested = suggested_name.ToString();
+    EXPECT_EQ(std::string(kTestChineseFileName), suggested)
+        << "Chinese filename mismatch. Got: " << suggested;
+
+    callback->Continue(test_path_, false);
+    return true;
+  }
+
+  void OnDownloadUpdated(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefDownloadItem> download_item,
+                         CefRefPtr<CefDownloadItemCallback> callback) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    got_on_download_updated_.yes();
+
+    if (download_item->IsComplete()) {
+      got_download_complete_.yes();
+      DestroyTest();
+    }
+  }
+
+  void VerifyResultsOnFileThread() {
+    EXPECT_TRUE(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
+    std::string contents;
+    EXPECT_TRUE(client::file_util::ReadFileToString(test_path_, &contents));
+    EXPECT_TRUE(temp_dir_.Delete());
+    EXPECT_TRUE(temp_dir_.IsEmpty());
+
+    CefPostTask(TID_UI,
+                base::BindOnce(&DownloadChineseFilenameTest::DestroyTest, this));
+  }
+
+  void DestroyTest() override {
+    if (!verified_results_ && !temp_dir_.IsEmpty()) {
+      verified_results_ = true;
+      CefPostTask(
+          TID_FILE_USER_VISIBLE,
+          base::BindOnce(&DownloadChineseFilenameTest::VerifyResultsOnFileThread,
+                         this));
+      return;
+    }
+
+    EXPECT_TRUE(got_on_before_download_);
+    EXPECT_TRUE(got_on_download_updated_);
+    EXPECT_TRUE(got_download_complete_);
+
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  class DownloadChineseFilenameSchemeHandler : public CefResourceHandler {
+   public:
+    DownloadChineseFilenameSchemeHandler(
+        const std::string& content_disposition,
+        const std::string& charset,
+        TrackCallback* got_download_request)
+        : content_disposition_(content_disposition),
+          charset_(charset),
+          got_download_request_(got_download_request) {}
+
+    bool Open(CefRefPtr<CefRequest> request,
+              bool& handle_request,
+              CefRefPtr<CefCallback> callback) override {
+      if (request->GetURL() == kTestDownloadUrl3135) {
+        got_download_request_->yes();
+        content_ = "test";
+        mime_type_ = "application/vnd.ms-excel";
+      } else {
+        handle_request = true;
+        return false;
+      }
+      handle_request = true;
+      return true;
+    }
+
+    void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                            int64_t& response_length,
+                            CefString& redirectUrl) override {
+      response_length = content_.size();
+      response->SetStatus(200);
+      response->SetMimeType(mime_type_);
+
+      if (!content_disposition_.empty()) {
+        CefResponse::HeaderMap headerMap;
+        response->GetHeaderMap(headerMap);
+        headerMap.insert(
+            std::make_pair("Content-Disposition", content_disposition_));
+        response->SetHeaderMap(headerMap);
+      }
+
+      if (!charset_.empty()) {
+        response->SetCharset(charset_);
+      }
+    }
+
+    bool Read(void* data_out,
+              int bytes_to_read,
+              int& bytes_read,
+              CefRefPtr<CefResourceReadCallback> callback) override {
+      size_t size = content_.size();
+      if (offset_ < size) {
+        int transfer_size =
+            std::min(bytes_to_read, static_cast<int>(size - offset_));
+        memcpy(data_out, content_.c_str() + offset_, transfer_size);
+        offset_ += transfer_size;
+        bytes_read = transfer_size;
+        return true;
+      }
+      bytes_read = 0;
+      return false;
+    }
+
+    void Cancel() override {}
+
+   private:
+    std::string content_;
+    std::string mime_type_;
+    std::string content_disposition_;
+    std::string charset_;
+    TrackCallback* got_download_request_;
+    size_t offset_ = 0;
+
+    IMPLEMENT_REFCOUNTING(DownloadChineseFilenameSchemeHandler);
+  };
+
+  class DownloadChineseFilenameSchemeHandlerFactory
+      : public CefSchemeHandlerFactory {
+   public:
+    DownloadChineseFilenameSchemeHandlerFactory(
+        const std::string& content_disposition,
+        const std::string& charset,
+        TrackCallback* got_download_request)
+        : content_disposition_(content_disposition),
+          charset_(charset),
+          got_download_request_(got_download_request) {}
+
+    CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
+                                         CefRefPtr<CefFrame> frame,
+                                         const CefString& scheme_name,
+                                         CefRefPtr<CefRequest> request) override {
+      return new DownloadChineseFilenameSchemeHandler(content_disposition_,
+                                                      charset_,
+                                                      got_download_request_);
+    }
+
+   private:
+    std::string content_disposition_;
+    std::string charset_;
+    TrackCallback* got_download_request_;
+
+    IMPLEMENT_REFCOUNTING(DownloadChineseFilenameSchemeHandlerFactory);
+  };
+
+  std::string content_disposition_;
+  std::string charset_;
+  CefScopedTempDir temp_dir_;
+  std::string test_path_;
+  bool verified_results_ = false;
+
+  TrackCallback got_download_request_;
+  TrackCallback got_on_before_download_;
+  TrackCallback got_on_download_updated_;
+  TrackCallback got_download_complete_;
+
+  IMPLEMENT_REFCOUNTING(DownloadChineseFilenameTest);
+};
+
+}  // namespace
+
+// Test: RFC 5987 filename*=UTF-8''... (should always work)
+TEST(DownloadTest, ChineseFilenameRFC5987) {
+  CefRefPtr<DownloadChineseFilenameTest> handler =
+      new DownloadChineseFilenameTest(kTestContentDispositionRFC5987);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Test: charset=utf-8 parameter + raw UTF-8 filename (JD.com style, issue
+// #3135). This test validates whether Chromium's HttpContentDisposition
+// correctly decodes the filename when the server uses "charset=utf-8" as a
+// Content-Disposition parameter alongside raw UTF-8 filename bytes.
+TEST(DownloadTest, ChineseFilenameCharsetParam) {
+  CefRefPtr<DownloadChineseFilenameTest> handler =
+      new DownloadChineseFilenameTest(kTestContentDispositionCharsetParam);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Test: raw UTF-8 filename, no charset parameter (UTF-8 sniffing)
+TEST(DownloadTest, ChineseFilenameRawUTF8) {
+  CefRefPtr<DownloadChineseFilenameTest> handler =
+      new DownloadChineseFilenameTest(kTestContentDispositionRawUTF8);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Test: raw UTF-8 filename with charset=utf-8 set on the HTTP Content-Type
+// response header. Validates that CEF extracts the charset from
+// GetResponseHeaders() and passes it as referrer_charset to
+// net::GenerateFileName(). Regression test for CEF issue #3135.
+TEST(DownloadTest, ChineseFilenameContentTypeCharset) {
+  CefRefPtr<DownloadChineseFilenameTest> handler =
+      new DownloadChineseFilenameTest(kTestContentDispositionRawUTF8, "utf-8");
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}

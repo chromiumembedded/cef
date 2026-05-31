@@ -21,6 +21,7 @@
 #include "content/public/browser/download_item_utils.h"
 #include "content/public/browser/web_contents.h"
 #include "net/base/filename_util.h"
+#include "net/http/http_response_headers.h"
 #include "third_party/blink/public/mojom/choosers/file_chooser.mojom.h"
 
 using content::DownloadManager;
@@ -408,8 +409,14 @@ bool CefDownloadManagerDelegateImpl::DetermineDownloadTarget(
   bool handled = false;
   CefRefPtr<CefDownloadHandler> handler = GetDownloadHandler(browser);
   if (handler) {
+    std::string charset;
+    const auto& response_headers = item->GetResponseHeaders();
+    if (response_headers) {
+      response_headers->GetCharset(&charset);
+    }
+
     base::FilePath suggested_name = net::GenerateFileName(
-        item->GetURL(), item->GetContentDisposition(), std::string(),
+        item->GetURL(), item->GetContentDisposition(), charset,
         item->GetSuggestedFilename(), item->GetMimeType(), "download");
 
     CefRefPtr<CefDownloadItemImpl> download_item(new CefDownloadItemImpl(item));
