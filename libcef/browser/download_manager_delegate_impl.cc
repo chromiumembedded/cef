@@ -414,7 +414,6 @@ bool CefDownloadManagerDelegateImpl::DetermineDownloadTarget(
     if (response_headers) {
       response_headers->GetCharset(&charset);
     }
-
     base::FilePath suggested_name = net::GenerateFileName(
         item->GetURL(), item->GetContentDisposition(), charset,
         item->GetSuggestedFilename(), item->GetMimeType(), "download");
