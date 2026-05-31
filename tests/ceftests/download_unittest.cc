@@ -901,9 +901,9 @@ const char kTestContentDispositionCharsetParam[] =
     "\xe8\xae\xa2\xe5\x8d\x95\xe6\x8a\xa5\xe8\xa1\xa8_2021-05-25.xls";
 
 // Scenario C: filename with raw UTF-8 bytes, no charset hint anywhere.
-// Relies on Chromium's UTF-8 auto-detection in DecodeWord(). This test
-// requires a UTF-8 system locale and will fail on platforms where the
-// native encoding is not UTF-8.
+// Relies on Chromium's platform-independent IsStringUTF8() check in
+// DecodeWord(). Since the bytes are valid UTF-8, the system locale is
+// never consulted.
 const char kTestContentDispositionRawUTF8[] =
     "attachment; filename="
     "\xe8\xae\xa2\xe5\x8d\x95\xe6\x8a\xa5\xe8\xa1\xa8_2021-05-25.xls";
@@ -1188,8 +1188,8 @@ TEST(DownloadTest, ChineseFilenameCharsetParam) {
 }
 
 // Test: raw UTF-8 filename bytes with no charset hint. Relies on Chromium's
-// UTF-8 auto-detection in DecodeWord(). Requires a UTF-8 system locale;
-// will fail on non-UTF-8 platforms (e.g. Windows with a CJK code page).
+// platform-independent IsStringUTF8() check in DecodeWord() — since the bytes
+// are valid UTF-8, the system locale is never consulted.
 // Covers upstream behavior; not dependent on the issue #3135 fix.
 TEST(DownloadTest, ChineseFilenameRawUTF8) {
   CefRefPtr<DownloadChineseFilenameTest> handler =
@@ -1199,9 +1199,13 @@ TEST(DownloadTest, ChineseFilenameRawUTF8) {
 }
 
 // Test: raw UTF-8 filename bytes with charset=utf-8 on the HTTP Content-Type
-// response header. Validates that CEF extracts the charset from
-// GetResponseHeaders() and passes it as referrer_charset to
-// net::GenerateFileName(). Regression test for CEF issue #3135 (UTF-8 path).
+// response header. Exercises the CEF fix for issue #3135: extracting charset
+// from GetResponseHeaders() and passing it as referrer_charset to
+// net::GenerateFileName(). Note that this particular test would pass even
+// without the fix, because IsStringUTF8() detects the raw UTF-8 bytes
+// regardless of charset. A true regression guard for the GBK case requires
+// raw non-UTF-8 bytes, which CefResponse's UTF-8-assuming CefString API
+// cannot relay (see Scenario D comment).
 TEST(DownloadTest, ChineseFilenameContentTypeCharset) {
   CefRefPtr<DownloadChineseFilenameTest> handler =
       new DownloadChineseFilenameTest(kTestContentDispositionRawUTF8, "utf-8");
