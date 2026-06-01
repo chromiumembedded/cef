@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Contributing Guidelines
+    url: https://github.com/chromiumembedded/cef/blob/master/CONTRIBUTING.md
+    about: Please read the contributing guidelines before submitting.
+  - name: CEF Forum
+    url: http://www.magpcss.org/ceforum/
+    about: Use the forum for general usage questions, not the issue tracker.
