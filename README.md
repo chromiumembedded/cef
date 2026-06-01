@@ -60,26 +60,12 @@ If you're the maintainer of a project not listed above and would like your proje
 
 CEF is still very much a work in progress. Some ways that you can help out:
 
-\- Vote for issues in the [CEF issue tracker](https://github.com/chromiumembedded/cef/issues) that are important to you. This helps with development prioritization.
+\- Vote for issues in the [CEF issue tracker](https://github.com/chromiumembedded/cef/issues) that are important to you.
 
-\- Report any bugs that you find or feature requests that are important to you. Make sure to first search for existing issues before creating new ones. Please use the [CEF Forum](http://magpcss.org/ceforum) and not the issue tracker for usage questions. Each CEF issue should:
-
-* Include the CEF revision or binary distribution version.
-* Include information about your OS and compiler version.
-* If the issue is a bug please provide detailed reproduction information.
-* If the issue is a feature please describe why the feature is beneficial.
+\- Report bugs or request features via the [issue tracker](https://github.com/chromiumembedded/cef/issues). Use the [CEF Forum](http://magpcss.org/ceforum) for usage questions.
 
 \- Write unit tests for new or existing functionality.
 
-\- Pull requests and patches are welcome. View open issues in the [CEF issue tracker](https://github.com/chromiumembedded/cef/issues) or search for TODO(cef) in the source code for ideas.
+\- Submit pull requests. View open issues or search for TODO(cef) in the source code for ideas.
 
-If you would like to contribute source code changes to CEF please follow the below guidelines:
-
-\- Create or find an appropriate issue for each distinct bug, feature or change. 
-
-\- Submit a [pull request](https://chromiumembedded.github.io/cef/contributing_with_git) or create a patch with your changes and attach it to the CEF issue. Changes should:
-
-* Be submitted against the current [CEF master branch](https://github.com/chromiumembedded/cef/tree/master) unless explicitly fixing a bug in a CEF release branch.
-* Follow the style of existing CEF source files. In general CEF uses the [Chromium C++ style guide](https://chromium.googlesource.com/chromium/src/+/master/styleguide/c++/c++.md).
-* Include new or modified unit tests as appropriate to the functionality.
-* Not include unnecessary or unrelated changes.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on submitting changes, code style, commit messages, and AI tool usage.
