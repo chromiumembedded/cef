@@ -61,7 +61,7 @@ index e34463964be90f9450603889646b5630557ef0f2..ef24d70543e7273aba865ab762eb903a
      case ui::mojom::WindowShowState::kMaximized:
        return kSerializedShowStateMaximized;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index eba3d431d9e94984c988eee3eeda04a8428a8242..bbbc2d81fc5eec315732a93d533221727a23177d 100644
+index f06847bb5693ab445a834cef51f9e7c1467461cc..9c163ad69e3c57552b464508a736cdd6a185e036 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -651,6 +651,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
@@ -80,7 +80,7 @@ index eba3d431d9e94984c988eee3eeda04a8428a8242..bbbc2d81fc5eec315732a93d53322172
    if (!GetMouseWheelPhaseHandler())
      return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 572221573dce09b1218994db4bdd7147fdc00440..8380c9e9338b16a0562509f02bcddc719c6a3af0 100644
+index fc5407b69265c6a3b489df54e80f3a5f87fde0d7..1412a5be766de5588e08990b775a7af114c54c58 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -76,6 +76,7 @@ namespace content {
@@ -91,7 +91,7 @@ index 572221573dce09b1218994db4bdd7147fdc00440..8380c9e9338b16a0562509f02bcddc71
  class ScopedViewTransitionResources;
  class TextInputManager;
  class TouchSelectionControllerClientManager;
-@@ -162,6 +163,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -163,6 +164,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
  
    virtual void DidOverscroll(const ui::DidOverscrollParams& params) {}
  
@@ -101,7 +101,7 @@ index 572221573dce09b1218994db4bdd7147fdc00440..8380c9e9338b16a0562509f02bcddc71
    // Identical to `CopyFromSurface()`, except that this method issues the
    // `viz::CopyOutputRequest` against the exact `viz::Surface` currently
    // embedded by this View, while `CopyFromSurface()` may return a copy of any
-@@ -258,6 +262,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -259,6 +263,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // Called when screen information or native widget bounds change.
    virtual void UpdateScreenInfo();
  
@@ -112,7 +112,7 @@ index 572221573dce09b1218994db4bdd7147fdc00440..8380c9e9338b16a0562509f02bcddc71
    // Called by the TextInputManager to notify the view about being removed from
    // the list of registered views, i.e., TextInputManager is no longer tracking
    // TextInputState from this view. The RWHV should reset |text_input_manager_|
-@@ -386,6 +394,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -387,6 +395,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
                             const gfx::Rect& bounds,
                             const gfx::Rect& anchor_rect) = 0;
  
@@ -125,7 +125,7 @@ index 572221573dce09b1218994db4bdd7147fdc00440..8380c9e9338b16a0562509f02bcddc71
    // Indicates whether the page has finished loading.
    virtual void SetIsLoading(bool is_loading) = 0;
  
-@@ -657,6 +671,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -658,6 +672,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // to all displays.
    gfx::Size system_cursor_size_;
  
@@ -136,7 +136,7 @@ index 572221573dce09b1218994db4bdd7147fdc00440..8380c9e9338b16a0562509f02bcddc71
   private:
    FRIEND_TEST_ALL_PREFIXES(
        BrowserSideFlingBrowserTest,
-@@ -678,10 +696,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -679,10 +697,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
  
    void SynchronizeVisualProperties();
  
@@ -196,7 +196,7 @@ index 88c585ea22c61395a4ec572a863fbc333f365177..183555395be81fb420d644b0ec1b2756
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
      set_focus_on_mouse_down_or_key_event_ = false;
 diff --git content/public/browser/render_widget_host_view.h content/public/browser/render_widget_host_view.h
-index bb8113852ff5f73f14ab04d1cd52428a1c0f30b3..3816328408ddeed4d0773ab346ab16329b7624b2 100644
+index d58399be54b714531821437810802e20305f78bb..3e0c6cfc62b5951b415617039b1319f4cd5c3def 100644
 --- content/public/browser/render_widget_host_view.h
 +++ content/public/browser/render_widget_host_view.h
 @@ -287,6 +287,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
@@ -215,10 +215,10 @@ index bb8113852ff5f73f14ab04d1cd52428a1c0f30b3..3816328408ddeed4d0773ab346ab1632
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
 diff --git third_party/blink/renderer/core/frame/web_frame_widget_impl.cc third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
-index 79e6cb0a13aef9a5290314dcc2998aeb7854f539..2e0b647ee7ba0a2fb519942676107e8ed0560105 100644
+index f2b8b20766d81d746af2fe60a63a4e979f112548..54c29effe8598a5765db71526b5943faab59719d 100644
 --- third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
 +++ third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
-@@ -5518,6 +5518,7 @@ void WebFrameWidgetImpl::OnWindowShowStateChanged(
+@@ -5534,6 +5534,7 @@ void WebFrameWidgetImpl::OnWindowShowStateChanged(
        break;
      case WindowShowState::kInactive:
      case WindowShowState::kFullscreen:
@@ -258,10 +258,10 @@ index aeaf8e35f7eda89598149117fe8508d197bf2610..4b7cc3f03d3cf9c91ac8efe11ae820cf
 +  [MinVersion=1] kEnd = 7,
  };
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
-index b4c92dd8f3b15b979b280c433d343f3987d6c801..01735241d90bc7b3d6bea2383b18fe25e2b2fd62 100644
+index 2459a05b3caadbe1e8c024e8cf0044b01761e1dd..2ae6fc1b9a8fe7bbc6a4ac9835df42dc2e8239aa 100644
 --- ui/ozone/platform/x11/x11_window.cc
 +++ ui/ozone/platform/x11/x11_window.cc
-@@ -1884,7 +1884,17 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
+@@ -1943,7 +1943,17 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
    req.border_pixel = 0;
  
    last_set_bounds_px_ = SanitizeBounds(bounds);
@@ -373,7 +373,7 @@ index d440180f99339d3d9da1468ad0e5bf07a141c220..f4f7b69b2d843b8caf6edaef5312fe46
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index ee67004697199faf7bc6274d2371a795e0e38bc6..39b99a77f3a7c04622256a2e09274ae6a5448fe8 100644
+index 0254e2ddad745b5d7b16fd9d7514cf7eb7e0e6a8..6f5e7665c2c50a7bde07b2865269755548506f5e 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 @@ -281,8 +281,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
@@ -658,10 +658,10 @@ index a3413e4ca4a7ed7d3a617f4cfbf59a8544211c8c..5480c1ec1da475d1663a524a9ba3d7d0
    // Deactivates the widget, making the next window in the Z order the active
    // window.
 diff --git ui/views/widget/widget_delegate.h ui/views/widget/widget_delegate.h
-index 07ba390764528c414f356adaf8dc423fcdb23a89..f0c35f3105ba855238f776dd06073ca7ceb61eaa 100644
+index cb2d7b2f5c3155af71a430280fa406ec1c65e7ba..0242d01ac98199a7794cb93e00718a13b1d2321e 100644
 --- ui/views/widget/widget_delegate.h
 +++ ui/views/widget/widget_delegate.h
-@@ -782,6 +782,10 @@ class VIEWS_EXPORT WidgetDelegate {
+@@ -783,6 +783,10 @@ class VIEWS_EXPORT WidgetDelegate {
    // Returns true if the title text should be centered.
    bool ShouldCenterWindowTitleText() const;
  
