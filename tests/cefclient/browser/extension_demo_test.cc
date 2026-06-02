@@ -86,8 +86,7 @@ class DemoController : public CefExtensionHandler {
   void EnsureTabBrowsers();
   void OnTabBrowserCreated(int tab_index, CefRefPtr<CefBrowser> browser);
   void OnTabBrowserClosed(int tab_index);
-  void LayoutTabs(int viewport_h_px,
-                  const std::vector<CefRect>& tab_rects_px);
+  void LayoutTabs(int viewport_h_px, const std::vector<CefRect>& tab_rects_px);
   void OnTabFocused(int tab_index);
 
   void PushRefresh() {
@@ -157,9 +156,9 @@ class TabClient : public CefClient,
     if (CefCurrentlyOn(TID_UI)) {
       DispatchCreated(main_browser_id_, tab_index_, browser);
     } else {
-      CefPostTask(TID_UI, base::BindOnce(&TabClient::DispatchCreated,
-                                         main_browser_id_, tab_index_,
-                                         browser));
+      CefPostTask(TID_UI,
+                  base::BindOnce(&TabClient::DispatchCreated, main_browser_id_,
+                                 tab_index_, browser));
     }
   }
   void OnBeforeClose(CefRefPtr<CefBrowser>) override {
@@ -492,8 +491,8 @@ class DemoHandler : public CefMessageRouterBrowserSide::Handler {
     }
     if (cmd == "showPopup") {
       const std::string id = d->GetString("id");
-      CefRect rect(d->GetInt("x"), d->GetInt("y"),
-                   d->GetInt("w"), d->GetInt("h"));
+      CefRect rect(d->GetInt("x"), d->GetInt("y"), d->GetInt("w"),
+                   d->GetInt("h"));
       CefRefPtr<CefBrowser> src = c->active_tab_browser();
       if (!src) {
         src = browser;
@@ -517,8 +516,8 @@ class DemoHandler : public CefMessageRouterBrowserSide::Handler {
           if (!t) {
             continue;
           }
-          rects.emplace_back(t->GetInt("x"), t->GetInt("y"),
-                             t->GetInt("w"), t->GetInt("h"));
+          rects.emplace_back(t->GetInt("x"), t->GetInt("y"), t->GetInt("w"),
+                             t->GetInt("h"));
         }
       }
       c->LayoutTabs(vh, rects);

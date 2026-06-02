@@ -205,8 +205,7 @@ int RunMain(HINSTANCE hInstance,
         settings.windowless_rendering_enabled ? true : false;
 
     // Create the first window.
-    context->GetRootWindowManager()->CreateRootWindow(
-        std::move(window_config));
+    context->GetRootWindowManager()->CreateRootWindow(std::move(window_config));
   }
 
   // Run the message loop. This will block until Quit() is called by the

@@ -409,8 +409,7 @@ class CefRequestContext : public CefPreferenceManager {
   /// loaded extension in the request context.
   ///
   /*--cef(optional_param=handler,added=next)--*/
-  virtual void SetExtensionsHandler(
-      CefRefPtr<CefExtensionHandler> handler) = 0;
+  virtual void SetExtensionsHandler(CefRefPtr<CefExtensionHandler> handler) = 0;
 
   ///
   /// Returns true if an extension matching |extension_id| is currently loaded
