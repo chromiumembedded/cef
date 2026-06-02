@@ -13,6 +13,7 @@
 #include "third_party/skia/include/core/SkColor.h"
 #include "ui/compositor/compositor.h"
 #include "ui/compositor/layer.h"
+#include "ui/views/view.h"
 
 namespace {
 
@@ -288,7 +289,15 @@ void CefOverlayViewHost::SetOverlayBounds(const gfx::Rect& bounds) {
   if (view_->size() != bounds_.size()) {
     view_->SetSize(bounds_.size());
   }
-  widget_->SetBounds(bounds_);
+
+  // |bounds_| is in CefWindowView coordinates, but the overlay Widget is
+  // positioned in host Widget coordinates. These differ by the frame border
+  // insets when the frame draws client-side decorations.
+  gfx::Rect widget_bounds = bounds_;
+  gfx::Point offset;
+  views::View::ConvertPointToWidget(window_view_, &offset);
+  widget_bounds.Offset(offset.OffsetFromOrigin());
+  widget_->SetBounds(widget_bounds);
   window_view_->OnOverlayBoundsChanged();
 
   bounds_changing_ = false;

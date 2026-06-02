@@ -30,6 +30,16 @@
 #include "ui/views/window/native_frame_view.h"
 
 #if BUILDFLAG(IS_LINUX)
+#include "ui/aura/window_tree_host_platform.h"
+#include "ui/compositor/layer.h"
+#include "ui/gfx/geometry/rect_f.h"
+#include "ui/gfx/geometry/rounded_corners_f.h"
+#include "ui/platform_window/platform_window.h"
+#include "ui/views/controls/native/native_view_host.h"
+#include "ui/views/controls/webview/webview.h"
+#include "ui/views/view_utils.h"
+#include "ui/views/window/frame_view_layout_linux.h"
+#include "ui/views/window/frame_view_linux.h"
 #if BUILDFLAG(SUPPORTS_OZONE_X11)
 #include "ui/gfx/x/atom_cache.h"
 #include "ui/linux/linux_ui_delegate.h"
@@ -69,6 +79,27 @@ class ClientViewEx : public views::ClientView {
                ? views::CloseRequestResult::kCanClose
                : views::CloseRequestResult::kCannotClose;
   }
+
+#if BUILDFLAG(IS_LINUX)
+  // views::ClientView:
+  void UpdateWindowRoundedCorners(
+      const gfx::RoundedCornersF& window_radii) override {
+    // Clip painted views to rounded corners. A layer is required because layers
+    // ignore the clip of a non-layer parent.
+    if (!layer()) {
+      SetPaintToLayer();
+      layer()->SetFillsBoundsOpaquely(false);
+    }
+    layer()->SetRoundedCornerRadius(window_radii);
+    layer()->SetIsFastRoundedCorner(true);
+
+    // Hosted native views are separate compositor surfaces that the layer clip
+    // above does not reach, so round the web contents directly.
+    if (view_) {
+      view_->UpdateWebContentsRoundedCorners(window_radii);
+    }
+  }
+#endif
 
  private:
   const base::WeakPtr<CefWindowView> view_;
@@ -309,6 +340,128 @@ class CaptionlessFrameView : public views::FrameView {
 
 BEGIN_METADATA(CaptionlessFrameView)
 END_METADATA
+
+#if BUILDFLAG(IS_LINUX)
+// Layout for CaptionlessFrameViewLinux. Drops the caption content height so the
+// client view fills the window inside the frame border, and rounds all four
+// corners instead of only the top corners.
+class CaptionlessFrameViewLayoutLinux : public views::FrameViewLayoutLinux {
+ public:
+  CaptionlessFrameViewLayoutLinux() = default;
+
+  CaptionlessFrameViewLayoutLinux(const CaptionlessFrameViewLayoutLinux&) =
+      delete;
+  CaptionlessFrameViewLayoutLinux& operator=(
+      const CaptionlessFrameViewLayoutLinux&) = delete;
+
+  // No caption buttons or title, so the top area is just the frame border.
+  int GetTopAreaHeight() const override {
+    return ShouldShowTitlebarAndBorder() ? GetFrameBorderInsets().top() : 0;
+  }
+
+  // Round all four corners using the base top-corner radius.
+  gfx::RoundedCornersF GetCornerRadii() const override {
+    return gfx::RoundedCornersF(
+        views::FrameViewLayoutLinux::GetCornerRadii().upper_left());
+  }
+};
+
+// Linux implementation of a frameless frame view. Extends FrameViewLinux to
+// draw client-side shadows and rounded corners without a titlebar or window
+// controls, while preserving draggable region handling.
+class CaptionlessFrameViewLinux : public views::FrameViewLinux {
+  METADATA_HEADER(CaptionlessFrameViewLinux, views::FrameViewLinux)
+
+ public:
+  CaptionlessFrameViewLinux(views::Widget* widget,
+                            base::WeakPtr<CefWindowView> view)
+      : views::FrameViewLinux(widget, new CaptionlessFrameViewLayoutLinux()),
+        view_(std::move(view)) {
+    // Match DesktopWindowTreeHostLinux::CreateFrameView shadow configuration.
+    auto* host = static_cast<aura::WindowTreeHostPlatform*>(
+        widget->GetNativeWindow()->GetHost());
+    SetSupportsClientFrameShadow(
+        host->platform_window()->CanSetDecorationInsets() &&
+        views::Widget::IsWindowCompositingSupported());
+  }
+
+  CaptionlessFrameViewLinux(const CaptionlessFrameViewLinux&) = delete;
+  CaptionlessFrameViewLinux& operator=(const CaptionlessFrameViewLinux&) =
+      delete;
+
+  // FrameViewLinux:
+  void CreateCaptionButtons() override {
+    // No window controls in a frameless window.
+  }
+
+  bool HasWindowTitle() const override { return false; }
+
+  int NonClientHitTest(const gfx::Point& point) override {
+    // Mouse clicks within the draggable region drag the window.
+    if (!frame_widget()->IsFullscreen()) {
+      SkRegion* draggable_region = view_->draggable_region();
+      if (draggable_region) {
+        const gfx::Point client_point =
+            point - GetBoundsForClientView().OffsetFromOrigin();
+        if (draggable_region->contains(client_point.x(), client_point.y())) {
+          return HTCAPTION;
+        }
+      }
+    }
+
+    // Resize handles and everything else are handled by the base class.
+    return views::FrameViewLinux::NonClientHitTest(point);
+  }
+
+  // FrameView:
+  void UpdateWindowRoundedCorners() override {
+    frame_widget()->client_view()->UpdateWindowRoundedCorners(GetCornerRadii());
+  }
+
+  // View:
+  void Layout(views::View::PassKey) override {
+    LayoutSuperclass<views::FrameViewLinux>(this);
+
+    // Push the current radii down so the client view and web contents stay
+    // clipped after relayout, including state changes that alter the radii.
+    UpdateWindowRoundedCorners();
+  }
+
+ private:
+  const base::WeakPtr<CefWindowView> view_;
+};
+
+BEGIN_METADATA(CaptionlessFrameViewLinux)
+END_METADATA
+
+// Rounds every WebView surface under |view|, per corner, only where it is flush
+// with a corner of |window_bounds|. |window| is the coordinate target for the
+// flush test.
+void UpdateWebViewRoundedCorners(views::View* view,
+                                 const views::View* window,
+                                 const gfx::RectF& window_bounds,
+                                 const gfx::RoundedCornersF& radii) {
+  if (auto* web_view = views::AsViewClass<views::WebView>(view)) {
+    gfx::RectF bounds(web_view->GetLocalBounds());
+    views::View::ConvertRectToTarget(web_view, window, &bounds);
+
+    const bool left = bounds.x() <= window_bounds.x();
+    const bool top = bounds.y() <= window_bounds.y();
+    const bool right = bounds.right() >= window_bounds.right();
+    const bool bottom = bounds.bottom() >= window_bounds.bottom();
+
+    web_view->holder()->SetCornerRadii(
+        gfx::RoundedCornersF(left && top ? radii.upper_left() : 0,
+                             right && top ? radii.upper_right() : 0,
+                             right && bottom ? radii.lower_right() : 0,
+                             left && bottom ? radii.lower_left() : 0));
+  }
+
+  for (views::View* child : view->children()) {
+    UpdateWebViewRoundedCorners(child, window, window_bounds, radii);
+  }
+}
+#endif  // BUILDFLAG(IS_LINUX)
 
 bool IsWindowBorderHit(int code) {
 // On Windows HTLEFT = 10 and HTBORDER = 18. Values are not ordered the same
@@ -654,11 +807,18 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
 
   params.delegate->SetCanResize(can_resize);
 
-#if BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   if (is_frameless_) {
-    // Don't show the native window caption. Setting this value on Linux will
-    // result in window resize artifacts.
+    // Don't show the native window frame.
     params.remove_standard_frame = true;
+  }
+#endif
+
+#if BUILDFLAG(IS_LINUX)
+  if (is_frameless_ && !has_native_parent) {
+    // Use a translucent window so CaptionlessFrameViewLinux can draw
+    // client-side shadows and rounded corners.
+    params.opacity = views::Widget::InitParams::WindowOpacity::kTranslucent;
   }
 #endif
 
@@ -681,10 +841,6 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
 #if BUILDFLAG(SUPPORTS_OZONE_X11)
   auto x11window = static_cast<x11::Window>(view_util::GetWindowHandle(widget));
   CHECK(x11window != x11::Window::None);
-
-  if (is_frameless_) {
-    ui::SetUseOSWindowFrame(x11window, false);
-  }
 
   if (host_widget) {
     auto parent = static_cast<gfx::AcceleratedWidget>(
@@ -802,8 +958,16 @@ std::unique_ptr<views::FrameView> CefWindowView::CreateFrameView(
     views::Widget* widget) {
   if (is_frameless_) {
     // Custom frame type that doesn't render a caption.
+#if BUILDFLAG(IS_LINUX)
+    // Draw client-side shadows and rounded corners to match Windows and macOS.
+    auto frame_view = std::make_unique<CaptionlessFrameViewLinux>(
+        widget, weak_ptr_factory_.GetWeakPtr());
+    frame_view->InitViews();
+    return frame_view;
+#else
     return std::make_unique<CaptionlessFrameView>(
         widget, weak_ptr_factory_.GetWeakPtr());
+#endif
   } else if (widget->ShouldUseNativeFrame()) {
     // DesktopNativeWidgetAura::CreateFrameView() returns
     // NativeFrameView by default. Extend that type.
@@ -819,6 +983,7 @@ std::unique_ptr<views::FrameView> CefWindowView::CreateFrameView(
 bool CefWindowView::ShouldDescendIntoChildForEventHandling(
     gfx::NativeView child,
     const gfx::Point& location) {
+  gfx::Point content_location = location;
   if (is_frameless_) {
     // If the window is resizable it should claim mouse events that fall on the
     // window border.
@@ -828,13 +993,24 @@ bool CefWindowView::ShouldDescendIntoChildForEventHandling(
       if (IsWindowBorderHit(result)) {
         return false;
       }
+      // |location| is in the host Widget's coordinate space, which the frame
+      // view offsets from the contents view by the frame border insets.
+      content_location -= ncfv->GetBoundsForClientView().OffsetFromOrigin();
     }
   }
 
   // The window should claim mouse events that fall within the draggable region.
   return !draggable_region_.get() ||
-         !draggable_region_->contains(location.x(), location.y());
+         !draggable_region_->contains(content_location.x(),
+                                      content_location.y());
 }
+
+#if BUILDFLAG(IS_LINUX)
+void CefWindowView::UpdateWebContentsRoundedCorners(
+    const gfx::RoundedCornersF& radii) {
+  UpdateWebViewRoundedCorners(this, this, gfx::RectF(GetLocalBounds()), radii);
+}
+#endif  // BUILDFLAG(IS_LINUX)
 
 void CefWindowView::ViewHierarchyChanged(
     const views::ViewHierarchyChangedDetails& details) {
