@@ -12,6 +12,7 @@
 #include "include/wrapper/cef_certificate_util_win.h"
 #include "include/wrapper/cef_library_loader.h"
 #include "include/wrapper/cef_util_win.h"
+#include "tests/cefclient/browser/extension_demo_test.h"
 #include "tests/cefclient/browser/main_context_impl.h"
 #include "tests/cefclient/browser/main_message_loop_multithreaded_win.h"
 #include "tests/cefclient/browser/resource.h"
@@ -193,14 +194,20 @@ int RunMain(HINSTANCE hInstance,
   // Register scheme handlers.
   test_runner::RegisterSchemeHandlers();
 
-  auto window_config = std::make_unique<RootWindowConfig>();
-  window_config->always_on_top =
-      command_line->HasSwitch(switches::kAlwaysOnTop);
-  window_config->with_osr =
-      settings.windowless_rendering_enabled ? true : false;
+  if (extension_demo_test::IsEnabled(command_line)) {
+    // Launch the extensions demo as the first (and only) window.
+    extension_demo_test::Launch(command_line);
+  } else {
+    auto window_config = std::make_unique<RootWindowConfig>();
+    window_config->always_on_top =
+        command_line->HasSwitch(switches::kAlwaysOnTop);
+    window_config->with_osr =
+        settings.windowless_rendering_enabled ? true : false;
 
-  // Create the first window.
-  context->GetRootWindowManager()->CreateRootWindow(std::move(window_config));
+    // Create the first window.
+    context->GetRootWindowManager()->CreateRootWindow(
+        std::move(window_config));
+  }
 
   // Run the message loop. This will block until Quit() is called by the
   // RootWindowManager after all windows have been destroyed.

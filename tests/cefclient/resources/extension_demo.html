@@ -1,0 +1,439 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>CEF Extensions Demo</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          sans-serif;
+        color: #202124;
+        display: flex;
+        flex-direction: column;
+        background: #fafafa;
+      }
+      header {
+        padding: 12px 16px;
+        border-bottom: 1px solid #ddd;
+        background: #fff;
+      }
+      h1 {
+        font-size: 16px;
+        margin: 0 0 10px;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      input[type="text"] {
+        flex: 1;
+        min-width: 280px;
+        padding: 6px 8px;
+        border: 1px solid #bbb;
+        border-radius: 4px;
+        font-size: 13px;
+      }
+      button {
+        padding: 6px 12px;
+        border: 1px solid #1a73e8;
+        background: #1a73e8;
+        color: #fff;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      button.secondary {
+        background: #fff;
+        color: #1a73e8;
+      }
+      #status {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #c5221f;
+        min-height: 16px;
+      }
+
+      #strip {
+        display: flex;
+        gap: 10px;
+        padding: 12px 16px;
+        overflow-x: auto;
+        border-bottom: 1px solid #ddd;
+        background: #fff;
+        min-height: 64px;
+        align-items: stretch;
+      }
+      #strip .empty {
+        color: #80868b;
+        font-size: 13px;
+        align-self: center;
+      }
+      .ext {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        align-items: center;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px;
+        min-width: 120px;
+        max-width: 140px;
+        background: #fff;
+      }
+      .ext.disabled {
+        opacity: 0.5;
+      }
+      /* Toolbar-style action button: a 32px click target hosting the extension's
+     16 DIP action icon, mirroring how Chrome shows a 16px icon inside a larger
+     toolbar button. The icon is exported at its native 16 DIP size (with HiDPI
+     reps) so it renders crisply rather than being upscaled. */
+      .ext .iconbtn {
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        border-radius: 4px;
+        background: #f1f3f4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+      .ext .iconbtn img {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+      }
+      .ext .name {
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+        word-break: break-word;
+        line-height: 1.2;
+      }
+      .ext .ver {
+        font-size: 10px;
+        color: #80868b;
+      }
+      .ext .controls {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        font-size: 11px;
+      }
+      .ext .controls button {
+        padding: 2px 6px;
+        font-size: 11px;
+        background: #fff;
+        color: #c5221f;
+        border-color: #c5221f;
+      }
+      /* Toggle switch for enable/disable. */
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 34px;
+        height: 18px;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .switch .slider {
+        position: absolute;
+        inset: 0;
+        cursor: pointer;
+        background: #bbb;
+        border-radius: 18px;
+        transition: background 0.15s;
+      }
+      .switch .slider::before {
+        content: "";
+        position: absolute;
+        height: 14px;
+        width: 14px;
+        left: 2px;
+        top: 2px;
+        background: #fff;
+        border-radius: 50%;
+        transition: transform 0.15s;
+      }
+      .switch input:checked + .slider {
+        background: #1a73e8;
+      }
+      .switch input:checked + .slider::before {
+        transform: translateX(16px);
+      }
+
+      #tabsbar {
+        padding: 8px 16px;
+        font-size: 13px;
+        color: #5f6368;
+        background: #fff;
+        border-bottom: 1px solid #ddd;
+      }
+      #tabs {
+        flex: 1;
+        display: flex;
+        gap: 8px;
+        padding: 8px 16px 16px;
+        min-height: 0;
+      }
+      .tab {
+        flex: 1;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9aa0a6;
+        font-size: 13px;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>CEF Extensions Demo</h1>
+      <div class="row">
+        <input
+          id="path"
+          type="text"
+          placeholder="Path to an unpacked extension directory, or a .crx file"
+        />
+        <button onclick="loadUnpacked()">Load unpacked</button>
+        <button class="secondary" onclick="installUnpacked()">
+          Install unpacked
+        </button>
+        <button class="secondary" onclick="installCrx()">Install crx</button>
+        <button class="secondary" onclick="refreshExtensions()">Refresh</button>
+      </div>
+      <div id="status"></div>
+    </header>
+
+    <div id="strip"><span class="empty">No extensions loaded.</span></div>
+
+    <div id="tabsbar">Active tab: <b id="activeTab">(none)</b></div>
+    <div id="tabs">
+      <div class="tab" id="tab0">Vue tab loading&hellip;</div>
+      <div class="tab" id="tab1">React tab loading&hellip;</div>
+    </div>
+
+    <script>
+      function q(cmd) {
+        return new Promise(function (resolve, reject) {
+          window.cefQuery({
+            request: JSON.stringify(cmd),
+            onSuccess: function (r) {
+              resolve(r);
+            },
+            onFailure: function (code, msg) {
+              reject(msg);
+            },
+          });
+        });
+      }
+
+      function setStatus(msg) {
+        document.getElementById("status").textContent = msg || "";
+      }
+
+      function refreshExtensions() {
+        q({ command: "listExtensions" })
+          .then(function (res) {
+            render(JSON.parse(res));
+          })
+          .catch(setStatus);
+      }
+      // Exposed so the C++ extension handler can push updates.
+      window.refreshExtensions = refreshExtensions;
+
+      function render(list) {
+        var strip = document.getElementById("strip");
+        strip.innerHTML = "";
+        if (!list.length) {
+          var empty = document.createElement("span");
+          empty.className = "empty";
+          empty.textContent = "No extensions loaded.";
+          strip.appendChild(empty);
+        }
+        list.forEach(function (ext) {
+          var card = document.createElement("div");
+          card.className = "ext" + (ext.enabled ? "" : " disabled");
+
+          var iconBtn = document.createElement("div");
+          iconBtn.className = "iconbtn";
+          iconBtn.title = "Open popup";
+          iconBtn.onclick = function () {
+            showPopup(ext.id, iconBtn);
+          };
+          if (ext.icon) {
+            var img = document.createElement("img");
+            img.src = ext.icon;
+            iconBtn.appendChild(img);
+          } else {
+            iconBtn.textContent = "\u{1F9E9}";
+          }
+          card.appendChild(iconBtn);
+
+          var name = document.createElement("div");
+          name.className = "name";
+          name.textContent = ext.name || ext.id;
+          card.appendChild(name);
+
+          if (ext.version) {
+            var ver = document.createElement("div");
+            ver.className = "ver";
+            ver.textContent = "v" + ext.version;
+            card.appendChild(ver);
+          }
+
+          var controls = document.createElement("div");
+          controls.className = "controls";
+          var toggle = document.createElement("label");
+          toggle.className = "switch";
+          toggle.title = ext.enabled ? "Enabled" : "Disabled";
+          var cb = document.createElement("input");
+          cb.type = "checkbox";
+          cb.checked = ext.enabled;
+          cb.onchange = function () {
+            setEnabled(ext.id, cb.checked);
+          };
+          var slider = document.createElement("span");
+          slider.className = "slider";
+          toggle.appendChild(cb);
+          toggle.appendChild(slider);
+          controls.appendChild(toggle);
+          var rm = document.createElement("button");
+          rm.textContent = "Remove";
+          rm.onclick = function () {
+            remove(ext.id);
+          };
+          controls.appendChild(rm);
+          card.appendChild(controls);
+
+          strip.appendChild(card);
+        });
+        // The strip height may have changed, shifting the tab region.
+        layoutTabs();
+      }
+
+      function loadUnpacked() {
+        var path = document.getElementById("path").value.trim();
+        if (!path) {
+          setStatus("Enter an extension directory path first.");
+          return;
+        }
+        setStatus("");
+        q({ command: "loadUnpacked", path: path }).catch(setStatus);
+      }
+
+      function installUnpacked() {
+        var path = document.getElementById("path").value.trim();
+        if (!path) {
+          setStatus("Enter an extension directory path first.");
+          return;
+        }
+        setStatus("");
+        q({ command: "installUnpacked", path: path }).catch(setStatus);
+      }
+
+      function installCrx() {
+        var path = document.getElementById("path").value.trim();
+        if (!path) {
+          setStatus("Enter a .crx file path first.");
+          return;
+        }
+        setStatus("");
+        q({ command: "installCrx", path: path }).catch(setStatus);
+      }
+
+      function setEnabled(id, enable) {
+        q({ command: "setEnabled", id: id, enable: enable }).catch(setStatus);
+      }
+
+      function remove(id) {
+        q({ command: "remove", id: id }).catch(setStatus);
+      }
+
+      function showPopup(id, iconEl) {
+        var r = iconEl.getBoundingClientRect();
+        // Anchor in screen DIPs (CSS px): viewport origin + element offset.
+        q({
+          command: "showPopup",
+          id: id,
+          x: Math.round(window.screenX + r.left),
+          y: Math.round(window.screenY + r.top),
+          w: Math.round(r.width),
+          h: Math.round(r.height),
+        }).catch(setStatus);
+      }
+
+      // Window.setActiveTab is called from C++ when a tab browser gains focus.
+      window.setActiveTab = function (index) {
+        var label =
+          index === 1 ? "Vue tab" : index === 2 ? "React tab" : "(none)";
+        document.getElementById("activeTab").textContent = label;
+      };
+
+      // Window.onLoadFailed is called from C++ when a load/install fails.
+      window.onLoadFailed = function (code) {
+        setStatus("Extension load failed (error code " + code + ").");
+      };
+
+      // Reports the two tab regions to C++ as rectangles relative to this page's
+      // viewport, in device pixels (CSS px * devicePixelRatio), plus the viewport
+      // height. C++ maps each into the tab browsers' parent-window client area: the
+      // web content fills the client width and sits flush to the bottom, below the
+      // host toolbar, so the top inset is the parent's client height minus the
+      // viewport height. This is mode-agnostic (native window or the HWND backing a
+      // Views window) and avoids window.screenX/Y, which reports the top-level window
+      // position and omits the toolbar.
+      function layoutTabs() {
+        var dpr = window.devicePixelRatio || 1;
+        function rect(id) {
+          var b = document.getElementById(id).getBoundingClientRect();
+          return {
+            x: Math.round(b.left * dpr),
+            y: Math.round(b.top * dpr),
+            w: Math.round(b.width * dpr),
+            h: Math.round(b.height * dpr),
+          };
+        }
+        q({
+          command: "layoutTabs",
+          vh: Math.round(window.innerHeight * dpr),
+          tabs: [rect("tab0"), rect("tab1")],
+        }).catch(setStatus);
+      }
+      // Exposed so the C++ side can request a re-layout once a tab browser exists.
+      window.layoutTabs = layoutTabs;
+
+      var layoutTimer = null;
+      window.addEventListener("resize", function () {
+        clearTimeout(layoutTimer);
+        layoutTimer = setTimeout(layoutTabs, 100);
+      });
+
+      window.addEventListener("load", function () {
+        q({ command: "init" })
+          .then(function () {
+            refreshExtensions();
+            layoutTabs();
+          })
+          .catch(setStatus);
+      });
+    </script>
+  </body>
+</html>

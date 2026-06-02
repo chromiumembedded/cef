@@ -7,8 +7,13 @@
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
+#include "cef/include/cef_extension.h"
+#include "cef/include/cef_extension_handler.h"
 #include "cef/libcef/browser/browser_context.h"
 #include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/extensions/extension_impl.h"
+#include "cef/libcef/browser/extensions/extension_popup_manager.h"
+#include "cef/libcef/browser/extensions/extension_registry_observer.h"
 #include "cef/libcef/browser/prefs/pref_helper.h"
 #include "cef/libcef/browser/setting_helper.h"
 #include "cef/libcef/browser/thread_util.h"
@@ -702,6 +707,160 @@ cef_color_variant_t CefRequestContextImpl::GetChromeColorSchemeVariant() {
   return CEF_COLOR_VARIANT_SYSTEM;
 }
 
+void CefRequestContextImpl::LoadUnpackedExtension(
+    const CefString& root_directory,
+    CefRefPtr<CefExtensionHandler> handler) {
+  ExecuteWhenBrowserContextInitialized(base::BindOnce(
+      [](CefRefPtr<CefRequestContextImpl> self, CefString root_directory,
+         CefRefPtr<CefExtensionHandler> handler) {
+        CEF_REQUIRE_UIT();
+        if (!self->extension_registry_observer_) {
+          if (handler) {
+            handler->OnExtensionLoadFailed(ERR_FAILED);
+          }
+          return;
+        }
+        self->extension_registry_observer_->LoadUnpackedExtension(
+            base::FilePath::FromUTF8Unsafe(root_directory.ToString()), handler);
+      },
+      CefRefPtr<CefRequestContextImpl>(this), root_directory, handler));
+}
+
+void CefRequestContextImpl::InstallUnpackedExtension(
+    const CefString& root_directory,
+    CefRefPtr<CefExtensionHandler> handler) {
+  ExecuteWhenBrowserContextInitialized(base::BindOnce(
+      [](CefRefPtr<CefRequestContextImpl> self, CefString root_directory,
+         CefRefPtr<CefExtensionHandler> handler) {
+        CEF_REQUIRE_UIT();
+        if (!self->extension_registry_observer_) {
+          if (handler) {
+            handler->OnExtensionLoadFailed(ERR_FAILED);
+          }
+          return;
+        }
+        self->extension_registry_observer_->InstallUnpackedExtension(
+            base::FilePath::FromUTF8Unsafe(root_directory.ToString()), handler);
+      },
+      CefRefPtr<CefRequestContextImpl>(this), root_directory, handler));
+}
+
+void CefRequestContextImpl::InstallExtension(
+    const CefString& crx_path,
+    CefRefPtr<CefExtensionHandler> handler) {
+  ExecuteWhenBrowserContextInitialized(base::BindOnce(
+      [](CefRefPtr<CefRequestContextImpl> self, CefString crx_path,
+         CefRefPtr<CefExtensionHandler> handler) {
+        CEF_REQUIRE_UIT();
+        if (!self->extension_registry_observer_) {
+          if (handler) {
+            handler->OnExtensionLoadFailed(ERR_FAILED);
+          }
+          return;
+        }
+        self->extension_registry_observer_->InstallCrxExtension(
+            base::FilePath::FromUTF8Unsafe(crx_path.ToString()), handler);
+      },
+      CefRefPtr<CefRequestContextImpl>(this), crx_path, handler));
+}
+
+void CefRequestContextImpl::SetExtensionsHandler(
+    CefRefPtr<CefExtensionHandler> handler) {
+  ExecuteWhenBrowserContextInitialized(base::BindOnce(
+      [](CefRefPtr<CefRequestContextImpl> self,
+         CefRefPtr<CefExtensionHandler> handler) {
+        CEF_REQUIRE_UIT();
+        if (self->extension_registry_observer_) {
+          self->extension_registry_observer_->SetGlobalHandler(handler);
+        }
+      },
+      CefRefPtr<CefRequestContextImpl>(this), handler));
+}
+
+bool CefRequestContextImpl::HasExtension(const CefString& extension_id) {
+  if (!VerifyBrowserContext() || !extension_registry_observer_) {
+    return false;
+  }
+  return extension_registry_observer_->HasExtension(extension_id.ToString());
+}
+
+bool CefRequestContextImpl::GetExtensions(
+    std::vector<CefString>& extension_ids) {
+  if (!VerifyBrowserContext() || !extension_registry_observer_) {
+    return false;
+  }
+  extension_ids = extension_registry_observer_->GetExtensionIds();
+  return true;
+}
+
+CefRefPtr<CefExtension> CefRequestContextImpl::GetExtension(
+    const CefString& extension_id) {
+  if (!VerifyBrowserContext() || !extension_registry_observer_) {
+    return nullptr;
+  }
+  return extension_registry_observer_->GetExtension(extension_id.ToString())
+      .get();
+}
+
+void CefRequestContextImpl::SetExtensionEnabled(const CefString& extension_id,
+                                                bool enable) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefRequestContextImpl::SetExtensionEnabled,
+                                 this, extension_id, enable));
+    return;
+  }
+  if (!extension_registry_observer_) {
+    return;
+  }
+  extension_registry_observer_->SetExtensionEnabled(extension_id.ToString(),
+                                                    enable);
+}
+
+void CefRequestContextImpl::UninstallExtension(const CefString& extension_id) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefRequestContextImpl::UninstallExtension,
+                                 this, extension_id));
+    return;
+  }
+  if (!extension_registry_observer_) {
+    return;
+  }
+  extension_registry_observer_->UninstallExtension(extension_id.ToString());
+}
+
+void CefRequestContextImpl::ShowExtensionPopup(
+    const CefString& extension_id,
+    CefRefPtr<CefBrowser> source_browser,
+    const CefRect& anchor_screen_rect) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::BindOnce(&CefRequestContextImpl::ShowExtensionPopup, this,
+                       extension_id, source_browser, anchor_screen_rect));
+    return;
+  }
+  if (!VerifyBrowserContext() || !extension_popup_manager_) {
+    return;
+  }
+  extension_popup_manager_->ShowPopup(extension_id, source_browser,
+                                      anchor_screen_rect);
+}
+
+void CefRequestContextImpl::CloseExtensionPopup(const CefString& extension_id) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefRequestContextImpl::CloseExtensionPopup,
+                                 this, extension_id));
+    return;
+  }
+  if (!extension_popup_manager_) {
+    return;
+  }
+  extension_popup_manager_->ClosePopup(extension_id);
+}
+
 void CefRequestContextImpl::OnRenderFrameCreated(
     const content::GlobalRenderFrameHostId& global_id,
     bool is_main_frame) {
@@ -825,12 +984,43 @@ void CefRequestContextImpl::Initialize() {
 }
 
 void CefRequestContextImpl::BrowserContextInitialized() {
+  // Defer extension setup to the next UI-thread task so the BrowserContext
+  // init callback fully unwinds before we touch ExtensionRegistry / Chrome's
+  // extension subsystems. Touching them synchronously from this callback
+  // re-enters Chrome's profile initialization and crashes during startup.
+  CEF_POST_TASK(
+      CEF_UIT,
+      base::BindOnce(&CefRequestContextImpl::InitExtensionSupport, this));
+
   if (config_.handler) {
     // Always execute asynchronously so the current call stack can unwind.
     CEF_POST_TASK(
         CEF_UIT,
         base::BindOnce(&CefRequestContextHandler::OnRequestContextInitialized,
                        config_.handler, CefRefPtr<CefRequestContext>(this)));
+  }
+}
+
+void CefRequestContextImpl::InitExtensionSupport() {
+  CEF_REQUIRE_UIT();
+
+  if (!browser_context_) {
+    return;
+  }
+  auto* bc = browser_context_->AsBrowserContext();
+  if (!bc) {
+    return;
+  }
+
+  if (!extension_registry_observer_) {
+    extension_registry_observer_ =
+        std::make_unique<cef::CefExtensionRegistryObserver>(this);
+    extension_registry_observer_->StartObserving(bc);
+  }
+
+  if (!extension_popup_manager_) {
+    extension_popup_manager_ =
+        std::make_unique<cef::CefExtensionPopupManager>(this);
   }
 }
 

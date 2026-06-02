@@ -40,13 +40,18 @@
 
 #include <vector>
 
+#include "include/cef_api_hash.h"
 #include "include/cef_callback.h"
 #include "include/cef_cookie.h"
 #include "include/cef_media_router.h"
 #include "include/cef_preference.h"
 #include "include/cef_registration.h"
 #include "include/cef_values.h"
+#include "include/internal/cef_types_geometry.h"
 
+class CefBrowser;
+class CefExtension;
+class CefExtensionHandler;
 class CefRequestContextHandler;
 class CefSchemeHandlerFactory;
 
@@ -365,6 +370,109 @@ class CefRequestContext : public CefPreferenceManager {
   ///
   /*--cef(default_retval=CEF_COLOR_VARIANT_SYSTEM)--*/
   virtual cef_color_variant_t GetChromeColorSchemeVariant() = 0;
+
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// Load an unpacked extension from |root_directory| ephemerally (the same
+  /// semantics as Chrome's --load-extension command-line switch). The extension
+  /// is not persisted across restarts. |handler| receives lifecycle callbacks
+  /// for this extension only and may be NULL. Has no effect if the request
+  /// context does not support extensions.
+  ///
+  /*--cef(optional_param=handler,added=next)--*/
+  virtual void LoadUnpackedExtension(
+      const CefString& root_directory,
+      CefRefPtr<CefExtensionHandler> handler) = 0;
+
+  ///
+  /// Install an unpacked extension from |root_directory| persistently (the
+  /// chrome://extensions "Load unpacked" semantics; reloaded on a persistent
+  /// profile across restarts). |handler| receives lifecycle callbacks for this
+  /// extension only and may be NULL.
+  ///
+  /*--cef(optional_param=handler,added=next)--*/
+  virtual void InstallUnpackedExtension(
+      const CefString& root_directory,
+      CefRefPtr<CefExtensionHandler> handler) = 0;
+
+  ///
+  /// Install a packed (.crx) extension from |crx_path|. |handler| receives
+  /// lifecycle callbacks for this extension only and may be NULL.
+  ///
+  /*--cef(optional_param=handler,added=next)--*/
+  virtual void InstallExtension(const CefString& crx_path,
+                                CefRefPtr<CefExtensionHandler> handler) = 0;
+
+  ///
+  /// Register (or, with NULL, detach) the context-wide extension handler. On
+  /// registration the handler is sent OnExtensionLoaded for every currently-
+  /// loaded extension in the request context.
+  ///
+  /*--cef(optional_param=handler,added=next)--*/
+  virtual void SetExtensionsHandler(
+      CefRefPtr<CefExtensionHandler> handler) = 0;
+
+  ///
+  /// Returns true if an extension matching |extension_id| is currently loaded
+  /// (enabled or disabled) into this request context. Must be called on the
+  /// browser process UI thread.
+  ///
+  /*--cef(added=next)--*/
+  virtual bool HasExtension(const CefString& extension_id) = 0;
+
+  ///
+  /// Fills |extension_ids| with the IDs of all extensions currently loaded
+  /// into this request context (enabled or disabled). Returns false if
+  /// extensions are not supported. Must be called on the browser process UI
+  /// thread.
+  ///
+  /*--cef(added=next)--*/
+  virtual bool GetExtensions(std::vector<CefString>& extension_ids) = 0;
+
+  ///
+  /// Returns the CefExtension matching |extension_id|, or NULL if no matching
+  /// extension is loaded. Must be called on the browser process UI thread.
+  ///
+  /*--cef(added=next)--*/
+  virtual CefRefPtr<CefExtension> GetExtension(
+      const CefString& extension_id) = 0;
+
+  ///
+  /// Enables or disables the extension with |extension_id|. May be called on
+  /// any thread; work is marshalled to the browser process UI thread.
+  ///
+  /*--cef(added=next)--*/
+  virtual void SetExtensionEnabled(const CefString& extension_id,
+                                   bool enable) = 0;
+
+  ///
+  /// Uninstalls the extension with |extension_id|. On a persistent profile the
+  /// extension is also removed from disk. May be called on any thread; work is
+  /// marshalled to the browser process UI thread.
+  ///
+  /*--cef(added=next)--*/
+  virtual void UninstallExtension(const CefString& extension_id) = 0;
+
+  ///
+  /// Shows the action popup for the extension with |extension_id|, anchored to
+  /// |anchor_screen_rect| in screen-DIP coordinates, with |source_browser| as
+  /// the source tab for the popup. If the extension's action declares no
+  /// popup, dispatches the click instead. May be called on any thread; work
+  /// is marshalled to the browser process UI thread.
+  ///
+  /*--cef(added=next)--*/
+  virtual void ShowExtensionPopup(const CefString& extension_id,
+                                  CefRefPtr<CefBrowser> source_browser,
+                                  const CefRect& anchor_screen_rect) = 0;
+
+  ///
+  /// Closes the popup currently open for the extension with |extension_id|,
+  /// if any. May be called on any thread; work is marshalled to the browser
+  /// process UI thread.
+  ///
+  /*--cef(added=next)--*/
+  virtual void CloseExtensionPopup(const CefString& extension_id) = 0;
+#endif  // CEF_API_ADDED(CEF_NEXT)
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_CONTEXT_H_

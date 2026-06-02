@@ -265,6 +265,8 @@
       'tests/cefclient/browser/default_client_handler.h',
       'tests/cefclient/browser/dialog_test.cc',
       'tests/cefclient/browser/dialog_test.h',
+      'tests/cefclient/browser/extension_demo_test.cc',
+      'tests/cefclient/browser/extension_demo_test.h',
       'tests/cefclient/browser/hang_test.cc',
       'tests/cefclient/browser/hang_test.h',
       'tests/cefclient/browser/image_cache.cc',

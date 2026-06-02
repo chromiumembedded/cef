@@ -60,6 +60,7 @@ IDS_WINDOW_HTML BINARY "tests\\cefclient\\resources\\window.html"
 IDS_WINDOW_ICON_1X_PNG BINARY "tests\\shared\\resources\\window_icon.1x.png"
 IDS_WINDOW_ICON_2X_PNG BINARY "tests\\shared\\resources\\window_icon.2x.png"
 IDS_XMLHTTPREQUEST_HTML BINARY "tests\\cefclient\\resources\\xmlhttprequest.html"
+IDS_EXTENSION_DEMO_HTML BINARY "tests\\cefclient\\resources\\extension_demo.html"
 
 /////////////////////////////////////////////////////////////////////////////
 //

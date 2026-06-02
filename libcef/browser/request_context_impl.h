@@ -6,6 +6,8 @@
 #define CEF_LIBCEF_BROWSER_REQUEST_CONTEXT_IMPL_H_
 #pragma once
 
+#include <memory>
+
 #include "base/memory/raw_ptr.h"
 #include "cef/include/cef_request_context.h"
 #include "cef/libcef/browser/browser_context.h"
@@ -24,6 +26,11 @@ class Registrar;
 namespace setting_helper {
 class Registrar;
 }
+
+namespace cef {
+class CefExtensionPopupManager;
+class CefExtensionRegistryObserver;
+}  // namespace cef
 
 class CefBrowserContext;
 
@@ -147,6 +154,23 @@ class CefRequestContextImpl : public CefRequestContext {
   cef_color_variant_t GetChromeColorSchemeMode() override;
   cef_color_t GetChromeColorSchemeColor() override;
   cef_color_variant_t GetChromeColorSchemeVariant() override;
+  void LoadUnpackedExtension(const CefString& root_directory,
+                             CefRefPtr<CefExtensionHandler> handler) override;
+  void InstallUnpackedExtension(
+      const CefString& root_directory,
+      CefRefPtr<CefExtensionHandler> handler) override;
+  void InstallExtension(const CefString& crx_path,
+                        CefRefPtr<CefExtensionHandler> handler) override;
+  void SetExtensionsHandler(CefRefPtr<CefExtensionHandler> handler) override;
+  bool HasExtension(const CefString& extension_id) override;
+  bool GetExtensions(std::vector<CefString>& extension_ids) override;
+  CefRefPtr<CefExtension> GetExtension(const CefString& extension_id) override;
+  void SetExtensionEnabled(const CefString& extension_id, bool enable) override;
+  void UninstallExtension(const CefString& extension_id) override;
+  void ShowExtensionPopup(const CefString& extension_id,
+                          CefRefPtr<CefBrowser> source_browser,
+                          const CefRect& anchor_screen_rect) override;
+  void CloseExtensionPopup(const CefString& extension_id) override;
 
   const CefRequestContextSettings& settings() const { return config_.settings; }
 
@@ -192,6 +216,10 @@ class CefRequestContextImpl : public CefRequestContext {
 
   void Initialize();
   void BrowserContextInitialized();
+
+  // Lazily creates the extension registry observer and popup manager after
+  // |browser_context_| has been initialized.
+  void InitExtensionSupport();
 
   void ClearCertificateExceptionsInternal(
       CefRefPtr<CefCompletionCallback> callback,
@@ -239,6 +267,13 @@ class CefRequestContextImpl : public CefRequestContext {
 
   std::unique_ptr<pref_helper::Registrar> pref_registrar_;
   std::unique_ptr<setting_helper::Registrar> setting_registrar_;
+
+  // Created lazily once the browser context has been initialized. Both manage
+  // their own threading constraints (UI thread only). May remain null for
+  // request contexts whose browser context does not support extensions.
+  std::unique_ptr<cef::CefExtensionRegistryObserver>
+      extension_registry_observer_;
+  std::unique_ptr<cef::CefExtensionPopupManager> extension_popup_manager_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefRequestContextImpl);
 };

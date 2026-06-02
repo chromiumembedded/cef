@@ -24,6 +24,7 @@
 #include "tests/cefclient/browser/component_test.h"
 #include "tests/cefclient/browser/config_test.h"
 #include "tests/cefclient/browser/dialog_test.h"
+#include "tests/cefclient/browser/extension_demo_test.h"
 #include "tests/cefclient/browser/hang_test.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/media_router_test.h"
@@ -874,6 +875,9 @@ void CreateMessageHandlers(MessageHandlerSet& handlers) {
 
   // Create the dialog test handlers.
   dialog_test::CreateMessageHandlers(handlers);
+
+  // Create the extension demo handlers.
+  extension_demo_test::CreateMessageHandlers(handlers);
 
   // Create the hang test handlers.
   hang_test::CreateMessageHandlers(handlers);

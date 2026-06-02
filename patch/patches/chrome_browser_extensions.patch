@@ -34,41 +34,61 @@ index 7aa8718b6057e01a6e216171f926aa5b14f78b41..e3930e977b2a031af0033d9f3d5da4c2
  #endif
  
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index d5680fd9b1be1dd854e7fa2308a6684bb0d0c3d6..5f481ddf0da3bda320e5fd1869e7ee1017414d51 100644
+index d5680fd9b1be1dd854e7fa2308a6684bb0d0c3d6..f96ae47642cb699e0bde5b7d9e38a8d258967624 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
-@@ -2379,31 +2379,31 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -11,6 +11,7 @@
+ #include "base/task/thread_pool.h"
+ #include "base/types/expected_macros.h"
+ #include "base/types/optional_util.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/devtools/devtools_window.h"
+ #include "chrome/browser/extensions/api/tabs/tabs_constants.h"
+ #include "chrome/browser/extensions/api/tabs/windows_util.h"
+@@ -92,6 +93,10 @@
+ 
+ static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/browser/chrome/extensions/chrome_extension_util.h"
++#endif
++
+ namespace extensions {
+ 
+ namespace tabs = api::tabs;
+@@ -1692,6 +1697,11 @@ ExtensionFunction::ResponseAction TabsQueryFunction::Run() {
+       BuildTabList(current_browser, last_active_browser, url_patterns,
+                    window_type, window_id, index);
+ 
++#if BUILDFLAG(ENABLE_CEF)
++  cef::MaybeAppendAlloyPopupQueryTab(this, query_info_, url_patterns,
++                                     window_type, window_id, index, &result);
++#endif
++
+   return RespondNow(WithArguments(std::move(result)));
+ }
+ 
+@@ -2379,32 +2389,32 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  
    // tabs_internal::GetTabById may return a null window for prerender tabs.
 -  if (!window || !ExtensionTabUtil::BrowserSupportsTabs(
 -                     window->GetBrowserWindowInterface())) {
 -    return RespondNow(Error(ExtensionTabUtil::kNoCurrentWindowError));
--  }
 +  TabListInterface* tab_list = nullptr;
 +  ::tabs::TabInterface* target_tab = nullptr;
 +  if (window && ExtensionTabUtil::BrowserSupportsTabs(
 +                    window->GetBrowserWindowInterface())) {
 +    tab_list = TabListInterface::From(window->GetBrowserWindowInterface());
 +    CHECK(tab_list);
- 
--  // Cache the original web contents.
--  content::WebContents* original_contents = contents;
++
 +    // Update the active (aka selected) tab.
 +    if (!UpdateActiveTab(*params, *window->profile(),
 +                         *window->GetBrowserWindowInterface(), *tab_list,
 +                         tab_index, error)) {
 +      return RespondNow(Error(std::move(error)));
 +    }
- 
--  // Update the active (aka selected) tab.
--  TabListInterface* tab_list =
--      TabListInterface::From(window->GetBrowserWindowInterface());
--  CHECK(tab_list);
--  if (!UpdateActiveTab(*params, *window->profile(),
--                       *window->GetBrowserWindowInterface(), *tab_list,
--                       tab_index, error)) {
--    return RespondNow(Error(std::move(error)));
++
 +    // Update the highlighted tab.
 +    target_tab = tab_list->GetTab(tab_index);
 +    CHECK(target_tab);
@@ -78,6 +98,19 @@ index d5680fd9b1be1dd854e7fa2308a6684bb0d0c3d6..5f481ddf0da3bda320e5fd1869e7ee10
 +    }
    }
  
+   // Cache the original web contents.
+   content::WebContents* original_contents = contents;
+ 
+-  // Update the active (aka selected) tab.
+-  TabListInterface* tab_list =
+-      TabListInterface::From(window->GetBrowserWindowInterface());
+-  CHECK(tab_list);
+-  if (!UpdateActiveTab(*params, *window->profile(),
+-                       *window->GetBrowserWindowInterface(), *tab_list,
+-                       tab_index, error)) {
+-    return RespondNow(Error(std::move(error)));
+-  }
+-
 -  // Update the highlighted tab.
 -  ::tabs::TabInterface* target_tab = tab_list->GetTab(tab_index);
 -  CHECK(target_tab);
@@ -85,12 +118,11 @@ index d5680fd9b1be1dd854e7fa2308a6684bb0d0c3d6..5f481ddf0da3bda320e5fd1869e7ee10
 -                            error)) {
 -    return RespondNow(Error(std::move(error)));
 -  }
-+  // Cache the original web contents.
-+  content::WebContents* original_contents = contents;
- 
+-
    if (params->update_properties.muted &&
        !SetTabAudioMuted(contents, *params->update_properties.muted,
-@@ -2444,7 +2444,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+                         TabMutedReason::kExtension, extension()->id())) {
+@@ -2444,7 +2454,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  #endif
  
@@ -99,7 +131,7 @@ index d5680fd9b1be1dd854e7fa2308a6684bb0d0c3d6..5f481ddf0da3bda320e5fd1869e7ee10
      bool pinned = *params->update_properties.pinned;
  
      if (target_tab->IsPinned() != pinned) {
-@@ -2474,7 +2474,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2474,7 +2484,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;

@@ -44,7 +44,7 @@ int GetResourceId(const char* resource_name) {
                       {"window_icon.1x.png", IDS_WINDOW_ICON_1X_PNG},
                       {"window_icon.2x.png", IDS_WINDOW_ICON_2X_PNG},
                       {"xmlhttprequest.html", IDS_XMLHTTPREQUEST_HTML},
-                      {"xmlhttprequest.html", IDS_XMLHTTPREQUEST_HTML}};
+                      {"extension_demo.html", IDS_EXTENSION_DEMO_HTML}};
 
   for (auto& i : resource_map) {
     if (!strcmp(i.name, resource_name)) {
