@@ -25,15 +25,15 @@ index 5303cafbb3f67cc3e154de363110121019dcb54e..762bba9340dfd0fced22e760097f1e40
      if (base::PathExists(sandbox_candidate))
        sandbox_binary = sandbox_candidate;
 diff --git ui/ozone/common/egl_util.cc ui/ozone/common/egl_util.cc
-index 3226f7caafa02ebd68dd0b14360294d1fb45d06e..63a2305dd8e79dc4d51af4a39a37e92258ec8e6a 100644
+index e9102802316a8e2e0cce4d7c3db1c14cdb71648e..1a1ab8625a789c894acf27b5fcd1d32baa21ca2f 100644
 --- ui/ozone/common/egl_util.cc
 +++ ui/ozone/common/egl_util.cc
-@@ -149,7 +149,7 @@ bool LoadDefaultEGLGLES2Bindings(
- #else
+@@ -154,7 +154,7 @@ bool LoadDefaultEGLGLES2Bindings(
+ 
      base::FilePath module_path;
  #if !BUILDFLAG(IS_FUCHSIA)
--    if (!base::PathService::Get(base::DIR_MODULE, &module_path))
-+    if (!base::PathService::Get(base::DIR_ASSETS, &module_path))
+-    if (!base::PathService::Get(base::DIR_MODULE, &module_path)) {
++    if (!base::PathService::Get(base::DIR_ASSETS, &module_path)) {
        return false;
+     }
  #endif
- 

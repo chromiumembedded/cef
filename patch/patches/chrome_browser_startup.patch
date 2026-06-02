@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/startup/startup_browser_creator.cc chrome/browser/ui/startup/startup_browser_creator.cc
-index b2ade7714fa321d7c209f410c422ea1ed05f8a98..8efb8770373c0173f588424f230518a45e495745 100644
+index bed74e910df0667b636c5b1e404df913febbc019..b33ea41874fd0abf1536643b0c58beba93c7a21e 100644
 --- chrome/browser/ui/startup/startup_browser_creator.cc
 +++ chrome/browser/ui/startup/startup_browser_creator.cc
-@@ -651,6 +651,13 @@ std::optional<bool> MaybeHandleValidateCrx(
+@@ -650,6 +650,13 @@ std::optional<bool> MaybeHandleValidateCrx(
    return false;
  }
  
@@ -16,7 +16,7 @@ index b2ade7714fa321d7c209f410c422ea1ed05f8a98..8efb8770373c0173f588424f230518a4
  }  // namespace
  
  StartupBrowserCreator::StartupBrowserCreator() = default;
-@@ -1496,6 +1503,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
+@@ -1495,6 +1502,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
        {profile, mode}, last_opened_profiles);
  }
  
@@ -29,7 +29,7 @@ index b2ade7714fa321d7c209f410c422ea1ed05f8a98..8efb8770373c0173f588424f230518a4
  // static
  void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      const base::CommandLine& command_line,
-@@ -1505,6 +1518,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
+@@ -1504,6 +1517,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      return;
    }
  

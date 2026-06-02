@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/webui/version/version_handler.cc chrome/browser/ui/webui/version/version_handler.cc
-index 35ed222da9c56b56c0ed52d088535b74f3769aa4..87d63b9bbeff297bf8971e4fcd6be6d67d765c0c 100644
+index 410556c4bdeadc18c7f057e2ed08e8daba21d2a0..68613ed1b25745e226887a1c8457777519d660b9 100644
 --- chrome/browser/ui/webui/version/version_handler.cc
 +++ chrome/browser/ui/webui/version/version_handler.cc
-@@ -29,12 +29,23 @@
+@@ -28,12 +28,23 @@
  #include "ui/base/l10n/l10n_util.h"
  #include "url/gurl.h"
  
@@ -27,7 +27,7 @@ index 35ed222da9c56b56c0ed52d088535b74f3769aa4..87d63b9bbeff297bf8971e4fcd6be6d6
    base::ScopedBlockingCall scoped_blocking_call(FROM_HERE,
                                                  base::BlockingType::MAY_BLOCK);
  
-@@ -52,6 +63,19 @@ void GetFilePaths(const base::FilePath& profile_path,
+@@ -51,6 +62,19 @@ void GetFilePaths(const base::FilePath& profile_path,
    } else {
      *profile_path_out = l10n_util::GetStringUTF16(IDS_VERSION_UI_PATH_NOTFOUND);
    }
@@ -47,7 +47,7 @@ index 35ed222da9c56b56c0ed52d088535b74f3769aa4..87d63b9bbeff297bf8971e4fcd6be6d6
  }
  
  }  // namespace
-@@ -123,23 +147,46 @@ void VersionHandler::HandleRequestPathInfo(const base::ListValue& args) {
+@@ -122,23 +146,46 @@ void VersionHandler::HandleRequestPathInfo(const base::ListValue& args) {
    // OnGotFilePaths.
    std::u16string* exec_path_buffer = new std::u16string;
    std::u16string* profile_path_buffer = new std::u16string;

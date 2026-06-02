@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 74a68ff8ce1309506e353fa76f519cddc75b1dc3..14a46404bfc52556801a6f9a4cc626f59c4251d1 100644
+index ae5eb43ebf70065d7ec46a34ed4cee8a3bd8b783..3421378638bb4d4e5f71c5b7b0552ddb6a2f177a 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -4294,6 +4294,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -4328,6 +4328,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
        params.main_frame_name, GetOpener(), primary_main_frame_policy,
        base::UnguessableToken::Create());
  
@@ -15,7 +15,7 @@ index 74a68ff8ce1309506e353fa76f519cddc75b1dc3..14a46404bfc52556801a6f9a4cc626f5
    std::unique_ptr<WebContentsViewDelegate> delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -4304,6 +4310,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -4338,6 +4344,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
      view_ = CreateWebContentsView(this, std::move(delegate),
                                    &render_view_host_delegate_view_);
    }
@@ -23,7 +23,7 @@ index 74a68ff8ce1309506e353fa76f519cddc75b1dc3..14a46404bfc52556801a6f9a4cc626f5
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -4530,6 +4537,9 @@ void WebContentsImpl::RenderWidgetCreated(
+@@ -4565,6 +4572,9 @@ void WebContentsImpl::RenderWidgetCreated(
    OPTIONAL_TRACE_EVENT1("content", "WebContentsImpl::RenderWidgetCreated",
                          "render_widget_host", render_widget_host);
    created_widgets_[render_widget_host->GetFrameSinkId()] = render_widget_host;
@@ -33,7 +33,7 @@ index 74a68ff8ce1309506e353fa76f519cddc75b1dc3..14a46404bfc52556801a6f9a4cc626f5
  }
  
  void WebContentsImpl::RenderWidgetDeleted(
-@@ -5526,6 +5536,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -5589,6 +5599,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
      create_params.picture_in_picture_options = *(params.pip_options);
    }
  
@@ -49,7 +49,7 @@ index 74a68ff8ce1309506e353fa76f519cddc75b1dc3..14a46404bfc52556801a6f9a4cc626f5
    // Check whether there is an available prerendered page for this navigation if
    // this is not for guest. If it exists, take WebContents pre-created for
    // hosting the prerendered page instead of creating new WebContents.
-@@ -10395,6 +10414,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -10612,6 +10631,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
    }
  
    CloseListenerManager::DidChangeFocusedFrame(this);
@@ -60,10 +60,10 @@ index 74a68ff8ce1309506e353fa76f519cddc75b1dc3..14a46404bfc52556801a6f9a4cc626f5
  
  FrameTree* WebContentsImpl::GetOwnedDocumentPictureInPictureFrameTree() {
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index e69bf313bb60de731ed16c5f54fd777ae318b7f6..ac993ae582108888c3aab3e04a4771312ac27352 100644
+index a4ef44c43ee32635b7baec09a8ec67cde6730f50..52cd73c02b109e4baa370433973ed4379ffecf4a 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -132,6 +132,7 @@ class PreloadPipelineInfo;
+@@ -135,6 +135,7 @@ class PreloadPipelineInfo;
  class PrerenderHandle;
  class RenderFrameHost;
  class RenderViewHost;
@@ -71,7 +71,7 @@ index e69bf313bb60de731ed16c5f54fd777ae318b7f6..ac993ae582108888c3aab3e04a477131
  class RenderWidgetHost;
  class RenderWidgetHostView;
  class ScreenOrientationDelegate;
-@@ -139,6 +140,7 @@ class SiteInstance;
+@@ -142,6 +143,7 @@ class SiteInstance;
  class SurfaceEmbedConnector;
  class UnownedInnerWebContentsClient;
  class WebContentsDelegate;
@@ -79,7 +79,7 @@ index e69bf313bb60de731ed16c5f54fd777ae318b7f6..ac993ae582108888c3aab3e04a477131
  class WebUI;
  struct DropData;
  struct GlobalRenderFrameHostId;
-@@ -297,6 +299,10 @@ class WebContents : public PageNavigator, public base::SupportsUserData {
+@@ -302,6 +304,10 @@ class WebContents : public PageNavigator, public base::SupportsUserData {
      network::mojom::WebSandboxFlags starting_sandbox_flags =
          network::mojom::WebSandboxFlags::kNone;
  
@@ -91,10 +91,10 @@ index e69bf313bb60de731ed16c5f54fd777ae318b7f6..ac993ae582108888c3aab3e04a477131
      // the value that'll be returned by GetLastActiveTimeTicks(). If this is
      // left default initialized then the value is not passed on to the
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index a23da6cb64587f4ffc22d7d42a112dcc22a4212d..38346b6d5f47d1cdb483eacb0ef3500844eb4f5e 100644
+index 039e8305c5a1a33076d839208308adb140b0430e..034bb2d807150be69dc7cbb8f4bcd8b5e16cc4d1 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
-@@ -110,10 +110,12 @@ class EyeDropperListener;
+@@ -111,10 +111,12 @@ class EyeDropperListener;
  class FileSelectListener;
  class JavaScriptDialogManager;
  class RenderFrameHost;
@@ -107,7 +107,7 @@ index a23da6cb64587f4ffc22d7d42a112dcc22a4212d..38346b6d5f47d1cdb483eacb0ef35008
  struct ContextMenuParams;
  struct DropData;
  struct MediaStreamRequest;
-@@ -402,6 +404,14 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -403,6 +405,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const StoragePartitionConfig& partition_config,
        SessionStorageNamespace* session_storage_namespace);
  
@@ -123,7 +123,7 @@ index a23da6cb64587f4ffc22d7d42a112dcc22a4212d..38346b6d5f47d1cdb483eacb0ef35008
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 3f7f7a8659715c5db22b6d4507e2a492ecfdf1b7..6d5fcb98ae4fed092eb98a5370b3e619088d2850 100644
+index 80b10240c960a43fcc84abca1e028129f0b48bd3..2cfaa28798ca9c3084a314c6fa870f2eeea985c0 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
 @@ -251,6 +251,9 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
@@ -136,7 +136,7 @@ index 3f7f7a8659715c5db22b6d4507e2a492ecfdf1b7..6d5fcb98ae4fed092eb98a5370b3e619
    // This method is invoked when the `blink::WebView` of the current
    // RenderViewHost is ready, e.g. because we recreated it after a crash.
    virtual void RenderViewReady() {}
-@@ -935,6 +938,10 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
+@@ -955,6 +958,10 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
    // the RenderWidgetHost for the WebContents has gained/lost focus.
    virtual void OnFocusChangedInPage(const FocusedNodeDetails& details) {}
  

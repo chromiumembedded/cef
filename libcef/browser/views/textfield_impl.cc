@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/api_version_util.h"
 #include "ui/touch_selection/touch_editing_controller.h"
 
 namespace {
@@ -134,34 +135,31 @@ size_t CefTextfieldImpl::GetCursorPosition() {
   return root_view()->GetCursorPosition();
 }
 
-void CefTextfieldImpl::SetTextColor(cef_color_t color) {
-  CEF_REQUIRE_VALID_RETURN_VOID();
-  root_view()->SetTextColor(color);
+void CefTextfieldImpl::SetTextColor(cef_color_t /*color*/) {
+  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
 }
 
 cef_color_t CefTextfieldImpl::GetTextColor() {
-  CEF_REQUIRE_VALID_RETURN(0U);
-  return root_view()->GetTextColor();
+  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
+  return 0U;
 }
 
-void CefTextfieldImpl::SetSelectionTextColor(cef_color_t color) {
-  CEF_REQUIRE_VALID_RETURN_VOID();
-  root_view()->SetSelectionTextColor(color);
+void CefTextfieldImpl::SetSelectionTextColor(cef_color_t /*color*/) {
+  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
 }
 
 cef_color_t CefTextfieldImpl::GetSelectionTextColor() {
-  CEF_REQUIRE_VALID_RETURN(0U);
-  return root_view()->GetSelectionTextColor();
+  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
+  return 0U;
 }
 
-void CefTextfieldImpl::SetSelectionBackgroundColor(cef_color_t color) {
-  CEF_REQUIRE_VALID_RETURN_VOID();
-  root_view()->SetSelectionBackgroundColor(color);
+void CefTextfieldImpl::SetSelectionBackgroundColor(cef_color_t /*color*/) {
+  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
 }
 
 cef_color_t CefTextfieldImpl::GetSelectionBackgroundColor() {
-  CEF_REQUIRE_VALID_RETURN(0U);
-  return root_view()->GetSelectionBackgroundColor();
+  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
+  return 0U;
 }
 
 void CefTextfieldImpl::SetFontList(const CefString& font_list) {
@@ -219,9 +217,8 @@ CefString CefTextfieldImpl::GetPlaceholderText() {
   return std::u16string(root_view()->GetPlaceholderText());
 }
 
-void CefTextfieldImpl::SetPlaceholderTextColor(cef_color_t color) {
-  CEF_REQUIRE_VALID_RETURN_VOID();
-  root_view()->set_placeholder_text_color(color);
+void CefTextfieldImpl::SetPlaceholderTextColor(cef_color_t /*color*/) {
+  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
 }
 
 void CefTextfieldImpl::SetBackgroundColor(cef_color_t color) {

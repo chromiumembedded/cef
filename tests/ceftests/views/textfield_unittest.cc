@@ -143,24 +143,8 @@ void RunTextfieldStyle(CefRefPtr<CefWindow> window) {
   textfield->SetReadOnly(false);
   EXPECT_FALSE(textfield->IsReadOnly());
 
-  // Test colors.
-  const cef_color_t color = CefColorSetARGB(255, 255, 0, 255);
-
-  EXPECT_NE(color, textfield->GetTextColor());
-  textfield->SetTextColor(color);
-  EXPECT_EQ(color, textfield->GetTextColor());
-
-  EXPECT_NE(color, textfield->GetSelectionTextColor());
-  textfield->SetSelectionTextColor(color);
-  EXPECT_EQ(color, textfield->GetSelectionTextColor());
-
-  EXPECT_NE(color, textfield->GetSelectionBackgroundColor());
-  textfield->SetSelectionBackgroundColor(color);
-  EXPECT_EQ(color, textfield->GetSelectionBackgroundColor());
-
-  textfield->SetPlaceholderTextColor(color);
-
   // Test fonts.
+  const cef_color_t color = CefColorSetARGB(255, 255, 0, 255);
   textfield->SetFontList("Arial, 14px");
 
   // Test format ranges.

@@ -1,5 +1,5 @@
 diff --git third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc
-index 6f8c4ba8b32b5c9fb9bca783ef720e0102c827e6..6c6bd455abb19969b06862f34238515a53c23435 100644
+index 206d7294e080ec6e943287eafb3077c5c248187a..95cb7f9d4311b90b649dcc880176f359e9c552ab 100644
 --- third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc
 +++ third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc
 @@ -234,6 +234,7 @@ bool StructTraits<blink::mojom::WebPreferencesDataView,
@@ -11,10 +11,10 @@ index 6f8c4ba8b32b5c9fb9bca783ef720e0102c827e6..6c6bd455abb19969b06862f34238515a
    out->touch_dragend_context_menu = data.touch_dragend_context_menu();
    out->webxr_immersive_ar_allowed = data.webxr_immersive_ar_allowed();
 diff --git third_party/blink/public/common/web_preferences/web_preferences.h third_party/blink/public/common/web_preferences/web_preferences.h
-index dbff6419e64087a39a906f6cb7df63e2d56c099f..6252ec35c9dc940c6a9c47bde6c438109489b997 100644
+index e57e9e467dbc9fe0df088b87a6b3fb8b690eec58..6bfaa99a8bab46aab7ff6457236ccfa12e20c9cf 100644
 --- third_party/blink/public/common/web_preferences/web_preferences.h
 +++ third_party/blink/public/common/web_preferences/web_preferences.h
-@@ -431,6 +431,9 @@ struct BLINK_COMMON_EXPORT WebPreferences {
+@@ -432,6 +432,9 @@ struct BLINK_COMMON_EXPORT WebPreferences {
    // forcing :focus-visible to match regardless of focus method).
    bool always_show_focus = false;
  
@@ -25,10 +25,10 @@ index dbff6419e64087a39a906f6cb7df63e2d56c099f..6252ec35c9dc940c6a9c47bde6c43810
    // default value depends on the platform.
    bool touch_drag_drop_enabled = false;
 diff --git third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h
-index 2b8ad78d33a3cfc810e280db7a8f1b5aa1e1cc83..6895079868d454d98d50c63a20cb6933e6778fb9 100644
+index 914af949602836d245f6cbf9a014a512e4737abb..5275ab6ac00ca4ae12979ccb34fe80e399de56e9 100644
 --- third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h
 +++ third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h
-@@ -793,6 +793,11 @@ struct BLINK_COMMON_EXPORT StructTraits<blink::mojom::WebPreferencesDataView,
+@@ -796,6 +796,11 @@ struct BLINK_COMMON_EXPORT StructTraits<blink::mojom::WebPreferencesDataView,
      return r.always_show_focus;
    }
  
@@ -41,10 +41,10 @@ index 2b8ad78d33a3cfc810e280db7a8f1b5aa1e1cc83..6895079868d454d98d50c63a20cb6933
        const blink::web_pref::WebPreferences& r) {
      return r.touch_drag_drop_enabled;
 diff --git third_party/blink/public/mojom/webpreferences/web_preferences.mojom third_party/blink/public/mojom/webpreferences/web_preferences.mojom
-index 3003eff973c9323a427b9ddddcd1f445223cd383..83872559bee86480aaace995a42d5ddc4681703e 100644
+index 144db471d00046a640e4ceb245dca36c2337c4b1..8a1a7ab897c74e463a7b6315c0e5faa2c159d3a1 100644
 --- third_party/blink/public/mojom/webpreferences/web_preferences.mojom
 +++ third_party/blink/public/mojom/webpreferences/web_preferences.mojom
-@@ -487,6 +487,9 @@ struct WebPreferences {
+@@ -488,6 +488,9 @@ struct WebPreferences {
    // forcing :focus-visible to match regardless of focus method).
    bool always_show_focus;
  
@@ -55,7 +55,7 @@ index 3003eff973c9323a427b9ddddcd1f445223cd383..83872559bee86480aaace995a42d5ddc
    // default value depends on the platform.
    bool touch_drag_drop_enabled;
 diff --git third_party/blink/public/web/web_settings.h third_party/blink/public/web/web_settings.h
-index 50fc4245736f579e35fafbdbb08f30a54ab668d4..a41780e0b7fb45e922b61f6cd975bc2938ac5643 100644
+index 5d91f87f016284fd08ef2dd17c9856c95c834e94..8d5c0c76678194775dc80d31ddd31c9866507bf4 100644
 --- third_party/blink/public/web/web_settings.h
 +++ third_party/blink/public/web/web_settings.h
 @@ -229,6 +229,7 @@ class WebSettings {
@@ -67,7 +67,7 @@ index 50fc4245736f579e35fafbdbb08f30a54ab668d4..a41780e0b7fb45e922b61f6cd975bc29
    virtual void SetTextTrackKindUserPreference(TextTrackKindUserPreference) = 0;
    virtual void SetTextTrackBackgroundColor(const WebString&) = 0;
 diff --git third_party/blink/renderer/core/exported/web_settings_impl.cc third_party/blink/renderer/core/exported/web_settings_impl.cc
-index d6fb1c42ecf0fbc2433395eda8f25def2d57e8a0..d44bb91c6a27860bdc97f7b6ef30d0ccc79b7880 100644
+index 45c2754d2ea501b0910e3b5c09505b523df12104..28ed835f3106ab342b5e88890c07b39e5d2f7d9f 100644
 --- third_party/blink/renderer/core/exported/web_settings_impl.cc
 +++ third_party/blink/renderer/core/exported/web_settings_impl.cc
 @@ -175,6 +175,10 @@ void WebSettingsImpl::SetAccessibilityAlwaysShowFocus(bool always_show_focus) {
@@ -82,7 +82,7 @@ index d6fb1c42ecf0fbc2433395eda8f25def2d57e8a0..d44bb91c6a27860bdc97f7b6ef30d0cc
    settings_->SetAccessibilityPasswordValuesEnabled(enabled);
  }
 diff --git third_party/blink/renderer/core/exported/web_settings_impl.h third_party/blink/renderer/core/exported/web_settings_impl.h
-index bdf35e53cc81ddc4026411aae79cd89be6b7d08d..34006d026f30fc1cd5f6555d50d16fb73503668f 100644
+index 5bd6021e84c185f934df099d17964e8ff3a222f1..46023122cfeb4baeae38f0bbf9e51badf912f541 100644
 --- third_party/blink/renderer/core/exported/web_settings_impl.h
 +++ third_party/blink/renderer/core/exported/web_settings_impl.h
 @@ -175,6 +175,7 @@ class CORE_EXPORT WebSettingsImpl final : public WebSettings {
@@ -94,10 +94,10 @@ index bdf35e53cc81ddc4026411aae79cd89be6b7d08d..34006d026f30fc1cd5f6555d50d16fb7
    void SetTextTrackKindUserPreference(TextTrackKindUserPreference) override;
    void SetTextTrackBackgroundColor(const WebString&) override;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 92c8a39a2572aae2fcf703088bafd42980452c98..abd5a08fdec0af8df9f4e1aecda011d34db2798d 100644
+index eb8ca629c5544149e703987960c5acc9eb39e0ad..9c42b7de205b273233e72b6e827540858d7ae3a6 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -1797,6 +1797,8 @@ void WebView::ApplyWebPreferences(const web_pref::WebPreferences& prefs,
+@@ -1807,6 +1807,8 @@ void WebView::ApplyWebPreferences(const web_pref::WebPreferences& prefs,
    settings->SetForceDarkModeEnabled(prefs.force_dark_mode_enabled);
  
    settings->SetAccessibilityAlwaysShowFocus(prefs.always_show_focus);
@@ -107,10 +107,10 @@ index 92c8a39a2572aae2fcf703088bafd42980452c98..abd5a08fdec0af8df9f4e1aecda011d3
    settings->SetRequireTransientActivationForGetDisplayMedia(
        prefs.require_transient_activation_for_get_display_media);
 diff --git third_party/blink/renderer/core/frame/settings.json5 third_party/blink/renderer/core/frame/settings.json5
-index 0ac242e36ebd59fe071922c343ad8c717bb73259..8b94b92ea38f438e8468118de3663a77cffeb7d6 100644
+index 89548d6b1e9423726a5965f6b11f1ca9f810f857..f6e449df4a344c1426dce91f195962f1362060a1 100644
 --- third_party/blink/renderer/core/frame/settings.json5
 +++ third_party/blink/renderer/core/frame/settings.json5
-@@ -1254,6 +1254,10 @@
+@@ -1264,6 +1264,10 @@
        name: "accessibilityIncludeSvgGElement",
        initial: false,
      },
@@ -218,7 +218,7 @@ index de1558867828e47bad90c2c2986675245eb2f30a..822ea1ae4933e47a5af3af03f13e7c45
  
    if (!last_sync_times_.Contains(&document))
 diff --git third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.cc third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.cc
-index 8426cb24d6fdd21f39aacbfe9dae7ea2dbc58ea2..81e008a986b5c148106e937fdc4b3b9007eff808 100644
+index 946d65e9a7b98eb3e4dfbc35c590298c8b61ace1..a7e4fa594ff92c659416c76de1cb5293cf161453 100644
 --- third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.cc
 +++ third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.cc
 @@ -4,6 +4,7 @@
@@ -229,7 +229,7 @@ index 8426cb24d6fdd21f39aacbfe9dae7ea2dbc58ea2..81e008a986b5c148106e937fdc4b3b90
  #include "third_party/blink/renderer/core/dom/dom_node_ids.h"
  #include "third_party/blink/renderer/core/frame/local_frame.h"
  #include "third_party/blink/renderer/core/inspector/identifiers_factory.h"
-@@ -909,3 +910,7 @@ std::unique_ptr<AXNode> BuildProtocolAXNodeForUnignoredAXObject(
+@@ -910,3 +911,7 @@ std::unique_ptr<AXNode> BuildProtocolAXNodeForUnignoredAXObject(
  }
  
  }  // namespace blink

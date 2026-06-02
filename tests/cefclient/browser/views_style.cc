@@ -121,8 +121,6 @@ void OnThemeChanged(CefRefPtr<CefView> view) {
       label_button->SetTextColor(CEF_BUTTON_STATE_DISABLED,
                                  g_background_hover_color);
     }
-  } else if (auto textfield = view->AsTextfield()) {
-    textfield->SetTextColor(g_text_color);
   }
 }
 

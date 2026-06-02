@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 0bed010739ac9d3cbaa9bcf7c8dfbe042ad3571f..d13e43573d4a8a1708c14452003e80944a6c7587 100644
+index 2203610c864eef6042936a83eb2b9797be93a0e0..f7266a73741dbc795b5d89ea2c4b48cc6cc066b5 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -10,7 +10,7 @@ index 0bed010739ac9d3cbaa9bcf7c8dfbe042ad3571f..d13e43573d4a8a1708c14452003e8094
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -669,6 +670,7 @@ static_library("browser") {
+@@ -1649,6 +1650,7 @@ static_library("browser") {
      "//build/config/compiler:compiler_buildflags",
      "//build/config/linux/dbus:buildflags",
      "//cc",
@@ -18,7 +18,7 @@ index 0bed010739ac9d3cbaa9bcf7c8dfbe042ad3571f..d13e43573d4a8a1708c14452003e8094
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -1670,6 +1672,10 @@ static_library("browser") {
+@@ -2658,6 +2660,10 @@ static_library("browser") {
      ]
    }
  
@@ -27,5 +27,5 @@ index 0bed010739ac9d3cbaa9bcf7c8dfbe042ad3571f..d13e43573d4a8a1708c14452003e8094
 +  }
 +
    if (is_android) {
-     deps += [
-       "//chrome/browser/ntp_customization",
+     sources += [
+       "after_startup_task_utils_android.cc",

@@ -66,10 +66,10 @@ index 8af69cac78b7488d28f1f05ccb174793fe5148cd..9f74e511c263d147b5fbe81fe100d217
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index bbe91f2b76170c5cd2c8a8a0387c4a20054a9b56..117cd3e053f2a60047d66492b21bd5d11667dd8d 100644
+index 2488069770015aa9242bf297cb12b71bf6f76aea..dd491bcb820d0e2c2aaeb4daf0f6d2246c4c2a66 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -282,6 +282,8 @@ viz_component("service") {
+@@ -284,6 +284,8 @@ viz_component("service") {
      "transitions/surface_animation_manager.h",
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
@@ -187,7 +187,7 @@ index 4f9e8946fa02d859e92a6896beba82721914f868..cf20c96a84c5551eba592fecfce21350
  
    TRACE_EVENT_BEGIN("viz", "SoftwareOutputDeviceWinProxy::Draw",
 diff --git components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
-index df45018e2aabde32f12a7097a2ebd96baf9ac1cc..bb452947bc43d1a5c2b9955363b2251480f8d529 100644
+index d1d17ebdd272771e291cfd071dedd28284718d84..662caa681588a137668e7675594bd9675abd43f6 100644
 --- components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
 +++ components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
 @@ -131,7 +131,8 @@ RootCompositorFrameSinkImpl::Create(
@@ -308,7 +308,7 @@ index 2f462f0deb5fc8a637457243fb5d5849fc214d14..695869b83cefaa24af93a2e11b39de05
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 7186d6736c53e39cf9212a6d12cfcae17abbe721..7afaa4dc5536a03740e92674c16ec63d210f77c9 100644
+index 1cd2152327be0ec8198586cfee109985de44d315..90981c4b3b7a3412f5c1e513425f869c5e16810f 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -35,7 +35,9 @@
@@ -337,7 +337,7 @@ index 7186d6736c53e39cf9212a6d12cfcae17abbe721..7afaa4dc5536a03740e92674c16ec63d
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -190,6 +201,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -191,6 +202,9 @@ class COMPOSITOR_EXPORT Compositor
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -347,7 +347,7 @@ index 7186d6736c53e39cf9212a6d12cfcae17abbe721..7afaa4dc5536a03740e92674c16ec63d
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -633,6 +647,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -631,6 +645,8 @@ class COMPOSITOR_EXPORT Compositor
        simple_begin_frame_observers_;
    std::unique_ptr<ui::HostBeginFrameObserver> host_begin_frame_observer_;
  

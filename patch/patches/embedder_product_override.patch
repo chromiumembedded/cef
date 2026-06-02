@@ -1,5 +1,5 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index 557eadb18229e4adb2f0092593877254e2f1fe7c..845957e702f095a22a5911c8206dfc75324fa809 100644
+index 608bea5cb386438757146a531bbc0293b3eb9775..2e005ae9d6a2ad1fb8be1aff53c053e57680c8ed 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
 @@ -26,6 +26,7 @@
@@ -21,7 +21,7 @@ index 557eadb18229e4adb2f0092593877254e2f1fe7c..845957e702f095a22a5911c8206dfc75
  namespace embedder_support {
  
  namespace {
-@@ -439,6 +444,13 @@ std::string BuildOSCpuInfo(
+@@ -443,6 +448,13 @@ std::string BuildOSCpuInfo(
  }  // namespace
  
  std::string GetProductAndVersion() {

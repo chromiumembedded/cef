@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index ff55cbd02c07cd39aff3788fcdb76eac32eb81f1..ffc571493c5f37abd13b8912435ce2772e93d3a5 100644
+index 0e3bd558bad561f617f28de7ff4335a1e09a758e..ae27f9bb5c5a7ac6a8fb21323fc542c821fd5ed5 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -10,7 +10,7 @@ index ff55cbd02c07cd39aff3788fcdb76eac32eb81f1..ffc571493c5f37abd13b8912435ce277
  import("//chrome/process_version_rc_template.gni")
  import("//testing/test.gni")
  
-@@ -94,14 +95,13 @@ source_set("constants") {
+@@ -95,14 +96,13 @@ source_set("constants") {
  
  static_library("crash") {
    sources = [
@@ -26,7 +26,7 @@ index ff55cbd02c07cd39aff3788fcdb76eac32eb81f1..ffc571493c5f37abd13b8912435ce277
      "//chrome/install_static:install_static_util",
      "//components/crash/core/app",
      "//components/crash/core/common",  # crash_keys
-@@ -109,6 +109,17 @@ static_library("crash") {
+@@ -110,6 +110,17 @@ static_library("crash") {
      "//sandbox/policy:win_hook_util",
      "//third_party/crashpad/crashpad/client",  # DumpWithoutCrash
    ]

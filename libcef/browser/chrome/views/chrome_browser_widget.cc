@@ -13,6 +13,7 @@
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
+#include "chrome/browser/ui/unload_controller.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
 
 #if BUILDFLAG(IS_MAC)
@@ -207,7 +208,7 @@ void ChromeBrowserWidget::OnNativeWidgetDestroyed() {
 
     // Destruction logic from BrowserWidget::OnNativeWidgetDestroyed.
     Browser* const browser = browser_view()->browser();
-    browser->set_force_skip_warning_user_on_close(true);
+    UnloadController::From(browser)->set_force_skip_warning_user_on_close(true);
     browser->OnWindowClosing();
 
     // Invoke the pre-window-destruction lifecycle hook before the BrowserView

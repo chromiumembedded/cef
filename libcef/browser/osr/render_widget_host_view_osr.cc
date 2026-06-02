@@ -278,7 +278,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     // method.
     SetRootLayerSize(false /* force */);
     if (!render_widget_host_->IsHidden()) {
-      Show();
+      ShowWithVisibility(content::PageVisibilityState::kVisible);
     }
   }
 
@@ -342,7 +342,7 @@ void CefRenderWidgetHostViewOSR::InitAsChild(gfx::NativeView parent_view) {
   parent_host_view_->Hide();
 
   SetRootLayerSize(false /* force */);
-  Show();
+  ShowWithVisibility(content::PageVisibilityState::kVisible);
 }
 
 void CefRenderWidgetHostViewOSR::SetSize(const gfx::Size& size) {}
@@ -668,7 +668,7 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
   // The size doesn't change for popups so we need to force the
   // initialization.
   SetRootLayerSize(true /* force */);
-  Show();
+  ShowWithVisibility(content::PageVisibilityState::kVisible);
 }
 
 void CefRenderWidgetHostViewOSR::UpdateCursor(const ui::Cursor& cursor) {}
@@ -1838,7 +1838,8 @@ void CefRenderWidgetHostViewOSR::CancelWidget() {
       parent_host_view_->set_child_host_view(nullptr);
 
       // Start rendering the parent view again.
-      parent_host_view_->Show();
+      parent_host_view_->ShowWithVisibility(
+          content::PageVisibilityState::kVisible);
     } else {
       parent_host_view_->RemoveGuestHostView(this);
     }

@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/chrome_extensions_api_client.cc chrome/browser/extensions/api/chrome_extensions_api_client.cc
-index 7aa8718b6057e01a6e216171f926aa5b14f78b41..e3930e977b2a031af0033d9f3d5da4c207b80ae4 100644
+index 368d0d7dcbf15b5cc277fae9844d88df00fdf423..0c67d9b5c17e1ddd46f10e13d29bd49b13e51f78 100644
 --- chrome/browser/extensions/api/chrome_extensions_api_client.cc
 +++ chrome/browser/extensions/api/chrome_extensions_api_client.cc
 @@ -16,6 +16,7 @@
@@ -21,7 +21,7 @@ index 7aa8718b6057e01a6e216171f926aa5b14f78b41..e3930e977b2a031af0033d9f3d5da4c2
  #if BUILDFLAG(ENABLE_PRINTING)
  #include "chrome/browser/printing/printing_init.h"
  #endif
-@@ -354,7 +359,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
+@@ -361,7 +366,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
  std::unique_ptr<MimeHandlerViewGuestDelegate>
  ChromeExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
      MimeHandlerViewGuest* guest) const {
@@ -34,10 +34,10 @@ index 7aa8718b6057e01a6e216171f926aa5b14f78b41..e3930e977b2a031af0033d9f3d5da4c2
  #endif
  
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index d5680fd9b1be1dd854e7fa2308a6684bb0d0c3d6..5f481ddf0da3bda320e5fd1869e7ee1017414d51 100644
+index 6a7780c3cedfa6a97cdba5808b01e811e2fe66bb..c59cf94b59fee3a52ef0581569d251a777f233f2 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
-@@ -2379,31 +2379,31 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2533,31 +2533,31 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  
    // tabs_internal::GetTabById may return a null window for prerender tabs.
@@ -90,7 +90,7 @@ index d5680fd9b1be1dd854e7fa2308a6684bb0d0c3d6..5f481ddf0da3bda320e5fd1869e7ee10
  
    if (params->update_properties.muted &&
        !SetTabAudioMuted(contents, *params->update_properties.muted,
-@@ -2444,7 +2444,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2598,7 +2598,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  #endif
  
@@ -99,7 +99,7 @@ index d5680fd9b1be1dd854e7fa2308a6684bb0d0c3d6..5f481ddf0da3bda320e5fd1869e7ee10
      bool pinned = *params->update_properties.pinned;
  
      if (target_tab->IsPinned() != pinned) {
-@@ -2474,7 +2474,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2628,7 +2628,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
@@ -110,7 +110,7 @@ index d5680fd9b1be1dd854e7fa2308a6684bb0d0c3d6..5f481ddf0da3bda320e5fd1869e7ee10
        return RespondNow(Error(ErrorUtils::FormatErrorMessage(
            tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
-index b87b0c9e6938fcbe79e8394afe5328e7def7b45e..f088568cf8e77a0ec67f38af253536e3a25eb765 100644
+index 6238051f9a21504d35957c0208da8e60f5dbb43f..312e80e4165bcd0d69b961cfd3aec14c08b23f1a 100644
 --- chrome/browser/extensions/extension_tab_util.cc
 +++ chrome/browser/extensions/extension_tab_util.cc
 @@ -70,6 +70,7 @@
@@ -120,8 +120,8 @@ index b87b0c9e6938fcbe79e8394afe5328e7def7b45e..f088568cf8e77a0ec67f38af253536e3
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/resource_coordinator/tab_lifecycle_unit_external.h"
  #include "chrome/browser/ui/browser.h"                             // nogncheck
- #include "chrome/browser/ui/browser_finder.h"                      // nogncheck
-@@ -87,6 +88,10 @@
+ #include "chrome/browser/ui/navigator/browser_navigator_params.h"  // nogncheck
+@@ -86,6 +87,10 @@
  
  static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
  
@@ -132,7 +132,7 @@ index b87b0c9e6938fcbe79e8394afe5328e7def7b45e..f088568cf8e77a0ec67f38af253536e3
  using content::NavigationEntry;
  using content::WebContents;
  using extensions::mojom::APIPermissionID;
-@@ -666,6 +671,14 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
+@@ -665,6 +670,14 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
      }
    }
  

@@ -1,5 +1,5 @@
 diff --git chrome/browser/policy/BUILD.gn chrome/browser/policy/BUILD.gn
-index a698bf8257fe4e2984fb25b2df3865d5634c8c0d..e70c3c4e7b7d6eedbb997129681ea2b4a98d7188 100644
+index c38afc803dd4c068823eec85c06250315dec3542..798dc1652381396804764258ad99ffcebff312cc 100644
 --- chrome/browser/policy/BUILD.gn
 +++ chrome/browser/policy/BUILD.gn
 @@ -27,6 +27,7 @@ source_set("path_parser") {
@@ -45,7 +45,7 @@ index a7a7a3a167bce56952b713f2e7987de34ed37c16..432a0c418a54ed7fa1f65e894d0fcec7
    }
  
 diff --git chrome/browser/policy/browser_dm_token_storage_mac.mm chrome/browser/policy/browser_dm_token_storage_mac.mm
-index 0c39d3482ad535fbaf791d5486a850d7b19a0dc0..766216b44000ce75a43a1ca919b1ddff7e4ac01a 100644
+index 41bb311b3399af2014bf416eb65e99cae9b8df6b..df1b1e2514990a5d5c091cae2bd9ab30c393a1db 100644
 --- chrome/browser/policy/browser_dm_token_storage_mac.mm
 +++ chrome/browser/policy/browser_dm_token_storage_mac.mm
 @@ -26,6 +26,7 @@
@@ -68,7 +68,7 @@ index 0c39d3482ad535fbaf791d5486a850d7b19a0dc0..766216b44000ce75a43a1ca919b1ddff
  constexpr char kEnrollmentTokenMetricsName[] =
      "Enterprise.CloudManagementEnrollmentTokenLocation.Mac";
  
-@@ -118,16 +114,23 @@ bool DeleteDMTokenFromAppDataDir(const std::string& client_id) {
+@@ -118,13 +114,20 @@ bool DeleteDMTokenFromAppDataDir(const std::string& client_id) {
  // Get the enrollment token from policy file: /Library/com.google.Chrome.plist.
  // Return true if policy is set, otherwise false.
  bool GetEnrollmentTokenFromPolicy(std::string* enrollment_token) {
@@ -85,16 +85,13 @@ index 0c39d3482ad535fbaf791d5486a850d7b19a0dc0..766216b44000ce75a43a1ca919b1ddff
 -      CFPreferencesCopyAppValue(kEnrollmentTokenPolicyName, kBundleId));
 +      CFPreferencesCopyAppValue(kEnrollmentTokenPolicyName, bundle_id));
  
-   // Read the enrollment token from the new location. If that fails, try the old
-   // location (which will be deprecated soon). If that also fails, bail as there
-   // is no token set.
    if (!value ||
 -      !CFPreferencesAppValueIsForced(kEnrollmentTokenPolicyName, kBundleId)) {
 +      !CFPreferencesAppValueIsForced(kEnrollmentTokenPolicyName, bundle_id)) {
      return false;
    }
    CFStringRef value_string = base::apple::CFCast<CFStringRef>(value.get());
-@@ -153,12 +156,19 @@ bool GetEnrollmentTokenFromFile(std::string* enrollment_token) {
+@@ -147,12 +150,19 @@ bool GetEnrollmentTokenFromFile(std::string* enrollment_token) {
  }
  
  std::optional<bool> IsEnrollmentMandatoryByPolicy() {
@@ -403,10 +400,10 @@ index 01ac4e4c83af8d7e1009dbd97ddb9c34fbfde916..24c4839c930012cf34f8c9b8ca5354df
                       // policy files that allow sys-admins
                       // to set policies for chrome. This directory
 diff --git components/policy/BUILD.gn components/policy/BUILD.gn
-index fd95e68ece8c0e6ddba269a407f47e176a44adbd..33612537eb7438cdcb9938cd3d70f95f21ee5b20 100644
+index 640d16727dbbab2c518545b1d9c78916de4a8df8..691ef9968d8a3702935f2ca3f9f21e9397b7e7b0 100644
 --- components/policy/BUILD.gn
 +++ components/policy/BUILD.gn
-@@ -266,6 +266,7 @@ static_library("generated") {
+@@ -267,6 +267,7 @@ static_library("generated") {
      ":cloud_policy_proto_generated_compile",
      ":policy_code_generate",
      "//base",

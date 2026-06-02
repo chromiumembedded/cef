@@ -48,10 +48,10 @@ index 094551c9feac29138113464a50be115126ed05d9..0f47eaacd2947cbbb78bd710b736c9c9
  }
  
 diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
-index 3deaaa681088a7fe66e52de2f21fd9e03010241b..013d69b0e3c5449d710d28b2076b8767a82a8f6b 100644
+index 5a97a6ccc5addca55b33f423d594a83550bf7185..1c7b37559f856e117b487d412a865fbfe3b0798f 100644
 --- ui/native_theme/native_theme.cc
 +++ ui/native_theme/native_theme.cc
-@@ -281,6 +281,8 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
+@@ -284,6 +284,8 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
  
    NotifyOnNativeThemeUpdatedImpl();
  
@@ -60,7 +60,7 @@ index 3deaaa681088a7fe66e52de2f21fd9e03010241b..013d69b0e3c5449d710d28b2076b8767
    RecordNumColorProvidersInitializedDuringOnNativeThemeUpdated(
        color_provider_manager.num_providers_initialized() -
        initial_providers_initialized);
-@@ -361,6 +363,13 @@ bool NativeTheme::IsForcedDarkMode() {
+@@ -364,6 +366,13 @@ bool NativeTheme::IsForcedDarkMode() {
    return kIsForcedDarkMode;
  }
  
@@ -74,7 +74,7 @@ index 3deaaa681088a7fe66e52de2f21fd9e03010241b..013d69b0e3c5449d710d28b2076b8767
  bool NativeTheme::IsForcedHighContrast() {
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
-@@ -574,8 +583,13 @@ ColorProviderKey::ForcedColors NativeTheme::CalculateForcedColors() const {
+@@ -577,8 +586,13 @@ ColorProviderKey::ForcedColors NativeTheme::CalculateForcedColors() const {
  
  NativeTheme::PreferredColorScheme NativeTheme::CalculatePreferredColorScheme()
      const {

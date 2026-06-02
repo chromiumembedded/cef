@@ -1,32 +1,34 @@
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index c1763e103e27659fcdb73c7dfac30c241b8bc3c3..7d3f0012c689581ccdeff435c908826e452cf92c 100644
+index 51709d5ec2f91634992ef0d33603197f6780caa3..d04798ce96badcbc224a20bb4f21cbb6ef5f4c8c 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
-@@ -2,6 +2,7 @@
- // Use of this source code is governed by a BSD-style license that can be
- // found in the LICENSE file.
- 
+@@ -24,6 +24,7 @@
+ #include "base/memory/raw_ptr.h"
+ #include "base/numerics/safe_conversions.h"
+ #include "base/strings/string_number_conversions.h"
 +#include "base/task/current_thread.h"
- #include "base/message_loop/message_pump_win.h"
- 
- #include <windows.h>
-@@ -609,7 +610,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
-       if (g_pump_peek_message_with_observer && native_event_observer_) {
+ #include "base/task/task_features.h"
+ #include "base/trace_event/interned_args_helper.h"
+ #include "base/trace_event/typed_macros.h"
+@@ -585,7 +586,19 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
+       if (native_event_observer_) {
          native_event_observer_->WillRunNativeEvent(next_peek_message_event_id_);
        }
 -      has_msg = ::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != FALSE;
 +
-+      // We should not process all window messages if we are in the context of an
-+      // OS modal loop, i.e. in the context of a windows API call like MessageBox.
-+      // This is to ensure that these messages are peeked out by the OS modal loop.
++      // We should not process all window messages if we are in the context of
++      // an OS modal loop, i.e. in the context of a windows API call like
++      // MessageBox. This is to ensure that these messages are peeked out by the
++      // OS modal loop.
 +      if (CurrentThread::Get()->os_modal_loop()) {
-+        // We only peek out WM_PAINT and WM_TIMER here for reasons mentioned above.
++        // We only peek out WM_PAINT and WM_TIMER here for reasons mentioned
++        // above.
 +        has_msg = PeekMessage(&msg, NULL, WM_PAINT, WM_PAINT, PM_REMOVE) ||
 +                  PeekMessage(&msg, NULL, WM_TIMER, WM_TIMER, PM_REMOVE);
 +      } else {
 +        has_msg = PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) != FALSE;
 +      }
-       if (g_pump_peek_message_with_observer && native_event_observer_) {
+       if (native_event_observer_) {
          native_event_observer_->DidRunNativeEvent(
              next_peek_message_event_id_++);
 diff --git base/task/current_thread.cc base/task/current_thread.cc

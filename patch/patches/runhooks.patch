@@ -26,7 +26,7 @@ index e0b7c03a522040d58afdf82cbe20acc38f96b43e..f1583a4f4dcd04bbf4c12c1a567a245a
      if (cpu != 'x64'):
        # x64 is default target CPU thus any other CPU requires a target set
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 88489da743f6dddbe443013806e905f04e4fc82b..5c592dfe902c1c92052764d52f31ae83e59095e0 100755
+index 7c62254219ca578f25f89823f7cca494a5781230..66303f6d822829e85bb8b6207b6c26602d544a3c 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -138,9 +138,16 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -46,7 +46,7 @@ index 88489da743f6dddbe443013806e905f04e4fc82b..5c592dfe902c1c92052764d52f31ae83
      # When using an installed toolchain these files aren't needed in the output
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
-@@ -224,6 +231,10 @@ def _CheckIfVersionInstalled(version):
+@@ -227,6 +234,10 @@ def _CheckIfVersionInstalled(version):
  def GetVisualStudioVersion():
    """Return best available version of Visual Studio.
    """

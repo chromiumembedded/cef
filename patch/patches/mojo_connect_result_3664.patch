@@ -1,8 +1,8 @@
 diff --git ipc/ipc_mojo_bootstrap.cc ipc/ipc_mojo_bootstrap.cc
-index 9f2a3da3791d311b69dd821841763bd228c0c1ac..8fea8f4f22f88a88eb36fddc43aa18b83577a0aa 100644
+index 0241697b3e4a94797bd87b2deb8c1bb739210601..d7efc18c5eeb102504406a3355a8452b4aacdf50 100644
 --- ipc/ipc_mojo_bootstrap.cc
 +++ ipc/ipc_mojo_bootstrap.cc
-@@ -974,7 +974,8 @@ class ChannelAssociatedGroupController
+@@ -975,7 +975,8 @@ class ChannelAssociatedGroupController
            endpoint->disconnect_reason());
  
        base::AutoUnlock unlocker(lock_);
@@ -77,10 +77,10 @@ index ba6d81eaccbb608c89eb4571b564b32f61e49c00..e0542ae97760af7a10aa276656221877
  }  // namespace mojo
  
 diff --git mojo/public/cpp/bindings/connector.h mojo/public/cpp/bindings/connector.h
-index 0b879c4e65d4833b7c12faaeca7c94526d4805fa..10fb98ff3ceb2fe59743bc977b85bb04ebed7f5a 100644
+index 3fa72db86530efd9025cba5605580691e00c3412..6e73f2f15e967d1ed07312875d3955bd7f783e1b 100644
 --- mojo/public/cpp/bindings/connector.h
 +++ mojo/public/cpp/bindings/connector.h
-@@ -146,6 +146,11 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) Connector : public MessageReceiver {
+@@ -150,6 +150,11 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) Connector : public MessageReceiver {
      return error_;
    }
  
@@ -92,7 +92,7 @@ index 0b879c4e65d4833b7c12faaeca7c94526d4805fa..10fb98ff3ceb2fe59743bc977b85bb04
    // Starts receiving on the Connector's message pipe, allowing incoming
    // messages and error events to be dispatched. Once called, the Connector is
    // effectively bound to `task_runner`. Initialization methods like
-@@ -320,6 +325,7 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) Connector : public MessageReceiver {
+@@ -332,6 +337,7 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) Connector : public MessageReceiver {
    std::optional<HandleSignalTracker> peer_remoteness_tracker_;
  
    std::atomic<bool> error_ GUARDED_BY_CONTEXT(sequence_checker_);
@@ -184,7 +184,7 @@ index 7efe47038b51b9922a817be9876bfd4830031ebb..22a636f9ac3ad7d6a6e66fc8da6e0229
  
    MessagePipeHandle handle() const {
 diff --git mojo/public/cpp/bindings/lib/connector.cc mojo/public/cpp/bindings/lib/connector.cc
-index 99535929e57b59c0d053a29f5539de306b88cc82..aa358e7e9b2fb78706051086d5547b83bbf782ba 100644
+index e8ab3f7cd87adf9710020fb45202edb2b4ff46b6..f0976448a100e30f161915270a632c6594222d46 100644
 --- mojo/public/cpp/bindings/lib/connector.cc
 +++ mojo/public/cpp/bindings/lib/connector.cc
 @@ -439,6 +439,8 @@ void Connector::OnSyncHandleWatcherHandleReady(const char* interface_name,
@@ -256,10 +256,10 @@ index 443d0b74e0c92f5788076537b83a6e37e02100a4..aa39a01bbe4b3d635b0fbd023fa8fafb
                          base::RepeatingClosure handler) {
      ConfigureProxyIfNecessary();
 diff --git mojo/public/cpp/bindings/lib/multiplex_router.cc mojo/public/cpp/bindings/lib/multiplex_router.cc
-index 6086f9b36062550dd06d70215bda7d23f086e528..3af3538e0b74176fd5bacf393e8b27073cfaa4b0 100644
+index 4a7a7b0c431d209a767d7f51c5f63945660807e0..d0be146e6295a504e9a00c3b16e0c474577f9f02 100644
 --- mojo/public/cpp/bindings/lib/multiplex_router.cc
 +++ mojo/public/cpp/bindings/lib/multiplex_router.cc
-@@ -86,6 +86,12 @@ class MultiplexRouter::InterfaceEndpoint
+@@ -85,6 +85,12 @@ class MultiplexRouter::InterfaceEndpoint
      disconnect_reason_ = disconnect_reason;
    }
  
@@ -272,7 +272,7 @@ index 6086f9b36062550dd06d70215bda7d23f086e528..3af3538e0b74176fd5bacf393e8b2707
    base::SequencedTaskRunner* task_runner() const { return task_runner_.get(); }
  
    InterfaceEndpointClient* client() const { return client_; }
-@@ -265,6 +271,7 @@ class MultiplexRouter::InterfaceEndpoint
+@@ -264,6 +270,7 @@ class MultiplexRouter::InterfaceEndpoint
    bool handle_created_;
  
    std::optional<DisconnectReason> disconnect_reason_;
@@ -280,7 +280,7 @@ index 6086f9b36062550dd06d70215bda7d23f086e528..3af3538e0b74176fd5bacf393e8b2707
  
    // The task runner on which |client_|'s methods can be called.
    scoped_refptr<base::SequencedTaskRunner> task_runner_;
-@@ -914,6 +921,8 @@ void MultiplexRouter::OnPipeConnectionError(bool force_async_dispatch) {
+@@ -933,6 +940,8 @@ void MultiplexRouter::OnPipeConnectionError(bool force_async_dispatch) {
          endpoint->client()->ForgetAsyncRequest(request_id);
        }
  
@@ -289,7 +289,7 @@ index 6086f9b36062550dd06d70215bda7d23f086e528..3af3538e0b74176fd5bacf393e8b2707
        tasks_.push_back(Task::CreateNotifyErrorTask(endpoint.get()));
      }
  
-@@ -1113,7 +1122,7 @@ bool MultiplexRouter::ProcessNotifyErrorTask(
+@@ -1132,7 +1141,7 @@ bool MultiplexRouter::ProcessNotifyErrorTask(
      // It is safe to call into |client| without the lock. Because |client| is
      // always accessed on the same sequence, including DetachEndpointClient().
      MayAutoUnlock unlocker(&lock_);

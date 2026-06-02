@@ -146,7 +146,7 @@ index 7da179de2e751cb65f3bd2371a8b462c04879e7b..18442b7bc8fbfe82ef80971d18e00dc3
    // This must be constructed with MakeScopedLockedFileHandle(). It both unlocks
    // and closes the file on destruction. Note that on Fuchsia, this handle DOES
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index c20500e7f38dcf5d4e9bb2307d560d8ef6926872..0ba6bd18bb9c748be5ed151384b7a6e52b289241 100644
+index 21291f2d11373699f94a32d1bdee0f16df022942..53c722e2580722f567f683390c64bba9b232639b 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@

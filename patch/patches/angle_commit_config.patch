@@ -1,8 +1,8 @@
 diff --git BUILD.gn BUILD.gn
-index 25b4724b819ee73324694475ec3cdf9380f6e90b..dc04e23588a611b54d2702913027d8bb7994c4d1 100644
+index 3e1af3bc00c5e57a3a4b605952da11686e597225..f783a6dd864a13c7f5b7bec9b47a7fc47816b9ae 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -91,6 +91,9 @@ declare_args() {
+@@ -97,6 +97,9 @@ declare_args() {
    install_prefix = ""
  
    angle_use_crypto_hasher = build_with_chromium
@@ -12,7 +12,7 @@ index 25b4724b819ee73324694475ec3cdf9380f6e90b..dc04e23588a611b54d2702913027d8bb
  }
  
  declare_args() {
-@@ -915,6 +918,8 @@ action("angle_commit_id") {
+@@ -935,6 +938,8 @@ action("angle_commit_id") {
      "gen",
      rebase_path(_commit_id_header, root_build_dir),
      rebase_path(depfile, root_build_dir),
@@ -22,7 +22,7 @@ index 25b4724b819ee73324694475ec3cdf9380f6e90b..dc04e23588a611b54d2702913027d8bb
  
    public_configs = [ ":angle_commit_id_config" ]
 diff --git src/commit_id.py src/commit_id.py
-index bb1e2ce746a40e9a269986ffa207365d8aa2cc9d..d826fe79f9328e172770cd0a85cdf3f3b7142810 100755
+index 5c28fe8184cbe5430f9253d1b2d6f59e787c1e6b..3a6f89f749fc2da3310ddc0806a486f9a8495864 100755
 --- src/commit_id.py
 +++ src/commit_id.py
 @@ -13,7 +13,7 @@ import os
@@ -34,30 +34,30 @@ index bb1e2ce746a40e9a269986ffa207365d8aa2cc9d..d826fe79f9328e172770cd0a85cdf3f3
  
  
  def grab_output(command, cwd):
-@@ -126,15 +126,24 @@ if len(sys.argv) < 3 or operation != 'gen':
-     sys.exit(usage)
+@@ -128,15 +128,24 @@ def main():
+         sys.exit(usage)
  
- output_file = sys.argv[2]
--depfile = sys.argv[3] if len(sys.argv) == 4 else None
-+depfile = sys.argv[3] if len(sys.argv) >= 4 else None
- commit_id_size = 12
- commit_date = 'unknown date'
- commit_position = '0'
+     output_file = sys.argv[2]
+-    depfile = sys.argv[3] if len(sys.argv) == 4 else None
++    depfile = sys.argv[3] if len(sys.argv) >= 4 else None
+     commit_id_size = 12
+     commit_date = 'unknown date'
+     commit_position = '0'
  
-+if len(sys.argv) >= 5:
-+  commit_position = sys.argv[4]
-+  assert commit_position.isnumeric(), commit_position
++    if len(sys.argv) >= 5:
++      commit_position = sys.argv[4]
++      assert commit_position.isnumeric(), commit_position
 +
-+commit_id = None
-+if len(sys.argv) >= 6 and len(sys.argv[5]) > 0:
-+  commit_id = sys.argv[5]
-+  assert len(commit_id) == commit_id_size, commit_id
++    commit_id = None
++    if len(sys.argv) >= 6 and len(sys.argv[5]) > 0:
++      commit_id = sys.argv[5]
++      assert len(commit_id) == commit_id_size, commit_id
 +
- # If the ANGLE_UPSTREAM_HASH environment variable is set, use it as
- # commit_id. commit_date will be 'unknown date' and commit_position will be 0
- # in this case. See details in roll_aosp.sh where commit_id.py is invoked.
--commit_id = os.environ.get('ANGLE_UPSTREAM_HASH')
-+commit_id = os.environ.get('ANGLE_UPSTREAM_HASH', commit_id)
- # If ANGLE_UPSTREAM_HASH environment variable is not set, use the git command
- # to get the git hash, when .git is available
- if git_dir_exists and not commit_id:
+     # If the ANGLE_UPSTREAM_HASH environment variable is set, use it as
+     # commit_id. commit_date will be 'unknown date' and commit_position will be 0
+     # in this case. See details in roll_aosp.sh where commit_id.py is invoked.
+-    commit_id = os.environ.get('ANGLE_UPSTREAM_HASH')
++    commit_id = os.environ.get('ANGLE_UPSTREAM_HASH', commit_id)
+     # If ANGLE_UPSTREAM_HASH environment variable is not set, use the git command
+     # to get the git hash, when .git is available
+     if git_dir_exists and not commit_id:

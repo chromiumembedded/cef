@@ -1497,7 +1497,7 @@ make_pack_header("resources") {
     "//content/browser/webrtc/resources",
     "//content:content_resources",
     "//extensions:extensions_browser_resources",
-    "//extensions:extensions_renderer_resources",
+    "//extensions/renderer/resources:extensions_renderer_resources",
     "//extensions:extensions_resources_grd",
     "//mojo/public/js:resources",
     "//net:net_resources",

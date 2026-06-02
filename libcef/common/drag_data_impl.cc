@@ -122,7 +122,7 @@ size_t CefDragDataImpl::GetFileContents(CefRefPtr<CefStreamWriter> writer) {
     return 0;
   }
 
-  char* data = const_cast<char*>(data_.file_contents.c_str());
+  char* data = reinterpret_cast<char*>(data_.file_contents.data());
   size_t size = data_.file_contents.size();
 
   if (!writer.get()) {
@@ -234,7 +234,7 @@ void CefDragDataImpl::SetFragmentBaseURL(const CefString& fragment) {
 void CefDragDataImpl::ResetFileContents() {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
-  data_.file_contents.erase();
+  data_.file_contents.clear();
   data_.file_contents_source_url = GURL();
   data_.file_contents_filename_extension.erase();
   data_.file_contents_content_disposition.erase();

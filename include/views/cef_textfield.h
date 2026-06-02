@@ -38,6 +38,7 @@
 #define CEF_INCLUDE_VIEWS_CEF_TEXTFIELD_H_
 #pragma once
 
+#include "include/cef_api_hash.h"
 #include "include/views/cef_textfield_delegate.h"
 #include "include/views/cef_view.h"
 
@@ -149,41 +150,43 @@ class CefTextfield : public CefView {
   /*--cef()--*/
   virtual size_t GetCursorPosition() = 0;
 
+#if CEF_API_REMOVED(CEF_NEXT)
   ///
   /// Sets the text color.
   ///
-  /*--cef()--*/
+  /*--cef(removed=next)--*/
   virtual void SetTextColor(cef_color_t color) = 0;
 
   ///
   /// Returns the text color.
   ///
-  /*--cef()--*/
+  /*--cef(removed=next)--*/
   virtual cef_color_t GetTextColor() = 0;
 
   ///
   /// Sets the selection text color.
   ///
-  /*--cef()--*/
+  /*--cef(removed=next)--*/
   virtual void SetSelectionTextColor(cef_color_t color) = 0;
 
   ///
   /// Returns the selection text color.
   ///
-  /*--cef()--*/
+  /*--cef(removed=next)--*/
   virtual cef_color_t GetSelectionTextColor() = 0;
 
   ///
   /// Sets the selection background color.
   ///
-  /*--cef()--*/
+  /*--cef(removed=next)--*/
   virtual void SetSelectionBackgroundColor(cef_color_t color) = 0;
 
   ///
   /// Returns the selection background color.
   ///
-  /*--cef()--*/
+  /*--cef(removed=next)--*/
   virtual cef_color_t GetSelectionBackgroundColor() = 0;
+#endif
 
   ///
   /// Sets the font list. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>",
@@ -252,11 +255,13 @@ class CefTextfield : public CefView {
   /*--cef()--*/
   virtual CefString GetPlaceholderText() = 0;
 
+#if CEF_API_REMOVED(CEF_NEXT)
   ///
   /// Sets the placeholder text color.
   ///
-  /*--cef()--*/
+  /*--cef(removed=next)--*/
   virtual void SetPlaceholderTextColor(cef_color_t color) = 0;
+#endif
 
   ///
   /// Set the accessible name that will be exposed to assistive technology (AT).

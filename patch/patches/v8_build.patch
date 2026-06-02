@@ -1,5 +1,5 @@
 diff --git BUILD.gn BUILD.gn
-index dd22a8954e19e836405a7e6a2fcdb3241abbbf3d..aa79a7bb07c964eda631c482e9a9e0d87cdbd829 100644
+index a19ec5212547a907fd9c094dc030e806110d176c..53ca28646b1f846c1cbd2eb740ceec54326d3036 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -14,6 +14,7 @@ import("//build/config/mips.gni")
@@ -20,7 +20,7 @@ index dd22a8954e19e836405a7e6a2fcdb3241abbbf3d..aa79a7bb07c964eda631c482e9a9e0d8
    # Enables the use of partition_alloc as the default allocator for standalone
    # V8. This should be used for benchmarking and testing purposes to more
    # closely mimic in-browser behavior.
-@@ -918,6 +922,10 @@ config("internal_config") {
+@@ -920,6 +924,10 @@ config("internal_config") {
      defines += [ "BUILDING_V8_SHARED" ]
    }
  
