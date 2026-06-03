@@ -60,6 +60,7 @@ extern const char kShowOverlayBrowser[];
 extern const char kUseAngle[];
 extern const char kOzonePlatform[];
 extern const char kAxViewportCollapse[];
+extern const char kTransparencyDemo[];
 
 }  // namespace client::switches
 

@@ -443,8 +443,9 @@ typedef struct _cef_settings_t {
   /// opaque then the RGB components will be used as the background color. If
   /// the alpha component is fully transparent for a windowed browser then the
   /// default value of opaque white be used. If the alpha component is fully
-  /// transparent for a windowless (off-screen) browser then transparent
-  /// painting will be enabled.
+  /// transparent for a windowless (off-screen) browser, a frameless window
+  /// using Views framework or a Alloy-style browser then transparent painting
+  /// will be enabled.
   ///
   cef_color_t background_color;
 
@@ -704,7 +705,8 @@ typedef struct _cef_browser_settings_t {
   /// opaque then the RGB components will be used as the background color. If
   /// the alpha component is fully transparent for a windowed browser then the
   /// CefSettings.background_color value will be used. If the alpha component is
-  /// fully transparent for a windowless (off-screen) browser then transparent
+  /// fully transparent for a windowless (off-screen) browser, a frameless
+  /// window using Views framework or a Alloy-style browser then transparent
   /// painting will be enabled.
   ///
   cef_color_t background_color;

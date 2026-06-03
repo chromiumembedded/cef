@@ -17,6 +17,9 @@
 #endif
 #endif
 
+#include <algorithm>
+
+#include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/geometry_util.h"
 #include "cef/libcef/browser/image_impl.h"
 #include "cef/libcef/browser/views/widget.h"
@@ -521,6 +524,9 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
   bool can_activate = true;
   bool can_resize = true;
 
+  auto color = CefContext::Get()->GetBackgroundColor(nullptr, STATE_ENABLED);
+  bool is_transparent = color == SK_ColorTRANSPARENT;
+
   const bool has_native_parent = parent_widget != gfx::kNullAcceleratedWidget;
   if (has_native_parent) {
     params.parent_widget = parent_widget;
@@ -539,6 +545,12 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
     params.opacity = views::Widget::InitParams::WindowOpacity::kOpaque;
   } else {
     params.type = views::Widget::InitParams::TYPE_WINDOW;
+
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
+    if (is_transparent) {
+      params.opacity = views::Widget::InitParams::WindowOpacity::kTranslucent;
+    }
+#endif
   }
 
   if (cef_delegate()) {
@@ -561,6 +573,12 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
       DCHECK(!params.bounds.IsEmpty());
     } else {
       is_frameless_ = cef_delegate()->IsFrameless(cef_window);
+
+#if BUILDFLAG(IS_WIN)
+      if (is_frameless_ && is_transparent) {
+        params.opacity = views::Widget::InitParams::WindowOpacity::kTranslucent;
+      }
+#endif
 
       params.native_widget =
           view_util::CreateNativeWidget(widget, cef_window, cef_delegate());

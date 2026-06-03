@@ -358,6 +358,7 @@
       'tests/cefclient/resources/server.html',
       'tests/cefclient/resources/task_manager.html',
       'tests/cefclient/resources/transparency.html',
+      'tests/cefclient/resources/transparency_demo.html',
       'tests/cefclient/resources/urlrequest.html',
       'tests/cefclient/resources/websocket.html',
       'tests/cefclient/resources/window.html',
