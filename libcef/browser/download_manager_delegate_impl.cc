@@ -17,6 +17,9 @@
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/download_item_impl.h"
 #include "cef/libcef/browser/thread_util.h"
+#include "chrome/browser/profiles/profile.h"
+#include "chrome/common/pref_names.h"
+#include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/download_item_utils.h"
 #include "content/public/browser/web_contents.h"
@@ -409,11 +412,23 @@ bool CefDownloadManagerDelegateImpl::DetermineDownloadTarget(
   bool handled = false;
   CefRefPtr<CefDownloadHandler> handler = GetDownloadHandler(browser);
   if (handler) {
+    // Determine the charset used to decode a non-ASCII filename from the
+    // Content-Disposition header when it lacks an RFC 5987 charset. Prefer the
+    // charset declared in the Content-Type response header (e.g.
+    // "...; charset=gb18030"); otherwise fall back to the configured default
+    // charset. This matches the behavior of
+    // ChromeDownloadManagerDelegate::DetermineDownloadTarget.
     std::string charset;
-    const auto& response_headers = item->GetResponseHeaders();
-    if (response_headers) {
+    if (const auto& response_headers = item->GetResponseHeaders()) {
       response_headers->GetCharset(&charset);
     }
+    if (charset.empty()) {
+      if (auto* profile = Profile::FromBrowserContext(
+              content::DownloadItemUtils::GetBrowserContext(item))) {
+        charset = profile->GetPrefs()->GetString(prefs::kDefaultCharset);
+      }
+    }
+
     base::FilePath suggested_name = net::GenerateFileName(
         item->GetURL(), item->GetContentDisposition(), charset,
         item->GetSuggestedFilename(), item->GetMimeType(), "download");
