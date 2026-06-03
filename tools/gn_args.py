@@ -302,6 +302,16 @@ def GetRecommendedDefaultArgs():
       # Disable downgrade processing/restart with the Chrome runtime.
       # https://github.com/chromiumembedded/cef/issues/3608
       'enable_downgrade_processing': False,
+
+      # Disable precompiled headers. This is currently only enabled by default
+      # for non-Official Windows builds. After https://crrev.com/d5706ff4b1f47
+      # the cxx tool in //build/toolchain/win/toolchain.gni now unconditionally
+      # passes -fmodule-name to every C++ compilation. On Windows, precompiled
+      # headers work by compiling build/precompile.cc with the /Yc flag. The
+      # combination of -fmodule-name + /Yc in C++23 mode causes LLVM 23's
+      # clang-cl to treat precompile.cc as a C++20 module interface unit, which
+      # then fails because the file has no export module declaration.
+      'enable_precompiled_headers': False,
   }
 
   if platform == 'windows' or platform == 'mac':
