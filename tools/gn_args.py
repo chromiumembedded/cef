@@ -599,6 +599,12 @@ def GetConfigArgs(args, is_debug, cpu):
       add_args['enable_gwp_asan_malloc'] = False
       add_args['enable_gwp_asan_partitionalloc'] = False
 
+  # Unified system modules require a sysroot path. Disable when not using
+  # a sysroot to avoid empty path errors in //build/modules/BUILD.gn.
+  # Enabled on Linux by default after https://crrev.com/1da08484a2c35
+  if platform == 'linux' and not GetArgValue(args, 'use_sysroot'):
+    add_args['use_unified_system_module'] = False
+
   result = MergeDicts(args, add_args, {
       'is_debug': is_debug,
       'target_cpu': cpu,
