@@ -180,6 +180,24 @@ class CefTestServerConnection : public CefBaseRefCounted {
                                 const void* data,
                                 size_t data_size,
                                 const HeaderMap& extra_headers) = 0;
+
+  ///
+  /// Send a custom HTTP response using raw header data. |header_data| is the
+  /// complete raw HTTP response header block, including the status line (e.g.
+  /// "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"), and
+  /// |header_data_size| is its size in bytes. |response_data| is the response
+  /// content and |response_data_size| is its size in bytes. The contents of
+  /// both buffers will be copied. Unlike the other Send methods, the header
+  /// bytes are sent verbatim and are not subject to CefString (UTF-8)
+  /// conversion, which allows sending raw non-ASCII header values (e.g. a
+  /// non-UTF-8 Content-Disposition filename) for testing purposes. The
+  /// connection will be closed automatically after the response is sent.
+  ///
+  /*--cef(added=experimental,optional_param=response_data)--*/
+  virtual void SendHttpResponseWithRawHeaders(const void* header_data,
+                                              size_t header_data_size,
+                                              const void* response_data,
+                                              size_t response_data_size) = 0;
 };
 
 #endif  // CEF_INCLUDE_TEST_CEF_TEST_SERVER_H_

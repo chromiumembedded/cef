@@ -68,12 +68,41 @@ class CefTestServerConnectionImpl : public CefTestServerConnection {
     SendBasicHttpResponse(std::move(response));
   }
 
+  void SendHttpResponseWithRawHeaders(const void* header_data,
+                                      size_t header_data_size,
+                                      const void* response_data,
+                                      size_t response_data_size) override {
+    // RawHttpResponse sends the header block verbatim, bypassing the CefString
+    // (UTF-8) conversion that the other Send methods apply. This allows raw
+    // non-UTF-8 header bytes to reach the network stack intact.
+    auto response = std::make_unique<RawHttpResponse>(
+        std::string_view(reinterpret_cast<const char*>(header_data),
+                         header_data_size),
+        std::string_view(reinterpret_cast<const char*>(response_data),
+                         response_data_size));
+    SendRawHttpResponse(std::move(response));
+  }
+
  private:
   void SendBasicHttpResponse(std::unique_ptr<BasicHttpResponse> response) {
     if (!task_runner_->BelongsToCurrentThread()) {
       task_runner_->PostTask(
           FROM_HERE,
           base::BindOnce(&CefTestServerConnectionImpl::SendBasicHttpResponse,
+                         this, std::move(response)));
+      return;
+    }
+
+    if (delegate_) {
+      response->SendResponse(delegate_);
+    }
+  }
+
+  void SendRawHttpResponse(std::unique_ptr<RawHttpResponse> response) {
+    if (!task_runner_->BelongsToCurrentThread()) {
+      task_runner_->PostTask(
+          FROM_HERE,
+          base::BindOnce(&CefTestServerConnectionImpl::SendRawHttpResponse,
                          this, std::move(response)));
       return;
     }
