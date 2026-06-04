@@ -136,29 +136,29 @@ size_t CefTextfieldImpl::GetCursorPosition() {
 }
 
 void CefTextfieldImpl::SetTextColor(cef_color_t /*color*/) {
-  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
+  CEF_API_REQUIRE_REMOVED(15000);
 }
 
 cef_color_t CefTextfieldImpl::GetTextColor() {
-  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
+  CEF_API_REQUIRE_REMOVED(15000);
   return 0U;
 }
 
 void CefTextfieldImpl::SetSelectionTextColor(cef_color_t /*color*/) {
-  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
+  CEF_API_REQUIRE_REMOVED(15000);
 }
 
 cef_color_t CefTextfieldImpl::GetSelectionTextColor() {
-  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
+  CEF_API_REQUIRE_REMOVED(15000);
   return 0U;
 }
 
 void CefTextfieldImpl::SetSelectionBackgroundColor(cef_color_t /*color*/) {
-  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
+  CEF_API_REQUIRE_REMOVED(15000);
 }
 
 cef_color_t CefTextfieldImpl::GetSelectionBackgroundColor() {
-  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
+  CEF_API_REQUIRE_REMOVED(15000);
   return 0U;
 }
 
@@ -218,7 +218,7 @@ CefString CefTextfieldImpl::GetPlaceholderText() {
 }
 
 void CefTextfieldImpl::SetPlaceholderTextColor(cef_color_t /*color*/) {
-  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
+  CEF_API_REQUIRE_REMOVED(15000);
 }
 
 void CefTextfieldImpl::SetBackgroundColor(cef_color_t color) {

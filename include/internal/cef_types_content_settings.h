@@ -460,7 +460,7 @@ typedef enum {
   /// automatically (i.e. without transient activation) should be enabled.
   CEF_CONTENT_SETTING_TYPE_AUTOMATIC_FULLSCREEN,
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15000)
   /// Content settings used to indicate that a web app is allowed to prompt the
   /// user for the installation of sub apps.
   CEF_CONTENT_SETTING_TYPE_SUB_APP_INSTALLATION_PROMPTS,
@@ -608,7 +608,7 @@ typedef enum {
   CEF_CONTENT_SETTING_TYPE_LOOPBACK_NETWORK,
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15000)
   /// Content setting for whether an IWA can add sub apps without prompting
   /// users.
   CEF_CONTENT_SETTING_TYPE_SUB_APPS_WITHOUT_PROMPTS,

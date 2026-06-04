@@ -150,41 +150,41 @@ class CefTextfield : public CefView {
   /*--cef()--*/
   virtual size_t GetCursorPosition() = 0;
 
-#if CEF_API_REMOVED(CEF_NEXT)
+#if CEF_API_REMOVED(15000)
   ///
   /// Sets the text color.
   ///
-  /*--cef(removed=next)--*/
+  /*--cef(removed=15000)--*/
   virtual void SetTextColor(cef_color_t color) = 0;
 
   ///
   /// Returns the text color.
   ///
-  /*--cef(removed=next)--*/
+  /*--cef(removed=15000)--*/
   virtual cef_color_t GetTextColor() = 0;
 
   ///
   /// Sets the selection text color.
   ///
-  /*--cef(removed=next)--*/
+  /*--cef(removed=15000)--*/
   virtual void SetSelectionTextColor(cef_color_t color) = 0;
 
   ///
   /// Returns the selection text color.
   ///
-  /*--cef(removed=next)--*/
+  /*--cef(removed=15000)--*/
   virtual cef_color_t GetSelectionTextColor() = 0;
 
   ///
   /// Sets the selection background color.
   ///
-  /*--cef(removed=next)--*/
+  /*--cef(removed=15000)--*/
   virtual void SetSelectionBackgroundColor(cef_color_t color) = 0;
 
   ///
   /// Returns the selection background color.
   ///
-  /*--cef(removed=next)--*/
+  /*--cef(removed=15000)--*/
   virtual cef_color_t GetSelectionBackgroundColor() = 0;
 #endif
 
@@ -255,11 +255,11 @@ class CefTextfield : public CefView {
   /*--cef()--*/
   virtual CefString GetPlaceholderText() = 0;
 
-#if CEF_API_REMOVED(CEF_NEXT)
+#if CEF_API_REMOVED(15000)
   ///
   /// Sets the placeholder text color.
   ///
-  /*--cef(removed=next)--*/
+  /*--cef(removed=15000)--*/
   virtual void SetPlaceholderTextColor(cef_color_t color) = 0;
 #endif
 
