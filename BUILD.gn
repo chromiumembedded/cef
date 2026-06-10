@@ -1232,9 +1232,11 @@ config("libcef_includes_config") {
   ]
 }
 
-# Configuration that will be applied to all targets that depend on
-# libcef_dll_wrapper.
-config("libcef_dll_wrapper_config") {
+# Shared configuration for all libcef_dll_wrapper variants. This contains
+# everything except the CEF_API_VERSION define, which differs between the
+# default wrapper and the distribution (DLL) wrapper. See
+# libcef_dll_wrapper_config and libcef_dll_wrapper_dll_config below.
+config("libcef_dll_wrapper_config_base") {
   configs = [
     ":libcef_autogen_config",
     ":libcef_includes_config",
@@ -1273,6 +1275,13 @@ config("libcef_dll_wrapper_config") {
   if (is_mac) {
     cflags_objcc = [ "-std=c++20" ]
   }
+}
+
+# Configuration that will be applied to all targets that depend on
+# libcef_dll_wrapper. The CEF_API_VERSION defaults to the experimental
+# (unversioned) API unless cef_api_version is explicitly set.
+config("libcef_dll_wrapper_config") {
+  configs = [ ":libcef_dll_wrapper_config_base" ]
 
   if (cef_api_version != "") {
     defines = [ "CEF_API_VERSION=$cef_api_version" ]
@@ -1311,6 +1320,58 @@ static_library("libcef_dll_wrapper") {
 
   # Disable clang modules for this target (see issue #3611).
   use_libcxx_modules = false
+}
+
+# Distribution variant of libcef_dll_wrapper for client DLLs loaded by
+# bootstrap.exe (e.g. cefclient_dll). Identical to libcef_dll_wrapper except it
+# defaults CEF_API_VERSION to CEF_API_VERSION_LAST. A separate target is
+# required because a static_library is compiled once: the same wrapper instance
+# cannot serve both an experimental-API consumer and a CEF_API_VERSION_LAST
+# consumer. The experimental API is not back/forward compatible across CEF
+# versions and does not bump the version number, so a client built against it
+# cannot safely use vmin-only version selection. Building against the last
+# released API version makes the client forward-compatible with newer libcef.dll
+# binaries (via API backwards compatibility), which is what the installer's
+# vmin=CEF_API_VERSION_LAST selection relies on. An explicit cef_api_version
+# (e.g. CEF_NEXT for new-API development testing) still takes precedence.
+# Windows-only: the bootstrap + installer model is Windows-only.
+if (is_win) {
+  config("libcef_dll_wrapper_dll_config") {
+    configs = [ ":libcef_dll_wrapper_config_base" ]
+
+    if (cef_api_version != "") {
+      defines = [ "CEF_API_VERSION=$cef_api_version" ]
+    } else {
+      defines = [ "CEF_API_VERSION=CEF_API_VERSION_LAST" ]
+    }
+  }
+
+  static_library("libcef_dll_wrapper_dll") {
+    sources = includes_common +
+              gypi_paths.autogen_cpp_includes +
+              gypi_paths2.includes_capi +
+              gypi_paths.autogen_capi_includes +
+              gypi_paths2.includes_wrapper +
+              gypi_paths2.libcef_dll_wrapper_sources_base +
+              gypi_paths2.libcef_dll_wrapper_sources_common +
+              gypi_paths.autogen_client_side +
+              gypi_paths2.libcef_dll_wrapper_sources_win
+
+    libs = [
+      "crypt32.lib",
+      "wintrust.lib",
+    ]
+
+    defines = [ "WRAPPING_CEF_SHARED" ]
+
+    configs += [ ":libcef_dll_wrapper_dll_config" ]
+    public_configs = [ ":libcef_dll_wrapper_dll_config" ]
+
+    deps = [ ":cef_make_headers" ]
+
+    # Disable clang modules for this target (see issue #3611).
+    use_libcxx_modules = false
+  }
 }
 
 
@@ -2590,7 +2651,7 @@ if (is_mac) {
         ":bootstrap",
         "libcef_dll/bootstrap/installer:cef_installer_config",
         ":libcef",
-        ":libcef_dll_wrapper",
+        ":libcef_dll_wrapper_dll",
       ]
 
       defines = [
@@ -2722,7 +2783,7 @@ if (is_mac) {
       deps = [
         ":bootstrap",
         ":libcef",
-        ":libcef_dll_wrapper",
+        ":libcef_dll_wrapper_dll",
       ]
 
       defines = [
@@ -2967,7 +3028,7 @@ if (is_mac) {
       deps = [
         ":bootstrapc",
         ":libcef",
-        ":libcef_dll_wrapper",
+        ":libcef_dll_wrapper_dll",
         ":gtest_teamcity",
         "//testing/gmock",
         "//testing/gtest",

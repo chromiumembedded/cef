@@ -80,6 +80,18 @@ if(DEFINED api_version)
   list(APPEND CEF_COMPILER_DEFINES
     CEF_API_VERSION=${api_version}
   )
+elseif(OS_WINDOWS AND USE_SANDBOX)
+  # When building a client DLL loaded by bootstrap.exe (Windows + USE_SANDBOX),
+  # default to the last released API version instead of the experimental
+  # (unversioned) API. The experimental API is not back/forward compatible
+  # across CEF versions and does not bump the version number, so the installer's
+  # vmin-based version selection cannot work safely against it. Building against
+  # CEF_API_VERSION_LAST makes the client forward-compatible with newer
+  # libcef.dll binaries (via API backwards compatibility). Set -Dapi_version=XXXXX
+  # to override (e.g. for new-API development testing).
+  list(APPEND CEF_COMPILER_DEFINES
+    CEF_API_VERSION=CEF_API_VERSION_LAST
+  )
 endif()
 
 
