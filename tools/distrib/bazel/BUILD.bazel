@@ -114,7 +114,21 @@ declare_cc_library(
     ),
     defines = [
         "WRAPPING_CEF_SHARED",
-    ],
+    ] + select({
+        # On Windows the client DLL is loaded by bootstrap.exe, which uses the
+        # installer's vmin-based version selection to pick a libcef.dll. The
+        # experimental (unversioned) API is not back/forward compatible across
+        # CEF versions and does not bump the version number, so vmin selection
+        # cannot work safely against it. Default to the last released API
+        # version instead, which is forward-compatible with newer libcef.dll
+        # binaries (via API backwards compatibility). This is propagated to
+        # cef_wrapper and every target that links it, so the wrapper and all
+        # client DLLs build against a consistent API version. Other platforms
+        # link libcef directly (no bootstrap/installer) and keep the
+        # experimental default.
+        "@platforms//os:windows": ["CEF_API_VERSION=CEF_API_VERSION_LAST"],
+        "//conditions:default": [],
+    }),
 )
 
 declare_objc_library(

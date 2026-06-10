@@ -11,6 +11,14 @@
 #include "tests/ceftests/test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
+// The ax_viewport_collapse browser setting and SetAxViewportCollapse() used by
+// these tests are experimental (unversioned) API. ceftests_dll (on Windows)
+// builds against CEF_API_VERSION_LAST (see libcef_dll_wrapper_dll), so the
+// entire suite is only meaningful — and only compiles — when building with the
+// experimental API. Guard the whole file rather than individual calls: with the
+// calls merely compiled out, the tests would run but never enable the feature.
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+
 namespace {
 
 // Helper: parse a CDP JSON response into a CefDictionaryValue.
@@ -93,9 +101,7 @@ class AxViewportCollapseTestHandler : public TestHandler {
     AddResource(url_, html_, "text/html");
 
     CefBrowserSettings settings;
-#if CEF_API_ADDED(CEF_EXPERIMENTAL)
     settings.ax_viewport_collapse = collapse_state_;
-#endif
     CreateBrowserWithSettings(url_, settings);
     SetTestTimeout();
   }
@@ -449,9 +455,7 @@ class RuntimeToggleHandler : public AxViewportCollapseTestHandler {
     if (!toggled_) {
       toggled_ = true;
       // Enable viewport collapse at runtime and re-fetch.
-#if CEF_API_ADDED(CEF_EXPERIMENTAL)
       GetBrowser()->GetHost()->SetAxViewportCollapse(true);
-#endif
       // Re-fetch after a short delay to allow prefs to propagate.
       CefPostDelayedTask(
           TID_UI, base::BindOnce(&RuntimeToggleHandler::FetchTreeAgain, this),
@@ -550,9 +554,7 @@ class ZoomedCollapseHandler : public TestHandler {
     AddResource(kZoomTestUrl, kZoomTestHtml, "text/html");
 
     CefBrowserSettings settings;
-#if CEF_API_ADDED(CEF_EXPERIMENTAL)
     settings.ax_viewport_collapse = STATE_ENABLED;
-#endif
     CreateBrowserWithSettings(kZoomTestUrl, settings);
     SetTestTimeout();
   }
@@ -694,9 +696,7 @@ class QueryAXTreeHandler : public TestHandler {
     AddResource(kTestUrl, kTestHtml, "text/html");
 
     CefBrowserSettings settings;
-#if CEF_API_ADDED(CEF_EXPERIMENTAL)
     settings.ax_viewport_collapse = STATE_ENABLED;
-#endif
     CreateBrowserWithSettings(kTestUrl, settings);
     SetTestTimeout();
   }
@@ -815,9 +815,7 @@ class AgenticWorkflowHandler : public TestHandler {
     AddResource(kTestUrl, kTestHtml, "text/html");
 
     CefBrowserSettings settings;
-#if CEF_API_ADDED(CEF_EXPERIMENTAL)
     settings.ax_viewport_collapse = STATE_ENABLED;
-#endif
     CreateBrowserWithSettings(kTestUrl, settings);
     SetTestTimeout();
   }
@@ -1055,3 +1053,5 @@ TEST(AxViewportCollapseTest, AgenticWorkflow) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
+
+#endif  // CEF_API_ADDED(CEF_EXPERIMENTAL)
