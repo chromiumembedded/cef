@@ -1663,6 +1663,68 @@ void SetupRedirectGetRequest(RedirectMode mode,
 CORS_TEST_REDIRECT_GET_ALL(302, MODE_302)
 CORS_TEST_REDIRECT_GET_ALL(307, MODE_307)
 
+// Regression test for a renderer-initiated subresource request that hits
+// an HTTP redirect.
+namespace {
+
+// Unlike the RedirectGet* tests (which redirect a top-level, browser-initiated
+// navigation), this issues a renderer-initiated subresource request (XHR/fetch)
+// to a URL that returns a redirect. On redirect CEF restarts the request
+// through the URLLoaderFactory (see InterceptedRequest::FollowRedirect ->
+// Restart), carrying the network-service-managed Sec-Fetch-* headers populated
+// on the prior hop. CorsURLLoaderFactory::IsValidRequest then rejected those
+// renderer-forbidden headers via mojo::ReportBadMessage
+// (kRestrictForbiddenSecurityHeaders, enabled by default), tearing down the
+// renderer. Browser-initiated requests skip that check, which is why only a
+// subresource reproduces it. Everything is same-origin so no CORS
+// headers/preflight are needed; the check rejects any Sec-Fetch-Site value.
+void SetupExecRedirectRequest(ExecMode mode,
+                              TestSetup* setup,
+                              const std::string& test_name,
+                              Resource* main_resource,
+                              Resource* redirect_resource,
+                              Resource* target_resource) {
+  const std::string& base_path = "/" + test_name;
+
+  // Final resource the subresource request lands on after the redirect.
+  target_resource->Init(HandlerType::SERVER, base_path + ".target.txt",
+                        kMimeTypeText, kDefaultText);
+
+  // Subresource request returns a redirect to the final resource.
+  redirect_resource->Init(HandlerType::SERVER, base_path + ".sub.txt",
+                          kMimeTypeText, std::string());
+  SetupRedirectResponse(RedirectMode::MODE_302, target_resource->GetPathURL(),
+                        redirect_resource->response);
+
+  // Main page issues the subresource request to the redirecting URL.
+  main_resource->Init(HandlerType::SERVER, base_path, kMimeTypeHtml,
+                      GetExecMainHtml(mode, redirect_resource->GetPathURL()));
+  main_resource->expected_success_query_ct = 1;
+
+  setup->AddResource(main_resource);
+  setup->AddResource(redirect_resource);
+  setup->AddResource(target_resource);
+}
+
+}  // namespace
+
+#define CORS_TEST_EXEC_REDIRECT(test_name, mode)                             \
+  TEST(CorsTest, test_name) {                                                \
+    TestSetup setup;                                                         \
+    Resource resource_main;                                                  \
+    Resource resource_redirect;                                              \
+    Resource resource_target;                                                \
+    SetupExecRedirectRequest(ExecMode::mode, &setup, "CorsTest." #test_name, \
+                             &resource_main, &resource_redirect,             \
+                             &resource_target);                              \
+    CefRefPtr<CorsTestHandler> handler = new CorsTestHandler(&setup);        \
+    handler->ExecuteTest();                                                  \
+    ReleaseAndWaitForDestructor(handler);                                    \
+  }
+
+CORS_TEST_EXEC_REDIRECT(XhrRedirectSubresource, XHR)
+CORS_TEST_EXEC_REDIRECT(FetchRedirectSubresource, FETCH)
+
 namespace {
 
 struct PostResource : CookieResource {
