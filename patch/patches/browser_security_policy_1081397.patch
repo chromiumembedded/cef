@@ -21,7 +21,7 @@ index 685d4379610ef846b55d7bea01fec6cb228672c9..81676d5c5041fb5cdbe0e88e4fc728d5
  
        // Make an exception to allow most visited tiles to commit in third-party
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 9ec42c6dc1c2ce18e448d905087f6ae7fe96d94c..c3fd41529f3c7e11b471aae5b00f93742a5dd336 100644
+index 29e5b435393d50463d0ec4b256523bfcfc6caa79..79f5dea5e1fb7b7827b36985462820548f41b045 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
 @@ -380,8 +380,13 @@ void AddAdditionalRequestHeaders(
@@ -100,7 +100,7 @@ index 9ec42c6dc1c2ce18e448d905087f6ae7fe96d94c..c3fd41529f3c7e11b471aae5b00f9374
    // If the target of this navigation will be rendered in a RenderFrameHost,
    // then verify that the chosen origin is allowed to be accessed from that
 diff --git content/browser/renderer_host/navigation_request.h content/browser/renderer_host/navigation_request.h
-index c6d3ff445da9b044e4392bdc39a80ab5c18c7f88..a7d82593dd7456e683510f1470ceaab2133bc473 100644
+index 0ac8e4c19cf8e87417a00823ab21630fc3b59d3c..cec795591e5b46018ee8d43cd23496acad7b6c94 100644
 --- content/browser/renderer_host/navigation_request.h
 +++ content/browser/renderer_host/navigation_request.h
 @@ -2465,7 +2465,8 @@ class CONTENT_EXPORT NavigationRequest

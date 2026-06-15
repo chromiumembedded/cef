@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 14d519d90d26561826bf45724ef4f07575b7e430..61309ece567766e8a62512d6d5ece79ef88e99a6 100644
+index 3a056cf55d844e9c3f0ac60f393e3cd7a8f3585b..1c153a811cec6408a14a308bb815a5cf850795eb 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -4294,6 +4294,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
@@ -49,7 +49,7 @@ index 14d519d90d26561826bf45724ef4f07575b7e430..61309ece567766e8a62512d6d5ece79e
    // Check whether there is an available prerendered page for this navigation if
    // this is not for guest. If it exists, take WebContents pre-created for
    // hosting the prerendered page instead of creating new WebContents.
-@@ -10402,6 +10421,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -10430,6 +10449,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
    }
  
    CloseListenerManager::DidChangeFocusedFrame(this);
@@ -60,7 +60,7 @@ index 14d519d90d26561826bf45724ef4f07575b7e430..61309ece567766e8a62512d6d5ece79e
  
  FrameTree* WebContentsImpl::GetOwnedDocumentPictureInPictureFrameTree() {
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index e69bf313bb60de731ed16c5f54fd777ae318b7f6..ac993ae582108888c3aab3e04a4771312ac27352 100644
+index 1cc8f74a1386a3611e8fb1324518bd625b1bb837..6d84d8afd3aae6f23720a4f13185922a6e1224b3 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -132,6 +132,7 @@ class PreloadPipelineInfo;
@@ -79,7 +79,7 @@ index e69bf313bb60de731ed16c5f54fd777ae318b7f6..ac993ae582108888c3aab3e04a477131
  class WebUI;
  struct DropData;
  struct GlobalRenderFrameHostId;
-@@ -297,6 +299,10 @@ class WebContents : public PageNavigator, public base::SupportsUserData {
+@@ -298,6 +300,10 @@ class WebContents : public PageNavigator, public base::SupportsUserData {
      network::mojom::WebSandboxFlags starting_sandbox_flags =
          network::mojom::WebSandboxFlags::kNone;
  

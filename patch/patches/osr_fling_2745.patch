@@ -58,10 +58,10 @@ index 79df9203ec3b63fbfb30ceb0c402d7cd4595c628..60abc7b2ac845bc02d03b343719b2ce5
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 056d194abcea3e384d8ec55247e05d90b683d1ae..d6fa8c915d82b644893c0f5a964a67ffbfb359a8 100644
+index 174c5d63b93df2affcdaccf0c4b9c70567cc2bac..34c1212fe18a40eb2790a8a4743f84013ca497f5 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -4010,6 +4010,11 @@ void RenderWidgetHostImpl::StopFling() {
+@@ -4045,6 +4045,11 @@ void RenderWidgetHostImpl::StopFling() {
    GetRenderInputRouter()->StopFling();
  }
  
@@ -74,10 +74,10 @@ index 056d194abcea3e384d8ec55247e05d90b683d1ae..d6fa8c915d82b644893c0f5a964a67ff
      uint16_t angle,
      display::mojom::ScreenOrientation type) {
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 85831a7cbaa05a746e463573f804c11cd32c5fed..08b33597d335eaff69cfe3bde17e08e3dfa47d35 100644
+index 33594fb5f60e52a3ebb6f5fc7362e1a2eb2ed23a..900c3a5c907de6e2ca52f6f7b79c707c96c34041 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -881,6 +881,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -885,6 +885,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();

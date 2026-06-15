@@ -162,7 +162,7 @@ index 5ef79ef4e8bbadb7ad52fcb94f994e3f7b856d19..9bb9b09c7508ce8140088d523336ff29
      ]
      allow_circular_includes_from += [ "//chrome/browser/printing:impl" ]
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index 3521bf9555a6add475e8f5c66adc277838e6b25b..c0e93d65eaeb415e7879e91457acd3bc40c0e747 100644
+index 98009e1085121003e77554f0dc397e8aa56547f5..634b1398f54c6fe2cb195d29ec22b7fee7161b1e 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -301,6 +301,25 @@

@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 5a5825425a2a39e055173b2a5f5dbf9dbe3da7c2..e4b74cabee0df4444063fce345bb7f1e99d945fd 100644
+index 71e73d5edc7849fcde6e63027e9d11e46ca88db7..6475ba5f7e0d7f616a0c066f39716dce238ae53f 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -8,6 +8,7 @@
@@ -10,7 +10,7 @@ index 5a5825425a2a39e055173b2a5f5dbf9dbe3da7c2..e4b74cabee0df4444063fce345bb7f1e
  #include <utility>
  
  #include "base/auto_reset.h"
-@@ -54,6 +55,7 @@
+@@ -55,6 +56,7 @@
  #include "content/public/browser/content_browser_client.h"
  #include "content/public/browser/device_service.h"
  #include "content/public/browser/render_view_host.h"
@@ -18,7 +18,7 @@ index 5a5825425a2a39e055173b2a5f5dbf9dbe3da7c2..e4b74cabee0df4444063fce345bb7f1e
  #include "content/public/common/page_visibility_state.h"
  #include "services/service_manager/public/cpp/interface_provider.h"
  #include "third_party/blink/public/common/input/web_input_event.h"
-@@ -829,6 +831,9 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() {
+@@ -858,6 +860,9 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() {
  void RenderWidgetHostViewAura::UpdateBackgroundColor() {
    CHECK(GetBackgroundColor());
  
@@ -28,7 +28,7 @@ index 5a5825425a2a39e055173b2a5f5dbf9dbe3da7c2..e4b74cabee0df4444063fce345bb7f1e
    SkColor color = *GetBackgroundColor();
    window_->layer()->SetColor(color);
  }
-@@ -1209,6 +1214,12 @@ void RenderWidgetHostViewAura::TransformPointToRootSurface(gfx::PointF* point) {
+@@ -1245,6 +1250,12 @@ void RenderWidgetHostViewAura::TransformPointToRootSurface(gfx::PointF* point) {
  }
  
  gfx::Rect RenderWidgetHostViewAura::GetBoundsInRootWindow() {
@@ -41,7 +41,7 @@ index 5a5825425a2a39e055173b2a5f5dbf9dbe3da7c2..e4b74cabee0df4444063fce345bb7f1e
    aura::Window* top_level = window_->GetToplevelWindow();
    gfx::Rect bounds(top_level->GetBoundsInScreen());
  
-@@ -2869,6 +2880,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -2905,6 +2916,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    window_->layer()->SetColor(GetBackgroundColor() ? *GetBackgroundColor()
                                                    : SK_ColorWHITE);
    UpdateFrameSinkIdRegistration();

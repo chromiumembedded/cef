@@ -201,7 +201,7 @@ index 97956c6cab51909edc1696f1905131187eec64ce..0dde172f862d6f3845cdf6c5c986e820
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 965389e40216e4050bb0234974d2fe32020395aa..4e9168cc98d6b6e4173edec01c5c69b84b53c108 100644
+index bcb1930a86dd2eb4b5adca46bf67e3c02af124f5..c49fae523643db3cdeebe16f766d6ac4cf40b032 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -840,11 +840,21 @@ class BrowserView::ExclusiveAccessContextImpl
@@ -341,7 +341,7 @@ index 965389e40216e4050bb0234974d2fe32020395aa..4e9168cc98d6b6e4173edec01c5c69b8
    if (auto* download_controller =
            DownloadToolbarUIController::From(browser_.get())) {
      return download_controller->bubble_controller();
-@@ -4054,7 +4111,10 @@ bool BrowserView::GetSavedWindowPlacement(
+@@ -4056,7 +4113,10 @@ bool BrowserView::GetSavedWindowPlacement(
  }
  
  views::View* BrowserView::GetContentsView() {
@@ -353,7 +353,7 @@ index 965389e40216e4050bb0234974d2fe32020395aa..4e9168cc98d6b6e4173edec01c5c69b8
  }
  
  views::ClientView* BrowserView::CreateClientView(views::Widget* widget) {
-@@ -4219,9 +4279,22 @@ void BrowserView::DeleteBrowserWindow() {
+@@ -4221,9 +4281,22 @@ void BrowserView::DeleteBrowserWindow() {
    // before the frame is destroyed to mitigate UAF risk.
    browser_widget_->SaveWindowPlacementIfNeeded();
  
@@ -379,7 +379,7 @@ index 965389e40216e4050bb0234974d2fe32020395aa..4e9168cc98d6b6e4173edec01c5c69b8
  }
  
  void BrowserView::SetForceShowBookmarkBarFlag(
-@@ -4530,11 +4603,36 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+@@ -4532,11 +4605,36 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
  bool BrowserView::ShouldDescendIntoChildForEventHandling(
      gfx::NativeView child,
      const gfx::Point& location) {
@@ -418,7 +418,7 @@ index 965389e40216e4050bb0234974d2fe32020395aa..4e9168cc98d6b6e4173edec01c5c69b8
      // Draggable regions are defined relative to the web contents.
      gfx::Point point_in_contents_web_view_coords(location);
      views::View::ConvertPointToTarget(GetWidget()->GetRootView(),
-@@ -4543,9 +4641,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+@@ -4545,9 +4643,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
  
      // Draggable regions should be ignored for clicks into any browser view's
      // owned widgets, for example alerts, permission prompts or find bar.
@@ -430,7 +430,7 @@ index 965389e40216e4050bb0234974d2fe32020395aa..4e9168cc98d6b6e4173edec01c5c69b8
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
    }
  
-@@ -4840,7 +4937,8 @@ void BrowserView::Layout(PassKey) {
+@@ -4842,7 +4939,8 @@ void BrowserView::Layout(PassKey) {
    LayoutSuperclass<views::View>(this);
  
    // TODO(jamescook): Why was this in the middle of layout code?
@@ -440,7 +440,7 @@ index 965389e40216e4050bb0234974d2fe32020395aa..4e9168cc98d6b6e4173edec01c5c69b8
    GetFrameView()->UpdateMinimumSize();
  
    // Some of the situations when the BrowserView is laid out are:
-@@ -5076,6 +5174,13 @@ void BrowserView::AddedToWidget() {
+@@ -5078,6 +5176,13 @@ void BrowserView::AddedToWidget() {
    dialog_anchor_ = std::make_unique<views::ViewSubregionAnchor>(
        kBrowserDialogAnchorElementId, *this);
  
@@ -947,10 +947,10 @@ index e260c511facc4d963ab8321f013e12879f3ab0e6..2f5550630482d5297eb22d8b3f981251
        case PageActionIconType::kBookmarkStar:
          add_page_action_icon(type, std::make_unique<StarView>(
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 0089be5050e114497955bd70591676460d6b17bf..95b32e0e53027a952992162476663825bf225a1e 100644
+index 9bdbc454ec0be7cef5fb98738abf1a5b9983f4ad..5f49e49c4a5282678deea4a358a65fbd1a7c7402 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
-@@ -248,12 +248,14 @@ bool IsPositionInWindowCaptionForView(const views::View* view,
+@@ -249,12 +249,14 @@ bool IsPositionInWindowCaptionForView(const views::View* view,
  
  DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(ToolbarView, kToolbarElementId);
  
@@ -967,7 +967,7 @@ index 0089be5050e114497955bd70591676460d6b17bf..95b32e0e53027a952992162476663825
    // WebApp type-browsers set their own ToolbarButtonProvider.
    if (!web_app::AppBrowserController::IsWebApp(browser)) {
      scoped_unowned_user_data_.emplace(browser_->GetUnownedUserDataHost(),
-@@ -301,9 +303,24 @@ ToolbarView::~ToolbarView() {
+@@ -302,9 +304,24 @@ ToolbarView::~ToolbarView() {
    if (glic_nudge_controller) {
      glic_nudge_controller->SetToolbarDelegate(/*delegate=*/nullptr);
    }
@@ -992,7 +992,7 @@ index 0089be5050e114497955bd70591676460d6b17bf..95b32e0e53027a952992162476663825
  #if defined(USE_AURA)
    // Avoid generating too many occlusion tracking calculation events before this
    // function returns. The occlusion status will be computed only once once this
-@@ -323,7 +340,8 @@ void ToolbarView::Init() {
+@@ -324,7 +341,8 @@ void ToolbarView::Init() {
    } else {
      location_bar_view = std::make_unique<LocationBarView>(
          browser_, browser_->profile(), browser_->command_controller(), this,
@@ -1002,7 +1002,7 @@ index 0089be5050e114497955bd70591676460d6b17bf..95b32e0e53027a952992162476663825
    }
  
    // Make sure the toolbar shows by default.
-@@ -396,9 +414,11 @@ void ToolbarView::Init() {
+@@ -397,9 +415,11 @@ void ToolbarView::Init() {
  
    std::unique_ptr<MediaToolbarButtonView> media_button;
  #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
@@ -1017,7 +1017,7 @@ index 0089be5050e114497955bd70591676460d6b17bf..95b32e0e53027a952992162476663825
  #endif
  
    // Always add children in order from left to right, for accessibility.
-@@ -503,7 +523,7 @@ void ToolbarView::Init() {
+@@ -504,7 +524,7 @@ void ToolbarView::Init() {
    }
  
    if (!base::FeatureList::IsEnabled(tabs::kHorizontalTabStripComboButton) &&
@@ -1026,7 +1026,7 @@ index 0089be5050e114497955bd70591676460d6b17bf..95b32e0e53027a952992162476663825
      CHECK(!features::IsWebUIPinnedToolbarActionsEnabled())
          << "WebUIPinnedToolbarActions does not support "
             "CreatePermanentButtonFor, consider enabling "
-@@ -538,7 +558,8 @@ void ToolbarView::Init() {
+@@ -539,7 +559,8 @@ void ToolbarView::Init() {
  
    // Only show the Battery Saver button when it is not controlled by the OS. On
    // ChromeOS the battery icon in the shelf shows the same information.
@@ -1036,7 +1036,7 @@ index 0089be5050e114497955bd70591676460d6b17bf..95b32e0e53027a952992162476663825
      battery_saver_button_ =
          AddChildView(std::make_unique<BatterySaverButton>(browser_view_));
    }
-@@ -593,7 +614,7 @@ void ToolbarView::Init() {
+@@ -596,7 +617,7 @@ void ToolbarView::Init() {
                                   browser_->profile()->IsGuestSession() ||
                                   browser_->profile()->IsRegularProfile();
  #endif

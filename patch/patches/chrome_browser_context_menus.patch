@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index a59355f5b2afe59ebad90f06a29b7d9ab96085cd..1520327a12eef1d7443edaeb62f1625feeb2c38a 100644
+index 556579d8e4cec6670e0a383e5b7e4bfc473a3fe3..1eee9e67c7150a32dd0db5405d847bd97a6e3c6f 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -430,6 +430,18 @@ ui::ImageModel GetLensContextMenuIcon() {
@@ -60,7 +60,7 @@ index a59355f5b2afe59ebad90f06a29b7d9ab96085cd..1520327a12eef1d7443edaeb62f1625f
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3775,6 +3805,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
+@@ -3776,6 +3806,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
    observers_.RemoveObserver(observer);
  }
  
@@ -88,7 +88,7 @@ index a59355f5b2afe59ebad90f06a29b7d9ab96085cd..1520327a12eef1d7443edaeb62f1625f
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index 86ad3be13a2bf4cb8eb57651a4057372c5cc7d9c..9bfc68eb44514cd6e79ad4271902b583da1a0ecf 100644
+index 81a03cb08e2ec93e17bb03533dceaa1521485b03..d03335ed36c60d31f6dc533d5ffd663d4bad9d39 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
 @@ -164,7 +164,21 @@ class RenderViewContextMenu
@@ -113,7 +113,7 @@ index 86ad3be13a2bf4cb8eb57651a4057372c5cc7d9c..9bfc68eb44514cd6e79ad4271902b583
    Profile* GetProfile() const;
  
    // This may return nullptr (e.g. for WebUI dialogs). Virtual to allow tests to
-@@ -515,6 +529,9 @@ class RenderViewContextMenu
+@@ -516,6 +530,9 @@ class RenderViewContextMenu
    // Video frame sub-menu handling.
    ui::SimpleMenuModel video_frame_submenu_model_;
  

@@ -258,7 +258,7 @@ index aeaf8e35f7eda89598149117fe8508d197bf2610..4b7cc3f03d3cf9c91ac8efe11ae820cf
 +  [MinVersion=1] kEnd = 7,
  };
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
-index 2459a05b3caadbe1e8c024e8cf0044b01761e1dd..2ae6fc1b9a8fe7bbc6a4ac9835df42dc2e8239aa 100644
+index 57ffaee839fc4e496628ce191434e12a674e9ee6..b4d401620d4081c84ee27307ec2a628c95da2f21 100644
 --- ui/ozone/platform/x11/x11_window.cc
 +++ ui/ozone/platform/x11/x11_window.cc
 @@ -1943,7 +1943,17 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
@@ -373,7 +373,7 @@ index d440180f99339d3d9da1468ad0e5bf07a141c220..f4f7b69b2d843b8caf6edaef5312fe46
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index 0254e2ddad745b5d7b16fd9d7514cf7eb7e0e6a8..6f5e7665c2c50a7bde07b2865269755548506f5e 100644
+index b278856ee5f851560e4090afffb4f6d15ec5ad1d..e8ef7e9f7e8b9da20fd3326dda0691a5863f2368 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 @@ -281,8 +281,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
@@ -388,7 +388,7 @@ index 0254e2ddad745b5d7b16fd9d7514cf7eb7e0e6a8..6f5e7665c2c50a7bde07b28652697555
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 4c1c0c60b69f1a0ee7f98e03e6d8d2ca05645b0a..2d215b26b5ebf0e4dd44ac5619fab3e9ccbee3d6 100644
+index dd47a8ba7ca36f6a949056d6935fd982cf805b5b..11e917ac015f6324519733b6446965bea82f62f8 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -27,6 +27,7 @@
@@ -399,7 +399,7 @@ index 4c1c0c60b69f1a0ee7f98e03e6d8d2ca05645b0a..2d215b26b5ebf0e4dd44ac5619fab3e9
  #include "ui/aura/window_event_dispatcher.h"
  #include "ui/base/class_property.h"
  #include "ui/base/cursor/cursor.h"
-@@ -184,17 +185,30 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
+@@ -188,17 +189,30 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
                          native_widget_delegate_.get());
  
    HWND parent_hwnd = nullptr;
@@ -434,7 +434,7 @@ index 4c1c0c60b69f1a0ee7f98e03e6d8d2ca05645b0a..2d215b26b5ebf0e4dd44ac5619fab3e9
    message_handler_->Init(parent_hwnd, pixel_bounds);
  
    if (ShouldAddDWMBackdrop()) {
-@@ -219,6 +233,13 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
+@@ -223,6 +237,13 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
    InitHost();
    window()->Show();
  
@@ -448,7 +448,7 @@ index 4c1c0c60b69f1a0ee7f98e03e6d8d2ca05645b0a..2d215b26b5ebf0e4dd44ac5619fab3e9
    // Stack immediately above its parent so that it does not cover other
    // root-level windows, with the exception of menus, to allow them to be
    // displayed on top of other windows.
-@@ -1195,6 +1216,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
+@@ -1203,6 +1224,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
  
    if (restored) {
      window()->Show();
@@ -467,7 +467,7 @@ index 4c1c0c60b69f1a0ee7f98e03e6d8d2ca05645b0a..2d215b26b5ebf0e4dd44ac5619fab3e9
    } else {
      window()->Hide();
    }
-@@ -1216,11 +1249,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -1224,11 +1257,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -487,7 +487,7 @@ index 4c1c0c60b69f1a0ee7f98e03e6d8d2ca05645b0a..2d215b26b5ebf0e4dd44ac5619fab3e9
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
-@@ -1229,6 +1268,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+@@ -1237,6 +1276,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
      return true;
    }
  
@@ -500,7 +500,7 @@ index 4c1c0c60b69f1a0ee7f98e03e6d8d2ca05645b0a..2d215b26b5ebf0e4dd44ac5619fab3e9
    SendEventToSink(event);
    return event->handled();
  }
-@@ -1428,9 +1473,18 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
+@@ -1436,9 +1481,18 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
    // positions in variable-DPI situations. See https://crbug.com/1224715 for
    // details.
    aura::Window* root = nullptr;
@@ -521,10 +521,10 @@ index 4c1c0c60b69f1a0ee7f98e03e6d8d2ca05645b0a..2d215b26b5ebf0e4dd44ac5619fab3e9
  }
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index a389e96de45c8a380e4db23821feb396dab9bcbb..77df8999551a8a294a151af9999584990840939c 100644
+index 9e59fc99f828e05ca53190c5efbb3b4149441853..fd14479fce2a9cfba62fb7e13f797166295576d3 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-@@ -351,6 +351,17 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
+@@ -354,6 +354,17 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
    // True if the window is allow to take screenshots, by default is true.
    bool allow_screenshots_ = true;
  
@@ -687,7 +687,7 @@ index 56ed7cad8652cf57e597bb7f369e9e659ea6ed4d..e5f68885fa41fc9da62e746ca790816b
  
        if (native_widget_delegate->IsDialogBox()) {
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index b441e5faec6f74bf7cefb435a8b9c947ba2223ba..4f471eb611ff272fd8656cdd31789809501ea6bb 100644
+index b99956a79597df38f8ce8e7fb9cf377c1123fe73..92f714f8605d422cd49211b76eea1d8407ef6f11 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
 @@ -855,7 +855,11 @@ bool HWNDMessageHandler::IsVisible() const {
@@ -703,7 +703,7 @@ index b441e5faec6f74bf7cefb435a8b9c947ba2223ba..4f471eb611ff272fd8656cdd31789809
  }
  
  bool HWNDMessageHandler::IsMinimized() const {
-@@ -3386,10 +3390,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -3395,10 +3399,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::EventType::kMousewheel) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.
