@@ -1,5 +1,5 @@
 diff --git src/dawn/tests/BUILD.gn src/dawn/tests/BUILD.gn
-index 35f82ada8837cb0d6756336916af228e0a064cf1..c696ae9e25d9b5511a866972de2ece058778ebbf 100644
+index 56bb653fb9a326dfea6dafd56e8eed43a3a59877..61bfded5b11e5d3bee764b61f29d6ee9c949da62 100644
 --- src/dawn/tests/BUILD.gn
 +++ src/dawn/tests/BUILD.gn
 @@ -173,8 +173,8 @@ if (!dawn_use_built_dxc && build_with_chromium && is_win) {
