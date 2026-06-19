@@ -5,6 +5,7 @@
 #include <windows.h>
 
 #include "include/capi/cef_app_capi.h"
+#include "include/internal/cef_app_win.h"
 #include "include/cef_api_hash.h"
 #include "include/cef_sandbox_win.h"
 #include "tests/cefsimple_capi/simple_app.h"
