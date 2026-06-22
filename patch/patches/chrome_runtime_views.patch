@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index 9dcaf8c51920e6c44f30aa162703bac7dcf8ff2e..a4156c8ee18d67381ae5ec3b32eed09bdd7cc27e 100644
+index edb8718dd6c390b0e6678790b29b143b7ee3a5d5..e1a16faebd1ec12263a8255a4f9c3993dee86729 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
-@@ -611,6 +611,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
+@@ -627,6 +627,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
    // choose to not implement CommandUpdaterDelegate inside this class and
    // therefore command_updater_ doesn't have the delegate set).
    if (!SupportsCommand(id) || !IsCommandEnabled(id)) {
@@ -10,7 +10,7 @@ index 9dcaf8c51920e6c44f30aa162703bac7dcf8ff2e..a4156c8ee18d67381ae5ec3b32eed09b
      return false;
    }
  
-@@ -628,6 +629,13 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
+@@ -644,6 +645,13 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
    DCHECK(command_updater_.IsCommandEnabled(id))
        << "Invalid/disabled command " << id;
  
@@ -24,7 +24,7 @@ index 9dcaf8c51920e6c44f30aa162703bac7dcf8ff2e..a4156c8ee18d67381ae5ec3b32eed09b
    // The order of commands in this switch statement must match the function
    // declaration order in browser.h!
    switch (id) {
-@@ -1577,12 +1585,14 @@ void BrowserCommandController::TabRestoreServiceLoaded(
+@@ -1611,12 +1619,14 @@ void BrowserCommandController::TabRestoreServiceLoaded(
  
  bool BrowserCommandController::IsShowingMainUI() {
    return browser_->SupportsWindowFeature(
@@ -42,10 +42,10 @@ index 9dcaf8c51920e6c44f30aa162703bac7dcf8ff2e..a4156c8ee18d67381ae5ec3b32eed09b
  
  void BrowserCommandController::InitCommandState() {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index b4f1e9a7c87d7c590d7055816c6f9a350d34fad8..75fde84a11ecd8a893733eba3e7c1fe96d4a67e8 100644
+index 03bef40dcd6a835b0e81c99c925680b6fd56d3a1..b1b74645923e1334265921c670c7db732e4d1df3 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
-@@ -873,17 +873,20 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
+@@ -874,17 +874,20 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
    AddItemWithStringIdAndVectorIcon(
        this, IDC_FIND, IDS_FIND,
        features::IsRoundedIconsEnabled() ? kFindInPageIcon : kSearchMenuOldIcon);
@@ -77,7 +77,7 @@ index b4f1e9a7c87d7c590d7055816c6f9a350d34fad8..75fde84a11ecd8a893733eba3e7c1fe9
  }
  
  class SaveAndShareSubMenuModel : public ui::SimpleMenuModel {
-@@ -964,6 +967,57 @@ bool ArePromotionsEnabled() {
+@@ -965,6 +968,57 @@ bool ArePromotionsEnabled() {
    return local_state && local_state->GetBoolean(prefs::kPromotionsEnabled);
  }
  
@@ -135,7 +135,7 @@ index b4f1e9a7c87d7c590d7055816c6f9a350d34fad8..75fde84a11ecd8a893733eba3e7c1fe9
  }  // namespace
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -1991,7 +2045,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+@@ -2011,7 +2065,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
    return false;
  }
  
@@ -144,7 +144,7 @@ index b4f1e9a7c87d7c590d7055816c6f9a350d34fad8..75fde84a11ecd8a893733eba3e7c1fe9
    GlobalError* error =
        GlobalErrorServiceFactory::GetForProfile(browser_->profile())
            ->GetGlobalErrorByMenuItemCommandID(command_id);
-@@ -2007,6 +2061,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+@@ -2027,6 +2081,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
    }
  }
  
@@ -175,7 +175,7 @@ index b4f1e9a7c87d7c590d7055816c6f9a350d34fad8..75fde84a11ecd8a893733eba3e7c1fe9
  bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
    if (command_id == IDC_VIEW_PASSWORDS ||
        command_id == IDC_SHOW_PASSWORD_MANAGER) {
-@@ -2201,8 +2279,10 @@ void AppMenuModel::Build() {
+@@ -2221,8 +2299,10 @@ void AppMenuModel::Build() {
    SetElementIdentifierAt(GetIndexOfCommandId(IDC_CLEAR_BROWSING_DATA).value(),
                           kClearBrowsingDataMenuItem);
  
@@ -188,7 +188,7 @@ index b4f1e9a7c87d7c590d7055816c6f9a350d34fad8..75fde84a11ecd8a893733eba3e7c1fe9
    AddSeparator(ui::NORMAL_SEPARATOR);
  
    AddItemWithStringIdAndVectorIcon(
-@@ -2330,6 +2410,11 @@ void AppMenuModel::Build() {
+@@ -2350,6 +2430,11 @@ void AppMenuModel::Build() {
    }
  #endif  // !BUILDFLAG(IS_CHROMEOS)
  
@@ -968,7 +968,7 @@ index 62faedd223b3208ab37cb419d1389d3e45f70b00..5ebfec8cf4bb29f227efd12438455c9e
        case PageActionIconType::kBookmarkStar:
          add_page_action_icon(type, std::make_unique<StarView>(
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 944b96c3c4c2ea4a8a1ab7d9db8deb722c2f564b..3e82aa37758f609534f21c51dca35c5d9ea2a6eb 100644
+index 9f1ad065ba766c0991bf34845ea597bcd33838a5..aabf5879c130855234dd8d3a16c944a16fabcece 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -250,12 +250,14 @@ bool IsPositionInWindowCaptionForView(const views::View* view,
@@ -1038,7 +1038,7 @@ index 944b96c3c4c2ea4a8a1ab7d9db8deb722c2f564b..3e82aa37758f609534f21c51dca35c5d
  #endif
  
    // Always add children in order from left to right, for accessibility.
-@@ -508,7 +528,7 @@ void ToolbarView::Init() {
+@@ -502,7 +522,7 @@ void ToolbarView::Init() {
    }
  
    if (!base::FeatureList::IsEnabled(tabs::kHorizontalTabStripComboButton) &&
@@ -1047,7 +1047,7 @@ index 944b96c3c4c2ea4a8a1ab7d9db8deb722c2f564b..3e82aa37758f609534f21c51dca35c5d
      CHECK(!features::IsWebUIPinnedToolbarActionsEnabled())
          << "WebUIPinnedToolbarActions does not support "
             "CreatePermanentButtonFor, consider enabling "
-@@ -544,7 +564,8 @@ void ToolbarView::Init() {
+@@ -538,7 +558,8 @@ void ToolbarView::Init() {
    // Only show the Battery Saver button when it is not controlled by the OS. On
    // ChromeOS the battery icon in the shelf shows the same information.
    if (!performance_manager::user_tuning::IsBatterySaverModeManagedByOS() &&
@@ -1057,7 +1057,7 @@ index 944b96c3c4c2ea4a8a1ab7d9db8deb722c2f564b..3e82aa37758f609534f21c51dca35c5d
      battery_saver_button_ =
          AddChildView(std::make_unique<BatterySaverButton>(browser_view_));
    }
-@@ -609,7 +630,7 @@ void ToolbarView::Init() {
+@@ -603,7 +624,7 @@ void ToolbarView::Init() {
                                   browser_->profile()->IsGuestSession() ||
                                   browser_->profile()->IsRegularProfile();
  #endif

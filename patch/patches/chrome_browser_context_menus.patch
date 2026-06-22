@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index c4b64fd2122480d3548d4b4e9c07034038071eba..b0264f74daec70c744e5575f65bff800ddfe0e3e 100644
+index 128c6d541cd38c02dc1d82a8f4536eb350e0d61e..ec3e94eec7a77167ded352df67e99a518c87ec19 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -442,6 +442,18 @@ ui::ImageModel GetLensContextMenuIcon() {
@@ -47,7 +47,7 @@ index c4b64fd2122480d3548d4b4e9c07034038071eba..b0264f74daec70c744e5575f65bff800
    observers_.AddObserver(&autofill_context_menu_manager_);
  }
  
-@@ -1488,6 +1512,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1486,6 +1510,12 @@ void RenderViewContextMenu::InitMenu() {
        AppendReadAnythingItem();
      }
    }
@@ -60,7 +60,7 @@ index c4b64fd2122480d3548d4b4e9c07034038071eba..b0264f74daec70c744e5575f65bff800
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -4139,6 +4169,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
+@@ -4137,6 +4167,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
    observers_.RemoveObserver(observer);
  }
  

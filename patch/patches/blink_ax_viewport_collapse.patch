@@ -94,10 +94,10 @@ index 5bd6021e84c185f934df099d17964e8ff3a222f1..46023122cfeb4baeae38f0bbf9e51bad
    void SetTextTrackKindUserPreference(TextTrackKindUserPreference) override;
    void SetTextTrackBackgroundColor(const WebString&) override;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index eb8ca629c5544149e703987960c5acc9eb39e0ad..9c42b7de205b273233e72b6e827540858d7ae3a6 100644
+index 8e36f79f7004418abcfc0388668337b5b0550fb6..761c8025929846fd3e97324da57506a833080e7e 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -1807,6 +1807,8 @@ void WebView::ApplyWebPreferences(const web_pref::WebPreferences& prefs,
+@@ -1808,6 +1808,8 @@ void WebView::ApplyWebPreferences(const web_pref::WebPreferences& prefs,
    settings->SetForceDarkModeEnabled(prefs.force_dark_mode_enabled);
  
    settings->SetAccessibilityAlwaysShowFocus(prefs.always_show_focus);

@@ -109,7 +109,7 @@ index 1e83621e54e8c018ba6c5ca8382b2cec2d6921da..a0e8aec2667278ae60e6613eae9165fc
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 2ef753e1dd31d3a8a802ea4ed6c8813b26e4cae7..ae2befb17463bea0feac5f68f5b600d60ff38f6a 100644
+index b669d4f3ee5f390b5b30ea4343b0cf082b72ac02..d1686e048b8ea72fe7bebb6e8bd245d5b36f353d 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
@@ -153,7 +153,7 @@ index 2ef753e1dd31d3a8a802ea4ed6c8813b26e4cae7..ae2befb17463bea0feac5f68f5b600d6
    if (!is_android) {
      deps += [
        "//chrome/browser/ui/views/relaunch_notification",
-@@ -5255,6 +5268,7 @@ static_library("ui") {
+@@ -5256,6 +5269,7 @@ static_library("ui") {
        "//chrome/browser/printing",
        "//chrome/browser/printing:impl",
        "//components/printing/browser",
@@ -786,7 +786,7 @@ index 7f27b5b35936698f6c9962b1c88001589e5c3c54..82304597a7e51e118306f8cb79532b9e
    }
  
 diff --git chrome/browser/ui/browser_window/internal/browser_window_features.cc chrome/browser/ui/browser_window/internal/browser_window_features.cc
-index 7d5ad263bf0bcf7042f2dbd9317a8b3e6bf7e841..90ae8d7a57149cfc85bfb26a7c28a7a7573525a4 100644
+index 77f5a0e8f494a09af68601bd55794bdfa1a28023..41cc4acb96e969e8c04667e8e2bce3ff0cf0eba7 100644
 --- chrome/browser/ui/browser_window/internal/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/internal/browser_window_features.cc
 @@ -238,6 +238,15 @@
@@ -805,7 +805,7 @@ index 7d5ad263bf0bcf7042f2dbd9317a8b3e6bf7e841..90ae8d7a57149cfc85bfb26a7c28a7a7
  void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
    // This is used only for the controllers which will be created on demand
    // later.
-@@ -607,6 +616,9 @@ void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
+@@ -605,6 +614,9 @@ void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
  
  void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
    Profile* const profile = browser_->GetProfile();
@@ -815,7 +815,7 @@ index 7d5ad263bf0bcf7042f2dbd9317a8b3e6bf7e841..90ae8d7a57149cfc85bfb26a7c28a7a7
    BrowserView* const browser_view =
        BrowserView::GetBrowserViewForBrowser(browser);
    WebUIBrowserWindow* const webui_browser_window =
-@@ -679,7 +691,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -677,7 +689,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
    // Features that are only enabled for normal browser windows (e.g. a window
    // with an omnibox and a tab strip). By default most features should be
    // instantiated in this block.
@@ -824,7 +824,7 @@ index 7d5ad263bf0bcf7042f2dbd9317a8b3e6bf7e841..90ae8d7a57149cfc85bfb26a7c28a7a7
      if (IsChromeLabsEnabled()) {
        chrome_labs_coordinator_ =
            GetUserDataFactory().CreateInstance<ChromeLabsCoordinator>(*browser,
-@@ -823,7 +835,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -821,7 +833,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
        browser, browser->GetTabStripModel(), profile, browser->GetWindow(),
        browser->GetType(), browser->app_name(), browser->GetSessionID());
  
@@ -833,7 +833,7 @@ index 7d5ad263bf0bcf7042f2dbd9317a8b3e6bf7e841..90ae8d7a57149cfc85bfb26a7c28a7a7
      toast_service_ = std::make_unique<ToastService>(browser);
    }
  
-@@ -921,7 +933,9 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -919,7 +931,9 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
        std::make_unique<extensions::ExtensionSidePanelManager>(
            browser_view->browser(), side_panel_registry_.get());
  
@@ -844,7 +844,7 @@ index 7d5ad263bf0bcf7042f2dbd9317a8b3e6bf7e841..90ae8d7a57149cfc85bfb26a7c28a7a7
      glic::GlicKeyedService* glic_service =
          glic::GlicKeyedService::Get(browser_view->GetProfile());
      if (glic_service) {
-@@ -990,16 +1004,6 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -988,16 +1002,6 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
      }
    }
  
@@ -861,7 +861,7 @@ index 7d5ad263bf0bcf7042f2dbd9317a8b3e6bf7e841..90ae8d7a57149cfc85bfb26a7c28a7a7
  #if !BUILDFLAG(IS_CHROMEOS)
    download_toolbar_ui_controller_ =
        GetUserDataFactory().CreateInstance<DownloadToolbarUIController>(
-@@ -1051,6 +1055,38 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -1049,6 +1053,38 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
        browser_view);
  }
  
