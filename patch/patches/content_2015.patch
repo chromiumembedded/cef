@@ -68,7 +68,7 @@ index af4d058d85c4b760fc08e924650570281a111f8b..20a654f04cc768e41a7be5f83a3f5a98
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 422c3db7d39b51ce034c74ae9f13331cc1882bb5..f68a422d808931280dc4546f9d313e420cebe7e5 100644
+index c113e8849a560990046864281fc6eb5e262d82b8..92a9fcbb2ee7fd8190f7b4d75b15fca1c4b82ac4 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -1417,6 +1417,12 @@ class CONTENT_EXPORT ContentBrowserClient {
@@ -84,7 +84,7 @@ index 422c3db7d39b51ce034c74ae9f13331cc1882bb5..f68a422d808931280dc4546f9d313e42
    // Allows the embedder to return a delegate for the SpeechRecognitionManager.
    // The delegate will be owned by the manager. It's valid to return nullptr.
    virtual SpeechRecognitionManagerDelegate*
-@@ -2262,7 +2268,7 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2263,7 +2269,7 @@ class CONTENT_EXPORT ContentBrowserClient {
    //
    // If |relative_partition_path| is the empty string, it means this needs to
    // create the default NetworkContext for the BrowserContext.
@@ -93,7 +93,7 @@ index 422c3db7d39b51ce034c74ae9f13331cc1882bb5..f68a422d808931280dc4546f9d313e42
        BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -2515,6 +2521,22 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2516,6 +2522,22 @@ class CONTENT_EXPORT ContentBrowserClient {
        const net::IsolationInfo& isolation_info,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -116,7 +116,7 @@ index 422c3db7d39b51ce034c74ae9f13331cc1882bb5..f68a422d808931280dc4546f9d313e42
    // Creates an OverlayWindow to be used for video or Picture-in-Picture.
    // This window will house the content shown when in Picture-in-Picture mode.
    // This will return a new OverlayWindow.
-@@ -2585,6 +2607,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2586,6 +2608,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  
