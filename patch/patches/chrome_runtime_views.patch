@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index edb8718dd6c390b0e6678790b29b143b7ee3a5d5..e1a16faebd1ec12263a8255a4f9c3993dee86729 100644
+index f5831f33b9fd1c7d1c4338d9a096b7141d7bc95e..a02fa279c73a9c0e32ab49c95138803c218266ca 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
-@@ -627,6 +627,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
+@@ -617,6 +617,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
    // choose to not implement CommandUpdaterDelegate inside this class and
    // therefore command_updater_ doesn't have the delegate set).
    if (!SupportsCommand(id) || !IsCommandEnabled(id)) {
@@ -10,7 +10,7 @@ index edb8718dd6c390b0e6678790b29b143b7ee3a5d5..e1a16faebd1ec12263a8255a4f9c3993
      return false;
    }
  
-@@ -644,6 +645,13 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
+@@ -634,6 +635,13 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
    DCHECK(command_updater_.IsCommandEnabled(id))
        << "Invalid/disabled command " << id;
  
@@ -24,7 +24,7 @@ index edb8718dd6c390b0e6678790b29b143b7ee3a5d5..e1a16faebd1ec12263a8255a4f9c3993
    // The order of commands in this switch statement must match the function
    // declaration order in browser.h!
    switch (id) {
-@@ -1611,12 +1619,14 @@ void BrowserCommandController::TabRestoreServiceLoaded(
+@@ -1601,12 +1609,14 @@ void BrowserCommandController::TabRestoreServiceLoaded(
  
  bool BrowserCommandController::IsShowingMainUI() {
    return browser_->SupportsWindowFeature(
@@ -42,7 +42,7 @@ index edb8718dd6c390b0e6678790b29b143b7ee3a5d5..e1a16faebd1ec12263a8255a4f9c3993
  
  void BrowserCommandController::InitCommandState() {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index 03bef40dcd6a835b0e81c99c925680b6fd56d3a1..b1b74645923e1334265921c670c7db732e4d1df3 100644
+index 44cc2b51c48a2249a392de772d898be1688fa719..0032c2a24b15dabffd62e53d807c08bff39f6b6b 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
 @@ -874,17 +874,20 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
@@ -135,7 +135,7 @@ index 03bef40dcd6a835b0e81c99c925680b6fd56d3a1..b1b74645923e1334265921c670c7db73
  }  // namespace
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -2011,7 +2065,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+@@ -2005,7 +2059,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
    return false;
  }
  
@@ -144,7 +144,7 @@ index 03bef40dcd6a835b0e81c99c925680b6fd56d3a1..b1b74645923e1334265921c670c7db73
    GlobalError* error =
        GlobalErrorServiceFactory::GetForProfile(browser_->profile())
            ->GetGlobalErrorByMenuItemCommandID(command_id);
-@@ -2027,6 +2081,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+@@ -2021,6 +2075,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
    }
  }
  
@@ -175,7 +175,7 @@ index 03bef40dcd6a835b0e81c99c925680b6fd56d3a1..b1b74645923e1334265921c670c7db73
  bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
    if (command_id == IDC_VIEW_PASSWORDS ||
        command_id == IDC_SHOW_PASSWORD_MANAGER) {
-@@ -2221,8 +2299,10 @@ void AppMenuModel::Build() {
+@@ -2215,8 +2293,10 @@ void AppMenuModel::Build() {
    SetElementIdentifierAt(GetIndexOfCommandId(IDC_CLEAR_BROWSING_DATA).value(),
                           kClearBrowsingDataMenuItem);
  
@@ -188,7 +188,7 @@ index 03bef40dcd6a835b0e81c99c925680b6fd56d3a1..b1b74645923e1334265921c670c7db73
    AddSeparator(ui::NORMAL_SEPARATOR);
  
    AddItemWithStringIdAndVectorIcon(
-@@ -2350,6 +2430,11 @@ void AppMenuModel::Build() {
+@@ -2344,6 +2424,11 @@ void AppMenuModel::Build() {
    }
  #endif  // !BUILDFLAG(IS_CHROMEOS)
  
@@ -806,16 +806,16 @@ index fe6e79a6f97fa2cdf5119e19819afc4d834d9313..2160d30da025cf8c8004e9ac93356710
    bool IsBookmarkBarVisible() const override;
    bool IsInfobarVisible() const override;
 diff --git chrome/browser/ui/views/frame/layout/browser_view_layout_impl.cc chrome/browser/ui/views/frame/layout/browser_view_layout_impl.cc
-index 819a780e151bd9c5806e9c147b80cf4ac7159af7..c138e295214fb80c485c446b88a2440f03ad7ca8 100644
+index f8c42164612e147de5dbfcd1441814cca57443c1..42f25e909fd804e02f03dd46922ef9535160e022 100644
 --- chrome/browser/ui/views/frame/layout/browser_view_layout_impl.cc
 +++ chrome/browser/ui/views/frame/layout/browser_view_layout_impl.cc
-@@ -208,10 +208,18 @@ void BrowserViewLayoutImpl::Layout(views::View* host) {
-   }
-   base::AutoReset<bool> guard_reset(&reentrancy_guard_, true);
+@@ -212,10 +212,19 @@ void BrowserViewLayoutImpl::Layout(views::View* host) {
  
+ void BrowserViewLayoutImpl::DoLayout(views::View* host,
+                                      bool include_top_container) {
 -  const auto params =
--      delegate().GetBrowserLayoutParams(/*use_browser_bounds=*/true);
-+  auto params = delegate().GetBrowserLayoutParams(/*use_browser_bounds=*/true);
++  auto params =
+       delegate().GetBrowserLayoutParams(/*use_browser_bounds=*/true);
    if (params.IsEmpty()) {
 -    return;
 +    // Layout params are empty during early initialization (before the frame
@@ -831,7 +831,7 @@ index 819a780e151bd9c5806e9c147b80cf4ac7159af7..c138e295214fb80c485c446b88a2440f
    }
  
    DoPreLayoutComputations(params);
-@@ -320,11 +328,13 @@ void BrowserViewLayoutImpl::DoPostLayoutCleanup() {}
+@@ -372,11 +381,13 @@ void BrowserViewLayoutImpl::DoPostLayoutCleanup() {}
  int BrowserViewLayoutImpl::GetDialogTop(const ProposedLayout& layout) const {
    const int kConstrainedWindowOverlap = 3;
    const auto* const browser_view = views().browser_view.get();

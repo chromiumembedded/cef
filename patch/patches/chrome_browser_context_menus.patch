@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 128c6d541cd38c02dc1d82a8f4536eb350e0d61e..ec3e94eec7a77167ded352df67e99a518c87ec19 100644
+index 055326ebf4431911bc5b941f6fea97c47c974d71..2cad2ba02003a51ecda2ed55434d0ceb0e881b01 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -442,6 +442,18 @@ ui::ImageModel GetLensContextMenuIcon() {
@@ -60,7 +60,7 @@ index 128c6d541cd38c02dc1d82a8f4536eb350e0d61e..ec3e94eec7a77167ded352df67e99a51
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -4137,6 +4167,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
+@@ -4138,6 +4168,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
    observers_.RemoveObserver(observer);
  }
  

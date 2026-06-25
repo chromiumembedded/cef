@@ -1,5 +1,5 @@
 diff --git components/component_updater/component_updater_service.h components/component_updater/component_updater_service.h
-index c16c8bbd9b59b10a7c281a718d97026d7713fe76..5dbb7a21db7f52790dbd1535c41004ecc7cc714c 100644
+index fef371ed043425c23447406153141edcceeee83e..326a487a97e88edd20bd7d0e3f2a8a5b079b4600 100644
 --- components/component_updater/component_updater_service.h
 +++ components/component_updater/component_updater_service.h
 @@ -21,6 +21,7 @@
@@ -16,5 +16,5 @@ index c16c8bbd9b59b10a7c281a718d97026d7713fe76..5dbb7a21db7f52790dbd1535c41004ec
  #endif  // BUILDFLAG(IS_CHROMEOS)
 +  friend class ::CefComponentUpdaterImpl;
    friend class IwaKeyDistributionComponentInstallerPolicy;
+   friend class PlatformRuntimeComponentInstallerPolicy;
  
-   // Triggers an update check for a component. |id| is a value
