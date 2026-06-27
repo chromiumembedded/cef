@@ -8,6 +8,7 @@
 #include "include/base/cef_callback.h"
 #include "include/base/cef_callback_helpers.h"
 #include "include/cef_scheme.h"
+#include "include/test/cef_test_server.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
 #include "tests/ceftests/test_handler.h"
@@ -867,6 +868,225 @@ class DownloadPauseResumeTestHandler : public TestHandler {
 TEST(DownloadTest, PauseResume) {
   CefRefPtr<DownloadPauseResumeTestHandler> handler =
       new DownloadPauseResumeTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+namespace {
+
+// Regression test for issue #3135: a server sends a download whose filename is
+// encoded with a non-UTF-8 charset (GBK/GB18030) in the Content-Disposition
+// header, declares that charset via the Content-Type response header, and does
+// not provide an RFC 5987 "filename*" parameter. CEF must extract the
+// Content-Type charset and pass it to net::GenerateFileName(); otherwise the
+// raw filename bytes cannot be decoded and the suggested filename is garbled.
+//
+// A real CefTestServer is used (rather than a CefResourceHandler) because the
+// raw GBK header bytes must reach the network stack intact. CefResponse's
+// HeaderMap uses CefString, which assumes UTF-8 and would corrupt the bytes
+// before the download parser ever sees them.
+
+// "订单报表_2021-05-25.xls" as UTF-8 (the expected, correctly-decoded name).
+const char kGbkExpectedUtf8FileName[] =
+    "\xe8\xae\xa2\xe5\x8d\x95\xe6\x8a\xa5\xe8\xa1\xa8_2021-05-25.xls";
+
+// "订单报表" encoded as raw GB18030/GBK bytes, as it appears on the wire.
+const char kGbkRawFileNameBytes[] =
+    "\xb6\xa9\xb5\xa5\xb1\xa8\xb1\xed_2021-05-25.xls";
+
+const char kGbkDownloadPath[] = "/order.xls";
+const char kGbkDownloadContent[] = "test";
+
+// Serves the start page and the GBK download response on the dedicated server
+// thread. The download response is sent with raw (non-UTF-8) header bytes.
+class GbkFilenameServerHandler : public CefTestServerHandler {
+ public:
+  GbkFilenameServerHandler() = default;
+
+  GbkFilenameServerHandler(const GbkFilenameServerHandler&) = delete;
+  GbkFilenameServerHandler& operator=(const GbkFilenameServerHandler&) = delete;
+
+  bool OnTestServerRequest(
+      CefRefPtr<CefTestServer> server,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefTestServerConnection> connection) override {
+    const std::string url = request->GetURL();
+    const std::string origin = server->GetOrigin();
+    const std::string path =
+        url.size() >= origin.size() ? url.substr(origin.size()) : url;
+
+    if (path == kGbkDownloadPath) {
+      // Build the raw HTTP response. The Content-Type declares the gb18030
+      // charset and the Content-Disposition carries the raw GBK filename bytes
+      // with no RFC 5987 "filename*" parameter.
+      const std::string body = kGbkDownloadContent;
+      std::string headers =
+          "HTTP/1.1 200 OK\r\n"
+          "Content-Type: application/octet-stream; charset=gb18030\r\n"
+          "Content-Disposition: attachment; filename=\"";
+      headers.append(kGbkRawFileNameBytes);
+      headers +=
+          "\"\r\nContent-Length: " + std::to_string(body.size()) + "\r\n";
+      connection->SendHttpResponseWithRawHeaders(headers.data(), headers.size(),
+                                                 body.data(), body.size());
+    } else {
+      const std::string body = "<html><body>Download Test</body></html>";
+      const std::string headers =
+          "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: " +
+          std::to_string(body.size()) + "\r\n";
+      connection->SendHttpResponseWithRawHeaders(headers.data(), headers.size(),
+                                                 body.data(), body.size());
+    }
+    return true;
+  }
+
+ private:
+  IMPLEMENT_REFCOUNTING(GbkFilenameServerHandler);
+};
+
+class DownloadGbkFilenameTestHandler : public TestHandler {
+ public:
+  DownloadGbkFilenameTestHandler() = default;
+
+  void RunTest() override {
+    // Create the temp directory on this (non-UI) thread, where blocking file
+    // I/O is permitted.
+    EXPECT_TRUE(temp_dir_.CreateUniqueTempDir());
+    test_path_ = client::file_util::JoinPath(temp_dir_.GetPath(),
+                                             kGbkExpectedUtf8FileName);
+
+    // CefTestServer must be created and stopped on the same thread. DestroyTest
+    // (which stops it) runs on the UI thread, so create it there too.
+    CefPostTask(
+        TID_UI,
+        base::BindOnce(&DownloadGbkFilenameTestHandler::StartServer, this));
+    SetTestTimeout();
+  }
+
+  void StartServer() {
+    EXPECT_UI_THREAD();
+
+    // Start a real HTTP test server. CreateAndStart blocks until the dedicated
+    // server thread is running.
+    server_handler_ = new GbkFilenameServerHandler();
+    server_ =
+        CefTestServer::CreateAndStart(/*port=*/0, /*https_server=*/false,
+                                      CEF_TEST_CERT_OK_IP, server_handler_);
+    EXPECT_TRUE(server_);
+    if (!server_) {
+      // Avoid dereferencing a null server below if startup failed.
+      DestroyTest();
+      return;
+    }
+
+    const std::string origin = server_->GetOrigin();
+    download_url_ = origin + kGbkDownloadPath;
+
+    CreateBrowser(origin + "/");
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    browser->GetHost()->StartDownload(download_url_);
+  }
+
+  bool OnBeforeDownload(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefDownloadItem> download_item,
+      const CefString& suggested_name,
+      CefRefPtr<CefBeforeDownloadCallback> callback) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    EXPECT_FALSE(got_on_before_download_);
+    got_on_before_download_.yes();
+
+    // The GBK filename must be decoded to the expected UTF-8 name, not garbled.
+    EXPECT_STREQ(kGbkExpectedUtf8FileName, suggested_name.ToString().c_str())
+        << "GBK filename not decoded; got: " << suggested_name.ToString();
+
+    callback->Continue(test_path_, /*show_dialog=*/false);
+    return true;
+  }
+
+  void OnDownloadUpdated(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefDownloadItem> download_item,
+                         CefRefPtr<CefDownloadItemCallback> callback) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    if (got_download_complete_) {
+      return;
+    }
+    if (download_item->IsComplete()) {
+      got_download_complete_.yes();
+      DestroyTest();
+    }
+  }
+
+  void DestroyTest() override {
+    EXPECT_UI_THREAD();
+
+    // Run teardown only once. This guards against re-entry (e.g. the test
+    // timeout firing) racing the FILE-thread temp-directory cleanup below.
+    if (destroy_pending_) {
+      return;
+    }
+    destroy_pending_ = true;
+
+    if (server_) {
+      // Stop must be called on the same thread as CreateAndStart (the UI
+      // thread).
+      server_->Stop();
+      server_ = nullptr;
+      server_handler_ = nullptr;
+    }
+
+    // Delete the temp directory on the FILE thread, where blocking file I/O is
+    // allowed (it is not allowed on the UI thread, including during the
+    // handler's destruction). |temp_dir_| is only ever touched on the FILE
+    // thread to avoid a cross-thread data race. DeleteTempDir reposts to the UI
+    // thread to finish teardown.
+    CefPostTask(
+        TID_FILE_USER_VISIBLE,
+        base::BindOnce(&DownloadGbkFilenameTestHandler::DeleteTempDir, this));
+  }
+
+  void DeleteTempDir() {
+    EXPECT_TRUE(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
+    if (!temp_dir_.IsEmpty()) {
+      EXPECT_TRUE(temp_dir_.Delete());
+    }
+    CefPostTask(TID_UI,
+                base::BindOnce(
+                    &DownloadGbkFilenameTestHandler::FinishDestroyTest, this));
+  }
+
+  void FinishDestroyTest() {
+    EXPECT_UI_THREAD();
+    EXPECT_TRUE(got_on_before_download_);
+    EXPECT_TRUE(got_download_complete_);
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  CefRefPtr<CefTestServer> server_;
+  CefRefPtr<GbkFilenameServerHandler> server_handler_;
+  CefScopedTempDir temp_dir_;
+  std::string download_url_;
+  std::string test_path_;
+  bool destroy_pending_ = false;
+
+  TrackCallback got_on_before_download_;
+  TrackCallback got_download_complete_;
+
+  IMPLEMENT_REFCOUNTING(DownloadGbkFilenameTestHandler);
+};
+
+}  // namespace
+
+// Test that a GBK-encoded download filename is decoded using the Content-Type
+// charset. Regression test for issue #3135.
+TEST(DownloadTest, GbkFilenameContentTypeCharset) {
+  CefRefPtr<DownloadGbkFilenameTestHandler> handler =
+      new DownloadGbkFilenameTestHandler();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
