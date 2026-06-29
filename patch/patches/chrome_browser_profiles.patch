@@ -52,7 +52,7 @@ index c63def4f8bb82c2d76e58b26821b87443f30c97a..3b145cb43dd36feb35218aec5020fb70
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index e5b6826b553a16e6c6933cd81733a0d63e459570..48ce19c4cbd75656a2314ba749c4ea54cb0c5d10 100644
+index 454f7c585c4ae7d9596e358de8ebf23b105d17f4..73195a974c04115ac1852bda5e6019da94f76134 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -91,6 +91,10 @@ class Profile : public content::BrowserContext {

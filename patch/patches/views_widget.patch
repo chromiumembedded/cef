@@ -610,7 +610,7 @@ index c44058711170316552ea05f97b8b8af694da8ca3..fb1324c60564fb0ac4fd710bbbb28b4c
      // focus when the window is restored.
      if (v) {
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 64d07b209f72fc593c861d84d2baf0ca52ce9aed..d6a6b1d7be329733d85483688f1648a9845ec5bb 100644
+index 9c86f62713b6da5e3c01638eeee9846efeca605d..933237af02fe0879ac4440230fb97adbc9ac16a6 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -438,6 +438,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -632,10 +632,10 @@ index 64d07b209f72fc593c861d84d2baf0ca52ce9aed..d6a6b1d7be329733d85483688f1648a9
    // Deactivates the widget, making the next window in the Z order the active
    // window.
 diff --git ui/views/widget/widget_delegate.h ui/views/widget/widget_delegate.h
-index 0315a1fac360ecea54cf8c5c065e777508193169..a6938af0e8cfa413121ca8303399267a417af398 100644
+index 3fdf1cb1c651945fd2cc3a8e4b698fa994860df5..5869875d3340794743be669a38b093f8251129ce 100644
 --- ui/views/widget/widget_delegate.h
 +++ ui/views/widget/widget_delegate.h
-@@ -786,6 +786,10 @@ class VIEWS_EXPORT WidgetDelegate {
+@@ -787,6 +787,10 @@ class VIEWS_EXPORT WidgetDelegate {
    // Returns true if the title text should be centered.
    bool ShouldCenterWindowTitleText() const;
  
