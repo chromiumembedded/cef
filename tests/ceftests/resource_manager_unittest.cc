@@ -358,6 +358,7 @@ class SimpleTestProvider : public TestProvider {
     STOP,
     REMOVE,
     REMOVE_ALL,
+    REMOVE_THEN_REMOVE_ALL,
     DO_NOTHING,
   };
 
@@ -388,6 +389,9 @@ class SimpleTestProvider : public TestProvider {
     } else if (mode_ == REMOVE) {
       manager_->RemoveProviders(kProviderId);
     } else if (mode_ == REMOVE_ALL) {
+      manager_->RemoveAllProviders();
+    } else if (mode_ == REMOVE_THEN_REMOVE_ALL) {
+      manager_->RemoveProviders(kProviderId);
       manager_->RemoveAllProviders();
     } else if (mode_ == DO_NOTHING) {
       EXPECT_FALSE(do_nothing_callback_.is_null());
@@ -654,6 +658,66 @@ TEST(ResourceManagerTest, ProviderRemoveAll) {
   EXPECT_TRUE(provider_state1.got_destruct_);
 
   // 2nd and 3rd providers are not called due to removal.
+  EXPECT_FALSE(provider_state2.got_on_request_);
+  EXPECT_FALSE(provider_state2.got_on_request_canceled_);
+  EXPECT_TRUE(provider_state2.got_destruct_);
+
+  EXPECT_FALSE(provider_state3.got_on_request_);
+  EXPECT_FALSE(provider_state3.got_on_request_canceled_);
+  EXPECT_TRUE(provider_state3.got_destruct_);
+
+  EXPECT_EQ(state.messages_.size(), 1U);
+  EXPECT_EQ(CreateMessage(kDoneMsg, kNotHandled), state.messages_[0]);
+}
+
+// Test removing all providers after a previous removal leaves the current
+// provider pending deletion.
+TEST(ResourceManagerTest, ProviderRemoveThenRemoveAll) {
+  const char kUrl[] = "https://test.com/ResourceManagerTest";
+
+  ResourceManagerTestHandler::State state;
+  state.urls_.push_back(kUrl);
+
+  TestProvider::State provider_state1;
+  TestProvider::State provider_state2;
+  TestProvider::State provider_state3;
+
+  ProviderDestructHelper destruct_helper(3);
+  provider_state1.destruct_callback_ = destruct_helper.callback();
+  provider_state2.destruct_callback_ = destruct_helper.callback();
+  provider_state3.destruct_callback_ = destruct_helper.callback();
+
+  state.manager_->AddProvider(
+      new SimpleTestProvider(&provider_state1,
+                             SimpleTestProvider::REMOVE_THEN_REMOVE_ALL,
+                             state.manager_.get()),
+      0, kProviderId);
+  state.manager_->AddProvider(
+      new SimpleTestProvider(&provider_state2, SimpleTestProvider::CONTINUE,
+                             nullptr),
+      0, kProviderId);
+  state.manager_->AddProvider(
+      new SimpleTestProvider(&provider_state3, SimpleTestProvider::CONTINUE,
+                             nullptr),
+      1, std::string());
+
+  CefRefPtr<ResourceManagerTestHandler> handler =
+      new ResourceManagerTestHandler(&state);
+  handler->ExecuteTest();
+
+  ReleaseAndWaitForDestructor(handler);
+
+  state.manager_ = nullptr;
+
+  // Wait for the manager to be deleted.
+  destruct_helper.Wait();
+
+  // 1st provider is called and canceled.
+  EXPECT_TRUE(provider_state1.got_on_request_);
+  EXPECT_TRUE(provider_state1.got_on_request_canceled_);
+  EXPECT_TRUE(provider_state1.got_destruct_);
+
+  // 2nd and 3rd providers are removed before they can be called.
   EXPECT_FALSE(provider_state2.got_on_request_);
   EXPECT_FALSE(provider_state2.got_on_request_canceled_);
   EXPECT_TRUE(provider_state2.got_destruct_);
