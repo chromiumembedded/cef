@@ -565,6 +565,7 @@
       'tests/ceftests/browser_info_map_unittest.cc',
       'tests/ceftests/browser_settings_unittest.cc',
       'tests/ceftests/certificate_error_unittest.cc',
+      'tests/ceftests/chrome_child_window_unittest.cc',
       'tests/ceftests/command_line_unittest.cc',
       'tests/ceftests/cookie_unittest.cc',
       'tests/ceftests/cors_unittest.cc',
