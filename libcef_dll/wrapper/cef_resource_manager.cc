@@ -750,6 +750,7 @@ void CefResourceManager::DeleteProvider(ProviderEntryList::iterator& iterator,
   ProviderEntry* current_entry = *(iterator);
 
   if (current_entry->deletion_pending_) {
+    ++iterator;
     return;
   }
 
