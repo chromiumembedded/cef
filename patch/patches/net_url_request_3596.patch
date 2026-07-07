@@ -1,5 +1,5 @@
 diff --git net/url_request/url_request_job.cc net/url_request/url_request_job.cc
-index 0a4131006ebb01019f269ea252fcb56ba17d4859..e414702dbe3bc7eed620e8743ee37f6a1c7cf41b 100644
+index b014aa95fff0626e0aad903fa1fe742c484b3a60..29ab7896b864e9b3185de6a098f1759f9d36f82b 100644
 --- net/url_request/url_request_job.cc
 +++ net/url_request/url_request_job.cc
 @@ -4,6 +4,7 @@
@@ -35,8 +35,8 @@ index 0a4131006ebb01019f269ea252fcb56ba17d4859..e414702dbe3bc7eed620e8743ee37f6a
  }  // namespace
  
  // Each SourceStreams own the previous SourceStream in the chain, but the
-@@ -351,8 +363,7 @@ GURL URLRequestJob::ComputeReferrerForPolicy(
-   }
+@@ -341,8 +353,7 @@ GURL URLRequestJob::ComputeReferrerForPolicy(
+     *same_origin_out_for_metrics = same_origin;
  
    bool secure_referrer_but_insecure_destination =
 -      original_referrer.SchemeIsCryptographic() &&

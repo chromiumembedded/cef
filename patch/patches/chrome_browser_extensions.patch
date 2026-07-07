@@ -34,10 +34,10 @@ index 368d0d7dcbf15b5cc277fae9844d88df00fdf423..0c67d9b5c17e1ddd46f10e13d29bd49b
  #endif
  
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index 6a7780c3cedfa6a97cdba5808b01e811e2fe66bb..c59cf94b59fee3a52ef0581569d251a777f233f2 100644
+index ed88aa88e605f9aa3efbbc896ef162251476b41b..bf58cfdeed41035f3fa38ee052c3e5d8f5508f34 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
-@@ -2533,31 +2533,31 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2562,31 +2562,31 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  
    // tabs_internal::GetTabById may return a null window for prerender tabs.
@@ -90,7 +90,7 @@ index 6a7780c3cedfa6a97cdba5808b01e811e2fe66bb..c59cf94b59fee3a52ef0581569d251a7
  
    if (params->update_properties.muted &&
        !SetTabAudioMuted(contents, *params->update_properties.muted,
-@@ -2598,7 +2598,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2627,7 +2627,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  #endif
  
@@ -99,7 +99,7 @@ index 6a7780c3cedfa6a97cdba5808b01e811e2fe66bb..c59cf94b59fee3a52ef0581569d251a7
      bool pinned = *params->update_properties.pinned;
  
      if (target_tab->IsPinned() != pinned) {
-@@ -2628,7 +2628,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2657,7 +2657,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;

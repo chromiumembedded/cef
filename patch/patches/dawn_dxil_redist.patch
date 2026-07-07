@@ -1,8 +1,8 @@
 diff --git src/dawn/tests/BUILD.gn src/dawn/tests/BUILD.gn
-index ebc9ef35faf3e248d301d54190e191a3ffe67623..443048638f995388091fe907b6891134d6993066 100644
+index 2dea894fa5e379aa6e6ef9bcfc3a9d27fd1eec95..b59c79997991a280183df3252a564486f9589bda 100644
 --- src/dawn/tests/BUILD.gn
 +++ src/dawn/tests/BUILD.gn
-@@ -99,8 +99,8 @@ if (!dawn_use_built_dxc && build_with_chromium && is_win) {
+@@ -102,8 +102,8 @@ if (!dawn_use_built_dxc && build_with_chromium && is_win) {
    # end-to-end test in Chromium.
    copy("copy_dxc_binary") {
      sources = [
@@ -14,10 +14,10 @@ index ebc9ef35faf3e248d301d54190e191a3ffe67623..443048638f995388091fe907b6891134
  
      outputs = [ "$root_out_dir/{{source_file_part}}" ]
 diff --git third_party/directx-shader-compiler/BUILD.gn third_party/directx-shader-compiler/BUILD.gn
-index bf261f14d1622305c26041d8beb23a5ac40e9f0e..6c8c308d467a4c478ed45504c0d815f486b95ae0 100644
+index 21dc5de77507673ff1450737e6d4fbf49454d72f..3c85a74aa92336da35a0a33dc61be9fcdbf15fd1 100644
 --- third_party/directx-shader-compiler/BUILD.gn
 +++ third_party/directx-shader-compiler/BUILD.gn
-@@ -2423,8 +2423,7 @@ executable("dxc") {
+@@ -2476,8 +2476,7 @@ executable("dxc") {
  if (is_win) {
    import("//build/config/win/visual_studio_version.gni")
    copy("copy_dxil_dll") {

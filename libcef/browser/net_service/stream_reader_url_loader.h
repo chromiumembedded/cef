@@ -10,6 +10,7 @@
 
 #include "base/functional/callback.h"
 #include "base/threading/thread_checker.h"
+#include "base/values.h"
 #include "mojo/public/cpp/bindings/remote.h"
 #include "mojo/public/cpp/system/simple_watcher.h"
 #include "net/http/http_byte_range.h"
@@ -140,7 +141,8 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
  private:
   void ContinueWithRequestHeaders(
       int32_t result,
-      const std::optional<net::HttpRequestHeaders>& headers);
+      const std::optional<net::HttpRequestHeaders>& headers,
+      std::optional<base::DictValue> extended_net_log_events);
   void OnInputStreamOpened(std::unique_ptr<Delegate> returned_delegate,
                            std::unique_ptr<InputStream> input_stream);
 

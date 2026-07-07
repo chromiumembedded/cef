@@ -44,7 +44,7 @@ index 3b00411a070a7e741f46338e91442c1f0449205b..552b2d450c65ec1ee1587258d2ffb179
      // Ensure the previous bubble is closed before creating and showing the new
      // one.
 diff --git chrome/browser/ui/views/profiles/incognito_menu_view.cc chrome/browser/ui/views/profiles/incognito_menu_view.cc
-index ec16cd8bba9723d6a057ca11bf179b10ab49bd72..d4f1e82f61087b752523447603b84cdaa743b72d 100644
+index d224a2ead180ec05fe3f07d1e35c24cda0882c16..ebcf126f60298da446880746caffa8a8f43c4248 100644
 --- chrome/browser/ui/views/profiles/incognito_menu_view.cc
 +++ chrome/browser/ui/views/profiles/incognito_menu_view.cc
 @@ -33,7 +33,9 @@

@@ -1,5 +1,5 @@
 diff --git gclient.py gclient.py
-index 3800c03dc530d33d9e7cbe129506eb8c743c86a5..9428f03fd7f558f6a7245ebc4c8ebe02df54f325 100755
+index 364c5d355f016843ed087445ca51894b68274897..eaf06b1bdca3e1b814cd3422291da0a0e77bde2e 100755
 --- gclient.py
 +++ gclient.py
 @@ -1002,7 +1002,8 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):

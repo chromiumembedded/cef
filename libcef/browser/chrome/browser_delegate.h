@@ -104,7 +104,7 @@ class BrowserDelegate : public content::WebContentsDelegate {
     kSendTabToSelf_DEPRECATED,
     kSidePanel_DEPRECATED,
     kMedia,
-    kTabSearch,
+    kTabSearch_DEPRECATED,
     kBatterySaver,
     kAvatar,
     kMaxValue = kAvatar,

@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index bb80991d521edbb22bb08e50805dd8c131cf75a4..2164fb0049702089a5afb32118ecbc8d5e731f00 100644
+index a9d0eafacc0b782faecea504ab9bde345f8c4598..a74c85ddf6b5f80ace34c18637cef8dcac4eefb9 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -884,6 +884,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -887,6 +887,11 @@ class BLINK_PLATFORM_EXPORT Platform {
    // calling an OOM.
    virtual void OnV8HeapLastResortGC() {}
  
@@ -15,7 +15,7 @@ index bb80991d521edbb22bb08e50805dd8c131cf75a4..2164fb0049702089a5afb32118ecbc8d
    static void InitializeMainThreadCommon(
        std::unique_ptr<MainThread> main_thread);
 diff --git third_party/blink/renderer/core/inspector/devtools_session.cc third_party/blink/renderer/core/inspector/devtools_session.cc
-index e9a45835023fa2ac471f762f1f7a9da6850b0100..fab0c37c96527e803a1733c54b7e47d597f0c7a1 100644
+index 6a66ee042b10aab325c5d5cee3ddba7995692530..d83ec7b8b9441145ed06093c5be73c20886f2b1d 100644
 --- third_party/blink/renderer/core/inspector/devtools_session.cc
 +++ third_party/blink/renderer/core/inspector/devtools_session.cc
 @@ -14,6 +14,7 @@
@@ -26,7 +26,7 @@ index e9a45835023fa2ac471f762f1f7a9da6850b0100..fab0c37c96527e803a1733c54b7e47d5
  #include "third_party/blink/renderer/bindings/core/v8/script_controller.h"
  #include "third_party/blink/renderer/core/frame/local_frame.h"
  #include "third_party/blink/renderer/core/inspector/devtools_agent.h"
-@@ -209,6 +210,7 @@ DevToolsSession::DevToolsSession(
+@@ -200,6 +201,7 @@ DevToolsSession::DevToolsSession(
        agents_[i]->Restore();
      }
    }
@@ -34,7 +34,7 @@ index e9a45835023fa2ac471f762f1f7a9da6850b0100..fab0c37c96527e803a1733c54b7e47d5
  }
  
  DevToolsSession::~DevToolsSession() {
-@@ -258,6 +260,7 @@ void DevToolsSession::Detach() {
+@@ -249,6 +251,7 @@ void DevToolsSession::Detach() {
    v8_session_->stop();
    v8_session_.reset();
    agent_->client_->DebuggerTaskFinished();

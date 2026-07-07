@@ -12,7 +12,7 @@ index 39077439744412b5812c380d788c1a3449d1772b..0bfcaad0722cc9cb5838e842df6729d0
      // on the screen, we can't actually attach to it.
      parent_window = nullptr;
 diff --git components/constrained_window/constrained_window_views.cc components/constrained_window/constrained_window_views.cc
-index 1685d67eb8473163783937e19a196b90756e3885..a0b52c5024ec49fae18ed2caccca2fb801558abf 100644
+index cd235694d9b25449926daf8b86fad4683035a806..e2dd855d6a39b4f59c8b0ea57fd8e14224716769 100644
 --- components/constrained_window/constrained_window_views.cc
 +++ components/constrained_window/constrained_window_views.cc
 @@ -105,10 +105,17 @@ class ModalDialogHostObserverViews : public ModalDialogHostObserver {
@@ -144,7 +144,7 @@ index 1685d67eb8473163783937e19a196b90756e3885..a0b52c5024ec49fae18ed2caccca2fb8
      auto dialog = views::BubbleDialogModelHost::CreateModal(
          std::move(dialog_model), ui::mojom::ModalType::kWindow,
          will_use_custom_frame);
-@@ -331,8 +336,14 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
+@@ -337,8 +342,14 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
      parent_view = parent;
    }
  #endif
@@ -160,7 +160,7 @@ index 1685d67eb8473163783937e19a196b90756e3885..a0b52c5024ec49fae18ed2caccca2fb8
    widget->SetNativeWindowProperty(
        views::kWidgetIdentifierKey,
        const_cast<void*>(kConstrainedWindowWidgetIdentifier));
-@@ -349,8 +360,7 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
+@@ -355,8 +366,7 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
      return widget;
  
    ModalDialogHost* host =

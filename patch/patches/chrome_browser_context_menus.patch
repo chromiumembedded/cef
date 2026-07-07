@@ -1,8 +1,8 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index c4b64fd2122480d3548d4b4e9c07034038071eba..b0264f74daec70c744e5575f65bff800ddfe0e3e 100644
+index d2d70b3e3bc5afeaf3aa0207bcacf72a3d1a08a3..6b91a5d390e8a292fa5ca477a31d2671d6036fb0 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
-@@ -442,6 +442,18 @@ ui::ImageModel GetLensContextMenuIcon() {
+@@ -447,6 +447,18 @@ ui::ImageModel GetLensContextMenuIcon() {
    );
  }
  
@@ -21,7 +21,7 @@ index c4b64fd2122480d3548d4b4e9c07034038071eba..b0264f74daec70c744e5575f65bff800
  enum class UmaEnumIdLookupType {
    GeneralEnumId,
    ContextSpecificEnumId,
-@@ -717,6 +729,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
+@@ -725,6 +737,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
      return 1;
    }
  
@@ -32,7 +32,7 @@ index c4b64fd2122480d3548d4b4e9c07034038071eba..b0264f74daec70c744e5575f65bff800
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -1041,6 +1057,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -1051,6 +1067,14 @@ RenderViewContextMenu::RenderViewContextMenu(
    system_app_ = app_controller ? app_controller->system_app() : nullptr;
  #endif  // BUILDFLAG(IS_CHROMEOS)
  
@@ -47,7 +47,7 @@ index c4b64fd2122480d3548d4b4e9c07034038071eba..b0264f74daec70c744e5575f65bff800
    observers_.AddObserver(&autofill_context_menu_manager_);
  }
  
-@@ -1488,6 +1512,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1501,6 +1525,12 @@ void RenderViewContextMenu::InitMenu() {
        AppendReadAnythingItem();
      }
    }
@@ -60,7 +60,7 @@ index c4b64fd2122480d3548d4b4e9c07034038071eba..b0264f74daec70c744e5575f65bff800
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -4139,6 +4169,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
+@@ -4180,6 +4210,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
    observers_.RemoveObserver(observer);
  }
  
@@ -88,10 +88,10 @@ index c4b64fd2122480d3548d4b4e9c07034038071eba..b0264f74daec70c744e5575f65bff800
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index 062a5aa1d2a8bc0bb93b5da47ce0ad576db569e3..5b14f390dd47695578462181bf9ba4e75d235df0 100644
+index 86b862fc8bb48f6ca6abc7edace5304bcfcb7343..817dd3518ef2f0d1739a4246533f8af8c601c96b 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
-@@ -177,7 +177,21 @@ class RenderViewContextMenu
+@@ -178,7 +178,21 @@ class RenderViewContextMenu
    void AddObserverForTesting(RenderViewContextMenuObserver* observer);
    void RemoveObserverForTesting(RenderViewContextMenuObserver* observer);
  
@@ -113,7 +113,7 @@ index 062a5aa1d2a8bc0bb93b5da47ce0ad576db569e3..5b14f390dd47695578462181bf9ba4e7
    Profile* GetProfile() const;
  
    // This may return nullptr (e.g. for WebUI dialogs). Virtual to allow tests to
-@@ -546,6 +560,9 @@ class RenderViewContextMenu
+@@ -549,6 +563,9 @@ class RenderViewContextMenu
    // Video frame sub-menu handling.
    ui::SimpleMenuModel video_frame_submenu_model_;
  
@@ -189,7 +189,7 @@ index ec7a5fdef0fdf08dedb1c3932c78d485730a7a1a..ba772758fe13ebcff3935bfb53a9e97a
    runner_->Cancel();
  }
 diff --git chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
-index 625e3b90c0d82da7f406837797e6614cb44134b7..ad728b4968a026d5a364c74bc5d2e24f16866a23 100644
+index e884befd17afde7e5659521c40293ddef7f3d5a1..ba58b094eed8e370cb1b464b5dc898f0e9b822a7 100644
 --- chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
 +++ chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
 @@ -157,6 +157,9 @@ void RenderViewContextMenuViews::RunMenuAt(views::Widget* parent,

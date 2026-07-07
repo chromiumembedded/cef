@@ -124,7 +124,7 @@ index 7d1beedfffbfdd34323cfb749bec83187b54778e..d4c79e26e51deb9a32fb9649a1c21a18
    // Factory for the creating refs in callbacks.
    base::WeakPtrFactory<VersionHandler> weak_ptr_factory_{this};
 diff --git chrome/browser/ui/webui/version/version_ui.cc chrome/browser/ui/webui/version/version_ui.cc
-index 8353f5d5a5734e8fc116dcc0f0221891ff3ea9ff..fcb80273186b9709e106a500e8eb5e3795f0bd8f 100644
+index 6f1f293bacaefada3d5be117f67cac69fe1f973b..e5d5a777ebe681d17f69feffeebe798a12ba2e0c 100644
 --- chrome/browser/ui/webui/version/version_ui.cc
 +++ chrome/browser/ui/webui/version/version_ui.cc
 @@ -19,6 +19,7 @@
@@ -168,7 +168,7 @@ index 8353f5d5a5734e8fc116dcc0f0221891ff3ea9ff..fcb80273186b9709e106a500e8eb5e37
  }
  
  std::string GetProductModifier() {
-@@ -257,6 +270,10 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
+@@ -269,6 +282,10 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
    // blank.
    html_source->AddString(version_ui::kExecutablePath, std::string_view());
    html_source->AddString(version_ui::kProfilePath, std::string_view());
@@ -180,10 +180,10 @@ index 8353f5d5a5734e8fc116dcc0f0221891ff3ea9ff..fcb80273186b9709e106a500e8eb5e37
  #if BUILDFLAG(IS_MAC)
    html_source->AddString(version_ui::kOSType, base::mac::GetOSDisplayName());
 diff --git components/version_ui_strings.grdp components/version_ui_strings.grdp
-index 7a47d7fc06232843a1077e4d4b11d51ad4edfb58..957ea16bd98e069d2f29611308d7fe4c1d986ee2 100644
+index 83e3e6aaa3d6308b0076c02e300237f88601e447..34516979ef9bdd62ead7507334f89654403540a4 100644
 --- components/version_ui_strings.grdp
 +++ components/version_ui_strings.grdp
-@@ -76,6 +76,14 @@
+@@ -78,6 +78,14 @@
    <message name="IDS_VERSION_UI_PROFILE_PATH" desc="label for the profile path on the about:version page">
      Profile Path
    </message>

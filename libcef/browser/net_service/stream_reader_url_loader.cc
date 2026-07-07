@@ -518,11 +518,11 @@ void StreamReaderURLLoader::Start() {
 
   if (header_client_.is_bound()) {
     header_client_->OnBeforeSendHeaders(
-        request_.headers,
+        request_.url, request_.headers,
         base::BindOnce(&StreamReaderURLLoader::ContinueWithRequestHeaders,
                        weak_factory_.GetWeakPtr()));
   } else {
-    ContinueWithRequestHeaders(net::OK, std::nullopt);
+    ContinueWithRequestHeaders(net::OK, std::nullopt, std::nullopt);
   }
 }
 
@@ -551,7 +551,8 @@ void StreamReaderURLLoader::Cancel() {
 
 void StreamReaderURLLoader::ContinueWithRequestHeaders(
     int32_t result,
-    const std::optional<net::HttpRequestHeaders>& headers) {
+    const std::optional<net::HttpRequestHeaders>& headers,
+    std::optional<base::DictValue> extended_net_log_events) {
   if (result != net::OK) {
     RequestComplete(result);
     return;

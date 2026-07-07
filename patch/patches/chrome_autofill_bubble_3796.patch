@@ -83,16 +83,27 @@ index 8468ac8cf0b14a01629724ce3915f3797c1c2a77..5e04b04bd9faec6d8cd997cbc45d70f3
    // Verify if user is eligible for iOS promo, and attempt showing if they are.
    ios_promos_utils::VerifyIOSPromoEligibility(
 diff --git chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
-index c807dc00a6126a4342e82d34ae4216990773e1dd..adfbfa25835bc7dc4f4d528223a37bd77249d278 100644
+index 0c0feb910fe45f460da71042a4ace40f6734f251..2773aa4486c985ccd85dd6566792a56889f1c0b1 100644
 --- chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
 +++ chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
-@@ -825,6 +825,9 @@ void SaveCardBubbleControllerImpl::DoShowBubble() {
-   BrowserWindowInterface* browser =
-       GlobalBrowserCollection::GetInstance()->FindBrowserWithTab(
-           web_contents());
+@@ -824,7 +824,9 @@ SaveCardBubbleControllerImpl::GetAutofillBubbleHandler() {
+   tabs::TabInterface* tab = tabs::TabInterface::GetFromContents(web_contents());
+   CHECK(tab);
+   BrowserWindowInterface* browser = tab->GetBrowserWindowInterface();
+-  CHECK(browser);
 +  if (!browser) {
++    return nullptr;
++  }
+   return AutofillBubbleHandler::Get(browser->GetUnownedUserDataHost());
+ }
+ 
+@@ -834,6 +836,9 @@ void SaveCardBubbleControllerImpl::DoShowBubble() {
+   }
+ 
+   AutofillBubbleHandler* autofill_bubble_handler = GetAutofillBubbleHandler();
++  if (!autofill_bubble_handler) {
 +    return;
 +  }
    if (current_bubble_type_ == PaymentsBubbleType::kUploadComplete) {
-     SetBubbleView(*browser->GetBrowserForMigrationOnly()
-                        ->window()
+     SetBubbleView(*autofill_bubble_handler->ShowSaveCardConfirmationBubble(
+         web_contents(), this));

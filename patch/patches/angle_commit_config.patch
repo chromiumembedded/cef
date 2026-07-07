@@ -1,5 +1,5 @@
 diff --git BUILD.gn BUILD.gn
-index 3e1af3bc00c5e57a3a4b605952da11686e597225..f783a6dd864a13c7f5b7bec9b47a7fc47816b9ae 100644
+index c831acc0c08d0932b25f84d846211c18e0f56b4d..b348efe5c9adfd3060fa1be080ee71fe42870dfd 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -97,6 +97,9 @@ declare_args() {
@@ -12,7 +12,7 @@ index 3e1af3bc00c5e57a3a4b605952da11686e597225..f783a6dd864a13c7f5b7bec9b47a7fc4
  }
  
  declare_args() {
-@@ -935,6 +938,8 @@ action("angle_commit_id") {
+@@ -939,6 +942,8 @@ action("angle_commit_id") {
      "gen",
      rebase_path(_commit_id_header, root_build_dir),
      rebase_path(depfile, root_build_dir),

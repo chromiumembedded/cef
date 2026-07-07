@@ -1,44 +1,5 @@
-diff --git chrome/browser/ui/views/bubble/webui_bubble_manager.h chrome/browser/ui/views/bubble/webui_bubble_manager.h
-index 9a66688d511ba8bcd239b48272bfb17cb20d038e..fc1c453e6bc5ab85417bc070c6369ff00b202940 100644
---- chrome/browser/ui/views/bubble/webui_bubble_manager.h
-+++ chrome/browser/ui/views/bubble/webui_bubble_manager.h
-@@ -28,6 +28,7 @@
- #include "content/public/browser/web_contents.h"
- #include "ui/base/interaction/element_identifier.h"
- #include "ui/views/bubble/bubble_dialog_delegate_view.h"
-+#include "ui/views/view_tracker.h"
- #include "ui/views/widget/widget.h"
- #include "ui/views/widget/widget_observer.h"
- 
-@@ -155,7 +156,7 @@ class WebUIBubbleManagerImpl : public WebUIBubbleManager {
-                          const GURL& webui_url,
-                          int task_manager_string_id,
-                          bool force_load_on_create)
--      : anchor_view_(anchor_view),
-+      : anchor_view_tracker_(anchor_view),
-         browser_window_interface_(browser_window_interface),
-         webui_url_(webui_url),
-         task_manager_string_id_(task_manager_string_id),
-@@ -169,7 +170,7 @@ class WebUIBubbleManagerImpl : public WebUIBubbleManager {
-       views::BubbleBorder::Arrow arrow) override;
-   WebUIContentsWrapper* GetContentsWrapper() override;
- 
--  const raw_ptr<views::View> anchor_view_;
-+  views::ViewTracker anchor_view_tracker_;
-   const raw_ptr<BrowserWindowInterface> browser_window_interface_;
-   const GURL webui_url_;
-   const int task_manager_string_id_;
-@@ -222,7 +223,7 @@ WebUIBubbleManagerImpl<T>::CreateWebUIBubbleDialog(
-   }
- 
-   auto bubble_view = std::make_unique<WebUIBubbleDialogView>(
--      anchor_view_, contents_wrapper->GetWeakPtr(), anchor, arrow);
-+      anchor_view_tracker_.view(), contents_wrapper->GetWeakPtr(), anchor, arrow);
- 
-   if (!widget_initialization_callback_.is_null()) {
-     bubble_view->RegisterWidgetInitializedCallback(
 diff --git chrome/browser/ui/views/tab_search_bubble_host.cc chrome/browser/ui/views/tab_search_bubble_host.cc
-index b332361e984a0ca163559415c2bc59648a43ac27..50fcbc0a23f017264dc8913b715e11a36bf0abf1 100644
+index 085c215dbe853dc060890f19ecb4e3d02fa36561..8cb7cb2c02921284a4edf65b8b7a87f946cd6b29 100644
 --- chrome/browser/ui/views/tab_search_bubble_host.cc
 +++ chrome/browser/ui/views/tab_search_bubble_host.cc
 @@ -63,7 +63,7 @@ TabSearchOpenAction GetActionForEvent(const ui::Event& event) {
@@ -50,7 +11,16 @@ index b332361e984a0ca163559415c2bc59648a43ac27..50fcbc0a23f017264dc8913b715e11a3
        profile_(browser_window_interface->GetProfile()),
        browser_window_interface_(browser_window_interface),
        webui_bubble_manager_(WebUIBubbleManager::Create<TabSearchUI>(
-@@ -222,9 +222,11 @@ bool TabSearchBubbleHost::ShowTabSearchBubble(
+@@ -201,7 +201,7 @@ bool TabSearchBubbleHost::ShowTabSearchBubble(
+   const tabs::TabSearchPosition position =
+       tabs::GetTabSearchPosition(browser_window_interface_);
+   webui_bubble_manager_->ShowBubble(
+-      button_,
++      button(),
+       (position == tabs::TabSearchPosition::kLeadingHorizontalTabstrip ||
+        position == tabs::TabSearchPosition::kVerticalTabstrip)
+           ? views::BubbleBorder::TOP_LEFT
+@@ -221,9 +221,11 @@ bool TabSearchBubbleHost::ShowTabSearchBubble(
  
    // Hold the pressed lock while the |bubble_| is active.
    // LINT.IfChange(pressed_lock_)

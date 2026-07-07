@@ -1,8 +1,8 @@
 diff --git ui/views/controls/textfield/textfield.cc ui/views/controls/textfield/textfield.cc
-index fa33742286aa3f60186cc1a5032df92906fdfbff..13d44c43fe5b66950e782a6dad9d72a7f703cf78 100644
+index e672ba29b448148e15e2eb42ede9e18501d904dc..0eb719a0cc73fb45c8c3aef62802d4bd4f476866 100644
 --- ui/views/controls/textfield/textfield.cc
 +++ ui/views/controls/textfield/textfield.cc
-@@ -3300,6 +3300,10 @@ void Textfield::OnEnabledChanged() {
+@@ -3302,6 +3302,10 @@ void Textfield::OnEnabledChanged() {
    if (GetInputMethod()) {
      GetInputMethod()->OnTextInputTypeChanged(this);
    }

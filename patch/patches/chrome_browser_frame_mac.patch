@@ -33,7 +33,7 @@ index e5a6aaa3e11cc3a60eef9eb8ace0af6fca30a53a..7a6752e46cb0e01f0d0d8623511c1afa
    ~BrowserNativeWidgetMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_native_widget_mac.mm chrome/browser/ui/views/frame/browser_native_widget_mac.mm
-index aca3df8943f7ed23440dc29901555ff71455274a..f2e84939a52f5b7e9165e9a25f34b72bc2f98a14 100644
+index 615e488de7bbce5d35ee06059f983093a468050c..76a20d1190d5e6c7627b15c487d3676c5d58fe84 100644
 --- chrome/browser/ui/views/frame/browser_native_widget_mac.mm
 +++ chrome/browser/ui/views/frame/browser_native_widget_mac.mm
 @@ -234,7 +234,15 @@ void BrowserNativeWidgetMac::OnWidgetDestroyed(views::Widget* widget) {
@@ -53,7 +53,7 @@ index aca3df8943f7ed23440dc29901555ff71455274a..f2e84939a52f5b7e9165e9a25f34b72b
    if (!browser || !chrome::SupportsCommand(browser, tag)) {
      result->enable = false;
      return;
-@@ -429,9 +437,16 @@ bool BrowserNativeWidgetMac::WillExecuteCommand(
+@@ -430,9 +438,16 @@ bool BrowserNativeWidgetMac::WillExecuteCommand(
    if (!browser_view_) {
      return false;
    }
@@ -72,7 +72,7 @@ index aca3df8943f7ed23440dc29901555ff71455274a..f2e84939a52f5b7e9165e9a25f34b72b
    if (is_before_first_responder) {
      // The specification for this private extensions API is incredibly vague.
      // For now, we avoid triggering chrome commands prior to giving the
-@@ -463,12 +478,23 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
+@@ -464,12 +479,23 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {
@@ -99,7 +99,7 @@ index aca3df8943f7ed23440dc29901555ff71455274a..f2e84939a52f5b7e9165e9a25f34b72b
  
    if (command == IDC_TOGGLE_VERTICAL_TABS) {
      if (auto* controller =
-@@ -478,10 +504,13 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
+@@ -479,10 +505,13 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
            is_vertical, tabs::VerticalTabStripEntryPoint::kMacViewMenu);
      }
    } else if (command == IDC_CLEAR_BROWSING_DATA) {

@@ -1,8 +1,8 @@
 diff --git ipc/ipc_mojo_bootstrap.cc ipc/ipc_mojo_bootstrap.cc
-index 0241697b3e4a94797bd87b2deb8c1bb739210601..d7efc18c5eeb102504406a3355a8452b4aacdf50 100644
+index 9d98d8ef0d07b90d36ed0ae0a982051078324b04..1c079a502df01a5c85332598c82e07b4b027dd30 100644
 --- ipc/ipc_mojo_bootstrap.cc
 +++ ipc/ipc_mojo_bootstrap.cc
-@@ -975,7 +975,8 @@ class ChannelAssociatedGroupController
+@@ -974,7 +974,8 @@ class ChannelAssociatedGroupController
            endpoint->disconnect_reason());
  
        base::AutoUnlock unlocker(lock_);
@@ -184,10 +184,10 @@ index 7efe47038b51b9922a817be9876bfd4830031ebb..22a636f9ac3ad7d6a6e66fc8da6e0229
  
    MessagePipeHandle handle() const {
 diff --git mojo/public/cpp/bindings/lib/connector.cc mojo/public/cpp/bindings/lib/connector.cc
-index e8ab3f7cd87adf9710020fb45202edb2b4ff46b6..f0976448a100e30f161915270a632c6594222d46 100644
+index 3151a96fc24ac02dadb1830a2c6851eff44bff79..188460bd3ad5b9fbeb1755f67153a75586621b08 100644
 --- mojo/public/cpp/bindings/lib/connector.cc
 +++ mojo/public/cpp/bindings/lib/connector.cc
-@@ -439,6 +439,8 @@ void Connector::OnSyncHandleWatcherHandleReady(const char* interface_name,
+@@ -438,6 +438,8 @@ void Connector::OnSyncHandleWatcherHandleReady(const char* interface_name,
  void Connector::OnHandleReadyInternal(MojoResult result) {
    DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
  

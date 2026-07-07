@@ -614,6 +614,11 @@ typedef enum {
   CEF_CONTENT_SETTING_TYPE_SUB_APPS_WITHOUT_PROMPTS,
 #endif
 
+#if CEF_API_ADDED(CEF_NEXT)
+  /// Content setting for inline cue menus.
+  CEF_CONTENT_SETTING_TYPE_INLINE_CUE_MENU,
+#endif
+
   CEF_CONTENT_SETTING_TYPE_NUM_VALUES,
 } cef_content_setting_types_t;
 

@@ -1,8 +1,8 @@
 diff --git base/test/BUILD.gn base/test/BUILD.gn
-index 66573c8e3072fb230980e3db6e14da1b897a6a4a..fd1b4db9a461fee0b7a332829700fef05afb47e0 100644
+index dc1a5996fc73b01b2e6b82b60bb51ee67e23e897..59cb75b93642d87797e4550c956d2ca7ae792906 100644
 --- base/test/BUILD.gn
 +++ base/test/BUILD.gn
-@@ -270,11 +270,6 @@ static_library("test_support") {
+@@ -271,11 +271,6 @@ static_library("test_support") {
    # that would require special support in gn2bp (AOSP Cronet).
    if (!is_cronet_build) {
      public_deps += [ "//third_party/perfetto:perfetto_test_support" ]
@@ -14,7 +14,7 @@ index 66573c8e3072fb230980e3db6e14da1b897a6a4a..fd1b4db9a461fee0b7a332829700fef0
      deps += [
        ":amalgamated_perfetto_sql_stdlib",
        ":gen_cc_chrome_track_event_descriptor",
-@@ -694,7 +689,7 @@ action("amalgamated_perfetto_sql_stdlib") {
+@@ -695,7 +690,7 @@ action("amalgamated_perfetto_sql_stdlib") {
  # processor depends on dev_sqlite. The two share the same symbols but have
  # different implementations, so we need to hide dev_sqlite in this shared
  # library even in non-component builds to prevent duplicate symbols.
@@ -23,7 +23,7 @@ index 66573c8e3072fb230980e3db6e14da1b897a6a4a..fd1b4db9a461fee0b7a332829700fef0
  if (is_ios) {
    _target_type = "ios_framework_bundle"
  }
-@@ -703,6 +698,8 @@ target(_target_type, "test_trace_processor") {
+@@ -704,6 +699,8 @@ target(_target_type, "test_trace_processor") {
    defines = [ "TEST_TRACE_PROCESSOR_IMPL" ]
    testonly = true
    sources = [
@@ -32,7 +32,7 @@ index 66573c8e3072fb230980e3db6e14da1b897a6a4a..fd1b4db9a461fee0b7a332829700fef0
      "tracing/test_trace_processor_export.h",
      "tracing/test_trace_processor_impl.cc",
      "tracing/test_trace_processor_impl.h",
-@@ -720,33 +717,6 @@ target(_target_type, "test_trace_processor") {
+@@ -721,33 +718,6 @@ target(_target_type, "test_trace_processor") {
      output_name = "TestTraceProcessor"
      bundle_deps_filter = [ "//third_party/icu:icudata" ]
    }
@@ -88,10 +88,10 @@ index dc5c18bd66d1cc6fe55edc1a0709795cb2b3b3ec..15f25c0e92f87b2dc73be30b5366c084
 +
  #endif  // BASE_TEST_TRACING_TEST_TRACE_PROCESSOR_EXPORT_H_
 diff --git content/shell/BUILD.gn content/shell/BUILD.gn
-index 1ab8f3cac2e008e57c5ad350d8fd75d0e688cb41..285b4f7e807f7255fe746d5de716389c8e994059 100644
+index 05ec8ec8bcaeac0fd31c6298691c431a78c0ed72..83ba8ac1530a3ca94be9e2f4f428cc2768b01c13 100644
 --- content/shell/BUILD.gn
 +++ content/shell/BUILD.gn
-@@ -937,7 +937,6 @@ if (is_mac) {
+@@ -938,7 +938,6 @@ if (is_mac) {
        # Specify a sensible install_name for static builds. The library is
        # dlopen()ed so this is not used to resolve the module.
        ldflags = [ "-Wl,-install_name,@executable_path/../Frameworks/$output_name.framework/$output_name" ]

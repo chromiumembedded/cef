@@ -1,8 +1,8 @@
 diff --git ui/accessibility/platform/BUILD.gn ui/accessibility/platform/BUILD.gn
-index 976081b1ce5d0e105a7af77910877daaf9cc84ce..b1ab1e497144394d12d71a3797baf0c9b8b78d19 100644
+index 040207453f9f95974e8199c31f2d3cf31bb0e29f..f7a6828321241f29392e8e24625b6c7bc3c6679e 100644
 --- ui/accessibility/platform/BUILD.gn
 +++ ui/accessibility/platform/BUILD.gn
-@@ -361,6 +361,10 @@ component("platform") {
+@@ -362,6 +362,10 @@ component("platform") {
        if (use_gio) {
          configs += [ "//build/linux:gio_config" ]
        }
@@ -14,10 +14,10 @@ index 976081b1ce5d0e105a7af77910877daaf9cc84ce..b1ab1e497144394d12d71a3797baf0c9
    }
  }
 diff --git ui/gtk/BUILD.gn ui/gtk/BUILD.gn
-index 6d2693a68a2f38a9ac9619a5cedab1d1ca304483..5aff3afdb5ffe6930bdb89e7d4d7a49597951266 100644
+index afb08ff72d342edcbdb3a00c7a8cafc21fd906a1..2c5ebcab15422f65eac7d65cd4735f6515899fb8 100644
 --- ui/gtk/BUILD.gn
 +++ ui/gtk/BUILD.gn
-@@ -184,4 +184,8 @@ component("gtk") {
+@@ -196,6 +196,10 @@ component("gtk") {
  
    # TODO: This should be removed.
    deps += [ "//ui/ozone" ]
@@ -26,3 +26,5 @@ index 6d2693a68a2f38a9ac9619a5cedab1d1ca304483..5aff3afdb5ffe6930bdb89e7d4d7a495
 +    cflags = [ "-Wno-deprecated-volatile" ]
 +  }
  }
+ 
+ if (use_gtk) {

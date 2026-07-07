@@ -17,10 +17,10 @@ index fbce13c16ad10420f3f8e0df521e3be6979271d1..0512b2f09937ed0410f23d321b57f77d
  std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPrompt(
      content::WebContents* web_contents,
 diff --git chrome/browser/ui/views/permissions/permission_prompt_factory.cc chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-index a614311803c0a5c69f1f4b7ba27a4faa6036a5f6..257507250c2ad46aaf0579d12c04b8071d86101e 100644
+index 9053fbcbe45d803532e89e749572ad49d392452f..6c58910995ee1b566cc3633d6d26a7e3599d5854 100644
 --- chrome/browser/ui/views/permissions/permission_prompt_factory.cc
 +++ chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-@@ -250,11 +250,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
+@@ -261,11 +261,29 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
    }
  }
  
@@ -28,8 +28,7 @@ index a614311803c0a5c69f1f4b7ba27a4faa6036a5f6..257507250c2ad46aaf0579d12c04b807
 +
  }  // namespace
  
-+void SetCreatePermissionPromptFunction(
-+    CreatePermissionPromptFunctionPtr ptr) {
++void SetCreatePermissionPromptFunction(CreatePermissionPromptFunctionPtr ptr) {
 +  g_create_permission_prompt_ptr = ptr;
 +}
 +
@@ -40,12 +39,14 @@ index a614311803c0a5c69f1f4b7ba27a4faa6036a5f6..257507250c2ad46aaf0579d12c04b807
 +    bool default_handling = true;
 +    auto prompt = g_create_permission_prompt_ptr(web_contents, delegate,
 +                                                 &default_handling);
-+    if (prompt)
++    if (prompt) {
 +      return prompt;
-+    if (!default_handling)
++    }
++    if (!default_handling) {
 +      return nullptr;
++    }
 +  }
 +
-   BrowserWindowInterface* browser_window_interface =
-       GlobalBrowserCollection::GetInstance()->FindBrowserWithTab(web_contents);
-   if (!browser_window_interface) {
+   if (delegate->ShouldDropCurrentRequestIfCannotShowQuietly() &&
+       IsFullScreenMode(web_contents)) {
+     return nullptr;

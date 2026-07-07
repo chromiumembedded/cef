@@ -1,5 +1,5 @@
 diff --git ui/accessibility/platform/ax_platform_node_win.cc ui/accessibility/platform/ax_platform_node_win.cc
-index 2a73b12f78ac0ef0343cf852b9a5963757765d14..b98f06db8f5ae1ec4c9fae3893c95e9110732996 100644
+index 992b06daefd6a84acb3d8902f3502529650acdad..9c1d900cad9082df23aacb114d22702e873484fa 100644
 --- ui/accessibility/platform/ax_platform_node_win.cc
 +++ ui/accessibility/platform/ax_platform_node_win.cc
 @@ -1683,6 +1683,10 @@ IFACEMETHODIMP AXPlatformNodeWin::accLocation(LONG* physical_pixel_left,

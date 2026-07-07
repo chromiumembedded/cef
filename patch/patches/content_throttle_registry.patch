@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/navigation_throttle_registry_impl.cc content/browser/renderer_host/navigation_throttle_registry_impl.cc
-index 2bbc7d8c31b0ea692f103c48dc5e8dd0c7a0c503..acd3845480558cc877c0251f81fe266e1acb042e 100644
+index cc91d46713d9a04a75213ba07bacfebabb468767..2c4430aafbcafae9a0dfb7de71b860fb42f001c2 100644
 --- content/browser/renderer_host/navigation_throttle_registry_impl.cc
 +++ content/browser/renderer_host/navigation_throttle_registry_impl.cc
-@@ -276,13 +276,18 @@ NavigationHandle& NavigationThrottleRegistryImpl::GetNavigationHandle() {
+@@ -277,13 +277,18 @@ NavigationHandle& NavigationThrottleRegistryImpl::GetNavigationHandle() {
  }
  
  void NavigationThrottleRegistryImpl::AddThrottle(
@@ -13,7 +13,7 @@ index 2bbc7d8c31b0ea692f103c48dc5e8dd0c7a0c503..acd3845480558cc877c0251f81fe266e
    TRACE_EVENT(TRACE_DISABLED_BY_DEFAULT("navigation"),
                "NavigationThrottleRegistryImpl::AddThrottle",
                "navigation_throttle", navigation_throttle->GetNameForLogging());
-   CHECK(!navigation_request_->IsInitialWebUISyncNavigation());
+   CHECK(!navigation_request_->IsInitialWebUINavigation());
 -  throttles_.push_back(std::move(navigation_throttle));
 +  if (first) {
 +    throttles_.emplace(throttles_.begin(), std::move(navigation_throttle));
@@ -24,10 +24,10 @@ index 2bbc7d8c31b0ea692f103c48dc5e8dd0c7a0c503..acd3845480558cc877c0251f81fe266e
  
  bool NavigationThrottleRegistryImpl::HasThrottle(const std::string& name) {
 diff --git content/browser/renderer_host/navigation_throttle_registry_impl.h content/browser/renderer_host/navigation_throttle_registry_impl.h
-index fc44a4a0ca10b61ba2414adde737182da0d0bec4..009ae07219c20d5ff43e07388f73513a2c25f4d5 100644
+index 0970bc9bda0ce10c415cf5f376be1a8db2c62b68..e763e98e6c094f4bffc7ed5be24ed3dff168e48b 100644
 --- content/browser/renderer_host/navigation_throttle_registry_impl.h
 +++ content/browser/renderer_host/navigation_throttle_registry_impl.h
-@@ -135,7 +135,8 @@ class CONTENT_EXPORT NavigationThrottleRegistryImpl
+@@ -136,7 +136,8 @@ class CONTENT_EXPORT NavigationThrottleRegistryImpl
    // Implements NavigationThrottleRegistry:
    NavigationHandle& GetNavigationHandle() override;
    void AddThrottle(

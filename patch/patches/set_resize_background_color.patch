@@ -1,8 +1,8 @@
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index 7f917a89cb4c9f1d83cadc69aaeb79363ccd40cc..5726a759428287fa19a0a75df6535db6fb4b94d1 100644
+index 823fabedf1f065a11a8c6d4c1e8a975663955418..f30cc1adb2e9185793d8bf44624220071ced778d 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
-@@ -207,6 +207,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
+@@ -211,6 +211,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
    }
  }
  

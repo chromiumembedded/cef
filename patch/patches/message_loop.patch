@@ -1,16 +1,16 @@
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 51709d5ec2f91634992ef0d33603197f6780caa3..d04798ce96badcbc224a20bb4f21cbb6ef5f4c8c 100644
+index 908f0cdf45682781160b9937f015aa9af628b451..fe5a8000171bd3eecf12aab1b290e0c26cc25777 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
-@@ -24,6 +24,7 @@
- #include "base/memory/raw_ptr.h"
+@@ -25,6 +25,7 @@
+ #include "base/message_loop/message_pump_wakeup_counter.h"
  #include "base/numerics/safe_conversions.h"
  #include "base/strings/string_number_conversions.h"
 +#include "base/task/current_thread.h"
  #include "base/task/task_features.h"
  #include "base/trace_event/interned_args_helper.h"
  #include "base/trace_event/typed_macros.h"
-@@ -585,7 +586,19 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
+@@ -590,7 +591,19 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
        if (native_event_observer_) {
          native_event_observer_->WillRunNativeEvent(next_peek_message_event_id_);
        }

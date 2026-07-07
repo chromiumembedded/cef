@@ -1,8 +1,8 @@
 diff --git build/config/linux/atk/BUILD.gn build/config/linux/atk/BUILD.gn
-index 3931a5a897c948baa2af8ce1ec6a6731b58d5a39..a05e937a9e48eed6c9d7fc62c79e537183a12a31 100644
+index aa8723b55c6a0b7375435e2d175868163d523d78..0dbb3405d35cec123a6f816f023866d8d6548706 100644
 --- build/config/linux/atk/BUILD.gn
 +++ build/config/linux/atk/BUILD.gn
-@@ -10,7 +10,7 @@ import("//build/config/ui.gni")
+@@ -9,7 +9,7 @@ import("//build/config/ui.gni")
  assert(!is_chromeos)
  
  # These packages should _only_ be expected when building for a target.

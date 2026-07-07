@@ -1,5 +1,5 @@
 diff --git components/component_updater/component_updater_service.h components/component_updater/component_updater_service.h
-index c16c8bbd9b59b10a7c281a718d97026d7713fe76..5dbb7a21db7f52790dbd1535c41004ecc7cc714c 100644
+index 6c9bd84298bb86e244a4117d22d545e453af870c..9f2722f57335df442d9bfec0d936759d4612ff9c 100644
 --- components/component_updater/component_updater_service.h
 +++ components/component_updater/component_updater_service.h
 @@ -21,6 +21,7 @@
@@ -10,11 +10,11 @@ index c16c8bbd9b59b10a7c281a718d97026d7713fe76..5dbb7a21db7f52790dbd1535c41004ec
  class ComponentsHandler;
  class PluginObserver;
  
-@@ -242,6 +243,7 @@ class OnDemandUpdater {
+@@ -243,6 +244,7 @@ class OnDemandUpdater {
    friend class ash::SmartDimComponentIntegrationTest;
    friend class CrOSComponentInstaller;
  #endif  // BUILDFLAG(IS_CHROMEOS)
 +  friend class ::CefComponentUpdaterImpl;
    friend class IwaKeyDistributionComponentInstallerPolicy;
+   friend class PlatformRuntimeComponentInstallerPolicy;
  
-   // Triggers an update check for a component. |id| is a value

@@ -1,8 +1,8 @@
 diff --git base/task/thread_pool/thread_pool_impl.cc base/task/thread_pool/thread_pool_impl.cc
-index 4a934c05c7bb03646b8636c7ad12ebd76fe37791..2176dba3bc01a99a9dd7eff87d2ff6b60ffece7f 100644
+index 764236f5ce20098e219f46f3a1f3c9992e00a909..954608200b50bd7219e1ddb01e55a18b13077110 100644
 --- base/task/thread_pool/thread_pool_impl.cc
 +++ base/task/thread_pool/thread_pool_impl.cc
-@@ -122,6 +122,10 @@ ThreadPoolImpl::ThreadPoolImpl(std::string_view histogram_label,
+@@ -123,6 +123,10 @@ ThreadPoolImpl::ThreadPoolImpl(std::string_view histogram_label,
          ThreadGroupType::BACKGROUND, task_tracker_->GetTrackedRef(),
          tracked_ref_factory_.GetTrackedRef(), monitor_worker_thread_priorities);
    }

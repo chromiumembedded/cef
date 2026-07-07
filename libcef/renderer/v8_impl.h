@@ -190,7 +190,7 @@ class CefV8ContextImpl : public CefV8Context {
   v8::MicrotaskQueue* const microtask_queue_;
 
   int enter_count_ = 0;
-  std::unique_ptr<v8::MicrotasksScope> microtasks_scope_;
+  std::optional<v8::MicrotasksScope> microtasks_scope_;
 
   IMPLEMENT_REFCOUNTING(CefV8ContextImpl);
 };

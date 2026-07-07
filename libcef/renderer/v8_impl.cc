@@ -551,7 +551,7 @@ void AccessorNameGetterCallbackImpl(
   v8::Isolate* isolate = info.GetIsolate();
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
 
-  v8::Local<v8::Object> obj = info.HolderV2();
+  v8::Local<v8::Object> obj = info.Holder();
 
   CefRefPtr<CefV8Accessor> accessorPtr;
 
@@ -595,7 +595,7 @@ void AccessorNameSetterCallbackImpl(
   v8::Isolate* isolate = info.GetIsolate();
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
 
-  v8::Local<v8::Object> obj = info.HolderV2();
+  v8::Local<v8::Object> obj = info.Holder();
 
   CefRefPtr<CefV8Accessor> accessorPtr;
 
@@ -640,7 +640,7 @@ v8::Intercepted InterceptorGetterCallbackImpl(
   v8::Isolate* isolate = info.GetIsolate();
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
 
-  v8::Handle<v8::Object> obj = info.HolderV2();
+  v8::Handle<v8::Object> obj = info.Holder();
   CefRefPtr<CefV8Interceptor> interceptorPtr;
 
   V8TrackObject* tracker = V8TrackObject::Unwrap(context, obj);
@@ -677,7 +677,7 @@ v8::Intercepted InterceptorSetterCallbackImpl(
     const v8::PropertyCallbackInfo<void>& info) {
   v8::Isolate* isolate = info.GetIsolate();
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
-  v8::Handle<v8::Object> obj = info.HolderV2();
+  v8::Handle<v8::Object> obj = info.Holder();
   CefRefPtr<CefV8Interceptor> interceptorPtr;
 
   V8TrackObject* tracker = V8TrackObject::Unwrap(context, obj);
@@ -1044,8 +1044,8 @@ bool CefV8ContextImpl::Enter() {
 
   if (!microtasks_scope_) {
     // Increment the MicrotasksScope recursion level.
-    microtasks_scope_ = std::make_unique<v8::MicrotasksScope>(
-        isolate, microtask_queue_, v8::MicrotasksScope::kRunMicrotasks);
+    microtasks_scope_.emplace(isolate, microtask_queue_,
+                              v8::MicrotasksScope::kRunMicrotasks);
   }
 
   ++enter_count_;
@@ -1073,7 +1073,7 @@ bool CefV8ContextImpl::Exit() {
 
   if (--enter_count_ == 0) {
     // Decrement the MicrotasksScope recursion level.
-    microtasks_scope_.reset(nullptr);
+    microtasks_scope_.reset();
   }
 
   return true;

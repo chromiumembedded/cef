@@ -118,13 +118,13 @@ class CefRenderWidgetHostViewOSR
   gfx::NativeViewAccessible GetNativeViewAccessible() override;
   void Focus() override;
   bool HasFocus() override;
-  uint32_t GetCaptureSequenceNumber() const override;
+  uint32_t GetCaptureSequenceNumber() const;
   bool IsSurfaceAvailableForCopy() override;
   void ShowWithVisibility(
       content::PageVisibilityState page_visibility) override;
   void Hide() override;
   bool IsShowing() override;
-  void EnsureSurfaceSynchronizedForWebTest() override;
+  void EnsureSurfaceSynchronizedForWebTest();
   content::TouchSelectionControllerClientManager*
   GetTouchSelectionControllerClientManager() override;
   gfx::Rect GetViewBounds() override;
@@ -460,7 +460,7 @@ class CefRenderWidgetHostViewOSR
   uint32_t latest_capture_sequence_number_ = 0u;
 
   // ui::GestureProviderClient implementation.
-  ui::FilteredGestureProvider gesture_provider_;
+  scoped_refptr<ui::FilteredGestureProvider> gesture_provider_;
 
   CefMotionEventOSR pointer_state_;
   bool forward_touch_to_popup_ = false;

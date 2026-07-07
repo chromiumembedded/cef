@@ -1,5 +1,5 @@
 diff --git base/logging.cc base/logging.cc
-index 726c5cb00266b887bd830cee0ee5fbfe38d8272b..d7369262b1b6ee5659dfc60a30096697f18aee4e 100644
+index 7686a1e1e1f8e0e27414da74546bbec01228835e..5aae0ff448006af95682b25219736a76f94a89e8 100644
 --- base/logging.cc
 +++ base/logging.cc
 @@ -428,7 +428,30 @@ void WriteToFd(int fd, const char* data, size_t length) {

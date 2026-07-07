@@ -620,7 +620,8 @@ void CefBrowserContentsDelegate::TitleWasSet(content::NavigationEntry* entry) {
 
 void CefBrowserContentsDelegate::DidUpdateFaviconURL(
     content::RenderFrameHost* render_frame_host,
-    const std::vector<blink::mojom::FaviconURLPtr>& candidates) {
+    const std::vector<blink::mojom::FaviconURLPtr>& candidates,
+    blink::mojom::FaviconUpdateReason reason) {
   if (auto c = client()) {
     if (auto handler = c->GetDisplayHandler()) {
       std::vector<CefString> icon_urls;
