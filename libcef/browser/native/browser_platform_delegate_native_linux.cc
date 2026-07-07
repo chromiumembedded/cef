@@ -21,8 +21,10 @@
 
 #if BUILDFLAG(SUPPORTS_OZONE_X11)
 #include "cef/libcef/browser/native/window_x11.h"
+#include "ui/display/screen.h"
 #include "ui/events/keycodes/keyboard_code_conversion_x.h"
 #include "ui/events/keycodes/keyboard_code_conversion_xkb.h"
+#include "ui/gfx/geometry/size.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"
 #endif
 
@@ -79,9 +81,25 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   auto* widget_delegate = new CefNativeWidgetDelegate(
       GetBackgroundColor(), window_x11_->TopLevelAlwaysOnTop(),
       GetBoundsChangedCallback(), GetWidgetDeleteCallback());
+
+  // |rect| (from window_info_.bounds) is in pixels, and matches the size of the
+  // |window_x11_| host window created above. However, views::Widget bounds are
+  // in DIP; DesktopWindowTreeHostLinux will scale them back to pixels using the
+  // display's device scale factor. Convert the size to DIP here so that the
+  // resulting compositor (child) window matches the pixel size of the host
+  // window. Otherwise, on displays with a device scale factor != 1, the web
+  // content is rendered larger than the host window (see issue #3396). This
+  // mirrors the Windows implementation, which converts the client rect to DIP
+  // before calling Init().
+  const float device_scale_factor = display::Screen::Get()
+                                        ->GetDisplayMatching(rect)
+                                        .device_scale_factor();
+  const gfx::Size dip_size =
+      gfx::ScaleToRoundedSize(rect.size(), 1.0f / device_scale_factor);
+
   widget_delegate->Init(
       static_cast<gfx::AcceleratedWidget>(window_info_.window), web_contents_,
-      gfx::Rect(gfx::Point(), rect.size()));
+      gfx::Rect(gfx::Point(), dip_size));
 
   window_widget_ = widget_delegate->GetWidget();
   window_widget_->Show();
