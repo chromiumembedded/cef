@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
+#include <cctype>
 #include <set>
 #include <sstream>
 #include <vector>
@@ -58,6 +59,7 @@ const char kFailureMsg[] = "CorsTestHandler.Failure";
 enum class HandlerType {
   SERVER,
   HTTP_SCHEME,
+  HTTP_INSECURE_SCHEME,
   CUSTOM_STANDARD_SCHEME,
   CUSTOM_NONSTANDARD_SCHEME,
   CUSTOM_UNREGISTERED_SCHEME,
@@ -79,6 +81,12 @@ std::string GetOrigin(HandlerType handler) {
       // Use HTTPS because requests from HTTP to the loopback address will be
       // blocked by https://chromestatus.com/feature/5436853517811712.
       return "https://corstest.com";
+    case HandlerType::HTTP_INSECURE_SCHEME:
+      // Like HTTP_SCHEME, but HTTP so the origin is not potentially
+      // trustworthy. Only usable as a redirect target (served via
+      // GetResourceHandler); as an initiator it would be subject to the
+      // loopback address blocking described above.
+      return "http://corstest.com";
     case HandlerType::CUSTOM_STANDARD_SCHEME:
       // Standard scheme that's registered as CORS and fetch enabled.
       // Registered in scheme_handler_unittest.cc.
@@ -102,6 +110,8 @@ std::string GetScheme(HandlerType handler) {
       return test_server::GetScheme(kUseHttpsServerScheme);
     case HandlerType::HTTP_SCHEME:
       return "https";
+    case HandlerType::HTTP_INSECURE_SCHEME:
+      return "http";
     case HandlerType::CUSTOM_STANDARD_SCHEME:
       return "customstdfetch";
     case HandlerType::CUSTOM_NONSTANDARD_SCHEME:
@@ -1662,6 +1672,242 @@ void SetupRedirectGetRequest(RedirectMode mode,
 // Redirect GET requests.
 CORS_TEST_REDIRECT_GET_ALL(302, MODE_302)
 CORS_TEST_REDIRECT_GET_ALL(307, MODE_307)
+
+// Regression test for a renderer-initiated subresource request that hits
+// an HTTP redirect.
+namespace {
+
+// Unlike the RedirectGet* tests (which redirect a top-level, browser-initiated
+// navigation), this issues a renderer-initiated subresource request (XHR/fetch)
+// to a URL that returns a redirect. On redirect CEF restarts the request
+// through the URLLoaderFactory (see InterceptedRequest::FollowRedirect ->
+// Restart), carrying the network-service-managed Sec-Fetch-* headers populated
+// on the prior hop. CorsURLLoaderFactory::IsValidRequest then rejected those
+// renderer-forbidden headers via mojo::ReportBadMessage
+// (kRestrictForbiddenSecurityHeaders, enabled by default), tearing down the
+// renderer. Browser-initiated requests skip that check, which is why only a
+// subresource reproduces it. Everything is same-origin so no CORS
+// headers/preflight are needed; the check rejects any Sec-Fetch-Site value.
+void SetupExecRedirectRequest(ExecMode mode,
+                              TestSetup* setup,
+                              const std::string& test_name,
+                              Resource* main_resource,
+                              Resource* redirect_resource,
+                              Resource* target_resource) {
+  const std::string& base_path = "/" + test_name;
+
+  // Final resource the subresource request lands on after the redirect.
+  target_resource->Init(HandlerType::SERVER, base_path + ".target.txt",
+                        kMimeTypeText, kDefaultText);
+
+  // Subresource request returns a redirect to the final resource.
+  redirect_resource->Init(HandlerType::SERVER, base_path + ".sub.txt",
+                          kMimeTypeText, std::string());
+  SetupRedirectResponse(RedirectMode::MODE_302, target_resource->GetPathURL(),
+                        redirect_resource->response);
+
+  // Main page issues the subresource request to the redirecting URL.
+  main_resource->Init(HandlerType::SERVER, base_path, kMimeTypeHtml,
+                      GetExecMainHtml(mode, redirect_resource->GetPathURL()));
+  main_resource->expected_success_query_ct = 1;
+
+  setup->AddResource(main_resource);
+  setup->AddResource(redirect_resource);
+  setup->AddResource(target_resource);
+}
+
+}  // namespace
+
+#define CORS_TEST_EXEC_REDIRECT(test_name, mode)                             \
+  TEST(CorsTest, test_name) {                                                \
+    TestSetup setup;                                                         \
+    Resource resource_main;                                                  \
+    Resource resource_redirect;                                              \
+    Resource resource_target;                                                \
+    SetupExecRedirectRequest(ExecMode::mode, &setup, "CorsTest." #test_name, \
+                             &resource_main, &resource_redirect,             \
+                             &resource_target);                              \
+    CefRefPtr<CorsTestHandler> handler = new CorsTestHandler(&setup);        \
+    handler->ExecuteTest();                                                  \
+    ReleaseAndWaitForDestructor(handler);                                    \
+  }
+
+CORS_TEST_EXEC_REDIRECT(XhrRedirectSubresource, XHR)
+CORS_TEST_EXEC_REDIRECT(FetchRedirectSubresource, FETCH)
+
+// Test that Sec-CH-* (Client Hints) and Sec-Fetch-* headers are correctly
+// sanitized when a renderer-initiated subresource request is redirected.
+namespace {
+
+// Returns true if |header_map| contains a header whose name starts with
+// |prefix| (case-insensitive).
+bool HasHeaderWithPrefix(const CefRequest::HeaderMap& header_map,
+                         const std::string& prefix) {
+  for (const auto& [name, value] : header_map) {
+    const std::string& name_str = name.ToString();
+    if (name_str.size() < prefix.size()) {
+      continue;
+    }
+    bool match = true;
+    for (size_t i = 0; i < prefix.size(); ++i) {
+      if (std::tolower(static_cast<unsigned char>(name_str[i])) !=
+          std::tolower(static_cast<unsigned char>(prefix[i]))) {
+        match = false;
+        break;
+      }
+    }
+    if (match) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Verifies the presence or absence of Sec-CH-* and Sec-Fetch-* headers on the
+// received request.
+struct SecHeaderResource : Resource {
+  bool expect_sec_ch = false;
+  bool expect_sec_fetch = false;
+
+  bool VerifyRequest(CefRefPtr<CefRequest> request) const override {
+    CefRequest::HeaderMap header_map;
+    request->GetHeaderMap(header_map);
+    const bool has_sec_ch = HasHeaderWithPrefix(header_map, "sec-ch-");
+    const bool has_sec_fetch = HasHeaderWithPrefix(header_map, "sec-fetch-");
+    EXPECT_EQ(expect_sec_ch, has_sec_ch) << GetPathURL();
+    EXPECT_EQ(expect_sec_fetch, has_sec_fetch) << GetPathURL();
+    return expect_sec_ch == has_sec_ch && expect_sec_fetch == has_sec_fetch;
+  }
+};
+
+const char kMimeTypeJs[] = "text/javascript";
+
+// Returns HTML for a main page that loads |sub_url| as a classic <script>.
+// The script request uses mode "no-cors", which matters for redirect path
+// selection: a cross-origin redirect of a mode "cors" request whose CORS flag
+// or method changes is re-issued by CorsURLLoader::StartRequest from
+// CorsURLLoader's own copy of the request headers, while a "no-cors" request
+// follows the redirect on the existing loader (CorsURLLoader::FollowRedirect
+// -> URLLoader::FollowRedirect), which is the path that CEF replaces with
+// InterceptedRequest::FollowRedirect -> Restart. Only the latter path is
+// under test here. For the same reason the redirect target must be an
+// http(s) URL: a redirect out of the network service's URL space (e.g. to a
+// custom scheme) is re-issued by the renderer with its own copy of the
+// request headers (ThrottlingURLLoader::FollowRedirectForcingRestart) and
+// never takes the redirect path at all.
+std::string GetScriptExecMainHtml(const std::string& sub_url) {
+  return "<html><head>\n"
+         "<script language=\"JavaScript\">\n"
+         "function onResult(val) {\n"
+         "  if (val === '" +
+         std::string(kDefaultText) + "') {" + GetSuccessMsgJS() + "} else {" +
+         GetFailureMsgJS() +
+         "}\n}\n"
+         "function execRequest() {\n"
+         "  var s = document.createElement('script');\n"
+         "  s.src = '" +
+         sub_url +
+         "';\n"
+         "  s.onerror = function() { onResult('FAILURE'); };\n"
+         "  document.head.appendChild(s);\n"
+         "}\n</script>\n"
+         "</head><body onload=\"execRequest();\">"
+         "Running execRequest..."
+         "</body></html>";
+}
+
+// On redirect CEF restarts the request through the URLLoaderFactory (see
+// InterceptedRequest::FollowRedirect -> Restart) with the header set from the
+// previous hop. Sec-Fetch-* headers are always removed before the restart
+// (see XhrRedirectSubresource above) and re-derived by the network service
+// for requests that reach it. Sec-CH-* headers must be removed only when the
+// redirect goes from a potentially trustworthy URL (here, the loopback
+// server) to an untrustworthy URL (here, an http URL on a non-loopback
+// host), matching network::MaybeRemoveSecHeaders behavior on Chromium's
+// in-place redirect path; on all other redirects they must be preserved
+// because nothing re-derives them.
+//
+// The initial subresource request is same-origin to the (potentially
+// trustworthy) server, so it carries both the renderer-set Sec-CH-* headers
+// and the network-managed Sec-Fetch-* headers; that's asserted on the
+// redirecting resource so the target expectations can't pass vacuously.
+void SetupScriptRedirectSecHeadersRequest(HandlerType target_handler,
+                                          bool expect_target_sec_ch,
+                                          bool expect_target_sec_fetch,
+                                          TestSetup* setup,
+                                          const std::string& test_name,
+                                          Resource* main_resource,
+                                          SecHeaderResource* redirect_resource,
+                                          SecHeaderResource* target_resource) {
+  const std::string& base_path = "/" + test_name;
+
+  // Final resource the script request lands on after the redirect. Executing
+  // it reports success back to the main page.
+  target_resource->Init(target_handler, base_path + ".target.js", kMimeTypeJs,
+                        "onResult('" + std::string(kDefaultText) + "');");
+  target_resource->expect_sec_ch = expect_target_sec_ch;
+  target_resource->expect_sec_fetch = expect_target_sec_fetch;
+
+  // Script request returns a redirect to the final resource.
+  redirect_resource->Init(HandlerType::SERVER, base_path + ".sub.js",
+                          kMimeTypeJs, std::string());
+  redirect_resource->expect_sec_ch = true;
+  redirect_resource->expect_sec_fetch = true;
+  SetupRedirectResponse(RedirectMode::MODE_302, target_resource->GetPathURL(),
+                        redirect_resource->response);
+
+  // Main page issues the script request to the redirecting URL.
+  main_resource->Init(HandlerType::SERVER, base_path, kMimeTypeHtml,
+                      GetScriptExecMainHtml(redirect_resource->GetPathURL()));
+  main_resource->expected_success_query_ct = 1;
+
+  setup->AddResource(main_resource);
+  setup->AddResource(redirect_resource);
+  setup->AddResource(target_resource);
+}
+
+}  // namespace
+
+#define CORS_TEST_SCRIPT_REDIRECT_SEC_HEADERS(test_name, target_handler,       \
+                                              expect_sec_ch, expect_sec_fetch) \
+  TEST(CorsTest, test_name) {                                                  \
+    TestSetup setup;                                                           \
+    Resource resource_main;                                                    \
+    SecHeaderResource resource_redirect;                                       \
+    SecHeaderResource resource_target;                                         \
+    SetupScriptRedirectSecHeadersRequest(                                      \
+        HandlerType::target_handler, expect_sec_ch, expect_sec_fetch, &setup,  \
+        "CorsTest." #test_name, &resource_main, &resource_redirect,            \
+        &resource_target);                                                     \
+    CefRefPtr<CorsTestHandler> handler = new CorsTestHandler(&setup);          \
+    handler->ExecuteTest();                                                    \
+    ReleaseAndWaitForDestructor(handler);                                      \
+  }
+
+// Same-trustworthiness redirect (server to server): Sec-CH-* headers are
+// preserved and Sec-Fetch-* headers are re-derived by the network service.
+CORS_TEST_SCRIPT_REDIRECT_SEC_HEADERS(ScriptRedirectSubresourceSecHeadersServer,
+                                      SERVER,
+                                      /*expect_target_sec_ch=*/true,
+                                      /*expect_target_sec_fetch=*/true)
+
+// Cross-origin redirect to a potentially trustworthy https URL (served via
+// GetResourceHandler): Sec-CH-* headers are preserved. Sec-Fetch-* headers
+// are removed before the restart and nothing re-derives them for requests
+// that don't reach the network service.
+CORS_TEST_SCRIPT_REDIRECT_SEC_HEADERS(
+    ScriptRedirectSubresourceSecHeadersHttpScheme,
+    HTTP_SCHEME,
+    /*expect_target_sec_ch=*/true,
+    /*expect_target_sec_fetch=*/false)
+
+// Cross-origin redirect that downgrades to an untrustworthy http URL (served
+// via GetResourceHandler): both header families are removed.
+CORS_TEST_SCRIPT_REDIRECT_SEC_HEADERS(
+    ScriptRedirectSubresourceSecHeadersInsecureHttpScheme,
+    HTTP_INSECURE_SCHEME,
+    /*expect_target_sec_ch=*/false,
+    /*expect_target_sec_fetch=*/false)
 
 namespace {
 

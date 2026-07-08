@@ -10,11 +10,13 @@
 #include "ui/gfx/native_ui_types.h"
 
 #if BUILDFLAG(IS_WIN)
+#include "base/functional/callback.h"
 #include "cef/libcef/browser/native/browser_platform_delegate_native_win.h"
 #include "ui/views/win/hwnd_util.h"
 #endif
 
 #if defined(USE_AURA)
+#include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/native/browser_platform_delegate_native_aura.h"
 #endif
 
@@ -66,7 +68,11 @@ class ChildWindowDelegate : public CefWindowDelegate {
     browser_view_ = nullptr;
     window_ = nullptr;
 #if BUILDFLAG(IS_WIN)
-    native_delegate_ = nullptr;
+    // Clear the native delegate's Widget state, as the Widget is being
+    // destroyed. The delegate may outlive the Widget.
+    if (widget_delete_callback_) {
+      std::move(widget_delete_callback_).Run();
+    }
 #endif
   }
 
@@ -96,8 +102,11 @@ class ChildWindowDelegate : public CefWindowDelegate {
     DCHECK(platform_delegate->IsViewsHosted());
     auto chrome_delegate =
         static_cast<CefBrowserPlatformDelegateChromeViews*>(platform_delegate);
-    native_delegate_ = static_cast<CefBrowserPlatformDelegateNativeAura*>(
+    auto* native_delegate = static_cast<CefBrowserPlatformDelegateNativeAura*>(
         chrome_delegate->native_delegate());
+    // The native delegate may be destroyed before this object, so keep a weak
+    // reference.
+    native_delegate_ = native_delegate->GetWeakPtr();
 
 #if BUILDFLAG(IS_WIN)
     auto widget = static_cast<CefWindowImpl*>(window_.get())->widget();
@@ -107,8 +116,12 @@ class ChildWindowDelegate : public CefWindowDelegate {
 
     // The Windows delegate needs state to perform some actions.
     auto* delegate_win =
-        static_cast<CefBrowserPlatformDelegateNativeWin*>(native_delegate_);
+        static_cast<CefBrowserPlatformDelegateNativeWin*>(native_delegate);
     delegate_win->set_widget(widget, widget_hwnd);
+
+    // Executed from OnWindowDestroyed() to clear the above state if the
+    // delegate is still alive at that time.
+    widget_delete_callback_ = delegate_win->GetWidgetDeleteCallback();
 
     if (window_info_.ex_style & WS_EX_NOACTIVATE) {
       const DWORD widget_ex_styles = GetWindowLongPtr(widget_hwnd, GWL_EXSTYLE);
@@ -145,8 +158,11 @@ class ChildWindowDelegate : public CefWindowDelegate {
   CefRefPtr<CefWindow> window_;
 
 #if defined(USE_AURA)
-  base::raw_ptr<CefBrowserPlatformDelegateNativeAura> native_delegate_ =
-      nullptr;
+  base::WeakPtr<CefBrowserPlatformDelegateNativeAura> native_delegate_;
+#endif
+
+#if BUILDFLAG(IS_WIN)
+  base::OnceClosure widget_delete_callback_;
 #endif
 
   IMPLEMENT_REFCOUNTING(ChildWindowDelegate);

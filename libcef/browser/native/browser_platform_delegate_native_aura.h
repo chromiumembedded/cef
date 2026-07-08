@@ -7,6 +7,7 @@
 
 #include <optional>
 
+#include "base/functional/callback.h"
 #include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/native/browser_platform_delegate_native.h"
@@ -79,9 +80,16 @@ class CefBrowserPlatformDelegateNativeAura
     return std::nullopt;
   }
 
- protected:
+  base::WeakPtr<CefBrowserPlatformDelegateNativeAura> GetWeakPtr() {
+    return weak_ptr_factory_.GetWeakPtr();
+  }
+
+  // Returns a callback that clears |window_widget_| state. Safe to execute in
+  // any order relative to destruction of this object; it will be a no-op if
+  // this object is destroyed first.
   base::OnceClosure GetWidgetDeleteCallback();
 
+ protected:
   std::optional<gfx::Rect> RootWindowBoundsCallback();
 
   static base::TimeTicks GetEventTimeStamp();

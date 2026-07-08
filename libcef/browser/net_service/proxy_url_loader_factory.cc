@@ -14,6 +14,7 @@
 #include "base/memory/raw_ptr.h"
 #include "base/no_destructor.h"
 #include "base/strings/string_number_conversions.h"
+#include "base/strings/string_util.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/origin_whitelist_impl.h"
 #include "cef/libcef/browser/thread_util.h"
@@ -32,6 +33,7 @@
 #include "net/url_request/url_request.h"
 #include "services/network/public/cpp/cors/cors.h"
 #include "services/network/public/cpp/features.h"
+#include "services/network/public/cpp/is_potentially_trustworthy.h"
 #include "services/network/public/mojom/early_hints.mojom.h"
 #include "third_party/blink/public/common/loader/referrer_utils.h"
 
@@ -1068,8 +1070,32 @@ void InterceptedRequest::ContinueToBeforeRedirect(
   }
 
   // Remove existing Cookie headers. They may be re-added after Restart().
-  const std::vector<std::string> remove_headers{
-      net::HttpRequestHeaders::kCookie};
+  std::vector<std::string> remove_headers{net::HttpRequestHeaders::kCookie};
+
+  // Restarting the request (vs. following the redirect in place) re-validates
+  // it via CorsURLLoaderFactory::IsValidRequest, which rejects the
+  // network-managed Sec-Fetch-* headers carried over from the previous hop and
+  // kills the process. Strip the whole family by prefix (like
+  // network::MaybeRemoveSecHeaders); URLLoader re-derives them downstream.
+  //
+  // Sec-CH-* Client Hints headers from the previous hop must also be stripped
+  // when the redirect downgrades from a potentially trustworthy URL to an
+  // untrustworthy one (again like network::MaybeRemoveSecHeaders, which runs
+  // on the non-restart redirect path); the destination would never have
+  // received them directly. Unlike Sec-Fetch-* they are not re-derived
+  // downstream, so they must be preserved on all other redirects.
+  const bool strip_client_hints =
+      network::IsUrlPotentiallyTrustworthy(original_url) &&
+      !network::IsUrlPotentiallyTrustworthy(request_.url);
+  for (const auto& header : request_.headers.GetHeaderVector()) {
+    if (base::StartsWith(header.key, "Sec-Fetch-",
+                         base::CompareCase::INSENSITIVE_ASCII) ||
+        (strip_client_hints &&
+         base::StartsWith(header.key, "Sec-CH-",
+                          base::CompareCase::INSENSITIVE_ASCII))) {
+      remove_headers.push_back(header.key);
+    }
+  }
 
   // Use common logic for sanitizing request headers including Origin and
   // Content-*.
