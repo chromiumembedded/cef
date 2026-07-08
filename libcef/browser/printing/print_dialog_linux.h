@@ -44,7 +44,37 @@ class CefPrintingContextLinuxDelegate
   raw_ptr<ui::PrintingContextLinuxDelegate> default_delegate_ = nullptr;
 };
 
-// Needs to be freed on the UI thread to clean up its member variables.
+// Creates the Linux print dialog through CefPrintingContextLinuxDelegate so
+// that CefPrintHandler is used. Since M145 the dialog is created via a
+// PrintingContextLinux::PrintDialogFactory whose default implementation
+// bypasses the delegate; this factory is registered in its place from
+// ChromeBrowserMainExtraPartsCef::ToolkitInitialized(). Out-of-process printing
+// must be disabled (--disable-features=EnableOopPrintDrivers) for the callbacks
+// to fire; see https://github.com/chromiumembedded/cef/issues/3729.
+class CefPrintDialogFactory
+    : public printing::PrintingContextLinux::PrintDialogFactory {
+ public:
+  CefPrintDialogFactory();
+
+  CefPrintDialogFactory(const CefPrintDialogFactory&) = delete;
+  CefPrintDialogFactory& operator=(const CefPrintDialogFactory&) = delete;
+
+  // printing::PrintingContextLinux::PrintDialogFactory:
+  std::unique_ptr<printing::PrintDialogLinuxInterface> CreatePrintDialog(
+      printing::PrintingContextLinux* context,
+      bool show_system_dialog) override;
+#if BUILDFLAG(ENABLE_OOP_PRINTING_NO_OOP_BASIC_PRINT_DIALOG)
+  std::unique_ptr<printing::PrintDialogLinuxInterface>
+  CreatePrintDialogForSettings(
+      printing::PrintingContextLinux* context,
+      const printing::PrintSettings& settings) override;
+#endif
+};
+
+// Reference counted so that it can outlive the PrintingContextLinux that owns
+// it (via a std::unique_ptr<CefPrintDialogLinuxProxy>) until an asynchronous
+// print job driven by the client's CefPrintHandler completes. Freed on the UI
+// thread to clean up its member variables.
 class CefPrintDialogLinux : public printing::PrintDialogLinuxInterface,
                             public base::RefCountedThreadSafe<
                                 CefPrintDialogLinux,

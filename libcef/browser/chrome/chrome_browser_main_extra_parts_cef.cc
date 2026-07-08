@@ -95,5 +95,12 @@ void ChromeBrowserMainExtraPartsCef::ToolkitInitialized() {
   auto default_delegate =
       ui::PrintingContextLinuxDelegate::SetInstance(printing_delegate);
   printing_delegate->SetDefaultDelegate(default_delegate);
+
+  // Replace the default factory registered by
+  // ChromeBrowserMainExtraPartsViewsLinux with one that routes through the
+  // delegate above. SetPrintDialogFactory() requires a null reset first.
+  printing::PrintingContextLinux::SetPrintDialogFactory(nullptr);
+  printing::PrintingContextLinux::SetPrintDialogFactory(
+      new CefPrintDialogFactory());
 #endif  // BUILDFLAG(IS_LINUX)
 }

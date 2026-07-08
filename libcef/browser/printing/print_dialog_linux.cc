@@ -54,6 +54,47 @@ CefRefPtr<CefPrintHandler> GetPrintHandlerForBrowser(
   return nullptr;
 }
 
+// Owned by PrintingContextLinux via a std::unique_ptr (the M145 ownership
+// model) and forwards to the reference-counted CefPrintDialogLinux, which must
+// outlive the PrintingContext until an async CefPrintHandler job completes.
+// Destroying the proxy calls ReleaseDialog() to drop the context's reference;
+// outstanding callbacks keep the dialog alive until the job finishes.
+class CefPrintDialogLinuxProxy : public printing::PrintDialogLinuxInterface {
+ public:
+  explicit CefPrintDialogLinuxProxy(CefRefPtr<CefPrintDialogLinux> dialog)
+      : dialog_(std::move(dialog)) {}
+
+  CefPrintDialogLinuxProxy(const CefPrintDialogLinuxProxy&) = delete;
+  CefPrintDialogLinuxProxy& operator=(const CefPrintDialogLinuxProxy&) = delete;
+
+  ~CefPrintDialogLinuxProxy() override { dialog_->ReleaseDialog(); }
+
+  // printing::PrintDialogLinuxInterface:
+  void UseDefaultSettings() override { dialog_->UseDefaultSettings(); }
+  void UpdateSettings(
+      std::unique_ptr<printing::PrintSettings> settings) override {
+    dialog_->UpdateSettings(std::move(settings));
+  }
+#if BUILDFLAG(ENABLE_OOP_PRINTING_NO_OOP_BASIC_PRINT_DIALOG)
+  void LoadPrintSettings(const printing::PrintSettings& settings) override {
+    dialog_->LoadPrintSettings(settings);
+  }
+#endif
+  void ShowDialog(
+      gfx::NativeView parent_view,
+      bool has_selection,
+      PrintingContextLinux::PrintSettingsCallback callback) override {
+    dialog_->ShowDialog(parent_view, has_selection, std::move(callback));
+  }
+  void PrintDocument(const printing::MetafilePlayer& metafile,
+                     const std::u16string& document_name) override {
+    dialog_->PrintDocument(metafile, document_name);
+  }
+
+ private:
+  CefRefPtr<CefPrintDialogLinux> dialog_;
+};
+
 }  // namespace
 
 class CefPrintDialogCallbackImpl : public CefPrintDialogCallback {
@@ -148,7 +189,7 @@ CefPrintingContextLinuxDelegate::CreatePrintDialog(
       DCHECK(interface);
     }
   } else {
-    interface = base::WrapUnique<printing::PrintDialogLinuxInterface>(
+    interface = std::make_unique<CefPrintDialogLinuxProxy>(
         new CefPrintDialogLinux(context, browser, handler));
   }
 
@@ -196,6 +237,35 @@ void CefPrintingContextLinuxDelegate::SetDefaultDelegate(
   DCHECK(!default_delegate_);
   default_delegate_ = delegate;
 }
+
+CefPrintDialogFactory::CefPrintDialogFactory() = default;
+
+std::unique_ptr<printing::PrintDialogLinuxInterface>
+CefPrintDialogFactory::CreatePrintDialog(
+    printing::PrintingContextLinux* context,
+    bool show_system_dialog) {
+  // Route dialog creation back through CefPrintingContextLinuxDelegate so that
+  // CefPrintHandler is used. The delegate falls back to the default (GTK)
+  // implementation when no handler is provided.
+  if (auto* delegate = ui::PrintingContextLinuxDelegate::instance()) {
+    return delegate->CreatePrintDialog(context);
+  }
+  return nullptr;
+}
+
+#if BUILDFLAG(ENABLE_OOP_PRINTING_NO_OOP_BASIC_PRINT_DIALOG)
+std::unique_ptr<printing::PrintDialogLinuxInterface>
+CefPrintDialogFactory::CreatePrintDialogForSettings(
+    printing::PrintingContextLinux* context,
+    const printing::PrintSettings& settings) {
+  // The caller applies |settings| via PrintDialogLinuxInterface::
+  // LoadPrintSettings() after the dialog is created.
+  if (auto* delegate = ui::PrintingContextLinuxDelegate::instance()) {
+    return delegate->CreatePrintDialog(context);
+  }
+  return nullptr;
+}
+#endif
 
 CefPrintDialogLinux::CefPrintDialogLinux(PrintingContextLinux* context,
                                          CefRefPtr<CefBrowserHostBase> browser,
