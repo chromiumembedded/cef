@@ -316,10 +316,15 @@ std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPromptImpl(
   if (is_alloy_style) {
     LOG(INFO) << "Implement OnShowPermissionPrompt to override default IGNORE "
                  "handling of permission prompts.";
+
+    // Default handling with Alloy style is IGNORE. The default UI prompt is
+    // not supported because there is no Chrome Browser object (the Views
+    // prompt would dereference a null BrowserWindowInterface when anchoring).
+    *default_handling = false;
+    return nullptr;
   }
 
-  // Proceed with default handling. This will be IGNORE with Alloy style and
-  // default UI prompt with Chrome style.
+  // Proceed with default UI prompt handling for Chrome style.
   *default_handling = true;
   return nullptr;
 }
