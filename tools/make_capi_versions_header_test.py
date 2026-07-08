@@ -6,6 +6,7 @@ import os
 import tempfile
 import unittest
 
+from cef_parser import obj_header
 from generator_test_util import make_fixture_header
 from generator_test_util import read_golden
 from generator_test_util import run_generator_script
@@ -41,6 +42,45 @@ class MakeCapiVersionsHeaderTest(unittest.TestCase):
           path, os.path.join(output_directory, 'cef_fixture_capi_versions.h'))
       self.assertEqual(
           contents, read_golden('make_capi_versions_header', 'cef_fixture.h'))
+
+  def test_global_function_type_includes(self):
+    library_data = '''
+#include "include/cef_base.h"
+///
+/// Library-side object.
+///
+/*--cef(source=library)--*/
+class CefFixtureLibrary : public CefBaseRefCounted {
+ public:
+  ///
+  /// Return a value.
+  ///
+  /*--cef()--*/
+  virtual int GetValue() = 0;
+
+  IMPLEMENT_REFCOUNTING(CefFixtureLibrary);
+};
+'''
+    util_data = '''
+#include "include/cef_fixture_library.h"
+///
+/// Create a library-side object.
+///
+/*--cef()--*/
+CefRefPtr<CefFixtureLibrary> CefFixtureCreateLibrary();
+
+///
+/// Consume a library-side object.
+///
+/*--cef()--*/
+void CefFixtureConsumeLibrary(CefRefPtr<CefFixtureLibrary> library);
+'''
+    header = obj_header()
+    header.add_data('cef_fixture_library.h', library_data)
+    header.add_data('cef_fixture_util.h', util_data)
+    output = make_capi_versions_header(header, 'cef_fixture_util.h')
+    self.assertIn('#include "include/capi/cef_fixture_library_capi_versions.h"',
+                  output)
 
   def test_cli_usage_and_successful_stdout(self):
     invalid = run_generator_script('make_capi_versions_header.py')

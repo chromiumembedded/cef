@@ -46,6 +46,25 @@ def make_capi_member_funcs(funcs, defined_names, translate_map, indent):
   return result
 
 
+def add_func_type_includes(header, filename, funcs, translated_includes):
+  filename_no_ext = filename[:-2] if filename.endswith('.h') else filename
+  for func in funcs:
+    for arg in [func.get_retval()] + func.get_arguments():
+      arg_type = arg.get_type()
+      if not arg_type.is_result_ptr() and \
+          not (arg_type.is_result_vector() and arg_type.is_result_vector_ptr()):
+        continue
+
+      cls = header.get_class(arg_type.get_ptr_type())
+      if cls is None:
+        continue
+
+      include = cls.get_file_name()
+      include = include[:-2] if include.endswith('.h') else include
+      if include != filename_no_ext:
+        translated_includes.add(include)
+
+
 def make_capi_header(header, filename):
   # structure names that have already been defined
   defined_names = header.get_defined_structs()
@@ -112,6 +131,8 @@ def make_capi_header(header, filename):
       if not capi_name in all_declares:
         all_declares[capi_name] = declare_cls.get_version_check() \
                                   if declare_cls.has_version() else None
+  add_func_type_includes(header, filename, header.get_funcs(filename),
+                         translated_includes)
 
   # output translated includes
   if len(translated_includes) > 0:

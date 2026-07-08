@@ -70,6 +70,44 @@ class CefBad : public CefBaseRefCounted {
     with self.assertRaisesRegex(Exception, 'Disallowed include'):
       make_capi_header(header, 'cef_bad.h')
 
+  def test_global_function_type_includes(self):
+    library_data = '''
+#include "include/cef_base.h"
+///
+/// Library-side object.
+///
+/*--cef(source=library)--*/
+class CefFixtureLibrary : public CefBaseRefCounted {
+ public:
+  ///
+  /// Return a value.
+  ///
+  /*--cef()--*/
+  virtual int GetValue() = 0;
+
+  IMPLEMENT_REFCOUNTING(CefFixtureLibrary);
+};
+'''
+    util_data = '''
+#include "include/cef_fixture_library.h"
+///
+/// Create a library-side object.
+///
+/*--cef()--*/
+CefRefPtr<CefFixtureLibrary> CefFixtureCreateLibrary();
+
+///
+/// Consume a library-side object.
+///
+/*--cef()--*/
+void CefFixtureConsumeLibrary(CefRefPtr<CefFixtureLibrary> library);
+'''
+    header = obj_header()
+    header.add_data('cef_fixture_library.h', library_data)
+    header.add_data('cef_fixture_util.h', util_data)
+    output = make_capi_header(header, 'cef_fixture_util.h')
+    self.assertIn('#include "include/capi/cef_fixture_library_capi.h"', output)
+
   def test_cli_usage_and_successful_stdout(self):
     invalid = run_generator_script('make_capi_header.py')
     self.assertEqual(invalid.returncode, 0)
