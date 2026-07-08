@@ -388,7 +388,7 @@ index 54dd477b3bd1f1f5bf6912bbe745b5b0ecfc66f9..d6038d2ed8481c3d5aec76d9e9666680
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 999fcd474717aab5f9f8e1b23e99dbaf6d748329..d786108ae1e8f962f0922ec95b2d1036fc480ae6 100644
+index 999fcd474717aab5f9f8e1b23e99dbaf6d748329..8a027ecd54321f2fd312b91e0af0328a813a93bf 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -28,6 +28,7 @@
@@ -448,7 +448,24 @@ index 999fcd474717aab5f9f8e1b23e99dbaf6d748329..d786108ae1e8f962f0922ec95b2d1036
    // Stack immediately above its parent so that it does not cover other
    // root-level windows, with the exception of menus, to allow them to be
    // displayed on top of other windows.
-@@ -1225,6 +1246,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
+@@ -1120,6 +1141,16 @@ void DesktopWindowTreeHostWin::HandleCreate() {
+ }
+ 
+ void DesktopWindowTreeHostWin::HandleDestroying() {
++  // With CEF external parent the platform window (HWND) may be a child of a
++  // window owned by a different thread. During DestroyWindow of such a window
++  // the OS can deliver WM_DESTROY multiple times, so only handle the first
++  // call. Widget::HandleWidgetDestroying (called via
++  // OnNativeWidgetDestroying) CHECKs that it's only called once.
++  if (destroying_handled_) {
++    return;
++  }
++  destroying_handled_ = true;
++
+   drag_drop_client_->OnNativeWidgetDestroying(GetHWND());
+   if (native_widget_delegate_) {
+     native_widget_delegate_->OnNativeWidgetDestroying();
+@@ -1225,6 +1256,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
  
    if (restored) {
      window()->Show();
@@ -467,7 +484,7 @@ index 999fcd474717aab5f9f8e1b23e99dbaf6d748329..d786108ae1e8f962f0922ec95b2d1036
    } else {
      window()->Hide();
    }
-@@ -1246,11 +1279,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -1246,11 +1289,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -487,7 +504,7 @@ index 999fcd474717aab5f9f8e1b23e99dbaf6d748329..d786108ae1e8f962f0922ec95b2d1036
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
-@@ -1259,6 +1298,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+@@ -1259,6 +1308,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
      return true;
    }
  
@@ -500,7 +517,7 @@ index 999fcd474717aab5f9f8e1b23e99dbaf6d748329..d786108ae1e8f962f0922ec95b2d1036
    SendEventToSink(event);
    return event->handled();
  }
-@@ -1470,9 +1515,18 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
+@@ -1470,9 +1525,18 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
    // positions in variable-DPI situations. See https://crbug.com/1224715 for
    // details.
    aura::Window* root = nullptr;
@@ -521,16 +538,21 @@ index 999fcd474717aab5f9f8e1b23e99dbaf6d748329..d786108ae1e8f962f0922ec95b2d1036
  }
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index 9ba64dc1b546b3a4e48e13949a555c227e02327c..23c529a51319df49d4b73e114eaa6680cf568cb9 100644
+index 9ba64dc1b546b3a4e48e13949a555c227e02327c..c49f934a678d0174db21a18fdaa3eb19c38ffbc3 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-@@ -368,6 +368,17 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
+@@ -368,6 +368,22 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
    // Overrides the remote session detection for testing.
    std::optional<bool> remote_session_for_testing_;
  
 +  // True if the widget has a external parent view/window outside of the
 +  // Chromium-controlled view/window hierarchy.
 +  bool has_external_parent_ = false;
++
++  // True if HandleDestroying() has already been called. The OS may deliver
++  // WM_DESTROY multiple times when the window is a child of a window owned by
++  // a different thread (CEF external parent).
++  bool destroying_handled_ = false;
 +
 +  // True if this widget is a menu.
 +  bool is_menu_ = false;
