@@ -26,6 +26,70 @@ index 441a77db1f20138fff05c877382a00b9f36af56d..458035c5df8aa58953f17daa5aa2a784
    connect(settings, "notify::gtk-cursor-theme-name",
            &GtkUi::OnCursorThemeNameChanged);
    connect(settings, "notify::gtk-cursor-theme-size",
+diff --git ui/ozone/platform/wayland/ozone_platform_wayland.cc ui/ozone/platform/wayland/ozone_platform_wayland.cc
+index 39b1aa814c252a103f775898151feedffade5c3d..d0ccc89658b820b6ea6bf659e006fb7c0275bd70 100644
+--- ui/ozone/platform/wayland/ozone_platform_wayland.cc
++++ ui/ozone/platform/wayland/ozone_platform_wayland.cc
+@@ -82,6 +82,8 @@ namespace ui {
+ 
+ namespace {
+ 
++bool g_multi_threaded_message_loop = false;
++
+ constexpr char kDisableAcceleratedSubwindowsForTesting[] =
+     "disable-accelerated-subwindows-for-testing";
+ 
+@@ -303,8 +305,16 @@ class OzonePlatformWayland : public OzonePlatform,
+ 
+     supported_formats_ =
+         connection_->buffer_manager_host()->GetSupportedSharedImageFormats();
+-    linux_ui_delegate_ =
+-        std::make_unique<LinuxUiDelegateWayland>(connection_.get());
++    // Not creating the LinuxUiDelegateWayland will disable creation of GtkUi
++    // (interface to GTK desktop features) and cause ui::GetDefaultLinuxUi()
++    // (and related functions) to return nullptr. We can't use GtkUi in
++    // combination with multi-threaded-message-loop because Chromium's GTK
++    // implementation doesn't use GDK threads. Light/dark theme changes will
++    // still be detected via DarkModeManagerLinux.
++    if (!g_multi_threaded_message_loop) {
++      linux_ui_delegate_ =
++          std::make_unique<LinuxUiDelegateWayland>(connection_.get());
++    }
+ 
+     menu_utils_ = std::make_unique<WaylandMenuUtils>(connection_.get());
+     wayland_utils_ = std::make_unique<WaylandUtils>(connection_.get());
+@@ -571,4 +581,8 @@ OzonePlatform* CreateOzonePlatformWayland() {
+   return new OzonePlatformWayland;
+ }
+ 
++void SetMultiThreadedMessageLoopWayland() {
++  g_multi_threaded_message_loop = true;
++}
++
+ }  // namespace ui
+diff --git ui/ozone/platform/wayland/ozone_platform_wayland.h ui/ozone/platform/wayland/ozone_platform_wayland.h
+index 4302d96a03e6f98dafe8544ada91e1462957ec2d..d0cb3254a7716b8fba06b72829013e01d1ea6ef6 100644
+--- ui/ozone/platform/wayland/ozone_platform_wayland.h
++++ ui/ozone/platform/wayland/ozone_platform_wayland.h
+@@ -5,6 +5,8 @@
+ #ifndef UI_OZONE_PLATFORM_WAYLAND_OZONE_PLATFORM_WAYLAND_H_
+ #define UI_OZONE_PLATFORM_WAYLAND_OZONE_PLATFORM_WAYLAND_H_
+ 
++#include "base/component_export.h"
++
+ namespace ui {
+ 
+ class OzonePlatform;
+@@ -12,6 +14,9 @@ class OzonePlatform;
+ // Constructor hook for use in ozone_platform_list.cc
+ OzonePlatform* CreateOzonePlatformWayland();
+ 
++// Indicate that CEF is using multi-threaded-message-loop.
++COMPONENT_EXPORT(OZONE) void SetMultiThreadedMessageLoopWayland();
++
+ }  // namespace ui
+ 
+ #endif  // UI_OZONE_PLATFORM_WAYLAND_OZONE_PLATFORM_WAYLAND_H_
 diff --git ui/ozone/platform/x11/ozone_platform_x11.cc ui/ozone/platform/x11/ozone_platform_x11.cc
 index 33d4a4a084cf8cb57db2b7765598de93ae905fd1..1cb9e18fb4b697989dbb36bd3260674a9d67e50b 100644
 --- ui/ozone/platform/x11/ozone_platform_x11.cc

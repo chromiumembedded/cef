@@ -13,6 +13,9 @@
 
 #if BUILDFLAG(IS_LINUX)
 #include "ui/base/ozone_buildflags.h"
+#if BUILDFLAG(SUPPORTS_OZONE_WAYLAND)
+#include "ui/ozone/platform/wayland/ozone_platform_wayland.h"
+#endif
 #if BUILDFLAG(SUPPORTS_OZONE_X11)
 #include "ui/ozone/platform/x11/ozone_platform_x11.h"
 #endif
@@ -68,12 +71,15 @@ bool CefUIThread::WaitUntilThreadStarted() const {
 int CefUIThread::InitializeBrowserRunner(
     content::MainFunctionParams main_function_params) {
 #if BUILDFLAG(IS_LINUX)
-#if BUILDFLAG(SUPPORTS_OZONE_X11)
   // Disable creation of GtkUi (interface to GTK desktop features) and cause
   // ui::GetDefaultLinuxUi() (and related functions) to return nullptr. We
   // can't use GtkUi in combination with multi-threaded-message-loop because
   // Chromium's GTK implementation doesn't use GDK threads. Light/dark theme
   // changes will still be detected via DarkModeManagerLinux.
+#if BUILDFLAG(SUPPORTS_OZONE_WAYLAND)
+  ui::SetMultiThreadedMessageLoopWayland();
+#endif
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
   ui::SetMultiThreadedMessageLoopX11();
 #endif
 #endif
