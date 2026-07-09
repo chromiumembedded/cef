@@ -555,7 +555,7 @@ index 1bbf0c62d8dd868a22c38e0d7b510845bfcc30c3..ccc13a8a8b62ed4acde13ae4d7a98fd8
        break;
      case ui::mojom::WindowShowState::kEnd:
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index a4e9aa6ca8d059a25723bdefd3898ea789b91783..4f4bc44dc5cde0ad0e78eac482e94c6bc51ac8f3 100644
+index 427068bf8331a53274eb4ed9c8c42a287040e4ff..8ce1eb203687bb6c36a4ec7cc287c917b762f919 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -239,8 +239,8 @@ ui::ZOrderLevel Widget::InitParams::EffectiveZOrderLevel() const {
@@ -608,7 +608,7 @@ index a4e9aa6ca8d059a25723bdefd3898ea789b91783..4f4bc44dc5cde0ad0e78eac482e94c6b
      }
    }
  
-@@ -2042,10 +2053,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -2045,10 +2056,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -625,7 +625,7 @@ index a4e9aa6ca8d059a25723bdefd3898ea789b91783..4f4bc44dc5cde0ad0e78eac482e94c6b
    return non_client_view_ ? non_client_view_->GetMaximumSize() : gfx::Size();
  }
  
-@@ -2351,7 +2368,8 @@ bool Widget::SetInitialFocus(ui::mojom::WindowShowState show_state) {
+@@ -2354,7 +2371,8 @@ bool Widget::SetInitialFocus(ui::mojom::WindowShowState show_state) {
    View* v = widget_delegate_->GetInitiallyFocusedView();
    if (!focus_on_creation_ ||
        show_state == ui::mojom::WindowShowState::kInactive ||
