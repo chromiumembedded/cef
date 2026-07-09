@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index e0c8910c0dbb9c5626ab1d2e63da0e82c4d9608c..662d7abb94f1e2a41759caa8dc42b0be60c5f8a8 100644
+index 6cdbca0cb66d8658a6cf6994c4cde89f5855c367..eb3760906b835f9cbe79a399d6963e5244ed4b73 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
 @@ -390,8 +390,13 @@ void AddAdditionalRequestHeaders(
@@ -92,10 +92,10 @@ index db222d4814fd4c0630cf93bb3224c5e6675c453a..d5a5ebcccfdb56a92463880f0559cc5c
    // Superset of GetOriginForURLLoaderFactoryBeforeResponse(). Calculates
    // the origin with information from the final frame host. Can be called only
 diff --git content/browser/security/cpsp/child_process_security_policy_impl.cc content/browser/security/cpsp/child_process_security_policy_impl.cc
-index ea4f2168bbb167f99fe1c710240d44a6ce42e9ea..9393e38f3dbfdd867e95db62798c4250b1d84687 100644
+index 8d3429e69dc858b1b257ea026cf5c283c54ec83c..3e4471944aa154d089c287abd56ab3eca8dd0d32 100644
 --- content/browser/security/cpsp/child_process_security_policy_impl.cc
 +++ content/browser/security/cpsp/child_process_security_policy_impl.cc
-@@ -2544,6 +2544,17 @@ bool ChildProcessSecurityPolicyImpl::PerformJailAndCitadelChecks(
+@@ -2572,6 +2572,17 @@ bool ChildProcessSecurityPolicyImpl::PerformJailAndCitadelChecks(
          if (actual_process_lock.MatchesScheme(url::kDataScheme)) {
            return true;
          }

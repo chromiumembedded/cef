@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index d2d70b3e3bc5afeaf3aa0207bcacf72a3d1a08a3..6b91a5d390e8a292fa5ca477a31d2671d6036fb0 100644
+index a80a529e2e8c4db6df468d3627d15bb0a814ebde..d7d16ccec9dc8480461d7a445ae7f13aab348a9f 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -447,6 +447,18 @@ ui::ImageModel GetLensContextMenuIcon() {
@@ -189,7 +189,7 @@ index ec7a5fdef0fdf08dedb1c3932c78d485730a7a1a..ba772758fe13ebcff3935bfb53a9e97a
    runner_->Cancel();
  }
 diff --git chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
-index e884befd17afde7e5659521c40293ddef7f3d5a1..ba58b094eed8e370cb1b464b5dc898f0e9b822a7 100644
+index 625e3b90c0d82da7f406837797e6614cb44134b7..ad728b4968a026d5a364c74bc5d2e24f16866a23 100644
 --- chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
 +++ chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
 @@ -157,6 +157,9 @@ void RenderViewContextMenuViews::RunMenuAt(views::Widget* parent,

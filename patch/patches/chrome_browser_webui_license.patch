@@ -69,7 +69,7 @@ index f633265e3d207d2802e1faf60abcf83f39cdf104..7d759d855922211aacb200bc1194a42b
  // chrome://terms
  class TermsUIConfig : public AboutUIConfigBase {
 diff --git chrome/browser/ui/webui/chrome_web_ui_configs.cc chrome/browser/ui/webui/chrome_web_ui_configs.cc
-index bf3058f6a00dd91a17ca1bc2b67f5b76653e8474..0605142908407c2e1060a604544d1213a482a2ae 100644
+index 184305a45acc2929bf70db1898fb8ddbf42b0316..18baa26cd4dac2da74da1ea78966fbc06d7d343f 100644
 --- chrome/browser/ui/webui/chrome_web_ui_configs.cc
 +++ chrome/browser/ui/webui/chrome_web_ui_configs.cc
 @@ -7,6 +7,7 @@
@@ -80,7 +80,7 @@ index bf3058f6a00dd91a17ca1bc2b67f5b76653e8474..0605142908407c2e1060a604544d1213
  #include "chrome/browser/contextual_tasks/contextual_tasks_ui.h"
  #include "chrome/browser/glic/host/glic_ui.h"
  #include "chrome/browser/optimization_guide/optimization_guide_internals_ui.h"
-@@ -257,6 +258,9 @@ void RegisterChromeWebUIConfigs() {
+@@ -258,6 +259,9 @@ void RegisterChromeWebUIConfigs() {
    map.AddWebUIConfig(std::make_unique<BrowsingTopicsInternalsUIConfig>());
    map.AddWebUIConfig(
        std::make_unique<chrome_finds_internals::ChromeFindsInternalsUIConfig>());
@@ -91,10 +91,10 @@ index bf3058f6a00dd91a17ca1bc2b67f5b76653e8474..0605142908407c2e1060a604544d1213
    map.AddWebUIConfig(std::make_unique<chromeos::DeviceLogUIConfig>());
    map.AddWebUIConfig(std::make_unique<CrashesUIConfig>());
 diff --git chrome/common/webui_url_constants.cc chrome/common/webui_url_constants.cc
-index 250d4739cb40e97e5d5a12a1d60579e1560fbea0..f4929ac674774e1ef9beeaec1c806e997777eae3 100644
+index 4c12bc642955f1c2ff6f618e70a0ce60374afb1f..9beafa64b5207e2b92cc82d378ec10feb1995efb 100644
 --- chrome/common/webui_url_constants.cc
 +++ chrome/common/webui_url_constants.cc
-@@ -148,6 +148,9 @@ base::span<const base::cstring_view> ChromeURLHosts() {
+@@ -149,6 +149,9 @@ base::span<const base::cstring_view> ChromeURLHosts() {
        kChromeUIHistoryHost,
        history_clusters_internals::kChromeUIHistoryClustersInternalsHost,
        kChromeUIInterstitialHost,
@@ -105,7 +105,7 @@ index 250d4739cb40e97e5d5a12a1d60579e1560fbea0..f4929ac674774e1ef9beeaec1c806e99
  #if !BUILDFLAG(IS_ANDROID)
        kChromeUIManagementHost,
 diff --git chrome/common/webui_url_constants.h chrome/common/webui_url_constants.h
-index 2e2c3a97e72e436d6a23e9aae2ee6e903712db6e..29385108faf2cfa47074912deb0d41658d4176aa 100644
+index 497865b22520bbe16bd6cc68b73ba90e25f70065..f7f8a9c310fd9479a37403ab7851d44c564b0224 100644
 --- chrome/common/webui_url_constants.h
 +++ chrome/common/webui_url_constants.h
 @@ -18,6 +18,7 @@
@@ -116,7 +116,7 @@ index 2e2c3a97e72e436d6a23e9aae2ee6e903712db6e..29385108faf2cfa47074912deb0d4165
  #include "chrome/common/buildflags.h"
  #include "components/enterprise/buildflags/buildflags.h"
  #include "components/signin/public/base/signin_buildflags.h"
-@@ -213,6 +214,10 @@ inline constexpr char kChromeUIInternalsHost[] = "internals";
+@@ -217,6 +218,10 @@ inline constexpr char kChromeUIInternalsHost[] = "internals";
  inline constexpr char kChromeUIInterstitialHost[] = "interstitials";
  inline constexpr char kChromeUIInterstitialURL[] = "chrome://interstitials/";
  inline constexpr char kChromeUIKillHost[] = "kill";
