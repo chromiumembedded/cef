@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index 981c6062775d3478c00bd18c8ddb993755e35d06..b554fcac07db6d8a148ff8e6b806cf59f872ba9f 100644
+index df07ecab18c16499b25857c7294ffed58494e87d..296043b6a18e7abf0a0375ca3315bc36b25d7e33 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
 @@ -10352,6 +10352,16 @@ void RenderFrameHostImpl::CreateNewWindow(
