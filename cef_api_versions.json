@@ -148,8 +148,15 @@
       "mac": "e85c868aa8a947e1e7c9904c0745c60ae490fa05",
       "sandbox_compat": "6c5b35ad81055c14",
       "windows": "71146b4350a01d3805e7ea990eb034e6ef4d53db"
+    },
+    "15100": {
+      "comment": "Added July 09, 2026.",
+      "linux": "1b3fee57d3eff23ea779639ffafaa618067bf398",
+      "mac": "7a7c51220f8d1b713be3e4a2a63ac121dfeb3b85",
+      "sandbox_compat": "1671cc913eeb4ecf",
+      "windows": "18540445b651348f411f42313ebfd190d5416187"
     }
   },
-  "last": "15000",
+  "last": "15100",
   "min": "13300"
 }
