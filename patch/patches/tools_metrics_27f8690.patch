@@ -1,0 +1,21 @@
+diff --git tools/metrics/BUILD.gn tools/metrics/BUILD.gn
+index c826e9708bf6a..23799c76dd7ef 100644
+--- tools/metrics/BUILD.gn
++++ tools/metrics/BUILD.gn
+@@ -41,11 +41,11 @@ group("metrics_metadata") {
+   ]
+ 
+   # Only include histograms_xml if we have access to dirmd data, which
+-  # is used to populate ownership information. This is only set to false
+-  # for non-git checkouts.
+-  # TODO(crbug.com/329080012): Remove this once dirmd works in non-git
+-  # checkouts.
+-  if (generate_location_tags) {
++  # is used to populate ownership information. This is disabled
++  # for non-git checkouts, as dirmd doesn't work on non-git checkout.
++  # TODO(crbug.com/329080012): Remove this condition once dirmd works
++  # in non-git checkouts.
++  if (path_exists("//.git")) {
+     deps += [ ":histograms_xml" ]
+   }
+ }
