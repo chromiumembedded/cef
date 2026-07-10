@@ -422,7 +422,7 @@ struct HttpServerResponse {
     TYPE_404,
     TYPE_500,
     TYPE_CUSTOM,
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15100)
     TYPE_RAW,
 #endif
   };
@@ -442,7 +442,7 @@ struct HttpServerResponse {
   int response_code;
   CefRequest::HeaderMap extra_headers;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15100)
   // Used with RAW response type. The complete raw header block, including the
   // status line.
   std::string raw_headers;
@@ -471,7 +471,7 @@ void SendHttpServerResponse(CefRefPtr<CefTestServerConnection> connection,
           response.content.data(), response.content.size(),
           response.extra_headers);
       break;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15100)
     case HttpServerResponse::TYPE_RAW:
       EXPECT_TRUE(!response.raw_headers.empty());
       connection->SendHttpResponseWithRawHeaders(
@@ -519,7 +519,7 @@ void VerifyHttpServerResponse(const HttpServerResponse& expected_response,
       EXPECT_STREQ(expected_response.content.c_str(), data.c_str());
       TestMapEqual(expected_response.extra_headers, header_map, true);
       break;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15100)
     case HttpServerResponse::TYPE_RAW:
       EXPECT_EQ(expected_response.response_code, response->GetStatus());
       EXPECT_STREQ(expected_response.content_type.c_str(),
@@ -739,7 +739,7 @@ class StaticHttpRequestRunner : public HttpTestRunner::RequestRunner {
     return std::make_unique<StaticHttpRequestRunner>(request, response);
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15100)
   static std::unique_ptr<HttpTestRunner::RequestRunner> CreateRawHeaders(
       const std::string& path) {
     CefRefPtr<CefRequest> request = CreateTestServerRequest(path, "GET");
@@ -946,7 +946,7 @@ TEST(TestServerTest, HttpsSingleCustomNoContent) {
   ReleaseAndWaitForDestructor(runner);
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15100)
 
 // Verify handling of a single HTTP request with a raw headers response.
 TEST(TestServerTest, HttpSingleRawHeaders) {
@@ -968,7 +968,7 @@ TEST(TestServerTest, HttpsSingleRawHeaders) {
   ReleaseAndWaitForDestructor(runner);
 }
 
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15100)
 
 // Verify handling of multiple HTTP requests in parallel.
 TEST(TestServerTest, HttpMultipleParallel200) {
