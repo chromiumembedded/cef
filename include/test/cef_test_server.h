@@ -194,7 +194,7 @@ class CefTestServerConnection : public CefBaseRefCounted {
   /// non-UTF-8 Content-Disposition filename) for testing purposes. The
   /// connection will be closed automatically after the response is sent.
   ///
-  /*--cef(added=experimental,optional_param=response_data)--*/
+  /*--cef(added=next,optional_param=response_data)--*/
   virtual void SendHttpResponseWithRawHeaders(const void* header_data,
                                               size_t header_data_size,
                                               const void* response_data,
