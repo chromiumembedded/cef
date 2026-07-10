@@ -181,7 +181,7 @@ class CefTestServerConnection : public CefBaseRefCounted {
                                 size_t data_size,
                                 const HeaderMap& extra_headers) = 0;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15100)
   ///
   /// Send a custom HTTP response using raw header data. |header_data| is the
   /// complete raw HTTP response header block, including the status line (e.g.
@@ -194,7 +194,7 @@ class CefTestServerConnection : public CefBaseRefCounted {
   /// non-UTF-8 Content-Disposition filename) for testing purposes. The
   /// connection will be closed automatically after the response is sent.
   ///
-  /*--cef(added=next,optional_param=response_data)--*/
+  /*--cef(added=15100,optional_param=response_data)--*/
   virtual void SendHttpResponseWithRawHeaders(const void* header_data,
                                               size_t header_data_size,
                                               const void* response_data,

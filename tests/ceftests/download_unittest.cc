@@ -874,7 +874,7 @@ TEST(DownloadTest, PauseResume) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15100)
 
 namespace {
 
@@ -1153,4 +1153,4 @@ TEST(DownloadTest, GbkFilenameDefaultCharsetPref) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15100)
