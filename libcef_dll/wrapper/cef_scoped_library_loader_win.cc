@@ -59,7 +59,7 @@ HMODULE Load(const std::wstring& dll_path,
       // what information and API versions are available.
       bool check_dll_version = true;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15101)
       // When using installer path resolution verify that the loaded DLL's full
       // version matches what the installer resolved from metadata. This closes
       // the gap between the installer's revocation check (metadata-only from
@@ -79,7 +79,7 @@ HMODULE Load(const std::wstring& dll_path,
         }
         check_dll_version = false;
       }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15101)
 
       // Retrieve self-reported DLL version information.
       cef_version_info_t dll_info = {};

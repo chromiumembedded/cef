@@ -772,7 +772,7 @@ TEST(InstallerStartupResultTest, MapsNotConfiguredAndConfigError) {
   EXPECT_EQ("malformed trusted config", error.error_message);
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15101)
 TEST(InstallerStartupResultTest, VersionInfoSizeGating) {
   InstallerStartupState state;
   state.libcef_path = base::FilePath(L"C:\\CEF\\libcef.dll");
