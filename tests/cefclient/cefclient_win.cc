@@ -49,7 +49,7 @@ constexpr bool kAllowUnsigned = true;
 // specified or if |kAllowUnsigned| is true.
 constexpr bool kRequireMatchingThumbprints = false;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15101)
 // Certificate thumbprint for official CEF distributions (SHA-1, uppercase hex).
 // Used when libcef.dll was installed from CDN (not bundled with the app).
 constexpr char kCefCertificateThumbprint[] =
@@ -132,7 +132,7 @@ bool VerifyCodeSigningAndLoad(CefScopedLibraryLoader& library_loader,
   std::wstring libcef_dll_path;
   const char* libcef_thumbprint = RequiredThumbprint(&exe_thumbprint);
   bool libcef_allow_unsigned = kAllowUnsigned;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15101)
   const InstallerStartupError installer_error =
       GetInstallerStartupError(version_info);
   if (version_info &&
@@ -153,7 +153,7 @@ bool VerifyCodeSigningAndLoad(CefScopedLibraryLoader& library_loader,
     auto sep_pos = exe_path.find_last_of(L"/\\");
     CHECK(sep_pos != std::wstring::npos);
     libcef_dll_path = exe_path.substr(0, sep_pos + 1) + L"libcef.dll";
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15101)
     if (installer_error.code != 0) {
       const std::string message =
           installer_error.message ? installer_error.message : "no diagnostic";
@@ -180,7 +180,7 @@ int RunMain(HINSTANCE hInstance,
             int nCmdShow,
             void* sandbox_info,
             cef_version_info_t* version_info) {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15101)
   const InstallerStartupError installer_error =
       GetInstallerStartupError(version_info);
   if (installer_error.code == kInstallerExitCodeCancelled) {

@@ -86,7 +86,7 @@ typedef struct _cef_version_info_t {
   char sandbox_compat_hash[17];
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15101)
   ///
   /// Path to libcef.dll provided by the bootstrap installer (Windows only).
   /// Null if not using the installer or on other platforms.
@@ -143,7 +143,7 @@ typedef struct _cef_version_info_t {
    sizeof(((cef_version_info_t*)0)->sandbox_compat_hash))
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15101)
 ///
 /// Minimum struct size required to contain the installer startup error fields.
 /// Used for version compatibility checks.
@@ -198,7 +198,7 @@ typedef struct _cef_version_info_t {
 // Helper macro for setting bootstrap-only installer fields. By default all are
 // NULL/0. The bootstrap can override these after calling
 // CEF_POPULATE_VERSION_INFO.
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15101)
 #define _CEF_POPULATE_LIBCEF_PATH(info) \
   (info)->libcef_path = NULL;           \
   (info)->libcef_is_bundled = 0;        \

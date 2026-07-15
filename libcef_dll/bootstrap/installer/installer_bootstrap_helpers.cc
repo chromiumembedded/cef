@@ -396,7 +396,7 @@ void PopulateInstallerVersionInfo(const InstallerStartupState& state,
   if (!info) {
     return;
   }
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15101)
   if (info->size >= CEF_VERSION_INFO_SIZE_WITH_INSTALLER_ERROR) {
     info->libcef_path =
         state.libcef_path.empty() ? nullptr : state.libcef_path.value().c_str();

@@ -6,7 +6,7 @@
 #include "include/cef_version_info.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15101)
 static_assert(CEF_VERSION_INFO_SIZE_WITH_INSTALLER_ERROR ==
               offsetof(cef_version_info_t, installer_error_message) +
                   sizeof(((cef_version_info_t*)0)->installer_error_message));
@@ -29,7 +29,7 @@ TEST(VersionTest, ApiHash) {
   EXPECT_STREQ(CEF_COMMIT_HASH, cef_api_hash(CEF_API_VERSION, 2));
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15101)
 TEST(VersionTest, VersionInfoBootstrapFieldsSizeGated) {
   cef_version_info_t info = {};
   info.size = CEF_VERSION_INFO_SIZE_WITH_SANDBOX_HASH;
