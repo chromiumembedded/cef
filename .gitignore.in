@@ -43,6 +43,7 @@ cscope.*
 Session.vim
 tags
 Thumbs.db
+tmp/
 # IDE's
 .vs/
 .kdev4/
