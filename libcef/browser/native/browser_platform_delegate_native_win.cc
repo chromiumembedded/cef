@@ -31,6 +31,7 @@
 #include "ui/events/keycodes/dom/keycode_converter.h"
 #include "ui/events/keycodes/keyboard_code_conversion_win.h"
 #include "ui/events/keycodes/platform_key_map_win.h"
+#include "ui/events/win/events_win_utils.h"
 #include "ui/gfx/geometry/vector2d.h"
 #include "ui/gfx/win/hwnd_util.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_win.h"
@@ -454,8 +455,8 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeWin::TranslateUiKeyEvent(
   int flags = TranslateUiEventModifiers(key_event.modifiers);
   ui::KeyboardCode key_code =
       ui::KeyboardCodeForWindowsKeyCode(key_event.windows_key_code);
-  ui::DomCode dom_code =
-      ui::KeycodeConverter::NativeKeycodeToDomCode(key_event.native_key_code);
+  ui::DomCode dom_code = ui::KeycodeConverter::NativeKeycodeToDomCode(
+      ui::GetScanCodeFromLParam(key_event.native_key_code));
   base::TimeTicks time_stamp = GetEventTimeStamp();
 
   if (key_event.type == KEYEVENT_CHAR) {
@@ -474,6 +475,13 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeWin::TranslateUiKeyEvent(
       break;
     default:
       DCHECK(false);
+  }
+
+  // Bit 30 of the Windows lParam "previous key state" indicates the key was
+  // already down, meaning this is an auto-repeat keydown event.
+  if (type == ui::EventType::kKeyPressed &&
+      (key_event.native_key_code & 0x40000000) != 0) {
+    flags |= ui::EF_IS_REPEAT;
   }
 
   ui::DomKey dom_key =
