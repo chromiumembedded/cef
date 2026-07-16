@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 6cdbca0cb66d8658a6cf6994c4cde89f5855c367..eb3760906b835f9cbe79a399d6963e5244ed4b73 100644
+index b803f0ac75e6d1af35e3eb0e4372a6354e1bffb7..704a6b660b201148ab196fd70ac527cde43539fa 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -390,8 +390,13 @@ void AddAdditionalRequestHeaders(
+@@ -391,8 +391,13 @@ void AddAdditionalRequestHeaders(
      blink::mojom::Referrer* referrer,
      FrameTreeNode* frame_tree_node,
      bool is_browser_initiated) {
@@ -18,7 +18,7 @@ index 6cdbca0cb66d8658a6cf6994c4cde89f5855c367..eb3760906b835f9cbe79a399d6963e52
  
    bool is_reload = NavigationTypeUtils::IsReload(navigation_type);
    bool is_history = NavigationTypeUtils::IsHistory(navigation_type);
-@@ -9640,7 +9645,8 @@ std::optional<url::Origin> NavigationRequest::GetOriginToCommit() {
+@@ -9667,7 +9672,8 @@ std::optional<url::Origin> NavigationRequest::GetOriginToCommit() {
  }
  
  url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
@@ -28,7 +28,7 @@ index 6cdbca0cb66d8658a6cf6994c4cde89f5855c367..eb3760906b835f9cbe79a399d6963e52
    // Calculate an approximation of the origin. The sandbox/csp are ignored.
    url::Origin origin = GetOriginForURLLoaderFactoryUnchecked();
  
-@@ -9657,6 +9663,17 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
+@@ -9684,6 +9690,17 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
    bool use_opaque_origin =
        (sandbox_flags & network::mojom::WebSandboxFlags::kOrigin) ==
        network::mojom::WebSandboxFlags::kOrigin;
@@ -46,7 +46,7 @@ index 6cdbca0cb66d8658a6cf6994c4cde89f5855c367..eb3760906b835f9cbe79a399d6963e52
    if (use_opaque_origin) {
      origin = origin.DeriveNewOpaqueOrigin();
    }
-@@ -9717,8 +9734,9 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
+@@ -9744,8 +9761,9 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
      return GetRenderFrameHost()->GetLastCommittedOrigin();
    }
  
@@ -58,7 +58,7 @@ index 6cdbca0cb66d8658a6cf6994c4cde89f5855c367..eb3760906b835f9cbe79a399d6963e52
  
    SCOPED_CRASH_KEY_BOOL("Bug1454273", "is_in_main_frame", IsInMainFrame());
    SCOPED_CRASH_KEY_STRING256(
-@@ -9753,10 +9771,17 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
+@@ -9780,10 +9798,17 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
        DetermineInitiatorRelationship(initiator_rfh,
                                       frame_tree_node_->current_frame_host()));
  
@@ -78,10 +78,10 @@ index 6cdbca0cb66d8658a6cf6994c4cde89f5855c367..eb3760906b835f9cbe79a399d6963e52
    // If the target of this navigation will be rendered in a RenderFrameHost,
    // then verify that the chosen origin is allowed to be accessed from that
 diff --git content/browser/renderer_host/navigation_request.h content/browser/renderer_host/navigation_request.h
-index db222d4814fd4c0630cf93bb3224c5e6675c453a..d5a5ebcccfdb56a92463880f0559cc5c0a8b3195 100644
+index 644ea475c1954efe69aaa8cb6d68a6746bd5a975..b32df23910af8a4b94e69a1f78a68c345b098d3e 100644
 --- content/browser/renderer_host/navigation_request.h
 +++ content/browser/renderer_host/navigation_request.h
-@@ -2503,7 +2503,8 @@ class CONTENT_EXPORT NavigationRequest
+@@ -2515,7 +2515,8 @@ class CONTENT_EXPORT NavigationRequest
    // situations where the final frame host hasn't been determined but the origin
    // is needed to create URLLoaderFactory.
    url::Origin GetOriginForURLLoaderFactoryBeforeResponse(

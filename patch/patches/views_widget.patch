@@ -148,7 +148,7 @@ index f812730cccf1adb442c1a855ff37d8c50933bbe6..69cf4d966a02518ea703afa8d444e53a
    // renderer process changes. This method is called before notifying
    // RenderWidgetHostImpl in order to allow the view to allocate a new
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index 2be271de518fd4e1745e061b948e8fafd71c487a..495d76a8fa6050d1c54d899f70f2722da5ef1c9d 100644
+index ae820a98583232a01503df1d2b40c9873bc61469..ec870f4553303edc044ae528548ed40283921b34 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -53,6 +53,10 @@ namespace {
@@ -162,7 +162,7 @@ index 2be271de518fd4e1745e061b948e8fafd71c487a..495d76a8fa6050d1c54d899f70f2722d
  #if BUILDFLAG(IS_WIN)
  // A callback function for EnumThreadWindows to enumerate and dismiss
  // any owned popup windows.
-@@ -844,6 +848,14 @@ void RenderWidgetHostViewEventHandler::MoveCursorToCenter(
+@@ -845,6 +849,14 @@ void RenderWidgetHostViewEventHandler::MoveCursorToCenter(
      }
      return;
    }
@@ -177,7 +177,7 @@ index 2be271de518fd4e1745e061b948e8fafd71c487a..495d76a8fa6050d1c54d899f70f2722d
  #endif
    synthetic_move_position_ = center_in_screen;
  }
-@@ -874,6 +886,17 @@ bool RenderWidgetHostViewEventHandler::MatchesSynthesizedMovePosition(
+@@ -875,6 +887,17 @@ bool RenderWidgetHostViewEventHandler::MatchesSynthesizedMovePosition(
  }
  
  void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
@@ -258,10 +258,10 @@ index aeaf8e35f7eda89598149117fe8508d197bf2610..4b7cc3f03d3cf9c91ac8efe11ae820cf
 +  [MinVersion=1] kEnd = 7,
  };
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
-index f7f95bf768203b0a8b2d6fe61ab3e2cd02f7d277..a4a82888dfb95051d2fe1ab15032d4925331abc3 100644
+index b0b4ea578e18be99935fe966b04492039f0a21bd..31c25c3e7c042056f868fc4335a446988a4c94c0 100644
 --- ui/ozone/platform/x11/x11_window.cc
 +++ ui/ozone/platform/x11/x11_window.cc
-@@ -1966,7 +1966,17 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
+@@ -1985,7 +1985,17 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
    req.border_pixel = 0;
  
    last_set_bounds_px_ = SanitizeBounds(bounds);
