@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index d06407d4ca6a18e66c49ea725e6e9c40c8042c7a..c62e844edb75561e97a165789b24597a6f22f28d 100644
+index bfc8555485593dc25c72fa74f20a70ce70ea6598..d11af643f3fa9f318799f3bf17061ccea72cd397 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -10,7 +10,7 @@ index d06407d4ca6a18e66c49ea725e6e9c40c8042c7a..c62e844edb75561e97a165789b24597a
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -2039,6 +2040,7 @@ source_set("browser") {
+@@ -2040,6 +2041,7 @@ source_set("browser") {
      "//build/config/compiler:compiler_buildflags",
      "//build/config/linux/dbus:buildflags",
      "//cc",
@@ -18,7 +18,7 @@ index d06407d4ca6a18e66c49ea725e6e9c40c8042c7a..c62e844edb75561e97a165789b24597a
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -3051,6 +3053,10 @@ source_set("browser") {
+@@ -3052,6 +3054,10 @@ source_set("browser") {
      ]
    }
  

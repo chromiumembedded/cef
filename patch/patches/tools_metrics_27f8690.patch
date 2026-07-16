@@ -1,5 +1,5 @@
 diff --git tools/metrics/BUILD.gn tools/metrics/BUILD.gn
-index c826e9708bf6a..23799c76dd7ef 100644
+index c826e9708bf6a6594353c356c6285b6f2efddd3c..23799c76dd7ef1e45bd9ed0c7cd23f18f9e6e8d4 100644
 --- tools/metrics/BUILD.gn
 +++ tools/metrics/BUILD.gn
 @@ -41,11 +41,11 @@ group("metrics_metadata") {

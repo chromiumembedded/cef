@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index 5e59394e73e613b3c2a1f72be4ad67f022ecf7a0..59d1759c8cb77dacb86034ff7d874be30a3f7ce7 100644
+index a457075948e34dcc2df8a1c127c146bf4dc92a02..d6df6ac9990e129def018248cfe6184f50f7e0c9 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
-@@ -615,6 +615,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
+@@ -616,6 +616,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
      WindowOpenDisposition disposition,
      base::TimeTicks time_stamp) {
    if (!SupportsCommand(id) || !IsCommandEnabled(id)) {
@@ -10,7 +10,7 @@ index 5e59394e73e613b3c2a1f72be4ad67f022ecf7a0..59d1759c8cb77dacb86034ff7d874be3
      return false;
    }
  
-@@ -641,6 +642,13 @@ void BrowserCommandController::HandleCommandWithDisposition(
+@@ -642,6 +643,13 @@ void BrowserCommandController::HandleCommandWithDisposition(
      base::TimeTicks time_stamp) {
    DCHECK(IsCommandEnabled(id)) << "Invalid/disabled command " << id;
  
@@ -24,7 +24,7 @@ index 5e59394e73e613b3c2a1f72be4ad67f022ecf7a0..59d1759c8cb77dacb86034ff7d874be3
    // The order of commands in this switch statement must match the function
    // declaration order in browser.h!
    switch (id) {
-@@ -1644,12 +1652,14 @@ void BrowserCommandController::TabRestoreServiceLoaded(
+@@ -1660,12 +1668,14 @@ void BrowserCommandController::TabRestoreServiceLoaded(
  
  bool BrowserCommandController::IsShowingMainUI() {
    return browser_->SupportsWindowFeature(
