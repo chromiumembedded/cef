@@ -5,6 +5,12 @@
 #include <algorithm>
 #include <memory>
 
+#include "include/base/cef_build.h"
+
+#if defined(OS_LINUX)
+#include <langinfo.h>
+#endif
+
 #include "include/base/cef_callback.h"
 #include "include/base/cef_callback_helpers.h"
 #include "include/cef_request_context.h"
@@ -908,6 +914,15 @@ const char kGbkDownloadPath[] = "/order.xls";
 const char kGbkDownloadContent[] = "test";
 const char kDefaultCharsetPrefName[] = "intl.charset_default";
 
+bool IsUtf8ProcessLocale() {
+#if defined(OS_LINUX)
+  const char* codeset = nl_langinfo(CODESET);
+  return codeset && std::string(codeset) == "UTF-8";
+#else
+  return true;
+#endif
+}
+
 // Serves the start page and the GBK download response on the dedicated server
 // thread. The download response is sent with raw (non-UTF-8) header bytes.
 class GbkFilenameServerHandler : public CefTestServerHandler {
@@ -1136,6 +1151,10 @@ class DownloadGbkFilenameTestHandler : public TestHandler {
 // Test that a GBK-encoded download filename is decoded using the Content-Type
 // charset. Regression test for issue #3135.
 TEST(DownloadTest, GbkFilenameContentTypeCharset) {
+  if (!IsUtf8ProcessLocale()) {
+    GTEST_SKIP() << "A UTF-8 process locale is required.";
+  }
+
   CefRefPtr<DownloadGbkFilenameTestHandler> handler =
       new DownloadGbkFilenameTestHandler(
           DownloadGbkFilenameTestHandler::Mode::CONTENT_TYPE_CHARSET);
@@ -1146,6 +1165,10 @@ TEST(DownloadTest, GbkFilenameContentTypeCharset) {
 // Test that a GBK-encoded download filename is decoded using the
 // "intl.charset_default" preference when the server declares no charset.
 TEST(DownloadTest, GbkFilenameDefaultCharsetPref) {
+  if (!IsUtf8ProcessLocale()) {
+    GTEST_SKIP() << "A UTF-8 process locale is required.";
+  }
+
   CefRefPtr<DownloadGbkFilenameTestHandler> handler =
       new DownloadGbkFilenameTestHandler(
           DownloadGbkFilenameTestHandler::Mode::DEFAULT_CHARSET_PREF);
