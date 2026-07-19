@@ -7,6 +7,7 @@
 #include <shellapi.h>
 
 #include <algorithm>
+#include <bit>
 #include <cwctype>
 #include <string>
 #include <vector>
@@ -79,20 +80,22 @@ std::vector<std::wstring> ParseCommandLineArgs(const wchar_t* str) {
   std::wstring command_line = str;
   TrimWhitespace(command_line);
 
-  int num_args = 0;
-  wchar_t** args = NULL;
   // When calling CommandLineToArgvW, use the apiset if available.
   // Doing so will bypass loading shell32.dll on Windows.
+  decltype(::CommandLineToArgvW)* command_line_to_argv_w_proc = nullptr;
   HMODULE downlevel_shell32_dll =
       ::LoadLibraryEx(L"api-ms-win-downlevel-shell32-l1-1-0.dll", nullptr,
                       LOAD_LIBRARY_SEARCH_SYSTEM32);
   if (downlevel_shell32_dll) {
-    auto command_line_to_argv_w_proc =
-        reinterpret_cast<decltype(::CommandLineToArgvW)*>(
+    command_line_to_argv_w_proc =
+        std::bit_cast<decltype(command_line_to_argv_w_proc)>(
             ::GetProcAddress(downlevel_shell32_dll, "CommandLineToArgvW"));
-    if (command_line_to_argv_w_proc) {
-      args = command_line_to_argv_w_proc(command_line.data(), &num_args);
-    }
+  }
+
+  int num_args = 0;
+  wchar_t** args = nullptr;
+  if (command_line_to_argv_w_proc) {
+    args = command_line_to_argv_w_proc(command_line.data(), &num_args);
   } else {
     // Since the apiset is not available, allow the delayload of shell32.dll
     // to take place.
