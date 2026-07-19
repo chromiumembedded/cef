@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "include/test/cef_api_version_test.h"
+#include "libcef_dll/template_util.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
@@ -1025,7 +1026,10 @@ TEST(ApiVersionTest, StructVersionNewer) {
   const std::string testStr = "Test";
   CefString(&(structv2.val2)) = testStr;
 
-  classv1 = reinterpret_cast<test_struct_v1_t&>(structv2);
+  auto& structv1 = reinterpret_cast<test_struct_v1_t&>(structv2);
+  EXPECT_TRUE(template_util::has_valid_size(&structv1));
+
+  classv1 = structv1;
 
   // Now |classv1| has the same value (up to V1 size).
   EXPECT_EQ(classv1.size, sizeof(test_struct_v1_t));

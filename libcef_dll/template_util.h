@@ -11,7 +11,8 @@
 namespace template_util {
 
 // Used to detect whether the given C struct has a size_t size field or has a
-// base field and a base field has a size field.
+// base field and a base field has a size field. The declared size may exceed
+// the local definition when receiving a struct from a newer API version.
 template <typename T, typename = void>
 struct HasValidSize {
   bool operator()(const T*) { return true; }
@@ -20,13 +21,11 @@ template <typename T>
 struct HasValidSize<T,
                     typename std::enable_if_t<
                         std::is_same<decltype(T::size), std::size_t>::value>> {
-  bool operator()(const T* s) { return s->size > 0 && s->size <= sizeof(*s); }
+  bool operator()(const T* s) { return s->size > 0; }
 };
 template <typename T>
 struct HasValidSize<T, decltype(void(T::base.size))> {
-  bool operator()(const T* s) {
-    return s->base.size > 0 && s->base.size <= sizeof(*s);
-  }
+  bool operator()(const T* s) { return s->base.size > 0; }
 };
 
 template <typename T>
