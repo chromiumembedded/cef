@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index ccf98b895b79ccc2874a47fc11638d3c51584350..5b70b46b19150b7b7de0d5bcb08b215857f585b2 100644
+index 6fde91c4db54dd5ffd01c141b9adcde2005b4fa4..bc1922325091c70602a6530a11e0e87e2c166147 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
-@@ -2451,6 +2451,17 @@ bool ChildProcessSecurityPolicyImpl::PerformJailAndCitadelChecks(
+@@ -2479,6 +2479,17 @@ bool ChildProcessSecurityPolicyImpl::PerformJailAndCitadelChecks(
          if (actual_process_lock.MatchesScheme(url::kDataScheme)) {
            return true;
          }

@@ -1,5 +1,5 @@
 diff --git ui/gtk/gtk_ui.cc ui/gtk/gtk_ui.cc
-index 2aec6f07aadea604e9d5a3597bd3dd45cd245a4d..e5db4a8af627bd1b823dd9a1406e9842e0ba8024 100644
+index 441a77db1f20138fff05c877382a00b9f36af56d..458035c5df8aa58953f17daa5aa2a7840f384ac9 100644
 --- ui/gtk/gtk_ui.cc
 +++ ui/gtk/gtk_ui.cc
 @@ -31,6 +31,7 @@
@@ -10,10 +10,10 @@ index 2aec6f07aadea604e9d5a3597bd3dd45cd245a4d..e5db4a8af627bd1b823dd9a1406e9842
  #include "chrome/browser/themes/theme_properties.h"  // nogncheck
  #include "third_party/skia/include/core/SkBitmap.h"
  #include "third_party/skia/include/core/SkColor.h"
-@@ -365,10 +366,15 @@ bool GtkUi::Initialize() {
- 
-   GtkSettings* settings = gtk_settings_get_default();
-   SanitizeIconThemeName();
+@@ -374,10 +375,15 @@ bool GtkUi::Initialize() {
+     connect(settings, "notify::gtk-key-theme-name",
+             &GtkUi::OnKeyThemeNameChanged);
+   }
 +  // Disable GTK theme change notifications because they are extremely slow.
 +  // Light/dark theme changes will still be detected via DarkModeManagerLinux.
 +  // See https://issues.chromium.org/issues/40280130#comment7

@@ -258,10 +258,10 @@ index aeaf8e35f7eda89598149117fe8508d197bf2610..4b7cc3f03d3cf9c91ac8efe11ae820cf
 +  [MinVersion=1] kEnd = 7,
  };
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
-index 4920a1907337ec1cf1c7f1dc782d64c31d961aa2..72e39cfaac10fce2b1a71949062715b0de48935a 100644
+index f7ea9a33a40e58097d2e5516178b161a2d928e49..6f785c22c3d4d4dcaa925efd0b98226f59bbc6bf 100644
 --- ui/ozone/platform/x11/x11_window.cc
 +++ ui/ozone/platform/x11/x11_window.cc
-@@ -1963,7 +1963,17 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
+@@ -1982,7 +1982,17 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
    req.border_pixel = 0;
  
    last_set_bounds_px_ = SanitizeBounds(bounds);

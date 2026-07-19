@@ -12,10 +12,10 @@ index 8859ecde27105c5256dcbc687e3d8eeacbd8cde6..51eab7fa6fd991c57aea653c348da96e
  
        "//google_apis/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 6fb99965414bf0d557aa2dcb123add85479600d5..caba1971f2c0b6a3c861372dfa1e8e33dd72a5f8 100644
+index df09eb1d9bb07878b6f21c7b6df2f78ce25c469f..7042ace346cda14e91f7037a0f0725fa30eecd8f 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -21,6 +21,7 @@ import("//build/config/ui.gni")
+@@ -22,6 +22,7 @@ import("//build/config/ui.gni")
  import("//build/gn_logs.gni")
  import("//build/toolchain/rbe.gni")
  import("//build/util/generate_wrapper.gni")
@@ -23,7 +23,7 @@ index 6fb99965414bf0d557aa2dcb123add85479600d5..caba1971f2c0b6a3c861372dfa1e8e33
  import("//chrome/browser/buildflags.gni")
  import("//chrome/enterprise_companion/buildflags.gni")
  import("//components/enterprise/buildflags/buildflags.gni")
-@@ -283,6 +284,10 @@ group("gn_all") {
+@@ -284,6 +285,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  

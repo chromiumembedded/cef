@@ -14,10 +14,10 @@ index 976081b1ce5d0e105a7af77910877daaf9cc84ce..b1ab1e497144394d12d71a3797baf0c9
    }
  }
 diff --git ui/gtk/BUILD.gn ui/gtk/BUILD.gn
-index 6d2693a68a2f38a9ac9619a5cedab1d1ca304483..5aff3afdb5ffe6930bdb89e7d4d7a49597951266 100644
+index 6a963a05e1fb6a3794f369e28433761ce6f099e5..c253fe6db5b12b20fdcd683e6e3ed2bf007b78a2 100644
 --- ui/gtk/BUILD.gn
 +++ ui/gtk/BUILD.gn
-@@ -184,4 +184,8 @@ component("gtk") {
+@@ -195,6 +195,10 @@ component("gtk") {
  
    # TODO: This should be removed.
    deps += [ "//ui/ozone" ]
@@ -26,3 +26,5 @@ index 6d2693a68a2f38a9ac9619a5cedab1d1ca304483..5aff3afdb5ffe6930bdb89e7d4d7a495
 +    cflags = [ "-Wno-deprecated-volatile" ]
 +  }
  }
+ 
+ if (use_gtk) {
