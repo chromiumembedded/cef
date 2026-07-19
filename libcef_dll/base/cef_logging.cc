@@ -590,14 +590,14 @@ std::string UTF16ToUTF8(std::u16string_view str16) {
     char16_t ch = str16[i];
 
     // Check for surrogate pair.
-    if (ch >= 0xD800 && ch <= 0xDBFF && i + 1 < str16.size()) {
-      char16_t ch2 = str16[i + 1];
+    if (ch >= 0xD800 && ch <= 0xDBFF) {
+      const char16_t ch2 = (i + 1 < str16.size()) ? str16[i + 1] : 0;
       if (ch2 >= 0xDC00 && ch2 <= 0xDFFF) {
         // Valid surrogate pair.
         codepoint = 0x10000 + ((ch - 0xD800) << 10) + (ch2 - 0xDC00);
         ++i;
       } else {
-        // Invalid surrogate, use replacement character.
+        // Invalid or missing low surrogate, use replacement character.
         codepoint = 0xFFFD;
       }
     } else if (ch >= 0xDC00 && ch <= 0xDFFF) {
