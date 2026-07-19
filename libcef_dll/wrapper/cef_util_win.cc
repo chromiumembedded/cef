@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <bit>
+#include <span>
 #include <cwctype>
 #include <string>
 #include <vector>
@@ -105,11 +106,10 @@ std::vector<std::wstring> ParseCommandLineArgs(const wchar_t* str) {
   std::vector<std::wstring> result;
   result.reserve(num_args);
 
-  for (int i = 0; i < num_args; ++i) {
-    std::wstring arg = args[i];
+  for (std::wstring arg : std::span{args, num_args}) {
     TrimWhitespace(arg);
     if (!arg.empty()) {
-      result.push_back(arg);
+      result.push_back(std::move(arg));
     }
   }
 
