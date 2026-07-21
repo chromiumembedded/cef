@@ -3,11 +3,9 @@
 // can be found in the LICENSE file.
 
 // Tests that CefBrowserHost::SendKeyEvent correctly populates the DOM
-// keyboard event properties (event.code, event.key, event.repeat) when
+// keyboard event properties (event.code, event.location, event.repeat) when
 // received by JavaScript in the renderer.
-//
 
-#include "include/cef_render_handler.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/routing_test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -24,18 +22,23 @@ namespace {
 
 const char kTestUrl[] = "https://tests/keyboard_dom_code_test.html";
 
-// The HTML page installs keydown/keyup listeners on the document and reports
-// each event back via window.testQuery (the RoutingTestHandler query function)
-// so the C++ side can verify the values.
-// We report: eventType|code|key|repeat
+// The HTML page installs keydown/keyup/keypress listeners and reports each
+// event back via window.testQuery as "type|code|location|repeat".
+//
+// event.location values:
+//   0 = DOM_KEY_LOCATION_STANDARD
+//   1 = DOM_KEY_LOCATION_LEFT
+//   2 = DOM_KEY_LOCATION_RIGHT
+//   3 = DOM_KEY_LOCATION_NUMPAD
 const char kTestHtml[] =
     "<html><head><script>\n"
     "function sendEvent(e) {\n"
-    "  var msg = e.type + '|' + e.code + '|' + e.key + '|' + e.repeat;\n"
+    "  var msg = e.type+'|'+e.code+'|'+e.location+'|'+e.repeat;\n"
     "  window.testQuery({request: msg});\n"
     "}\n"
-    "document.addEventListener('keydown', sendEvent);\n"
-    "document.addEventListener('keyup',   sendEvent);\n"
+    "document.addEventListener('keydown',  sendEvent);\n"
+    "document.addEventListener('keyup',    sendEvent);\n"
+    "document.addEventListener('keypress', sendEvent);\n"
     "</script></head><body>KeyboardDomCodeTest</body></html>\n";
 
 // ---------------------------------------------------------------------------
@@ -69,26 +72,44 @@ static int MakeLParam(UINT scanCode, bool extended, bool prevDown,
   return static_cast<int>(lp);
 }
 
-// Send a single key-down followed by a key-up for a given virtual key.
-// |repeat| controls whether the key-down is flagged as an auto-repeat.
-static void SendKeyDownUp(CefRefPtr<CefBrowser> browser,
-                          UINT vk,
-                          UINT scanCode,
-                          bool repeat) {
+// Send RAWKEYDOWN + CHAR + KEYUP for a given virtual key / scan code,
+// mirroring the three-message sequence produced by a real WM_KEY* message.
+// |repeat| sets lParam bit 30 on the RAWKEYDOWN event.
+static void SendKeyDownCharKeyUp(CefRefPtr<CefBrowser> browser,
+                              UINT vk,
+                              UINT scanCode,
+                              char16_t character,
+                              bool repeat) {
   CefKeyEvent event;
   event.is_system_key = false;
-  event.windows_key_code = vk;
+  event.modifiers = 0;
+  event.windows_key_code = static_cast<int>(vk);
 
-  // --- keydown (RAWKEYDOWN) ---
+  // --- KEYEVENT_RAWKEYDOWN ---
   event.native_key_code = MakeLParam(scanCode, /*extended=*/false,
                                      /*prevDown=*/repeat,
                                      /*releasing=*/false);
-  event.modifiers = 0;
   event.type = KEYEVENT_RAWKEYDOWN;
   browser->GetHost()->SendKeyEvent(event);
 
-  // --- keyup ---
+  // --- KEYEVENT_CHAR ---
+  // For WM_CHAR: windows_key_code is the character value, lParam is the
+  // same as for WM_KEYDOWN.  The character value must NOT be interpreted as
+  // a VK code for modifier purposes
+  event.windows_key_code = static_cast<int>(character);
+  event.character = character;
+  event.unmodified_character = character;
+  event.native_key_code = MakeLParam(scanCode, /*extended=*/false,
+                                     /*prevDown=*/repeat,
+                                     /*releasing=*/false);
+  event.type = KEYEVENT_CHAR;
+  browser->GetHost()->SendKeyEvent(event);
+
+  // --- KEYEVENT_KEYUP ---
   // For WM_KEYUP bits 30 and 31 are always 1.
+  event.windows_key_code = static_cast<int>(vk);
+  event.character = 0;
+  event.unmodified_character = 0;
   event.native_key_code = MakeLParam(scanCode, /*extended=*/false,
                                      /*prevDown=*/true,
                                      /*releasing=*/true);
@@ -101,25 +122,36 @@ static void SendKeyDownUp(CefRefPtr<CefBrowser> browser,
 // Test handler
 // ---------------------------------------------------------------------------
 
-// What we are currently waiting for.
+// Stages of the test state machine.
+// The sequence mirrors what a real key press produces:
+//   keydown -> keypress (from KEYEVENT_CHAR) -> keyup
+// followed by the same sequence with the repeat flag set on the keydown.
 enum KeyDomCodeTestStage {
-  // Waiting for: keydown for 'A' (not repeat)
-  STAGE_KEYDOWN_A,
-  // Waiting for: keyup for 'A'
-  STAGE_KEYUP_A,
-  // Waiting for: keydown for 'A' with repeat=true
-  STAGE_KEYDOWN_A_REPEAT,
-  // Waiting for: keyup after the repeated keydown
-  STAGE_KEYUP_A_REPEAT,
-  // All stages done.
+  // --- first key press (non-repeat) ---
+  STAGE_KEYDOWN_A,          // RAWKEYDOWN -> DOM keydown
+  STAGE_KEYPRESS_A,         // CHAR      -> DOM keypress (location must be 0)
+  STAGE_KEYUP_A,            // KEYUP     -> DOM keyup
+  // --- second key press (auto-repeat) ---
+  STAGE_KEYDOWN_A_REPEAT,   // RAWKEYDOWN with bit30 -> DOM keydown repeat=true
+  STAGE_KEYPRESS_A_REPEAT,  // CHAR -> DOM keypress repeat=true, location=0
+  STAGE_KEYUP_A_REPEAT,     // KEYUP -> DOM keyup
+  // --- done ---
   STAGE_DONE,
 };
 
-// Minimal CefRenderHandler required for OSR browser creation.
-class KeyboardTestRenderHandler : public CefRenderHandler {
+class KeyboardDomCodeTestHandler : public RoutingTestHandler,
+                                    public CefRenderHandler {
  public:
-  KeyboardTestRenderHandler() = default;
+  KeyboardDomCodeTestHandler() = default;
 
+  KeyboardDomCodeTestHandler(const KeyboardDomCodeTestHandler&) = delete;
+  KeyboardDomCodeTestHandler& operator=(const KeyboardDomCodeTestHandler&) =
+      delete;
+
+  // CefClient override: return this as the render handler for OSR.
+  CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
+
+  // CefRenderHandler methods:
   void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override {
     rect = CefRect(0, 0, 800, 600);
   }
@@ -129,29 +161,21 @@ class KeyboardTestRenderHandler : public CefRenderHandler {
                const RectList& dirtyRects,
                const void* buffer,
                int width,
-               int height) override {}
-
-  IMPLEMENT_REFCOUNTING(KeyboardTestRenderHandler);
-};
-
-class KeyboardDomCodeTestHandler : public RoutingTestHandler {
- public:
-  KeyboardDomCodeTestHandler() = default;
-
-  KeyboardDomCodeTestHandler(const KeyboardDomCodeTestHandler&) = delete;
-  KeyboardDomCodeTestHandler& operator=(const KeyboardDomCodeTestHandler&) =
-      delete;
-
-  // CefClient override: return our render handler for OSR.
-  CefRefPtr<CefRenderHandler> GetRenderHandler() override {
-    return render_handler_;
+               int height) override {
+    if (!got_paint_) {
+      got_paint_.yes();
+      CefPostDelayedTask(
+          TID_UI,
+          base::BindOnce(&KeyboardDomCodeTestHandler::SendNextKey, this,
+                         browser),
+          100);
+    }
   }
 
   void RunTest() override {
     AddResource(kTestUrl, kTestHtml, "text/html");
 
-    // Create an OSR (windowless) browser so SendKeyEvent delivers events to
-    // the renderer without requiring real OS window focus.
+    // Create an OSR browser
     CefWindowInfo windowInfo;
 #if defined(OS_WIN)
     windowInfo.SetAsWindowless(GetDesktopWindow());
@@ -163,24 +187,6 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler {
                                   nullptr);
 
     SetTestTimeout();
-  }
-
-  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                 CefRefPtr<CefFrame> frame,
-                 int httpStatusCode) override {
-    if (!frame->IsMain()) {
-      return;
-    }
-    EXPECT_EQ(200, httpStatusCode);
-
-    got_load_end_.yes();
-
-    // Give the renderer a moment to register the event listeners before
-    // sending key events.
-    CefPostDelayedTask(
-        TID_UI,
-        base::BindOnce(&KeyboardDomCodeTestHandler::SendNextKey, this, browser),
-        100);
   }
 
   bool OnQuery(CefRefPtr<CefBrowser> browser,
@@ -197,7 +203,7 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler {
   }
 
   void DestroyTest() override {
-    EXPECT_TRUE(got_load_end_);
+    EXPECT_TRUE(got_paint_);
     EXPECT_EQ(STAGE_DONE, stage_);
 
     RoutingTestHandler::DestroyTest();
@@ -205,15 +211,14 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler {
 
  private:
 #if defined(OS_WIN)
-  // 'A' key: VK code and scan code on a standard keyboard.
+  // 'A' key: VK code, scan code, and character on a standard US keyboard.
   static constexpr UINT kVkA = 'A';
-  static constexpr UINT kScanA = 0x1E;  // scan code for 'A'
+  static constexpr UINT kScanA = 0x1E;
+  static constexpr char16_t kCharA = u'a';  // lowercase; no shift modifier
 #endif
 
-  // Parse the message string "eventType|code|key|repeat" and advance the
-  // test state machine.
+  // Parse "type|code|location|repeat" and advance the state machine.
   void HandleKeyEvent(CefRefPtr<CefBrowser> browser, const std::string& msg) {
-    // Parse the four pipe-separated fields.
     auto Split = [](const std::string& s,
                     char delim) -> std::vector<std::string> {
       std::vector<std::string> parts;
@@ -238,35 +243,37 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler {
 
     const std::string& event_type = parts[0];
     const std::string& code       = parts[1];
-    // parts[2] is event.key (keyboard-layout-dependent, not asserted here).
-    const std::string& repeat_str = parts[3];
-    const bool is_repeat = (repeat_str == "true");
+    const int location            = std::stoi(parts[2]);
+    const bool is_repeat          = (parts[3] == "true");
 
     switch (stage_) {
       case STAGE_KEYDOWN_A:
-        EXPECT_EQ("keydown", event_type)
-            << "Stage KEYDOWN_A: unexpected event type";
-        // event.code must reflect the physical key ('A' position).
-        // This is what PR#336 fixed: the scan-code portion of native_key_code
-        // is now correctly extracted via GetScanCodeFromLParam().
+        EXPECT_EQ("keydown", event_type) << "STAGE_KEYDOWN_A: wrong type";
+        // scan-code extraction gives the correct physical key code.
         EXPECT_EQ("KeyA", code)
-            << "Stage KEYDOWN_A: wrong event.code (PR#336 scan-code fix)";
-        // First keydown should NOT be a repeat.
-        EXPECT_FALSE(is_repeat)
-            << "Stage KEYDOWN_A: event.repeat should be false";
+            << "STAGE_KEYDOWN_A: wrong event.code (scan-code fix)";
+        EXPECT_EQ(0, location) << "STAGE_KEYDOWN_A: wrong event.location";
+        EXPECT_FALSE(is_repeat) << "STAGE_KEYDOWN_A: event.repeat should be false";
+        stage_ = STAGE_KEYPRESS_A;
+        break;
+
+      case STAGE_KEYPRESS_A:
+        EXPECT_EQ("keypress", event_type) << "STAGE_KEYPRESS_A: wrong type";
+        EXPECT_EQ("KeyA", code) << "STAGE_KEYPRESS_A: wrong event.code";
+        // character value must not be treated as a VK code.
+        EXPECT_EQ(0, location)
+            << "STAGE_KEYPRESS_A: event.location should be 0 (standard), "
+               "not 3 (numpad) - char modifier fix (#2597 case 4)";
+        EXPECT_FALSE(is_repeat) << "STAGE_KEYPRESS_A: event.repeat should be false";
         stage_ = STAGE_KEYUP_A;
         break;
 
       case STAGE_KEYUP_A:
-        EXPECT_EQ("keyup", event_type)
-            << "Stage KEYUP_A: unexpected event type";
-        EXPECT_EQ("KeyA", code)
-            << "Stage KEYUP_A: wrong event.code";
-        // keyup events never have repeat=true.
-        EXPECT_FALSE(is_repeat)
-            << "Stage KEYUP_A: event.repeat should be false for keyup";
+        EXPECT_EQ("keyup", event_type) << "STAGE_KEYUP_A: wrong type";
+        EXPECT_EQ("KeyA", code) << "STAGE_KEYUP_A: wrong event.code";
+        EXPECT_EQ(0, location) << "STAGE_KEYUP_A: wrong event.location";
+        EXPECT_FALSE(is_repeat) << "STAGE_KEYUP_A: event.repeat should be false";
         stage_ = STAGE_KEYDOWN_A_REPEAT;
-        // Send the repeat keydown+keyup pair.
         CefPostDelayedTask(
             TID_UI,
             base::BindOnce(&KeyboardDomCodeTestHandler::SendRepeatKey, this,
@@ -275,24 +282,35 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler {
         break;
 
       case STAGE_KEYDOWN_A_REPEAT:
-        EXPECT_EQ("keydown", event_type)
-            << "Stage KEYDOWN_A_REPEAT: unexpected event type";
-        EXPECT_EQ("KeyA", code)
-            << "Stage KEYDOWN_A_REPEAT: wrong event.code";
-        // This keydown was flagged as auto-repeat via lParam bit 30.
+        EXPECT_EQ("keydown", event_type) << "STAGE_KEYDOWN_A_REPEAT: wrong type";
+        EXPECT_EQ("KeyA", code) << "STAGE_KEYDOWN_A_REPEAT: wrong event.code";
+        EXPECT_EQ(0, location) << "STAGE_KEYDOWN_A_REPEAT: wrong event.location";
+        // lParam bit 30 -> EF_IS_REPEAT -> event.repeat=true.
         EXPECT_TRUE(is_repeat)
-            << "Stage KEYDOWN_A_REPEAT: event.repeat should be true "
-               "(PR#336 repeat-bit fix)";
+            << "STAGE_KEYDOWN_A_REPEAT: event.repeat should be true "
+               "(lParam bit-30 repeat fix)";
+        stage_ = STAGE_KEYPRESS_A_REPEAT;
+        break;
+
+      case STAGE_KEYPRESS_A_REPEAT:
+        EXPECT_EQ("keypress", event_type)
+            << "STAGE_KEYPRESS_A_REPEAT: wrong type";
+        EXPECT_EQ("KeyA", code)
+            << "STAGE_KEYPRESS_A_REPEAT: wrong event.code";
+        EXPECT_EQ(0, location)
+            << "STAGE_KEYPRESS_A_REPEAT: event.location should be 0 (standard)";
+        // Note: keypress.repeat reflects the keydown repeat state, but
+        // Chromium does not propagate EF_IS_REPEAT through KEYEVENT_CHAR to
+        // the keypress event, so we do not assert repeat here.
         stage_ = STAGE_KEYUP_A_REPEAT;
         break;
 
       case STAGE_KEYUP_A_REPEAT:
-        EXPECT_EQ("keyup", event_type)
-            << "Stage KEYUP_A_REPEAT: unexpected event type";
-        EXPECT_EQ("KeyA", code)
-            << "Stage KEYUP_A_REPEAT: wrong event.code";
+        EXPECT_EQ("keyup", event_type) << "STAGE_KEYUP_A_REPEAT: wrong type";
+        EXPECT_EQ("KeyA", code) << "STAGE_KEYUP_A_REPEAT: wrong event.code";
+        EXPECT_EQ(0, location) << "STAGE_KEYUP_A_REPEAT: wrong event.location";
         EXPECT_FALSE(is_repeat)
-            << "Stage KEYUP_A_REPEAT: event.repeat should be false for keyup";
+            << "STAGE_KEYUP_A_REPEAT: event.repeat should be false for keyup";
         stage_ = STAGE_DONE;
         DestroyTest();
         break;
@@ -305,11 +323,10 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler {
 
   void SendNextKey(CefRefPtr<CefBrowser> browser) {
 #if defined(OS_WIN)
-    // Send a normal (non-repeat) keydown + keyup for 'A'.
-    SendKeyDownUp(browser, kVkA, kScanA, /*repeat=*/false);
+    // Send RAWKEYDOWN + CHAR + KEYUP for 'A' (non-repeat).
+    SendKeyDownCharKeyUp(browser, kVkA, kScanA, kCharA, /*repeat=*/false);
 #else
-    // On non-Windows platforms the native_key_code has a different layout
-    // and the scan-code fix is Windows-specific. Skip cleanly.
+    // The scan-code and char-modifier fixes are Windows-specific.
     (void)browser;
     stage_ = STAGE_DONE;
     DestroyTest();
@@ -318,16 +335,15 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler {
 
   void SendRepeatKey(CefRefPtr<CefBrowser> browser) {
 #if defined(OS_WIN)
-    // Send a repeated (auto-repeat) keydown + keyup for 'A'.
-    SendKeyDownUp(browser, kVkA, kScanA, /*repeat=*/true);
+    // Send RAWKEYDOWN + CHAR + KEYUP for 'A' (auto-repeat).
+    SendKeyDownCharKeyUp(browser, kVkA, kScanA, kCharA, /*repeat=*/true);
 #else
     (void)browser;
 #endif
   }
 
-  CefRefPtr<KeyboardTestRenderHandler> render_handler_ =
-      new KeyboardTestRenderHandler();
-  TrackCallback got_load_end_;
+  TrackCallback got_paint_;
+  TrackCallback got_load_end_;  // informational only
   KeyDomCodeTestStage stage_ = STAGE_KEYDOWN_A;
 
   IMPLEMENT_REFCOUNTING(KeyboardDomCodeTestHandler);
@@ -339,11 +355,14 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler {
 // Test entry point
 // ---------------------------------------------------------------------------
 
-// Verifies that:
-//   1. event.code is correctly derived from the scan-code portion of
-//      native_key_code 
-//   2. event.repeat is true for a keydown whose lParam bit 30 is set
-//   3. event.repeat is always false for keyup events.
+// Verifies correct DOM codes for Windows OSR key events:
+//   1. event.code is correctly derived from the scan-code field of
+//      native_key_code (lParam) via GetScanCodeFromLParam().
+//   2. event.repeat is true when lParam bit 30 ("previous key state") is set.
+//   3. event.location is 0 (standard) for a KEYEVENT_CHAR carrying a regular
+//      character value; it must not be misidentified as numpad (location=3)
+//      due to the character value coincidentally matching a numpad VK code
+//      in GetCefKeyboardModifiersFromKeyEvent().
 TEST(KeyboardDomCodeTest, DomCodeAndRepeatFlags) {
   CefRefPtr<KeyboardDomCodeTestHandler> handler =
       new KeyboardDomCodeTestHandler();
