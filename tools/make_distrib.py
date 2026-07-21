@@ -845,7 +845,7 @@ def main(argv=None):
   validation_error = validate_options(options, platform)
   if validation_error:
     print_error(validation_error)
-    sys.exit()
+    return 1
 
   # script directory
   script_dir = os.path.dirname(__file__)
