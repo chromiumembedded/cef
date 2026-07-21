@@ -27,7 +27,16 @@
 
 ChromeBrowserMainExtraPartsCef::ChromeBrowserMainExtraPartsCef() = default;
 
-ChromeBrowserMainExtraPartsCef::~ChromeBrowserMainExtraPartsCef() = default;
+ChromeBrowserMainExtraPartsCef::~ChromeBrowserMainExtraPartsCef() {
+#if BUILDFLAG(IS_LINUX)
+  // Clear the global printing delegate pointer before |printing_delegate_| is
+  // destroyed so it does not dangle. |print_dialog_factory_| unregisters itself
+  // via the PrintDialogLinuxFactory destructor.
+  if (printing_delegate_) {
+    ui::PrintingContextLinuxDelegate::SetInstance(nullptr);
+  }
+#endif
+}
 
 void ChromeBrowserMainExtraPartsCef::PostProfileInit(Profile* profile,
                                                      bool is_initial_profile) {
@@ -91,16 +100,21 @@ void ChromeBrowserMainExtraPartsCef::ToolkitInitialized() {
       CreateChromeConstrainedWindowViewsClient()));
 
 #if BUILDFLAG(IS_LINUX)
-  auto printing_delegate = new CefPrintingContextLinuxDelegate();
-  auto default_delegate =
-      ui::PrintingContextLinuxDelegate::SetInstance(printing_delegate);
-  printing_delegate->SetDefaultDelegate(default_delegate);
+  printing_delegate_ = std::make_unique<CefPrintingContextLinuxDelegate>();
+  auto* default_delegate =
+      ui::PrintingContextLinuxDelegate::SetInstance(printing_delegate_.get());
+  printing_delegate_->SetDefaultDelegate(default_delegate);
 
   // Replace the default factory registered by
-  // ChromeBrowserMainExtraPartsViewsLinux with one that routes through the
-  // delegate above. SetPrintDialogFactory() requires a null reset first.
+  // ChromeBrowserMainExtraPartsViewsLinux with a CefPrintDialogFactory, which
+  // routes browsers that have a CefPrintHandler through the delegate above and
+  // otherwise falls back to its PrintDialogLinuxFactory base (preserving the
+  // normal portal/LinuxUi dialog selection). SetPrintDialogFactory() only
+  // accepts a new factory when none is currently set, so clear the existing one
+  // first; the PrintDialogLinuxFactory base constructor then registers this
+  // instance. Owned by |print_dialog_factory_| so it unregisters itself at
+  // shutdown.
   printing::PrintingContextLinux::SetPrintDialogFactory(nullptr);
-  printing::PrintingContextLinux::SetPrintDialogFactory(
-      new CefPrintDialogFactory());
+  print_dialog_factory_ = std::make_unique<CefPrintDialogFactory>();
 #endif  // BUILDFLAG(IS_LINUX)
 }

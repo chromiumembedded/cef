@@ -54,6 +54,12 @@ CefRefPtr<CefPrintHandler> GetPrintHandlerForBrowser(
   return nullptr;
 }
 
+// Returns true when the browser associated with |context| provides a
+// CefPrintHandler.
+bool ContextHasPrintHandler(printing::PrintingContextLinux* context) {
+  return GetPrintHandlerForBrowser(GetBrowserForContext(context)) != nullptr;
+}
+
 // Owned by PrintingContextLinux via a std::unique_ptr (the M145 ownership
 // model) and forwards to the reference-counted CefPrintDialogLinux, which must
 // outlive the PrintingContext until an async CefPrintHandler job completes.
@@ -244,13 +250,20 @@ std::unique_ptr<printing::PrintDialogLinuxInterface>
 CefPrintDialogFactory::CreatePrintDialog(
     printing::PrintingContextLinux* context,
     bool show_system_dialog) {
-  // Route dialog creation back through CefPrintingContextLinuxDelegate so that
-  // CefPrintHandler is used. The delegate falls back to the default (GTK)
-  // implementation when no handler is provided.
-  if (auto* delegate = ui::PrintingContextLinuxDelegate::instance()) {
-    return delegate->CreatePrintDialog(context);
+  // Only intercept when the associated browser provides a CefPrintHandler;
+  // route those through CefPrintingContextLinuxDelegate so the handler is used.
+  if (ContextHasPrintHandler(context)) {
+    if (auto* delegate = ui::PrintingContextLinuxDelegate::instance()) {
+      return delegate->CreatePrintDialog(context);
+    }
+    return nullptr;
   }
-  return nullptr;
+
+  // Otherwise fall back to the base implementation so that handler-less
+  // printing keeps Chromium's dialog selection, including the
+  // |show_system_dialog| based XDG portal branch.
+  return PrintDialogLinuxFactory::CreatePrintDialog(context,
+                                                    show_system_dialog);
 }
 
 #if BUILDFLAG(ENABLE_OOP_PRINTING_NO_OOP_BASIC_PRINT_DIALOG)
@@ -258,12 +271,19 @@ std::unique_ptr<printing::PrintDialogLinuxInterface>
 CefPrintDialogFactory::CreatePrintDialogForSettings(
     printing::PrintingContextLinux* context,
     const printing::PrintSettings& settings) {
-  // The caller applies |settings| via PrintDialogLinuxInterface::
-  // LoadPrintSettings() after the dialog is created.
-  if (auto* delegate = ui::PrintingContextLinuxDelegate::instance()) {
-    return delegate->CreatePrintDialog(context);
+  // As above, only intercept when a CefPrintHandler is present. The caller
+  // applies |settings| via PrintDialogLinuxInterface::LoadPrintSettings()
+  // after the dialog is created.
+  if (ContextHasPrintHandler(context)) {
+    if (auto* delegate = ui::PrintingContextLinuxDelegate::instance()) {
+      return delegate->CreatePrintDialog(context);
+    }
+    return nullptr;
   }
-  return nullptr;
+
+  // Otherwise fall back to the base implementation's settings-based selection.
+  return PrintDialogLinuxFactory::CreatePrintDialogForSettings(context,
+                                                               settings);
 }
 #endif
 
