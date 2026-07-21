@@ -159,7 +159,7 @@ assert os.listdir('.') == before
         make_distrib.get_output_name('1', 'linux', '32', 'tools', options)[1],
         'custom_tools_ozone')
 
-  def test_validation_and_current_zero_status_invalid_cli(self):
+  def test_validation_and_invalid_cli_status_without_artifacts(self):
     output_directory = os.path.join(tempfile.gettempdir(), 'cef-output')
     cases = [
         (default_options(), 'mac', '--output-dir is required.'),
@@ -189,11 +189,20 @@ assert os.listdir('.') == before
     valid = default_options(outputdir=output_directory, ninjabuild=True)
     self.assertIsNone(make_distrib.validate_options(valid, 'mac'))
 
-    # Characterize the known bug: invalid CLI paths call sys.exit() without a
-    # nonzero status.
-    result = run_generator_script('make_distrib.py')
-    self.assertEqual(result.returncode, 0)
-    self.assertIn('--output-dir is required', result.stdout)
+    with tempfile.TemporaryDirectory() as temporary_directory:
+      cases = [
+          ((), '--output-dir is required'),
+          (('--output-dir', os.path.join(temporary_directory, 'output')),
+           '--ninja-build is required'),
+      ]
+      for arguments, message in cases:
+        result = run_generator_script('make_distrib.py',
+                                      *arguments,
+                                      cwd=temporary_directory)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn(message, result.stdout)
+        self.assertEqual(result.stderr, '')
+        self.assertEqual(os.listdir(temporary_directory), [])
 
 
 class MakeDistribArchiveAndFileTest(unittest.TestCase):
