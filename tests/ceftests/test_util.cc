@@ -8,6 +8,15 @@
 #include <cmath>
 #include <cstdlib>
 
+#include "include/base/cef_build.h"
+
+#if defined(OS_LINUX) && defined(CEF_X11)
+#include <X11/Xlib.h>
+// Definitions conflict with gtest.
+#undef None
+#undef Bool
+#endif
+
 #include "include/base/cef_callback.h"
 #include "include/cef_base.h"
 #include "include/cef_command_line.h"
@@ -330,6 +339,32 @@ bool IsRunningOnWayland() {
     return getenv("WAYLAND_DISPLAY") != nullptr;
   }();
   return is_wayland;
+#else
+  return false;
+#endif
+}
+
+bool IsRunningOnX11WithCompositor() {
+#if defined(OS_LINUX) && defined(CEF_X11)
+  static bool has_compositor = []() {
+    if (IsRunningOnWayland()) {
+      return false;
+    }
+    Display* display = XOpenDisplay(nullptr);
+    if (!display) {
+      return false;
+    }
+    // Probe the EWMH compositor selection. Owned means a compositing window
+    // manager is running on this screen. Mirrors x11::VisualManager.
+    const std::string atom_name =
+        "_NET_WM_CM_S" + std::to_string(DefaultScreen(display));
+    Atom cm_atom =
+        XInternAtom(display, atom_name.c_str(), 0 /*only_if_exists*/);
+    Window owner = XGetSelectionOwner(display, cm_atom);
+    XCloseDisplay(display);
+    return owner != 0;
+  }();
+  return has_compositor;
 #else
   return false;
 #endif
