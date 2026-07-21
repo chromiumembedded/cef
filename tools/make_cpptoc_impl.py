@@ -1048,4 +1048,5 @@ if __name__ == "__main__":
     f.close()
 
   # dump the result to stdout
-  sys.stdout.write(make_cpptoc_class_impl(header, sys.argv[2], data))
+  result, _ = make_cpptoc_class_impl(header, sys.argv[2], data)
+  sys.stdout.write(result)

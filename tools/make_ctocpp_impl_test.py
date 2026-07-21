@@ -109,7 +109,7 @@ class MakeCToCppImplTest(unittest.TestCase):
       self.assertEqual(cef_parser._NOTIFY_CONTEXT, existing_target)
       cef_parser.set_notify_context(None)
 
-  def test_missing_class_and_current_success_cli_tuple_failure(self):
+  def test_missing_class_and_successful_cli(self):
     with self.assertRaisesRegex(Exception, 'Class does not exist'):
       make_ctocpp_class_impl(self.header, 'CefMissing', '')
 
@@ -119,13 +119,21 @@ class MakeCToCppImplTest(unittest.TestCase):
 
     fixture = testdata_dir('include', 'cef_fixture_scoped.h')
     existing = testdata_dir('golden', 'make_ctocpp_impl', 'CefFixtureScoped.cc')
-    characterized = run_generator_script('make_ctocpp_impl.py', fixture,
-                                         'CefFixtureScoped', existing)
-    self.assertNotEqual(characterized.returncode, 0)
-    self.assertEqual(characterized.stdout, '')
-    self.assertIn('TypeError', characterized.stderr)
-    self.assertIn('write() argument must be str, not tuple',
-                  characterized.stderr)
+    with open(fixture, 'rb') as input_file:
+      fixture_before = input_file.read()
+    with open(existing, 'rb') as input_file:
+      existing_before = input_file.read()
+
+    result = run_generator_script('make_ctocpp_impl.py', fixture,
+                                  'CefFixtureScoped', existing)
+    self.assertEqual(result.returncode, 0, result.stderr)
+    self.assertEqual(result.stdout,
+                     read_golden('make_ctocpp_impl', 'CefFixtureScoped.cc'))
+    self.assertEqual(result.stderr, '')
+    with open(fixture, 'rb') as input_file:
+      self.assertEqual(input_file.read(), fixture_before)
+    with open(existing, 'rb') as input_file:
+      self.assertEqual(input_file.read(), existing_before)
 
   def test_shutdown_no_stack_protector_and_unsupported_types(self):
     special = obj_header()

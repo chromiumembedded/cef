@@ -987,4 +987,5 @@ if __name__ == "__main__":
     raise Exception('Failed to read file ' + sys.argv[3] + ': ' + strerror)
 
   # dump the result to stdout
-  sys.stdout.write(make_ctocpp_class_impl(header, sys.argv[2], data))
+  result, _ = make_ctocpp_class_impl(header, sys.argv[2], data)
+  sys.stdout.write(result)
