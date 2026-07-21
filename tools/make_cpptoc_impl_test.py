@@ -90,14 +90,13 @@ class MakeCppToCImplTest(unittest.TestCase):
           existing_target)
       self.assertIsNone(cef_parser._NOTIFY_CONTEXT)
 
+      self.addCleanup(cef_parser.set_notify_context, None)
       with mock.patch('make_cpptoc_impl.make_cpptoc_class_impl',
                       side_effect=RuntimeError('fixture generation failure')):
         with self.assertRaisesRegex(RuntimeError, 'fixture generation failure'):
           write_cpptoc_impl(self.header, 'CefFixtureClient',
                             temporary_directory)
-      # Characterize the known failure-path leak for a separate fix.
-      self.assertEqual(cef_parser._NOTIFY_CONTEXT, existing_target)
-      cef_parser.set_notify_context(None)
+      self.assertIsNone(cef_parser._NOTIFY_CONTEXT)
 
   def test_missing_class_and_successful_cli(self):
     with self.assertRaisesRegex(Exception, 'Class does not exist'):

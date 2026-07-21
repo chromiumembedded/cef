@@ -100,14 +100,13 @@ class MakeCToCppImplTest(unittest.TestCase):
           existing_target)
       self.assertIsNone(cef_parser._NOTIFY_CONTEXT)
 
+      self.addCleanup(cef_parser.set_notify_context, None)
       with mock.patch('make_ctocpp_impl.make_ctocpp_class_impl',
                       side_effect=RuntimeError('fixture generation failure')):
         with self.assertRaisesRegex(RuntimeError, 'fixture generation failure'):
           write_ctocpp_impl(self.header, 'CefFixtureLibrary',
                             temporary_directory)
-      # Characterize the known failure-path leak for a separate fix.
-      self.assertEqual(cef_parser._NOTIFY_CONTEXT, existing_target)
-      cef_parser.set_notify_context(None)
+      self.assertIsNone(cef_parser._NOTIFY_CONTEXT)
 
   def test_missing_class_and_successful_cli(self):
     with self.assertRaisesRegex(Exception, 'Class does not exist'):

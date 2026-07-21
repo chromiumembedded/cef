@@ -947,21 +947,21 @@ def write_ctocpp_impl(header, clsname, dir):
     file = os.path.join(dir, get_capi_name(clsname[3:], False) + '_ctocpp.cc')
 
   set_notify_context(file)
+  try:
+    if path_exists(file):
+      oldcontents = read_file(file)
+    else:
+      oldcontents = ''
 
-  if path_exists(file):
-    oldcontents = read_file(file)
-  else:
-    oldcontents = ''
+    if clsname is None:
+      newcontents, customized = make_ctocpp_global_impl(header, oldcontents)
+    else:
+      newcontents, customized = make_ctocpp_class_impl(header, clsname,
+                                                       oldcontents)
 
-  if clsname is None:
-    newcontents, customized = make_ctocpp_global_impl(header, oldcontents)
-  else:
-    newcontents, customized = make_ctocpp_class_impl(header, clsname,
-                                                     oldcontents)
-
-  set_notify_context(None)
-
-  return (file, newcontents, customized)
+    return (file, newcontents, customized)
+  finally:
+    set_notify_context(None)
 
 
 # test the module
