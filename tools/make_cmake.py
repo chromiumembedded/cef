@@ -248,7 +248,8 @@ if __name__ == "__main__":
   # Read the gypi files and combine into a single dictionary.
   variables1 = read_gypi_variables('cef_paths')
   variables2 = read_gypi_variables('cef_paths2')
-  variables = dict(variables1.items() + variables2.items())
+  variables = variables1.copy()
+  variables.update(variables2)
 
   # Process the cmake template.
   process_cmake_template(sys.argv[1], sys.argv[2], variables)

@@ -75,19 +75,54 @@ class MakeCmakeTest(unittest.TestCase):
       with self.assertRaisesRegex(Exception, 'does not exist'):
         process_cmake_template('/missing/template', output, {}, quiet=True)
 
-  def test_current_python3_cli_dict_items_failure_and_usage(self):
+  def test_python3_cli_success_override_and_unchanged_output(self):
     invalid = run_generator_script('make_cmake.py')
     self.assertEqual(invalid.returncode, 0)
     self.assertIn('Usage:', invalid.stderr)
     with tempfile.TemporaryDirectory() as temporary_directory:
+      fixture_root = os.path.join(temporary_directory, 'fixture_root')
+      tools_directory = os.path.join(fixture_root, 'tools')
+      os.makedirs(tools_directory)
+      source_tools = os.path.dirname(__file__)
+      for filename in ('make_cmake.py', 'file_util.py'):
+        shutil.copy2(os.path.join(source_tools, filename), tools_directory)
+      shutil.copy2(testdata_dir('cef_paths.gypi'), fixture_root)
+      template = os.path.join(fixture_root, 'cmake.template')
+      shutil.copy2(testdata_dir('cmake.template'), template)
+      with open(os.path.join(fixture_root, 'cef_paths2.gypi'),
+                'w',
+                encoding='utf-8') as output_file:
+        output_file.write("""{
+  'variables': {
+    'fixture_common': [
+      'include/cef_override.h',
+      'libcef_dll/fixture.cc',
+    ],
+  },
+}
+""")
+
+      script = os.path.join(tools_directory, 'make_cmake.py')
       output = os.path.join(temporary_directory, 'CMakeLists.txt')
-      characterized = run_generator_script('make_cmake.py',
-                                           testdata_dir('cmake.template'),
-                                           output)
-      self.assertNotEqual(characterized.returncode, 0)
-      self.assertIn('TypeError', characterized.stderr)
-      self.assertIn('dict_items', characterized.stderr)
-      self.assertFalse(os.path.exists(output))
+      expected_stdout = 'Processing "%s" to "%s"...\n' % (template, output)
+      expected_output = read_golden('make_cmake', 'CMakeLists.txt').replace(
+          'include/cef_fixture.h', 'include/cef_override.h')
+
+      result = run_generator_script(script, template, output)
+      self.assertEqual(result.returncode, 0, result.stderr)
+      self.assertEqual(result.stdout, expected_stdout)
+      self.assertEqual(result.stderr, '')
+      with open(output, encoding='utf-8') as output_file:
+        self.assertEqual(output_file.read(), expected_output)
+
+      os.utime(output, (1000000000, 1000000000))
+      result = run_generator_script(script, template, output)
+      self.assertEqual(result.returncode, 0, result.stderr)
+      self.assertEqual(result.stdout, expected_stdout)
+      self.assertEqual(result.stderr, '')
+      with open(output, encoding='utf-8') as output_file:
+        self.assertEqual(output_file.read(), expected_output)
+      self.assertEqual(os.stat(output).st_mtime_ns, 1000000000000000000)
 
 
 if __name__ == '__main__':
