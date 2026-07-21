@@ -17,6 +17,12 @@ import json
 import os
 import tempfile
 import unittest
+from unittest import mock
+
+from generator_test_util import read_golden
+from generator_test_util import run_generator_script
+from generator_test_util import testdata_dir
+from make_revocation_resource import main
 
 from make_revocation_resource import (
     parse_version,
@@ -217,6 +223,90 @@ class TestPruneRevocationList(unittest.TestCase):
         rc_content = f.read()
       self.assertEqual(rc_content,
                        'CEF_REVOCATION_LIST RCDATA "revocation_list.json"\n')
+
+
+class TestRevocationResourceFailuresAndBytes(unittest.TestCase):
+
+  def _arguments(self, directory, revoked=None, api_versions=None):
+    return [
+        '--revoked-json', revoked or testdata_dir('revoked.json'),
+        '--api-versions', api_versions or testdata_dir('api_versions.json'),
+        '--output-json',
+        os.path.join(directory, 'revoked.json'), '--output-rc',
+        os.path.join(directory,
+                     'revoked.rc'), '--resource-name', 'CEF_REVOCATION_LIST'
+    ]
+
+  def test_exact_bytes_override_missing_list_and_stable_rewrite(self):
+    with tempfile.TemporaryDirectory() as directory:
+      arguments = self._arguments(directory)
+      result = run_generator_script('make_revocation_resource.py', *arguments)
+      self.assertEqual(result.returncode, 0, result.stderr)
+      json_path = os.path.join(directory, 'revoked.json')
+      rc_path = os.path.join(directory, 'revoked.rc')
+      with open(json_path, encoding='utf-8') as output:
+        first_json = output.read()
+      with open(rc_path, encoding='utf-8') as output:
+        first_rc = output.read()
+      self.assertEqual(first_json,
+                       read_golden('make_revocation_resource', 'revoked.json'))
+      self.assertEqual(first_rc,
+                       read_golden('make_revocation_resource', 'revoked.rc'))
+      self.assertEqual(
+          run_generator_script('make_revocation_resource.py',
+                               *arguments).returncode, 0)
+      with open(json_path, encoding='utf-8') as output:
+        self.assertEqual(output.read(), first_json)
+
+      override = run_generator_script('make_revocation_resource.py', *arguments,
+                                      '--api-version', '13300')
+      self.assertEqual(override.returncode, 0, override.stderr)
+      with open(json_path, encoding='utf-8') as output:
+        self.assertEqual(len(json.load(output)['revoked_versions']), 1)
+
+      empty_input = os.path.join(directory, 'empty.json')
+      with open(empty_input, 'w', encoding='utf-8') as output:
+        json.dump({}, output)
+      missing_list = run_generator_script(
+          'make_revocation_resource.py',
+          *self._arguments(directory, revoked=empty_input))
+      self.assertEqual(missing_list.returncode, 0, missing_list.stderr)
+      with open(json_path, encoding='utf-8') as output:
+        self.assertEqual(json.load(output), {'revoked_versions': []})
+
+  def test_malformed_unreadable_invalid_api_and_argparse_leave_no_outputs(self):
+    invalid = run_generator_script('make_revocation_resource.py')
+    self.assertEqual(invalid.returncode, 2)
+    self.assertIn('required', invalid.stderr)
+    with tempfile.TemporaryDirectory() as directory:
+      malformed = os.path.join(directory, 'malformed.json')
+      with open(malformed, 'w', encoding='utf-8') as output:
+        output.write('{invalid')
+      for revoked, api_versions in ((malformed,
+                                     testdata_dir('api_versions.json')),
+                                    ('/missing/revoked.json',
+                                     testdata_dir('api_versions.json')),
+                                    (testdata_dir('revoked.json'),
+                                     malformed), (testdata_dir('revoked.json'),
+                                                  '/missing/api.json')):
+        with self.subTest(revoked=revoked, api_versions=api_versions):
+          result = run_generator_script(
+              'make_revocation_resource.py',
+              *self._arguments(directory, revoked, api_versions))
+          self.assertEqual(result.returncode, 1)
+          self.assertFalse(os.path.exists(os.path.join(directory,
+                                                       'revoked.rc')))
+
+  def test_rc_failure_leaves_json_partial_output(self):
+    with tempfile.TemporaryDirectory() as directory:
+      argv = ['make_revocation_resource.py', *self._arguments(directory)]
+      with mock.patch('make_revocation_resource.sys.argv', argv), mock.patch(
+          'make_revocation_resource.write_rc_file',
+          side_effect=OSError('fixture rc failure')):
+        with self.assertRaisesRegex(OSError, 'fixture rc failure'):
+          main()
+      self.assertTrue(os.path.isfile(os.path.join(directory, 'revoked.json')))
+      self.assertFalse(os.path.exists(os.path.join(directory, 'revoked.rc')))
 
 
 if __name__ == '__main__':
