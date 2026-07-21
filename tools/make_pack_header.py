@@ -167,7 +167,7 @@ def write_pack_header(out_header_file, out_inc_file, inputs):
     sys.exit(1)
   retval2 = write_file_if_changed(out_file, result)
 
-  return retval1  #or retval2
+  return retval1 or retval2
 
 
 def main(argv):

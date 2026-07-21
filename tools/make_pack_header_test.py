@@ -34,7 +34,7 @@ class MakePackHeaderTest(unittest.TestCase):
                      read_golden('make_pack_header', 'cef_resources.inc'))
     self.assertEqual(_get_cpp_var_name(include_path), 'Resources')
 
-  def test_writer_sorting_idempotence_and_current_inc_only_return_bug(self):
+  def test_writer_sorting_idempotence_and_inc_only_repair(self):
     inputs = [testdata_dir('resources_b.h'), testdata_dir('resources_a.h')]
     with tempfile.TemporaryDirectory() as temporary_directory:
       header = os.path.join(temporary_directory, 'cef_resources.h')
@@ -48,9 +48,7 @@ class MakePackHeaderTest(unittest.TestCase):
 
       with open(include, 'w', encoding='utf-8') as output:
         output.write('corrupt include')
-      # Characterize the known bug: the include is repaired but its write
-      # result is ignored while the unchanged header result is returned.
-      self.assertFalse(write_pack_header(header, include, inputs))
+      self.assertTrue(write_pack_header(header, include, inputs))
       with open(include, encoding='utf-8') as output:
         self.assertEqual(output.read(),
                          read_golden('make_pack_header', 'cef_resources.inc'))
