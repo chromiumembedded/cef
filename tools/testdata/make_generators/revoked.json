@@ -1,0 +1,12 @@
+{
+  "revoked_versions": [
+    {
+      "version": "132.0.0",
+      "reason": "below fixture minimum"
+    },
+    {
+      "version": "133.2.0",
+      "reason": "fixture revocation"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+#define IDR_ALPHA 100
+#define IDR_DUPLICATE 101

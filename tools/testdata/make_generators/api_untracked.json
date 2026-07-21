@@ -1,0 +1,10 @@
+{
+  "hashes": {
+    "999999": {
+      "comment": "Fixture untracked version",
+      "windows": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "mac": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "linux": "cccccccccccccccccccccccccccccccccccccccc"
+    }
+  }
+}

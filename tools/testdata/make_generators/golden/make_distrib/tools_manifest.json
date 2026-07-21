@@ -1,0 +1,34 @@
+[
+  {
+    "mode": 420,
+    "path": "CREDITS.html",
+    "sha256": "b5359e56a9acb0b49dc34c1f8d6d091d74af8a40b20c79e8777d71558557a821",
+    "size": 18,
+    "target": null,
+    "type": "file"
+  },
+  {
+    "mode": 420,
+    "path": "LICENSE.txt",
+    "sha256": "c0c56958ef8be5c1979366896b7e0c7206949a5aa2b23f51429c7f56b10990d3",
+    "size": 8,
+    "target": null,
+    "type": "file"
+  },
+  {
+    "mode": 420,
+    "path": "README.txt",
+    "sha256": "4586292c2adb1a0d9e3ab34e8473d0138b199dac38368b60982478f42de9efb6",
+    "size": 86,
+    "target": null,
+    "type": "file"
+  },
+  {
+    "mode": 420,
+    "path": "tools-marker.txt",
+    "sha256": "21be1903630f069893d2d0bed2ab7945c3fd838da02dd7516f1f4f89819af857",
+    "size": 6,
+    "target": null,
+    "type": "file"
+  }
+]

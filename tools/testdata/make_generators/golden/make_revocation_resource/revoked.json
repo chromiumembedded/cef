@@ -1,0 +1,8 @@
+{
+  "revoked_versions": [
+    {
+      "reason": "fixture revocation",
+      "version": "133.2.0"
+    }
+  ]
+}

@@ -16,6 +16,8 @@ Running the tests:
   python3 -m unittest installer_util_test.TestComputeVmin -v
 """
 
+import contextlib
+import io
 import json
 import os
 import tempfile
@@ -49,8 +51,10 @@ class TestLoadApiVersions(unittest.TestCase):
       os.unlink(path)
 
   def test_missing_file(self):
-    result = load_api_versions('/nonexistent/path.json')
+    with contextlib.redirect_stderr(io.StringIO()) as stderr:
+      result = load_api_versions('/nonexistent/path.json')
     self.assertIsNone(result)
+    self.assertIn('Error reading /nonexistent/path.json:', stderr.getvalue())
 
   def test_invalid_json(self):
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json',
@@ -59,8 +63,10 @@ class TestLoadApiVersions(unittest.TestCase):
       f.flush()
       path = f.name
     try:
-      result = load_api_versions(path)
+      with contextlib.redirect_stderr(io.StringIO()) as stderr:
+        result = load_api_versions(path)
       self.assertIsNone(result)
+      self.assertIn('Error reading %s:' % path, stderr.getvalue())
     finally:
       os.unlink(path)
 
@@ -72,7 +78,10 @@ class TestGetApiVersionLast(unittest.TestCase):
     self.assertEqual(get_api_version_last({'last': '14601'}), '14601')
 
   def test_missing(self):
-    self.assertIsNone(get_api_version_last({}))
+    with contextlib.redirect_stderr(io.StringIO()) as stderr:
+      self.assertIsNone(get_api_version_last({}))
+    self.assertEqual(stderr.getvalue(),
+                     'Error: "last" field not found in api_versions\n')
 
 
 class TestComputeVmin(unittest.TestCase):
@@ -105,12 +114,17 @@ class TestComputeVmin(unittest.TestCase):
 
   def test_invalid_override(self):
     api_versions = {'last': '14601'}
-    result = compute_vmin(api_versions, api_version_override='abc')
+    with contextlib.redirect_stderr(io.StringIO()) as stderr:
+      result = compute_vmin(api_versions, api_version_override='abc')
     self.assertIsNone(result)
+    self.assertEqual(stderr.getvalue(), 'Error: Invalid API version "abc"\n')
 
   def test_missing_last(self):
-    result = compute_vmin({})
+    with contextlib.redirect_stderr(io.StringIO()) as stderr:
+      result = compute_vmin({})
     self.assertIsNone(result)
+    self.assertEqual(stderr.getvalue(),
+                     'Error: "last" field not found in api_versions\n')
 
 
 class TestFormatVmin(unittest.TestCase):
