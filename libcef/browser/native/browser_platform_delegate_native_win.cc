@@ -31,6 +31,7 @@
 #include "ui/events/keycodes/dom/keycode_converter.h"
 #include "ui/events/keycodes/keyboard_code_conversion_win.h"
 #include "ui/events/keycodes/platform_key_map_win.h"
+#include "ui/events/win/events_win_utils.h"
 #include "ui/gfx/geometry/vector2d.h"
 #include "ui/gfx/win/hwnd_util.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_win.h"
@@ -449,13 +450,55 @@ CefBrowserPlatformDelegateNativeWin::GetRootWindowBounds() {
   return std::nullopt;
 }
 
+namespace {
+
+// Decode a CefKeyEvent::native_key_code value on Windows.
+//
+// The preferred form is a Windows LPARAM (from WM_KEYDOWN/WM_KEYUP/WM_CHAR):
+//   bits 16-23  scan code
+//   bit  24     extended-key flag
+//   bit  30     previous key-state (1 = key was already down = auto-repeat)
+//   bit  31     transition state   (1 = key being released)
+//
+// For backwards compatibility, values whose upper 16 bits are all zero are
+// treated as raw scan codes (e.g. 0x001E for the 'A' key, or the E0-prefixed
+// extended form 0xE01D for Right Ctrl). In the raw form bit 30 is NOT
+// interpreted as a repeat indicator; callers should use EVENTFLAG_IS_REPEAT
+// via the modifiers field instead.
+
+struct DecodedWindowsNativeKeyCode {
+  uint16_t scan_code;
+  bool is_lparam;
+};
+
+DecodedWindowsNativeKeyCode DecodeWindowsNativeKeyCode(int native_key_code) {
+  const uint32_t value = static_cast<uint32_t>(native_key_code);
+
+  // Legacy/raw Windows scan codes, including E0-prefixed extended codes such
+  // as 0xE01D, fit in the low 16 bits. A normal keyboard-message LPARAM stores
+  // its scan code in bits 16-23 and therefore has a non-zero upper word.
+  if ((value & 0xFFFF0000u) == 0) {
+    return {static_cast<uint16_t>(value), false};
+  }
+
+  return {ui::GetScanCodeFromLParam(static_cast<LPARAM>(
+              static_cast<int32_t>(value))),
+          true};
+}
+
+}  // namespace
+
 ui::KeyEvent CefBrowserPlatformDelegateNativeWin::TranslateUiKeyEvent(
     const CefKeyEvent& key_event) const {
   int flags = TranslateUiEventModifiers(key_event.modifiers);
   ui::KeyboardCode key_code =
       ui::KeyboardCodeForWindowsKeyCode(key_event.windows_key_code);
+
+  const auto decoded =
+      DecodeWindowsNativeKeyCode(key_event.native_key_code);
   ui::DomCode dom_code =
-      ui::KeycodeConverter::NativeKeycodeToDomCode(key_event.native_key_code);
+      ui::KeycodeConverter::NativeKeycodeToDomCode(decoded.scan_code);
+
   base::TimeTicks time_stamp = GetEventTimeStamp();
 
   if (key_event.type == KEYEVENT_CHAR) {
@@ -474,6 +517,13 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeWin::TranslateUiKeyEvent(
       break;
     default:
       DCHECK(false);
+  }
+
+  // Existing raw-scan-code callers can express repeat through
+  // EVENTFLAG_IS_REPEAT, which TranslateUiEventModifiers already handles.
+  if (decoded.is_lparam && type == ui::EventType::kKeyPressed &&
+      (static_cast<uint32_t>(key_event.native_key_code) & 0x40000000u)) {
+    flags |= ui::EF_IS_REPEAT;
   }
 
   ui::DomKey dom_key =

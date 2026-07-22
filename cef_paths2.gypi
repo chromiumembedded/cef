@@ -584,6 +584,7 @@
       'tests/ceftests/image_util.cc',
       'tests/ceftests/image_util.h',
       'tests/ceftests/jsdialog_unittest.cc',
+      'tests/ceftests/keyboard_dom_code_unittest.cc',
       'tests/ceftests/life_span_unittest.cc',
       'tests/ceftests/media_access_unittest.cc',
       'tests/ceftests/message_router_binary_unittest.cc',
