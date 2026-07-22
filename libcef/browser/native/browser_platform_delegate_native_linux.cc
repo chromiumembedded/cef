@@ -84,24 +84,31 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
 
   // |rect| (from window_info_.bounds) is in pixels, and matches the size of the
   // |window_x11_| host window created above. However, views::Widget bounds are
-  // in DIP; DesktopWindowTreeHostLinux will scale them back to pixels using the
-  // display's device scale factor. Convert the size to DIP here so that the
-  // resulting compositor (child) window matches the pixel size of the host
-  // window. Otherwise, on displays with a device scale factor != 1, the web
-  // content is rendered larger than the host window (see issue #3396). This
-  // mirrors the Windows implementation, which converts the client rect to DIP
-  // before calling Init().
-  const float device_scale_factor = display::Screen::Get()
-                                        ->GetDisplayMatching(rect)
-                                        .device_scale_factor();
-  const gfx::Size dip_size =
-      gfx::ScaleToRoundedSize(rect.size(), 1.0f / device_scale_factor);
+  // in DIP. WindowTreeHost initially uses the primary display's scale factor
+  // because it cannot resolve the actual display until the child X11 window
+  // exists. Use that bootstrap factor for Init() so the child is created with
+  // the correct pixel size and screen bounds.
+  const float initial_device_scale_factor =
+      display::Screen::Get()->GetPrimaryDisplay().device_scale_factor();
+  const gfx::Size initial_dip_size = gfx::ScaleToRoundedSize(
+      rect.size(), 1.0f / initial_device_scale_factor);
 
   widget_delegate->Init(
       static_cast<gfx::AcceleratedWidget>(window_info_.window), web_contents_,
-      gfx::Rect(gfx::Point(), dip_size));
+      gfx::Rect(gfx::Point(), initial_dip_size));
 
   window_widget_ = widget_delegate->GetWidget();
+
+  // The child X11 window now exists, so Chromium can resolve the actual display
+  // from its native bounds. Reapply the DIP size using the scale factor that
+  // WindowTreeHost selected during InitHost().
+  const float device_scale_factor =
+      display::Screen::Get()
+          ->GetPreferredScaleFactorForWindow(window_widget_->GetNativeWindow())
+          .value_or(initial_device_scale_factor);
+  const gfx::Size dip_size =
+      gfx::ScaleToRoundedSize(rect.size(), 1.0f / device_scale_factor);
+  window_widget_->SetSize(dip_size);
   window_widget_->Show();
 
   window_x11_->Show();
