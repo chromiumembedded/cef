@@ -35,6 +35,25 @@ def make_capi_member_funcs(version, version_finder, funcs, defined_names,
   return result
 
 
+def add_func_type_includes(header, filename, funcs, translated_includes):
+  filename_no_ext = filename[:-2] if filename.endswith('.h') else filename
+  for func in funcs:
+    for arg in [func.get_retval()] + func.get_arguments():
+      arg_type = arg.get_type()
+      if not arg_type.is_result_ptr() and \
+          not (arg_type.is_result_vector() and arg_type.is_result_vector_ptr()):
+        continue
+
+      cls = header.get_class(arg_type.get_ptr_type())
+      if cls is None:
+        continue
+
+      include = cls.get_file_name()
+      include = include[:-2] if include.endswith('.h') else include
+      if include != filename_no_ext:
+        translated_includes.add(include)
+
+
 def make_capi_versions_header(header, filename):
   # structure names that have already been defined
   defined_names = header.get_defined_structs()
@@ -90,6 +109,8 @@ def make_capi_versions_header(header, filename):
         raise Exception('Unknown class: %s' % declare)
       for version in declare_cls.get_all_versions():
         all_declares.add(declare_cls.get_capi_name(version=version))
+  add_func_type_includes(header, filename, header.get_funcs(filename),
+                         translated_includes)
 
   # output translated includes
   if len(translated_includes) > 0:
