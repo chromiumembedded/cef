@@ -1833,6 +1833,9 @@ if not options.nodistrib and (chromium_checkout_changed or \
     if options.nodistribarchive:
       path += ' --no-archive'
 
+    if options.nodebugbuild:
+      path += ' --no-debug-build'
+
     # Override the subdirectory name of binary_distrib if the caller requested.
     if options.distribsubdir != '':
       path += ' --distrib-subdir=' + options.distribsubdir
