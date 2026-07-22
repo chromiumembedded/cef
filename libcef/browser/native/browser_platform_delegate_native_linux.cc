@@ -21,8 +21,10 @@
 
 #if BUILDFLAG(SUPPORTS_OZONE_X11)
 #include "cef/libcef/browser/native/window_x11.h"
+#include "ui/display/screen.h"
 #include "ui/events/keycodes/keyboard_code_conversion_x.h"
 #include "ui/events/keycodes/keyboard_code_conversion_xkb.h"
+#include "ui/gfx/geometry/size.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"
 #endif
 
@@ -79,11 +81,34 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   auto* widget_delegate = new CefNativeWidgetDelegate(
       GetBackgroundColor(), window_x11_->TopLevelAlwaysOnTop(),
       GetBoundsChangedCallback(), GetWidgetDeleteCallback());
+
+  // |rect| (from window_info_.bounds) is in pixels, and matches the size of the
+  // |window_x11_| host window created above. However, views::Widget bounds are
+  // in DIP. WindowTreeHost initially uses the primary display's scale factor
+  // because it cannot resolve the actual display until the child X11 window
+  // exists. Use that bootstrap factor for Init() so the child is created with
+  // the correct pixel size and screen bounds.
+  const float initial_device_scale_factor =
+      display::Screen::Get()->GetPrimaryDisplay().device_scale_factor();
+  const gfx::Size initial_dip_size = gfx::ScaleToRoundedSize(
+      rect.size(), 1.0f / initial_device_scale_factor);
+
   widget_delegate->Init(
       static_cast<gfx::AcceleratedWidget>(window_info_.window), web_contents_,
-      gfx::Rect(gfx::Point(), rect.size()));
+      gfx::Rect(gfx::Point(), initial_dip_size));
 
   window_widget_ = widget_delegate->GetWidget();
+
+  // The child X11 window now exists, so Chromium can resolve the actual display
+  // from its native bounds. Reapply the DIP size using the scale factor that
+  // WindowTreeHost selected during InitHost().
+  const float device_scale_factor =
+      display::Screen::Get()
+          ->GetPreferredScaleFactorForWindow(window_widget_->GetNativeWindow())
+          .value_or(initial_device_scale_factor);
+  const gfx::Size dip_size =
+      gfx::ScaleToRoundedSize(rect.size(), 1.0f / device_scale_factor);
+  window_widget_->SetSize(dip_size);
   window_widget_->Show();
 
   window_x11_->Show();
