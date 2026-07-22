@@ -343,7 +343,6 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler,
   }
 
   TrackCallback got_paint_;
-  TrackCallback got_load_end_;  // informational only
   KeyDomCodeTestStage stage_ = STAGE_KEYDOWN_A;
 
   IMPLEMENT_REFCOUNTING(KeyboardDomCodeTestHandler);
