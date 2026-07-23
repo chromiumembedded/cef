@@ -215,10 +215,10 @@ index 673cb3358be84b0fe16b3c134cc19b77842ed366..0de25164e11ea9307e46d521e12c4528
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
 diff --git third_party/blink/renderer/core/frame/web_frame_widget_impl.cc third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
-index 5e173073aa2a40083c153a256f9dad2aa845695c..0e6a60b767e1bb773d712e9f51364923409fba6a 100644
+index 3f7b1343df12251f1fb6804e7227e456b03dc0d6..7957eb81ae8043c4da83da20e6cc2d81c2b60ec4 100644
 --- third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
 +++ third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
-@@ -5865,6 +5865,7 @@ void WebFrameWidgetImpl::OnWindowShowStateChanged(
+@@ -5924,6 +5924,7 @@ void WebFrameWidgetImpl::OnWindowShowStateChanged(
        break;
      case WindowShowState::kInactive:
      case WindowShowState::kFullscreen:
@@ -709,10 +709,10 @@ index 56ed7cad8652cf57e597bb7f369e9e659ea6ed4d..e5f68885fa41fc9da62e746ca790816b
  
        if (native_widget_delegate->IsDialogBox()) {
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 004f1fb7f58070bbfec5ed34fe7a4a2931db3e41..b0d6f925c5e1c8920f18d462e53fa4de6c86a407 100644
+index 6b5028dac583883e9ca825cf1cbb61f9c162a751..54131275d21f5832abcc0f0bfc44cf2cc68472d2 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -875,7 +875,11 @@ bool HWNDMessageHandler::IsVisible() const {
+@@ -907,7 +907,11 @@ bool HWNDMessageHandler::IsVisible() const {
  }
  
  bool HWNDMessageHandler::IsActive() const {
@@ -725,7 +725,7 @@ index 004f1fb7f58070bbfec5ed34fe7a4a2931db3e41..b0d6f925c5e1c8920f18d462e53fa4de
  }
  
  bool HWNDMessageHandler::IsMinimized() const {
-@@ -3451,10 +3455,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -3524,10 +3528,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::EventType::kMousewheel) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.

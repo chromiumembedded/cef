@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/web/web_element.h third_party/blink/public/web/web_element.h
-index 015e6dce8b7871e780fdf2d282033474099c7280..b513194c0545017c5a690d039691e6ebaa608b3e 100644
+index 336c1504787b4166356b53fc2874a60f79be3586..decf248aea26eabe0d97671f0e5d2adcbd0e5094 100644
 --- third_party/blink/public/web/web_element.h
 +++ third_party/blink/public/web/web_element.h
-@@ -86,6 +86,9 @@ class BLINK_EXPORT WebElement : public WebNode {
+@@ -88,6 +88,9 @@ class BLINK_EXPORT WebElement : public WebNode {
    WebString TextContent() const;
    WebString TextContentAbridged(unsigned int max_length) const;
    WebString InnerHTML() const;
@@ -13,10 +13,10 @@ index 015e6dce8b7871e780fdf2d282033474099c7280..b513194c0545017c5a690d039691e6eb
    void Focus();
  
 diff --git third_party/blink/renderer/core/exported/web_element.cc third_party/blink/renderer/core/exported/web_element.cc
-index 7a172a04538bc81ff707c312d6f99e10335c783d..94c57c0be1ebf650553e7ccfd8838bfc19b03bdf 100644
+index e4593292a9fc51c6f32abffbe5ca7d986562e192..832eb81e7a450c11d49f7b6bae222d3ce231dd01 100644
 --- third_party/blink/renderer/core/exported/web_element.cc
 +++ third_party/blink/renderer/core/exported/web_element.cc
-@@ -187,6 +187,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
+@@ -190,6 +190,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
                                    IGNORE_EXCEPTION_FOR_TESTING);
  }
  
