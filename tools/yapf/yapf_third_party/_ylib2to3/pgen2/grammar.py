@@ -14,7 +14,7 @@ fallback token code OP, but the parser needs the actual token code.
 # Python imports
 import os
 import pickle
-import tempfile
+import uuid
 
 # Local imports
 from . import token
@@ -88,39 +88,20 @@ class Grammar(object):
 
   def dump(self, filename):
     """Dump the grammar tables to a pickle file."""
-    # NOTE:
-    # - We're writing a tempfile first so that there is no chance
-    #   for someone to read a half-written file from this very spot
-    #   while we're were not done writing.
-    # - We're using ``os.rename`` to sure not copy data around (which
-    #   would get us back to square one with a reading-half-written file
-    #   race condition).
-    # - We're making the tempfile go to the same directory as the eventual
-    #   target ``filename`` so that there is no chance of failing from
-    #   cross-file-system renames in ``os.rename``.
-    # - We're using the same prefix and suffix for the tempfile so if we
-    #   ever have to leave a tempfile around for failure of deletion,
-    #   it will have a reasonable filename extension and its name will help
-    #   explain is nature.
-    tempfile_dir = os.path.dirname(filename)
-    tempfile_prefix, tempfile_suffix = os.path.splitext(filename)
-    with tempfile.NamedTemporaryFile(
-        mode='wb',
-        suffix=tempfile_suffix,
-        prefix=tempfile_prefix,
-        dir=tempfile_dir,
-        delete=False) as f:
-      pickle.dump(self.__dict__, f.file, pickle.HIGHEST_PROTOCOL)
+    # Avoid tempfile here: its Windows PermissionError retry may be
+    # effectively unbounded when a sandbox denies cache writes. Write once to
+    # a unique file, close it, and atomically publish the completed cache.
+    base, extension = os.path.splitext(filename)
+    temporary_filename = '%s.%s%s' % (base, uuid.uuid4().hex, extension)
+    try:
+      with open(temporary_filename, 'xb') as f:
+        pickle.dump(self.__dict__, f, pickle.HIGHEST_PROTOCOL)
+      os.replace(temporary_filename, filename)
+    finally:
       try:
-        os.rename(f.name, filename)
+        os.remove(temporary_filename)
       except OSError:
-        # This makes sure that we do not leave the tempfile around
-        # unless we have to...
-        try:
-          os.remove(f.name)
-        except OSError:
-          pass
-        raise
+        pass
 
   def load(self, filename):
     """Load the grammar tables from a pickle file."""
