@@ -14,6 +14,9 @@ Local Modifications:
   INDENT_DICTIONARY_VALUE, INDENT_WIDTH=2, JOIN_MULTIPLE_LINES=False, and
   SPLIT_BEFORE_BITWISE_OPERATOR=True).
 - Vendored platformdirs (dependency of yapf_third_party._ylib2to3).
+- Made grammar cache writes Windows/sandbox-safe by using a single-attempt
+  unique temporary file and closing it before atomic replacement
+  (https://github.com/google/yapf/issues/1311).
 
 Update Instructions:
   # Download yapf source (from chromium/src/cef/tools).
