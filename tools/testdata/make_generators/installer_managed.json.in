@@ -1,0 +1,8 @@
+{
+  // Deterministic managed installer fixture.
+  "appid": "A3B9C4D5-E6F7-4A8B-9C0D-E1F2A3B4C5D6",
+  "vmin": "${VMIN}",
+  "vmax": "${VMAX}",
+  "abi_hash": "${ABI_HASH}",
+  "launch_health": "explicit"
+}

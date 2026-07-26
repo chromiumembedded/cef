@@ -8,10 +8,12 @@ Generate installer configuration files from a template.
 Reads cef_api_versions.json, extracts:
   - vmin: API version XXXYY -> "XXX.YY" (e.g., 14600 -> "146.0", 14601 -> "146.1")
     Uses --api-version if provided, otherwise uses "last" from JSON
+  - vmax: "<vmin major>.99" (e.g., vmin "146.1" -> vmax "146.99")
   - abi_hash: hashes[last]["sandbox_compat"] (always from "last", not affected
     by --api-version)
 
-Substitutes ${VMIN} and ${ABI_HASH} in template, writes JSON and RC files.
+Substitutes ${VMIN}, ${VMAX} and ${ABI_HASH} in template, writes JSON and RC
+files.
 """
 
 from __future__ import absolute_import
@@ -89,6 +91,7 @@ def main():
   if vmin_tuple is None:
     return 1
   vmin = format_vmin(*vmin_tuple)
+  vmax = format_vmin(vmin_tuple[0], 99)
 
   # abi_hash: always from "last" (not affected by --api-version)
   hashes = api_versions.get('hashes', {})
@@ -107,8 +110,14 @@ def main():
     print('Error reading %s: %s' % (args.template, e), file=sys.stderr)
     return 1
 
-  config = template.replace('${VMIN}', vmin)
-  config = config.replace('${ABI_HASH}', abi_hash)
+  substitutions = {
+      'VMIN': vmin,
+      'VMAX': vmax,
+      'ABI_HASH': abi_hash,
+  }
+  config = template
+  for name, value in substitutions.items():
+    config = config.replace('${%s}' % name, value)
 
   # Remove JSON comments (lines starting with //) and empty lines
   lines = [
@@ -134,6 +143,12 @@ def main():
   generated_vmin = parsed.get('vmin', '')
   if not validate_version(generated_vmin):
     print('Error: Invalid vmin format "%s" (expected X.Y)' % generated_vmin,
+          file=sys.stderr)
+    return 1
+
+  generated_vmax = parsed.get('vmax', '')
+  if generated_vmax and not validate_version(generated_vmax):
+    print('Error: Invalid vmax format "%s" (expected X.Y)' % generated_vmax,
           file=sys.stderr)
     return 1
 

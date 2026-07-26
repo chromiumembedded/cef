@@ -1,0 +1,13 @@
+// Copyright (c) 2026 The Chromium Embedded Framework Authors. All rights
+// reserved. Use of this source code is governed by a BSD-style license that
+// can be found in the LICENSE file.
+
+// Processed at build time by tools/make_installer_config.py
+// Values derived from cef_api_versions.json
+{
+  "appid": "A3B9C4D5-E6F7-4A8B-9C0D-E1F2A3B4C5D6",
+  "vmin": "${VMIN}",
+  "vmax": "${VMAX}",
+  "abi_hash": "${ABI_HASH}",
+  "launch_health": "explicit"
+}

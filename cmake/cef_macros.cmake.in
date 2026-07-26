@@ -35,6 +35,7 @@ macro(PRINT_CEF_CONFIG)
   endif()
 
   message(STATUS "CEF sandbox:                  ${USE_SANDBOX}")
+  message(STATUS "CEF installer mode:           ${USE_INSTALLER}")
 
   message(STATUS "Standard libraries:           ${CEF_STANDARD_LIBS}")
 
