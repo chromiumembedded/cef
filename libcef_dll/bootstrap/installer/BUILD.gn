@@ -41,6 +41,41 @@ if (is_win) {
     }
   }
 
+  action("cef_installer_config_managed") {
+    script = "//cef/tools/make_installer_config.py"
+
+    inputs = [
+      "//cef/cef_api_versions.json",
+      "//cef/tests/cefclient/win/installer_config_managed.json.in",
+    ]
+    outputs = [
+      "$root_gen_dir/cef/installer_config_managed.json",
+      "$root_gen_dir/cef/installer_config_managed.rc",
+    ]
+
+    args = [
+      "--template",
+      rebase_path(
+          "//cef/tests/cefclient/win/installer_config_managed.json.in",
+          root_build_dir),
+      "--api-versions",
+      rebase_path("//cef/cef_api_versions.json", root_build_dir),
+      "--output-json",
+      rebase_path(outputs[0], root_build_dir),
+      "--output-rc",
+      rebase_path(outputs[1], root_build_dir),
+      "--resource-name",
+      "CEF_INSTALLER_CONFIG",
+    ]
+
+    if (cef_api_version != "") {
+      args += [
+        "--api-version",
+        cef_api_version,
+      ]
+    }
+  }
+
   action("installer_revocation_resource") {
     script = "//cef/tools/make_revocation_resource.py"
 

@@ -1722,6 +1722,17 @@ The installer consumes two embedded Windows `RT_RCDATA` resources. Its
 first-run UI can additionally be branded and localized with executable string-
 table resources.
 
+### Standard binary distribution CMake example
+
+The standard Windows binary distribution documents an opt-in
+`-DUSE_INSTALLER=On` CMake example in its `README.txt`. That Release-only,
+bootstrap/sandbox build focuses on cefclient and embeds a generated managed
+`CEF_INSTALLER_CONFIG` in the client DLL while staging only the bootstrap,
+client DLL, and `chrome_elf.dll` runtime payload. It does not modify bootstrap
+resources or enable bootstrap-only explicit command-line or standalone modes.
+Replace the sample application identity and follow the signing and compatible
+CEF distribution requirements in this document before production use.
+
 ### 1. `CEF_INSTALLER_CONFIG` (client DLL or bootstrap resource)
 
 A JSON configuration specifying the application's CEF version requirements.

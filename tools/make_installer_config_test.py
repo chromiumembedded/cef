@@ -19,14 +19,18 @@ from make_installer_config import validate_version
 
 class MakeInstallerConfigTest(unittest.TestCase):
 
-  def _arguments(self, directory, template=None, api_versions=None):
+  def _arguments(self,
+                 directory,
+                 template=None,
+                 api_versions=None,
+                 output_basename='installer'):
     return [
         '--template', template or testdata_dir('installer.json.in'),
         '--api-versions', api_versions or testdata_dir('api_versions.json'),
         '--output-json',
-        os.path.join(directory, 'installer.json'), '--output-rc',
-        os.path.join(directory,
-                     'installer.rc'), '--resource-name', 'CEF_INSTALLER_CONFIG'
+        os.path.join(directory, output_basename + '.json'), '--output-rc',
+        os.path.join(directory, output_basename + '.rc'), '--resource-name',
+        'CEF_INSTALLER_CONFIG'
     ]
 
   def test_validators_accept_boundaries_and_reject_bad_values(self):
@@ -74,6 +78,45 @@ class MakeInstallerConfigTest(unittest.TestCase):
       self.assertEqual(data['vmin'], '133.0')
       self.assertEqual(data['abi_hash'], '0123456789abcdef')
 
+  def test_managed_vmax_default_override_and_stable_rewrite(self):
+    with tempfile.TemporaryDirectory() as temporary_directory:
+      arguments = self._arguments(
+          temporary_directory,
+          template=testdata_dir('installer_managed.json.in'),
+          output_basename='installer_managed')
+      first = run_generator_script('make_installer_config.py', *arguments)
+      self.assertEqual(first.returncode, 0, first.stderr)
+      json_path = os.path.join(temporary_directory, 'installer_managed.json')
+      rc_path = os.path.join(temporary_directory, 'installer_managed.rc')
+      with open(json_path, encoding='utf-8') as output:
+        first_json = output.read()
+      with open(rc_path, encoding='utf-8') as output:
+        first_rc = output.read()
+      self.assertEqual(
+          first_json,
+          read_golden('make_installer_config',
+                      'installer_managed.json').rstrip('\n'))
+      self.assertEqual(
+          first_rc, read_golden('make_installer_config',
+                                'installer_managed.rc'))
+      self.assertNotIn('${VMAX}', first_json)
+      first_json_mtime = os.stat(json_path).st_mtime_ns
+      first_rc_mtime = os.stat(rc_path).st_mtime_ns
+
+      second = run_generator_script('make_installer_config.py', *arguments)
+      self.assertEqual(second.returncode, 0, second.stderr)
+      self.assertEqual(os.stat(json_path).st_mtime_ns, first_json_mtime)
+      self.assertEqual(os.stat(rc_path).st_mtime_ns, first_rc_mtime)
+
+      override = run_generator_script('make_installer_config.py', *arguments,
+                                      '--api-version', '13300')
+      self.assertEqual(override.returncode, 0, override.stderr)
+      with open(json_path, encoding='utf-8') as output:
+        data = json.load(output)
+      self.assertEqual(data['vmin'], '133.0')
+      self.assertEqual(data['vmax'], '133.99')
+      self.assertEqual(data['abi_hash'], '0123456789abcdef')
+
   def test_argparse_and_prewrite_validation_failures_leave_outputs_missing(
       self):
     invalid = run_generator_script('make_installer_config.py')
@@ -86,6 +129,9 @@ class MakeInstallerConfigTest(unittest.TestCase):
          '"abi_hash":"${ABI_HASH}"}'),
         ('invalid vmin', '{"appid":"A3B9C4D5-E6F7-4A8B-9C0D-E1F2A3B4C5D6",'
          '"vmin":"bad","abi_hash":"${ABI_HASH}"}'),
+        ('invalid vmax', '{"appid":"A3B9C4D5-E6F7-4A8B-9C0D-E1F2A3B4C5D6",'
+         '"vmin":"${VMIN}","vmax":"bad",'
+         '"abi_hash":"${ABI_HASH}"}'),
         ('invalid ABI', '{"appid":"A3B9C4D5-E6F7-4A8B-9C0D-E1F2A3B4C5D6",'
          '"vmin":"${VMIN}","abi_hash":"bad"}'),
     ]
@@ -101,6 +147,20 @@ class MakeInstallerConfigTest(unittest.TestCase):
             os.path.exists(os.path.join(directory, 'installer.json')))
         self.assertFalse(os.path.exists(os.path.join(directory,
                                                      'installer.rc')))
+
+  def test_empty_vmax_remains_valid(self):
+    with tempfile.TemporaryDirectory() as directory:
+      template = os.path.join(directory, 'template.json.in')
+      with open(template, 'w', encoding='utf-8') as output:
+        output.write('{"appid":"A3B9C4D5-E6F7-4A8B-9C0D-E1F2A3B4C5D6",'
+                     '"vmin":"${VMIN}","vmax":"",'
+                     '"abi_hash":"${ABI_HASH}"}')
+      result = run_generator_script('make_installer_config.py',
+                                    *self._arguments(directory, template))
+      self.assertEqual(result.returncode, 0, result.stderr)
+      with open(os.path.join(directory, 'installer.json'),
+                encoding='utf-8') as output:
+        self.assertEqual(json.load(output)['vmax'], '')
 
   def test_missing_api_fields_unreadable_template_and_partial_io_failure(self):
     with tempfile.TemporaryDirectory() as directory:

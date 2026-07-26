@@ -1287,6 +1287,16 @@ def main(argv=None):
       copy_file(
           os.path.join(valid_build_dir, 'gen', 'cef', 'installer_config.rc'),
           os.path.join(cefclient_win_dir, 'installer_config.rc'), options.quiet)
+      copy_file(
+          os.path.join(valid_build_dir, 'gen', 'cef',
+                       'installer_config_managed.json'),
+          os.path.join(cefclient_win_dir, 'installer_config_managed.json'),
+          options.quiet)
+      copy_file(
+          os.path.join(valid_build_dir, 'gen', 'cef',
+                       'installer_config_managed.rc'),
+          os.path.join(cefclient_win_dir, 'installer_config_managed.rc'),
+          options.quiet)
 
       # transfer cefsimple files
       transfer_gypi_files(

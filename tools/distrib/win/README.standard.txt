@@ -49,8 +49,50 @@ USAGE
 -----
 
 Building using CMake:
-  CMake can be used to generate project files in many different formats. See
-  usage instructions at the top of the CMakeLists.txt file.
+  To configure and build the normal cefclient sample with Visual Studio 2022:
+
+     $ cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+     $ cmake --build build --config Debug --target cefclient
+
+  For a 32-bit or ARM64 binary distribution, replace x64 with Win32 or arm64,
+  respectively. See the usage instructions at the top of CMakeLists.txt for
+  other generators and build options.
+
+  Installer-managed cefclient:
+  To build cefclient so it can locate or install compatible CEF on first run,
+  use a separate build directory, add -DUSE_INSTALLER=On to the configure
+  command above, and build the cefclient target in Release.
+
+  USE_INSTALLER=On is Windows-only, requires USE_SANDBOX=On, and supports
+  Release builds only. You only need to request cefclient; CMake builds its
+  required libcef_dll_wrapper dependency and may create additional generator
+  utility targets.
+
+  The Release output contains:
+  - cefclient.exe, a byte-for-byte copy of Release\bootstrap.exe
+  - cefclient.dll, with the managed installer configuration embedded
+  - chrome_elf.dll
+  - normal compiler and linker artifacts, such as .lib, .exp, and .pdb files
+
+  A compatible signed CEF distribution will be installed or located on first
+  run.
+
+  Before shipping:
+  1. Open tests\cefclient\win\installer_config_managed.json and replace the
+     sample appid with your application's permanent UUID.
+  2. Sign cefclient.exe, cefclient.dll, and chrome_elf.dll. chrome_elf.dll must
+     use the same signing certificate as cefclient.exe.
+  3. Review the production identity, signing, publication, and installer
+     requirements in the CEF Installer Library documentation:
+     https://github.com/chromiumembedded/cef/blob/$CEF_REV$/libcef_dll/bootstrap/installer/README.md
+
+  This example supports normal first-run CEF resolution. It does not modify
+  bootstrap.exe resources, so standalone installer mode and explicit commands
+  such as /cef-update and /cef-uninstall are not enabled.
+
+  Compatibility details: The embedded configuration accepts CEF releases from
+  its selected API version through minor version 99 of the same API major. It
+  uses explicit launch-health reporting, which cefclient handles automatically.
 
 Building using Bazel:
   Bazel can be used to build CEF-based applications. CEF support for Bazel is

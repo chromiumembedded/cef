@@ -68,6 +68,24 @@ list(APPEND CEF_COMPILER_DEFINES
 # Configure use of the sandbox.
 option(USE_SANDBOX "Enable or disable use of the sandbox." ON)
 
+# Configure the installer-managed cefclient example.
+option(USE_INSTALLER "Build the installer-managed cefclient example." OFF)
+
+if(USE_INSTALLER)
+  if(NOT OS_WINDOWS)
+    message(FATAL_ERROR "USE_INSTALLER is supported only on Windows.")
+  endif()
+  if(NOT USE_SANDBOX)
+    message(FATAL_ERROR
+            "USE_INSTALLER requires USE_SANDBOX=On for bootstrap support.")
+  endif()
+  if((GEN_NINJA OR GEN_MAKEFILES) AND
+     NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+    message(FATAL_ERROR
+            "USE_INSTALLER requires CMAKE_BUILD_TYPE=Release.")
+  endif()
+endif()
+
 
 # Optionally configure the CEF API version by adding `-D api_version=XXXXX` to the
 # cmake command-line where XXXXX is the desired version number. For background see

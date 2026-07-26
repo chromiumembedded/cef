@@ -1460,10 +1460,11 @@ if (is_win) {
 
     sources = bootstrap_sources
     deps = bootstrap_deps + [
-      # Trigger generation of installer_config.json/rc so that the files exist
-      # for distributions (automate-git.py builds bootstrap but not cefclient_dll).
-      # The files are not embedded in this binary.
-      "libcef_dll/bootstrap/installer:cef_installer_config"
+      # Trigger generation of both installer config pairs so that the files
+      # exist for distributions (automate-git.py builds bootstrap but not
+      # cefclient_dll). The files are not embedded in this binary.
+      "libcef_dll/bootstrap/installer:cef_installer_config",
+      "libcef_dll/bootstrap/installer:cef_installer_config_managed",
     ]
     libs = bootstrap_libs
     configs += bootstrap_configs
