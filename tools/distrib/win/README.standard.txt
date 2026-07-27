@@ -83,8 +83,8 @@ Building using CMake:
   2. Sign cefclient.exe, cefclient.dll, and chrome_elf.dll. chrome_elf.dll must
      use the same signing certificate as cefclient.exe.
   3. Review the production identity, signing, publication, and installer
-     requirements in the CEF Installer Library documentation:
-     https://github.com/chromiumembedded/cef/blob/$CEF_REV$/libcef_dll/bootstrap/installer/README.md
+     requirements in the CEF Installer documentation:
+     https://chromiumembedded.github.io/cef/installer.html
 
   This example supports normal first-run CEF resolution. It does not modify
   bootstrap.exe resources, so standalone installer mode and explicit commands
