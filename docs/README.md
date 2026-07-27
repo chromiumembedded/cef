@@ -22,6 +22,7 @@ The Chromium Embedded Framework (CEF) is a simple framework for embedding Chromi
 * [Automated Build Setup](automated_build_setup.md) - How to set up an automated build system for CEF.
 * [Crash Reporting](crash_reporting.md) - How to handle crash reporting from CEF-based applications.
 * [Sandbox Setup](sandbox_setup.md) - Sandbox usage and requirements for CEF.
+* [Installer](installer.md) - Support for CEF shared installs on Windows.
 
 The complete list of CEF Wiki pages is available [here](.).
 

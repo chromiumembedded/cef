@@ -39,6 +39,8 @@ Starting with M138 the `cef_sandbox` static library can only be linked with appl
 3. Optionally customize the bootstrap executable for your client application. For example, resources such as icons, file information and error strings can be modified using [Visual Studio](https://learn.microsoft.com/en-us/cpp/windows/working-with-resource-files?view=msvc-170) or [Resource Hacker](https://www.angusj.com/resourcehacker/) tools ([example](https://github.com/chromiumembedded/cef/issues/3824#issuecomment-2895663576)). Alternately, you can build and modify the bootstrap executables from source code as part of a CEF/Chromium build (see the "Building bootstrap" section below).
 4. Be sure to [code sign](https://learn.microsoft.com/en-us/windows/win32/seccrypto/signtool) all binaries after modification and before distribution to users ([example](https://github.com/chromiumembedded/cef/issues/3824#issuecomment-2892139995)).
 
+The bootstrap can also manage CEF downloads, updates, and shared installations automatically. See [Installer](installer.md) for details.
+
 If you don't wish to use the provided bootstrap executables you have a few other options:
 
 1. Build your client application as part of the CEF/Chromium build using Chromium's bundled Clang/LLVM/libc++ toolchain. You will need to integrate your custom build into CEF's top-level [BUILD.gn file](https://github.com/chromiumembedded/cef/blob/master/BUILD.gn). See for example the "cefsimple targets" section in that file for how the cefsimple application is built.
