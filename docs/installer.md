@@ -15,7 +15,7 @@ resource, the client DLL loads the libcef DLL in the usual way with no installer
 involvement.
 
 The authoritative reference is
-[libcef_dll/bootstrap/installer/README.md](../libcef_dll/bootstrap/installer/README.md).
+[libcef_dll/bootstrap/installer/README.md](https://github.com/chromiumembedded/cef/blob/master/libcef_dll/bootstrap/installer/README.md).
 This document is a brief overview; follow the links below for full details.
 
 ## What It Does
@@ -64,7 +64,7 @@ Key fields:
 | `launch_health` | `"off"`, `"explicit"` (recommended), or `"exit_code"`. |
 
 For the full field reference, see
-[Configuration Fields](../libcef_dll/bootstrap/installer/README.md#2-configuration-fields).
+[Configuration Fields](https://github.com/chromiumembedded/cef/blob/master/libcef_dll/bootstrap/installer/README.md#2-configuration-fields).
 
 ### 2. Build with the standard binary distribution (cefclient example)
 
@@ -81,7 +81,7 @@ This Release-only configuration:
 - Stages only the bootstrap `.exe`, client DLL, and `chrome_elf.dll`
 
 Replace the sample application identity (`appid`) before production use. See
-[Build Integration](../libcef_dll/bootstrap/installer/README.md#build-integration)
+[Build Integration](https://github.com/chromiumembedded/cef/blob/master/libcef_dll/bootstrap/installer/README.md#build-integration)
 for resource embedding details.
 
 ### 3. Sign your binaries
@@ -103,7 +103,7 @@ MyApp.exe /cef-uninstall                 # Unregister and prune unused versions
 
 These commands require `enable_explicit_modes: true` in the bootstrap's
 embedded configuration. See
-[Command-Line Options](../libcef_dll/bootstrap/installer/README.md#command-line-options).
+[Command-Line Options](https://github.com/chromiumembedded/cef/blob/master/libcef_dll/bootstrap/installer/README.md#command-line-options).
 
 ## Background Updates from Code
 
@@ -119,7 +119,7 @@ The result is a JSON string indicating success or failure. Available commands:
 `install`, `update`, `uninstall`, `query`, and `launch_success`.
 
 For the full API, result format, and extended configuration options, see
-[Background Update API](../libcef_dll/bootstrap/installer/README.md#background-update-api).
+[Background Update API](https://github.com/chromiumembedded/cef/blob/master/libcef_dll/bootstrap/installer/README.md#background-update-api).
 
 ## Version Selection
 
@@ -135,7 +135,7 @@ versions are excluded from normal selection, and crash-disqualified versions
 (when launch-health tracking is enabled) are deprioritized.
 
 For the complete decision tree, see
-[Version Selection](../libcef_dll/bootstrap/installer/README.md#version-selection).
+[Version Selection](https://github.com/chromiumembedded/cef/blob/master/libcef_dll/bootstrap/installer/README.md#version-selection).
 
 ### Bundled CEF Modes
 
@@ -147,21 +147,21 @@ relying solely on the shared installation directory and CDN downloads.
   version participates in normal version selection — it is compared against
   installed versions and the newer one wins. It is used in-place and never
   copied to the shared directory. See
-  [Bundled Version Behavior](../libcef_dll/bootstrap/installer/README.md#bundled-version-behavior).
+  [Bundled Version Behavior](https://github.com/chromiumembedded/cef/blob/master/libcef_dll/bootstrap/installer/README.md#bundled-version-behavior).
 
 - **`unchecked_cef_path`**: Points directly to a directory containing
   `libcef.dll`. When set, this path is checked first and bypasses all version,
   ABI, signature, and revocation checks — the application is fully responsible
   for the integrity of that DLL. If the DLL is absent, the installer falls
   through to normal resolution. See
-  [Unchecked CEF Path](../libcef_dll/bootstrap/installer/README.md#unchecked-cef-path).
+  [Unchecked CEF Path](https://github.com/chromiumembedded/cef/blob/master/libcef_dll/bootstrap/installer/README.md#unchecked-cef-path).
 
 ## Further Reading
 
 | Topic | Link |
 |-------|------|
-| Full installer reference | [README.md](../libcef_dll/bootstrap/installer/README.md) |
-| Security model | [SECURITY.md](../libcef_dll/bootstrap/installer/SECURITY.md) |
-| Enterprise policy | [ADMIN_POLICY.md](../libcef_dll/bootstrap/installer/ADMIN_POLICY.md) |
-| Testing | [TESTING.md](../libcef_dll/bootstrap/installer/TESTING.md) |
+| Full installer reference | [README.md](https://github.com/chromiumembedded/cef/blob/master/libcef_dll/bootstrap/installer/README.md) |
+| Security model | [SECURITY.md](https://github.com/chromiumembedded/cef/blob/master/libcef_dll/bootstrap/installer/SECURITY.md) |
+| Enterprise policy | [ADMIN_POLICY.md](https://github.com/chromiumembedded/cef/blob/master/libcef_dll/bootstrap/installer/ADMIN_POLICY.md) |
+| Testing | [TESTING.md](https://github.com/chromiumembedded/cef/blob/master/libcef_dll/bootstrap/installer/TESTING.md) |
 | Bootstrap/client integration | [sandbox_setup.md](sandbox_setup.md) |
