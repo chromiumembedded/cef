@@ -60,10 +60,9 @@ class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
     }
 
 #if defined(CEF_USE_BOOTSTRAP)
-    // Start background update check when running under bootstrap.exe.
-    StartBackgroundUpdateCheck();
-    // Confirm launch health after a delay so app-level crashes that occur
-    // after CEF has loaded successfully don't penalize the CEF version.
+    // Confirm launch health after a delay, then check for an update. Ordering
+    // the update after confirmation preserves this healthy version as a
+    // fallback under the installer's existing pruning policy.
     StartLaunchHealthConfirmation();
 #endif
   }

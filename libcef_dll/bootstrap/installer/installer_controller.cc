@@ -2118,8 +2118,27 @@ Result Controller::RunImpl(Command command,
       break;
 
     case Command::kPrune:
-      result = PruneUnusedVersions(install_dir, app_config, {},
-                                   LoadEffectiveRevocationList(read_dirs));
+      if (!database_ || !database_->CanPrune()) {
+        result = Result::Success({}, "");
+        break;
+      }
+      {
+        Result orphan_cleanup = Result::Success({}, "");
+        std::vector<InstalledVersion> indexed;
+        if (ReadVersionIndex(install_dir, &indexed) ==
+            MetadataError::kSuccess) {
+          orphan_cleanup = QuarantineUnindexedVersions(install_dir, indexed);
+        }
+        result = PruneUnusedVersions(install_dir, app_config, {},
+                                     LoadEffectiveRevocationList(read_dirs));
+        result.warnings.insert(result.warnings.end(),
+                               orphan_cleanup.warnings.begin(),
+                               orphan_cleanup.warnings.end());
+        if (result.success &&
+            orphan_cleanup.outcome == Outcome::kCleanupDeferred) {
+          result.outcome = Outcome::kCleanupDeferred;
+        }
+      }
       break;
 
     case Command::kRetentionDryRun:
@@ -2299,6 +2318,7 @@ std::optional<Result> Controller::ResolveStartupOffline(
             base::TimeTicks::Now() + recovery_limits.time_budget;
       }
       bool attempted_recovery = false;
+      bool recovery_requires_warning = false;
       bool bounded_out = false;
       for (auto& root : roots) {
         if (root.index_error == MetadataError::kSuccess) {
@@ -2321,18 +2341,23 @@ std::optional<Result> Controller::ResolveStartupOffline(
 
         attempted_recovery = true;
         ++recovery_roots_scanned;
-        Logger::GetInstance().Warning(
-            "Attempting bounded emergency startup recovery in " +
-            root.root.AsUTF8Unsafe() + " after index read failed: " +
-            MetadataErrorToString(root.index_error));
+        if (root.index_error != MetadataError::kFileNotFound) {
+          recovery_requires_warning = true;
+          Logger::GetInstance().Warning(
+              "Attempting bounded emergency startup recovery in " +
+              root.root.AsUTF8Unsafe() + " after index read failed: " +
+              MetadataErrorToString(root.index_error));
+        }
         BoundedInstalledVersionScanResult scan =
             ScanInstalledVersionsWithMetadataBounded(
                 root.root,
                 recovery_limits.max_version_entries - recovery_entries_visited,
                 recovery_deadline);
         recovery_entries_visited += scan.entries_visited;
+        recovery_requires_warning |= scan.entries_visited > 0;
         root.recovered = std::move(scan.versions);
         if (scan.entry_limit_reached || scan.time_limit_reached) {
+          recovery_requires_warning = true;
           bounded_out = true;
           Logger::GetInstance().Warning(
               "Emergency startup recovery reached its scan bound in " +
@@ -2354,7 +2379,7 @@ std::optional<Result> Controller::ResolveStartupOffline(
           Logger::GetInstance().Warning(
               "Using an installed version found by bounded emergency startup "
               "recovery; a later writer should repair the index");
-        } else {
+        } else if (recovery_requires_warning) {
           Logger::GetInstance().Warning(
               "Bounded emergency startup recovery found no usable version");
         }
@@ -2590,6 +2615,20 @@ Result Controller::ReconcileInstallState(const base::FilePath& install_dir) {
     return result;
   }
 
+  Result orphan_cleanup = QuarantineUnindexedVersions(install_dir, indexed);
+  if (orphan_cleanup.outcome == Outcome::kCleanupDeferred) {
+    result.outcome = Outcome::kCleanupDeferred;
+    result.warnings.insert(result.warnings.end(),
+                           orphan_cleanup.warnings.begin(),
+                           orphan_cleanup.warnings.end());
+  }
+  return result;
+}
+
+Result Controller::QuarantineUnindexedVersions(
+    const base::FilePath& install_dir,
+    const std::vector<InstalledVersion>& indexed) {
+  Result result = Result::Success({}, "");
   std::set<base::FilePath> indexed_paths;
   for (const auto& iv : indexed) {
     indexed_paths.insert(iv.path);

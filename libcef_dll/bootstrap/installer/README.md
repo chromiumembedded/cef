@@ -186,7 +186,7 @@ Client DLLs can trigger background updates using the `RunInstaller` export:
 typedef const char* (*RunInstallerFunc)(const char* command,
                                         const char* config_json);
 
-void CheckForUpdates() {
+void ConfirmHealthThenCheckForUpdates() {
   // Get export from bootstrap.exe
   HMODULE bootstrap = GetModuleHandle(nullptr);
   auto run_installer = reinterpret_cast<RunInstallerFunc>(
@@ -203,37 +203,45 @@ void CheckForUpdates() {
     return;
   }
 
-  // Run update check (returns JSON result)
-  const char* result = run_installer("update", config_json.c_str());
+  // Copy the result before another call invalidates it on this thread.
+  const char* confirmation = run_installer("launch_success", nullptr);
+  std::string confirmation_json = confirmation ? confirmation : "";
+  // Application helper: require valid JSON with "success" set to true.
+  if (!ParseInstallerSuccess(confirmation_json)) {
+    return;
+  }
 
-  // Parse result JSON for success/error status
+  // Skip the update unless launch health was confirmed successfully.
+  const char* result = run_installer("update", config_json.c_str());
   // ...
 }
 ```
 
-Clients can also confirm launch health once CEF is up and rendering. This
-decouples CEF health from the process exit code — an app-level crash *after*
-confirmation does not penalize the CEF version. The call is lightweight (no
-lock, no database) and needs no config: the sentinel path is a process-global
-the bootstrap set before `RunWinMain`.
+Applications that use launch-health tracking should confirm the current launch
+before checking for an update. Call `launch_success` after CEF reaches a
+healthy steady state, such as after the first page renders successfully. The
+returned pointer remains valid only until the next `RunInstaller` call on the
+same thread, so copy and parse the result immediately. Continue with `update`
+only when the result contains `"success": true`. If confirmation is
+unavailable, malformed, or unsuccessful, skip the update for this run. This
+keeps the current, known-good version eligible as a fallback under the existing
+pruning rules.
 
-```cpp
-void ConfirmLaunchHealth() {
-  HMODULE bootstrap = GetModuleHandle(nullptr);
-  auto run_installer = reinterpret_cast<RunInstallerFunc>(
-      GetProcAddress(bootstrap, "RunInstaller"));
-  if (!run_installer) {
-    return;  // Not running under bootstrap
-  }
+Cefclient follows this sequence once, 60 seconds after startup. If confirmation
+fails, cefclient does not check for an update during that process.
 
-  // No config needed — launch_success resolves the active sentinel itself.
-  run_installer("launch_success", nullptr);
-}
-```
+`RunInstaller` does not sequence these calls automatically. Applications that
+want a confirmed fallback must call `launch_success` before `update`.
+Confirmation does not pin a version indefinitely: the application must remain
+registered for the same platform, the version must satisfy that platform's
+global `vmin`, and a revoked version can still be removed.
 
-Call this after the app reaches a healthy steady state (e.g., a delay after
-first render, or when playback/first-data-frame succeeds). See the cefclient
-reference `StartLaunchHealthConfirmation` in `client_update_win.cc`.
+`launch_success` needs no configuration and does not acquire the installer lock
+or open the database. The bootstrap creates the version-specific launch-state
+record before `RunWinMain`. This is separate from the version-independent
+liveness record used to determine when an application registration is stale.
+Updating liveness alone does not confirm a launch or protect a particular CEF
+version.
 
 ### RunInstaller Commands
 
@@ -1616,8 +1624,26 @@ so it never blocks exit. This cleans up versions that are no longer needed. If
 the lock is unavailable (another writer is running), pruning is skipped
 silently.
 
-Pruning (and the older-confirmed-file cleanup) runs **only** on exit code 0 —
-not on neutral exits, and not on failures. A neutral exit such as "profile in
+Before regular pruning, the post-exit pass also checks for version directories
+that are missing from a valid version index. It considers only directories with
+the expected `Versions/<version>/<platform>` path and moves eligible directories
+to `.trash`.
+
+This additional cleanup is skipped when the version index is missing, corrupt,
+or unreadable. Regular pruning still handles those cases as before: it may scan
+`Versions/`, write a replacement index, and remove versions that are no longer
+needed.
+
+Windows may allow a directory containing a loaded DLL to be moved to `.trash`
+but prevent its immediate deletion. A later install, update, or uninstall
+can remove it after the DLL is no longer in use. Version discovery and index
+recovery ignore `.trash`, so a quarantined directory cannot be selected as an
+installed version.
+
+Pruning runs **only** on exit code 0 — not on neutral exit codes or failures.
+Deleting older confirmed launch files requires both exit code 0 and confirmed
+health for the current version. In `explicit` mode, an ordinary exit code 0
+does not satisfy that second requirement. A neutral exit such as "profile in
 use" implies another instance is concurrently running with `libcef.dll`
 loaded (or that an immediate relaunch is coming), which violates the "no
 in-use file conflicts" premise that makes post-exit pruning safe. The next

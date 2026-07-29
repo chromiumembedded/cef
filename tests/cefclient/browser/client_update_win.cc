@@ -40,13 +40,7 @@ RunInstallerFunc GetRunInstaller() {
       GetProcAddress(bootstrap, "RunInstaller"));
 }
 
-void BackgroundUpdateCheck() {
-  RunInstallerFunc run_installer = GetRunInstaller();
-  if (!run_installer) {
-    // Not running under bootstrap, or export not available.
-    return;
-  }
-
+void BackgroundUpdateCheck(RunInstallerFunc run_installer) {
   // Read embedded config from client DLL resource.
   std::string config_data;
   if (!cef_util::ReadResourceData(GetCodeModuleHandle(), kConfigResourceName,
@@ -80,6 +74,9 @@ void BackgroundUpdateCheck() {
   // Run update check.
   const char* result_json =
       run_installer("update", config_json.ToString().c_str());
+  if (!result_json) {
+    return;
+  }
 
   // Parse and handle result.
   CefRefPtr<CefValue> result = CefParseJSON(result_json, JSON_PARSER_RFC);
@@ -91,7 +88,7 @@ void BackgroundUpdateCheck() {
   }
 }
 
-void ConfirmLaunchHealth() {
+void ConfirmLaunchHealthAndCheckForUpdates() {
   RunInstallerFunc run_installer = GetRunInstaller();
   if (!run_installer) {
     // Not running under bootstrap, or export not available.
@@ -102,16 +99,30 @@ void ConfirmLaunchHealth() {
   // set by the bootstrap before RunWinMain. Confirming here writes
   // running=false, consecutive_failures=0 to the launch state sentinel so a
   // later app-level crash does not penalize the (working) CEF version.
-  run_installer("launch_success", nullptr);
+  const char* confirmation_result = run_installer("launch_success", nullptr);
+  if (!confirmation_result) {
+    return;
+  }
+
+  // RunInstaller result storage is thread-local and reused by the next call
+  // on this thread. Copy and parse the confirmation result before invoking the
+  // update command.
+  const std::string confirmation_copy(confirmation_result);
+  CefRefPtr<CefValue> confirmation =
+      CefParseJSON(confirmation_copy, JSON_PARSER_RFC);
+  if (!confirmation || confirmation->GetType() != VTYPE_DICTIONARY) {
+    return;
+  }
+  CefRefPtr<CefDictionaryValue> result = confirmation->GetDictionary();
+  if (!result->HasKey("success") || result->GetType("success") != VTYPE_BOOL ||
+      !result->GetBool("success")) {
+    return;
+  }
+
+  BackgroundUpdateCheck(run_installer);
 }
 
 }  // namespace
-
-void StartBackgroundUpdateCheck() {
-  // Delay the update check by 30 seconds to avoid impacting startup.
-  CefPostDelayedTask(TID_FILE_BACKGROUND,
-                     base::BindOnce(&BackgroundUpdateCheck), 30000);
-}
 
 void StartLaunchHealthConfirmation() {
   // The client DLL's CEF_INSTALLER_CONFIG must opt in with
@@ -120,7 +131,11 @@ void StartLaunchHealthConfirmation() {
   // Confirm launch health after 60 seconds of uptime. By this point the app
   // has initialized and rendered content, so the CEF version is working; any
   // later crash is most likely app-level rather than a CEF-load failure.
-  CefPostDelayedTask(TID_FILE_BACKGROUND, base::BindOnce(&ConfirmLaunchHealth),
+  // Confirm first so the running version is eligible for the installer's
+  // existing confirmed-fallback pruning protection. A failed confirmation
+  // skips the update for this process without retrying.
+  CefPostDelayedTask(TID_FILE_BACKGROUND,
+                     base::BindOnce(&ConfirmLaunchHealthAndCheckForUpdates),
                      60000);
 }
 
