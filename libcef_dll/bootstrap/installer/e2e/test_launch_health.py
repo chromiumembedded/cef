@@ -8,14 +8,18 @@ Uses launcher mode (bootstrap.exe + mock client DLL) with CEF_E2E_EXIT_CODE
 to control exit codes and test the sentinel lifecycle.
 """
 
+import ctypes
+import hashlib
 import json
 import os
 import shutil
+import subprocess
 import time
 import unittest
 
-from e2e_test_base import (E2ETestBase, EXIT_SUCCESS, FLAG_HEADLESS,
-                           FLAG_UNINSTALL, FLAG_UPDATE, FLAG_FORCECHECK)
+from e2e_test_base import (E2ETestBase, EXIT_SUCCESS, FLAG_DOWNLOAD_PATH,
+                           FLAG_FORCECHECK, FLAG_HEADLESS, FLAG_INSTALL_PATH,
+                           FLAG_UNINSTALL, FLAG_UPDATE)
 
 # Exit codes the bootstrap treats as success or neutral (see
 # IsSuccessOrNeutralExitCode): a launch ending in one of these leaves the
@@ -140,6 +144,150 @@ class TestLaunchHealth(E2ETestBase):
     self.assertEqual(EXIT_SUCCESS, exit_code,
                      f'Install failed: {stderr.decode(errors="replace")}')
     self.assert_version_installed(version)
+
+  def _update_config_json(self, appid, vmin, abi_hash, launch_health='off'):
+    config = {
+        'appid': appid,
+        'vmin': vmin,
+        'abi_hash': abi_hash,
+        'install_path': self.install_dir,
+        'local_download_path': self.cdn_dir,
+        'force_check': True,
+        'launch_health': launch_health,
+        'show_progress_ui': False,
+    }
+    if self.test_thumbprint:
+      config['certificate_thumbprint'] = self.test_thumbprint
+    return json.dumps(config)
+
+  def _run_ordered_update(self,
+                          app_exe,
+                          config_json,
+                          marker_name,
+                          delete_before_confirm=''):
+    marker_path = os.path.join(self.temp_dir, marker_name)
+    env = {
+        'CEF_E2E_MARKER_PATH': marker_path,
+        'CEF_E2E_CONFIG_JSON': config_json,
+        'CEF_E2E_COMMAND': 'update',
+        'CEF_E2E_CONFIRM_THEN_COMMAND': '1',
+    }
+    if delete_before_confirm:
+      env['CEF_E2E_DELETE_BEFORE_CONFIRM'] = delete_before_confirm
+    exit_code, _, stderr = self.run_installer(exe=app_exe,
+                                              use_local_cdn=False,
+                                              env=env,
+                                              timeout=60)
+    self.assertTrue(
+        os.path.isfile(marker_path),
+        f'Ordered-update marker missing (exit={exit_code}, stderr={stderr!r})')
+    with open(marker_path) as marker_file:
+      return exit_code, json.load(marker_file)
+
+  def _start_barrier_process(self, app_exe, marker_name, launch_env):
+    marker_path = os.path.join(self.temp_dir, marker_name)
+    barrier_path = os.path.join(self.temp_dir, f'{marker_name}.barrier')
+    with open(barrier_path, 'w') as barrier_file:
+      barrier_file.write('wait')
+    env = os.environ.copy()
+    env.update(launch_env)
+    env.update({
+        'CEF_E2E_MARKER_PATH': marker_path,
+        'CEF_E2E_PRE_EXIT_BARRIER': barrier_path,
+    })
+    command = [
+        app_exe, FLAG_HEADLESS, f'{FLAG_DOWNLOAD_PATH}={self.cdn_dir}',
+        f'{FLAG_INSTALL_PATH}={self.install_dir}'
+    ]
+    process = subprocess.Popen(command,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE,
+                               cwd=self.build_dir,
+                               env=env)
+
+    def stop_process():
+      if process.poll() is None:
+        process.kill()
+      try:
+        process.communicate(timeout=5)
+      except subprocess.TimeoutExpired:
+        process.kill()
+        process.communicate()
+
+    self.addCleanup(stop_process)
+    self.addCleanup(lambda: os.remove(barrier_path)
+                    if os.path.isfile(barrier_path) else None)
+
+    deadline = time.monotonic() + 30
+    marker_error = None
+    while time.monotonic() < deadline:
+      if os.path.isfile(marker_path):
+        try:
+          with open(marker_path) as marker_file:
+            marker = json.load(marker_file)
+        except (OSError, json.JSONDecodeError) as error:
+          # The mock client writes marker JSON incrementally. Existence alone
+          # does not mean fclose() has completed publication, so retry a
+          # transient partial or sharing-sensitive read.
+          marker_error = error
+        else:
+          return process, marker, barrier_path
+      if process.poll() is not None:
+        break
+      time.sleep(0.05)
+    self.fail(f'Barrier launch did not publish marker (exit={process.poll()}, '
+              f'error={marker_error!r})')
+
+  def _start_barrier_update(self,
+                            app_exe,
+                            config_json,
+                            marker_name,
+                            load_libcef=False):
+    env = {
+        'CEF_E2E_CONFIG_JSON': config_json,
+        'CEF_E2E_COMMAND': 'update',
+    }
+    if load_libcef:
+      env['CEF_E2E_LOAD_LIBCEF'] = '1'
+    return self._start_barrier_process(app_exe, marker_name, env)
+
+  def _start_barrier_exit(self, app_exe, exit_code, marker_name):
+    process, marker, barrier_path = self._start_barrier_process(
+        app_exe, marker_name, {
+            'CEF_E2E_EXIT_CODE': str(exit_code),
+        })
+    return process, marker, barrier_path
+
+  def _open_without_delete_sharing(self, path):
+    """Open |path| so reads succeed but atomic replacement is denied."""
+    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel32.CreateFileW.argtypes = [
+        ctypes.c_wchar_p, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_void_p,
+        ctypes.c_uint32, ctypes.c_uint32, ctypes.c_void_p
+    ]
+    kernel32.CreateFileW.restype = ctypes.c_void_p
+    kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+    handle = kernel32.CreateFileW(path, 0x80000000, 0x1 | 0x2, None, 3, 0x80,
+                                  None)
+    self.assertNotEqual(
+        ctypes.c_void_p(-1).value, handle,
+        f'CreateFileW failed: {ctypes.get_last_error()}')
+    return kernel32, handle
+
+  def _acquire_installer_mutex(self):
+    normalized = self.install_dir.lower().replace('\\', '/')
+    suffix = hashlib.sha1(normalized.encode('utf-8')).hexdigest()[:16].upper()
+    mutex_name = f'Global\\CEF_Installer_{suffix}'
+    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel32.CreateMutexW.argtypes = [
+        ctypes.c_void_p, ctypes.c_bool, ctypes.c_wchar_p
+    ]
+    kernel32.CreateMutexW.restype = ctypes.c_void_p
+    kernel32.ReleaseMutex.argtypes = [ctypes.c_void_p]
+    kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+    mutex = kernel32.CreateMutexW(None, True, mutex_name)
+    self.assertTrue(mutex, f'CreateMutexW failed: {ctypes.get_last_error()}')
+    return kernel32, mutex
 
   def test_fresh_install_clean_exit(self):
     """Install a version, run launcher with exit 0, verify confirmed state."""
@@ -330,6 +478,329 @@ class TestLaunchHealth(E2ETestBase):
     # should have pruned v1 since it's no longer protected.
     self.assert_version_not_installed(v1)
     self.assert_version_installed(v1_1)
+
+  def test_confirmation_precedes_update_and_preserves_fallback(self):
+    """Health-first update keeps v1 until v2 is selected and confirmed."""
+    v1 = self.test_version
+    v2 = self.test_version_update
+    _, abi_hash = self.build_cdn(version=v1)
+    self.build_cdn(version=v2, abi_hash=abi_hash)
+    appid = 'e2e00a12-0012-0012-0012-000000000012'
+
+    self._standalone_install(v1, abi_hash, appid, vmin=v1, vmax=v1)
+    app_exe, _ = self.setup_launcher('LH12OrderedUpdateApp')
+    self._embed_launcher_config(app_exe,
+                                appid,
+                                v1,
+                                abi_hash,
+                                launch_health='explicit')
+
+    rc, marker = self._run_ordered_update(
+        app_exe,
+        self._update_config_json(appid, v1, abi_hash, launch_health='explicit'),
+        'ordered_update.json')
+    self.assertEqual(EXIT_SUCCESS, rc)
+    self.assertTrue(marker['confirmation_result'].get('success'), marker)
+    self.assertTrue(marker.get('command_called'), marker)
+    self.assertTrue(marker['command_result'].get('success'), marker)
+    self.assertEqual({(v1, 'windows64'), (v2, 'windows64')},
+                     self._read_version_index_versions(self.install_dir))
+    state = self.read_launch_state(v1, self.get_appid_hash(appid))
+    self.assertIsNotNone(state)
+    self.assertTrue(state.get('confirmed'), state)
+    self.assert_version_installed(v1)
+    self.assert_version_installed(v2)
+
+    # An ordinary exit in explicit mode is neutral. It must not remove the
+    # confirmed v1 fallback before v2 launch health is explicitly confirmed.
+    rc, selected = self._run_launcher_with_exit_code(app_exe, 0)
+    self.assertEqual(EXIT_SUCCESS, rc)
+    self.assertIn(v2, selected.get('libcef_version_full', ''), selected)
+    self.assert_version_installed(v1)
+    self.assert_version_installed(v2)
+    self.assertIsNotNone(self.read_launch_state(v1, self.get_appid_hash(appid)))
+
+    rc, selected = self._run_launcher_with_exit_code(app_exe,
+                                                     0,
+                                                     launch_success=True)
+    self.assertEqual(EXIT_SUCCESS, rc)
+    self.assertIn(v2, selected.get('libcef_version_full', ''), selected)
+    self.assert_version_not_installed(v1)
+    self.assert_version_installed(v2)
+    self.assert_no_launch_state(v1, self.get_appid_hash(appid))
+
+  def test_failed_exit_state_write_preserves_confirmed_fallback(self):
+    """A failed confirmation write must not unprotect the older version."""
+    v1 = self.test_version
+    v2 = self.test_version_update
+    _, abi_hash = self.build_cdn(version=v1)
+    self.build_cdn(version=v2, abi_hash=abi_hash)
+    appid = 'e2e00a16-0016-0016-0016-000000000016'
+
+    self._standalone_install(v1, abi_hash, appid, vmin=v1, vmax=v1)
+    app_exe, _ = self.setup_launcher('LH16WriteFailureApp')
+    self._embed_launcher_config(app_exe, appid, v1, abi_hash)
+    rc, _ = self._run_launcher_with_exit_code(app_exe, 0)
+    self.assertEqual(EXIT_SUCCESS, rc)
+
+    appid_hash = self.get_appid_hash(appid)
+    self.assert_launch_state(v1, appid_hash, running=False, failures=0)
+    self._standalone_install(v2, abi_hash, appid, vmin=v1)
+    self.assert_version_installed(v1)
+    self.assert_version_installed(v2)
+
+    self._embed_launcher_config(app_exe, appid, v1, abi_hash)
+    process, _, barrier_path = self._start_barrier_exit(app_exe, 0,
+                                                        'write_failure.json')
+    v2_state_path = os.path.join(self.get_launch_dir(),
+                                 f'{appid_hash}_{v2}_windows64')
+    self.assertTrue(os.path.isfile(v2_state_path))
+    kernel32, state_handle = self._open_without_delete_sharing(v2_state_path)
+    try:
+      os.remove(barrier_path)
+      _, stderr = process.communicate(timeout=30)
+      self.assertEqual(EXIT_SUCCESS, process.returncode,
+                       stderr.decode(errors='replace'))
+    finally:
+      kernel32.CloseHandle(state_handle)
+
+    diagnostics = stderr.decode(errors='replace')
+    log_path = os.path.join(self.install_dir, 'cef_installer.log')
+    if os.path.isfile(log_path):
+      with open(log_path) as log_file:
+        diagnostics += log_file.read()
+    self.assertIn('Failed to persist launch-health exit state', diagnostics)
+
+    # The failed v2 state replacement leaves its initial running sentinel on
+    # disk. The persisted-state gate must keep v1's confirmed record, allowing
+    # generic pruning to preserve the fallback version.
+    v2_state = self.read_launch_state(v2, appid_hash)
+    self.assertIsNotNone(v2_state)
+    self.assertTrue(v2_state.get('running'), v2_state)
+    self.assertFalse(v2_state.get('confirmed'), v2_state)
+    self.assertIsNotNone(self.read_launch_state(v1, appid_hash))
+    self.assert_version_installed(v1)
+    self.assert_version_installed(v2)
+
+  def test_off_mode_clean_exit_prunes_unused_version(self):
+    """Health-off launch still prunes an unused version on clean exit."""
+    v1 = self.test_version
+    v2 = self.test_version_update
+    _, abi_hash = self.build_cdn(version=v1)
+    self.build_cdn(version=v2, abi_hash=abi_hash)
+    appid = 'e2e00a17-0017-0017-0017-000000000017'
+
+    self._standalone_install(v1, abi_hash, appid, vmin=v1, vmax=v1)
+    app_exe, _ = self.setup_launcher('LH17OffModePruneApp')
+    self._embed_launcher_config(app_exe, appid, v1, abi_hash)
+    rc, _ = self._run_launcher_with_exit_code(app_exe, 0)
+    self.assertEqual(EXIT_SUCCESS, rc)
+
+    appid_hash = self.get_appid_hash(appid)
+    self.assert_launch_state(v1, appid_hash, running=False, failures=0)
+    self._standalone_install(v2, abi_hash, appid, vmin=v1)
+    self.assert_version_installed(v1)
+    self.assert_version_installed(v2)
+
+    self._embed_launcher_config(app_exe,
+                                appid,
+                                v1,
+                                abi_hash,
+                                launch_health='off')
+    process, selected, barrier_path = self._start_barrier_exit(
+        app_exe, 0, 'off_mode_prune.json')
+    self.assertIn(v2, selected.get('libcef_version_full', ''), selected)
+    self.assert_version_installed(v1)
+    os.remove(barrier_path)
+    _, stderr = process.communicate(timeout=30)
+    self.assertEqual(EXIT_SUCCESS, process.returncode,
+                     stderr.decode(errors='replace'))
+    self.assert_version_not_installed(v1)
+    self.assert_version_installed(v2)
+    self.assert_no_launch_state(v1, appid_hash)
+
+  def test_confirmation_failure_prevents_update(self):
+    """A failed launch_success result gates the update call for this process."""
+    v1 = self.test_version
+    v2 = self.test_version_update
+    _, abi_hash = self.build_cdn(version=v1)
+    self.build_cdn(version=v2, abi_hash=abi_hash)
+    appid = 'e2e00a13-0013-0013-0013-000000000013'
+
+    self._standalone_install(v1, abi_hash, appid, vmin=v1, vmax=v1)
+    app_exe, _ = self.setup_launcher('LH13FailedConfirmationApp')
+    self._embed_launcher_config(app_exe,
+                                appid,
+                                v1,
+                                abi_hash,
+                                launch_health='explicit')
+    sentinel_path = os.path.join(
+        self.get_launch_dir(), f'{self.get_appid_hash(appid)}_{v1}_windows64')
+
+    rc, marker = self._run_ordered_update(app_exe,
+                                          self._update_config_json(
+                                              appid, v1, abi_hash),
+                                          'failed_confirmation.json',
+                                          delete_before_confirm=sentinel_path)
+    self.assertEqual(EXIT_SUCCESS, rc)
+    self.assertFalse(marker['confirmation_result'].get('success', True), marker)
+    self.assertFalse(marker.get('command_called'), marker)
+    self.assertIsNone(marker.get('command_result'), marker)
+    self.assertEqual({(v1, 'windows64')},
+                     self._read_version_index_versions(self.install_dir))
+    self.assert_version_installed(v1)
+    self.assert_version_not_installed(v2)
+
+  def test_loaded_orphan_is_trashed_then_reclaimed_by_later_writer(self):
+    """Post-exit quarantine defers a loaded DLL and recovery ignores trash."""
+    v1 = self.test_version
+    v2 = self.test_version_update
+    _, abi_hash = self.build_cdn(version=v1)
+    self.build_cdn(version=v2, abi_hash=abi_hash)
+    appid = 'e2e00a14-0014-0014-0014-000000000014'
+
+    self._standalone_install(v1, abi_hash, appid, vmin=v1, vmax=v1)
+    app_exe, _ = self.setup_launcher('LH14LoadedOrphanApp')
+    self._embed_launcher_config(app_exe,
+                                appid,
+                                v1,
+                                abi_hash,
+                                launch_health='explicit')
+    process, marker, barrier = self._start_barrier_update(
+        app_exe,
+        self._update_config_json(appid, v2, abi_hash),
+        'loaded_orphan.json',
+        load_libcef=True)
+
+    self.assertTrue(marker.get('libcef_loaded'), marker)
+    self.assertTrue(marker['result'].get('success'), marker)
+    self.assertEqual({(v2, 'windows64')},
+                     self._read_version_index_versions(self.install_dir))
+    self.assert_version_installed(v1)
+    os.remove(barrier)
+    _, stderr = process.communicate(timeout=30)
+    self.assertEqual(EXIT_SUCCESS, process.returncode,
+                     stderr.decode(errors='replace'))
+
+    self.assert_version_not_installed(v1)
+    trash_root = os.path.join(self.install_dir, '.trash')
+    trash_entries = [
+        entry.path
+        for entry in os.scandir(trash_root)
+        if entry.is_dir(follow_symlinks=False)
+    ]
+    self.assertTrue(trash_entries, 'Loaded DLL left no deferred trash entry')
+    self.assertTrue(
+        any(
+            os.path.isfile(os.path.join(entry, 'Release', 'libcef.dll'))
+            for entry in trash_entries), trash_entries)
+    trash_libcef = next(
+        os.path.join(entry, 'Release', 'libcef.dll')
+        for entry in trash_entries
+        if os.path.isfile(os.path.join(entry, 'Release', 'libcef.dll')))
+
+    index_path = os.path.join(self.install_dir, 'versions.json')
+    with open(index_path, 'wb') as index_file:
+      index_file.write(b'corrupt')
+    self.embed_test_config(appid=appid,
+                           vmin=v1,
+                           vmax=v1,
+                           abi_hash=abi_hash,
+                           exe=app_exe,
+                           launch_health='explicit')
+    empty_cdn = os.path.join(self.temp_dir, 'empty_cdn')
+    os.makedirs(empty_cdn)
+    recovery_marker_path = os.path.join(self.temp_dir,
+                                        'trash_recovery_marker.json')
+    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel32.CreateFileW.argtypes = [
+        ctypes.c_wchar_p, ctypes.c_ulong, ctypes.c_ulong, ctypes.c_void_p,
+        ctypes.c_ulong, ctypes.c_ulong, ctypes.c_void_p
+    ]
+    kernel32.CreateFileW.restype = ctypes.c_void_p
+    kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+    trash_handle = kernel32.CreateFileW(trash_libcef, 0x80000000, 0x3, None, 3,
+                                        0x80, None)
+    self.assertNotEqual(
+        ctypes.c_void_p(-1).value, trash_handle,
+        f'CreateFileW failed: {ctypes.get_last_error()} ({trash_libcef})')
+    try:
+      rc, _, stderr = self.run_installer(
+          args=[f'{FLAG_DOWNLOAD_PATH}={empty_cdn}'],
+          exe=app_exe,
+          use_local_cdn=False,
+          env={
+              'CEF_E2E_MARKER_PATH': recovery_marker_path,
+              'CEF_E2E_EXIT_CODE': '1',
+          })
+      self.assertEqual(1, rc, stderr.decode(errors='replace'))
+      with open(recovery_marker_path) as recovery_marker_file:
+        recovery_marker = json.load(recovery_marker_file)
+      self.assertEqual('', recovery_marker.get('libcef_path', ''),
+                       recovery_marker)
+      self.assertNotEqual(0, recovery_marker.get('installer_error_code'),
+                          recovery_marker)
+      self.assertTrue(any(os.path.isdir(path) for path in trash_entries))
+    finally:
+      kernel32.CloseHandle(trash_handle)
+
+    self.embed_test_config(appid=appid,
+                           vmin=v2,
+                           abi_hash=abi_hash,
+                           launch_health='explicit')
+    rc, _, stderr = self.run_installer(
+        [FLAG_UPDATE, FLAG_HEADLESS, FLAG_FORCECHECK])
+    self.assertEqual(EXIT_SUCCESS, rc, stderr.decode(errors='replace'))
+    self.assertEqual({(v2, 'windows64')},
+                     self._read_version_index_versions(self.install_dir))
+    self.assertFalse(
+        os.path.isdir(trash_root) and any(os.scandir(trash_root)),
+        'Later writer did not reclaim deferred trash')
+
+  def test_post_exit_lock_contention_defers_orphan_to_later_writer(self):
+    """The 1 ms post-exit lock miss leaves cleanup for reconciliation."""
+    v1 = self.test_version
+    v2 = self.test_version_update
+    _, abi_hash = self.build_cdn(version=v1)
+    self.build_cdn(version=v2, abi_hash=abi_hash)
+    appid = 'e2e00a15-0015-0015-0015-000000000015'
+
+    self._standalone_install(v1, abi_hash, appid, vmin=v1, vmax=v1)
+    app_exe, _ = self.setup_launcher('LH15ContendedPruneApp')
+    self._embed_launcher_config(app_exe,
+                                appid,
+                                v1,
+                                abi_hash,
+                                launch_health='explicit')
+    process, marker, barrier = self._start_barrier_update(
+        app_exe, self._update_config_json(appid, v2, abi_hash),
+        'contended_prune.json')
+    self.assertTrue(marker['result'].get('success'), marker)
+    self.assertEqual({(v2, 'windows64')},
+                     self._read_version_index_versions(self.install_dir))
+    self.assert_version_installed(v1)
+
+    kernel32, mutex = self._acquire_installer_mutex()
+    try:
+      os.remove(barrier)
+      _, stderr = process.communicate(timeout=30)
+      self.assertEqual(EXIT_SUCCESS, process.returncode,
+                       stderr.decode(errors='replace'))
+      self.assert_version_installed(v1)
+    finally:
+      kernel32.ReleaseMutex(mutex)
+      kernel32.CloseHandle(mutex)
+
+    self.embed_test_config(appid=appid,
+                           vmin=v2,
+                           abi_hash=abi_hash,
+                           launch_health='explicit')
+    rc, _, stderr = self.run_installer(
+        [FLAG_UPDATE, FLAG_HEADLESS, FLAG_FORCECHECK])
+    self.assertEqual(EXIT_SUCCESS, rc, stderr.decode(errors='replace'))
+    self.assert_version_not_installed(v1)
+    self.assertEqual({(v2, 'windows64')},
+                     self._read_version_index_versions(self.install_dir))
 
   def test_disqualified_version_stays_disqualified(self):
     """A disqualified version stays disqualified across subsequent launches."""
@@ -633,8 +1104,7 @@ class TestLaunchHealth(E2ETestBase):
                       confirmed=False,
                       consecutive_failures=2)
 
-    exit_code, _, stderr = self.run_installer(
-        [FLAG_UNINSTALL, FLAG_HEADLESS])
+    exit_code, _, stderr = self.run_installer([FLAG_UNINSTALL, FLAG_HEADLESS])
     self.assertEqual(EXIT_SUCCESS, exit_code,
                      f'Uninstall failed: {stderr.decode(errors="replace")}')
     self.assert_version_not_installed(bad)
@@ -642,8 +1112,8 @@ class TestLaunchHealth(E2ETestBase):
 
     self.build_cdn(version=good, abi_hash=abi_hash)
     cert_path, key_path = self.get_loopback_tls_certificate()
-    cdn_url, requests = self.start_https_file_server(
-        self.cdn_dir, cert_path, key_path)
+    cdn_url, requests = self.start_https_file_server(self.cdn_dir, cert_path,
+                                                     key_path)
     self.embed_test_config(appid=appid,
                            vmin=good,
                            vmax=bad,

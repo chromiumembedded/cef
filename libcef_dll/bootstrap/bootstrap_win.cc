@@ -1142,11 +1142,13 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
           const bool normal_exit = exit_code == CEF_RESULT_CODE_NORMAL_EXIT;
           const bool neutral_exit =
               !normal_exit && IsSuccessOrNeutralExitCode(exit_code);
+          bool launch_state_persisted = true;
           if (cef_installer::ApplyLaunchExit(installer_state.launch_health,
                                              normal_exit, neutral_exit,
                                              &sentinel)) {
-            if (!cef_installer::WriteLaunchStatePath(
-                    installer_state.launch_state_path, sentinel)) {
+            launch_state_persisted = cef_installer::WriteLaunchStatePath(
+                installer_state.launch_state_path, sentinel);
+            if (!launch_state_persisted) {
               LOG(ERROR) << "Failed to persist launch-health exit state (path="
                          << installer_state.launch_state_path.value()
                          << ", mode="
@@ -1156,15 +1158,20 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
             }
           }
 
-          // Cleanup and pruning run only on a clean exit (code 0). Neutral
-          // exits (notably "profile in use") can imply a concurrent live
-          // instance with libcef.dll loaded, or an imminent relaunch — both
-          // violate the "no in-use file conflicts" premise that justifies
-          // post-exit pruning. The next clean exit (or a standalone
-          // /cef-update) still prunes.
+          // Pruning runs only on a clean exit (code 0). Neutral exits (notably
+          // "profile in use") can imply a concurrent live instance with
+          // libcef.dll loaded, or an imminent relaunch — both violate the "no
+          // in-use file conflicts" premise that justifies post-exit pruning.
+          // The next clean exit (or a standalone /cef-update) still prunes.
           if (exit_code == CEF_RESULT_CODE_NORMAL_EXIT) {
-            for (const auto& path : installer_state.launch_cleanup_paths) {
-              base::DeleteFile(path);
+            // Keep older confirmed launch records, and therefore their
+            // fallback versions, until this launch is durably confirmed. In
+            // explicit mode an ordinary clean exit is neutral.
+            if (launch_state_persisted && !sentinel.running &&
+                sentinel.confirmed && sentinel.consecutive_failures == 0) {
+              for (const auto& path : installer_state.launch_cleanup_paths) {
+                base::DeleteFile(path);
+              }
             }
 
             // Post-exit pruning: run with short timeout to avoid blocking exit.

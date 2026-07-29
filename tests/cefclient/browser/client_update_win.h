@@ -10,18 +10,13 @@
 
 namespace client {
 
-// Start a background update check after a delay.
-// Should be called from OnContextInitialized.
-// This demonstrates how client applications can use the RunInstaller export
-// from bootstrap.exe for background updates.
-void StartBackgroundUpdateCheck();
-
-// Confirm launch health after a delay.
-// Should be called from OnContextInitialized.
-// This demonstrates how client applications can use the RunInstaller export
-// from bootstrap.exe to confirm that the CEF version is working, reducing
-// false-positive rollbacks from app-level crashes that occur after CEF has
-// already loaded and rendered successfully.
+// Confirm launch health after a delay and then start a background update check
+// only if confirmation succeeds. Call from OnContextInitialized.
+//
+// Demonstrates how client applications can use the RunInstaller export from
+// bootstrap.exe to confirm that CEF is working before updating. Confirmation
+// preserves the current version as a fallback under the installer's existing
+// launch-health pruning policy.
 void StartLaunchHealthConfirmation();
 
 }  // namespace client

@@ -214,6 +214,12 @@ error, and official release builds reject requested test state.
   `RunInstaller("launch_success", ...)` to confirm launch health *before*
   writing the marker file and returning the exit code. This lets launch health
   tests simulate explicit confirmation before clean exits or crashes.
+  `CEF_E2E_CONFIRM_THEN_COMMAND` copies and validates the confirmation result
+  before optionally invoking `CEF_E2E_COMMAND`;
+  `CEF_E2E_DELETE_BEFORE_CONFIRM` deterministically exercises failure gating.
+  `CEF_E2E_LOAD_LIBCEF` maps the selected DLL through process termination, and
+  `CEF_E2E_PRE_EXIT_BARRIER` keeps `RunWinMain` active after its marker is
+  durable so tests can inspect pre-exit state and arrange lock contention.
 - **`cef_e2e_progress_helper.exe`** — Creates a message-only window. Its
   legacy invocation writes the existing progress JSON list. `--lifecycle`
   writes separate raw `progress` and `lifecycle` arrays plus a rejected-message
@@ -328,6 +334,25 @@ out\Debug_GN_x64\cef_installer_unittests.exe `
 python cef\libcef_dll\bootstrap\installer\e2e\run_e2e_tests.py `
   --build-dir out\Debug_GN_x64 -k launch_health --verbose
 ```
+
+Health-first background-update and post-exit cleanup changes should also run:
+
+```powershell
+out\Debug_GN_x64\cef_installer_unittests.exe `
+  --gtest_filter="ControllerTempDirTest.Prune*"
+python cef\libcef_dll\bootstrap\installer\e2e\run_e2e_tests.py `
+  --build-dir out\Debug_GN_x64 `
+  -k "confirmation_precedes_update or confirmation_failure_prevents_update or loaded_orphan or post_exit_lock_contention" `
+  --verbose
+```
+
+The ordered-update scenario must leave both versions indexed with the running
+version confirmed, then select and confirm the newer version before pruning
+the old fallback. Failure gating must make no update call. Loaded-orphan
+coverage must observe canonical-to-trash quarantine, prove recovery does not
+select trash after index corruption, and show a later writer reclaims it.
+Lock-contention coverage must leave the canonical orphan untouched at
+post-exit prune and show later reconciliation converges.
 
 **Pruning requires a version to not be the best match.** A version is only
 prunable if no registered app's best match points to it. Installing a newer

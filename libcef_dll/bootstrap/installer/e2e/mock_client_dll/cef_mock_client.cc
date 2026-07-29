@@ -19,6 +19,14 @@
 //   CEF_E2E_LAUNCH_SUCCESS   - When set (with CEF_E2E_EXIT_CODE), call
 //                               RunInstaller("launch_success") to confirm
 //                               launch health before returning the exit code
+//   CEF_E2E_CONFIRM_THEN_COMMAND - Confirm launch health, copy and validate the
+//                               result, then run CEF_E2E_COMMAND only on
+//                               success
+//   CEF_E2E_DELETE_BEFORE_CONFIRM - Sentinel path to delete before confirmation
+//                               to exercise failure gating
+//   CEF_E2E_LOAD_LIBCEF      - Load vi->libcef_path through process termination
+//   CEF_E2E_PRE_EXIT_BARRIER - Existing file that keeps RunWinMain from
+//                               returning until the fixture removes it
 
 #include <windows.h>
 
@@ -42,6 +50,17 @@ static std::string GetEnvVar(const char* name) {
   char buf[8192] = {};
   DWORD len = ::GetEnvironmentVariableA(name, buf, sizeof(buf));
   return len > 0 ? std::string(buf, len) : std::string();
+}
+
+static void WaitForBarrierRemoval(const std::string& path) {
+  if (path.empty()) {
+    return;
+  }
+  for (int i = 0;
+       i < 300 && ::GetFileAttributesA(path.c_str()) != INVALID_FILE_ATTRIBUTES;
+       ++i) {
+    ::Sleep(100);
+  }
 }
 
 static std::string WideToJsonEscaped(const wchar_t* wide) {
@@ -122,6 +141,8 @@ static void WriteMarkerFile(const std::string& path,
 
   fprintf(f, "{\n");
   fprintf(f, "  \"result\": %s,\n", result_json ? result_json : "null");
+  fprintf(f, "  \"libcef_loaded\": %s,\n",
+          ::GetModuleHandleW(L"libcef.dll") ? "true" : "false");
 
   if (vi && vi->size >= CEF_VERSION_INFO_SIZE_WITH_INSTALLER_ERROR) {
     std::string escaped_path = WideToJsonEscaped(vi->libcef_path);
@@ -143,6 +164,30 @@ static void WriteMarkerFile(const std::string& path,
     fprintf(f, "  \"version_info\": null\n");
   }
 
+  fprintf(f, "}\n");
+  fclose(f);
+}
+
+static void WriteOrderedMarkerFile(const std::string& path,
+                                   const std::string& confirmation_json,
+                                   bool command_called,
+                                   const std::string& command_json,
+                                   const cef_version_info_t* vi) {
+  FILE* f = fopen(path.c_str(), "w");
+  if (!f) {
+    return;
+  }
+  fprintf(f, "{\n");
+  fprintf(f, "  \"confirmation_result\": %s,\n", confirmation_json.c_str());
+  fprintf(f, "  \"command_called\": %s,\n", command_called ? "true" : "false");
+  fprintf(f, "  \"command_result\": %s,\n", command_json.c_str());
+  fprintf(f, "  \"libcef_loaded\": %s,\n",
+          ::GetModuleHandleW(L"libcef.dll") ? "true" : "false");
+  if (vi) {
+    fprintf(f, "  \"cef_version_major\": %d\n", vi->cef_version_major);
+  } else {
+    fprintf(f, "  \"version_info\": null\n");
+  }
   fprintf(f, "}\n");
   fclose(f);
 }
@@ -237,6 +282,14 @@ extern "C" __declspec(dllexport) int RunWinMain(HINSTANCE hInstance,
                                                 cef_version_info_t* vi) {
   std::string marker_path = GetEnvVar("CEF_E2E_MARKER_PATH");
   std::string exit_code_str = GetEnvVar("CEF_E2E_EXIT_CODE");
+  std::string pre_exit_barrier = GetEnvVar("CEF_E2E_PRE_EXIT_BARRIER");
+
+  // Keep the selected DLL mapped through process termination. The fixture
+  // uses a signed system DLL published as libcef.dll, so this exercises real
+  // Windows loaded-module deletion behavior without initializing CEF.
+  if (!GetEnvVar("CEF_E2E_LOAD_LIBCEF").empty() && vi && vi->libcef_path) {
+    ::LoadLibraryExW(vi->libcef_path, nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+  }
 
   // When CEF_E2E_EXIT_CODE is set, skip RunInstaller entirely. Write the
   // marker file with version_info from the bootstrap and return the
@@ -262,6 +315,7 @@ extern "C" __declspec(dllexport) int RunWinMain(HINSTANCE hInstance,
     if (!marker_path.empty()) {
       WriteMarkerFile(marker_path, "{\"success\":true}", vi);
     }
+    WaitForBarrierRemoval(pre_exit_barrier);
     return exit_code;
   }
 
@@ -289,6 +343,32 @@ extern "C" __declspec(dllexport) int RunWinMain(HINSTANCE hInstance,
                             threading_mode == "parallel");
   }
 
+  if (!GetEnvVar("CEF_E2E_CONFIRM_THEN_COMMAND").empty()) {
+    std::string delete_before_confirm =
+        GetEnvVar("CEF_E2E_DELETE_BEFORE_CONFIRM");
+    if (!delete_before_confirm.empty()) {
+      ::DeleteFileA(delete_before_confirm.c_str());
+    }
+
+    const char* confirmation_result = run_installer("launch_success", nullptr);
+    const std::string confirmation_copy =
+        confirmation_result ? confirmation_result : "null";
+    const bool confirmed =
+        confirmation_result && strstr(confirmation_result, "\"success\":true");
+
+    bool command_called = false;
+    std::string command_result = "null";
+    if (confirmed) {
+      command_called = true;
+      const char* result = run_installer(command.c_str(), config_json.c_str());
+      command_result = result ? result : "null";
+    }
+    WriteOrderedMarkerFile(marker_path, confirmation_copy, command_called,
+                           command_result, vi);
+    WaitForBarrierRemoval(pre_exit_barrier);
+    return 0;
+  }
+
   // Single-threaded mode (default).
   if (config_json.empty()) {
     WriteMarkerFile(
@@ -300,6 +380,7 @@ extern "C" __declspec(dllexport) int RunWinMain(HINSTANCE hInstance,
 
   const char* result = run_installer(command.c_str(), config_json.c_str());
   WriteMarkerFile(marker_path, result, vi);
+  WaitForBarrierRemoval(pre_exit_barrier);
 
   if (result && strstr(result, "\"success\":true")) {
     return 0;

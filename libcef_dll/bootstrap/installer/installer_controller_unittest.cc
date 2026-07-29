@@ -13,6 +13,7 @@
 #include <thread>
 
 #include "base/check.h"
+#include "base/files/file_enumerator.h"
 #include "base/files/file_util.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/functional/bind.h"
@@ -4685,6 +4686,16 @@ TEST_F(ControllerTempDirTest, LaunchState_ProcessAliveSkipsDisqualification) {
 TEST_F(ControllerTempDirTest, LaunchState_AllDisqualifiedFallback) {
   CreateFakeInstalledVersion(api_version_str_);
 
+  // This test exercises local fallback selection, not online discovery. Keep
+  // it hermetic so changes to the default CDN manifest cannot add a newer
+  // candidate and invalidate the fallback assertions.
+  PolicyLoadResult policy;
+  policy.status = PolicyLoadStatus::kValid;
+  policy.policy.download_source.kind = DownloadSourceKind::kDisabled;
+  policy.policy.download_source.authority =
+      DownloadSourceAuthority::kEnterprisePolicy;
+  internal::OverrideEnterprisePolicyForTesting(policy);
+
   Config config = CreateValidConfig();
   ExtendedConfig extended = CreateExtendedConfig();
 
@@ -5756,6 +5767,340 @@ TEST_F(ControllerTempDirTest, Prune_CommandPrunesOnly) {
   EXPECT_FALSE(ls.has_value());
 }
 
+TEST_F(ControllerTempDirTest, PruneQuarantinesValidIndexCanonicalOrphan) {
+  ASSERT_EQ(MetadataError::kSuccess, WriteVersionIndex(install_dir_, {}));
+  CreateFakeInstalledVersion(api_version_str_);
+  base::FilePath orphan =
+      GetVersionPath(install_dir_, Version::Parse(api_version_str_));
+
+  Controller controller;
+  Result result = controller.Run(Command::kPrune, CreateValidConfig(),
+                                 CreateExtendedConfig());
+
+  EXPECT_TRUE(result.success) << result.error_message;
+  EXPECT_EQ(Outcome::kCommitted, result.outcome);
+  EXPECT_FALSE(base::PathExists(orphan));
+  std::vector<InstalledVersion> indexed;
+  ASSERT_EQ(MetadataError::kSuccess, ReadVersionIndex(install_dir_, &indexed));
+  EXPECT_TRUE(indexed.empty());
+  base::FilePath trash = install_dir_.Append(kTrashSubdirectory);
+  base::FileEnumerator trash_entries(
+      trash, false,
+      base::FileEnumerator::FILES | base::FileEnumerator::DIRECTORIES);
+  EXPECT_TRUE(trash_entries.Next().empty());
+}
+
+TEST_F(ControllerTempDirTest, PruneDoesNotQuarantineIndexedDirectory) {
+  Config config = CreateValidConfig();
+  CreateDatabaseWithApp(config);
+  CreateFakeInstalledVersion(api_version_str_, "defa01defa01", "",
+                             /*publish_index=*/true);
+  base::FilePath indexed_path =
+      GetVersionPath(install_dir_, Version::Parse(api_version_str_));
+
+  Controller controller;
+  Result result =
+      controller.Run(Command::kPrune, config, CreateExtendedConfig());
+
+  EXPECT_TRUE(result.success) << result.error_message;
+  EXPECT_TRUE(base::PathExists(indexed_path));
+  std::vector<InstalledVersion> indexed;
+  ASSERT_EQ(MetadataError::kSuccess, ReadVersionIndex(install_dir_, &indexed));
+  ASSERT_EQ(1u, indexed.size());
+  EXPECT_EQ(indexed_path, indexed[0].path);
+}
+
+TEST_F(ControllerTempDirTest, PruneMissingIndexDoesNotClassifyOrphan) {
+  Config config = CreateValidConfig();
+  CreateDatabaseWithApp(config);
+  CreateFakeInstalledVersion(api_version_str_);
+  base::FilePath orphan =
+      GetVersionPath(install_dir_, Version::Parse(api_version_str_));
+  base::FilePath index_path = install_dir_.Append(kVersionIndexFilename);
+  ASSERT_FALSE(base::PathExists(index_path));
+
+  Controller controller;
+  Result result =
+      controller.Run(Command::kPrune, config, CreateExtendedConfig());
+
+  EXPECT_TRUE(result.success) << result.error_message;
+  EXPECT_TRUE(base::PathExists(orphan));
+  EXPECT_FALSE(base::PathExists(index_path));
+}
+
+TEST_F(ControllerTempDirTest, PruneCorruptIndexDoesNotClassifyOrphan) {
+  Config config = CreateValidConfig();
+  CreateDatabaseWithApp(config);
+  CreateFakeInstalledVersion(api_version_str_);
+  base::FilePath orphan =
+      GetVersionPath(install_dir_, Version::Parse(api_version_str_));
+  base::FilePath index_path = install_dir_.Append(kVersionIndexFilename);
+  ASSERT_TRUE(base::WriteFile(index_path, "corrupt"));
+
+  Controller controller;
+  Result result =
+      controller.Run(Command::kPrune, config, CreateExtendedConfig());
+
+  EXPECT_TRUE(result.success) << result.error_message;
+  EXPECT_TRUE(base::PathExists(orphan));
+  std::string unchanged;
+  ASSERT_TRUE(base::ReadFileToString(index_path, &unchanged));
+  EXPECT_EQ("corrupt", unchanged);
+}
+
+TEST_F(ControllerTempDirTest,
+       PruneMissingIndexOrdinaryPruneRebuildsAndRemovesPrunableVersion) {
+  CreateFakeInstalledVersion(api_version_str_);
+  base::FilePath version_path =
+      GetVersionPath(install_dir_, Version::Parse(api_version_str_));
+  base::FilePath index_path = install_dir_.Append(kVersionIndexFilename);
+  ASSERT_FALSE(base::PathExists(index_path));
+
+  Controller controller;
+  Result result = controller.Run(Command::kPrune, CreateValidConfig(),
+                                 CreateExtendedConfig());
+
+  EXPECT_TRUE(result.success) << result.error_message;
+  EXPECT_FALSE(base::PathExists(version_path));
+  std::vector<InstalledVersion> rebuilt;
+  ASSERT_EQ(MetadataError::kSuccess, ReadVersionIndex(install_dir_, &rebuilt));
+  EXPECT_TRUE(rebuilt.empty());
+}
+
+TEST_F(ControllerTempDirTest,
+       PruneCorruptIndexOrdinaryPruneRebuildsAndRemovesPrunableVersion) {
+  CreateFakeInstalledVersion(api_version_str_);
+  base::FilePath version_path =
+      GetVersionPath(install_dir_, Version::Parse(api_version_str_));
+  base::FilePath index_path = install_dir_.Append(kVersionIndexFilename);
+  ASSERT_TRUE(base::WriteFile(index_path, "corrupt"));
+
+  Controller controller;
+  Result result = controller.Run(Command::kPrune, CreateValidConfig(),
+                                 CreateExtendedConfig());
+
+  EXPECT_TRUE(result.success) << result.error_message;
+  EXPECT_FALSE(base::PathExists(version_path));
+  std::vector<InstalledVersion> rebuilt;
+  ASSERT_EQ(MetadataError::kSuccess, ReadVersionIndex(install_dir_, &rebuilt));
+  EXPECT_TRUE(rebuilt.empty());
+}
+
+TEST_F(ControllerTempDirTest, PruneUnreadableIndexDoesNotClassifyOrphan) {
+  Config config = CreateValidConfig();
+  CreateDatabaseWithApp(config);
+  ASSERT_EQ(MetadataError::kSuccess, WriteVersionIndex(install_dir_, {}));
+  CreateFakeInstalledVersion(api_version_str_);
+  base::FilePath orphan =
+      GetVersionPath(install_dir_, Version::Parse(api_version_str_));
+  base::FilePath index_path = install_dir_.Append(kVersionIndexFilename);
+  HANDLE exclusive =
+      CreateFileW(index_path.value().c_str(), GENERIC_READ, 0, nullptr,
+                  OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+  ASSERT_NE(INVALID_HANDLE_VALUE, exclusive);
+
+  Controller controller;
+  Result result =
+      controller.Run(Command::kPrune, config, CreateExtendedConfig());
+  CloseHandle(exclusive);
+
+  EXPECT_TRUE(result.success) << result.error_message;
+  EXPECT_TRUE(base::PathExists(orphan));
+  std::vector<InstalledVersion> indexed;
+  ASSERT_EQ(MetadataError::kSuccess, ReadVersionIndex(install_dir_, &indexed));
+  EXPECT_TRUE(indexed.empty());
+}
+
+TEST_F(ControllerTempDirTest, PruneOrphanTrashMoveFailureIsDeferred) {
+  ASSERT_EQ(MetadataError::kSuccess, WriteVersionIndex(install_dir_, {}));
+  CreateFakeInstalledVersion(api_version_str_);
+  base::FilePath orphan =
+      GetVersionPath(install_dir_, Version::Parse(api_version_str_));
+
+  SetFileOpsFaultForTesting(FileOpsFault::kTrashMove);
+  Controller controller;
+  Result result = controller.Run(Command::kPrune, CreateValidConfig(),
+                                 CreateExtendedConfig());
+  SetFileOpsFaultForTesting(FileOpsFault::kNone);
+
+  EXPECT_TRUE(result.success) << result.error_message;
+  EXPECT_EQ(Outcome::kCleanupDeferred, result.outcome);
+  ASSERT_FALSE(result.warnings.empty());
+  EXPECT_NE(std::string::npos, result.warnings[0].find("Unindexed"));
+  EXPECT_TRUE(base::PathExists(orphan));
+}
+
+TEST_F(ControllerTempDirTest,
+       PruneOrphanTrashReclaimFailureIsDeletedByLaterWriter) {
+  ASSERT_EQ(MetadataError::kSuccess, WriteVersionIndex(install_dir_, {}));
+  CreateFakeInstalledVersion(api_version_str_);
+  base::FilePath orphan =
+      GetVersionPath(install_dir_, Version::Parse(api_version_str_));
+  base::FilePath trash = install_dir_.Append(kTrashSubdirectory);
+
+  SetFileOpsFaultForTesting(FileOpsFault::kTrashReclaim);
+  Controller prune;
+  Result prune_result =
+      prune.Run(Command::kPrune, CreateValidConfig(), CreateExtendedConfig());
+  SetFileOpsFaultForTesting(FileOpsFault::kNone);
+
+  EXPECT_TRUE(prune_result.success) << prune_result.error_message;
+  EXPECT_EQ(Outcome::kCleanupDeferred, prune_result.outcome);
+  EXPECT_FALSE(base::PathExists(orphan));
+  base::FileEnumerator pending(
+      trash, false,
+      base::FileEnumerator::FILES | base::FileEnumerator::DIRECTORIES);
+  EXPECT_FALSE(pending.Next().empty());
+
+  Controller later_writer;
+  Result later_result = later_writer.Run(
+      Command::kUninstall, CreateValidConfig(), CreateExtendedConfig());
+  EXPECT_TRUE(later_result.success) << later_result.error_message;
+  base::FileEnumerator reclaimed(
+      trash, false,
+      base::FileEnumerator::FILES | base::FileEnumerator::DIRECTORIES);
+  EXPECT_TRUE(reclaimed.Next().empty());
+}
+
+TEST_F(ControllerTempDirTest,
+       PruneUnsafeArtifactDoesNotBlockSafeOrphanQuarantine) {
+  ASSERT_EQ(MetadataError::kSuccess, WriteVersionIndex(install_dir_, {}));
+  base::FilePath unsafe = install_dir_.Append(kVersionsSubdirectory)
+                              .Append(L"not-a-version")
+                              .AppendASCII(GetCurrentPlatform());
+  ASSERT_TRUE(base::CreateDirectory(unsafe));
+  CreateFakeInstalledVersion(api_version_str_);
+  base::FilePath safe =
+      GetVersionPath(install_dir_, Version::Parse(api_version_str_));
+
+  Controller controller;
+  Result result = controller.Run(Command::kPrune, CreateValidConfig(),
+                                 CreateExtendedConfig());
+
+  EXPECT_TRUE(result.success) << result.error_message;
+  EXPECT_EQ(Outcome::kCleanupDeferred, result.outcome);
+  EXPECT_TRUE(base::PathExists(unsafe));
+  EXPECT_FALSE(base::PathExists(safe));
+}
+
+TEST_F(ControllerTempDirTest, PruneLockTimeoutDoesNotScanOrMutate) {
+  ASSERT_EQ(MetadataError::kSuccess, WriteVersionIndex(install_dir_, {}));
+  CreateFakeInstalledVersion(api_version_str_);
+  base::FilePath orphan =
+      GetVersionPath(install_dir_, Version::Parse(api_version_str_));
+  base::WaitableEvent lock_acquired;
+  base::WaitableEvent release_lock;
+  std::thread holder([&] {
+    auto held = SingletonLock::Acquire(install_dir_, INFINITE);
+    ASSERT_TRUE(held && held->IsHeld());
+    lock_acquired.Signal();
+    release_lock.Wait();
+  });
+  lock_acquired.Wait();
+  ExtendedConfig extended = CreateExtendedConfig();
+  extended.lock_timeout_ms = 50;
+
+  Controller controller;
+  Result result =
+      controller.Run(Command::kPrune, CreateValidConfig(), extended);
+  release_lock.Signal();
+  holder.join();
+
+  EXPECT_FALSE(result.success);
+  EXPECT_EQ(kExitCodeLockTimeout, result.error_code);
+  EXPECT_TRUE(base::PathExists(orphan));
+}
+
+TEST_F(ControllerTempDirTest, PruneCancellationBeforeScanDoesNotMutate) {
+  ASSERT_EQ(MetadataError::kSuccess, WriteVersionIndex(install_dir_, {}));
+  CreateFakeInstalledVersion(api_version_str_);
+  base::FilePath orphan =
+      GetVersionPath(install_dir_, Version::Parse(api_version_str_));
+  ProgressCallback cancel_at_version_check = base::BindRepeating(
+      [](Step step, uint64_t, uint64_t) { return step != kStepVersionCheck; });
+
+  Controller controller;
+  Result result =
+      controller.Run(Command::kPrune, CreateValidConfig(),
+                     CreateExtendedConfig(), cancel_at_version_check);
+
+  EXPECT_FALSE(result.success);
+  EXPECT_EQ(kExitCodeCancelled, result.error_code);
+  EXPECT_TRUE(base::PathExists(orphan));
+}
+
+TEST_F(ControllerTempDirTest, PruneSuspendedDatabaseDoesNotMutate) {
+  Database database;
+  database.SuspendPruning();
+  ASSERT_EQ(DatabaseError::kSuccess,
+            database.Save(GetDatabasePath(install_dir_)));
+  CreateFakeInstalledVersion(api_version_str_);
+  auto indexed = ScanInstalledVersionsWithMetadata(install_dir_);
+  ASSERT_EQ(1u, indexed.size());
+  ASSERT_EQ(MetadataError::kSuccess, WriteVersionIndex(install_dir_, indexed));
+  const std::string orphan_version = api_version_str_ + ".1";
+  CreateFakeInstalledVersion(orphan_version);
+  base::FilePath indexed_path = indexed[0].path;
+  base::FilePath orphan =
+      GetVersionPath(install_dir_, Version::Parse(orphan_version));
+
+  Controller controller;
+  Result result = controller.Run(Command::kPrune, CreateValidConfig(),
+                                 CreateExtendedConfig());
+
+  EXPECT_TRUE(result.success) << result.error_message;
+  EXPECT_TRUE(base::PathExists(indexed_path));
+  EXPECT_TRUE(base::PathExists(orphan));
+  std::vector<InstalledVersion> unchanged;
+  ASSERT_EQ(MetadataError::kSuccess,
+            ReadVersionIndex(install_dir_, &unchanged));
+  EXPECT_EQ(1u, unchanged.size());
+}
+
+TEST_F(ControllerTempDirTest, PruneNewerSchemaDatabaseDoesNotMutate) {
+  ASSERT_TRUE(WriteFileWithIntegrity(GetDatabasePath(install_dir_),
+                                     R"({"schema_version":999,"apps":[]})"));
+  ASSERT_EQ(MetadataError::kSuccess, WriteVersionIndex(install_dir_, {}));
+  CreateFakeInstalledVersion(api_version_str_);
+  base::FilePath orphan =
+      GetVersionPath(install_dir_, Version::Parse(api_version_str_));
+
+  Controller controller;
+  Result result = controller.Run(Command::kPrune, CreateValidConfig(),
+                                 CreateExtendedConfig());
+
+  EXPECT_FALSE(result.success);
+  EXPECT_EQ(kExitCodeDatabaseError, result.error_code);
+  EXPECT_TRUE(base::PathExists(orphan));
+}
+
+TEST_F(ControllerTempDirTest,
+       PruneOrphanQuarantineSurvivesNormalPruneIndexFailure) {
+  CreateFakeInstalledVersion(api_version_str_);
+  auto indexed = ScanInstalledVersionsWithMetadata(install_dir_);
+  ASSERT_EQ(1u, indexed.size());
+  ASSERT_EQ(MetadataError::kSuccess, WriteVersionIndex(install_dir_, indexed));
+  const std::string orphan_version = api_version_str_ + ".1";
+  CreateFakeInstalledVersion(orphan_version);
+  base::FilePath orphan =
+      GetVersionPath(install_dir_, Version::Parse(orphan_version));
+
+  SetVersionIndexFaultForTesting(VersionIndexFault::kWrite);
+  Controller controller;
+  Result result = controller.Run(Command::kPrune, CreateValidConfig(),
+                                 CreateExtendedConfig());
+  SetVersionIndexFaultForTesting(VersionIndexFault::kNone);
+
+  EXPECT_FALSE(result.success);
+  EXPECT_EQ(kExitCodeIndexError, result.error_code);
+  EXPECT_FALSE(base::PathExists(orphan));
+  EXPECT_TRUE(base::PathExists(indexed[0].path));
+  std::vector<InstalledVersion> unchanged;
+  ASSERT_EQ(MetadataError::kSuccess,
+            ReadVersionIndex(install_dir_, &unchanged));
+  EXPECT_EQ(1u, unchanged.size());
+}
+
 TEST_F(ControllerTempDirTest, PruneIndexFailureKeepsDirectoryAdvertised) {
   CreateFakeInstalledVersion(api_version_str_);
   auto installed = ScanInstalledVersionsWithMetadata(install_dir_);
@@ -5874,6 +6219,31 @@ TEST_F(ControllerTempDirTest,
   EXPECT_TRUE(MoveFileExW(version_path.value().c_str(), moved.value().c_str(),
                           MOVEFILE_WRITE_THROUGH));
   EXPECT_FALSE(base::PathExists(install_dir_.Append(kVersionIndexFilename)));
+}
+
+TEST_F(ControllerTempDirTest,
+       AutomaticStartupFreshDirectoryDoesNotWarnAboutEmergencyRecovery) {
+  ASSERT_FALSE(
+      base::DirectoryExists(install_dir_.Append(kVersionsSubdirectory)));
+  internal::OverrideInstallDirectoriesForTesting({install_dir_}, std::nullopt);
+  PolicyLoadResult policy;
+  policy.status = PolicyLoadStatus::kValid;
+  policy.policy.download_source.kind = DownloadSourceKind::kDisabled;
+  policy.policy.download_source.authority =
+      DownloadSourceAuthority::kEnterprisePolicy;
+  internal::OverrideEnterprisePolicyForTesting(policy);
+
+  Controller controller;
+  Result result = controller.Run(Command::kInstall, CreateValidConfig(),
+                                 CreateExtendedConfig(), {},
+                                 ExecutionContext::kAutomaticStartup);
+
+  EXPECT_FALSE(result.success);
+  std::string log;
+  base::ReadFileToString(install_dir_.Append(kLogFilename), &log);
+  EXPECT_EQ(std::string::npos,
+            base::ToLowerASCII(log).find("emergency startup recovery"))
+      << log;
 }
 
 TEST_F(ControllerTempDirTest, AutomaticStartupRecoversReadOnlyCorruptIndex) {

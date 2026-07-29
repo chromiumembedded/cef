@@ -361,7 +361,7 @@ Only one installer instance may modify a given install directory at a time.
 | Installed startup result holds a no-delete `libcef.dll` lease through client execution | `AcquireVersionLease()`, `InstallerStartupState` | `installer_file_ops.cc`, `bootstrap_win.cc` |
 | Checked add publication is directory -> expanded index -> registration | `DownloadAndInstall()`, `PublishRegistration()` | `installer_controller.cc` |
 | Checked removal publication is registration -> reduced index -> whole-directory trash move | `UpdateDatabase()`, `PruneUnusedVersions()` | `installer_controller.cc` |
-| Valid indexes are authoritative during mutation recovery; missing/corrupt indexes are conservatively rebuilt before orphan classification | `ReconcileInstallState()` | `installer_controller.cc` |
+| Locked prune orphan classification requires a valid index reread and never rebuilds an invalid index; ordinary prune retains its existing scan/rebuild behavior after index-read failure | `QuarantineUnindexedVersions()`, `kPrune` dispatch, `PruneUnusedVersions()` | `installer_controller.cc` |
 | Query/read-only selection never invokes reconciliation, repair, prune, network, or cache mutation | command dispatch and `LoadQueryRevocations()` | `installer_controller.cc` |
 | Only an integrity-valid, parseable fresh revocation cache means zero HTTP; stale/invalid launch refresh uses a single-attempt asynchronous request canceled at an absolute deadline and integrity-protected failure backoff | cache freshness/backoff gate and asynchronous request cancellation | `installer_revocation.cc`, `installer_download.cc`, `installer_controller.cc` |
 

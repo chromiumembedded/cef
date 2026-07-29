@@ -411,6 +411,12 @@ class Controller {
   Result PublishRegistration(const Config& config,
                              const base::FilePath& install_dir);
   Result ReconcileInstallState(const base::FilePath& install_dir);
+
+  // Quarantine safe canonical version directories that are absent from an
+  // already validated authoritative index.
+  Result QuarantineUnindexedVersions(
+      const base::FilePath& install_dir,
+      const std::vector<InstalledVersion>& indexed);
   Result ComputeAndInstall(const Config& config,
                            const ExtendedConfig& extended,
                            const base::FilePath& install_dir,
