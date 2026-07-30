@@ -1870,6 +1870,19 @@ if (is_mac) {
     ]
   }
 
+  # Add the Vulkan loader .dylib in the MODULE_DIR of the Framework app bundle.
+  bundle_data("cef_framework_vulkan_binaries") {
+    sources = [
+      "$root_out_dir/vulkan_intermediates/libvulkan.dylib",
+    ]
+    outputs = [
+      "{{bundle_contents_dir}}/Libraries/{{source_file_part}}",
+    ]
+    public_deps = [
+      "//ui/gl:vulkan_loader_library_copy",
+    ]
+  }
+
   mac_framework_bundle("cef_framework") {
     # Necessary because the libcef_test_support target is testonly.
     testonly = true
@@ -1888,6 +1901,7 @@ if (is_mac) {
       ":cef_framework_cef_binaries",
       ":cef_framework_resources",
       ":cef_framework_swiftshader_binaries",
+      ":cef_framework_vulkan_binaries",
     ]
 
     if (!use_static_angle) {
