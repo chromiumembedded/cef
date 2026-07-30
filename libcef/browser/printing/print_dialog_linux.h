@@ -12,6 +12,7 @@
 #include "base/task/sequenced_task_runner_helpers.h"
 #include "cef/include/cef_print_handler.h"
 #include "cef/libcef/browser/browser_host_base.h"
+#include "components/printing/common/print_dialog_linux_factory.h"
 #include "content/public/browser/browser_thread.h"
 #include "printing/buildflags/buildflags.h"
 #include "printing/print_dialog_linux_interface.h"
@@ -44,7 +45,41 @@ class CefPrintingContextLinuxDelegate
   raw_ptr<ui::PrintingContextLinuxDelegate> default_delegate_ = nullptr;
 };
 
-// Needs to be freed on the UI thread to clean up its member variables.
+// Creates the Linux print dialog. When the associated browser provides a
+// CefPrintHandler the dialog is routed through CefPrintingContextLinuxDelegate
+// so that the handler is used; otherwise it falls back to the base
+// PrintDialogLinuxFactory implementation, preserving Chromium's default
+// (XDG portal / LinuxUi) dialog selection based on show_system_dialog and
+// settings. Since M145 the dialog is created via a
+// PrintingContextLinux::PrintDialogFactory whose default implementation
+// bypasses the delegate; this factory is registered in its place from
+// ChromeBrowserMainExtraPartsCef::ToolkitInitialized(). For browsers with a
+// CefPrintHandler, out-of-process printing must be disabled
+// (--disable-features=EnableOopPrintDrivers) for the callbacks to fire; see
+// https://github.com/chromiumembedded/cef/issues/3729.
+class CefPrintDialogFactory : public printing::PrintDialogLinuxFactory {
+ public:
+  CefPrintDialogFactory();
+
+  CefPrintDialogFactory(const CefPrintDialogFactory&) = delete;
+  CefPrintDialogFactory& operator=(const CefPrintDialogFactory&) = delete;
+
+  // printing::PrintingContextLinux::PrintDialogFactory:
+  std::unique_ptr<printing::PrintDialogLinuxInterface> CreatePrintDialog(
+      printing::PrintingContextLinux* context,
+      bool show_system_dialog) override;
+#if BUILDFLAG(ENABLE_OOP_PRINTING_NO_OOP_BASIC_PRINT_DIALOG)
+  std::unique_ptr<printing::PrintDialogLinuxInterface>
+  CreatePrintDialogForSettings(
+      printing::PrintingContextLinux* context,
+      const printing::PrintSettings& settings) override;
+#endif
+};
+
+// Reference counted so that it can outlive the PrintingContextLinux that owns
+// it (via a std::unique_ptr<CefPrintDialogLinuxProxy>) until an asynchronous
+// print job driven by the client's CefPrintHandler completes. Freed on the UI
+// thread to clean up its member variables.
 class CefPrintDialogLinux : public printing::PrintDialogLinuxInterface,
                             public base::RefCountedThreadSafe<
                                 CefPrintDialogLinux,
