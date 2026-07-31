@@ -21,12 +21,44 @@
 
 #if BUILDFLAG(SUPPORTS_OZONE_X11)
 #include "cef/libcef/browser/native/window_x11.h"
+#include "ui/aura/window.h"
+#include "ui/aura/window_tree_host.h"
+#include "ui/display/display.h"
 #include "ui/display/screen.h"
 #include "ui/events/keycodes/keyboard_code_conversion_x.h"
 #include "ui/events/keycodes/keyboard_code_conversion_xkb.h"
 #include "ui/gfx/geometry/size.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"
 #endif
+
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
+namespace {
+
+// Returns the display whose native (pixel) bounds contain the largest portion
+// of |bounds_in_pixels|, which must be expressed in X11 root (screen) pixel
+// coordinates. display::Display::bounds() is in DIP, so each display's pixel
+// bounds are reconstructed by scaling with its device scale factor before
+// matching. Falls back to the primary display when there is no intersection.
+display::Display GetDisplayMatchingPixelBounds(
+    const gfx::Rect& bounds_in_pixels) {
+  display::Screen* screen = display::Screen::Get();
+  display::Display matched = screen->GetPrimaryDisplay();
+  int largest_area = 0;
+  for (const display::Display& display : screen->GetAllDisplays()) {
+    gfx::Rect display_pixels = gfx::ScaleToEnclosingRect(
+        display.bounds(), display.device_scale_factor());
+    display_pixels.Intersect(bounds_in_pixels);
+    const int area = display_pixels.size().GetArea();
+    if (area > largest_area) {
+      largest_area = area;
+      matched = display;
+    }
+  }
+  return matched;
+}
+
+}  // namespace
+#endif  // BUILDFLAG(SUPPORTS_OZONE_X11)
 
 CefBrowserPlatformDelegateNativeLinux::CefBrowserPlatformDelegateNativeLinux(
     const CefWindowInfo& window_info,
@@ -82,16 +114,23 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
       GetBackgroundColor(), window_x11_->TopLevelAlwaysOnTop(),
       GetBoundsChangedCallback(), GetWidgetDeleteCallback());
 
-  // |rect| (from window_info_.bounds) is in pixels, and matches the size of the
-  // |window_x11_| host window created above. However, views::Widget bounds are
-  // in DIP. WindowTreeHost initially uses the primary display's scale factor
-  // because it cannot resolve the actual display until the child X11 window
-  // exists. Use that bootstrap factor for Init() so the child is created with
-  // the correct pixel size and screen bounds.
-  const float initial_device_scale_factor =
-      display::Screen::Get()->GetPrimaryDisplay().device_scale_factor();
-  const gfx::Size initial_dip_size = gfx::ScaleToRoundedSize(
-      rect.size(), 1.0f / initial_device_scale_factor);
+  // |rect| (from window_info_.bounds) is in pixels and matches the size of the
+  // |window_x11_| host window created above, but views::Widget bounds are in
+  // DIP. Determine the device scale factor from the display the host window is
+  // actually on: translate the host window's bounds to X11 root (screen)
+  // coordinates and match them against each display's native pixel bounds. This
+  // selects the correct display when the window is placed on a non-primary
+  // monitor, instead of assuming the primary display. The child X11 window
+  // cannot be used for this: it is created at (0,0) relative to the host and
+  // would resolve to whichever display contains the root origin. As with the
+  // Windows implementation, the Init() bounds have origin (0,0); the child is
+  // positioned by the host window.
+  const gfx::Rect host_bounds_in_pixels = window_x11_->GetBoundsInScreen();
+  const float device_scale_factor =
+      GetDisplayMatchingPixelBounds(host_bounds_in_pixels)
+          .device_scale_factor();
+  const gfx::Size initial_dip_size =
+      gfx::ScaleToRoundedSize(rect.size(), 1.0f / device_scale_factor);
 
   widget_delegate->Init(
       static_cast<gfx::AcceleratedWidget>(window_info_.window), web_contents_,
@@ -99,16 +138,20 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
 
   window_widget_ = widget_delegate->GetWidget();
 
-  // The child X11 window now exists, so Chromium can resolve the actual display
-  // from its native bounds. Reapply the DIP size using the scale factor that
-  // WindowTreeHost selected during InitHost().
-  const float device_scale_factor =
-      display::Screen::Get()
-          ->GetPreferredScaleFactorForWindow(window_widget_->GetNativeWindow())
-          .value_or(initial_device_scale_factor);
-  const gfx::Size dip_size =
-      gfx::ScaleToRoundedSize(rect.size(), 1.0f / device_scale_factor);
-  window_widget_->SetSize(dip_size);
+  // The child X11 window resolves its own device scale factor from its (0,0)
+  // origin, which may differ from the host window's display on a mixed-DPI
+  // setup, leaving the web content larger or smaller than the host window (see
+  // issue #3396). Pin the compositor window's pixel size to the host window's
+  // pixel size (|rect|). Resize in pixels and keep the current origin:
+  // views::Widget::SetSize() would convert the origin to DIP and back, which is
+  // only lossless when the origin is an exact multiple of the scale factor.
+  // Keeping the pixel origin avoids that dependency and mirrors the size-only
+  // resize CefWindowX11 performs on ConfigureNotify.
+  aura::WindowTreeHost* host = window_widget_->GetNativeWindow()->GetHost();
+  gfx::Rect bounds_in_pixels = host->GetBoundsInPixels();
+  bounds_in_pixels.set_size(rect.size());
+  host->SetBoundsInPixels(bounds_in_pixels);
+
   window_widget_->Show();
 
   window_x11_->Show();
