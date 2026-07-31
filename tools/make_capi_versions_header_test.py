@@ -15,6 +15,39 @@ from make_capi_versions_header import _version_finder
 from make_capi_versions_header import make_capi_versions_header
 from make_capi_versions_header import write_capi_versions_header
 
+_LIBRARY_DATA = '''
+#include "include/cef_base.h"
+///
+/// Library-side object.
+///
+/*--cef(source=library)--*/
+class CefFixtureLibrary : public CefBaseRefCounted {
+ public:
+  ///
+  /// Return a value.
+  ///
+  /*--cef()--*/
+  virtual int GetValue() = 0;
+
+  IMPLEMENT_REFCOUNTING(CefFixtureLibrary);
+};
+'''
+
+_UTIL_DATA = '''
+#include "include/cef_fixture_library.h"
+///
+/// Create a library-side object.
+///
+/*--cef()--*/
+CefRefPtr<CefFixtureLibrary> CefFixtureCreateLibrary();
+
+///
+/// Consume a library-side object.
+///
+/*--cef()--*/
+void CefFixtureConsumeLibrary(CefRefPtr<CefFixtureLibrary> library);
+'''
+
 
 class MakeCapiVersionsHeaderTest(unittest.TestCase):
 
@@ -44,43 +77,33 @@ class MakeCapiVersionsHeaderTest(unittest.TestCase):
           contents, read_golden('make_capi_versions_header', 'cef_fixture.h'))
 
   def test_global_function_type_includes(self):
-    library_data = '''
-#include "include/cef_base.h"
-///
-/// Library-side object.
-///
-/*--cef(source=library)--*/
-class CefFixtureLibrary : public CefBaseRefCounted {
- public:
-  ///
-  /// Return a value.
-  ///
-  /*--cef()--*/
-  virtual int GetValue() = 0;
-
-  IMPLEMENT_REFCOUNTING(CefFixtureLibrary);
-};
-'''
-    util_data = '''
-#include "include/cef_fixture_library.h"
-///
-/// Create a library-side object.
-///
-/*--cef()--*/
-CefRefPtr<CefFixtureLibrary> CefFixtureCreateLibrary();
-
-///
-/// Consume a library-side object.
-///
-/*--cef()--*/
-void CefFixtureConsumeLibrary(CefRefPtr<CefFixtureLibrary> library);
-'''
     header = obj_header()
-    header.add_data('cef_fixture_library.h', library_data)
-    header.add_data('cef_fixture_util.h', util_data)
+    header.add_data('cef_fixture_library.h', _LIBRARY_DATA)
+    header.add_data('cef_fixture_util.h', _UTIL_DATA)
     output = make_capi_versions_header(header, 'cef_fixture_util.h')
     self.assertIn('#include "include/capi/cef_fixture_library_capi_versions.h"',
                   output)
+
+  def test_cli_resolves_cross_file_types(self):
+    with tempfile.TemporaryDirectory() as temporary_directory:
+      include_directory = os.path.join(temporary_directory, 'include')
+      os.makedirs(include_directory)
+      util_path = os.path.join(include_directory, 'cef_fixture_util.h')
+      with open(os.path.join(include_directory, 'cef_fixture_library.h'),
+                'w',
+                encoding='utf-8') as library_file:
+        library_file.write(_LIBRARY_DATA)
+      with open(util_path, 'w', encoding='utf-8') as util_file:
+        util_file.write(_UTIL_DATA)
+
+      # The CLI must load enough context to resolve CefFixtureLibrary from
+      # cef_fixture_library.h (issue #4123).
+      success = run_generator_script('make_capi_versions_header.py', util_path)
+      self.assertEqual(success.returncode, 0, success.stderr)
+      self.assertIn(
+          '#include "include/capi/cef_fixture_library_capi_versions.h"',
+          success.stdout)
+      self.assertIn('_cef_fixture_library_0_t', success.stdout)
 
   def test_cli_usage_and_successful_stdout(self):
     invalid = run_generator_script('make_capi_versions_header.py')

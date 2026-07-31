@@ -241,10 +241,12 @@ if __name__ == "__main__":
     sys.stderr.write('Usage: ' + sys.argv[0] + ' <infile>\n')
     sys.exit()
 
-  # create the header object
+  # create the header object with full context so that cross-file class
+  # references can be resolved (issue #4123)
   header = obj_header()
-  header.add_file(sys.argv[1])
+  include_dir = load_header_context(header, sys.argv[1])
 
   # dump the result to stdout
-  filename = os.path.split(sys.argv[1])[1]
+  filename = os.path.relpath(os.path.abspath(sys.argv[1]), include_dir)
+  filename = filename.replace('\\', '/')
   sys.stdout.write(make_capi_header(header, filename))
