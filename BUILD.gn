@@ -415,6 +415,10 @@ source_set("libcef_static_unittested") {
     "libcef/browser/devtools/devtools_util.h",
     "libcef/browser/geometry_util.h",
     "libcef/browser/geometry_util.cc",
+
+    # CefStructBase copies string members through these, so anything testing a
+    # struct's copy semantics needs them linked in.
+    "libcef/common/string_types_impl.cc",
   ]
 
   deps = [
@@ -441,6 +445,10 @@ test("libcef_static_unittests") {
     "libcef/browser/devtools/devtools_util_unittest.cc",
     "libcef/browser/geometry_util_unittest.cc",
   ]
+
+  if (is_linux) {
+    sources += [ "libcef/browser/native/window_info_linux_unittest.cc" ]
+  }
 
   deps = [
     ":libcef_static_unittested",
@@ -1067,6 +1075,9 @@ source_set("libcef_static") {
     sources += includes_linux + [
       "libcef/browser/native/browser_platform_delegate_native_linux.cc",
       "libcef/browser/native/browser_platform_delegate_native_linux.h",
+      "libcef/browser/native/ozone_util_linux.cc",
+      "libcef/browser/native/ozone_util_linux.h",
+      "libcef/browser/native/wayland_util_linux.cc",
       "libcef/browser/osr/browser_platform_delegate_osr_linux.cc",
       "libcef/browser/osr/browser_platform_delegate_osr_linux.h",
       "libcef/browser/printing/print_dialog_linux.cc",
