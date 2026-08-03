@@ -340,6 +340,10 @@ group("cef") {
   if (!is_linux || ozone_platform_x11) {
     deps += [ ":cefclient" ]
   }
+
+  if (is_linux && ozone_platform_wayland) {
+    deps += [ ":cefembed_wayland" ]
+  }
 }
 
 
@@ -2722,6 +2726,40 @@ if (is_mac) {
   #
   # cefsimple targets.
   #
+
+  #
+  # cefembed_wayland target.
+  #
+
+  # Minimal Wayland client that embeds a browser in its own window. cefclient's
+  # Linux windowing path is GTK over X11 and hands CEF an XID, so this is the
+  # only sample that exercises the three-argument CefWindowInfo::SetAsChild().
+  if (is_linux && ozone_platform_wayland) {
+    executable("cefembed_wayland") {
+      # Necessary because the libcef target is testonly.
+      testonly = true
+
+      sources = [
+        "tests/cefembed_wayland/main.cc",
+      ]
+
+      deps = [
+        ":libcef",
+        ":libcef_dll_wrapper",
+        "//third_party/wayland:wayland_client",
+        "//third_party/wayland-protocols:cursor_shape_protocol",
+
+        # Not used directly. cursor-shape-v1 references zwp_tablet_tool_v2 in
+        # its own interface table, so dropping this fails the link with
+        # "undefined symbol: zwp_tablet_tool_v2_interface".
+        "//third_party/wayland-protocols:tablet_protocol",
+        "//third_party/wayland-protocols:xdg_shell_protocol",
+      ]
+
+      # Disable clang modules for this target (see issue #3611).
+      use_libcxx_modules = false
+    }
+  }
 
   executable("cefsimple") {
     # Necessary because the libcef target is testonly.
