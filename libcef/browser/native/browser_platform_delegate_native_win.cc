@@ -481,8 +481,8 @@ DecodedWindowsNativeKeyCode DecodeWindowsNativeKeyCode(int native_key_code) {
     return {static_cast<uint16_t>(value), false};
   }
 
-  return {ui::GetScanCodeFromLParam(static_cast<LPARAM>(
-              static_cast<int32_t>(value))),
+  return {ui::GetScanCodeFromLParam(
+              static_cast<LPARAM>(static_cast<int32_t>(value))),
           true};
 }
 
@@ -494,8 +494,7 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeWin::TranslateUiKeyEvent(
   ui::KeyboardCode key_code =
       ui::KeyboardCodeForWindowsKeyCode(key_event.windows_key_code);
 
-  const auto decoded =
-      DecodeWindowsNativeKeyCode(key_event.native_key_code);
+  const auto decoded = DecodeWindowsNativeKeyCode(key_event.native_key_code);
   ui::DomCode dom_code =
       ui::KeycodeConverter::NativeKeycodeToDomCode(decoded.scan_code);
 
