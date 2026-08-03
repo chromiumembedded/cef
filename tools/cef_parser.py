@@ -1013,6 +1013,34 @@ class obj_header:
     return map
 
 
+def load_header_context(header, filepath):
+  """ Load the include tree containing |filepath| into |header| so that
+    cross-file class references can be resolved when generating output for a
+    single file (issue #4123). Returns the include root directory.
+    """
+  include_dir = os.path.dirname(os.path.abspath(filepath))
+  while os.path.basename(include_dir) != 'include':
+    parent = os.path.dirname(include_dir)
+    if parent == include_dir:
+      # No 'include' directory found; use the file's directory.
+      include_dir = os.path.dirname(os.path.abspath(filepath))
+      break
+    include_dir = parent
+
+  header.set_root_directory(include_dir)
+
+  # Keep the excluded files in sync with translator.py.
+  excluded_files = [
+      'cef_api_hash.h', 'cef_application_mac.h', 'cef_version_info.h'
+  ]
+  header.add_directory(include_dir, excluded_files)
+  for subdir in ('test', 'views'):
+    subdir_path = os.path.join(include_dir, subdir)
+    if os.path.isdir(subdir_path):
+      header.add_directory(subdir_path)
+  return include_dir
+
+
 class obj_class:
   """ Class representing a C++ class. """
 
