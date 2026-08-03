@@ -11,7 +11,9 @@
 #include "chrome/browser/themes/theme_service_factory.h"
 
 #if BUILDFLAG(IS_LINUX)
+#include "cef/libcef/browser/views/linux_frame_view.h"
 #include "ui/linux/linux_ui.h"
+#include "ui/views/view_utils.h"
 #endif
 
 CefWidgetImpl::CefWidgetImpl(CefWindowView* window_view)
@@ -121,6 +123,18 @@ ui::ColorProviderKey::ThemeInitializerSupplier* CefWidgetImpl::GetCustomTheme()
 void CefWidgetImpl::OnNativeWidgetDestroyed() {
   window_view_ = nullptr;
   views::Widget::OnNativeWidgetDestroyed();
+}
+
+gfx::Insets CefWidgetImpl::GetCustomInsetsInDIP() const {
+#if BUILDFLAG(IS_LINUX)
+  if (non_client_view() && non_client_view()->frame_view()) {
+    if (auto* linux_frame = views::AsViewClass<LinuxFrameView>(
+            non_client_view()->frame_view())) {
+      return linux_frame->GetFrameBorderInsets();
+    }
+  }
+#endif
+  return Widget::GetCustomInsetsInDIP();
 }
 
 void CefWidgetImpl::OnNativeThemeUpdated(ui::NativeTheme* observed_theme) {
