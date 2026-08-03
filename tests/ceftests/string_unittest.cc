@@ -504,6 +504,21 @@ TEST(StringTest, UTF16ToUTF8) {
   // U+1F600 = 😀 (GRINNING FACE) = surrogate pair D83D DE00
   EXPECT_EQ("\xF0\x9F\x98\x80", UTF16ToUTF8(u"\U0001F600"));
 
+  // 3-byte UTF-8 standard fallback replacement characters.
+  // Invalid surrogate pair D83D 007A.
+  // Compilers complain about invalid universal characters in string literals,
+  // hense we have to construct them using an initializer list of chars.
+  EXPECT_EQ("\xEF\xBF\xBDz", UTF16ToUTF8(std::u16string{0xD83D, 'z'}));
+
+  // 3-byte UTF-8 standard fallback replacement characters.
+  // Lone high surrogate D83D at end.
+  EXPECT_EQ("cef\xEF\xBF\xBD",
+            UTF16ToUTF8(std::u16string{'c', 'e', 'f', 0xD83D}));
+
+  // 3-byte UTF-8 standard fallback replacement characters.
+  // Lone low surrogate DE00.
+  EXPECT_EQ("\xEF\xBF\xBDz", UTF16ToUTF8(std::u16string{0xDE00, 'z'}));
+
   // Mixed content.
   EXPECT_EQ("Hello \xE4\xB8\x96\xE7\x95\x8C \xF0\x9F\x98\x80",
             UTF16ToUTF8(u"Hello \u4E16\u754C \U0001F600"));
