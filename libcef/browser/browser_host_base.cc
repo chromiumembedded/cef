@@ -895,6 +895,25 @@ bool CefBrowserHostBase::IsAudioMuted() {
   return false;
 }
 
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+void CefBrowserHostBase::SetWindowBounds(const CefRect& bounds) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostBase::SetWindowBounds,
+                                          this, bounds));
+    return;
+  }
+
+#if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
+  // SetHostBounds() only exists on the platforms where a windowed browser can
+  // be repositioned inside a parent window; see CefBrowserPlatformDelegate.
+  if (platform_delegate_) {
+    platform_delegate_->SetHostBounds(
+        gfx::Rect(bounds.x, bounds.y, bounds.width, bounds.height));
+  }
+#endif
+}
+#endif
+
 void CefBrowserHostBase::NotifyMoveOrResizeStarted() {
 #if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
   if (!CEF_CURRENTLY_ON_UIT()) {

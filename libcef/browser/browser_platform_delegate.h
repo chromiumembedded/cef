@@ -252,6 +252,11 @@ class CefBrowserPlatformDelegate {
   // Resize the host window to the given dimensions. Only used with windowed
   // rendering on Windows and Linux.
   virtual void SizeTo(int width, int height);
+
+  // Move and resize a windowed browser within its parent window. Only
+  // meaningful on platforms where the browser cannot observe the parent window
+  // itself; see CefBrowserHost::SetWindowBounds.
+  virtual void SetHostBounds(const gfx::Rect& bounds);
 #endif
 
   // Convert from view DIP coordinates to screen coordinates. If
