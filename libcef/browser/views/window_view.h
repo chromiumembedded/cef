@@ -11,6 +11,7 @@
 
 #include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
+#include "build/build_config.h"
 #include "cef/include/views/cef_window.h"
 #include "cef/include/views/cef_window_delegate.h"
 #include "cef/libcef/browser/views/overlay_view_host.h"
@@ -20,6 +21,10 @@
 #include "ui/display/display.h"
 #include "ui/views/widget/widget_delegate.h"
 #include "ui/views/widget/widget_observer.h"
+
+namespace gfx {
+class RoundedCornersF;
+}
 
 class CefWindowWidgetDelegate;
 
@@ -70,6 +75,12 @@ class CefWindowView : public CefPanelView<views::View, CefWindowDelegate>,
   std::unique_ptr<views::FrameView> CreateFrameView(views::Widget* widget);
   bool ShouldDescendIntoChildForEventHandling(gfx::NativeView child,
                                               const gfx::Point& location);
+
+#if BUILDFLAG(IS_LINUX)
+  // Rounds each web contents surface in the window, per corner, only where it
+  // is flush with a window corner. |radii| holds the window radius.
+  void UpdateWebContentsRoundedCorners(const gfx::RoundedCornersF& radii);
+#endif
 
   // views::View methods:
   void ViewHierarchyChanged(
