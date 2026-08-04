@@ -1023,6 +1023,7 @@ source_set("libcef_static") {
     "//third_party/zlib:minizip",
     "//ui/base",
     "//ui/base/ime",
+    "//ui/display",
     "//ui/events",
     "//ui/events:events_base",
     "//ui/gfx",

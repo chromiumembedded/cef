@@ -21,10 +21,44 @@
 
 #if BUILDFLAG(SUPPORTS_OZONE_X11)
 #include "cef/libcef/browser/native/window_x11.h"
+#include "ui/display/display.h"
+#include "ui/display/screen.h"
 #include "ui/events/keycodes/keyboard_code_conversion_x.h"
 #include "ui/events/keycodes/keyboard_code_conversion_xkb.h"
+#include "ui/gfx/geometry/size.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"
 #endif
+
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
+namespace {
+
+// Returns the display whose native (pixel) bounds contain the largest portion
+// of |bounds_in_pixels|, which must be expressed in X11 root (screen) pixel
+// coordinates. On X11 each display carries its exact pixel geometry via
+// native_origin()/GetSizeInPixel(), so match against that directly (as
+// X11ScreenOzone::DisplayBoundsInPixels() does). display::Display::bounds() is
+// unsuitable here: it is in DIP, and a non-primary display's DIP origin does
+// not map back to its pixel origin by scaling (under mixed DPI the two layouts
+// diverge). Falls back to the primary display when there is no intersection.
+display::Display GetDisplayMatchingPixelBounds(
+    const gfx::Rect& bounds_in_pixels) {
+  display::Screen* screen = display::Screen::Get();
+  display::Display matched = screen->GetPrimaryDisplay();
+  int largest_area = 0;
+  for (const display::Display& display : screen->GetAllDisplays()) {
+    gfx::Rect display_pixels(display.native_origin(), display.GetSizeInPixel());
+    display_pixels.Intersect(bounds_in_pixels);
+    const int area = display_pixels.size().GetArea();
+    if (area > largest_area) {
+      largest_area = area;
+      matched = display;
+    }
+  }
+  return matched;
+}
+
+}  // namespace
+#endif  // BUILDFLAG(SUPPORTS_OZONE_X11)
 
 CefBrowserPlatformDelegateNativeLinux::CefBrowserPlatformDelegateNativeLinux(
     const CefWindowInfo& window_info,
@@ -79,11 +113,39 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   auto* widget_delegate = new CefNativeWidgetDelegate(
       GetBackgroundColor(), window_x11_->TopLevelAlwaysOnTop(),
       GetBoundsChangedCallback(), GetWidgetDeleteCallback());
+
+  // |rect| (from window_info_.bounds) is in pixels and matches the size of the
+  // |window_x11_| host window created above, but views::Widget bounds are in
+  // DIP. Determine the device scale factor from the display the host window is
+  // actually on: translate the host window's bounds to X11 root (screen)
+  // coordinates and match them against each display's native pixel bounds. This
+  // selects the correct display when the window is placed on a non-primary
+  // monitor, instead of assuming the primary display. The child X11 window
+  // cannot be used for this: it is created at (0,0) relative to the host and
+  // would resolve to whichever display contains the root origin. As with the
+  // Windows implementation, the Init() bounds have origin (0,0); the child is
+  // positioned by the host window.
+  const gfx::Rect host_bounds_in_pixels = window_x11_->GetBoundsInScreen();
+  const float device_scale_factor =
+      GetDisplayMatchingPixelBounds(host_bounds_in_pixels)
+          .device_scale_factor();
+  const gfx::Size initial_dip_size =
+      gfx::ScaleToRoundedSize(rect.size(), 1.0f / device_scale_factor);
+
   widget_delegate->Init(
       static_cast<gfx::AcceleratedWidget>(window_info_.window), web_contents_,
-      gfx::Rect(gfx::Point(), rect.size()));
+      gfx::Rect(gfx::Point(), initial_dip_size));
 
   window_widget_ = widget_delegate->GetWidget();
+
+  // The child X11 window resolves its own device scale factor from its (0,0)
+  // origin, which may differ from the host window's display on a mixed-DPI
+  // setup, leaving the web content larger or smaller than the host window (see
+  // issue #3396). Pin the compositor to the host window's exact pixel size
+  // (|rect|) with a size-only child configure. See SetChildSizeInPixels() for
+  // why aura::WindowTreeHost::SetBoundsInPixels() cannot be used here.
+  window_x11_->SetChildSizeInPixels(rect.size());
+
   window_widget_->Show();
 
   window_x11_->Show();
