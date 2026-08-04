@@ -21,8 +21,6 @@
 
 #if BUILDFLAG(SUPPORTS_OZONE_X11)
 #include "cef/libcef/browser/native/window_x11.h"
-#include "ui/aura/window.h"
-#include "ui/aura/window_tree_host.h"
 #include "ui/display/display.h"
 #include "ui/display/screen.h"
 #include "ui/events/keycodes/keyboard_code_conversion_x.h"
@@ -36,17 +34,19 @@ namespace {
 
 // Returns the display whose native (pixel) bounds contain the largest portion
 // of |bounds_in_pixels|, which must be expressed in X11 root (screen) pixel
-// coordinates. display::Display::bounds() is in DIP, so each display's pixel
-// bounds are reconstructed by scaling with its device scale factor before
-// matching. Falls back to the primary display when there is no intersection.
+// coordinates. On X11 each display carries its exact pixel geometry via
+// native_origin()/GetSizeInPixel(), so match against that directly (as
+// X11ScreenOzone::DisplayBoundsInPixels() does). display::Display::bounds() is
+// unsuitable here: it is in DIP, and a non-primary display's DIP origin does
+// not map back to its pixel origin by scaling (under mixed DPI the two layouts
+// diverge). Falls back to the primary display when there is no intersection.
 display::Display GetDisplayMatchingPixelBounds(
     const gfx::Rect& bounds_in_pixels) {
   display::Screen* screen = display::Screen::Get();
   display::Display matched = screen->GetPrimaryDisplay();
   int largest_area = 0;
   for (const display::Display& display : screen->GetAllDisplays()) {
-    gfx::Rect display_pixels = gfx::ScaleToEnclosingRect(
-        display.bounds(), display.device_scale_factor());
+    gfx::Rect display_pixels(display.native_origin(), display.GetSizeInPixel());
     display_pixels.Intersect(bounds_in_pixels);
     const int area = display_pixels.size().GetArea();
     if (area > largest_area) {
@@ -141,16 +141,10 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   // The child X11 window resolves its own device scale factor from its (0,0)
   // origin, which may differ from the host window's display on a mixed-DPI
   // setup, leaving the web content larger or smaller than the host window (see
-  // issue #3396). Pin the compositor window's pixel size to the host window's
-  // pixel size (|rect|). Resize in pixels and keep the current origin:
-  // views::Widget::SetSize() would convert the origin to DIP and back, which is
-  // only lossless when the origin is an exact multiple of the scale factor.
-  // Keeping the pixel origin avoids that dependency and mirrors the size-only
-  // resize CefWindowX11 performs on ConfigureNotify.
-  aura::WindowTreeHost* host = window_widget_->GetNativeWindow()->GetHost();
-  gfx::Rect bounds_in_pixels = host->GetBoundsInPixels();
-  bounds_in_pixels.set_size(rect.size());
-  host->SetBoundsInPixels(bounds_in_pixels);
+  // issue #3396). Pin the compositor to the host window's exact pixel size
+  // (|rect|) with a size-only child configure. See SetChildSizeInPixels() for
+  // why aura::WindowTreeHost::SetBoundsInPixels() cannot be used here.
+  window_x11_->SetChildSizeInPixels(rect.size());
 
   window_widget_->Show();
 

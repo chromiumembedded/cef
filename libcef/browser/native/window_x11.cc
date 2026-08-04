@@ -324,6 +324,28 @@ void CefWindowX11::SetBounds(const gfx::Rect& bounds) {
   }
 }
 
+void CefWindowX11::SetChildSizeInPixels(const gfx::Size& size_in_pixels) {
+  if (xwindow_ == x11::Window::None) {
+    return;
+  }
+
+  // Resize the child DesktopWindowTreeHostLinux directly with a size-only X11
+  // configure, mirroring the resize CefWindowX11 performs in ProcessXEvent()
+  // on ConfigureNotify. Going through aura::WindowTreeHost::SetBoundsInPixels()
+  // instead would route into X11Window::SetBoundsInPixels(), whose
+  // AdjustSizeForDisplay() returns size - 1 when the requested size matches a
+  // monitor size (a top-level fullscreen-avoidance workaround) and would leave
+  // a monitor-sized child one pixel short.
+  auto child = FindChild(connection_, xwindow_);
+  if (child != x11::Window::None) {
+    connection_->ConfigureWindow(x11::ConfigureWindowRequest{
+        .window = child,
+        .width = size_in_pixels.width(),
+        .height = size_in_pixels.height(),
+    });
+  }
+}
+
 gfx::Rect CefWindowX11::GetBoundsInScreen() {
   if (auto coords =
           connection_
