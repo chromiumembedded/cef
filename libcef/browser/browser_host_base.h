@@ -274,6 +274,9 @@ class CefBrowserHostBase : public CefBrowserHost,
   void SetAudioMuted(bool mute) override;
   bool IsAudioMuted() override;
   void NotifyMoveOrResizeStarted() override;
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+  void SetWindowBounds(const CefRect& bounds) override;
+#endif
   void NotifyScreenInfoChanged() override;
   bool IsFullscreen() override;
   void ExitFullscreen(bool will_cause_resize) override;
