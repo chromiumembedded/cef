@@ -24,6 +24,8 @@ const char kTestUrl[] = "https://tests/keyboard_dom_code_test.html";
 
 // The HTML page installs keydown/keyup/keypress listeners and reports each
 // event back via window.testQuery as "type|code|location|repeat".
+// After registering the listeners it sends a "ready" query so the C++ side
+// knows the page is fully set up and safe to receive key events.
 //
 // event.location values:
 //   0 = DOM_KEY_LOCATION_STANDARD
@@ -39,7 +41,11 @@ const char kTestHtml[] =
     "document.addEventListener('keydown',  sendEvent);\n"
     "document.addEventListener('keyup',    sendEvent);\n"
     "document.addEventListener('keypress', sendEvent);\n"
+    "window.testQuery({request: 'ready'});\n"
     "</script></head><body>KeyboardDomCodeTest</body></html>\n";
+
+// Query prefix for the renderer-ready signal.
+const char kReadyMsg[] = "ready";
 
 // ---------------------------------------------------------------------------
 // Helper: build a Windows lParam for a key event.
@@ -127,7 +133,9 @@ static void SendKeyDownCharKeyUp(CefRefPtr<CefBrowser> browser,
 // Stages of the test state machine.
 // The sequence mirrors what a real key press produces:
 //   keydown -> keypress (from KEYEVENT_CHAR) -> keyup
-// followed by the same sequence with the repeat flag set on the keydown.
+// followed by the same sequence with the repeat flag set on the keydown,
+// then a Ctrl+Pause sequence to exercise scan-code normalization
+// (0xE046 -> "Pause").
 enum KeyDomCodeTestStage {
   // --- first key press (non-repeat) ---
   STAGE_KEYDOWN_A,   // RAWKEYDOWN -> DOM keydown
@@ -137,6 +145,12 @@ enum KeyDomCodeTestStage {
   STAGE_KEYDOWN_A_REPEAT,   // RAWKEYDOWN with bit30 -> DOM keydown repeat=true
   STAGE_KEYPRESS_A_REPEAT,  // CHAR -> DOM keypress repeat=true, location=0
   STAGE_KEYUP_A_REPEAT,     // KEYUP -> DOM keyup
+  // --- Ctrl+Pause scan-code normalization (0xE046 -> "Pause") ---
+  // Ctrl+Pause sends VK_CANCEL with scan code 0xE046 (extended). Windows
+  // normalizes this to "Pause" via ui::CodeForWindowsScanCode().  No CHAR
+  // event is generated for this key combination.
+  STAGE_KEYDOWN_PAUSE,  // RAWKEYDOWN -> DOM keydown, code="Pause"
+  STAGE_KEYUP_PAUSE,    // KEYUP     -> DOM keyup,   code="Pause"
   // --- done ---
   STAGE_DONE,
 };
@@ -166,11 +180,7 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler,
                int height) override {
     if (!got_paint_) {
       got_paint_.yes();
-      CefPostDelayedTask(
-          TID_UI,
-          base::BindOnce(&KeyboardDomCodeTestHandler::SendNextKey, this,
-                         browser),
-          100);
+      MaybeStartKeyTest(browser);
     }
   }
 
@@ -200,12 +210,22 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler,
     callback->Success("");
 
     const std::string msg = request.ToString();
+    if (msg == kReadyMsg) {
+      // The renderer has registered its listeners and is ready for key events.
+      if (!got_ready_) {
+        got_ready_.yes();
+        MaybeStartKeyTest(browser);
+      }
+      return true;
+    }
+
     HandleKeyEvent(browser, msg);
     return true;
   }
 
   void DestroyTest() override {
     EXPECT_TRUE(got_paint_);
+    EXPECT_TRUE(got_ready_);
     EXPECT_EQ(STAGE_DONE, stage_);
 
     RoutingTestHandler::DestroyTest();
@@ -217,6 +237,12 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler,
   static constexpr UINT kVkA = 'A';
   static constexpr UINT kScanA = 0x1E;
   static constexpr char16_t kCharA = u'a';  // lowercase; no shift modifier
+
+  // Ctrl+Pause: VK_CANCEL (0x03), scan code byte 0x46 with extended prefix
+  // (0xE046).  Windows normalizes 0xE046 to DomCode::PAUSE via
+  // ui::CodeForWindowsScanCode().  No CHAR event is generated.
+  static constexpr UINT kVkCancel = VK_CANCEL;
+  static constexpr UINT kScanPauseByte = 0x46;  // low byte; extended=true
 #endif
 
   // Parse "type|code|location|repeat" and advance the state machine.
@@ -317,6 +343,35 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler,
         EXPECT_EQ(0, location) << "STAGE_KEYUP_A_REPEAT: wrong event.location";
         EXPECT_FALSE(is_repeat)
             << "STAGE_KEYUP_A_REPEAT: event.repeat should be false for keyup";
+        stage_ = STAGE_KEYDOWN_PAUSE;
+        CefPostDelayedTask(
+            TID_UI,
+            base::BindOnce(&KeyboardDomCodeTestHandler::SendCtrlPause, this,
+                           browser),
+            50);
+        break;
+
+      case STAGE_KEYDOWN_PAUSE:
+        // Ctrl+Pause (0xE046) must map to DOM code "Pause" after scan-code
+        // normalization via ui::CodeForWindowsScanCode().
+        EXPECT_EQ("keydown", event_type) << "STAGE_KEYDOWN_PAUSE: wrong type";
+        EXPECT_EQ("Pause", code)
+            << "STAGE_KEYDOWN_PAUSE: wrong event.code - scan-code 0xE046 "
+               "should normalize to \"Pause\" via CodeForWindowsScanCode()";
+        EXPECT_EQ(0, location) << "STAGE_KEYDOWN_PAUSE: wrong event.location";
+        EXPECT_FALSE(is_repeat)
+            << "STAGE_KEYDOWN_PAUSE: event.repeat should be false";
+        stage_ = STAGE_KEYUP_PAUSE;
+        break;
+
+      case STAGE_KEYUP_PAUSE:
+        EXPECT_EQ("keyup", event_type) << "STAGE_KEYUP_PAUSE: wrong type";
+        EXPECT_EQ("Pause", code)
+            << "STAGE_KEYUP_PAUSE: wrong event.code - scan-code 0xE046 "
+               "should normalize to \"Pause\" via CodeForWindowsScanCode()";
+        EXPECT_EQ(0, location) << "STAGE_KEYUP_PAUSE: wrong event.location";
+        EXPECT_FALSE(is_repeat)
+            << "STAGE_KEYUP_PAUSE: event.repeat should be false for keyup";
         stage_ = STAGE_DONE;
         DestroyTest();
         break;
@@ -324,6 +379,18 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler,
       case STAGE_DONE:
         // Ignore any trailing events.
         break;
+    }
+  }
+
+  // Called from both OnPaint and OnQuery("ready").  Starts the key sequence
+  // only after both the first paint and the renderer-ready signal have been
+  // observed, guaranteeing that window.testQuery and the keyboard listeners
+  // are installed before any key events are sent.
+  void MaybeStartKeyTest(CefRefPtr<CefBrowser> browser) {
+    if (got_paint_ && got_ready_) {
+      CefPostTask(TID_UI,
+                  base::BindOnce(&KeyboardDomCodeTestHandler::SendNextKey, this,
+                                 browser));
     }
   }
 
@@ -348,7 +415,35 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler,
 #endif
   }
 
+  void SendCtrlPause(CefRefPtr<CefBrowser> browser) {
+#if defined(OS_WIN)
+    // Ctrl+Pause produces VK_CANCEL with scan code 0xE046 (byte=0x46,
+    // extended=true).  There is no WM_CHAR for this combination.
+    CefKeyEvent event;
+    event.is_system_key = false;
+    event.modifiers = EVENTFLAG_CONTROL_DOWN;
+    event.windows_key_code = static_cast<int>(kVkCancel);
+
+    // --- KEYEVENT_RAWKEYDOWN ---
+    event.native_key_code = MakeLParam(kScanPauseByte, /*extended=*/true,
+                                       /*prevDown=*/false, /*releasing=*/false);
+    event.type = KEYEVENT_RAWKEYDOWN;
+    browser->GetHost()->SendKeyEvent(event);
+
+    // --- KEYEVENT_KEYUP ---
+    event.native_key_code = MakeLParam(kScanPauseByte, /*extended=*/true,
+                                       /*prevDown=*/true, /*releasing=*/true);
+    event.type = KEYEVENT_KEYUP;
+    browser->GetHost()->SendKeyEvent(event);
+#else
+    (void)browser;
+    stage_ = STAGE_DONE;
+    DestroyTest();
+#endif
+  }
+
   TrackCallback got_paint_;
+  TrackCallback got_ready_;
   KeyDomCodeTestStage stage_ = STAGE_KEYDOWN_A;
 
   IMPLEMENT_REFCOUNTING(KeyboardDomCodeTestHandler);
@@ -368,6 +463,8 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler,
 //      character value; it must not be misidentified as numpad (location=3)
 //      due to the character value coincidentally matching a numpad VK code
 //      in GetCefKeyboardModifiersFromKeyEvent().
+//   4. Ctrl+Pause (scan code 0xE046) maps to DOM code "Pause" after Windows
+//      scan-code normalization via ui::CodeForWindowsScanCode().
 TEST(KeyboardDomCodeTest, DomCodeAndRepeatFlags) {
   CefRefPtr<KeyboardDomCodeTestHandler> handler =
       new KeyboardDomCodeTestHandler();

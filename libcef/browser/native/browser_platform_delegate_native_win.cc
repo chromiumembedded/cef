@@ -495,8 +495,7 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeWin::TranslateUiKeyEvent(
       ui::KeyboardCodeForWindowsKeyCode(key_event.windows_key_code);
 
   const auto decoded = DecodeWindowsNativeKeyCode(key_event.native_key_code);
-  ui::DomCode dom_code =
-      ui::KeycodeConverter::NativeKeycodeToDomCode(decoded.scan_code);
+  ui::DomCode dom_code = ui::CodeForWindowsScanCode(decoded.scan_code);
 
   base::TimeTicks time_stamp = GetEventTimeStamp();
 
