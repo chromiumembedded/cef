@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index 63777de6f37a7f47dbccd1858aa1d18b8b0973b9..3f83fe35eeb6b5ad7a14e19b51417a0949756799 100644
+index 39b0a8474a91cdcfdec5e0414d75c0ad5dfd9e44..19b15ab63cceeaecfd20ccaec69e23f43a204433 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
 @@ -1089,12 +1089,14 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
@@ -423,10 +423,10 @@ index 0fcc13c805a643c96f682d10bfeb8ffdf6a64db1..3e5711779ba1d8226adc6440eb4010f3
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index fbb45b3a420ec21978ee10f901f22f2c35499e6e..42087b7c02520dbb78b469b4f4406fad60af5b40 100644
+index 62af5c2a28e886fbd4c6ed215f2c9a86cb8bddd2..57bad1d0029286cc1c1601e7c0e3a9a4c7311b7d 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1247,6 +1247,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1258,6 +1258,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      SkRRect rounded_rect;
      rounded_rect.setRectRadii(gfx::RectFToSkRect(highlight_bounds), radii);
      canvas->sk_canvas()->drawRRect(rounded_rect, flags);
@@ -442,7 +442,7 @@ index fbb45b3a420ec21978ee10f901f22f2c35499e6e..42087b7c02520dbb78b469b4f4406fad
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (menu_item_background_.has_value()) {
-@@ -1339,6 +1348,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1350,6 +1359,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {

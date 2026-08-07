@@ -148,7 +148,7 @@ index f812730cccf1adb442c1a855ff37d8c50933bbe6..69cf4d966a02518ea703afa8d444e53a
    // renderer process changes. This method is called before notifying
    // RenderWidgetHostImpl in order to allow the view to allocate a new
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index ae820a98583232a01503df1d2b40c9873bc61469..ec870f4553303edc044ae528548ed40283921b34 100644
+index 5fc3b63276389508d00574db22d7a6ae0b17d75c..f3d6335e12a82dca0bf308afdaea9d6c423bde45 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -53,6 +53,10 @@ namespace {
@@ -162,7 +162,7 @@ index ae820a98583232a01503df1d2b40c9873bc61469..ec870f4553303edc044ae528548ed402
  #if BUILDFLAG(IS_WIN)
  // A callback function for EnumThreadWindows to enumerate and dismiss
  // any owned popup windows.
-@@ -845,6 +849,14 @@ void RenderWidgetHostViewEventHandler::MoveCursorToCenter(
+@@ -857,6 +861,14 @@ void RenderWidgetHostViewEventHandler::MoveCursorToCenter(
      }
      return;
    }
@@ -177,7 +177,7 @@ index ae820a98583232a01503df1d2b40c9873bc61469..ec870f4553303edc044ae528548ed402
  #endif
    synthetic_move_position_ = center_in_screen;
  }
-@@ -875,6 +887,17 @@ bool RenderWidgetHostViewEventHandler::MatchesSynthesizedMovePosition(
+@@ -887,6 +899,17 @@ bool RenderWidgetHostViewEventHandler::MatchesSynthesizedMovePosition(
  }
  
  void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
@@ -565,10 +565,10 @@ index 9ba64dc1b546b3a4e48e13949a555c227e02327c..c49f934a678d0174db21a18fdaa3eb19
    // the implementation of ::ShowCursor() is based on a counter, so making this
    // member static ensures that ::ShowCursor() is always called exactly once
 diff --git ui/views/widget/native_widget_mac.mm ui/views/widget/native_widget_mac.mm
-index 2f99bb508f1761405bb5dba004878c4db25965bf..be0b9a0ae4a9f0a79477c28a8f5f5feb37d699b1 100644
+index 4b50e1882176b4e5e0a077c0f96a6a405ddf1826..dc257ff2955d820918cb4d9df2753afb488768b1 100644
 --- ui/views/widget/native_widget_mac.mm
 +++ ui/views/widget/native_widget_mac.mm
-@@ -768,6 +768,7 @@ void NativeWidgetMac::Show(ui::mojom::WindowShowState show_state,
+@@ -769,6 +769,7 @@ void NativeWidgetMac::Show(ui::mojom::WindowShowState show_state,
        break;
      case ui::mojom::WindowShowState::kMaximized:
      case ui::mojom::WindowShowState::kFullscreen:
