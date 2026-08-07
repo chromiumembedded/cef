@@ -453,7 +453,7 @@ index 9c8bee99ab0a48802d1c1b7ccad571b6b412a4b0..dbbc2d75d35a9ee0c7cfd15fc5ed441f
  
  void MaybeBlockDynamicCodeForBrowserProcess() {
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index cbac8ed6171b76d887a52b694e5c926b11081ed4..1d3eba78a41a485d573e4b60827485186d110714 100644
+index 89df9311afa2cf904d3e99ea23aaf4ace6353e3f..4ac9bda75c6cf30291457450313950785cf9b3a6 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -55,6 +55,7 @@
@@ -515,7 +515,7 @@ index cbac8ed6171b76d887a52b694e5c926b11081ed4..1d3eba78a41a485d573e4b6082748518
  }
  
  std::vector<base::FilePath>
-@@ -8372,11 +8384,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -8390,11 +8402,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -529,7 +529,7 @@ index cbac8ed6171b76d887a52b694e5c926b11081ed4..1d3eba78a41a485d573e4b6082748518
            FROM_HERE, keepalive_deadline_ - now,
            base::BindOnce(
                &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -8398,7 +8410,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -8416,7 +8428,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -539,7 +539,7 @@ index cbac8ed6171b76d887a52b694e5c926b11081ed4..1d3eba78a41a485d573e4b6082748518
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -8571,7 +8584,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -8589,7 +8602,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -549,7 +549,7 @@ index cbac8ed6171b76d887a52b694e5c926b11081ed4..1d3eba78a41a485d573e4b6082748518
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index e21e743a9f932eb4fcf1ae81a7605ee980de47a0..64eb4f03c4e3a62d37b3789656029606a614c8ff 100644
+index 4de364d5fe5338c524660552bae6f757c03a268b..451f15aac9a06c62205fd4777c0179ab99e631b4 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -159,6 +159,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
@@ -570,7 +570,7 @@ index e21e743a9f932eb4fcf1ae81a7605ee980de47a0..64eb4f03c4e3a62d37b3789656029606
        content::BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -1436,7 +1438,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -1438,7 +1440,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
  
  #if !BUILDFLAG(IS_ANDROID)
    uint64_t num_keepalive_requests_ = 0;

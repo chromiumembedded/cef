@@ -765,7 +765,7 @@ index 88f1daa55f75f2b263a2ea5e1f9a58b274966622..afe427dee975a3953eac054e027db5e9
    }
  
 diff --git chrome/browser/ui/browser_window/internal/browser_window_features.cc chrome/browser/ui/browser_window/internal/browser_window_features.cc
-index 4913c63016ccc548269eb5a04e5811b9ff03295c..5386b407689e3b32b5d83f9dfd3b3ef5c4dfe33d 100644
+index c2d47effffd2298e037a090dc3ad22ecd9315dbd..1f239522163ad0ba0bab6b68629eec12fccf63ba 100644
 --- chrome/browser/ui/browser_window/internal/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/internal/browser_window_features.cc
 @@ -238,6 +238,15 @@

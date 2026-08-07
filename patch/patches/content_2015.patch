@@ -47,7 +47,7 @@ index dc469222bfbc0b64596b513c42e18b4363216f62..6280365035242bc8dc4b52f7af8fab5c
      return std::make_pair(
          /*is_cacheable=*/false,
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index 5785aaf2b9bfbe4dfc3a13800bd677d86bfb364c..932e0f7e9f5b4693454799baa6f5adabba7ccf90 100644
+index b75a4a986ec82da1d7b8cee57eeca583d7d28088..6f51e339be18d2797b6bfdd81654cfa2cabef3d3 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
 @@ -1232,7 +1232,7 @@ ContentBrowserClient::URLLoaderRequestHandler ContentBrowserClient::
@@ -68,7 +68,7 @@ index 5785aaf2b9bfbe4dfc3a13800bd677d86bfb364c..932e0f7e9f5b4693454799baa6f5adab
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index d8075263d172806096314b31c743cecf2eb0a3e1..3e9283912c42271a79a7c0bbbcd1d6598af6bb58 100644
+index 28384904e01bcb4aee8c59bf2a2cbd1cacc8132a..380b9bd6a5d1d0a478f44d6c8caea3eabbebcbe0 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -1447,6 +1447,12 @@ class CONTENT_EXPORT ContentBrowserClient {

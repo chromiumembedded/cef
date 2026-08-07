@@ -222,7 +222,7 @@ index 04cf48490e909e2f8951c60a9f50b2a0d36e9efc..d16188c7c362f3fa19ca53d09755a9d7
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index ab77c657e98dff31a845bbfbdd8eede65acc3f3f..c89d71d2b546e8730a8cd770016263641441c6a4 100644
+index 4a2d263f41a9945c146975eb0f42c0dc0c0430d6..4d07d79177a5af622c67abfc48df6c300b6cff13 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -872,11 +872,21 @@ class BrowserView::PipExclusionObserverImpl
@@ -452,7 +452,7 @@ index ab77c657e98dff31a845bbfbdd8eede65acc3f3f..c89d71d2b546e8730a8cd77001626364
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
    }
  
-@@ -4722,7 +4819,8 @@ void BrowserView::Layout(PassKey) {
+@@ -4723,7 +4820,8 @@ void BrowserView::Layout(PassKey) {
    LayoutSuperclass<views::View>(this);
  
    // TODO(jamescook): Why was this in the middle of layout code?
@@ -462,7 +462,7 @@ index ab77c657e98dff31a845bbfbdd8eede65acc3f3f..c89d71d2b546e8730a8cd77001626364
    GetFrameView()->UpdateMinimumSize();
  
    if (omnibox::IsWebUIOmniboxInBrowserViewEnabled()) {
-@@ -4992,6 +5090,13 @@ void BrowserView::AddedToWidget() {
+@@ -4993,6 +5091,13 @@ void BrowserView::AddedToWidget() {
    dialog_anchor_ = std::make_unique<views::ViewSubregionAnchor>(
        kBrowserDialogAnchorElementId, *this);
  
