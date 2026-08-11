@@ -795,7 +795,7 @@ int main(int argc, char* argv[]) {
 // Entry point function for all processes.
 int APIENTRY wWinMain(HINSTANCE hInstance,
                       HINSTANCE hPrevInstance,
-                      LPTSTR lpCmdLine,
+                      LPWSTR lpCmdLine,
                       int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);

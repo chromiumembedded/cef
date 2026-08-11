@@ -12,7 +12,7 @@
 #include "tests/cefsimple_capi/simple_utils.h"
 
 static int RunMain(HINSTANCE hInstance,
-                   LPTSTR lpCmdLine,
+                   LPWSTR lpCmdLine,
                    int nCmdShow,
                    void* sandbox_info) {
   int exit_code;
@@ -80,7 +80,7 @@ static int RunMain(HINSTANCE hInstance,
 
 // Entry point called by bootstrap.exe when built as a DLL.
 CEF_BOOTSTRAP_EXPORT int RunWinMain(HINSTANCE hInstance,
-                                    LPTSTR lpCmdLine,
+                                    LPWSTR lpCmdLine,
                                     int nCmdShow,
                                     void* sandbox_info,
                                     cef_version_info_t* version_info) {
@@ -93,7 +93,7 @@ CEF_BOOTSTRAP_EXPORT int RunWinMain(HINSTANCE hInstance,
 // Entry point function for all processes.
 int APIENTRY wWinMain(HINSTANCE hInstance,
                       HINSTANCE hPrevInstance,
-                      LPTSTR lpCmdLine,
+                      LPWSTR lpCmdLine,
                       int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);

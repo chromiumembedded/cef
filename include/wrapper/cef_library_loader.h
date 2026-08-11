@@ -168,7 +168,7 @@ class CefScopedLibraryLoader final {
 ///
 ///   int APIENTRY wWinMain(HINSTANCE hInstance,
 ///                         HINSTANCE hPrevInstance,
-///                         LPTSTR lpCmdLine,
+///                         LPWSTR lpCmdLine,
 ///                         int nCmdShow)
 ///     // Version that was used to compile the CEF client app.
 ///     cef_version_info_t version_info = {};
