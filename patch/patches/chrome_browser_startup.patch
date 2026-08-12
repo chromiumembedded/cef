@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/startup/startup_browser_creator.cc chrome/browser/ui/startup/startup_browser_creator.cc
-index bed74e910df0667b636c5b1e404df913febbc019..b33ea41874fd0abf1536643b0c58beba93c7a21e 100644
+index b080481bfdd738e7b036ac1363036a17894cda85..c01262dca194c4323438cf30fa4dab7e99a94392 100644
 --- chrome/browser/ui/startup/startup_browser_creator.cc
 +++ chrome/browser/ui/startup/startup_browser_creator.cc
 @@ -650,6 +650,13 @@ std::optional<bool> MaybeHandleValidateCrx(

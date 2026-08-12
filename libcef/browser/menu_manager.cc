@@ -309,7 +309,7 @@ void CefMenuManager::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
 
   // Notify the host after closing the context menu.
   web_contents()->SetShowingContextMenu(false);
-  web_contents()->NotifyContextMenuClosed(params_.link_followed, std::nullopt);
+  web_contents()->NotifyContextMenuClosed(params_.link_followed);
 }
 
 bool CefMenuManager::FormatLabel(CefRefPtr<CefMenuModelImpl> source,

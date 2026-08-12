@@ -72,10 +72,10 @@ index 4c86d688230bdca3611fd1a1454390b30cb57dbe..88b706bffb1605835710fb54375aa752
  }
  
 diff --git ui/linux/linux_ui.h ui/linux/linux_ui.h
-index ea54bb162868a3a28117bcd5b183528c188677d5..f14e29d6bfdf865a58734821d474e52974c9cf58 100644
+index 28e5c0ef6d3830d1f9d76aa3a47e4640f487ee4a..0be98d42d5f8cb2488ee7f3de4ce0b1ee14b2a1e 100644
 --- ui/linux/linux_ui.h
 +++ ui/linux/linux_ui.h
-@@ -20,6 +20,10 @@
+@@ -21,6 +21,10 @@
  #include "printing/buildflags/buildflags.h"
  #include "ui/display/types/display_config.h"
  
@@ -86,7 +86,7 @@ index ea54bb162868a3a28117bcd5b183528c188677d5..f14e29d6bfdf865a58734821d474e529
  // The main entrypoint into Linux toolkit specific code. GTK/QT code should only
  // be executed behind this interface.
  
-@@ -60,9 +64,27 @@ class WindowFrameProvider;
+@@ -61,9 +65,27 @@ class WindowFrameProvider;
  enum class FrameType;
  enum class TextEditCommand;
  
@@ -115,7 +115,7 @@ index ea54bb162868a3a28117bcd5b183528c188677d5..f14e29d6bfdf865a58734821d474e529
   public:
    // 8px is the default value in GTK for how far the mouse needs to move before
    // a drag begins.
-@@ -155,14 +177,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
+@@ -156,14 +178,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
    // Returns a map of KeyboardEvent code to KeyboardEvent key values.
    virtual base::flat_map<std::string, std::string> GetKeyboardLayoutMap() = 0;
  

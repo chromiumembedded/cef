@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/extensions/extension_dialog_utils_views.cc chrome/browser/ui/extensions/extension_dialog_utils_views.cc
-index 011fcf743fae8e210afd22f55022c54e54ef3d93..cdac0f22808ae9608784d7a56afbf38ad91a82dc 100644
+index c05fd2bb229be320371d535f5b73465b491e89ec..71d955ae83474d4f2c7937c5e92c011b27bced40 100644
 --- chrome/browser/ui/extensions/extension_dialog_utils_views.cc
 +++ chrome/browser/ui/extensions/extension_dialog_utils_views.cc
-@@ -89,10 +89,10 @@ void ShowDialog(BrowserWindowInterface* browser,
+@@ -87,10 +87,10 @@ void ShowDialog(BrowserWindowInterface* browser,
                  std::unique_ptr<ui::DialogModel> dialog_model) {
    ToolbarButtonProvider* toolbar_button_provider =
        BrowserView::GetBrowserViewForBrowser(browser)->toolbar_button_provider();

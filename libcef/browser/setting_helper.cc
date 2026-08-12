@@ -241,6 +241,7 @@ cef_content_setting_types_t ToCefType(ContentSettingsType type) {
     TO_CEF_TYPE(SUB_APP_INSTALLATION_PROMPTS);
     TO_CEF_TYPE(SUB_APPS_WITHOUT_PROMPTS);
     TO_CEF_TYPE(INLINE_CUE_MENU);
+    TO_CEF_TYPE(SUSPICIOUS_SITE_WARNING_DATA);
     case ContentSettingsType::DEFAULT:
       break;
   }
@@ -389,6 +390,7 @@ std::optional<ContentSettingsType> FromCefType(
     FROM_CEF_TYPE(LOOPBACK_NETWORK);
     FROM_CEF_TYPE(SUB_APPS_WITHOUT_PROMPTS);
     FROM_CEF_TYPE(INLINE_CUE_MENU);
+    FROM_CEF_TYPE(SUSPICIOUS_SITE_WARNING_DATA);
     case CEF_CONTENT_SETTING_TYPE_NUM_VALUES:
       break;
   }

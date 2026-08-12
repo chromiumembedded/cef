@@ -822,10 +822,13 @@ void StreamReaderURLLoader::RequestComplete(int status_code) {
 
   auto status = network::URLLoaderCompletionStatus(status_code);
   status.completion_time = base::TimeTicks::Now();
-  status.encoded_data_length = total_bytes_read_ + header_length_;
-  status.encoded_body_length = total_bytes_read_;
+  status.encoded_data_length = base::ByteSize(
+      static_cast<uint64_t>(total_bytes_read_) + header_length_);
+  status.encoded_body_length =
+      base::ByteSize(static_cast<uint64_t>(total_bytes_read_));
   // We don't support decoders, so use the same value.
-  status.decoded_body_length = total_bytes_read_;
+  status.decoded_body_length =
+      base::ByteSize(static_cast<uint64_t>(total_bytes_read_));
 
   CleanUp();
 

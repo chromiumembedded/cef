@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index 4f8ae0cd7efed02cebb24251409db719695025d7..f7a81c7f906d4b524bc8d66aa97a0114f246b3f4 100644
+index 1de7ece73d67b577b0ce8502edef23c3916d145d..635e2de7e7e872ee13dfd6aa4b4a59cbefdca950 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -636,7 +636,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -635,7 +635,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -85,7 +85,7 @@ index 955b07af5cd0030c3d31d3cbe7e3276600bc5a6d..22b8db1505f25124baa28f350738e3ac
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index e6b2e9bbfe12800cd8e31225f1e56f57a0526809..d092c3711f81b7c038551ac7b2b65733d543a61b 100644
+index f3ca43e49dfcb80fb18d587afd3ace768c79c86a..98e1f91470c506ac8c2447d896c0dbc034feeffe 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
 @@ -39,6 +39,7 @@
@@ -96,7 +96,7 @@ index e6b2e9bbfe12800cd8e31225f1e56f57a0526809..d092c3711f81b7c038551ac7b2b65733
  #include "chrome/browser/background/background_contents_service_factory.h"
  #include "chrome/browser/background_fetch/background_fetch_delegate_factory.h"
  #include "chrome/browser/background_fetch/background_fetch_delegate_impl.h"
-@@ -238,6 +239,10 @@
+@@ -237,6 +238,10 @@
  #include "chrome/browser/background/extensions/background_mode_manager.h"  // nogncheck crbug.com/40147906
  #endif
  
@@ -107,7 +107,7 @@ index e6b2e9bbfe12800cd8e31225f1e56f57a0526809..d092c3711f81b7c038551ac7b2b65733
  #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
  #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"  // nogncheck crbug.com/40147906
  #include "chrome/browser/extensions/extension_special_storage_policy.h"  // nogncheck crbug.com/40147906
-@@ -286,6 +291,12 @@ class ScopedAllowBlockingForProfile : public base::ScopedAllowBlocking {};
+@@ -285,6 +290,12 @@ class ScopedAllowBlockingForProfile : public base::ScopedAllowBlocking {};
  
  namespace {
  
@@ -120,7 +120,7 @@ index e6b2e9bbfe12800cd8e31225f1e56f57a0526809..d092c3711f81b7c038551ac7b2b65733
  #if BUILDFLAG(ENABLE_SESSION_SERVICE)
  // Delay before we explicitly create the SessionService.
  static constexpr base::TimeDelta kCreateSessionServiceDelay =
-@@ -1076,7 +1087,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1075,7 +1086,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -131,7 +131,7 @@ index e6b2e9bbfe12800cd8e31225f1e56f57a0526809..d092c3711f81b7c038551ac7b2b65733
  
    return raw_otr_profile;
  }
-@@ -1422,6 +1435,12 @@ ProfileImpl::GetStorageNotificationService() {
+@@ -1421,6 +1434,12 @@ ProfileImpl::GetStorageNotificationService() {
  #if BUILDFLAG(IS_ANDROID)
    return nullptr;
  #else

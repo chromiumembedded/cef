@@ -87,7 +87,7 @@ Browser* ChromeBrowserDelegate::CreateDevToolsBrowser(
       CefRequestContextImpl::GetProfile(opener_browser_host->request_context()),
       profile);
   if (opener) {
-    CHECK_EQ(opener->profile(), profile);
+    CHECK_EQ(opener->GetProfile(), profile);
   }
 
   //
@@ -538,8 +538,7 @@ bool ChromeBrowserDelegate::HasViewsHostedOpener() const {
 
 void ChromeBrowserDelegate::WebContentsCreated(
     content::WebContents* source_contents,
-    int opener_render_process_id,
-    int opener_render_frame_id,
+    const content::GlobalRenderFrameHostId& opener_id,
     const std::string& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {
@@ -549,10 +548,8 @@ void ChromeBrowserDelegate::WebContentsCreated(
   CefRefPtr<CefDictionaryValue> extra_info;
 
   CefBrowserInfoManager::GetInstance()->WebContentsCreated(
-      target_url,
-      frame_util::MakeGlobalId(opener_render_process_id,
-                               opener_render_frame_id),
-      settings, client, platform_delegate, extra_info, new_contents);
+      target_url, opener_id, settings, client, platform_delegate, extra_info,
+      new_contents);
 
   auto opener = ChromeBrowserHostImpl::GetBrowserForContents(source_contents);
   if (!opener) {
@@ -745,7 +742,7 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserDelegate::CreateBrowserHost(
   }
 
   Profile* profile =
-      browser ? browser->profile()
+      browser ? browser->GetProfile()
               : Profile::FromBrowserContext(web_contents->GetBrowserContext());
 
   // Get or create a ChromeBrowserContext for the browser Profile. Creation
@@ -831,7 +828,7 @@ bool ChromeBrowserDelegate::IsViewsHosted() const {
 CefWindowImpl* ChromeBrowserDelegate::GetCefWindowImpl() const {
   if (IsViewsHosted()) {
     if (auto chrome_browser_view =
-            static_cast<ChromeBrowserView*>(browser_->window())) {
+            static_cast<ChromeBrowserView*>(&browser_->GetBrowserView())) {
       return chrome_browser_view->cef_browser_view()->cef_window_impl();
     }
   }

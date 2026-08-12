@@ -44,10 +44,10 @@ index 3b00411a070a7e741f46338e91442c1f0449205b..552b2d450c65ec1ee1587258d2ffb179
      // Ensure the previous bubble is closed before creating and showing the new
      // one.
 diff --git chrome/browser/ui/views/profiles/incognito_menu_view.cc chrome/browser/ui/views/profiles/incognito_menu_view.cc
-index d224a2ead180ec05fe3f07d1e35c24cda0882c16..ebcf126f60298da446880746caffa8a8f43c4248 100644
+index 2593cf1e829ce5b98fcfbdcc94886f4602cd5761..c23dd0c4a53ce137aa7b5f35b06a7748f7f92fda 100644
 --- chrome/browser/ui/views/profiles/incognito_menu_view.cc
 +++ chrome/browser/ui/views/profiles/incognito_menu_view.cc
-@@ -33,7 +33,9 @@
+@@ -26,7 +26,9 @@
  IncognitoMenuView::IncognitoMenuView(views::BubbleAnchor anchor_element,
                                       Browser* browser)
      : ProfileMenuViewBase(anchor_element, browser) {
@@ -59,10 +59,10 @@ index d224a2ead180ec05fe3f07d1e35c24cda0882c16..ebcf126f60298da446880746caffa8a8
                                   ax::mojom::NameFrom::kAttribute);
  
 diff --git chrome/browser/ui/views/profiles/profile_menu_coordinator.cc chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-index 94a8dbf56b9875401175cf53ec1af7c94bac2632..6892d9bc6a89709682869f36034668c351469f52 100644
+index 9d1d5d5c120eab3e399d3eae4778394089df8cb3..78c0006df4a30452060a455134dfaf9444c3874d 100644
 --- chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-@@ -93,7 +93,9 @@ void ProfileMenuCoordinator::ShowWithPromoResults(
+@@ -91,7 +91,9 @@ void ProfileMenuCoordinator::ShowWithPromoResults(
    auto avatar_toolbar_button = GetAvatarToolbarButton();
    std::unique_ptr<ProfileMenuViewBase> bubble;
    const bool is_incognito = GetProfile()->IsIncognitoProfile();

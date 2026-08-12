@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index 75ee67975bb15bd471fa1c8845619083e0c0c88c..531543fc80c9837b4bbba0b1cd8685795faf2226 100644
+index 31083766a081e411a7089e2088c427cca9209f63..0e75104e16462e2f04f4a096ba09d992c2eeb936 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
-@@ -1089,12 +1089,14 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
+@@ -1134,12 +1134,14 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
    UMA_HISTOGRAM_ENUMERATION("WrenchMenu.MenuAction", MENU_ACTION_MENU_OPENED,
                              LIMIT_MENU_ACTION);
  
@@ -23,7 +23,7 @@ index 75ee67975bb15bd471fa1c8845619083e0c0c88c..531543fc80c9837b4bbba0b1cd868579
  }
  
  void AppMenu::RunMenu(views::Widget* parent,
-@@ -1106,7 +1108,8 @@ void AppMenu::RunMenu(views::Widget* parent,
+@@ -1151,7 +1153,8 @@ void AppMenu::RunMenu(views::Widget* parent,
    menu_runner_->RunMenuAt(
        parent, nullptr, anchor_screen_bounds,
        views::MenuAnchorPosition::kTopRight, ui::mojom::MenuSourceType::kNone,
@@ -153,7 +153,7 @@ index 551b709d2620d4e3c43d9ee1fa31a00c4532efb9..53875cea7f5225cb53a23c2591fbdf18
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 2f120ba0a8ad6345560baf442899c6d1df580f8e..efff76560e385708a3c4e3e426da0c6c80b0ac5c 100644
+index 6189a70ceb9a21724233b8b005ef87b1020c401b..6e58595967de923729013bf56d52c68e6d1a83fe 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
 @@ -653,6 +653,12 @@ void LabelButton::OnThemeChanged() {
@@ -184,7 +184,7 @@ index 0177c78be91e7b51fdda6efcf7c7a9fd2f684b8a..c719b78918641abdb1e18d8b94aa93af
    LabelButtonImageContainer* image_container() {
      return image_container_.get();
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index cf0139f0db001e764ad8fe14ca3d9379baeeae3f..bbed7ad667b768a9343266ec1f395b38467e6761 100644
+index 5021556c784a84363029b0500977a8bc456b6d6d..fb38e7221872bfeec7a961a482c466ff4c8de100 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -57,12 +57,29 @@ enum LabelPropertyKey {
@@ -274,7 +274,7 @@ index b1ccc704de42f1acb2ad3cdcf8102f44a5fcc547..1d0dc681104c339a48da896b580b94b3
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 00f21acdd93ea3fff933ad547397cd29a5dd14d1..03414e644c0813c4e9ee5af7f02c299b18d7d51b 100644
+index 6eb1568079e66dcdb127fee0e30679c86afc26c3..905dca23513b1453ef7b0e7f5874d59a9514c923 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -652,7 +652,8 @@ void MenuController::Run(Widget* parent,
@@ -295,7 +295,7 @@ index 00f21acdd93ea3fff933ad547397cd29a5dd14d1..03414e644c0813c4e9ee5af7f02c299b
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2545,6 +2547,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2557,6 +2559,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -303,7 +303,7 @@ index 00f21acdd93ea3fff933ad547397cd29a5dd14d1..03414e644c0813c4e9ee5af7f02c299b
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3283,7 +3286,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -3299,7 +3302,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -316,7 +316,7 @@ index 00f21acdd93ea3fff933ad547397cd29a5dd14d1..03414e644c0813c4e9ee5af7f02c299b
      return;
    }
  
-@@ -3308,6 +3315,7 @@ void MenuController::CloseSubmenu() {
+@@ -3324,6 +3331,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
@@ -423,10 +423,10 @@ index 0fcc13c805a643c96f682d10bfeb8ffdf6a64db1..3e5711779ba1d8226adc6440eb4010f3
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index c5ee5ac2bd21e8bec3f3eee7dc9fc2235f7b0bea..87c5a100b968e7c62a1a4855bb17e5b5942c678a 100644
+index b181edb034da3e9bee31f942c18a72fabad9de16..ba0cb30bb69fbde4d10b140e79442bc6ccfd20bc 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1247,6 +1247,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1265,6 +1265,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      SkRRect rounded_rect;
      rounded_rect.setRectRadii(gfx::RectFToSkRect(highlight_bounds), radii);
      canvas->sk_canvas()->drawRRect(rounded_rect, flags);
@@ -442,7 +442,7 @@ index c5ee5ac2bd21e8bec3f3eee7dc9fc2235f7b0bea..87c5a100b968e7c62a1a4855bb17e5b5
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (menu_item_background_.has_value()) {
-@@ -1339,6 +1348,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1357,6 +1366,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -809,7 +809,7 @@ index a19a0fa4dfd6b723d2128cb2acf3b9029de25c4a..a59a8ee1ebfc930cea1e0968e8f1d2c6
    if (root_location != root_current_location &&
        !g_ozone_ui_controls_test_helper->MustUseUiControlsForMoveCursorTo() &&
 diff --git ui/views/view.h ui/views/view.h
-index d0a1abb7e887e673cf4eaea30bfc52500f26ae3f..671d54138a0f75d201ada752438db31c6fec15c8 100644
+index af4a0c943c0ed04c915b88b13bb139ca17a2a258..9cbb2008fff64889267c4463f9bae2ce110dede3 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -27,6 +27,7 @@

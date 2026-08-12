@@ -1,5 +1,5 @@
 diff --git chrome/browser/policy/BUILD.gn chrome/browser/policy/BUILD.gn
-index 0d717e60c7a32ce0566fe48e15998f171963cd98..b999dcf7def34cbe0b740cf0d182183e0d24804e 100644
+index d6bafa4aa26b306b09a2a43138b39721d48e1e52..51f6d08e3aaa245c3201f87d8e3d727e9841f993 100644
 --- chrome/browser/policy/BUILD.gn
 +++ chrome/browser/policy/BUILD.gn
 @@ -27,6 +27,7 @@ source_set("path_parser") {
@@ -412,7 +412,7 @@ index 640d16727dbbab2c518545b1d9c78916de4a8df8..691ef9968d8a3702935f2ca3f9f21e93
      "//components/policy/proto:policy_common_definitions_compile_proto",
      "//third_party/protobuf:protobuf_lite",
 diff --git components/policy/tools/generate_policy_source.py components/policy/tools/generate_policy_source.py
-index 3817a1e54f940e2acd53be054df167d847b7c5e1..1865fb39374b2ca3e99789c8a06994aa90a8cf3e 100755
+index 040c3e2a6d5c723f5d4e214a8a77c5906ceeb2f8..1658a008e8aa40aa74e4e3c6de654fbe3aebb86a 100755
 --- components/policy/tools/generate_policy_source.py
 +++ components/policy/tools/generate_policy_source.py
 @@ -485,6 +485,7 @@ def _WritePolicyConstantHeader(all_policies, policy_atomic_groups,
@@ -437,7 +437,7 @@ index 3817a1e54f940e2acd53be054df167d847b7c5e1..1865fb39374b2ca3e99789c8a06994aa
  
    f.write('''#if BUILDFLAG(IS_CHROMEOS)
  // Sets default profile policies values for enterprise users.
-@@ -1188,7 +1191,8 @@ namespace {namespace} {{
+@@ -1206,7 +1209,8 @@ namespace {namespace} {{
      f.write('}  // namespace\n\n')
  
    if target_platform == 'win':
@@ -447,7 +447,7 @@ index 3817a1e54f940e2acd53be054df167d847b7c5e1..1865fb39374b2ca3e99789c8a06994aa
              'const wchar_t kRegistryChromePolicyKey[] = '
              'L"' + CHROME_POLICY_KEY + '";\n'
              '#elif BUILDFLAG(GOOGLE_CHROME_FOR_TESTING_BRANDING)\n'
-@@ -1197,6 +1201,7 @@ namespace {namespace} {{
+@@ -1215,6 +1219,7 @@ namespace {namespace} {{
              '#else\n'
              'const wchar_t kRegistryChromePolicyKey[] = '
              'L"' + CHROMIUM_POLICY_KEY + '";\n'

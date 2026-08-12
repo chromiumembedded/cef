@@ -240,10 +240,10 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       AllocateFrameSinkId(), delegated_frame_host_client_.get(),
       false /* should_register_frame_sink_id */);
 
-  root_layer_ = std::make_unique<ui::Layer>(ui::LAYER_SOLID_COLOR);
+  root_layer_ = std::make_unique<ui::LayerSolidColor>();
 
   // Opacity of SOLID_COLOR layer is determined by the color's alpha channel.
-  GetRootLayer()->SetColor(background_color_);
+  root_layer_->SetColor(SkColor4f::FromColor(background_color_));
 
   external_begin_frame_enabled_ = use_external_begin_frame;
 
@@ -796,7 +796,7 @@ display::ScreenInfos CefRenderWidgetHostViewOSR::GetNewScreenInfosForUpdate() {
 void CefRenderWidgetHostViewOSR::TransformPointToRootSurface(
     gfx::PointF* point) {}
 
-gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
+gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInScreen() {
   if (!browser_impl_.get()) {
     return gfx::Rect();
   }
@@ -1197,7 +1197,7 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
 
   if (compositor_) {
     compositor_->IssueExternalBeginFrame(
-        begin_frame_args, /* force= */ true,
+        begin_frame_args,
         base::BindOnce(&CefRenderWidgetHostViewOSR::OnFrameComplete,
                        weak_ptr_factory_.GetWeakPtr()));
   } else {
@@ -1933,5 +1933,5 @@ void CefRenderWidgetHostViewOSR::UpdateBackgroundColorFromRenderer(
 
   bool opaque = SkColorGetA(color) == SK_AlphaOPAQUE;
   GetRootLayer()->SetFillsBoundsOpaquely(opaque);
-  GetRootLayer()->SetColor(color);
+  root_layer_->SetColor(SkColor4f::FromColor(color));
 }

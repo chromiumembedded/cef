@@ -199,7 +199,7 @@ index f989d38c439dc3d4c38d1f15bcd2ad13bc2206b2..848baa849a6201274d09fdc9d672ce8e
  
      OnPositionRequiresUpdate();
 diff --git components/web_modal/modal_dialog_host.h components/web_modal/modal_dialog_host.h
-index 8a9a2763923135309633ffdd8d8ceee407052a9a..4689a85ce8bf58d9775aefceb266a7a9e45f93f8 100644
+index a1410173b87559db21104cc5012f2a28ad760d3c..866e555f39427dc5eca20a072272157ed3d917eb 100644
 --- components/web_modal/modal_dialog_host.h
 +++ components/web_modal/modal_dialog_host.h
 @@ -34,6 +34,12 @@ class WEB_MODAL_EXPORT ModalDialogHost {

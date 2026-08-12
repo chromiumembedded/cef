@@ -97,10 +97,10 @@ index aa43742055b04c70bcb60bd21f61897b3c6b79a6..e84f21ab963ccf6e54afcb659f5ceccd
    // it will get the locale that should be used potentially from other sources,
    // depending on the platform (e.g. the OS locale on Mac).
 diff --git ui/base/l10n/l10n_util.cc ui/base/l10n/l10n_util.cc
-index 7c7450f33adbccdf75537d591ec71db2b4ceaf49..6c26d7cc77cfb8f65154593cfabd60a32dbb9b4d 100644
+index 735ca6d41c6f64e8c30980f1c480f6a5bb91192c..d36199ba58b3922fc25e0032615d9454cb15ca2e 100644
 --- ui/base/l10n/l10n_util.cc
 +++ ui/base/l10n/l10n_util.cc
-@@ -488,25 +488,7 @@ std::optional<std::string> CheckAndResolveLocale(std::string_view locale,
+@@ -293,25 +293,7 @@ std::optional<std::string> CheckAndResolveLocale(std::string_view locale,
    return std::nullopt;
  }
  
@@ -127,7 +127,7 @@ index 7c7450f33adbccdf75537d591ec71db2b4ceaf49..6c26d7cc77cfb8f65154593cfabd60a3
    std::vector<std::string> candidates;
  
    // We only use --lang and the app pref on Windows.  On Linux, we only
-@@ -574,15 +556,6 @@ std::string GetApplicationLocaleInternalNonMac(std::string_view pref_locale) {
+@@ -379,15 +361,6 @@ std::string GetApplicationLocaleInternalNonMac(std::string_view pref_locale) {
  
    return std::string();
  }

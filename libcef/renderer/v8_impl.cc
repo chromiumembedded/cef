@@ -586,12 +586,13 @@ void AccessorNameGetterCallbackImpl(
 // See explanation in https://crbug.com/336325111.
 void EmptySetterCallbackImpl(v8::Local<v8::Name> property,
                              v8::Local<v8::Value> value,
-                             const v8::PropertyCallbackInfo<void>& info) {}
+                             const v8::PropertyCallbackInfo<v8::Boolean>& info) {
+}
 
 void AccessorNameSetterCallbackImpl(
     v8::Local<v8::Name> property,
     v8::Local<v8::Value> value,
-    const v8::PropertyCallbackInfo<void>& info) {
+    const v8::PropertyCallbackInfo<v8::Boolean>& info) {
   v8::Isolate* isolate = info.GetIsolate();
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
 
@@ -674,7 +675,7 @@ template <typename T>
 v8::Intercepted InterceptorSetterCallbackImpl(
     T property,
     v8::Local<v8::Value> value,
-    const v8::PropertyCallbackInfo<void>& info) {
+    const v8::PropertyCallbackInfo<v8::Boolean>& info) {
   v8::Isolate* isolate = info.GetIsolate();
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   v8::Handle<v8::Object> obj = info.Holder();
@@ -2300,7 +2301,7 @@ bool CefV8ValueImpl::SetValue(const CefString& key,
   }
 
   v8::AccessorNameGetterCallback getter = AccessorNameGetterCallbackImpl;
-  v8::AccessorNameSetterCallback setter =
+  v8::AccessorNameSetterCallbackV2 setter =
       (attribute & V8_PROPERTY_ATTRIBUTE_READONLY)
           ? EmptySetterCallbackImpl
           : AccessorNameSetterCallbackImpl;

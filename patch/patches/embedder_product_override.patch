@@ -1,5 +1,5 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index 608bea5cb386438757146a531bbc0293b3eb9775..2e005ae9d6a2ad1fb8be1aff53c053e57680c8ed 100644
+index 3f87ec84fb32acff28c7efa855409a89395af80d..98b082d2de86161f5e5f37169762c76b800e6c92 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
 @@ -26,6 +26,7 @@

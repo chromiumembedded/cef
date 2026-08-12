@@ -1,8 +1,8 @@
 diff --git components/content_settings/renderer/content_settings_agent_impl.cc components/content_settings/renderer/content_settings_agent_impl.cc
-index 8a6a6cd1bfec0318de54f7f0caf3152fe683ff4b..abe0aaf574a048076b6ceb38f9d5e1b88e7ef655 100644
+index e13faa0b945c9e655a059da24658aa0ea31315dc..20709a9b714ad161c49371b8e5436418141fd49e 100644
 --- components/content_settings/renderer/content_settings_agent_impl.cc
 +++ components/content_settings/renderer/content_settings_agent_impl.cc
-@@ -142,7 +142,7 @@ ContentSetting GetContentSettingFromRules(
+@@ -143,7 +143,7 @@ ContentSetting GetContentSettingFromRules(
        return rule.GetContentSetting();
      }
    }

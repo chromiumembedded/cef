@@ -221,10 +221,10 @@ index 2193019afd18eac09e7812737dc2de3533c2f404..42ec99b0a4673f9ba7c8bbd568a18fa8
 +  }
  }
 diff --git components/webui/version/resources/about_version.css components/webui/version/resources/about_version.css
-index 474768656bdae1d5c212bfd3034c8f8bfe718983..2ca20f8cc7251ad92b1845ce4bc8a2deadbfb592 100644
+index 33e926a18ce3c9356a3af5c96e406f720fba31f5..618242cefacb98fa2f00e337c1927f051794a6af 100644
 --- components/webui/version/resources/about_version.css
 +++ components/webui/version/resources/about_version.css
-@@ -134,3 +134,7 @@ body {
+@@ -131,3 +131,7 @@ body {
    position: fixed;
    width: 1px;
  }
@@ -233,7 +233,7 @@ index 474768656bdae1d5c212bfd3034c8f8bfe718983..2ca20f8cc7251ad92b1845ce4bc8a2de
 +  font-size: 0.8em;
 +}
 diff --git components/webui/version/resources/about_version.html components/webui/version/resources/about_version.html
-index 3b689206909bf911f4e1d1ed97285a38af615136..83b41ccdc28138ff6ac314ca46dfd7a250dc6453 100644
+index 664cb15bf7ee51115457b8bac2f3dc257b78e304..a4babdffd71b66162abc7a7f2ce972387e54babf 100644
 --- components/webui/version/resources/about_version.html
 +++ components/webui/version/resources/about_version.html
 @@ -49,9 +49,21 @@ about:version template page
@@ -276,7 +276,7 @@ index 3b689206909bf911f4e1d1ed97285a38af615136..83b41ccdc28138ff6ac314ca46dfd7a2
            <td class="version" id="profile_path">$i18n{profile_path}</td>
          </tr>
  </if>
-@@ -192,6 +212,17 @@ about:version template page
+@@ -198,6 +218,17 @@ about:version template page
            <td class="version" id="sanitizer">$i18n{sanitizer}</td>
          </tr>
        </table>
@@ -295,10 +295,10 @@ index 3b689206909bf911f4e1d1ed97285a38af615136..83b41ccdc28138ff6ac314ca46dfd7a2
  
      <div id="messages" role="alert" aria-live="polite" aria-relevant="additions">
 diff --git components/webui/version/resources/about_version.ts components/webui/version/resources/about_version.ts
-index 09359c34e23a400a49a46e101c01c88883362799..9764d938f832094d9f1e6dddb61b561dc8f8de62 100644
+index 105c2e28e6ecdab82246a67cca35a512681c4a1d..e478b8c23ee7235091c1548100046eb7f46b772a 100644
 --- components/webui/version/resources/about_version.ts
 +++ components/webui/version/resources/about_version.ts
-@@ -72,9 +72,21 @@ function handleVariationInfo(
+@@ -76,9 +76,21 @@ function handleVariationInfo(
   * @param profilePath The profile path to display.
   */
  function handlePathInfo(
@@ -321,7 +321,7 @@ index 09359c34e23a400a49a46e101c01c88883362799..9764d938f832094d9f1e6dddb61b561d
  }
  
  // <if expr="is_win">
-@@ -184,7 +196,11 @@ function initialize() {
+@@ -196,7 +208,11 @@ function initialize() {
    sendWithPromise<{variationsList: string[], variationsCmd: string}>(
        'requestVariationInfo', includeVariationsCmd)
        .then(handleVariationInfo);

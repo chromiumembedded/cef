@@ -11,7 +11,7 @@ index 3ecf125021caa0ab6bd0eae1cc7529e2a6d62238..324226b01903c843acc2d0def7c57a19
    out->touch_dragend_context_menu = data.touch_dragend_context_menu();
    out->webxr_immersive_ar_allowed = data.webxr_immersive_ar_allowed();
 diff --git third_party/blink/public/common/web_preferences/web_preferences.h third_party/blink/public/common/web_preferences/web_preferences.h
-index 7bebfff8be5fde952f51ccd3ccc5261f577d58ae..e8249c1fc9447559458a4507ed0c6b29e33b3420 100644
+index b042d68a4d06b59942775e04ef81a32b347e58a3..329323e63c5fc4230d9935931f4cdbb54c2982d2 100644
 --- third_party/blink/public/common/web_preferences/web_preferences.h
 +++ third_party/blink/public/common/web_preferences/web_preferences.h
 @@ -428,6 +428,9 @@ struct BLINK_COMMON_EXPORT WebPreferences {
@@ -41,7 +41,7 @@ index 735a8ca35575d6be95749c16e7e63d3f59f65bd2..fbf44f6e363c5fee92135bcd672dc57b
        const blink::web_pref::WebPreferences& r) {
      return r.touch_drag_drop_enabled;
 diff --git third_party/blink/public/mojom/webpreferences/web_preferences.mojom third_party/blink/public/mojom/webpreferences/web_preferences.mojom
-index 7b9c870387e55c28b6784e7ec2921aa0fbffc4d7..ed697c0b909e3dafd1a6a5d7961fb26d3c853f73 100644
+index 9a04abd87af48b5baf441ebb98fdac0571ef1f30..3a073b10cd109b4a76facea1421d0835286d5546 100644
 --- third_party/blink/public/mojom/webpreferences/web_preferences.mojom
 +++ third_party/blink/public/mojom/webpreferences/web_preferences.mojom
 @@ -484,6 +484,9 @@ struct WebPreferences {
@@ -94,10 +94,10 @@ index 2bb646bc6aa6fcd8eb60481bb4bb205aa46e57ac..bd021082c26743212a6e9495fe6dc09f
    void SetTextTrackKindUserPreference(TextTrackKindUserPreference) override;
    void SetTextTrackBackgroundColor(const WebString&) override;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 59f2f2f70904bdd6c691fbe03fdd84b57e748627..b89b649c54393f4290e00526628cfebded79c6e3 100644
+index 09171e03df2d7d6547db98107f5ad52880915d63..2b6b7a4b26055184eeef7bde186a18f274e0eeab 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -1847,6 +1847,8 @@ void WebView::ApplyWebPreferences(const web_pref::WebPreferences& prefs,
+@@ -1863,6 +1863,8 @@ void WebView::ApplyWebPreferences(const web_pref::WebPreferences& prefs,
    settings->SetForceDarkModeEnabled(prefs.force_dark_mode_enabled);
  
    settings->SetAccessibilityAlwaysShowFocus(prefs.always_show_focus);

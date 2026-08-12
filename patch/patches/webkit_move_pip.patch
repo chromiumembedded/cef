@@ -1,5 +1,5 @@
 diff --git chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
-index 6ab746ba4a67bbb716acd432ff1fc85c17990d22..7dafa982c53ce04b484c8ccdcb53bdd9593eda92 100644
+index 10d227e113dd1f4d6b347c8f38419384154fd8d0..4e914c782ecfd1d2a88ef7505f289ff906ff7cae 100644
 --- chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
 +++ chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
 @@ -447,7 +447,8 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
@@ -25,10 +25,10 @@ index 6ab746ba4a67bbb716acd432ff1fc85c17990d22..7dafa982c53ce04b484c8ccdcb53bdd9
    int window_diff_height = work_area.bottom() - window_bounds.height();
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 246730ead4b2fa0969e7bcfbbcdf4ef9892e2342..fe3cfe679936355e08c44eb908531239cd2bfc4d 100644
+index 425fb0e410ff144e322b0dfef17d71fe56344eee..8968ff589adc4de52f9ea4cd98b0680b8610b2f7 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -6980,6 +6980,8 @@ WebView* RenderFrameImpl::CreateNewWindow(
+@@ -6990,6 +6990,8 @@ WebView* RenderFrameImpl::CreateNewWindow(
          pip_options->disallow_return_to_opener;
      pip_mojom_opts->prefer_initial_window_placement =
          pip_options->prefer_initial_window_placement;
@@ -84,12 +84,12 @@ index f3a5b90b3bb119558da1d9c56a73675c9f32cefd..53c5c690bcf2b6af49d44945e93df58b
  
  }  // namespace blink
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 932658273154ef2e022358e493a8e7c00c86e732..6a1b5bbe94772a947ac8055e4e0971f7b3e166e1 100644
+index 0d1d81ec7d6b27891a5135961f4c630df82819df..71c67f3c0a28e9182326900b5b0902570e8e65d3 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -465,6 +465,16 @@ class BLINK_EXPORT WebView {
-   virtual void SetPageAttributionSupport(
-       network::mojom::AttributionSupport support) = 0;
+@@ -472,6 +472,16 @@ class BLINK_EXPORT WebView {
+   // Returns the number of live WebView instances in this process.
+   static size_t GetWebViewCount();
  
 +  // Sets whether to allow the use of JavaScript moveTo/By() and resizeTo/By()
 +  // (without user activation) with Document picture-in-picture popups.
@@ -105,7 +105,7 @@ index 932658273154ef2e022358e493a8e7c00c86e732..6a1b5bbe94772a947ac8055e4e0971f7
    ~WebView() = default;
  };
 diff --git third_party/blink/renderer/bindings/generated_in_modules.gni third_party/blink/renderer/bindings/generated_in_modules.gni
-index 68285acc9ad1b1994b6da839cfa676fe8cdff78a..957fbe350d1fb478a4813b9d80ca1702eec5e120 100644
+index 065779e15ad81c7616c0a6a852ac87c802f66afe..8dc418cce5389765e79283621d2e28d0dd025152 100644
 --- third_party/blink/renderer/bindings/generated_in_modules.gni
 +++ third_party/blink/renderer/bindings/generated_in_modules.gni
 @@ -392,6 +392,10 @@ generated_dictionary_sources_in_modules = [
@@ -120,10 +120,10 @@ index 68285acc9ad1b1994b6da839cfa676fe8cdff78a..957fbe350d1fb478a4813b9d80ca1702
    "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_document_picture_in_picture_event_init.h",
    "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_document_picture_in_picture_options.cc",
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 3b7b14d5b0c2b0d21f475c9236a9decb68f5b987..4e9287515e8c2bf18d92270ef7e7bdac09f3b9f5 100644
+index 85fbdf2bbb9f4a75e7d4416e2aff16d9ab636808..c6623ca29cc85769260ea64948a927ccdf451575 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
-@@ -315,6 +315,20 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -321,6 +321,20 @@ class CORE_EXPORT WebViewImpl final : public WebView,
        const ColorProviderColorMaps& color_provider_colors) override;
    void SetSupportsDraggableRegions(bool supports_draggable_regions) override;
  
@@ -144,7 +144,7 @@ index 3b7b14d5b0c2b0d21f475c9236a9decb68f5b987..4e9287515e8c2bf18d92270ef7e7bdac
    void DispatchPersistedPageshow(base::TimeTicks navigation_start);
    void DispatchPagehide(mojom::blink::PagehideDispatch pagehide_dispatch);
    void HookBackForwardCacheEviction(bool hook);
-@@ -1006,6 +1020,9 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -1016,6 +1030,9 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    // native restoration. Reset on each lifecycle update.
    bool last_page_lifecycle_state_update_restored_from_bfcache_ = false;
  
@@ -155,10 +155,10 @@ index 3b7b14d5b0c2b0d21f475c9236a9decb68f5b987..4e9287515e8c2bf18d92270ef7e7bdac
    base::ObserverList<WebViewObserver> observers_;
  };
 diff --git third_party/blink/renderer/core/frame/local_dom_window.cc third_party/blink/renderer/core/frame/local_dom_window.cc
-index 08db1e862097b6127bc9fe4828ec56b56e9e8163..535e04bd2d74de563eb7a1454dd236d7ae07388d 100644
+index a4cc2495012a04ad3abba1fe9db32d868014ea11..c4b9a29592ca25867ce04c4e739cfe4d48119d2d 100644
 --- third_party/blink/renderer/core/frame/local_dom_window.cc
 +++ third_party/blink/renderer/core/frame/local_dom_window.cc
-@@ -51,6 +51,7 @@
+@@ -50,6 +50,7 @@
  #include "third_party/blink/public/platform/task_type.h"
  #include "third_party/blink/public/platform/web_string.h"
  #include "third_party/blink/public/web/web_picture_in_picture_window_options.h"
@@ -166,15 +166,15 @@ index 08db1e862097b6127bc9fe4828ec56b56e9e8163..535e04bd2d74de563eb7a1454dd236d7
  #include "third_party/blink/renderer/bindings/core/v8/binding_security.h"
  #include "third_party/blink/renderer/bindings/core/v8/capture_source_location.h"
  #include "third_party/blink/renderer/bindings/core/v8/isolated_world_csp.h"
-@@ -109,6 +110,7 @@
+@@ -107,6 +108,7 @@
  #include "third_party/blink/renderer/core/frame/settings.h"
  #include "third_party/blink/renderer/core/frame/viewport_data.h"
  #include "third_party/blink/renderer/core/frame/visual_viewport.h"
 +#include "third_party/blink/renderer/core/frame/web_local_frame_impl.h"
  #include "third_party/blink/renderer/core/html/custom/custom_element_registry.h"
+ #include "third_party/blink/renderer/core/html/custom/custom_element_registry_assignment.h"
  #include "third_party/blink/renderer/core/html/fenced_frame/fence.h"
- #include "third_party/blink/renderer/core/html/forms/form_controller.h"
-@@ -2072,7 +2074,7 @@ void LocalDOMWindow::moveBy(int x, int y) const {
+@@ -2099,7 +2101,7 @@ void LocalDOMWindow::moveBy(int x, int y) const {
      return;
    }
  
@@ -183,7 +183,7 @@ index 08db1e862097b6127bc9fe4828ec56b56e9e8163..535e04bd2d74de563eb7a1454dd236d7
      return;
    }
  
-@@ -2097,7 +2099,7 @@ void LocalDOMWindow::moveTo(int x, int y) const {
+@@ -2124,7 +2126,7 @@ void LocalDOMWindow::moveTo(int x, int y) const {
      return;
    }
  
@@ -192,7 +192,7 @@ index 08db1e862097b6127bc9fe4828ec56b56e9e8163..535e04bd2d74de563eb7a1454dd236d7
      return;
    }
  
-@@ -2125,7 +2127,8 @@ void LocalDOMWindow::resizeBy(int x,
+@@ -2152,7 +2154,8 @@ void LocalDOMWindow::resizeBy(int x,
    }
  
    if (IsPictureInPictureWindow()) {
@@ -202,7 +202,7 @@ index 08db1e862097b6127bc9fe4828ec56b56e9e8163..535e04bd2d74de563eb7a1454dd236d7
        exception_state.ThrowDOMException(
            DOMExceptionCode::kNotAllowedError,
            "resizeBy() requires user activation in document picture-in-picture");
-@@ -2157,7 +2160,8 @@ void LocalDOMWindow::resizeTo(int width,
+@@ -2184,7 +2187,8 @@ void LocalDOMWindow::resizeTo(int width,
    }
  
    if (IsPictureInPictureWindow()) {
@@ -212,7 +212,7 @@ index 08db1e862097b6127bc9fe4828ec56b56e9e8163..535e04bd2d74de563eb7a1454dd236d7
        exception_state.ThrowDOMException(
            DOMExceptionCode::kNotAllowedError,
            "resizeTo() requires user activation in document picture-in-picture");
-@@ -2619,6 +2623,12 @@ DOMWindow* LocalDOMWindow::openPictureInPictureWindow(
+@@ -2637,6 +2641,12 @@ DOMWindow* LocalDOMWindow::openPictureInPictureWindow(
        To<LocalDOMWindow>(result.frame->DomWindow());
    pip_dom_window->SetIsPictureInPictureWindow();
  

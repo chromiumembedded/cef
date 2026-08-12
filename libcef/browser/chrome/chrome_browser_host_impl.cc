@@ -344,7 +344,7 @@ void ChromeBrowserHostImpl::ExecuteChromeCommand(
 
 ChromeBrowserView* ChromeBrowserHostImpl::chrome_browser_view() const {
   if (browser_ && is_views_hosted_) {
-    return static_cast<ChromeBrowserView*>(browser_->window());
+    return static_cast<ChromeBrowserView*>(&browser_->GetBrowserView());
   }
   return nullptr;
 }
@@ -462,7 +462,7 @@ Browser* ChromeBrowserHostImpl::CreateBrowser(
   }
 
   if (show_browser) {
-    browser->window()->Show();
+    browser->GetWindow()->Show();
   }
 
   return browser;
@@ -532,7 +532,7 @@ void ChromeBrowserHostImpl::SetBrowser(Browser* browser) {
       ->set_chrome_browser(browser);
   if (browser_) {
     // We expect the Browser and CefRequestContext to have the same Profile.
-    CHECK_EQ(browser_->profile(),
+    CHECK_EQ(browser_->GetProfile(),
              request_context()->GetBrowserContext()->AsProfile());
 
     host_window_handle_ = platform_delegate_->GetHostWindowHandle();

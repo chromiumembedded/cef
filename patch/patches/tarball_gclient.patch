@@ -1,8 +1,8 @@
 diff --git gclient.py gclient.py
-index 364c5d355f016843ed087445ca51894b68274897..eaf06b1bdca3e1b814cd3422291da0a0e77bde2e 100755
+index 9f19223375a6e7beff929bafdf10c72dc6c434fb..07cc34a73a67481d6485d06e337a2fb1ac63bd12 100755
 --- gclient.py
 +++ gclient.py
-@@ -1002,7 +1002,8 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
+@@ -1123,7 +1123,8 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
          if self.git_dependencies_state == gclient_eval.SUBMODULES:
              deps.update(self.ParseGitSubmodules())
  
@@ -11,20 +11,20 @@ index 364c5d355f016843ed087445ca51894b68274897..eaf06b1bdca3e1b814cd3422291da0a0
 +           self.git_dependencies_state != gclient_eval.DEPS:
              # Git submodules are used - get their state.
              self._known_dependency_diff = self.CreateSCM().GetSubmoduleDiff()
-             self._dependency_index_state = self.CreateSCM(
-@@ -1220,7 +1221,7 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
-             self.FuzzyMatchUrl(revision_overrides), None)
+             self._dependency_index_state = (
+@@ -1363,7 +1364,7 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
+         )
          if not revision_override and not self.managed:
-             revision_override = 'unmanaged'
+             revision_override = "unmanaged"
 -        if run_scm and self.url:
 +        if not self.get_vars().get('source_tarball', False) and run_scm and self.url:
              # Create a shallow copy to mutate revision.
              options = copy.copy(options)
              options.revision = revision_override
-@@ -2968,7 +2969,12 @@ class CipdDependency(Dependency):
-         if dep_value.get('version_file'):
-             fp = os.path.join(parent.root.root_dir, parent.name,
-                               dep_value['version_file'])
+@@ -3330,7 +3331,12 @@ class CipdDependency(Dependency):
+             fp = os.path.join(
+                 parent.root.root_dir, parent.name, dep_value["version_file"]
+             )
 -            version = gclient_utils.FileRead(fp).strip()
 +            if os.path.isfile(fp):
 +                version = gclient_utils.FileRead(fp).strip()
@@ -33,5 +33,5 @@ index 364c5d355f016843ed087445ca51894b68274897..eaf06b1bdca3e1b814cd3422291da0a0
 +            else:
 +                raise FileNotFoundError(fp)
          else:
-             version = dep_value['version']
-         url = urllib.parse.urljoin(cipd_root.service_url,
+             version = dep_value["version"]
+         url = urllib.parse.urljoin(

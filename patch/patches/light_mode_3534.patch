@@ -48,7 +48,7 @@ index 094551c9feac29138113464a50be115126ed05d9..0f47eaacd2947cbbb78bd710b736c9c9
  }
  
 diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
-index 5a97a6ccc5addca55b33f423d594a83550bf7185..1c7b37559f856e117b487d412a865fbfe3b0798f 100644
+index 478080b426c752739e8a3ca2d04839ed71dfc498..48ff749580aa4c02979eeea19c809192cc2c625c 100644
 --- ui/native_theme/native_theme.cc
 +++ ui/native_theme/native_theme.cc
 @@ -284,6 +284,8 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
@@ -74,7 +74,7 @@ index 5a97a6ccc5addca55b33f423d594a83550bf7185..1c7b37559f856e117b487d412a865fbf
  bool NativeTheme::IsForcedHighContrast() {
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
-@@ -577,8 +586,13 @@ ColorProviderKey::ForcedColors NativeTheme::CalculateForcedColors() const {
+@@ -588,8 +597,13 @@ ColorProviderKey::ForcedColors NativeTheme::CalculateForcedColors() const {
  
  NativeTheme::PreferredColorScheme NativeTheme::CalculatePreferredColorScheme()
      const {
@@ -91,7 +91,7 @@ index 5a97a6ccc5addca55b33f423d594a83550bf7185..1c7b37559f856e117b487d412a865fbf
  
  NativeTheme::PreferredContrast NativeTheme::CalculatePreferredContrast() const {
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index 309670548557055c2cccdc424bf3ac91330d541a..7aa2376171516e10752db1a79448ed043ac96b2d 100644
+index f3c3f48681854900e8de6af4f344fe35fa1a64c8..9fd5e31fd1009148e5d32174b8ba4e1d3642964e 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
 @@ -536,13 +536,16 @@ class COMPONENT_EXPORT(NATIVE_THEME) NativeTheme {

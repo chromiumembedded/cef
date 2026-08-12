@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index fb30dd63b4f0fb95c601fd634fa7975e62771890..fa230b8032f3ad7d19445bdd14f0db0e3371159d 100644
+index 9aff51cf64b7decdd822cb582e160a69a04c6f3b..94912c146d178fc5fb8b52c7be683d0bab307ca6 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -8,6 +8,7 @@
@@ -18,7 +18,7 @@ index fb30dd63b4f0fb95c601fd634fa7975e62771890..fa230b8032f3ad7d19445bdd14f0db0e
  #include "content/public/common/page_visibility_state.h"
  #include "services/service_manager/public/cpp/interface_provider.h"
  #include "third_party/blink/public/common/input/web_input_event.h"
-@@ -854,6 +856,9 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() {
+@@ -859,6 +861,9 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBoundsWithoutTransform() {
  void RenderWidgetHostViewAura::UpdateBackgroundColor() {
    CHECK(GetBackgroundColor());
  
@@ -26,12 +26,12 @@ index fb30dd63b4f0fb95c601fd634fa7975e62771890..fa230b8032f3ad7d19445bdd14f0db0e
 +    return;
 +  }
    SkColor color = *GetBackgroundColor();
-   window_->layer()->SetColor(color);
+   window_->layer()->AsSolidColor()->SetColor(SkColor4f::FromColor(color));
  }
-@@ -1237,6 +1242,12 @@ void RenderWidgetHostViewAura::TransformPointToRootSurface(gfx::PointF* point) {
+@@ -1242,6 +1247,12 @@ void RenderWidgetHostViewAura::TransformPointToRootSurface(gfx::PointF* point) {
  }
  
- gfx::Rect RenderWidgetHostViewAura::GetBoundsInRootWindow() {
+ gfx::Rect RenderWidgetHostViewAura::GetBoundsInScreen() {
 +  if (!root_window_bounds_callback_.is_null()) {
 +    if (auto bounds = root_window_bounds_callback_.Run()) {
 +      return *bounds;
@@ -41,9 +41,9 @@ index fb30dd63b4f0fb95c601fd634fa7975e62771890..fa230b8032f3ad7d19445bdd14f0db0e
    aura::Window* top_level = window_->GetToplevelWindow();
    gfx::Rect bounds(top_level->GetBoundsInScreen());
  
-@@ -2922,6 +2933,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
-   window_->layer()->SetColor(GetBackgroundColor() ? *GetBackgroundColor()
-                                                   : SK_ColorWHITE);
+@@ -2951,6 +2962,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+   window_->layer()->AsSolidColor()->SetColor(SkColor4f::FromColor(
+       GetBackgroundColor() ? *GetBackgroundColor() : SK_ColorWHITE));
    UpdateFrameSinkIdRegistration();
 +
 +  // Do this after |window_| is created to avoid crashes on Win10.
@@ -59,10 +59,10 @@ index fb30dd63b4f0fb95c601fd634fa7975e62771890..fa230b8032f3ad7d19445bdd14f0db0e
  
  void RenderWidgetHostViewAura::UpdateFrameSinkIdRegistration() {
 diff --git content/browser/renderer_host/render_widget_host_view_aura.h content/browser/renderer_host/render_widget_host_view_aura.h
-index 9669270a76e3015bd4f2345d8f50e572397b8780..dea35eddd72a799af06dbd64aa28d339e3877812 100644
+index 345d1c40972ddecfd5668004ce4f12da36a7b4a6..41067acf0e3a6dff8763f393d97706a47d69fdc0 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.h
 +++ content/browser/renderer_host/render_widget_host_view_aura.h
-@@ -474,6 +474,12 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
+@@ -480,6 +480,12 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
  
    bool ShouldUseDefaultDeadlineOnResize() const;
  
@@ -75,7 +75,7 @@ index 9669270a76e3015bd4f2345d8f50e572397b8780..dea35eddd72a799af06dbd64aa28d339
   protected:
    ~RenderWidgetHostViewAura() override;
  
-@@ -902,6 +908,8 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
+@@ -906,6 +912,8 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
  
    bool use_default_deadline_on_resize_ = false;
  

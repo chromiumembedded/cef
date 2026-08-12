@@ -208,8 +208,9 @@ void ChromeBrowserWidget::OnNativeWidgetDestroyed() {
 
     // Destruction logic from BrowserWidget::OnNativeWidgetDestroyed.
     Browser* const browser = browser_view()->browser();
-    UnloadController::From(browser)->set_force_skip_warning_user_on_close(true);
-    browser->OnWindowClosing();
+    auto* unload_controller = UnloadController::From(browser);
+    unload_controller->set_force_skip_warning_user_on_close(true);
+    unload_controller->OnWindowClosing();
 
     // Invoke the pre-window-destruction lifecycle hook before the BrowserView
     // and BrowserWidget are destroyed.

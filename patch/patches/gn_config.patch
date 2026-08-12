@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 8859ecde27105c5256dcbc687e3d8eeacbd8cde6..51eab7fa6fd991c57aea653c348da96effd8d64f 100644
+index 66bd4aa035340330e8238bcb5dd946f538b6a973..2d5ecf3f904d44168f470c92d780c45e0fba68e4 100644
 --- .gn
 +++ .gn
-@@ -156,6 +156,8 @@ exec_script_allowlist =
+@@ -157,6 +157,8 @@ exec_script_allowlist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,7 +12,7 @@ index 8859ecde27105c5256dcbc687e3d8eeacbd8cde6..51eab7fa6fd991c57aea653c348da96e
  
        "//google_apis/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index eed288d37fbf4758aa1562c3d82d22610cf05577..e05849634c92c0abd66f7fa1dac7ddcd934c364d 100644
+index 0bd5d40ff7086c14f4e74a573d7b9d4ab89f2c8e..f9d7276b62483dc85b5b5ffcd9baabf8ed2b365f 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -22,6 +22,7 @@ import("//build/config/ui.gni")
@@ -23,7 +23,7 @@ index eed288d37fbf4758aa1562c3d82d22610cf05577..e05849634c92c0abd66f7fa1dac7ddcd
  import("//chrome/browser/buildflags.gni")
  import("//chrome/enterprise_companion/buildflags.gni")
  import("//components/enterprise/buildflags/buildflags.gni")
-@@ -285,6 +286,10 @@ group("gn_all") {
+@@ -283,6 +284,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -78,7 +78,7 @@ index bd411669389525e8f03eb329a4cf700ad89b62f3..fba7843d79796b903b592b69e2e1f2c7
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 2bd694fc07dfd4fb28080cad18d48fc24a0e8c81..6ea94e693a9aba620142aa3d228d8cc96e081b51 100644
+index e18c99499d08fd9984e1885aa7c2cbb39b583dc4..45adfcf3292590ef39089272b8a8a5f7dbc40179 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -89,7 +89,7 @@ index 2bd694fc07dfd4fb28080cad18d48fc24a0e8c81..6ea94e693a9aba620142aa3d228d8cc9
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -525,6 +526,11 @@ template("chrome_extra_paks") {
+@@ -530,6 +531,11 @@ template("chrome_extra_paks") {
        ]
      }
  
@@ -125,7 +125,7 @@ index 19be5865dc73b3410378b4650a28930cd95b9ccb..00cfdbf71ea2de29e1af26b30ff07c6b
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 7128e8164e86664c7456b1e2b53334a27df3c0b0..cbf8cdf4c99373ad6f53be793e4218a7793dbb5a 100644
+index ce1f5a5711eeba1109bef0169a80cbe29373a843..ed5cf179b0ecfbab3736ea5b7e6863471c402404 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -6,6 +6,7 @@ import("//build/config/compiler/compiler.gni")
@@ -136,7 +136,7 @@ index 7128e8164e86664c7456b1e2b53334a27df3c0b0..cbf8cdf4c99373ad6f53be793e4218a7
  import("//chrome/process_version_rc_template.gni")
  import("//third_party/dawn/scripts/dawn_features.gni")
  import("//third_party/ffmpeg/ffmpeg_options.gni")
-@@ -149,11 +150,13 @@ action("mini_installer_archive") {
+@@ -152,11 +153,13 @@ action("mini_installer_archive") {
      "$root_out_dir/chrome.dll",
      "$root_out_dir/chrome_elf.dll",
      "$root_out_dir/chrome.exe",

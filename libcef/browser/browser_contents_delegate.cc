@@ -650,7 +650,7 @@ void CefBrowserContentsDelegate::OnFocusChangedInPage(
     const content::FocusedNodeDetails& details) {
   focus_on_editable_field_ =
       details.focus_type != blink::mojom::FocusType::kNone &&
-      details.is_editable_node;
+      details.editable_level != content::EditableLevel::kNotEditable;
 }
 
 bool CefBrowserContentsDelegate::TakeFocus(content::WebContents* source,

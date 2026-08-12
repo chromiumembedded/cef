@@ -135,8 +135,8 @@ void CefBrowserPlatformDelegateChrome::set_chrome_browser(Browser* browser) {
 }
 
 gfx::NativeWindow CefBrowserPlatformDelegateChrome::GetNativeWindow() const {
-  if (chrome_browser_ && chrome_browser_->window()) {
-    return chrome_browser_->window()->GetNativeWindow();
+  if (chrome_browser_ && chrome_browser_->GetWindow()) {
+    return chrome_browser_->GetWindow()->GetNativeWindow();
   }
   if (web_contents_) {
     return web_contents_->GetTopLevelNativeWindow();

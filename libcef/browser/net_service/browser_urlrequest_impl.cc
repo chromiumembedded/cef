@@ -425,8 +425,12 @@ class CefBrowserURLRequest::Context
       // Match the previous behavior of sending download progress notifications
       // for UR_FLAG_NO_DOWNLOAD_DATA requests but not HEAD requests.
       if (request_->GetMethod().ToString() != "HEAD") {
-        download_data_size_ =
-            headers->GetContentLength().value_or(base::ByteCount(-1)).InBytes();
+        if (auto content_length = headers->GetContentLength()) {
+          download_data_size_ =
+              static_cast<int64_t>(content_length->InBytes());
+        } else {
+          download_data_size_ = -1;
+        }
         OnDownloadProgress(0);
       }
 

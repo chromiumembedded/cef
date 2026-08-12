@@ -32,7 +32,7 @@ index 908f0cdf45682781160b9937f015aa9af628b451..fe5a8000171bd3eecf12aab1b290e0c2
          native_event_observer_->DidRunNativeEvent(
              next_peek_message_event_id_++);
 diff --git base/task/current_thread.cc base/task/current_thread.cc
-index ec901a8a1dd3c73165ebb2380507b46af83ec10e..4fbd1882c6974ee7d744d263dad621af04cc3f9a 100644
+index dd959f737c8c66d6370d45a392a90e9abbbe5f0f..d257d16cb1ba1787662c119270715d6f7da7dc38 100644
 --- base/task/current_thread.cc
 +++ base/task/current_thread.cc
 @@ -51,6 +51,8 @@ void CurrentThread::AddDestructionObserver(

@@ -21,6 +21,7 @@
 #include "cef/libcef/browser/menu_manager.h"
 #include "cef/libcef/browser/request_context_impl.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/browser/global_routing_id.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
 
@@ -216,8 +217,7 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
       raw_ptr<content::WebContentsView>* view,
       raw_ptr<content::RenderViewHostDelegateView>* delegate_view) override;
   void WebContentsCreated(content::WebContents* source_contents,
-                          int opener_render_process_id,
-                          int opener_render_frame_id,
+                          const content::GlobalRenderFrameHostId& opener_id,
                           const std::string& frame_name,
                           const GURL& target_url,
                           content::WebContents* new_contents) override;

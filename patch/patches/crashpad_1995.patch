@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index 0e3bd558bad561f617f28de7ff4335a1e09a758e..ae27f9bb5c5a7ac6a8fb21323fc542c821fd5ed5 100644
+index d200a6aa34abac781a72fdf7d4f6dc92a81ad845..001472f90f1fe0454a622edae4067805670b2eef 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -10,7 +10,7 @@ index 0e3bd558bad561f617f28de7ff4335a1e09a758e..ae27f9bb5c5a7ac6a8fb21323fc542c8
  import("//chrome/process_version_rc_template.gni")
  import("//testing/test.gni")
  
-@@ -95,14 +96,13 @@ source_set("constants") {
+@@ -96,14 +97,13 @@ source_set("constants") {
  
  static_library("crash") {
    sources = [
@@ -26,7 +26,7 @@ index 0e3bd558bad561f617f28de7ff4335a1e09a758e..ae27f9bb5c5a7ac6a8fb21323fc542c8
      "//chrome/install_static:install_static_util",
      "//components/crash/core/app",
      "//components/crash/core/common",  # crash_keys
-@@ -110,6 +110,17 @@ static_library("crash") {
+@@ -111,6 +111,17 @@ static_library("crash") {
      "//sandbox/policy:win_hook_util",
      "//third_party/crashpad/crashpad/client",  # DumpWithoutCrash
    ]
@@ -79,19 +79,18 @@ index 975ad7d990fe9f0c5e1b6d636898b91b9416a5d5..1d75a1250afb70a81d1ca15a85dbbcf7
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index e0681b44838aa58d69977a5a9815e486a65763e2..2ac2b171cbec963523170ccc91e7b1a3d9e77120 100644
+index 4c8063b363574bde263e0fef3bd8b073165f9901..b1bfd749a2b5ba197fd1d6d69692c6458e7d7a85 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
-@@ -8,6 +8,8 @@
+@@ -6,6 +6,7 @@
+ 
+ #include <array>
  #include <deque>
++#include <iterator>
  #include <string_view>
  
-+#include <iterator>
-+
  #include "base/base_switches.h"
- #include "base/command_line.h"
- #include "base/format_macros.h"
-@@ -105,8 +107,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
+@@ -110,8 +111,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
        "commandline-disabled-feature");
  }
  
@@ -103,7 +102,7 @@ index e0681b44838aa58d69977a5a9815e486a65763e2..2ac2b171cbec963523170ccc91e7b1a3
    static const auto kIgnoreSwitches = std::to_array<std::string_view>({
        kStringAnnotationsSwitch,
        switches::kEnableLogging,
-@@ -165,6 +169,8 @@ bool IsBoringSwitch(const std::string& flag) {
+@@ -170,6 +173,8 @@ bool IsBoringSwitch(const std::string& flag) {
    return false;
  }
  
@@ -112,15 +111,15 @@ index e0681b44838aa58d69977a5a9815e486a65763e2..2ac2b171cbec963523170ccc91e7b1a3
  std::deque<CrashKeyWithName>& GetCommandLineStringAnnotations() {
    static base::NoDestructor<std::deque<CrashKeyWithName>>
        command_line_string_annotations;
-@@ -213,7 +219,7 @@ void AppendStringAnnotationsCommandLineSwitch(base::CommandLine* command_line) {
+@@ -218,7 +223,7 @@ void AppendStringAnnotationsCommandLineSwitch(base::CommandLine* command_line) {
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
    SetStringAnnotations(command_line);
    HandleEnableDisableFeatures(command_line);
 -  SetSwitchesFromCommandLine(command_line, &IsBoringSwitch);
 +  SetSwitchesFromCommandLine(command_line, &IsBoringChromeSwitch);
- }
  
- }  // namespace crash_keys
+ #if BUILDFLAG(IS_WIN)
+   auto process_token = base::win::AccessToken::FromCurrentProcess();
 diff --git chrome/common/crash_keys.h chrome/common/crash_keys.h
 index a274b3e364084c90d2f4783bab576ac85af285ea..3d995cf6433991f6f8abe7cd2d4eac17dcba55dd 100644
 --- chrome/common/crash_keys.h

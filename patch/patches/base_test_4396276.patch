@@ -88,10 +88,10 @@ index dc5c18bd66d1cc6fe55edc1a0709795cb2b3b3ec..15f25c0e92f87b2dc73be30b5366c084
 +
  #endif  // BASE_TEST_TRACING_TEST_TRACE_PROCESSOR_EXPORT_H_
 diff --git content/shell/BUILD.gn content/shell/BUILD.gn
-index 05ec8ec8bcaeac0fd31c6298691c431a78c0ed72..83ba8ac1530a3ca94be9e2f4f428cc2768b01c13 100644
+index 88c35bb7c16830bd2a50bbd6abad82dd908bf89c..6f849037262d2325cf59ff99a0e085f4f052645c 100644
 --- content/shell/BUILD.gn
 +++ content/shell/BUILD.gn
-@@ -938,7 +938,6 @@ if (is_mac) {
+@@ -936,7 +936,6 @@ if (is_mac) {
        # Specify a sensible install_name for static builds. The library is
        # dlopen()ed so this is not used to resolve the module.
        ldflags = [ "-Wl,-install_name,@executable_path/../Frameworks/$output_name.framework/$output_name" ]
@@ -100,10 +100,10 @@ index 05ec8ec8bcaeac0fd31c6298691c431a78c0ed72..83ba8ac1530a3ca94be9e2f4f428cc27
        # Both the main :content_shell and :content_shell_helper_app executables
        # need to link the framework. Because they are at different directory
 diff --git ui/views/examples/BUILD.gn ui/views/examples/BUILD.gn
-index 3f9d615a5a5111982a54d9872cadbbd9a8d60a7f..0ebe2b533f2d46e56ca9c36dbb7380af4949d20e 100644
+index 1b7175d3dfe505878938e61012de8bdd04d73022..a114871682b16ed4a2c1d98248fead6722e9a3ee 100644
 --- ui/views/examples/BUILD.gn
 +++ ui/views/examples/BUILD.gn
-@@ -364,7 +364,6 @@ if (is_mac) {
+@@ -367,7 +367,6 @@ if (is_mac) {
        # Specify a sensible install_name for static builds. The library is
        # dlopen()ed so this is not used to resolve the module.
        ldflags = [ "-Wl,-install_name,@executable_path/../Frameworks/$output_name.framework/$output_name.framework" ]

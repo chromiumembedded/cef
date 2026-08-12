@@ -1,5 +1,5 @@
 diff --git chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
-index a5ecdd00d2ce8f66772912b651f3a38302ec79fd..0c00730906f3eac38554ceac860de943e3bf146b 100644
+index 9282dc6f6234e347354eca867f9e3fe2c5fc0388..3181588bde8ad9354aab4e5c1cf39b5d76468d02 100644
 --- chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
 +++ chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
 @@ -35,6 +35,7 @@

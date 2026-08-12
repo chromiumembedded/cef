@@ -1181,7 +1181,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
         init_state_->browser_, init_state_->GetFrame(),
         state->pending_request_.get(), state->pending_response_.get(),
         status.error_code == 0 ? UR_SUCCESS : UR_FAILED,
-        status.encoded_body_length);
+        status.encoded_body_length.InBytes());
   }
 
   // Returns the handler, if any, that should be used for this request.
