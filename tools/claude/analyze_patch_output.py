@@ -90,9 +90,26 @@ class PatchOutputAnalyzer:
         self.patches: List[PatchResult] = []
         self.current_patch: Optional[PatchResult] = None
 
+    def _extract_src_relative_path(self, full_path: str) -> str:
+        """Extract the path relative to chromium/src from a full path."""
+        return re.sub(r'^.*[/\\]src[/\\]', '', full_path)
+
+    def _prefix_path(self, relative_path: str) -> str:
+        """Prepend the current patch path prefix to a relative file path.
+
+        Patches with a 'path' config (e.g., path: v8) apply relative to that
+        directory. The "patching file" and reject file lines use paths relative
+        to the patch base, while "Reverting changes to" uses full paths. This
+        method normalizes the former to match the latter.
+        """
+        if self._current_patch_prefix:
+            return self._current_patch_prefix + '/' + relative_path
+        return relative_path
+
     def parse(self):
         """Parse the patch updater output."""
         lines = self.output_text.split('\n')
+        self._current_patch_prefix = ''
 
         for i, line in enumerate(lines):
             # Reading patch file
@@ -107,6 +124,7 @@ class PatchOutputAnalyzer:
                     patch_file=f"cef/patch/patches/{patch_name}.patch",
                     status='success'
                 )
+                self._current_patch_prefix = ''
                 continue
 
             # Reverting/applying files
@@ -114,9 +132,7 @@ class PatchOutputAnalyzer:
                 # Track original file list from "Reverting changes to" lines
                 match = re.search(r'--> Reverting changes to (.+)$', line)
                 if match:
-                    file_path = match.group(1)
-                    # Extract just the relative path from the full path
-                    file_path = re.sub(r'^.*[/\\]src[/\\]', '', file_path)
+                    file_path = self._extract_src_relative_path(match.group(1))
                     if file_path not in self.current_patch.original_files:
                         self.current_patch.original_files.append(file_path)
                     continue
@@ -124,32 +140,32 @@ class PatchOutputAnalyzer:
                 # Also track missing files from "Skipping non-existing file" lines
                 match = re.search(r'--> Skipping non-existing file (.+)$', line)
                 if match:
-                    file_path = match.group(1)
-                    # Extract just the relative path from the full path
-                    file_path = re.sub(r'^.*[/\\]src[/\\]', '', file_path)
+                    file_path = self._extract_src_relative_path(match.group(1))
                     if file_path not in self.current_patch.original_files:
                         self.current_patch.original_files.append(file_path)
                     continue
 
-                # Skip "Applying patch" lines
-                match = re.search(r'--> Applying patch', line)
+                # Track patch base directory from "Applying patch to" lines
+                match = re.search(r'--> Applying patch to (.+)$', line)
                 if match:
-                    # Skip, we'll get file names from patching messages
-                    pass
+                    apply_path = self._extract_src_relative_path(
+                        match.group(1))
+                    # If the patch applies to a subdirectory (e.g., "v8"),
+                    # store it as the prefix for subsequent relative paths.
+                    # If it applies to src/ itself, the prefix is empty.
+                    self._current_patch_prefix = apply_path if apply_path != match.group(1) else ''
+                    continue
 
                 # Files being patched
                 match = re.search(r'^patching file (.+)$', line)
                 if match:
                     file_path = match.group(1)
-                    # Store in files_processed with original format (may include quotes)
-                    if file_path not in self.current_patch.files_processed:
-                        self.current_patch.files_processed.append(file_path)
-                    # Also track the normalized path for lookups
                     normalized_path = file_path.strip("'\"")
-                    if not hasattr(self, '_current_file'):
-                        self._current_file = normalized_path
-                    else:
-                        self._current_file = normalized_path
+                    # Prepend patch prefix so paths are relative to src/
+                    full_path = self._prefix_path(normalized_path)
+                    if full_path not in self.current_patch.files_processed:
+                        self.current_patch.files_processed.append(full_path)
+                    self._current_file = full_path
                     continue
 
                 # Hunk failures
@@ -175,7 +191,9 @@ class PatchOutputAnalyzer:
                     reject_file = match.group(4)
 
                     # Extract the source file path from reject file (remove .rej, quotes, etc.)
-                    file_path = reject_file.strip("'\"").replace('.rej', '')
+                    # Prepend patch prefix so paths are relative to src/
+                    file_path = self._prefix_path(
+                        reject_file.strip("'\"").replace('.rej', ''))
 
                     # Determine if this is a missing file
                     # "ignored" can mean two things:
@@ -218,8 +236,9 @@ class PatchOutputAnalyzer:
                                     file_path, self.old_version, self.new_version, self.project_root
                                 )
 
-                    # Update the reject file path and count
-                    file_failure.reject_file = reject_file
+                    # Update the reject file path (with prefix) and count
+                    file_failure.reject_file = self._prefix_path(
+                        reject_file.strip("'\""))
                     # Set the total from the summary line (this is the authoritative count)
                     file_failure.total_hunks_failed = failed_count
                     # Only add to patch total if not already counted
@@ -233,9 +252,7 @@ class PatchOutputAnalyzer:
                 # Missing files
                 match = re.search(r'--> Skipping non-existing file (.+)$', line)
                 if match:
-                    file_path = match.group(1)
-                    # Extract just the relative path
-                    file_path = re.sub(r'^.*[/\\]src[/\\]', '', file_path)
+                    file_path = self._extract_src_relative_path(match.group(1))
                     self._add_missing_file(file_path)
                     continue
 
@@ -269,8 +286,8 @@ class PatchOutputAnalyzer:
         for i in range(current_idx - 1, max(0, current_idx - 20), -1):
             match = re.search(r'^patching file (.+)$', lines[i])
             if match:
-                # Return normalized path (without quotes) for consistency
-                return match.group(1).strip("'\"")
+                # Return normalized path (without quotes) with patch prefix
+                return self._prefix_path(match.group(1).strip("'\""))
         return None
 
     def _find_missing_file_path(self, lines: List[str], current_idx: int) -> Optional[str]:
@@ -279,9 +296,9 @@ class PatchOutputAnalyzer:
             match = re.search(r'^\|--- (.+)$', lines[i])
             if match:
                 path = match.group(1)
-                # Clean up the path
+                # Clean up the path and add patch prefix
                 path = re.sub(r'^.*[/\\]src[/\\]', '', path)
-                return path
+                return self._prefix_path(path)
         return None
 
     def _add_hunk_failure(self, file_path: str, hunk_num: int, line_num: int):

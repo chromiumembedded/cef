@@ -115,7 +115,7 @@ No such line 615 in input file, ignoring
         failure = patch.files_with_failures[0]
         self.assertEqual(failure.file_path, 'chrome/browser/ui/browser.cc')
         self.assertEqual(failure.total_hunks_failed, 1)
-        self.assertEqual(failure.reject_file, "'chrome/browser/ui/browser.cc.rej'")
+        self.assertEqual(failure.reject_file, 'chrome/browser/ui/browser.cc.rej')
 
     def test_missing_file_skipping(self):
         """Test parsing missing files that result in 'hunks ignored'"""
@@ -381,9 +381,9 @@ patching file 'file3.cc'
         self.assertEqual(len(analyzer.patches), 1)
         patch = analyzer.patches[0]
         self.assertEqual(len(patch.files_processed), 3)
-        self.assertIn("'file1.cc'", patch.files_processed)
-        self.assertIn("'file2.h'", patch.files_processed)
-        self.assertIn("'file3.cc'", patch.files_processed)
+        self.assertIn("file1.cc", patch.files_processed)
+        self.assertIn("file2.h", patch.files_processed)
+        self.assertIn("file3.cc", patch.files_processed)
 
     def test_warning_detection(self):
         """Test that WARNING messages set failed status"""
@@ -490,6 +490,149 @@ patching file 'components/viz/service/BUILD.gn'
         self.assertEqual(patch.files_with_failures[0].total_hunks_failed, 2)
         self.assertEqual(patch.files_with_failures[1].total_hunks_failed, 1)
         self.assertEqual(patch.files_with_failures[2].total_hunks_failed, 1)
+
+
+class TestPatchPathPrefix(unittest.TestCase):
+    """Test cases for patches that apply to a subdirectory (path prefix)"""
+
+    def test_subdirectory_patch_prefix_on_files_processed(self):
+        """Test that files_processed includes the patch path prefix"""
+        output = """
+--> Reading patch file /path/to/patches/v8_build.patch
+--> Reverting changes to /path/to/src/v8/BUILD.gn
+--> Applying patch to /path/to/src/v8
+patching file BUILD.gn
+--> Saving changes to /path/to/patches/v8_build.patch
+"""
+        analyzer = PatchOutputAnalyzer(output)
+        analyzer.parse()
+
+        self.assertEqual(len(analyzer.patches), 1)
+        patch = analyzer.patches[0]
+        self.assertEqual(patch.status, 'success')
+        self.assertEqual(len(patch.files_processed), 1)
+        self.assertIn('v8/BUILD.gn', patch.files_processed)
+
+    def test_subdirectory_patch_prefix_on_failures(self):
+        """Test that failure file paths include the patch path prefix"""
+        output = """
+--> Reading patch file /path/to/patches/v8_build.patch
+--> Reverting changes to /path/to/src/v8/BUILD.gn
+--> Applying patch to /path/to/src/v8
+patching file BUILD.gn
+Hunk #1 FAILED at 20
+1 out of 3 hunks FAILED -- saving rejects to file BUILD.gn.rej
+--> Saving changes to /path/to/patches/v8_build.patch
+"""
+        analyzer = PatchOutputAnalyzer(output)
+        analyzer.parse()
+
+        self.assertEqual(len(analyzer.patches), 1)
+        patch = analyzer.patches[0]
+        self.assertEqual(patch.status, 'failed')
+        self.assertEqual(len(patch.files_with_failures), 1)
+
+        failure = patch.files_with_failures[0]
+        self.assertEqual(failure.file_path, 'v8/BUILD.gn')
+        self.assertEqual(failure.reject_file, 'v8/BUILD.gn.rej')
+        self.assertEqual(failure.total_hunks_failed, 1)
+
+    def test_subdirectory_patch_original_files_match_failures(self):
+        """Test that original_files and failures use consistent paths"""
+        output = """
+--> Reading patch file /path/to/patches/v8_build.patch
+--> Reverting changes to /path/to/src/v8/BUILD.gn
+--> Applying patch to /path/to/src/v8
+patching file BUILD.gn
+Hunk #2 FAILED at 490
+1 out of 3 hunks FAILED -- saving rejects to file BUILD.gn.rej
+--> Saving changes to /path/to/patches/v8_build.patch
+"""
+        analyzer = PatchOutputAnalyzer(output)
+        analyzer.parse()
+
+        patch = analyzer.patches[0]
+
+        # original_files comes from "Reverting changes to" (full path)
+        self.assertEqual(len(patch.original_files), 1)
+        self.assertIn('v8/BUILD.gn', patch.original_files)
+
+        # The failure path should match the original_files path
+        failure = patch.files_with_failures[0]
+        self.assertIn(failure.file_path, patch.original_files)
+
+    def test_subdirectory_patch_in_summary_report(self):
+        """Test that summary report marks files correctly with prefix"""
+        output = """
+--> Reading patch file /path/to/patches/v8_build.patch
+--> Reverting changes to /path/to/src/v8/BUILD.gn
+--> Applying patch to /path/to/src/v8
+patching file BUILD.gn
+Hunk #2 FAILED at 490
+1 out of 3 hunks FAILED -- saving rejects to file BUILD.gn.rej
+--> Saving changes to /path/to/patches/v8_build.patch
+!!!! WARNING: Failed to apply v8_build
+"""
+        analyzer = PatchOutputAnalyzer(output,
+                                      old_version='151.0.0.0',
+                                      new_version='152.0.0.0')
+        analyzer.parse()
+
+        summary = analyzer.generate_summary_report(colorize=False)
+
+        # The original file should be marked as having a problem
+        self.assertIn('v8/BUILD.gn', summary)
+        # Should NOT show bare "BUILD.gn" separately from "v8/BUILD.gn"
+        lines = summary.split('\n')
+        build_gn_lines = [l for l in lines
+                          if 'BUILD.gn' in l and 'patch' not in l.lower()]
+        for line in build_gn_lines:
+            # Every mention of BUILD.gn should include the v8/ prefix
+            self.assertIn('v8/BUILD.gn', line)
+
+    def test_no_prefix_for_root_patches(self):
+        """Test that root-level patches don't add a prefix"""
+        output = """
+--> Reading patch file /path/to/patches/test.patch
+--> Applying patch to /path/to/src
+patching file 'chrome/browser/ui/browser.cc'
+Hunk #1 FAILED at 100
+1 out of 1 hunk FAILED -- saving rejects to file chrome/browser/ui/browser.cc.rej
+--> Saving changes to /path/to/patches/test.patch
+"""
+        analyzer = PatchOutputAnalyzer(output)
+        analyzer.parse()
+
+        patch = analyzer.patches[0]
+        failure = patch.files_with_failures[0]
+        self.assertEqual(failure.file_path, 'chrome/browser/ui/browser.cc')
+        self.assertEqual(failure.reject_file,
+                         'chrome/browser/ui/browser.cc.rej')
+
+    def test_depot_tools_subdirectory_patch(self):
+        """Test patches applying to third_party/depot_tools subdirectory"""
+        output = """
+--> Reading patch file /path/to/patches/tarball_gclient.patch
+--> Reverting changes to /path/to/src/third_party/depot_tools/gclient.py
+--> Applying patch to /path/to/src/third_party/depot_tools
+patching file gclient.py
+Hunk #3 FAILED at 1341
+1 out of 4 hunks FAILED -- saving rejects to file gclient.py.rej
+--> Saving changes to /path/to/patches/tarball_gclient.patch
+"""
+        analyzer = PatchOutputAnalyzer(output)
+        analyzer.parse()
+
+        patch = analyzer.patches[0]
+        self.assertEqual(len(patch.original_files), 1)
+        self.assertIn('third_party/depot_tools/gclient.py',
+                      patch.original_files)
+
+        failure = patch.files_with_failures[0]
+        self.assertEqual(failure.file_path,
+                         'third_party/depot_tools/gclient.py')
+        self.assertEqual(failure.reject_file,
+                         'third_party/depot_tools/gclient.py.rej')
 
 
 class TestFileMovementDetection(unittest.TestCase):
