@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "base/memory/raw_ptr.h"
+#include "base/memory/ref_counted.h"
 #include "base/memory/weak_ptr.h"
 #include "build/build_config.h"
 #include "cc/layers/deadline_policy.h"
@@ -460,7 +461,7 @@ class CefRenderWidgetHostViewOSR
   uint32_t latest_capture_sequence_number_ = 0u;
 
   // ui::GestureProviderClient implementation.
-  ui::FilteredGestureProvider gesture_provider_;
+  scoped_refptr<ui::FilteredGestureProvider> gesture_provider_;
 
   CefMotionEventOSR pointer_state_;
   bool forward_touch_to_popup_ = false;

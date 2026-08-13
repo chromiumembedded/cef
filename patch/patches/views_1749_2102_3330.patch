@@ -423,10 +423,10 @@ index 0fcc13c805a643c96f682d10bfeb8ffdf6a64db1..3e5711779ba1d8226adc6440eb4010f3
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index f22907bb8d3c841c668ce1f31ad829b4062c3bdf..20fc176d9dcbd0723f70732d1fe8ce9c049b0282 100644
+index c7ee3474c1fa9b5484942e8afd39e990a9011df2..9aa812a62aa3aa9b31eef3851f9f2b3e6ff0a583 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1247,6 +1247,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1258,6 +1258,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      SkRRect rounded_rect;
      rounded_rect.setRectRadii(gfx::RectFToSkRect(highlight_bounds), radii);
      canvas->sk_canvas()->drawRRect(rounded_rect, flags);
@@ -442,7 +442,7 @@ index f22907bb8d3c841c668ce1f31ad829b4062c3bdf..20fc176d9dcbd0723f70732d1fe8ce9c
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (menu_item_background_.has_value()) {
-@@ -1339,6 +1348,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1350,6 +1359,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {

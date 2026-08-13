@@ -216,7 +216,9 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       parent_host_view_(parent_host_view),
       pinch_zoom_enabled_(input::switches::IsPinchToZoomEnabled()),
       mouse_wheel_phase_handler_(this),
-      gesture_provider_(CreateGestureProviderConfig(), this),
+      gesture_provider_(base::MakeRefCounted<ui::FilteredGestureProvider>(
+          CreateGestureProviderConfig(),
+          this)),
       weak_ptr_factory_(this) {
   DCHECK(render_widget_host_);
   DCHECK(!render_widget_host_->GetView());
@@ -628,7 +630,7 @@ void CefRenderWidgetHostViewOSR::ResetFallbackToFirstNavigationSurface() {
 }
 
 void CefRenderWidgetHostViewOSR::OnUnconfirmedTapConvertedToTap() {
-  gesture_provider_.OnUnconfirmedTapConvertedToTap();
+  gesture_provider_->OnUnconfirmedTapConvertedToTap();
 }
 
 void CefRenderWidgetHostViewOSR::InitAsPopup(
@@ -682,7 +684,7 @@ void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
     return;
   }
   // Make sure gesture detection is fresh.
-  gesture_provider_.ResetDetection();
+  gesture_provider_->ResetDetection();
   forward_touch_to_popup_ = false;
 }
 
@@ -1416,7 +1418,7 @@ void CefRenderWidgetHostViewOSR::SendTouchEvent(const CefTouchEvent& event) {
   }
 
   ui::FilteredGestureProvider::TouchHandlingResult result =
-      gesture_provider_.OnTouchEvent(pointer_state_);
+      gesture_provider_->OnTouchEvent(pointer_state_);
 
   blink::WebTouchEvent touch_event = ui::CreateWebTouchEventFromMotionEvent(
       pointer_state_, result.moved_beyond_slop_region, false);
@@ -1527,8 +1529,8 @@ void CefRenderWidgetHostViewOSR::ProcessAckedTouchEvent(
     blink::mojom::InputEventResultState ack_result) {
   const bool event_consumed =
       ack_result == blink::mojom::InputEventResultState::kConsumed;
-  gesture_provider_.OnTouchEventAck(touch.event.unique_touch_event_id,
-                                    event_consumed, false);
+  gesture_provider_->OnTouchEventAck(touch.event.unique_touch_event_id,
+                                     event_consumed, false);
 }
 
 void CefRenderWidgetHostViewOSR::OnGestureEvent(
