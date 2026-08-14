@@ -1,5 +1,5 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index e80e2a89ea241321193a9ea13fb26394344c89e0..f8c2213a4675977d1b5343b0d85a375f013af653 100644
+index e80e2a89ea241321193a9ea13fb26394344c89e0..85b96da434850548e9985a246f62a45aeb485876 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
 @@ -262,6 +262,12 @@ void FileSelectHelper::OnListDone(int error) {
@@ -123,6 +123,19 @@ index e80e2a89ea241321193a9ea13fb26394344c89e0..f8c2213a4675977d1b5343b0d85a375f
    file_select_helper->RunFileChooser(render_frame_host, std::move(listener),
                                       params.Clone());
  }
+@@ -700,8 +743,11 @@ void FileSelectHelper::RunFileChooserOnUIThread(
+       NOTREACHED();
+   }
+ 
++  auto native_view = web_contents_->GetNativeView();
++  // |native_view| will be nullptr with CEF windowless rendering.
+   gfx::NativeWindow owning_window =
+-      platform_util::GetTopLevel(web_contents_->GetNativeView());
++      native_view ? platform_util::GetTopLevel(native_view)
++                  : gfx::NativeWindow();
+ 
+ #if BUILDFLAG(IS_ANDROID)
+   select_file_dialog_->SetAcceptTypes(params->accept_types);
 diff --git chrome/browser/file_select_helper.h chrome/browser/file_select_helper.h
 index 16e77ae3d7c3576d36076e1f3133f2806fd759b3..de8140917a8e291273fc62b5c18f7f82815739ab 100644
 --- chrome/browser/file_select_helper.h

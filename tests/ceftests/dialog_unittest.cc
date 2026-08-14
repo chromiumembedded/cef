@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/base/cef_callback.h"
+#include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_util.h"
@@ -11,6 +12,9 @@
 namespace {
 
 const char* kTestUrl = "https://tests/DialogTestHandler";
+const char* kOSRTestUrl = "https://tests/OSRFileDialogTestHandler";
+const int kOSRWidth = 100;
+const int kOSRHeight = 100;
 
 class DialogTestHandler : public TestHandler {
  public:
@@ -183,7 +187,100 @@ class DialogTestHandler : public TestHandler {
   IMPLEMENT_REFCOUNTING(DialogTestHandler);
 };
 
+class OSRFileDialogTestHandler : public TestHandler, public CefRenderHandler {
+ public:
+  CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
+
+  void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override {
+    rect = CefRect(0, 0, kOSRWidth, kOSRHeight);
+  }
+
+  bool GetScreenInfo(CefRefPtr<CefBrowser> browser,
+                     CefScreenInfo& screen_info) override {
+    screen_info.rect = CefRect(0, 0, kOSRWidth, kOSRHeight);
+    screen_info.available_rect = screen_info.rect;
+    return true;
+  }
+
+  void OnPaint(CefRefPtr<CefBrowser> browser,
+               CefRenderHandler::PaintElementType type,
+               const CefRenderHandler::RectList& dirtyRects,
+               const void* buffer,
+               int width,
+               int height) override {}
+
+  void RunTest() override {
+    // This test creates an OSR browser directly instead of using the
+    // TestHandler windowed/Views browser creation helper.
+    SetUseViews(false);
+
+    AddResource(kOSRTestUrl,
+                "<html><body><input id='file' type='file'></body></html>",
+                "text/html");
+
+    CefWindowInfo window_info;
+#if defined(OS_WIN)
+    window_info.SetAsWindowless(GetDesktopWindow());
+#else
+    window_info.SetAsWindowless(kNullWindowHandle);
+#endif
+    CefBrowserSettings settings;
+    CefBrowserHost::CreateBrowser(window_info, this, kOSRTestUrl, settings,
+                                  nullptr, nullptr);
+    SetTestTimeout();
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    if (!frame->IsMain()) {
+      return;
+    }
+
+    got_load_end_.yes();
+    CefExecuteJavaScriptWithUserGestureForTests(
+        frame, "document.getElementById('file').click();");
+  }
+
+  // CefDialogHandler
+  bool OnFileDialog(CefRefPtr<CefBrowser> browser,
+                    FileDialogMode mode,
+                    const CefString& title,
+                    const CefString& default_file_name,
+                    const std::vector<CefString>& accept_filters,
+                    const std::vector<CefString>& accept_extensions,
+                    const std::vector<CefString>& accept_descriptions,
+                    CefRefPtr<CefFileDialogCallback> callback) override {
+    got_onfiledialog_.yes();
+    EXPECT_TRUE(GetBrowser()->IsSame(browser));
+    EXPECT_EQ(FILE_DIALOG_OPEN, mode);
+
+    callback->Cancel();
+    DestroyTest();
+    return true;
+  }
+
+  void DestroyTest() override {
+    EXPECT_TRUE(got_load_end_);
+    EXPECT_TRUE(got_onfiledialog_);
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  TrackCallback got_load_end_;
+  TrackCallback got_onfiledialog_;
+
+  IMPLEMENT_REFCOUNTING(OSRFileDialogTestHandler);
+};
+
 }  // namespace
+
+// Verify that file inputs work with a nullptr native view in OSR mode.
+TEST(DialogTest, FileInputOSR) {
+  CefRefPtr<OSRFileDialogTestHandler> handler = new OSRFileDialogTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
 
 // Test with all parameters empty.
 TEST(DialogTest, FileEmptyParams) {
