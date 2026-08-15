@@ -619,7 +619,7 @@ typedef enum {
   CEF_CONTENT_SETTING_TYPE_INLINE_CUE_MENU,
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15200)
   /// Stores allowlist decisions for Suspicious Site Warnings.
   CEF_CONTENT_SETTING_TYPE_SUSPICIOUS_SITE_WARNING_DATA,
 #endif
