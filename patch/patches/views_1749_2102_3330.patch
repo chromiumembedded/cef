@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index 31083766a081e411a7089e2088c427cca9209f63..0e75104e16462e2f04f4a096ba09d992c2eeb936 100644
+index b54aa03712a675b14e4af4ad3f324eed362cc56d..71d54feb5d0e9535588aa10c23fa218a351ea87f 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
-@@ -1134,12 +1134,14 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
+@@ -1139,12 +1139,14 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
    UMA_HISTOGRAM_ENUMERATION("WrenchMenu.MenuAction", MENU_ACTION_MENU_OPENED,
                              LIMIT_MENU_ACTION);
  
@@ -23,7 +23,7 @@ index 31083766a081e411a7089e2088c427cca9209f63..0e75104e16462e2f04f4a096ba09d992
  }
  
  void AppMenu::RunMenu(views::Widget* parent,
-@@ -1151,7 +1153,8 @@ void AppMenu::RunMenu(views::Widget* parent,
+@@ -1156,7 +1158,8 @@ void AppMenu::RunMenu(views::Widget* parent,
    menu_runner_->RunMenuAt(
        parent, nullptr, anchor_screen_bounds,
        views::MenuAnchorPosition::kTopRight, ui::mojom::MenuSourceType::kNone,
@@ -274,7 +274,7 @@ index b1ccc704de42f1acb2ad3cdcf8102f44a5fcc547..1d0dc681104c339a48da896b580b94b3
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 6eb1568079e66dcdb127fee0e30679c86afc26c3..905dca23513b1453ef7b0e7f5874d59a9514c923 100644
+index b600d44bf153f9aabb16329c06eea671bd2f0714..c2bcc4da9c7fc24a1be4dd486257c0024e6c5d9d 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -652,7 +652,8 @@ void MenuController::Run(Widget* parent,
@@ -295,7 +295,7 @@ index 6eb1568079e66dcdb127fee0e30679c86afc26c3..905dca23513b1453ef7b0e7f5874d59a
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2557,6 +2559,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2570,6 +2572,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -303,7 +303,7 @@ index 6eb1568079e66dcdb127fee0e30679c86afc26c3..905dca23513b1453ef7b0e7f5874d59a
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3299,7 +3302,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -3312,7 +3315,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -316,7 +316,7 @@ index 6eb1568079e66dcdb127fee0e30679c86afc26c3..905dca23513b1453ef7b0e7f5874d59a
      return;
    }
  
-@@ -3324,6 +3331,7 @@ void MenuController::CloseSubmenu() {
+@@ -3344,6 +3351,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {

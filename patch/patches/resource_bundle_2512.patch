@@ -1,10 +1,10 @@
 diff --git ui/base/resource/resource_bundle.cc ui/base/resource/resource_bundle.cc
-index 2543039f653321522773c9f51e2aaa7566757194..35988e7b2652334986d8710a6bb392a1efb74759 100644
+index fbdb93989f2332c9ed193575153fe0463ce13306..f10317f58de6092f6fad450bf935c260875c5f4e 100644
 --- ui/base/resource/resource_bundle.cc
 +++ ui/base/resource/resource_bundle.cc
-@@ -1015,6 +1015,12 @@ ResourceBundle::ResourceBundle(Delegate* delegate)
-     : delegate_(delegate),
+@@ -1019,6 +1019,12 @@ ResourceBundle::ResourceBundle(Delegate* delegate)
        locale_resources_data_lock_(new base::Lock),
+       resource_handles_lock_(new base::Lock),
        max_scale_factor_(k100Percent) {
 +  // With CEF's multi-threaded mode the ResourceBundle may be created on the
 +  // main thread and then accessed on the UI thread. Allow the SequenceChecker
@@ -15,7 +15,7 @@ index 2543039f653321522773c9f51e2aaa7566757194..35988e7b2652334986d8710a6bb392a1
    mangle_localized_strings_ = base::CommandLine::ForCurrentProcess()->HasSwitch(
        switches::kMangleLocalizedStrings);
  }
-@@ -1024,6 +1030,11 @@ ResourceBundle::~ResourceBundle() {
+@@ -1028,6 +1034,11 @@ ResourceBundle::~ResourceBundle() {
    UnloadLocaleResources();
  }
  
@@ -28,7 +28,7 @@ index 2543039f653321522773c9f51e2aaa7566757194..35988e7b2652334986d8710a6bb392a1
  void ResourceBundle::InitSharedInstance(Delegate* delegate) {
    DCHECK(g_shared_instance_ == nullptr) << "ResourceBundle initialized twice";
 diff --git ui/base/resource/resource_bundle.h ui/base/resource/resource_bundle.h
-index 2ca1317c5f67b9bb34a47d2f981acb87eb34b58c..327b9c69b308f1d902a6ab4ac2b1fd749e7fa1c1 100644
+index 874d77bd9543a4dfcea0e930bc8baabcc92c6a69..4f7c5d52b4eb93771dbea564d65b9b035ab11155 100644
 --- ui/base/resource/resource_bundle.h
 +++ ui/base/resource/resource_bundle.h
 @@ -266,6 +266,11 @@ class COMPONENT_EXPORT(UI_BASE) ResourceBundle {

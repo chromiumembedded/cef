@@ -42,10 +42,10 @@ index 2d86241e3519e52c3fc82ed0d8429b3a20651033..3f195b663ec7efbe6e12846ba564e01d
  
  void BrowserCommandController::InitCommandState() {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index 4aef7d5a7cf207d1f42848b7070a11c4f63773a0..134a4c0571c5c29201102471a43ae61f4ea0d432 100644
+index 8d83a55c7cf2a3e70f8d7478cf6cd8f5e4bd4eb3..c25ccae834741c597d368e61c73ea31e42638388 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
-@@ -912,18 +912,20 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
+@@ -930,18 +930,20 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
    AddItemWithStringIdAndVectorIcon(
        this, IDC_FIND, IDS_FIND,
        features::IsRoundedIconsEnabled() ? kFindInPageIcon : kSearchMenuOldIcon);
@@ -78,7 +78,7 @@ index 4aef7d5a7cf207d1f42848b7070a11c4f63773a0..134a4c0571c5c29201102471a43ae61f
  }
  
  class SaveAndShareSubMenuModel : public ui::SimpleMenuModel {
-@@ -1065,6 +1067,57 @@ bool ArePromotionsEnabled() {
+@@ -1083,6 +1085,57 @@ bool ArePromotionsEnabled() {
    return local_state && local_state->GetBoolean(prefs::kPromotionsEnabled);
  }
  
@@ -136,7 +136,7 @@ index 4aef7d5a7cf207d1f42848b7070a11c4f63773a0..134a4c0571c5c29201102471a43ae61f
  }  // namespace
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -2100,7 +2153,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+@@ -2118,7 +2171,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
    return false;
  }
  
@@ -145,7 +145,7 @@ index 4aef7d5a7cf207d1f42848b7070a11c4f63773a0..134a4c0571c5c29201102471a43ae61f
    GlobalError* error =
        GlobalErrorServiceFactory::GetForProfile(browser_->GetProfile())
            ->GetGlobalErrorByMenuItemCommandID(command_id);
-@@ -2116,6 +2169,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+@@ -2134,6 +2187,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
    }
  }
  
@@ -176,7 +176,7 @@ index 4aef7d5a7cf207d1f42848b7070a11c4f63773a0..134a4c0571c5c29201102471a43ae61f
  bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
    if (command_id == IDC_VIEW_PASSWORDS ||
        command_id == IDC_SHOW_PASSWORD_MANAGER) {
-@@ -2302,8 +2379,10 @@ void AppMenuModel::Build() {
+@@ -2322,8 +2399,10 @@ void AppMenuModel::Build() {
    SetElementIdentifierAt(GetIndexOfCommandId(IDC_CLEAR_BROWSING_DATA).value(),
                           kClearBrowsingDataMenuItem);
  
@@ -189,7 +189,7 @@ index 4aef7d5a7cf207d1f42848b7070a11c4f63773a0..134a4c0571c5c29201102471a43ae61f
    AddSeparator(ui::NORMAL_SEPARATOR);
  
    AddItemWithStringIdAndVectorIcon(
-@@ -2441,6 +2520,11 @@ void AppMenuModel::Build() {
+@@ -2461,6 +2540,11 @@ void AppMenuModel::Build() {
    }
  #endif  // !BUILDFLAG(IS_CHROMEOS)
  
@@ -223,7 +223,7 @@ index 4e81edc2c67425cbab6ed0b00a80157287d64e7d..8e92d6c750426d3946188e6d9b9bf7e1
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index bdb55a359f67379628153c2e0fbc0239137f4d31..da7e22031b84100b27486812b8ba9b4f5a9c687c 100644
+index 141a168f483560814821b1b873a996758cb168bc..c56347545944a93e0964b0fcd89c0d5447f80edd 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -879,11 +879,21 @@ class BrowserView::PipExclusionObserverImpl
@@ -454,7 +454,7 @@ index bdb55a359f67379628153c2e0fbc0239137f4d31..da7e22031b84100b27486812b8ba9b4f
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
    }
  
-@@ -4750,7 +4848,8 @@ void BrowserView::Layout(PassKey) {
+@@ -4754,7 +4852,8 @@ void BrowserView::Layout(PassKey) {
    LayoutSuperclass<views::View>(this);
  
    // TODO(jamescook): Why was this in the middle of layout code?
@@ -464,7 +464,7 @@ index bdb55a359f67379628153c2e0fbc0239137f4d31..da7e22031b84100b27486812b8ba9b4f
    GetFrameView()->UpdateMinimumSize();
  
    if (omnibox::IsWebUIOmniboxInBrowserViewEnabled()) {
-@@ -5022,6 +5121,13 @@ void BrowserView::AddedToWidget() {
+@@ -5026,6 +5125,13 @@ void BrowserView::AddedToWidget() {
    dialog_anchor_ = std::make_unique<views::ViewSubregionAnchor>(
        kBrowserDialogAnchorElementId, *this);
  
@@ -942,7 +942,7 @@ index 4f8841ddea805814eb62e521069b100c93fba460..444f7bd7c10522dce8d6839e309ed292
  
  gfx::Size PictureInPictureBrowserFrameView::GetNonClientViewAreaSize() const {
 diff --git chrome/browser/ui/views/omnibox/omnibox_popup_closer.cc chrome/browser/ui/views/omnibox/omnibox_popup_closer.cc
-index ac3845d976f92a4880bf967ee71b7d7219b803c1..4f5354fef304c1991705ac882468c4fe96079f9d 100644
+index 2f2569efd6aad1ff1018d3bfd003b9acacc8a8c2..a4c1fdbb20c73189918f3669d7e54bcd5febd039 100644
 --- chrome/browser/ui/views/omnibox/omnibox_popup_closer.cc
 +++ chrome/browser/ui/views/omnibox/omnibox_popup_closer.cc
 @@ -50,7 +50,8 @@ OmniboxPopupCloser::~OmniboxPopupCloser() = default;

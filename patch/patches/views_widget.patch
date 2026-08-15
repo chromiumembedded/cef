@@ -215,10 +215,10 @@ index 673cb3358be84b0fe16b3c134cc19b77842ed366..0de25164e11ea9307e46d521e12c4528
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
 diff --git third_party/blink/renderer/core/frame/web_frame_widget_impl.cc third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
-index 7d315476ca504a95bfb0bd0b5be95c6fe72483dc..6488e45ca9ef3975f2f4d3dc939bed94a9adf03e 100644
+index eda03e3eb43ce071183e3c223686581177e8823c..7440240d78fa80de4215a1d80daa1a593a485b36 100644
 --- third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
 +++ third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
-@@ -6015,6 +6015,7 @@ void WebFrameWidgetImpl::OnWindowShowStateChanged(
+@@ -6032,6 +6032,7 @@ void WebFrameWidgetImpl::OnWindowShowStateChanged(
        break;
      case WindowShowState::kInactive:
      case WindowShowState::kFullscreen:
@@ -565,10 +565,10 @@ index 15a86085de29b9f70d78e85825a592a4bdffd9e3..09d07d84a0f418faf757721e7ca45639
    // the implementation of ::ShowCursor() is based on a counter, so making this
    // member static ensures that ::ShowCursor() is always called exactly once
 diff --git ui/views/widget/native_widget_mac.mm ui/views/widget/native_widget_mac.mm
-index 2f99bb508f1761405bb5dba004878c4db25965bf..be0b9a0ae4a9f0a79477c28a8f5f5feb37d699b1 100644
+index 4b50e1882176b4e5e0a077c0f96a6a405ddf1826..dc257ff2955d820918cb4d9df2753afb488768b1 100644
 --- ui/views/widget/native_widget_mac.mm
 +++ ui/views/widget/native_widget_mac.mm
-@@ -768,6 +768,7 @@ void NativeWidgetMac::Show(ui::mojom::WindowShowState show_state,
+@@ -769,6 +769,7 @@ void NativeWidgetMac::Show(ui::mojom::WindowShowState show_state,
        break;
      case ui::mojom::WindowShowState::kMaximized:
      case ui::mojom::WindowShowState::kFullscreen:

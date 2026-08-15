@@ -102,7 +102,7 @@ index 9d28b02fa09bf331ed9b381ba25b56f0a30ec365..0d0bf347d77c4c8eda4e69969798c695
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 8c8fc32b01b6c50bd67ea0efb7efddf135845e1b..9a57dd37072c0de8fd8042d0b040a06ffae735aa 100644
+index 4ecd2c257938e9bf2bc270da28f5fcee68617fe6..2ee6d2c6587f5aefad641b844e40bea96bc40c9b 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
@@ -146,7 +146,7 @@ index 8c8fc32b01b6c50bd67ea0efb7efddf135845e1b..9a57dd37072c0de8fd8042d0b040a06f
    if (!is_android) {
      deps += [
        "//chrome/browser/ui/infobars",
-@@ -5154,6 +5167,7 @@ static_library("ui") {
+@@ -5156,6 +5169,7 @@ static_library("ui") {
        "//chrome/browser/printing",
        "//chrome/browser/printing:impl",
        "//components/printing/browser",

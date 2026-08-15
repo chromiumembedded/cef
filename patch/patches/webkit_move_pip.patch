@@ -155,7 +155,7 @@ index 85fbdf2bbb9f4a75e7d4416e2aff16d9ab636808..c6623ca29cc85769260ea64948a927cc
    base::ObserverList<WebViewObserver> observers_;
  };
 diff --git third_party/blink/renderer/core/frame/local_dom_window.cc third_party/blink/renderer/core/frame/local_dom_window.cc
-index a4cc2495012a04ad3abba1fe9db32d868014ea11..c4b9a29592ca25867ce04c4e739cfe4d48119d2d 100644
+index 511fce6b8fada409373d828cf1cb1a95421dd97b..7f47ea8822dcf813c0b5ec8b9a51aed03c8d32f1 100644
 --- third_party/blink/renderer/core/frame/local_dom_window.cc
 +++ third_party/blink/renderer/core/frame/local_dom_window.cc
 @@ -50,6 +50,7 @@

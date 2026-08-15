@@ -34,10 +34,10 @@ index 2d73f4cf7e49380c9793751b24ceab848d753e6c..2e95396a5fd514d2953234ca6f57a3f4
  #endif
  
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index 0041a0cf811199a356ac09d7da02965b21d2fc05..03aedf0241ac85f09864fb65a494ce36da137d21 100644
+index 51689ba4290901f7161880def4e1f83f91961877..420b29040b085c9fd180f1fc49b1987705020a86 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
-@@ -2537,31 +2537,31 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2560,31 +2560,31 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  
    // tabs_internal::GetTabById may return a null window for prerender tabs.
@@ -90,7 +90,7 @@ index 0041a0cf811199a356ac09d7da02965b21d2fc05..03aedf0241ac85f09864fb65a494ce36
  
    if (params->update_properties.muted &&
        !SetTabAudioMuted(contents, *params->update_properties.muted,
-@@ -2602,7 +2602,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2625,7 +2625,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  #endif
  
@@ -99,7 +99,7 @@ index 0041a0cf811199a356ac09d7da02965b21d2fc05..03aedf0241ac85f09864fb65a494ce36
      bool pinned = *params->update_properties.pinned;
  
      if (target_tab->IsPinned() != pinned) {
-@@ -2632,7 +2632,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2655,7 +2655,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
@@ -148,7 +148,7 @@ index 6238051f9a21504d35957c0208da8e60f5dbb43f..312e80e4165bcd0d69b961cfd3aec14c
    // tab id exists as a prerendering tab, and the API will returns
    // `api::tabs::TAB_INDEX_NONE` for `out_tab_index` and a valid `WebContents`.
 diff --git chrome/browser/ui/tab_helpers.h chrome/browser/ui/tab_helpers.h
-index de20a63945249dc004184359f91caf3a65feb945..e931443a1d6b39447de743ff82a21d2795b5a93d 100644
+index d80eafa666b384cf1ec16ebc638456b570ca4e79..bff4d77829ad5875518b8c9434e00fba69833cf8 100644
 --- chrome/browser/ui/tab_helpers.h
 +++ chrome/browser/ui/tab_helpers.h
 @@ -6,6 +6,7 @@

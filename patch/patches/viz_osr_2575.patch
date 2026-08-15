@@ -187,7 +187,7 @@ index 4f9e8946fa02d859e92a6896beba82721914f868..cf20c96a84c5551eba592fecfce21350
  
    TRACE_EVENT_BEGIN("viz", "SoftwareOutputDeviceWinProxy::Draw",
 diff --git components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
-index dd725f8cf0819e1216afa638f3f819071adff851..b3b0910e1de12886da6f5be93c7f60f9ef16b3fe 100644
+index 498c7041e70940ba1b1ba4912c288d674269fde8..92f179977dd611c0d6e6a0fb34460b486bf73ba0 100644
 --- components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
 +++ components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
 @@ -131,7 +131,8 @@ RootCompositorFrameSinkImpl::Create(
