@@ -324,26 +324,31 @@ void CefWindowX11::SetBounds(const gfx::Rect& bounds) {
   }
 }
 
-void CefWindowX11::SetChildSizeInPixels(const gfx::Size& size_in_pixels) {
+bool CefWindowX11::SetChildSizeInPixels(const gfx::Size& size_in_pixels) {
   if (xwindow_ == x11::Window::None) {
-    return;
+    return false;
   }
 
   // Resize the child DesktopWindowTreeHostLinux directly with a size-only X11
-  // configure, mirroring the resize CefWindowX11 performs in ProcessXEvent()
-  // on ConfigureNotify. Going through aura::WindowTreeHost::SetBoundsInPixels()
-  // instead would route into X11Window::SetBoundsInPixels(), whose
+  // configure. Going through aura::WindowTreeHost::SetBoundsInPixels() instead
+  // would route into X11Window::SetBoundsInPixels(), whose
   // AdjustSizeForDisplay() returns size - 1 when the requested size matches a
   // monitor size (a top-level fullscreen-avoidance workaround) and would leave
-  // a monitor-sized child one pixel short.
+  // a monitor-sized child one pixel short. Both the initial sizing in
+  // CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() and the
+  // ConfigureNotify handling in ProcessXEvent() go through here, so bypassing
+  // AdjustSizeForDisplay() stays consistent across the two paths.
   auto child = FindChild(connection_, xwindow_);
-  if (child != x11::Window::None) {
-    connection_->ConfigureWindow(x11::ConfigureWindowRequest{
-        .window = child,
-        .width = size_in_pixels.width(),
-        .height = size_in_pixels.height(),
-    });
+  if (child == x11::Window::None) {
+    return false;
   }
+
+  connection_->ConfigureWindow(x11::ConfigureWindowRequest{
+      .window = child,
+      .width = size_in_pixels.width(),
+      .height = size_in_pixels.height(),
+  });
+  return true;
 }
 
 gfx::Rect CefWindowX11::GetBoundsInScreen() {
@@ -427,16 +432,8 @@ void CefWindowX11::ProcessXEvent(const x11::Event& event) {
                         configure->height);
 
     if (browser_.get()) {
-      auto child = FindChild(connection_, xwindow_);
-      if (child != x11::Window::None) {
-        // Resize the child DesktopWindowTreeHostLinux to match this window.
-        x11::ConfigureWindowRequest req{
-            .window = child,
-            .width = bounds_.width(),
-            .height = bounds_.height(),
-        };
-        connection_->ConfigureWindow(req);
-
+      // Resize the child DesktopWindowTreeHostLinux to match this window.
+      if (SetChildSizeInPixels(bounds_.size())) {
         browser_->NotifyMoveOrResizeStarted();
       }
     }

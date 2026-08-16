@@ -120,11 +120,18 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   // actually on: translate the host window's bounds to X11 root (screen)
   // coordinates and match them against each display's native pixel bounds. This
   // selects the correct display when the window is placed on a non-primary
-  // monitor, instead of assuming the primary display. The child X11 window
-  // cannot be used for this: it is created at (0,0) relative to the host and
-  // would resolve to whichever display contains the root origin. As with the
-  // Windows implementation, the Init() bounds have origin (0,0); the child is
-  // positioned by the host window.
+  // monitor, instead of assuming the primary display.
+  //
+  // The scale is computed here rather than deferred to the child window because
+  // this early in initialization the child does not yet resolve to the correct
+  // display. Its geometry in root coordinates is not established yet (the
+  // GeometryCache behind X11Window::GetBoundsInPixels(), which X11ScreenOzone
+  // reads, has not accumulated the parent offsets), and
+  // DesktopWindowTreeHostPlatform::GetRootTransform() runs before its
+  // platform_window exists during CreateXWindow(), so the child falls back to
+  // the primary display's scale. As with the Windows implementation, the
+  // Init() bounds have origin (0,0); the child is positioned by the host
+  // window.
   const gfx::Rect host_bounds_in_pixels = window_x11_->GetBoundsInScreen();
   const float device_scale_factor =
       GetDisplayMatchingPixelBounds(host_bounds_in_pixels)
@@ -138,12 +145,13 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
 
   window_widget_ = widget_delegate->GetWidget();
 
-  // The child X11 window resolves its own device scale factor from its (0,0)
-  // origin, which may differ from the host window's display on a mixed-DPI
-  // setup, leaving the web content larger or smaller than the host window (see
-  // issue #3396). Pin the compositor to the host window's exact pixel size
-  // (|rect|) with a size-only child configure. See SetChildSizeInPixels() for
-  // why aura::WindowTreeHost::SetBoundsInPixels() cannot be used here.
+  // For the same reason, this early in initialization the child compositor is
+  // sized using the primary display's scale rather than the host window's (see
+  // above), which on a mixed-DPI setup leaves the web content larger or smaller
+  // than the host window (see issue #3396). Pin the compositor to the host
+  // window's exact pixel size (|rect|) with a size-only child configure. See
+  // SetChildSizeInPixels() for why aura::WindowTreeHost::SetBoundsInPixels()
+  // cannot be used here.
   window_x11_->SetChildSizeInPixels(rect.size());
 
   window_widget_->Show();

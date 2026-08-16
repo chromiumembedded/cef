@@ -562,6 +562,7 @@
       'tests/ceftests/base/test_bind.h',
       'tests/ceftests/base/to_address_unittest.cc',
       'tests/ceftests/base/weak_ptr_unittest.cc',
+      'tests/ceftests/alloy_native_window_unittest.cc',
       'tests/ceftests/browser_info_map_unittest.cc',
       'tests/ceftests/browser_settings_unittest.cc',
       'tests/ceftests/certificate_error_unittest.cc',

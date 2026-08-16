@@ -48,8 +48,9 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
   // Resizes the child compositor window to |size_in_pixels| with a size-only
   // X11 configure. Unlike aura::WindowTreeHost::SetBoundsInPixels(), this does
   // not run the size through X11Window::AdjustSizeForDisplay(), so a
-  // monitor-sized child keeps its exact requested pixel size.
-  void SetChildSizeInPixels(const gfx::Size& size_in_pixels);
+  // monitor-sized child keeps its exact requested pixel size. Returns true if a
+  // child window was found and configured.
+  bool SetChildSizeInPixels(const gfx::Size& size_in_pixels);
 
   gfx::Rect GetBoundsInScreen();
 
