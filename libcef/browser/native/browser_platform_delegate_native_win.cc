@@ -31,6 +31,7 @@
 #include "ui/events/keycodes/dom/keycode_converter.h"
 #include "ui/events/keycodes/keyboard_code_conversion_win.h"
 #include "ui/events/keycodes/platform_key_map_win.h"
+#include "ui/events/event_utils.h"
 #include "ui/events/win/events_win_utils.h"
 #include "ui/gfx/geometry/vector2d.h"
 #include "ui/gfx/win/hwnd_util.h"

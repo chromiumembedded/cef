@@ -586,7 +586,6 @@
       'tests/ceftests/image_util.cc',
       'tests/ceftests/image_util.h',
       'tests/ceftests/jsdialog_unittest.cc',
-      'tests/ceftests/keyboard_dom_code_unittest.cc',
       'tests/ceftests/life_span_unittest.cc',
       'tests/ceftests/media_access_unittest.cc',
       'tests/ceftests/message_router_binary_unittest.cc',
@@ -674,6 +673,7 @@
     'ceftests_sources_win': [
       'tests/ceftests/resource_util_win_dir.cc',
       'tests/ceftests/resource_util_win_idmap.cc',
+	  'tests/ceftests/keyboard_dom_code_unittest_win.cc',
     ],
     'ceftests_sources_resources_win': [
       'tests/ceftests/win/ceftests.exe.manifest',

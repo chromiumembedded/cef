@@ -2401,8 +2401,7 @@ typedef struct _cef_key_event_t {
   /// WM_KEYUP or WM_CHAR message, which encodes the scan code in bits 16-23,
   /// the extended-key flag in bit 24, the previous key-state (auto-repeat) in
   /// bit 30, and the transition-state (key-up) in bit 31. This LPARAM form is
-  /// the preferred representation and is required for correct DomCode
-  /// derivation and auto-repeat detection. For backwards compatibility, a value
+  /// the preferred representation. However for backwards compatibility, a value
   /// whose upper 16 bits are zero is treated as a raw scan code (e.g. 0x001E
   /// for the 'A' key); in that case bit 30 is not interpreted as a repeat
   /// indicator and callers should use EVENTFLAG_IS_REPEAT instead.
