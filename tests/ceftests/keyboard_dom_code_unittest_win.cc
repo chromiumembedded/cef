@@ -142,9 +142,20 @@ enum KeyDomCodeTestStage {
   STAGE_KEYPRESS_A,  // CHAR      -> DOM keypress (location must be 0)
   STAGE_KEYUP_A,     // KEYUP     -> DOM keyup
   // --- second key press (auto-repeat) ---
-  STAGE_KEYDOWN_A_REPEAT,   // RAWKEYDOWN with bit30 -> DOM keydown repeat=true
-  STAGE_KEYPRESS_A_REPEAT,  // CHAR -> DOM keypress repeat=true, location=0
-  STAGE_KEYUP_A_REPEAT,     // KEYUP -> DOM keyup
+  STAGE_KEYDOWN_A_REPEAT,  // RAWKEYDOWN with bit30 -> DOM keydown repeat=true
+  STAGE_KEYPRESS_A_REPEAT,  // CHAR -> DOM keypress (repeat must be false)
+  STAGE_KEYUP_A_REPEAT,  // KEYUP -> DOM keyup
+  // --- raw scan-code compatibility branch ---
+  // Exercises DecodeWindowsNativeKeyCode() with upper-word-zero values
+  //   raw 0x001E -> "KeyA"  (same result as its LPARAM form 0x001E0001)
+  //   raw 0xE01D -> "ControlRight"  (E0-prefixed extended code)
+  //   raw 0x001E + EVENTFLAG_IS_REPEAT -> event.repeat=true
+  STAGE_KEYDOWN_A_RAW,          // RAWKEYDOWN, native=0x001E -> "KeyA"
+  STAGE_KEYUP_A_RAW,            // KEYUP,      native=0x001E -> "KeyA"
+  STAGE_KEYDOWN_CTRL_RIGHT_RAW, // RAWKEYDOWN, native=0xE01D -> "ControlRight"
+  STAGE_KEYUP_CTRL_RIGHT_RAW,   // KEYUP,      native=0xE01D -> "ControlRight"
+  STAGE_KEYDOWN_A_RAW_REPEAT,   // RAWKEYDOWN, native=0x001E + IS_REPEAT flag
+  STAGE_KEYUP_A_RAW_REPEAT,     // KEYUP,      native=0x001E
   // --- Ctrl+Pause scan-code normalization (0xE046 -> "Pause") ---
   // Ctrl+Pause sends VK_CANCEL with scan code 0xE046 (extended). Windows
   // normalizes this to "Pause" via ui::CodeForWindowsScanCode().  No CHAR
@@ -243,6 +254,12 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler,
   // ui::CodeForWindowsScanCode().  No CHAR event is generated.
   static constexpr UINT kVkCancel = VK_CANCEL;
   static constexpr UINT kScanPauseByte = 0x46;  // low byte; extended=true
+
+  // Raw scan-code compatibility constants.
+  // kRawScanA  (0x001E) : raw 'A' scan code, upper word zero -> low-16-bit path
+  // kRawScanCtrlRight (0xE01D) : E0-prefixed Right Ctrl, still fits in 16 bits
+  static constexpr UINT kRawScanA = 0x001E;
+  static constexpr UINT kRawScanCtrlRight = 0xE01D;
 #endif
 
   // Parse "type|code|location|repeat" and advance the state machine.
@@ -333,7 +350,9 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler,
             << "STAGE_KEYPRESS_A_REPEAT: event.location should be 0 (standard)";
         // Note: keypress.repeat reflects the keydown repeat state, but
         // Chromium does not propagate EF_IS_REPEAT through KEYEVENT_CHAR to
-        // the keypress event, so we do not assert repeat here.
+        // the keypress event, so we do not expect repeat here.
+        EXPECT_FALSE(is_repeat)
+            << "STAGE_KEYPRESS_A_REPEAT: event.repeat should be false for keypress";
         stage_ = STAGE_KEYUP_A_REPEAT;
         break;
 
@@ -343,6 +362,90 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler,
         EXPECT_EQ(0, location) << "STAGE_KEYUP_A_REPEAT: wrong event.location";
         EXPECT_FALSE(is_repeat)
             << "STAGE_KEYUP_A_REPEAT: event.repeat should be false for keyup";
+        stage_ = STAGE_KEYDOWN_A_RAW;
+        CefPostDelayedTask(
+            TID_UI,
+            base::BindOnce(&KeyboardDomCodeTestHandler::SendRawKeys, this,
+                           browser),
+            50);
+        break;
+
+      case STAGE_KEYDOWN_A_RAW:
+        // Raw scan code 0x001E (upper word zero) -> same "KeyA" as LPARAM form.
+        // Exercises the DecodeWindowsNativeKeyCode() low-16-bit branch.
+        EXPECT_EQ("keydown", event_type) << "STAGE_KEYDOWN_A_RAW: wrong type";
+        EXPECT_EQ("KeyA", code)
+            << "STAGE_KEYDOWN_A_RAW: raw 0x001E should produce \"KeyA\" "
+               "(compatibility branch of DecodeWindowsNativeKeyCode)";
+        EXPECT_FALSE(is_repeat)
+            << "STAGE_KEYDOWN_A_RAW: event.repeat should be false";
+        stage_ = STAGE_KEYUP_A_RAW;
+        break;
+
+      case STAGE_KEYUP_A_RAW:
+        EXPECT_EQ("keyup", event_type) << "STAGE_KEYUP_A_RAW: wrong type";
+        EXPECT_EQ("KeyA", code) << "STAGE_KEYUP_A_RAW: wrong event.code";
+        EXPECT_FALSE(is_repeat)
+            << "STAGE_KEYUP_A_RAW: event.repeat should be false";
+        stage_ = STAGE_KEYDOWN_CTRL_RIGHT_RAW;
+        // 50 ms gap so events don't interleave in the renderer.
+        CefPostDelayedTask(
+            TID_UI,
+            base::BindOnce(
+                &KeyboardDomCodeTestHandler::SendRawExtendedKeys, this,
+                browser),
+            50);
+        break;
+
+      case STAGE_KEYDOWN_CTRL_RIGHT_RAW:
+        // Raw extended scan code 0xE01D -> "ControlRight".
+        // Exercises the low-16-bit E0-prefixed path.
+        EXPECT_EQ("keydown", event_type)
+            << "STAGE_KEYDOWN_CTRL_RIGHT_RAW: wrong type";
+        EXPECT_EQ("ControlRight", code)
+            << "STAGE_KEYDOWN_CTRL_RIGHT_RAW: raw 0xE01D should produce "
+               "\"ControlRight\"";
+        EXPECT_FALSE(is_repeat)
+            << "STAGE_KEYDOWN_CTRL_RIGHT_RAW: event.repeat should be false";
+        stage_ = STAGE_KEYUP_CTRL_RIGHT_RAW;
+        break;
+
+      case STAGE_KEYUP_CTRL_RIGHT_RAW:
+        EXPECT_EQ("keyup", event_type)
+            << "STAGE_KEYUP_CTRL_RIGHT_RAW: wrong type";
+        EXPECT_EQ("ControlRight", code)
+            << "STAGE_KEYUP_CTRL_RIGHT_RAW: wrong event.code";
+        EXPECT_FALSE(is_repeat)
+            << "STAGE_KEYUP_CTRL_RIGHT_RAW: event.repeat should be false";
+        stage_ = STAGE_KEYDOWN_A_RAW_REPEAT;
+        CefPostDelayedTask(
+            TID_UI,
+            base::BindOnce(
+                &KeyboardDomCodeTestHandler::SendRawRepeatKeys, this, browser),
+            50);
+        break;
+
+      case STAGE_KEYDOWN_A_RAW_REPEAT:
+        // Raw scan code 0x001E with EVENTFLAG_IS_REPEAT -> event.repeat=true.
+        // Raw callers cannot use lParam bit 30; they use EVENTFLAG_IS_REPEAT
+        // in the modifiers field, which TranslateUiEventModifiers maps to
+        // EF_IS_REPEAT.
+        EXPECT_EQ("keydown", event_type)
+            << "STAGE_KEYDOWN_A_RAW_REPEAT: wrong type";
+        EXPECT_EQ("KeyA", code)
+            << "STAGE_KEYDOWN_A_RAW_REPEAT: wrong event.code";
+        EXPECT_TRUE(is_repeat)
+            << "STAGE_KEYDOWN_A_RAW_REPEAT: event.repeat should be true "
+               "(EVENTFLAG_IS_REPEAT on raw scan-code event)";
+        stage_ = STAGE_KEYUP_A_RAW_REPEAT;
+        break;
+
+      case STAGE_KEYUP_A_RAW_REPEAT:
+        EXPECT_EQ("keyup", event_type)
+            << "STAGE_KEYUP_A_RAW_REPEAT: wrong type";
+        EXPECT_EQ("KeyA", code) << "STAGE_KEYUP_A_RAW_REPEAT: wrong event.code";
+        EXPECT_FALSE(is_repeat)
+            << "STAGE_KEYUP_A_RAW_REPEAT: event.repeat should be false";
         stage_ = STAGE_KEYDOWN_PAUSE;
         CefPostDelayedTask(
             TID_UI,
@@ -442,6 +545,70 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler,
 #endif
   }
 
+  // Send a raw-scan-code RAWKEYDOWN + KEYUP pair (no CHAR event).
+  // native_key_code is set directly to the raw scan code value (upper word
+  // zero), exercising the DecodeWindowsNativeKeyCode() low-16-bit branch.
+  void SendRawKeyDownUp(CefRefPtr<CefBrowser> browser,
+                        UINT vk,
+                        UINT rawScanCode,
+                        uint32_t extraModifiers = 0) {
+#if defined(OS_WIN)
+    CefKeyEvent event;
+    event.is_system_key = false;
+    event.modifiers = extraModifiers;
+    event.windows_key_code = static_cast<int>(vk);
+    event.native_key_code = static_cast<int>(rawScanCode);  // raw; upper==0
+
+    event.type = KEYEVENT_RAWKEYDOWN;
+    browser->GetHost()->SendKeyEvent(event);
+
+    // For keyup: clear IS_REPEAT — a key-release is never a repeat.
+    // Use the same raw scan code; there is no lParam to interpret.
+    event.modifiers = extraModifiers & ~EVENTFLAG_IS_REPEAT;
+    event.type = KEYEVENT_KEYUP;
+    browser->GetHost()->SendKeyEvent(event);
+#else
+    (void)browser;
+    (void)vk;
+    (void)rawScanCode;
+    (void)extraModifiers;
+#endif
+  }
+
+  // Sends raw 0x001E ('A') -> exercises low-16-bit "KeyA" branch.
+  void SendRawKeys(CefRefPtr<CefBrowser> browser) {
+#if defined(OS_WIN)
+    SendRawKeyDownUp(browser, kVkA, kRawScanA);
+#else
+    (void)browser;
+    stage_ = STAGE_DONE;
+    DestroyTest();
+#endif
+  }
+
+  // Sends raw 0xE01D (Right Ctrl) -> exercises E0-prefixed extended branch.
+  void SendRawExtendedKeys(CefRefPtr<CefBrowser> browser) {
+#if defined(OS_WIN)
+    SendRawKeyDownUp(browser, VK_RCONTROL, kRawScanCtrlRight);
+#else
+    (void)browser;
+    stage_ = STAGE_DONE;
+    DestroyTest();
+#endif
+  }
+
+  // Sends raw 0x001E with EVENTFLAG_IS_REPEAT -> repeat=true without lParam.
+  void SendRawRepeatKeys(CefRefPtr<CefBrowser> browser) {
+#if defined(OS_WIN)
+    SendRawKeyDownUp(browser, kVkA, kRawScanA,
+                     /*extraModifiers=*/EVENTFLAG_IS_REPEAT);
+#else
+    (void)browser;
+    stage_ = STAGE_DONE;
+    DestroyTest();
+#endif
+  }
+
   TrackCallback got_paint_;
   TrackCallback got_ready_;
   KeyDomCodeTestStage stage_ = STAGE_KEYDOWN_A;
@@ -462,9 +629,15 @@ class KeyboardDomCodeTestHandler : public RoutingTestHandler,
 //   3. event.location is 0 (standard) for a KEYEVENT_CHAR carrying a regular
 //      character value; it must not be misidentified as numpad (location=3)
 //      due to the character value coincidentally matching a numpad VK code
-//      in GetCefKeyboardModifiersFromKeyEvent().
+//      in GetCefKeyboardModifiersFromKeyEvent() (fixes #2597 case 4).
 //   4. Ctrl+Pause (scan code 0xE046) maps to DOM code "Pause" after Windows
 //      scan-code normalization via ui::CodeForWindowsScanCode().
+//   5. Raw scan-code compatibility: values with an all-zero upper word are
+//      passed directly to CodeForWindowsScanCode() rather than extracted via
+//      GetScanCodeFromLParam(), preserving pre-existing API behaviour:
+//        - raw 0x001E  -> "KeyA"  (same as LPARAM form 0x001E0001)
+//        - raw 0xE01D  -> "ControlRight"  (E0-prefixed extended code)
+//        - raw 0x001E + EVENTFLAG_IS_REPEAT -> event.repeat=true
 TEST(KeyboardDomCodeTest, DomCodeAndRepeatFlags) {
   CefRefPtr<KeyboardDomCodeTestHandler> handler =
       new KeyboardDomCodeTestHandler();
