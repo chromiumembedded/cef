@@ -1089,6 +1089,33 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /*--cef(added=experimental)--*/
   virtual void SetAxViewportCollapse(bool enabled) = 0;
 #endif
+
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+  ///
+  /// Set the position and size of a windowed browser, relative to the parent
+  /// window that was passed to CefWindowInfo. Only used on Linux.
+  ///
+  /// On X11 the browser observes the parent window and resizes itself, so this
+  /// is not needed. On Wayland there is no such signal: a wl_subsurface does
+  /// not receive configure events, which are delivered to the client's
+  /// xdg_toplevel instead. The client application must therefore forward its
+  /// own layout changes here.
+  ///
+  /// |bounds| is in density-independent pixels, not device pixels. The values
+  /// reach wl_subsurface.set_position, which is surface-local to the client's
+  /// surface and therefore in the same logical units the compositor uses for
+  /// that surface. A client that keeps its layout in device pixels must divide
+  /// by its scale factor before calling this; the two are identical at scale 1,
+  /// so getting it wrong is invisible until the window meets a HiDPI or
+  /// fractional-scale output, where the browser lands offset by the scale.
+  ///
+  /// Note that wl_subsurface.set_position is part of the parent surface's
+  /// double-buffered state, so the move only becomes visible when the client
+  /// next commits its own surface.
+  ///
+  /*--cef(added=experimental)--*/
+  virtual void SetWindowBounds(const CefRect& bounds) = 0;
+#endif
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

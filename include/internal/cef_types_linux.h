@@ -37,6 +37,7 @@
 
 #if defined(OS_LINUX)
 
+#include "include/cef_api_hash.h"
 #include "include/internal/cef_export.h"
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_types_color.h"
@@ -47,6 +48,11 @@
 #define kNullCursorHandle 0
 #define kNullEventHandle NULL
 #define kNullWindowHandle 0
+
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+#define kNullWaylandDisplayHandle NULL
+#define kNullXdgSurfaceHandle NULL
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,12 +72,58 @@ typedef void* cef_event_handle_t;
 
 typedef unsigned long cef_window_handle_t;
 
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+
+///
+/// Handle type for a Wayland connection (struct wl_display*).
+///
+typedef void* cef_wayland_display_handle_t;
+
+///
+/// Handle type for an xdg_surface (struct xdg_surface*).
+///
+typedef void* cef_xdg_surface_handle_t;
+#endif
+
 ///
 /// Return the singleton X11 display shared with Chromium. The display is not
 /// thread-safe and must only be accessed on the browser process UI thread.
 ///
 #if defined(CEF_X11)
 CEF_EXPORT XDisplay* cef_get_xdisplay(void);
+#endif
+
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+///
+/// Give CEF the Wayland connection (struct wl_display*) owned by the client
+/// application, so that browser surfaces can be created as subsurfaces of the
+/// client's surfaces. A wl_surface is a protocol object scoped to one
+/// connection and wl_subcompositor_get_subsurface() requires both surfaces to
+/// belong to the same one, so embedding is only possible if CEF joins the
+/// client's connection instead of opening its own.
+///
+/// Must be called before CefInitialize. Chromium creates its Wayland connection
+/// while initializing Ozone, which happens during CefInitialize and long before
+/// any browser exists, so this is necessarily a process-global, one-time
+/// decision rather than a per-browser one.
+///
+/// The client retains ownership and must keep the connection alive until after
+/// CefShutdown. CEF dispatches its own protocol traffic on a dedicated
+/// wl_event_queue and never calls wl_display_disconnect() on an adopted
+/// connection, so the client may keep running its own event loop on the
+/// default queue.
+///
+/// Has no effect if the active Ozone platform is not Wayland.
+///
+CEF_EXPORT void cef_set_wayland_display(cef_wayland_display_handle_t display);
+
+///
+/// Return the Wayland connection used by Chromium, or NULL if the active Ozone
+/// platform is not Wayland. If the client provided a connection via
+/// cef_set_wayland_display() then that same connection is returned. Must only
+/// be accessed on the browser process UI thread.
+///
+CEF_EXPORT cef_wayland_display_handle_t cef_get_wayland_display(void);
 #endif
 
 ///
@@ -109,6 +161,19 @@ typedef struct _cef_window_info_t {
   ///
   /// Pointer for the parent window.
   ///
+  /// When the active Ozone platform is Wayland this is a struct wl_surface*
+  /// belonging to the client application, cast to cef_window_handle_t; the
+  /// browser surface becomes a wl_subsurface of it. Under X11 it is an X11
+  /// Window, as before. The field has always been an opaque native parent
+  /// handle whose meaning depends on the platform -- it is an NSView* on
+  /// macOS and an HWND on Windows -- and Wayland is no different; the
+  /// unsigned long spelling here is an artifact of X11.
+  ///
+  /// A Wayland surface must belong to the connection previously passed to
+  /// cef_set_wayland_display(). Note that CEF cannot tell a mistaken X11
+  /// Window from a valid pointer, so passing the wrong kind of handle for the
+  /// active platform is undefined rather than diagnosed.
+  ///
   cef_window_handle_t parent_window;
 
   ///
@@ -141,6 +206,15 @@ typedef struct _cef_window_info_t {
   ///
   /// Pointer for the new browser window. Only used with windowed rendering.
   ///
+  /// Under Ozone/X11 this is the X11 Window of the browser, usable from any
+  /// client on the connection. Under Ozone/Wayland it is not a protocol object
+  /// at all: it is the gfx::AcceleratedWidget Ozone uses internally, an id
+  /// meaningful only inside this process. A wl_surface cannot be handed back
+  /// this way because it is scoped to the connection that created it, so an
+  /// embedder that needs to address the browser's surface should keep the
+  /// parent surface it passed in and position the browser through
+  /// CefBrowserHost::SetWindowBounds() instead.
+  ///
   cef_window_handle_t window;
 
   ///
@@ -149,6 +223,30 @@ typedef struct _cef_window_info_t {
   /// documentation for details.
   ///
   cef_runtime_style_t runtime_style;
+
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+  ///
+  /// The client application's xdg_surface (struct xdg_surface*), the one
+  /// |parent_window| belongs to when it names a wl_surface.
+  ///
+  /// Required for the browser to open menus, <select> dropdowns, tooltips and
+  /// autocomplete. A wl_subsurface has no xdg_surface role, and
+  /// xdg_surface.get_popup demands an xdg_surface, so popups from an embedded
+  /// browser have to be anchored on the client's instead. Their positions are
+  /// then computed in the client's surface coordinates.
+  ///
+  /// May be NULL for hosts whose toolkit does not expose the xdg_surface. The
+  /// browser then renders and takes input as usual, and popups fall back to a
+  /// wl_subsurface of the browser. That fallback is degraded and deliberately
+  /// so: a subsurface cannot extend past the host window, so a dropdown near an
+  /// edge is clipped rather than repositioned, and it holds no grab, so
+  /// clicking outside does not dismiss it. Provide the xdg_surface wherever the
+  /// toolkit allows it.
+  ///
+  /// Ignored unless the active Ozone platform is Wayland.
+  ///
+  cef_xdg_surface_handle_t parent_xdg_surface;
+#endif
 } cef_window_info_t;
 
 ///
