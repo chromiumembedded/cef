@@ -214,7 +214,7 @@ class TestHandler : public CefClient,
 
   // Called from TestWindowDelegate when Views is enabled.
   void OnWindowCreated(int browser_id);
-  void OnWindowDestroyed(int browser_id);
+  virtual void OnWindowDestroyed(int browser_id);
 
   // Returns the count of TestHandlers the currently exist.
   static size_t GetTestHandlerCount() {

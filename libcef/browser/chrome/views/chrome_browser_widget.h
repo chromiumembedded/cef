@@ -146,6 +146,7 @@ class ChromeBrowserWidget : public BrowserWidget,
   void Activate() override;
 
   // NativeWidgetDelegate methods:
+  void OnNativeWidgetDestroying() override;
   void OnNativeWidgetDestroyed() override;
 
   // ui::NativeThemeObserver methods:
