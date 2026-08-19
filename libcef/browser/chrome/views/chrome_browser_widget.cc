@@ -192,6 +192,17 @@ void ChromeBrowserWidget::Activate() {
   BrowserWidget::Activate();
 }
 
+void ChromeBrowserWidget::OnNativeWidgetDestroying() {
+  views::Widget::ForEachOwnedWidget(GetNativeView(),
+                                    [this](views::Widget* widget) {
+                                      if (widget != this) {
+                                        widget->CloseNow();
+                                      }
+                                    });
+
+  BrowserWidget::OnNativeWidgetDestroying();
+}
+
 void ChromeBrowserWidget::OnNativeWidgetDestroyed() {
   if (browser_view()) {
     // Remove the listener registration added in BrowserView::InitBrowser().
