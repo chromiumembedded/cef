@@ -34,10 +34,23 @@ index 08949a69415dfa9f836e00929a34330a34546ce2..e417f50fa68e274b80c0d45bdaa45c7b
    NOTREACHED();
  }
 diff --git chrome/browser/devtools/devtools_window.cc chrome/browser/devtools/devtools_window.cc
-index af2ccacf691c748e6f40da900afa0d10f669988e..9f0e97e74e8860640fb714b918b31f034292992e 100644
+index af2ccacf691c748e6f40da900afa0d10f669988e..5f8cc29311aef5ad28f3fe4c75c51fc6204ffc74 100644
 --- chrome/browser/devtools/devtools_window.cc
 +++ chrome/browser/devtools/devtools_window.cc
-@@ -1381,6 +1381,14 @@ DevToolsWindow* DevToolsWindow::Create(
+@@ -855,6 +855,12 @@ Profile* DevToolsWindow::GetProfileForDevToolsWindow(
+   if (profile->IsPrimaryOTRProfile() || profile->IsDevToolsOTRProfile()) {
+     return profile;
+   }
++#if BUILDFLAG(ENABLE_CEF)
++  if (profile->IsOffTheRecord() &&
++      profile->GetOTRProfileID().IsUniqueForCEF()) {
++    return profile;
++  }
++#endif
+   return profile->GetOriginalProfile();
+ }
+ 
+@@ -1381,6 +1387,14 @@ DevToolsWindow* DevToolsWindow::Create(
      if (!devtools_ui_controller || !devtools_ui_controller->CanDockDevtools()) {
        can_dock = false;
      }
@@ -52,7 +65,7 @@ index af2ccacf691c748e6f40da900afa0d10f669988e..9f0e97e74e8860640fb714b918b31f03
    }
  #endif  // !BUILDFLAG(IS_ANDROID)
  
-@@ -1838,7 +1846,9 @@ void DevToolsWindow::OpenInNewTab(const GURL& url) {
+@@ -1838,7 +1852,9 @@ void DevToolsWindow::OpenInNewTab(const GURL& url) {
                                         /*navigation_handle_callback=*/{})) {
  #if BUILDFLAG(IS_ANDROID)
      NOTIMPLEMENTED();
@@ -63,7 +76,7 @@ index af2ccacf691c748e6f40da900afa0d10f669988e..9f0e97e74e8860640fb714b918b31f03
      chrome::ScopedTabbedBrowserDisplayer displayer(profile_);
      chrome::AddSelectedTabWithURL(displayer.browser(), fixed_url,
                                    ui::PAGE_TRANSITION_LINK);
-@@ -2044,12 +2054,31 @@ void DevToolsWindow::CreateDevToolsBrowser() {
+@@ -2044,12 +2060,31 @@ void DevToolsWindow::CreateDevToolsBrowser() {
        Browser::CreationStatus::kOk) {
      return;
    }
