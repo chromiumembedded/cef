@@ -106,7 +106,7 @@ std::vector<std::wstring> ParseCommandLineArgs(const wchar_t* str) {
   std::vector<std::wstring> result;
   result.reserve(num_args);
 
-  for (std::wstring arg : std::span{args, num_args}) {
+  for (std::wstring arg : std::span{args, static_cast<size_t>(num_args)}) {
     TrimWhitespace(arg);
     if (!arg.empty()) {
       result.push_back(std::move(arg));
