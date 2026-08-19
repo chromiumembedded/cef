@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/base/cef_callback.h"
+#include "include/cef_request_context_handler.h"
 #include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/routing_test_handler.h"
@@ -399,7 +400,10 @@ const cef_color_t kDevToolsBackgroundColor = CefColorSetARGB(255, 128, 64, 32);
 // Test OnBeforeDevToolsPopup callback
 class DevToolsPopupTestHandler : public TestHandler {
  public:
-  DevToolsPopupTestHandler() = default;
+  DevToolsPopupTestHandler(bool unique_request_context = false,
+                           bool inspect_element = false)
+      : unique_request_context_(unique_request_context),
+        inspect_element_(inspect_element) {}
 
   DevToolsPopupTestHandler(const DevToolsPopupTestHandler&) = delete;
   DevToolsPopupTestHandler& operator=(const DevToolsPopupTestHandler&) = delete;
@@ -412,7 +416,12 @@ class DevToolsPopupTestHandler : public TestHandler {
         "</html>";
 
     AddResource(kDevToolsTestUrl, html, "text/html");
-    CreateBrowser(kDevToolsTestUrl);
+    CefRefPtr<CefRequestContext> request_context;
+    if (unique_request_context_) {
+      CefRequestContextSettings settings;
+      request_context = CefRequestContext::CreateContext(settings, nullptr);
+    }
+    CreateBrowser(kDevToolsTestUrl, request_context);
     SetTestTimeout();
   }
 
@@ -428,6 +437,8 @@ class DevToolsPopupTestHandler : public TestHandler {
       EXPECT_FALSE(got_devtools_after_created_);
       got_devtools_after_created_.yes();
       EXPECT_TRUE(browser->IsPopup());
+      EXPECT_TRUE(browser->GetHost()->GetRequestContext()->IsSame(
+          main_browser_->GetHost()->GetRequestContext()));
       devtools_browser_ = browser;
     }
   }
@@ -454,8 +465,10 @@ class DevToolsPopupTestHandler : public TestHandler {
       // Set a custom background color to verify it's passed to the callback
       settings.background_color = kDevToolsBackgroundColor;
 
+      const CefPoint inspect_point =
+          inspect_element_ ? CefPoint(10, 10) : CefPoint();
       main_browser_->GetHost()->ShowDevTools(windowInfo, this, settings,
-                                             CefPoint());
+                                             inspect_point);
     } else if (devtools_browser_ && browser->IsSame(devtools_browser_)) {
       EXPECT_FALSE(got_devtools_load_end_);
       got_devtools_load_end_.yes();
@@ -531,6 +544,9 @@ class DevToolsPopupTestHandler : public TestHandler {
   CefRefPtr<CefBrowser> main_browser_;
   CefRefPtr<CefBrowser> devtools_browser_;
 
+  const bool unique_request_context_;
+  const bool inspect_element_;
+
   TrackCallback got_main_after_created_;
   TrackCallback got_main_load_end_;
   TrackCallback got_before_devtools_popup_;
@@ -548,6 +564,14 @@ class DevToolsPopupTestHandler : public TestHandler {
 // DevTools popup is always Chrome style.
 TEST(LifeSpanTest, OnBeforeDevToolsPopup) {
   CefRefPtr<DevToolsPopupTestHandler> handler = new DevToolsPopupTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(LifeSpanTest, OnBeforeDevToolsPopupUniqueContextInspectElement) {
+  CefRefPtr<DevToolsPopupTestHandler> handler =
+      new DevToolsPopupTestHandler(/*unique_request_context=*/true,
+                                   /*inspect_element=*/true);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
