@@ -509,6 +509,24 @@ typedef struct _cef_settings_t {
   ///
   int use_views_default_popup;
 #endif
+
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// The macOS Keychain service name used by OSCrypt. If this value is empty
+  /// then the default Chromium/Chrome service name will be used. Changing this
+  /// value will create or access a different Keychain item and may make
+  /// previously encrypted data unreadable.
+  ///
+  cef_string_t keychain_service_name;
+
+  ///
+  /// The macOS Keychain account name used by OSCrypt. If this value is empty
+  /// then the default Chromium/Chrome account name will be used. Changing this
+  /// value will create or access a different Keychain item and may make
+  /// previously encrypted data unreadable.
+  ///
+  cef_string_t keychain_account_name;
+#endif
 } cef_settings_t;
 
 ///
