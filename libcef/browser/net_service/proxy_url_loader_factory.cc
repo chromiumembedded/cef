@@ -186,6 +186,14 @@ void ClearProxiesForContextId(ContextId context_id) {
     for (const auto& proxy : proxies) {
       proxy->SetDisconnectCallback(base::DoNothing());
     }
+
+    // Cancel pending/in-flight requests before destroying the proxies. This
+    // ensures that request handler state is cleared before handler
+    // destruction.
+    for (const auto& proxy : proxies) {
+      proxy->Shutdown();
+    }
+
     // Clear the set, which will delete all proxies for this context.
     proxy_map.erase(it);
   }
@@ -1422,6 +1430,11 @@ void ProxyURLLoaderFactory::SetDisconnectCallback(
   CEF_REQUIRE_IOT();
   DCHECK(!destroyed_);
   on_disconnect_ = std::move(on_disconnect);
+}
+
+void ProxyURLLoaderFactory::Shutdown() {
+  CEF_REQUIRE_IOT();
+  request_handler_->Shutdown();
 }
 
 // static
