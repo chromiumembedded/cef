@@ -599,6 +599,7 @@
       'tests/ceftests/os_rendering_unittest.cc',
       'tests/ceftests/osr_accessibility_unittest.cc',
       'tests/ceftests/osr_display_unittest.cc',
+      'tests/ceftests/owned_widget_shutdown_unittest.cc',
       'tests/ceftests/parser_unittest.cc',
       'tests/ceftests/pdf_viewer_unittest.cc',
       'tests/ceftests/permission_prompt_unittest.cc',
