@@ -1,0 +1,14 @@
+diff --git chrome/browser/ui/read_anything/read_anything_soft_navigation_observer.cc chrome/browser/ui/read_anything/read_anything_soft_navigation_observer.cc
+index 3a57f6d13db4b..55dacaf0eec94 100644
+--- chrome/browser/ui/read_anything/read_anything_soft_navigation_observer.cc
++++ chrome/browser/ui/read_anything/read_anything_soft_navigation_observer.cc
+@@ -44,7 +44,8 @@ void ReadAnythingSoftNavigationObserver::OnSoftNavigation() {
+   if (!web_contents) {
+     return;
+   }
+-  tabs::TabInterface* tab = tabs::TabInterface::GetFromContents(web_contents);
++  tabs::TabInterface* tab =
++      tabs::TabInterface::MaybeGetFromContents(web_contents);
+   if (!tab) {
+     return;
+   }
