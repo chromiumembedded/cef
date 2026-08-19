@@ -276,7 +276,7 @@ static int RunMultiThreaded(const std::string& marker_path,
 }
 
 extern "C" __declspec(dllexport) int RunWinMain(HINSTANCE hInstance,
-                                                LPTSTR lpCmdLine,
+                                                LPWSTR lpCmdLine,
                                                 int nCmdShow,
                                                 void* sandbox_info,
                                                 cef_version_info_t* vi) {

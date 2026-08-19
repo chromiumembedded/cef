@@ -101,7 +101,7 @@ extern "C" {
 /// windows (/SUBSYSTEM:WINDOWS) applications.
 ///
 CEF_BOOTSTRAP_EXPORT int RunWinMain(HINSTANCE hInstance,
-                                    LPTSTR lpCmdLine,
+                                    LPWSTR lpCmdLine,
                                     int nCmdShow,
                                     void* sandbox_info,
                                     cef_version_info_t* version_info);
