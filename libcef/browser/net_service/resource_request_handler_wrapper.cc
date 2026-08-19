@@ -515,6 +515,25 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   }
 
   // InterceptedRequestHandler methods:
+  void Shutdown() override {
+    CEF_REQUIRE_IOT();
+
+    if (shutting_down_) {
+      return;
+    }
+
+    if (!init_state_) {
+      // Initialization is pending. Stop accepting new requests and cancel any
+      // requests that are already queued.
+      shutting_down_ = true;
+      weak_ptr_factory_.InvalidateWeakPtrs();
+      pending_requests_.clear();
+      return;
+    }
+
+    OnDestroyed();
+  }
+
   void OnBeforeRequest(int32_t request_id,
                        network::ResourceRequest* request,
                        bool request_was_redirected,
@@ -1260,6 +1279,10 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   void OnDestroyed() {
     CEF_REQUIRE_IOT();
     DCHECK(init_state_);
+
+    if (shutting_down_) {
+      return;
+    }
 
     init_state_->DeleteDestructionObserver();
 

@@ -44,6 +44,10 @@ class InterceptedRequestHandler {
 
   virtual ~InterceptedRequestHandler();
 
+  // Stop accepting new requests and cancel pending/in-flight requests before
+  // the handler is destroyed.
+  virtual void Shutdown() {}
+
   // Optionally modify |request| and execute |callback| to continue the request.
   // Set |intercept_request| to false if the request will not be intercepted.
   // Set |intercept_only| to true if the loader should not proceed unless the
@@ -172,6 +176,9 @@ class ProxyURLLoaderFactory
   // callback will be invoked with |this| as the argument, and is responsible
   // for deleting |this|.
   void SetDisconnectCallback(DisconnectCallback on_disconnect);
+
+  // Stop accepting new requests and cancel pending/in-flight requests.
+  void Shutdown();
 
   // mojom::URLLoaderFactory methods:
   void CreateLoaderAndStart(
