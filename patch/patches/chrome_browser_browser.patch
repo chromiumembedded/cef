@@ -34,10 +34,23 @@ index 08949a69415dfa9f836e00929a34330a34546ce2..e417f50fa68e274b80c0d45bdaa45c7b
    NOTREACHED();
  }
 diff --git chrome/browser/devtools/devtools_window.cc chrome/browser/devtools/devtools_window.cc
-index 9d28b02fa09bf331ed9b381ba25b56f0a30ec365..0d0bf347d77c4c8eda4e69969798c69557af6bdd 100644
+index 9d28b02fa09bf331ed9b381ba25b56f0a30ec365..5ffa364977080aaab9819d789e73544334410271 100644
 --- chrome/browser/devtools/devtools_window.cc
 +++ chrome/browser/devtools/devtools_window.cc
-@@ -1380,6 +1380,14 @@ DevToolsWindow* DevToolsWindow::Create(
+@@ -854,6 +854,12 @@ Profile* DevToolsWindow::GetProfileForDevToolsWindow(
+   if (profile->IsPrimaryOTRProfile() || profile->IsDevToolsOTRProfile()) {
+     return profile;
+   }
++#if BUILDFLAG(ENABLE_CEF)
++  if (profile->IsOffTheRecord() &&
++      profile->GetOTRProfileID().IsUniqueForCEF()) {
++    return profile;
++  }
++#endif
+   return profile->GetOriginalProfile();
+ }
+ 
+@@ -1380,6 +1386,14 @@ DevToolsWindow* DevToolsWindow::Create(
      if (!devtools_ui_controller || !devtools_ui_controller->CanDockDevtools()) {
        can_dock = false;
      }
@@ -52,7 +65,7 @@ index 9d28b02fa09bf331ed9b381ba25b56f0a30ec365..0d0bf347d77c4c8eda4e69969798c695
    }
  #endif  // !BUILDFLAG(IS_ANDROID)
  
-@@ -1844,7 +1852,9 @@ void DevToolsWindow::OpenInNewTab(const GURL& url) {
+@@ -1844,7 +1858,9 @@ void DevToolsWindow::OpenInNewTab(const GURL& url) {
                                         /*navigation_handle_callback=*/{})) {
  #if BUILDFLAG(IS_ANDROID)
      NOTIMPLEMENTED();
@@ -63,7 +76,7 @@ index 9d28b02fa09bf331ed9b381ba25b56f0a30ec365..0d0bf347d77c4c8eda4e69969798c695
      chrome::ScopedTabbedBrowserDisplayer displayer(profile_);
      chrome::AddSelectedTabWithURL(displayer.browser_window_interface(),
                                    fixed_url, ui::PAGE_TRANSITION_LINK);
-@@ -2050,12 +2060,31 @@ void DevToolsWindow::CreateDevToolsBrowser() {
+@@ -2050,12 +2066,31 @@ void DevToolsWindow::CreateDevToolsBrowser() {
        Browser::CreationStatus::kOk) {
      return;
    }
