@@ -42,7 +42,7 @@ index 2d86241e3519e52c3fc82ed0d8429b3a20651033..3f195b663ec7efbe6e12846ba564e01d
  
  void BrowserCommandController::InitCommandState() {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index 8d83a55c7cf2a3e70f8d7478cf6cd8f5e4bd4eb3..c25ccae834741c597d368e61c73ea31e42638388 100644
+index 66571f07bc4b7a9932b535cfb346a9c228b43125..58ba364a6b8204c1c9bb6e72e30fa614dfe6b0e2 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
 @@ -930,18 +930,20 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
@@ -176,7 +176,7 @@ index 8d83a55c7cf2a3e70f8d7478cf6cd8f5e4bd4eb3..c25ccae834741c597d368e61c73ea31e
  bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
    if (command_id == IDC_VIEW_PASSWORDS ||
        command_id == IDC_SHOW_PASSWORD_MANAGER) {
-@@ -2322,8 +2399,10 @@ void AppMenuModel::Build() {
+@@ -2329,8 +2406,10 @@ void AppMenuModel::Build() {
    SetElementIdentifierAt(GetIndexOfCommandId(IDC_CLEAR_BROWSING_DATA).value(),
                           kClearBrowsingDataMenuItem);
  
@@ -189,7 +189,7 @@ index 8d83a55c7cf2a3e70f8d7478cf6cd8f5e4bd4eb3..c25ccae834741c597d368e61c73ea31e
    AddSeparator(ui::NORMAL_SEPARATOR);
  
    AddItemWithStringIdAndVectorIcon(
-@@ -2461,6 +2540,11 @@ void AppMenuModel::Build() {
+@@ -2468,6 +2547,11 @@ void AppMenuModel::Build() {
    }
  #endif  // !BUILDFLAG(IS_CHROMEOS)
  
@@ -223,7 +223,7 @@ index 4e81edc2c67425cbab6ed0b00a80157287d64e7d..8e92d6c750426d3946188e6d9b9bf7e1
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 141a168f483560814821b1b873a996758cb168bc..c56347545944a93e0964b0fcd89c0d5447f80edd 100644
+index 4b4697c29715c922037635a40141a3efb2bdbae4..0b3f3fd1473d511c049c99bedad408bb8c42f821 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -879,11 +879,21 @@ class BrowserView::PipExclusionObserverImpl
@@ -354,7 +354,7 @@ index 141a168f483560814821b1b873a996758cb168bc..c56347545944a93e0964b0fcd89c0d54
  bool BrowserView::IsLoadingAnimationRunning() const {
    return !loading_animation_start_.is_null();
  }
-@@ -3090,6 +3145,9 @@ ShowTranslateBubbleResult BrowserView::ShowTranslateBubble(
+@@ -3112,6 +3167,9 @@ ShowTranslateBubbleResult BrowserView::ShowTranslateBubble(
  
  DownloadBubbleUIController* BrowserView::GetDownloadBubbleUIController() {
  #if !BUILDFLAG(IS_CHROMEOS)
@@ -364,7 +364,7 @@ index 141a168f483560814821b1b873a996758cb168bc..c56347545944a93e0964b0fcd89c0d54
    if (auto* download_controller =
            DownloadToolbarUIController::From(browser_.get())) {
      return download_controller->bubble_controller();
-@@ -4006,7 +4064,10 @@ bool BrowserView::GetSavedWindowPlacement(
+@@ -4028,7 +4086,10 @@ bool BrowserView::GetSavedWindowPlacement(
  }
  
  views::View* BrowserView::GetContentsView() {
@@ -376,7 +376,7 @@ index 141a168f483560814821b1b873a996758cb168bc..c56347545944a93e0964b0fcd89c0d54
  }
  
  views::ClientView* BrowserView::CreateClientView(views::Widget* widget) {
-@@ -4173,9 +4234,22 @@ void BrowserView::DeleteBrowserWindow() {
+@@ -4195,9 +4256,22 @@ void BrowserView::DeleteBrowserWindow() {
    // before the frame is destroyed to mitigate UAF risk.
    browser_widget_->SaveWindowPlacementIfNeeded();
  
@@ -402,7 +402,7 @@ index 141a168f483560814821b1b873a996758cb168bc..c56347545944a93e0964b0fcd89c0d54
  }
  
  void BrowserView::SetForceShowBookmarkBarFlag(
-@@ -4436,12 +4510,37 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+@@ -4458,12 +4532,37 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
  bool BrowserView::ShouldDescendIntoChildForEventHandling(
      gfx::NativeView child,
      const gfx::Point& location) {
@@ -442,7 +442,7 @@ index 141a168f483560814821b1b873a996758cb168bc..c56347545944a93e0964b0fcd89c0d54
      // Draggable regions are defined relative to the web contents.
      gfx::Point point_in_contents_web_view_coords(location);
      views::View::ConvertPointToTarget(GetWidget()->GetRootView(),
-@@ -4450,9 +4549,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+@@ -4472,9 +4571,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
  
      // Draggable regions should be ignored for clicks into any browser view's
      // owned widgets, for example alerts, permission prompts or find bar.
@@ -454,7 +454,7 @@ index 141a168f483560814821b1b873a996758cb168bc..c56347545944a93e0964b0fcd89c0d54
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
    }
  
-@@ -4754,7 +4852,8 @@ void BrowserView::Layout(PassKey) {
+@@ -4795,7 +4893,8 @@ void BrowserView::Layout(PassKey) {
    LayoutSuperclass<views::View>(this);
  
    // TODO(jamescook): Why was this in the middle of layout code?
@@ -464,7 +464,7 @@ index 141a168f483560814821b1b873a996758cb168bc..c56347545944a93e0964b0fcd89c0d54
    GetFrameView()->UpdateMinimumSize();
  
    if (omnibox::IsWebUIOmniboxInBrowserViewEnabled()) {
-@@ -5026,6 +5125,13 @@ void BrowserView::AddedToWidget() {
+@@ -5074,6 +5173,13 @@ void BrowserView::AddedToWidget() {
    dialog_anchor_ = std::make_unique<views::ViewSubregionAnchor>(
        kBrowserDialogAnchorElementId, *this);
  
@@ -479,7 +479,7 @@ index 141a168f483560814821b1b873a996758cb168bc..c56347545944a93e0964b0fcd89c0d54
  }
  
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index 70e811360e59bda4a97eb353cc4310764728b3d2..2df91594ac1c237d2ab27a0c78916d39c7606cb7 100644
+index a4e53aca6a459b0161ae585aed2354075cabdaf1..0892ae4db092c9d151adca048a51456abcd87fa6 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
 @@ -152,7 +152,9 @@ class BrowserView : public BrowserWindow,

@@ -1,5 +1,5 @@
 diff --git components/component_updater/component_updater_service.h components/component_updater/component_updater_service.h
-index 39acb4430d9c5cd00c17a83ad82e74adf25dfc01..70f34b1cc6435240fb9285e7239ea3080bb9158c 100644
+index 18308f02a6273fe752f8cc41b3b8bdd1293f1972..98301dca212ebf3b658350a844f640aa7c35272e 100644
 --- components/component_updater/component_updater_service.h
 +++ components/component_updater/component_updater_service.h
 @@ -21,6 +21,7 @@
