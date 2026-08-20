@@ -215,10 +215,10 @@ index 673cb3358be84b0fe16b3c134cc19b77842ed366..0de25164e11ea9307e46d521e12c4528
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
 diff --git third_party/blink/renderer/core/frame/web_frame_widget_impl.cc third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
-index eda03e3eb43ce071183e3c223686581177e8823c..7440240d78fa80de4215a1d80daa1a593a485b36 100644
+index 92114bd98e2480cf88abb8838d16b3bcd27a3a4b..69b6fadeb3c2140194d3530e9b3d78a178d47f0e 100644
 --- third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
 +++ third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
-@@ -6032,6 +6032,7 @@ void WebFrameWidgetImpl::OnWindowShowStateChanged(
+@@ -6030,6 +6030,7 @@ void WebFrameWidgetImpl::OnWindowShowStateChanged(
        break;
      case WindowShowState::kInactive:
      case WindowShowState::kFullscreen:

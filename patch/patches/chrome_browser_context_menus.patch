@@ -189,7 +189,7 @@ index ec7a5fdef0fdf08dedb1c3932c78d485730a7a1a..ba772758fe13ebcff3935bfb53a9e97a
    runner_->Cancel();
  }
 diff --git chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
-index 0eb9f318daf821d437287ab5103f06b01dad64c7..31475919bb0be04e78e810ed86560bfcb7a0eef7 100644
+index d38a53955fc986dbc197b637b6872dc903bd0a28..32073679698cc592ebcce2d67c6daef07b783d01 100644
 --- chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
 +++ chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
 @@ -153,6 +153,9 @@ void RenderViewContextMenuViews::RunMenuAt(views::Widget* parent,
@@ -202,7 +202,7 @@ index 0eb9f318daf821d437287ab5103f06b01dad64c7..31475919bb0be04e78e810ed86560bfc
    // There are no formally defined accelerators we can query so we assume
    // that Ctrl+C, Ctrl+V, Ctrl+X, Ctrl-A, etc do what they normally do.
    switch (command_id) {
-@@ -370,6 +373,10 @@ void RenderViewContextMenuViews::AppendPlatformEditableItems() {
+@@ -383,6 +386,10 @@ void RenderViewContextMenuViews::AppendPlatformEditableItems() {
  }
  
  void RenderViewContextMenuViews::Show() {
@@ -213,7 +213,7 @@ index 0eb9f318daf821d437287ab5103f06b01dad64c7..31475919bb0be04e78e810ed86560bfc
    if (base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kKioskMode)) {
      return;
    }
-@@ -416,6 +423,11 @@ void RenderViewContextMenuViews::Show() {
+@@ -429,6 +436,11 @@ void RenderViewContextMenuViews::Show() {
    }
  }
  
