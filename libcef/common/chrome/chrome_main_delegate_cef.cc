@@ -16,6 +16,7 @@
 #include "cef/libcef/browser/chrome/chrome_browser_context.h"
 #include "cef/libcef/browser/chrome/chrome_content_browser_client_cef.h"
 #include "cef/libcef/browser/main_runner.h"
+#include "cef/libcef/common/api_version_util.h"
 #include "cef/libcef/common/cef_switches.h"
 #include "cef/libcef/common/command_line_impl.h"
 #include "cef/libcef/common/crash_reporting.h"
@@ -41,6 +42,7 @@
 
 #if BUILDFLAG(IS_MAC)
 #include "cef/libcef/common/util_mac.h"
+#include "components/os_crypt/common/keychain_password_mac.h"
 #elif BUILDFLAG(IS_POSIX)
 #include "cef/libcef/common/util_linux.h"
 #endif
@@ -337,6 +339,21 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
           switches::kUncaughtExceptionStackSize,
           base::NumberToString(settings_->uncaught_exception_stack_size));
     }
+
+#if BUILDFLAG(IS_MAC)
+    if (CEF_API_IS_ADDED(CEF_NEXT)) {
+      if (CEF_MEMBER_EXISTS(settings_, keychain_service_name) &&
+          settings_->keychain_service_name.length > 0) {
+        KeychainPassword::GetServiceName() =
+            CefString(&settings_->keychain_service_name).ToString();
+      }
+      if (CEF_MEMBER_EXISTS(settings_, keychain_account_name) &&
+          settings_->keychain_account_name.length > 0) {
+        KeychainPassword::GetAccountName() =
+            CefString(&settings_->keychain_account_name).ToString();
+      }
+    }
+#endif
 
     std::vector<std::string> disable_features;
 

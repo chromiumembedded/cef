@@ -1,0 +1,21 @@
+diff --git components/os_crypt/common/BUILD.gn components/os_crypt/common/BUILD.gn
+index 3128f3ac6df25aa259f6f854a0ca48c017097dcc..926b03582fc05581143c636f23194e9bf1c6b74a 100644
+--- components/os_crypt/common/BUILD.gn
++++ components/os_crypt/common/BUILD.gn
+@@ -7,11 +7,16 @@ source_set("switches") {
+ }
+ 
+ if (is_apple) {
++  config("runtime_configurable_key_storage") {
++    defines = [ "ALLOW_RUNTIME_CONFIGURABLE_KEY_STORAGE" ]
++  }
++
+   source_set("keychain_password_mac") {
+     sources = [
+       "keychain_password_mac.h",
+       "keychain_password_mac.mm",
+     ]
++    public_configs = [ ":runtime_configurable_key_storage" ]
+     deps = [
+       "//base",
+       "//build:branding_buildflags",

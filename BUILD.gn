@@ -1119,6 +1119,8 @@ source_set("libcef_static") {
       "//chrome/app/chrome_main_mac.h",
       "//chrome/app/chrome_main_mac.mm",
     ]
+
+    deps += [ "//components/os_crypt/common:keychain_password_mac" ]
   } else {
     sources += [
       "libcef/browser/chrome/chrome_web_contents_view_delegate_cef.cc",

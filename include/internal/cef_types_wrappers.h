@@ -406,6 +406,10 @@ struct CefSettingsTraits {
     cef_string_clear(&s->accept_language_list);
     cef_string_clear(&s->cookieable_schemes_list);
     cef_string_clear(&s->chrome_policy_id);
+#if CEF_API_ADDED(CEF_NEXT)
+    cef_string_clear(&s->keychain_service_name);
+    cef_string_clear(&s->keychain_account_name);
+#endif
   }
 
   static inline void set(const struct_type* src,
@@ -472,6 +476,19 @@ struct CefSettingsTraits {
 #if CEF_API_ADDED(14600)
     if (CEF_MEMBER_EXISTS(src, use_views_default_popup)) {
       target->use_views_default_popup = src->use_views_default_popup;
+    }
+#endif
+
+#if CEF_API_ADDED(CEF_NEXT)
+    if (CEF_MEMBER_EXISTS(src, keychain_service_name)) {
+      cef_string_set(src->keychain_service_name.str,
+                     src->keychain_service_name.length,
+                     &target->keychain_service_name, copy);
+    }
+    if (CEF_MEMBER_EXISTS(src, keychain_account_name)) {
+      cef_string_set(src->keychain_account_name.str,
+                     src->keychain_account_name.length,
+                     &target->keychain_account_name, copy);
     }
 #endif
   }
