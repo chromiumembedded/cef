@@ -16,6 +16,7 @@
 #include "cef/libcef/browser/chrome/chrome_browser_context.h"
 #include "cef/libcef/browser/chrome/chrome_content_browser_client_cef.h"
 #include "cef/libcef/browser/main_runner.h"
+#include "cef/libcef/common/api_version_util.h"
 #include "cef/libcef/common/cef_switches.h"
 #include "cef/libcef/common/command_line_impl.h"
 #include "cef/libcef/common/crash_reporting.h"
@@ -339,16 +340,18 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
           base::NumberToString(settings_->uncaught_exception_stack_size));
     }
 
-#if BUILDFLAG(IS_MAC) && CEF_API_ADDED(CEF_NEXT)
-    if (CEF_MEMBER_EXISTS(settings_, keychain_service_name) &&
-        settings_->keychain_service_name.length > 0) {
-      KeychainPassword::GetServiceName() =
-          CefString(&settings_->keychain_service_name).ToString();
-    }
-    if (CEF_MEMBER_EXISTS(settings_, keychain_account_name) &&
-        settings_->keychain_account_name.length > 0) {
-      KeychainPassword::GetAccountName() =
-          CefString(&settings_->keychain_account_name).ToString();
+#if BUILDFLAG(IS_MAC)
+    if (CEF_API_IS_ADDED(CEF_NEXT)) {
+      if (CEF_MEMBER_EXISTS(settings_, keychain_service_name) &&
+          settings_->keychain_service_name.length > 0) {
+        KeychainPassword::GetServiceName() =
+            CefString(&settings_->keychain_service_name).ToString();
+      }
+      if (CEF_MEMBER_EXISTS(settings_, keychain_account_name) &&
+          settings_->keychain_account_name.length > 0) {
+        KeychainPassword::GetAccountName() =
+            CefString(&settings_->keychain_account_name).ToString();
+      }
     }
 #endif
 
