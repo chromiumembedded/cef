@@ -21,6 +21,12 @@
 #include "cef/libcef/browser/image_impl.h"
 #include "cef/libcef/browser/views/widget.h"
 #include "cef/libcef/browser/views/window_impl.h"
+
+#if BUILDFLAG(IS_LINUX)
+#include "cef/libcef/browser/views/linux_frame_view.h"
+#include "ui/linux/linux_ui.h"
+#include "ui/linux/linux_ui_factory.h"
+#endif
 #include "ui/base/hit_test.h"
 #include "ui/base/metadata/metadata_impl_macros.h"
 #include "ui/base/mojom/ui_base_types.mojom-shared.h"
@@ -539,6 +545,13 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
     params.opacity = views::Widget::InitParams::WindowOpacity::kOpaque;
   } else {
     params.type = views::Widget::InitParams::TYPE_WINDOW;
+#if BUILDFLAG(IS_LINUX)
+    if (auto* linux_ui_theme = ui::GetDefaultLinuxUiTheme()) {
+      if (linux_ui_theme->GetWindowFrameProvider(false, false, false)) {
+        params.opacity = views::Widget::InitParams::WindowOpacity::kTranslucent;
+      }
+    }
+#endif
   }
 
   if (cef_delegate()) {
@@ -811,8 +824,19 @@ std::unique_ptr<views::FrameView> CefWindowView::CreateFrameView(
                                                weak_ptr_factory_.GetWeakPtr());
   }
 
-  // Use Chromium provided CustomFrameView. In case if we would like to
-  // customize the frame, provide own implementation.
+#if BUILDFLAG(IS_LINUX)
+  // When the compositor does not support server-side decorations (e.g.
+  // GNOME/Mutter on Wayland), use GTK-themed client-side decorations
+  // instead of falling back to Chromium's DefaultFrameView.
+  if (auto* linux_ui_theme = ui::GetDefaultLinuxUiTheme()) {
+    if (linux_ui_theme->GetWindowFrameProvider(
+            /*solid_frame=*/false, /*tiled=*/false, /*maximized=*/false)) {
+      return std::make_unique<LinuxFrameView>(
+          widget, weak_ptr_factory_.GetWeakPtr(), linux_ui_theme);
+    }
+  }
+#endif
+
   return nullptr;
 }
 

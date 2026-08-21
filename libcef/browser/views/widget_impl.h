@@ -66,6 +66,9 @@ class CefWidgetImpl : public views::Widget,
   // NativeWidgetDelegate methods:
   void OnNativeWidgetDestroyed() override;
 
+  // views::Widget methods:
+  gfx::Insets GetCustomInsetsInDIP() const override;
+
   // ui::NativeThemeObserver methods:
   void OnNativeThemeUpdated(ui::NativeTheme* observed_theme) override;
   ui::ColorProviderKey GetColorProviderKey() const override;
