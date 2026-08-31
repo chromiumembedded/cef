@@ -811,7 +811,6 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInScreen() {
   return GetViewBounds();
 }
 
-#if !BUILDFLAG(IS_MAC)
 viz::ScopedSurfaceIdAllocator
 CefRenderWidgetHostViewOSR::DidUpdateVisualProperties(
     const cc::RenderFrameMetadata& metadata) {
@@ -820,7 +819,6 @@ CefRenderWidgetHostViewOSR::DidUpdateVisualProperties(
       weak_ptr_factory_.GetWeakPtr(), metadata);
   return viz::ScopedSurfaceIdAllocator(std::move(allocation_task));
 }
-#endif
 
 viz::SurfaceId CefRenderWidgetHostViewOSR::GetCurrentSurfaceId() const {
   return delegated_frame_host_ ? delegated_frame_host_->GetCurrentSurfaceId()

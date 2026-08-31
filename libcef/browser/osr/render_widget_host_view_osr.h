@@ -182,10 +182,8 @@ class CefRenderWidgetHostViewOSR
   void TransformPointToRootSurface(gfx::PointF* point) override;
   gfx::Rect GetBoundsInScreen() override;
 
-#if !BUILDFLAG(IS_MAC)
   viz::ScopedSurfaceIdAllocator DidUpdateVisualProperties(
       const cc::RenderFrameMetadata& metadata) override;
-#endif
 
   viz::SurfaceId GetCurrentSurfaceId() const override;
   bool HasSavedCompositorFrame() const override;
