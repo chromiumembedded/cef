@@ -34,7 +34,7 @@ index 2d73f4cf7e49380c9793751b24ceab848d753e6c..2e95396a5fd514d2953234ca6f57a3f4
  #endif
  
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index d225b3926e66808ba3f78ed9b654517d9fec4b1d..6ccbe28a4765747c5bdf42a294a4b58b2f763705 100644
+index d225b3926e66808ba3f78ed9b654517d9fec4b1d..a6b39be6be391e2ec72bc79bdf80efee7c6cbe1a 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
 @@ -2593,31 +2593,31 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
@@ -90,7 +90,50 @@ index d225b3926e66808ba3f78ed9b654517d9fec4b1d..6ccbe28a4765747c5bdf42a294a4b58b
  
    if (params->update_properties.muted &&
        !SetTabAudioMuted(contents, *params->update_properties.muted,
-@@ -2658,7 +2658,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2627,6 +2627,10 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+   }
+ 
+   if (params->update_properties.opener_tab_id) {
++    if (!target_tab) {
++      return RespondNow(Error(ExtensionTabUtil::kNoCurrentWindowError));
++    }
++
+     int opener_id = *params->update_properties.opener_tab_id;
+     content::WebContents* opener_contents = nullptr;
+     if (opener_id == tab_id) {
+@@ -2642,8 +2646,13 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+ 
+     ::tabs::TabInterface* opener_tab =
+         ::tabs::TabInterface::GetFromContents(opener_contents);
+-    CHECK(opener_tab);
+-    if (!SetOpenerOfTab(*window->profile(), *target_tab, *opener_tab, error)) {
++    if (!opener_tab) {
++      return RespondNow(
++          Error("Tab opener must be in the same window as the updated tab."));
++    }
++
++    auto* profile = Profile::FromBrowserContext(browser_context());
++    if (!SetOpenerOfTab(*profile, *target_tab, *opener_tab, error)) {
+       return RespondNow(Error(std::move(error)));
+     }
+   }
+@@ -2651,14 +2660,19 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+   // TODO(https://crbug.com/505306735): Support on desktop android.
+ #if !BUILDFLAG(IS_ANDROID)
+   if (params->update_properties.auto_discardable) {
+-    bool state = *params->update_properties.auto_discardable;
+-    resource_coordinator::TabLifecycleUnitExternal::FromWebContents(
+-        original_contents)
+-        ->SetAutoDiscardable(state);
++    auto* lifecycle_unit =
++        resource_coordinator::TabLifecycleUnitExternal::FromWebContents(
++            original_contents);
++    if (!lifecycle_unit) {
++      return RespondNow(Error(ExtensionTabUtil::kNoCurrentWindowError));
++    }
++
++    lifecycle_unit->SetAutoDiscardable(
++        *params->update_properties.auto_discardable);
    }
  #endif
  
@@ -99,7 +142,7 @@ index d225b3926e66808ba3f78ed9b654517d9fec4b1d..6ccbe28a4765747c5bdf42a294a4b58b
      bool pinned = *params->update_properties.pinned;
  
      if (target_tab->IsPinned() != pinned) {
-@@ -2688,7 +2688,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2688,7 +2702,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
