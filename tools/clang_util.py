@@ -62,11 +62,14 @@ def clang_eval(file_name, file_contents, defines, includes, verbose):
     print(f'--- Running "{cmd}" in "{cef_dir}"')
 
   result = exec_cmd(cmd, cef_dir, file_contents.encode('utf-8'))
-  if result['err'] != '' or result['ret'] != 0:
+  if result['ret'] != 0:
     error = result['err'].replace('<stdin>', file_name)
     return_code = result['ret']
     sys.stderr.write(f'clang {return_code=} {error=}\n')
     return None
+  if result['err'] != '':
+    warning = result['err'].replace('<stdin>', file_name)
+    sys.stderr.write(f'clang {warning=}\n')
 
   output = result['out']
   if output and sys.platform == 'win32':
