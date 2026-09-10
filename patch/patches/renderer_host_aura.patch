@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 98013c7c0835ee6f163d4c233abacdb223da02c3..be7928977ab7eec3f7196cb60974d33b61bf72a1 100644
+index 443976e1b6ad4d1b2e86b2a886ed39b354f71393..d6e601b6df0734816cc26ad038c3c56d73967a2c 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -8,6 +8,7 @@
@@ -18,7 +18,7 @@ index 98013c7c0835ee6f163d4c233abacdb223da02c3..be7928977ab7eec3f7196cb60974d33b
  #include "content/public/common/page_visibility_state.h"
  #include "services/service_manager/public/cpp/interface_provider.h"
  #include "third_party/blink/public/common/input/web_input_event.h"
-@@ -862,6 +864,9 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBoundsWithoutTransform() {
+@@ -868,6 +870,9 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBoundsWithoutTransform() {
  void RenderWidgetHostViewAura::UpdateBackgroundColor() {
    CHECK(GetBackgroundColor());
  
@@ -28,7 +28,7 @@ index 98013c7c0835ee6f163d4c233abacdb223da02c3..be7928977ab7eec3f7196cb60974d33b
    SkColor4f background_color =
        SkColor4f::FromColor(GetBackgroundColor().value());
    window_->layer()->SetFillsBoundsOpaquely(background_color.isOpaque());
-@@ -1247,6 +1252,12 @@ void RenderWidgetHostViewAura::TransformPointToRootSurface(gfx::PointF* point) {
+@@ -1253,6 +1258,12 @@ void RenderWidgetHostViewAura::TransformPointToRootSurface(gfx::PointF* point) {
  }
  
  gfx::Rect RenderWidgetHostViewAura::GetBoundsInScreen() {
@@ -41,7 +41,7 @@ index 98013c7c0835ee6f163d4c233abacdb223da02c3..be7928977ab7eec3f7196cb60974d33b
    aura::Window* top_level = window_->GetToplevelWindow();
    gfx::Rect bounds(top_level->GetBoundsInScreen());
  
-@@ -2980,6 +2991,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -2986,6 +2997,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    window_->layer()->SetFillsBoundsOpaquely(background_color.isOpaque());
    window_->layer()->AsSurface()->SetFallbackBackgroundColor(background_color);
    UpdateFrameSinkIdRegistration();

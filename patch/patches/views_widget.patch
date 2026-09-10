@@ -258,7 +258,7 @@ index aeaf8e35f7eda89598149117fe8508d197bf2610..4b7cc3f03d3cf9c91ac8efe11ae820cf
 +  [MinVersion=1] kEnd = 7,
  };
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
-index 523ddb31b87ded9e4cea39ff2f15f0845dfb9d34..70a4ae4e713e2eb7f7c3b255675dc74d4834a031 100644
+index de7873f39561d047db7023933c18cedd7d5d9a8f..cfe5ce81b04ecbe03ff5ba4567d1b2a09bad2942 100644
 --- ui/ozone/platform/x11/x11_window.cc
 +++ ui/ozone/platform/x11/x11_window.cc
 @@ -1936,7 +1936,17 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {

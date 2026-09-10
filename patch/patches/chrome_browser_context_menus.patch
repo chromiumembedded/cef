@@ -1,8 +1,8 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index e83482272770b878b860e27c7caf5c7eef334673..c90dee7676ece6d39ba671402a14f180125afa51 100644
+index b6c3e9dacf530d158636154b95c67967351d9d2d..f7cc01954609529152fffe95d4f556eb918c2c1b 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
-@@ -477,6 +477,18 @@ ui::ImageModel GetLensContextMenuIcon() {
+@@ -478,6 +478,18 @@ ui::ImageModel GetLensContextMenuIcon() {
    );
  }
  
@@ -21,7 +21,7 @@ index e83482272770b878b860e27c7caf5c7eef334673..c90dee7676ece6d39ba671402a14f180
  enum class UmaEnumIdLookupType {
    GeneralEnumId,
    ContextSpecificEnumId,
-@@ -766,6 +778,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
+@@ -767,6 +779,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
      return 1;
    }
  
@@ -32,7 +32,7 @@ index e83482272770b878b860e27c7caf5c7eef334673..c90dee7676ece6d39ba671402a14f180
    id = CollapseCommandsForUMA(id);
    return UmaEnumForCommand(id, type);
  }
-@@ -1107,6 +1123,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -1108,6 +1124,14 @@ RenderViewContextMenu::RenderViewContextMenu(
    system_app_ = app_controller ? app_controller->system_app() : nullptr;
  #endif  // BUILDFLAG(IS_CHROMEOS)
  
@@ -47,7 +47,7 @@ index e83482272770b878b860e27c7caf5c7eef334673..c90dee7676ece6d39ba671402a14f180
    observers_.AddObserver(&autofill_context_menu_manager_);
  }
  
-@@ -1572,6 +1596,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1573,6 +1597,12 @@ void RenderViewContextMenu::InitMenu() {
        AppendReadAnythingItem();
      }
    }
@@ -60,7 +60,7 @@ index e83482272770b878b860e27c7caf5c7eef334673..c90dee7676ece6d39ba671402a14f180
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -4312,6 +4342,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
+@@ -4315,6 +4345,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
    observers_.RemoveObserver(observer);
  }
  

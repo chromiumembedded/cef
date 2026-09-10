@@ -829,10 +829,10 @@ index 1ee5f63dd6806e2701002c550e423f90a071f422..68969c512a8b4be6e14fb0f6c7d3ce99
    virtual bool IsBookmarkBarVisible() const = 0;
    virtual bool IsInfobarVisible() const = 0;
 diff --git chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.cc chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.cc
-index e51647c429151fd07b32102fa5e9423967cdec16..6eb5bfa261907cec3077ac18e87fde69bf817981 100644
+index 92e34d2ca223db583d13dab3ada25746ecf2af92..dee2c106e810476c61bf2c76bda5a447c6ff019b 100644
 --- chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.cc
 +++ chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.cc
-@@ -131,6 +131,15 @@ views::LayoutAlignment BrowserViewLayoutDelegateImpl::GetWindowTitleAlignment()
+@@ -130,6 +130,15 @@ views::LayoutAlignment BrowserViewLayoutDelegateImpl::GetWindowTitleAlignment()
    return GetFrameView()->GetWindowTitleAlignment();
  }
  
@@ -849,7 +849,7 @@ index e51647c429151fd07b32102fa5e9423967cdec16..6eb5bfa261907cec3077ac18e87fde69
    return browser_view_->IsToolbarVisible();
  }
 diff --git chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.h chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.h
-index 0340813d5e0834af5b1ae1af4f02ab04dea77d64..a1a9fb235433e553bffbd4ac31cef271149bd2ee 100644
+index 45dfe521b7df966c0c25434654a37486cd15fd5e..19d881a7267ea858020076357e642e4343111dc5 100644
 --- chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.h
 +++ chrome/browser/ui/views/frame/layout/browser_view_layout_delegate_impl.h
 @@ -31,6 +31,7 @@ class BrowserViewLayoutDelegateImpl : public BrowserViewLayoutDelegate {
@@ -994,10 +994,10 @@ index 2ed2551ecd268e624bd7b32769b46b8f90342662..89355560f1b21440adb9b6c5e0c0e9bc
  
  gfx::Size PictureInPictureBrowserFrameView::GetNonClientViewAreaSize() const {
 diff --git chrome/browser/ui/views/location_bar/location_bar_view.cc chrome/browser/ui/views/location_bar/location_bar_view.cc
-index f97b92504ba812fd6e5dc25f1974fc86b3bc1d52..11180335c1aa44be7571bff95d4b1636071b49b2 100644
+index b9988028f46205d0c5cb21c19c1c72143eba8adc..35e0bd508cf77c27e1f4f8255edb645757ff37f3 100644
 --- chrome/browser/ui/views/location_bar/location_bar_view.cc
 +++ chrome/browser/ui/views/location_bar/location_bar_view.cc
-@@ -167,6 +167,10 @@
+@@ -168,6 +168,10 @@
  #include "chrome/browser/web_applications/web_app_tab_helper.h"
  #endif
  
@@ -1008,7 +1008,7 @@ index f97b92504ba812fd6e5dc25f1974fc86b3bc1d52..11180335c1aa44be7571bff95d4b1636
  namespace {
  
  int IncrementalMinimumWidth(const views::View* view) {
-@@ -338,7 +342,16 @@ void LocationBarView::Init() {
+@@ -352,7 +356,16 @@ void LocationBarView::Init() {
    // since they're not supported there and will result in extra Omnibox
    // processes being created (note that the address bar is not shown in web
    // apps).
@@ -1026,7 +1026,7 @@ index f97b92504ba812fd6e5dc25f1974fc86b3bc1d52..11180335c1aa44be7571bff95d4b1636
      if (omnibox::IsAimPopupFeatureEnabled()) {
        omnibox_popup_aim_presenter_ = std::make_unique<OmniboxPopupAimPresenter>(
            /*location_bar=*/this, omnibox_controller_.get(),
-@@ -366,7 +379,7 @@ void LocationBarView::Init() {
+@@ -380,7 +393,7 @@ void LocationBarView::Init() {
      }
    }
  
@@ -1035,7 +1035,7 @@ index f97b92504ba812fd6e5dc25f1974fc86b3bc1d52..11180335c1aa44be7571bff95d4b1636
    // When the legacy `OmniboxPopupViewViews` is deprecated we will need to
    // ensure that a null `omnibox_popup_view_` doesn't cause any issues (or aim
    // for a cleaner solution).
-@@ -449,6 +462,18 @@ void LocationBarView::Init() {
+@@ -463,6 +476,18 @@ void LocationBarView::Init() {
      page_action_items = page_actions::GetActivePageActionItems(*browser_);
    }
  

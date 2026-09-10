@@ -709,7 +709,7 @@ index c6e44f9a4bc2653d58eff131d9692b98b88d43f1..01cc9425dc8eb10e27384e0e1f11e894
    // focused state.
    std::optional<tab_groups::TabGroupId> focused_tab_group_id;
 diff --git chrome/browser/ui/navigator/browser_navigator.cc chrome/browser/ui/navigator/browser_navigator.cc
-index e762162e5f104f7dfbe514063adcff90131f6800..520aeaa19a3bc29a406aff989402e8a0d41ae8b5 100644
+index 258f996c80e242be692352754f336d275bb479a9..b77007bfbe2840a2b7ea620a3a2f12dbeafd6fc6 100644
 --- chrome/browser/ui/navigator/browser_navigator.cc
 +++ chrome/browser/ui/navigator/browser_navigator.cc
 @@ -31,6 +31,7 @@

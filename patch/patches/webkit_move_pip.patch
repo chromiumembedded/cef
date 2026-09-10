@@ -120,7 +120,7 @@ index 1e3e8468080c44a9f2426f3cc6d43a00c3e2eec2..10f4a61be8cd32be8249bbcc87225193
    "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_document_picture_in_picture_event_init.h",
    "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_document_picture_in_picture_options.cc",
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 4b5370c5bdf5a660eac33a1c5758a25b17344750..522768641ee23022876a8646e1e8a44ac1234607 100644
+index 57ef111ae28017f4452baf6de46ac2480c58db24..20a7ec3edc810c7367c9225f05ef06e939867681 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -323,6 +323,20 @@ class CORE_EXPORT WebViewImpl final : public WebView,
@@ -144,7 +144,7 @@ index 4b5370c5bdf5a660eac33a1c5758a25b17344750..522768641ee23022876a8646e1e8a44a
    void DispatchPersistedPageshow(base::TimeTicks navigation_start);
    void DispatchPagehide(mojom::blink::PagehideDispatch pagehide_dispatch);
    void HookBackForwardCacheEviction(bool hook);
-@@ -1021,6 +1035,9 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -1024,6 +1038,9 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    // native restoration. Reset on each lifecycle update.
    bool last_page_lifecycle_state_update_restored_from_bfcache_ = false;
  

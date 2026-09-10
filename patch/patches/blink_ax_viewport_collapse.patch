@@ -94,7 +94,7 @@ index c2fa942417b9bc24519078b8faf8c384c24ffb9b..c02dd3b7e559fd63e7f3f72bac025e8e
    void SetTextTrackKindUserPreference(TextTrackKindUserPreference) override;
    void SetTextTrackBackgroundColor(const WebString&) override;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index b24669cc62b9c4b1a9d9ee84609832ae52ceffed..3c5bbc24998dc5d18a52e0f84f4ee2c261e740ea 100644
+index 66e05f0dd9d7e87a02fc6e76ce74d4d149f4a943..12d8c8b79556f5e707af80426645a98f9cad3e12 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -1866,6 +1866,8 @@ void WebView::ApplyWebPreferences(const web_pref::WebPreferences& prefs,
