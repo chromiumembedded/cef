@@ -1,0 +1,135 @@
+diff --git components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc
+index 3e5d9426b39af120da83d903b2de4ba0be0aec88..3b5c31ad9274d3a8e67c19d556098c8be724c4dd 100644
+--- components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc
++++ components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc
+@@ -1481,16 +1481,20 @@ void FrameSinkVideoCapturerImpl::MaybeDeliverFrame(FrameCapture frame_capture) {
+     // frame is desirable.)
+     if (frame_capture.frame->metadata().capture_version != capture_version()) {
+       frame_capture.CaptureFailed(CaptureResult::kSubCaptureTargetChanged);
+-    } else if (!oracle_->CompleteCapture(frame_capture.oracle_frame_number,
+-                                         frame_capture.success(),
+-                                         &media_ticks)) {
+-      // The Oracle has the final say in whether frame delivery will proceed. It
+-      // also rewrites the media timestamp in terms of the smooth flow of the
+-      // original source content.
+-      frame_capture.CaptureFailed(CaptureResult::kOracleRejectedFrame);
+     }
+   }
+ 
++  // Complete every recorded capture, including failed copies and frames from
++  // an obsolete capture target. Otherwise the oracle's pending-frame count
++  // prevents subsequent refresh requests from capturing a replacement frame.
++  const bool deliver_frame = oracle_->CompleteCapture(
++      frame_capture.oracle_frame_number, frame_capture.success(), &media_ticks);
++  if (frame_capture.success() && !deliver_frame) {
++    // The oracle also decides whether successful captures should be delivered
++    // and rewrites their timestamps to smooth the flow of the source content.
++    frame_capture.CaptureFailed(CaptureResult::kOracleRejectedFrame);
++  }
++
+   if (!frame_capture.success()) {
+     const media::VideoFrameMetadata& metadata = frame_capture.frame_metadata();
+     TRACE_EVENT_END("gpu.capture", CaptureTrack(metadata), "result",
+@@ -1601,6 +1605,8 @@ void FrameSinkVideoCapturerImpl::OnLog(const std::string& message) {
+ bool FrameSinkVideoCapturerImpl::ShouldMark(const media::VideoFrame& frame,
+                                             int64_t content_version) const {
+   return !marked_frame_ || content_version > content_version_in_marked_frame_ ||
++         frame.metadata().capture_version >
++             marked_frame_->metadata().capture_version ||
+          frame.coded_size() != marked_frame_->coded_size();
+ }
+ 
+@@ -1614,7 +1620,8 @@ void FrameSinkVideoCapturerImpl::MarkFrame(
+ bool FrameSinkVideoCapturerImpl::CanResurrectFrame(
+     const gfx::Size& size) const {
+   return content_version_ == content_version_in_marked_frame_ &&
+-         marked_frame_ && marked_frame_->coded_size() == size;
++         marked_frame_ && marked_frame_->coded_size() == size &&
++         marked_frame_->metadata().capture_version == capture_version();
+ }
+ 
+ void FrameSinkVideoCapturerImpl::NotifyFrameReleased(
+diff --git components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc
+index 3bdea0e0b3935ef4c12be9856e25c7544d25b199..8a86149bdee908d6e2f4f0086d0f05273bcb0ed4 100644
+--- components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc
++++ components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc
+@@ -557,6 +557,12 @@ class FakeCapturableFrameSink : public CapturableFrameSink {
+     PropagateMojoTasks(task_runner_);
+   }
+ 
++  void DropCopyOutputResult(int offset) {
++    // Destroying the request sends an empty result, just like a failed copy.
++    results_[offset].Reset();
++    PropagateMojoTasks(task_runner_);
++  }
++
+   void set_task_runner(scoped_refptr<base::TestMockTimeTaskRunner> runner) {
+     task_runner_ = std::move(runner);
+   }
+@@ -1538,6 +1544,66 @@ TEST_P(FrameSinkVideoCapturerTest, EventuallySendsARefreshFrame) {
+   StopCapture();
+ }
+ 
++// A failed readback must not leave the oracle waiting for a capture that will
++// never complete. The retry must work without new damage or a refresh demand.
++TEST_P(FrameSinkVideoCapturerTest, RefreshRecoversAfterFailedCopy) {
++  EXPECT_CALL(frame_sink_manager_, FindCapturableFrameSink(kVideoCaptureTarget))
++      .WillRepeatedly(Return(&frame_sink_));
++  capturer_->ChangeTarget(kVideoCaptureTarget,
++                          /*sub_capture_target_version=*/0);
++  NiceMock<MockConsumer> consumer;
++  StartCapture(&consumer);
++  ASSERT_EQ(1, frame_sink_.num_copy_results());
++  frame_sink_.DropCopyOutputResult(0);
++  EXPECT_EQ(0, consumer.num_frames_received());
++  ASSERT_TRUE(IsRefreshRetryTimerRunning());
++
++  AdvanceClockForRefreshTimer();
++  ASSERT_EQ(2, frame_sink_.num_copy_results());
++  frame_sink_.SendCopyOutputResult(1);
++  ASSERT_EQ(1, consumer.num_frames_received());
++  EXPECT_FALSE(IsRefreshRetryTimerRunning());
++  consumer.SendDoneNotification(0);
++  StopCapture();
++}
++
++// A successful copy can still be dropped if its capture target changed while
++// the copy was in flight. That drop must also complete the oracle's capture.
++TEST_P(FrameSinkVideoCapturerTest, RefreshRecoversAfterCaptureVersionChange) {
++  EXPECT_CALL(frame_sink_manager_, FindCapturableFrameSink(kVideoCaptureTarget))
++      .WillRepeatedly(Return(&frame_sink_));
++  capturer_->ChangeTarget(kVideoCaptureTarget,
++                          /*sub_capture_target_version=*/0);
++  NiceMock<MockConsumer> consumer;
++  StartCapture(&consumer);
++  ASSERT_EQ(1, frame_sink_.num_copy_results());
++  capturer_->ChangeTarget(kVideoCaptureTarget,
++                          /*sub_capture_target_version=*/1);
++  frame_sink_.SendCopyOutputResult(0);
++  EXPECT_EQ(0, consumer.num_frames_received());
++  ASSERT_TRUE(IsRefreshRetryTimerRunning());
++
++  AdvanceClockForRefreshTimer();
++  // The cached copy has the obsolete capture version and must not be reused.
++  ASSERT_EQ(2, frame_sink_.num_copy_results());
++  frame_sink_.SendCopyOutputResult(1);
++  ASSERT_EQ(1, consumer.num_frames_received());
++  EXPECT_EQ(media::CaptureVersion(kSourceId, 1),
++            consumer.TakeFrame(0)->metadata().capture_version);
++  EXPECT_FALSE(IsRefreshRetryTimerRunning());
++  consumer.SendDoneNotification(0);
++
++  // The replacement should become the cached frame for subsequent refreshes.
++  capturer_->RequestRefreshFrame();
++  AdvanceClockForRefreshTimer();
++  EXPECT_EQ(2, frame_sink_.num_copy_results());
++  ASSERT_EQ(2, consumer.num_frames_received());
++  EXPECT_EQ(media::CaptureVersion(kSourceId, 1),
++            consumer.TakeFrame(1)->metadata().capture_version);
++  consumer.SendDoneNotification(1);
++  StopCapture();
++}
++
+ // Tests that refresh demands result in a frame being delivered to
+ // the consumer in a timely fashion.
+ TEST_P(FrameSinkVideoCapturerTest, RefreshDemandsAreProperlyHandled) {
