@@ -229,6 +229,8 @@
       'tests/shared/process_helper_mac.cc',
     ],
     'shared_sources_osr_mac': [
+      'tests/shared/browser/osr_begin_frame_timer_mac.h',
+      'tests/shared/browser/osr_begin_frame_timer_mac.mm',
       'tests/shared/browser/osr_renderer_metal.h',
       'tests/shared/browser/osr_renderer_metal.mm',
     ],
@@ -689,6 +691,7 @@
       'tests/ceftests/win/ceftests.rc',
     ],
     'ceftests_sources_mac': [
+      'tests/ceftests/osr_begin_frame_unittest_mac.mm',
       'tests/ceftests/osr_renderer_metal_unittest.mm',
       'tests/ceftests/os_rendering_unittest_mac.h',
       'tests/ceftests/os_rendering_unittest_mac.mm',
