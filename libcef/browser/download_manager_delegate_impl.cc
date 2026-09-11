@@ -63,6 +63,19 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
         suggested_name_(suggested_name),
         callback_(std::move(callback)) {}
 
+  ~CefBeforeDownloadCallbackImpl() override {
+    if (!callback_.is_null()) {
+      // The callback is still pending. Cancel it now.
+      if (CEF_CURRENTLY_ON_UIT()) {
+        RunDownloadTargetCallback(std::move(callback_), base::FilePath());
+      } else {
+        CEF_POST_TASK(CEF_UIT,
+                      base::BindOnce(&RunDownloadTargetCallback,
+                                     std::move(callback_), base::FilePath()));
+      }
+    }
+  }
+
   CefBeforeDownloadCallbackImpl(const CefBeforeDownloadCallbackImpl&) = delete;
   CefBeforeDownloadCallbackImpl& operator=(
       const CefBeforeDownloadCallbackImpl&) = delete;
@@ -297,11 +310,8 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
 }  // namespace
 
 CefDownloadManagerDelegateImpl::CefDownloadManagerDelegateImpl(
-    DownloadManager* manager,
-    bool alloy_bootstrap)
-    : manager_(manager),
-      manager_ptr_factory_(manager),
-      alloy_bootstrap_(alloy_bootstrap) {
+    DownloadManager* manager)
+    : manager_(manager), manager_ptr_factory_(manager) {
   DCHECK(manager);
   manager->AddObserver(this);
 
@@ -393,20 +403,11 @@ void CefDownloadManagerDelegateImpl::ManagerGoingDown(
 bool CefDownloadManagerDelegateImpl::DetermineDownloadTarget(
     DownloadItem* item,
     download::DownloadTargetCallback* callback) {
-  if (alloy_bootstrap_) {
-    const auto& forced_path = item->GetForcedFilePath();
-    if (!forced_path.empty()) {
-      RunDownloadTargetCallback(std::move(*callback), forced_path);
-      return true;
-    }
-  }
-
   // This callback may arrive before OnDownloadCreated, so we allow association
   // from either method.
   CefRefPtr<CefBrowserHostBase> browser = GetOrAssociateBrowser(item);
   if (!browser) {
-    // Cancel by default with Alloy bootstrap.
-    return alloy_bootstrap_;
+    return false;
   }
 
   bool handled = false;
@@ -454,8 +455,17 @@ bool CefDownloadManagerDelegateImpl::DetermineDownloadTarget(
     std::ignore = download_item->Detach(nullptr);
   }
 
-  // Cancel by default with Alloy style.
-  return handled ? true : alloy_bootstrap_;
+  if (handled) {
+    return true;
+  }
+
+  // Cancel unhandled downloads with Alloy style. Chrome style uses the default
+  // Chrome download handling.
+  if (browser->IsAlloyStyle()) {
+    RunDownloadTargetCallback(std::move(*callback), base::FilePath());
+    return true;
+  }
+  return false;
 }
 
 void CefDownloadManagerDelegateImpl::OnBrowserDestroyed(
@@ -520,9 +530,6 @@ CefRefPtr<CefBrowserHostBase> CefDownloadManagerDelegateImpl::GetBrowser(
 
 void CefDownloadManagerDelegateImpl::ResetManager() {
   if (manager_) {
-    if (alloy_bootstrap_) {
-      manager_->SetDelegate(nullptr);
-    }
     manager_->RemoveObserver(this);
     manager_ptr_factory_.InvalidateWeakPtrs();
     manager_ = nullptr;

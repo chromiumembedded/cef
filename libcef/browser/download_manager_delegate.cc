@@ -11,8 +11,7 @@ namespace cef {
 // static
 std::unique_ptr<cef::DownloadManagerDelegate> DownloadManagerDelegate::Create(
     content::DownloadManager* download_manager) {
-  return std::make_unique<CefDownloadManagerDelegateImpl>(
-      download_manager, /*alloy_bootstrap=*/false);
+  return std::make_unique<CefDownloadManagerDelegateImpl>(download_manager);
 }
 
 }  // namespace cef

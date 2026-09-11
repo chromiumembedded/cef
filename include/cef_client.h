@@ -102,7 +102,8 @@ class CefClient : public virtual CefBaseRefCounted {
 
   ///
   /// Return the handler for download events. If no handler is returned
-  /// downloads will not be allowed.
+  /// downloads will be canceled with Alloy style and will proceed with default
+  /// handling with Chrome style.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefDownloadHandler> GetDownloadHandler() { return nullptr; }
