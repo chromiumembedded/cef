@@ -6,7 +6,7 @@
 
 #import <AppKit/NSAccessibility.h>
 #include <Cocoa/Cocoa.h>
-#include <OpenGL/gl.h>
+#import <QuartzCore/CAMetalLayer.h>
 #import <objc/runtime.h>
 
 #include <optional>
@@ -23,20 +23,18 @@
 #include "tests/cefclient/browser/util_mac.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
+#include "tests/shared/browser/osr_renderer_metal.h"
 
-// Begin disable NSOpenGL deprecation warnings.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-
-@interface BrowserOpenGLView
-    : NSOpenGLView <NSDraggingSource, NSDraggingDestination, NSAccessibility> {
+@interface BrowserOsrView
+    : NSView <NSDraggingSource, NSDraggingDestination, NSAccessibility> {
  @private
   NSTrackingArea* tracking_area_;
   client::BrowserWindowOsrMac* browser_window_;
-  client::OsrRenderer* renderer_;
+  client::OsrRendererMetal* renderer_;
   NSPoint last_mouse_pos_;
   NSPoint cur_mouse_pos_;
   bool rotating_;
+  bool display_pending_;
 
   bool was_last_mouse_down_on_view_;
 
@@ -60,33 +58,14 @@
   id endWheelMonitor_;
 }
 
-@end  // @interface BrowserOpenGLView
+- (void)requestDisplay;
+- (void)updateDrawableSize;
+@end  // @interface BrowserOsrView
 
 namespace {
 
 NSString* const kCEFDragDummyPboardType = @"org.CEF.drag-dummy-type";
 NSString* const kNSURLTitlePboardType = @"public.url-name";
-
-class ScopedGLContext {
- public:
-  ScopedGLContext(BrowserOpenGLView* view, bool swap_buffers)
-      : swap_buffers_(swap_buffers) {
-    context_ = [view openGLContext];
-    [context_ makeCurrentContext];
-  }
-  ~ScopedGLContext() {
-    [NSOpenGLContext clearCurrentContext];
-    if (swap_buffers_) {
-      [context_ flushBuffer];
-    }
-  }
-
-  NSOpenGLContext* context() const { return context_; }
-
- private:
-  NSOpenGLContext* context_;
-  const bool swap_buffers_;
-};
 
 NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   NSRect point_rect = NSMakeRect(point.x, point.y, 0, 0);
@@ -95,23 +74,16 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 
 }  // namespace
 
-@implementation BrowserOpenGLView
+@implementation BrowserOsrView
 
 - (id)initWithFrame:(NSRect)frame
     andBrowserWindow:(client::BrowserWindowOsrMac*)browser_window
-         andRenderer:(client::OsrRenderer*)renderer {
-  NSOpenGLPixelFormat* pixelFormat = [[NSOpenGLPixelFormat alloc]
-      initWithAttributes:(NSOpenGLPixelFormatAttribute[]){
-                             NSOpenGLPFADoubleBuffer, NSOpenGLPFADepthSize, 32,
-                             0}];
-#if !__has_feature(objc_arc)
-  [pixelFormat autorelease];
-#endif  // !__has_feature(objc_arc)
-
-  if (self = [super initWithFrame:frame pixelFormat:pixelFormat]) {
+         andRenderer:(client::OsrRendererMetal*)renderer {
+  if (self = [super initWithFrame:frame]) {
     browser_window_ = browser_window;
     renderer_ = renderer;
     rotating_ = false;
+    display_pending_ = false;
     endWheelMonitor_ = nil;
     device_scale_factor_ = 1.0f;
 
@@ -123,8 +95,16 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
             userInfo:nil];
     [self addTrackingArea:tracking_area_];
 
-    // enable HiDPI buffer
-    [self setWantsBestResolutionOpenGLSurface:YES];
+    self.wantsLayer = YES;
+    CAMetalLayer* metal_layer = [CAMetalLayer layer];
+    metal_layer.device = renderer_->device();
+    metal_layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    metal_layer.framebufferOnly = YES;
+    metal_layer.opaque = YES;
+    CGColorSpaceRef color_space = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
+    metal_layer.colorspace = color_space;
+    CGColorSpaceRelease(color_space);
+    self.layer = metal_layer;
 
     [self resetDragDrop];
 
@@ -138,10 +118,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (void)dealloc {
-  [[NSNotificationCenter defaultCenter]
-      removeObserver:self
-                name:NSWindowDidChangeBackingPropertiesNotification
-              object:nil];
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
 #if !__has_feature(objc_arc)
   if (text_input_context_osr_mac_) {
     [text_input_client_ release];
@@ -152,6 +129,8 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (void)detach {
+  [NSObject cancelPreviousPerformRequestsWithTarget:self];
+  display_pending_ = false;
   renderer_ = nullptr;
   browser_window_ = nullptr;
   if (text_input_client_) {
@@ -167,13 +146,12 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (void)setFrame:(NSRect)frameRect {
-  CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (!browser.get()) {
-    return;
-  }
-
   [super setFrame:frameRect];
-  browser->GetHost()->WasResized();
+  [self updateDrawableSize];
+  CefRefPtr<CefBrowser> browser = [self getBrowser];
+  if (browser) {
+    browser->GetHost()->WasResized();
+  }
 }
 
 - (void)sendMouseClick:(NSEvent*)event
@@ -230,7 +208,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (void)rightMouseUp:(NSEvent*)event {
-  if (rotating_) {
+  if (rotating_ && renderer_) {
     // End rotation effect.
     renderer_->SetSpin(0, 0);
     rotating_ = false;
@@ -791,25 +769,72 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   [self resetDeviceScaleFactor:std::nullopt];
 }
 
-- (void)drawRect:(NSRect)dirtyRect {
-  CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if ([self inLiveResize] || !browser.get()) {
-    // Fill with the background color.
-    const cef_color_t background_color =
-        client::MainContext::Get()->GetBackgroundColor();
-    NSColor* color = [NSColor
-        colorWithCalibratedRed:float(CefColorGetR(background_color)) / 255.0f
-                         green:float(CefColorGetG(background_color)) / 255.0f
-                          blue:float(CefColorGetB(background_color)) / 255.0f
-                         alpha:1.f];
-    [color setFill];
-    NSRectFill(dirtyRect);
-  }
+- (BOOL)wantsUpdateLayer {
+  return YES;
+}
 
-  // The Invalidate below fixes flicker when resizing.
-  if ([self inLiveResize] && browser.get()) {
-    browser->GetHost()->Invalidate(PET_VIEW);
+- (void)updateLayer {
+  [self requestDisplay];
+}
+
+- (void)updateDrawableSize {
+  CAMetalLayer* layer = (CAMetalLayer*)self.layer;
+  if (!renderer_ || ![layer isKindOfClass:[CAMetalLayer class]]) {
+    return;
   }
+  // Physical drawable pixels and CEF's overridable image scale are distinct.
+  NSSize size = [self convertSizeToBacking:self.bounds.size];
+  layer.contentsScale = self.window.backingScaleFactor ?: 1.0;
+  layer.drawableSize = size;
+  [self requestDisplay];
+}
+
+- (void)viewDidMoveToWindow {
+  [super viewDidMoveToWindow];
+  [self updateDrawableSize];
+}
+
+- (void)requestDisplay {
+  if (!renderer_ || display_pending_) {
+    return;
+  }
+  display_pending_ = true;
+  [self performSelector:@selector(displayMetal)
+             withObject:nil
+             afterDelay:0
+                inModes:@[ NSRunLoopCommonModes ]];
+}
+
+- (void)displayMetal {
+  display_pending_ = false;
+  if (!renderer_ || !self.window || self.hiddenOrHasHiddenAncestor ||
+      self.window.miniaturized ||
+      !(self.window.occlusionState & NSWindowOcclusionStateVisible)) {
+    return;
+  }
+  CAMetalLayer* layer = (CAMetalLayer*)self.layer;
+  if (layer.drawableSize.width <= 0 || layer.drawableSize.height <= 0) {
+    return;
+  }
+  @autoreleasepool {
+    // Acquire only after frame ingestion; never hold CEF's IOSurface while
+    // waiting for a drawable. Cocoa exposure/resize can redraw cached pixels.
+    id<CAMetalDrawable> drawable = [layer nextDrawable];
+    if (drawable) {
+      renderer_->Render(drawable.texture, drawable);
+    } else {
+      // Retry a transient drawable shortage even for a static browser image.
+      display_pending_ = true;
+      [self performSelector:@selector(displayMetal)
+                 withObject:nil
+                 afterDelay:1.0 / 60.0
+                    inModes:@[ NSRunLoopCommonModes ]];
+    }
+  }
+}
+
+- (void)windowVisibilityChanged:(NSNotification*)notification {
+  [self requestDisplay];
 }
 
 // Drag and drop
@@ -1153,8 +1178,11 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
       mimeTypeCF = CFStringCreateWithCString(kCFAllocatorDefault,
                                              mimeType.ToString().c_str(),
                                              kCFStringEncodingUTF8);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       fileUTI_ = (__bridge NSString*)UTTypeCreatePreferredIdentifierForTag(
           kUTTagClassMIMEType, mimeTypeCF, nullptr);
+#pragma clang diagnostic pop
       CFRelease(mimeTypeCF);
       // File (HFS) promise.
       NSArray* fileUTIList = @[ fileUTI_ ];
@@ -1250,6 +1278,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 
 - (void)viewDidChangeBackingProperties {
   [super viewDidChangeBackingProperties];
+  [self updateDrawableSize];
   const CGFloat device_scale_factor = [self getDeviceScaleFactor];
 
   if (device_scale_factor == device_scale_factor_) {
@@ -1264,6 +1293,9 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (bool)isOverPopupWidgetX:(int)x andY:(int)y {
+  if (!renderer_) {
+    return false;
+  }
   CefRect rc = renderer_->popup_rect();
   int popup_right = rc.x + rc.width;
   int popup_bottom = rc.y + rc.height;
@@ -1271,11 +1303,15 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (int)getPopupXOffset {
-  return renderer_->original_popup_rect().x - renderer_->popup_rect().x;
+  return renderer_
+             ? renderer_->original_popup_rect().x - renderer_->popup_rect().x
+             : 0;
 }
 
 - (int)getPopupYOffset {
-  return renderer_->original_popup_rect().y - renderer_->popup_rect().y;
+  return renderer_
+             ? renderer_->original_popup_rect().y - renderer_->popup_rect().y
+             : 0;
 }
 
 - (void)applyPopupOffsetToX:(int&)x andY:(int&)y {
@@ -1422,11 +1458,11 @@ class BrowserWindowOsrMacImpl {
   BrowserWindowOsrMac& browser_window_;
   // The below members will only be accessed on the main thread which should be
   // the same as the CEF UI thread.
-  OsrRenderer renderer_;
+  const OsrRendererSettings settings_;
+  OsrRendererMetal renderer_;
   std::optional<float> initial_scale_factor_;
-  BrowserOpenGLView* native_browser_view_;
+  BrowserOsrView* native_browser_view_;
   bool hidden_;
-  bool painting_popup_;
 };
 
 BrowserWindowOsrMacImpl::BrowserWindowOsrMacImpl(
@@ -1435,10 +1471,10 @@ BrowserWindowOsrMacImpl::BrowserWindowOsrMacImpl(
     const OsrRendererSettings& settings,
     BrowserWindowOsrMac& browser_window)
     : browser_window_(browser_window),
-      renderer_(settings),
+      settings_(settings),
+      renderer_(settings.background_color, settings.show_update_rect),
       native_browser_view_(nil),
-      hidden_(false),
-      painting_popup_(false) {}
+      hidden_(false) {}
 
 BrowserWindowOsrMacImpl::~BrowserWindowOsrMacImpl() {
   if (native_browser_view_) {
@@ -1462,10 +1498,9 @@ void BrowserWindowOsrMacImpl::CreateBrowser(
   window_info.SetAsWindowless(
       CAST_NSVIEW_TO_CEF_WINDOW_HANDLE(native_browser_view_));
 
-  window_info.shared_texture_enabled =
-      renderer_.settings().shared_texture_enabled;
+  window_info.shared_texture_enabled = settings_.shared_texture_enabled;
   window_info.external_begin_frame_enabled =
-      renderer_.settings().external_begin_frame_enabled;
+      settings_.external_begin_frame_enabled;
 
   // Windowless rendering requires Alloy style.
   DCHECK_EQ(CEF_RUNTIME_STYLE_ALLOY, window_info.runtime_style);
@@ -1487,10 +1522,9 @@ void BrowserWindowOsrMacImpl::GetPopupConfig(CefWindowHandle temp_handle,
   // Windowless rendering requires Alloy style.
   DCHECK_EQ(CEF_RUNTIME_STYLE_ALLOY, windowInfo.runtime_style);
 
-  windowInfo.shared_texture_enabled =
-      renderer_.settings().shared_texture_enabled;
+  windowInfo.shared_texture_enabled = settings_.shared_texture_enabled;
   windowInfo.external_begin_frame_enabled =
-      renderer_.settings().external_begin_frame_enabled;
+      settings_.external_begin_frame_enabled;
 
   client = browser_window_.client_handler_;
 }
@@ -1522,6 +1556,7 @@ void BrowserWindowOsrMacImpl::Show() {
     browser_window_.browser_->GetHost()->WasHidden(false);
     hidden_ = false;
   }
+  [native_browser_view_ requestDisplay];
 
   // Give focus to the browser.
   browser_window_.browser_->GetHost()->SetFocus(true);
@@ -1594,12 +1629,14 @@ void BrowserWindowOsrMacImpl::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
       ClientHandlerOsr::GetForClient(browser_window_.client_handler_);
   CHECK(handler);
   handler->DetachOsrDelegate();
+  [native_browser_view_ detach];
+  renderer_.Cleanup();
 }
 
 bool BrowserWindowOsrMacImpl::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
                                                 CefRect& rect) {
   CEF_REQUIRE_UI_THREAD();
-  if (!renderer_.settings().real_screen_bounds) {
+  if (!settings_.real_screen_bounds) {
     return false;
   }
 
@@ -1700,7 +1737,7 @@ bool BrowserWindowOsrMacImpl::GetScreenInfo(CefRefPtr<CefBrowser> browser,
 
   screen_info.device_scale_factor = [native_browser_view_ getDeviceScaleFactor];
 
-  if (renderer_.settings().real_screen_bounds) {
+  if (settings_.real_screen_bounds) {
     CefRect root_rect;
     GetRootScreenRect(browser, root_rect);
 
@@ -1728,11 +1765,8 @@ void BrowserWindowOsrMacImpl::OnPopupShow(CefRefPtr<CefBrowser> browser,
     return;
   }
 
-  if (!show) {
-    renderer_.ClearPopupRects();
-    browser->GetHost()->Invalidate(PET_VIEW);
-  }
-  renderer_.OnPopupShow(browser, show);
+  renderer_.OnPopupShow(show);
+  [native_browser_view_ requestDisplay];
 }
 
 void BrowserWindowOsrMacImpl::OnPopupSize(CefRefPtr<CefBrowser> browser,
@@ -1749,7 +1783,8 @@ void BrowserWindowOsrMacImpl::OnPopupSize(CefRefPtr<CefBrowser> browser,
   // |rect| is in browser view coordinates. Convert to device coordinates.
   CefRect device_rect = LogicalToDevice(rect, device_scale_factor);
 
-  renderer_.OnPopupSize(browser, device_rect);
+  renderer_.OnPopupSize(device_rect);
+  [native_browser_view_ requestDisplay];
 }
 
 void BrowserWindowOsrMacImpl::OnPaint(
@@ -1771,20 +1806,9 @@ void BrowserWindowOsrMacImpl::OnPaint(
     return;
   }
 
-  if (painting_popup_) {
-    renderer_.OnPaint(browser, type, dirtyRects, buffer, width, height);
-    return;
+  if (renderer_.OnPaint(type, dirtyRects, buffer, width, height)) {
+    [native_browser_view_ requestDisplay];
   }
-
-  ScopedGLContext scoped_gl_context(native_browser_view_, true);
-
-  renderer_.OnPaint(browser, type, dirtyRects, buffer, width, height);
-  if (type == PET_VIEW && !renderer_.popup_rect().IsEmpty()) {
-    painting_popup_ = true;
-    browser->GetHost()->Invalidate(PET_POPUP);
-    painting_popup_ = false;
-  }
-  renderer_.Render();
 }
 
 void BrowserWindowOsrMacImpl::OnAcceleratedPaint(
@@ -1799,32 +1823,9 @@ void BrowserWindowOsrMacImpl::OnAcceleratedPaint(
     return;
   }
 
-  ScopedGLContext scoped_gl_context(native_browser_view_, true);
-
-  IOSurfaceRef io_surface = (IOSurfaceRef)info.shared_texture_io_surface;
-
-  GLuint rectTexture;
-  glGenTextures(1, &rectTexture);
-  glEnable(GL_TEXTURE_RECTANGLE_ARB);
-  glBindTexture(GL_TEXTURE_RECTANGLE_ARB, rectTexture);
-
-  CGLContextObj cgl_context = CGLGetCurrentContext();
-
-  GLsizei width = (GLsizei)IOSurfaceGetWidth(io_surface);
-  GLsizei height = (GLsizei)IOSurfaceGetHeight(io_surface);
-
-  CGLTexImageIOSurface2D(cgl_context, GL_TEXTURE_RECTANGLE_ARB, GL_RGBA8, width,
-                         height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV,
-                         io_surface, 0);
-
-  glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  glBindTexture(GL_TEXTURE_RECTANGLE_ARB, 0);
-
-  renderer_.OnAcceleratedPaint(browser, type, dirtyRects, rectTexture, width,
-                               height);
-  renderer_.Render();
+  if (renderer_.OnAcceleratedPaint(type, dirtyRects, info)) {
+    [native_browser_view_ requestDisplay];
+  }
 }
 
 void BrowserWindowOsrMacImpl::OnCursorChange(
@@ -1915,12 +1916,15 @@ void BrowserWindowOsrMacImpl::Create(ClientWindowHandle parent_handle,
                                      const CefRect& rect) {
   REQUIRE_MAIN_THREAD();
   DCHECK(!native_browser_view_);
+  CHECK(!settings_.external_begin_frame_enabled)
+      << "External begin frames are not supported by macOS cefclient OSR";
+  CHECK(renderer_.Initialize())
+      << "Failed to initialize the Metal OSR renderer";
 
   NSRect window_rect = NSMakeRect(rect.x, rect.y, rect.width, rect.height);
-  native_browser_view_ =
-      [[BrowserOpenGLView alloc] initWithFrame:window_rect
-                              andBrowserWindow:&browser_window_
-                                   andRenderer:&renderer_];
+  native_browser_view_ = [[BrowserOsrView alloc] initWithFrame:window_rect
+                                              andBrowserWindow:&browser_window_
+                                                   andRenderer:&renderer_];
   native_browser_view_.autoresizingMask =
       (NSViewWidthSizable | NSViewHeightSizable);
   native_browser_view_.autoresizesSubviews = YES;
@@ -1934,6 +1938,11 @@ void BrowserWindowOsrMacImpl::Create(ClientWindowHandle parent_handle,
       addObserver:native_browser_view_
          selector:@selector(windowDidChangeBackingProperties:)
              name:NSWindowDidChangeBackingPropertiesNotification
+           object:native_browser_view_.window];
+  [[NSNotificationCenter defaultCenter]
+      addObserver:native_browser_view_
+         selector:@selector(windowVisibilityChanged:)
+             name:NSWindowDidChangeOcclusionStateNotification
            object:native_browser_view_.window];
 }
 
@@ -2102,6 +2111,3 @@ void BrowserWindowOsrMac::UpdateAccessibilityLocation(
 }
 
 }  // namespace client
-
-// End disable NSOpenGL deprecation warnings.
-#pragma clang diagnostic pop

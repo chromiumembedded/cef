@@ -2260,6 +2260,7 @@ if (is_mac) {
               gypi_paths2.shared_sources_mac +
               gypi_paths2.cefclient_sources_browser +
               gypi_paths2.cefclient_sources_common +
+              gypi_paths2.shared_sources_osr_mac +
               gypi_paths2.cefclient_sources_mac
     deps = [
       ":libcef_dll_wrapper",
@@ -2270,7 +2271,8 @@ if (is_mac) {
     frameworks = [
       "AppKit.framework",
       "IOSurface.framework",
-      "OpenGL.framework",
+      "Metal.framework",
+      "QuartzCore.framework",
     ]
     defines = [
       "CEF_USE_SANDBOX",
@@ -2480,6 +2482,7 @@ if (is_mac) {
               gypi_paths2.shared_sources_common +
               gypi_paths2.shared_sources_mac +
               gypi_paths2.ceftests_sources_common +
+              gypi_paths2.shared_sources_osr_mac +
               gypi_paths2.ceftests_sources_mac
     deps = [
       ":libcef_dll_wrapper",
@@ -2492,6 +2495,9 @@ if (is_mac) {
     ]
     frameworks = [
       "AppKit.framework",
+      "IOSurface.framework",
+      "Metal.framework",
+      "QuartzCore.framework",
     ]
     defines = [
       "CEF_USE_SANDBOX",

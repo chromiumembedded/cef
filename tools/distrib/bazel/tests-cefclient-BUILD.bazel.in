@@ -63,6 +63,7 @@ declare_objc_library(
     deps = [
         "//:cef_wrapper",
         "//tests/shared:BrowserLibMac",
+        "//tests/shared:OsrLibMac",
     ],
 )
 

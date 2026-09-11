@@ -30,6 +30,10 @@ srcs_browser_mac = [
     ${shared_sources_mac}
 ]
 
+srcs_osr_mac = [
+    ${shared_sources_osr_mac}
+]
+
 srcs_browser_mac_ceftests = [
     ${ceftests_sources_mac_browser_shared}
 ]
@@ -77,6 +81,17 @@ declare_objc_library(
 declare_cc_library(
     name = "RendererLibMac",
     srcs = srcs_common + srcs_renderer + srcs_renderer_mac,
+    target_compatible_with = [
+        "@platforms//os:macos",
+    ],
+    deps = [
+        "//:cef_wrapper",
+    ],
+)
+
+declare_objc_library(
+    name = "OsrLibMac",
+    srcs = srcs_osr_mac,
     target_compatible_with = [
         "@platforms//os:macos",
     ],
@@ -142,4 +157,3 @@ filegroup(
         "@platforms//os:linux",
     ],
 )
-

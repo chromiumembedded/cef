@@ -228,6 +228,10 @@
     'shared_sources_mac_helper': [
       'tests/shared/process_helper_mac.cc',
     ],
+    'shared_sources_osr_mac': [
+      'tests/shared/browser/osr_renderer_metal.h',
+      'tests/shared/browser/osr_renderer_metal.mm',
+    ],
     'shared_sources_win': [
       'tests/shared/browser/main_message_loop_external_pump_win.cc',
       'tests/shared/browser/resource_util_win.cc',
@@ -277,7 +281,6 @@
       'tests/cefclient/browser/media_router_test.h',
       'tests/cefclient/browser/osr_dragdrop_events.h',
       'tests/cefclient/browser/osr_renderer.h',
-      'tests/cefclient/browser/osr_renderer.cc',
       'tests/cefclient/browser/osr_renderer_settings.h',
       'tests/cefclient/browser/preferences_test.cc',
       'tests/cefclient/browser/preferences_test.h',
@@ -364,6 +367,7 @@
       'tests/cefclient/resources/xmlhttprequest.html',
     ],
     'cefclient_sources_win': [
+      'tests/cefclient/browser/osr_renderer.cc',
       'tests/cefclient/browser/browser_window_osr_win.cc',
       'tests/cefclient/browser/browser_window_osr_win.h',
       'tests/cefclient/browser/browser_window_std_win.cc',
@@ -440,6 +444,7 @@
       'tests/cefclient/mac/Info.plist.in',
     ],
     'cefclient_sources_linux': [
+      'tests/cefclient/browser/osr_renderer.cc',
       'tests/cefclient/browser/browser_window_osr_gtk.cc',
       'tests/cefclient/browser/browser_window_osr_gtk.h',
       'tests/cefclient/browser/browser_window_std_gtk.cc',
@@ -684,6 +689,7 @@
       'tests/ceftests/win/ceftests.rc',
     ],
     'ceftests_sources_mac': [
+      'tests/ceftests/osr_renderer_metal_unittest.mm',
       'tests/ceftests/os_rendering_unittest_mac.h',
       'tests/ceftests/os_rendering_unittest_mac.mm',
       'tests/ceftests/run_all_unittests_mac.mm',

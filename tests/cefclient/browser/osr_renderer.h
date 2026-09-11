@@ -14,8 +14,7 @@
 
 // Enable shader-based rendering for Linux only. Windows still uses OpenGL 1.1
 // to avoid the added complexity of linking newer OpenGL APIs on that platform.
-// MacOS has deprecated OpenGL and we should eventually provide a Metal-based
-// implementation on that platform.
+// MacOS uses OsrRendererMetal instead of this OpenGL renderer.
 #if defined(OS_LINUX)
 #define USE_SHADERS 1
 #else
