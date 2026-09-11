@@ -24,8 +24,7 @@ class CefDownloadManagerDelegateImpl
       public cef::DownloadManagerDelegate,
       public CefBrowserHostBase::Observer {
  public:
-  CefDownloadManagerDelegateImpl(content::DownloadManager* manager,
-                                 bool alloy_bootstrap);
+  explicit CefDownloadManagerDelegateImpl(content::DownloadManager* manager);
 
   CefDownloadManagerDelegateImpl(const CefDownloadManagerDelegateImpl&) =
       delete;
@@ -60,7 +59,6 @@ class CefDownloadManagerDelegateImpl
 
   raw_ptr<content::DownloadManager> manager_;
   base::WeakPtrFactory<content::DownloadManager> manager_ptr_factory_;
-  const bool alloy_bootstrap_;
 
   // Map of DownloadItem to originating CefBrowserHostBase. Maintaining this
   // map is necessary because DownloadItem::GetWebContents() may return NULL if
