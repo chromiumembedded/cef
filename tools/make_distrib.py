@@ -1268,6 +1268,8 @@ def main(argv=None):
       # transfer shared files
       transfer_gypi_files(cef_dir, cef_paths2['shared_sources_win'], \
                           'tests/shared/', shared_dir, options.quiet)
+      transfer_gypi_files(cef_dir, cef_paths2['shared_sources_osr_accessibility'], \
+                          'tests/shared/', shared_dir, options.quiet)
 
       # transfer cefclient files
       transfer_gypi_files(
@@ -1440,6 +1442,8 @@ def main(argv=None):
       transfer_gypi_files(cef_dir, cef_paths2['shared_sources_mac'], \
                           'tests/shared/', shared_dir, options.quiet)
       transfer_gypi_files(cef_dir, cef_paths2['shared_sources_osr_mac'], \
+                          'tests/shared/', shared_dir, options.quiet)
+      transfer_gypi_files(cef_dir, cef_paths2['shared_sources_osr_accessibility'], \
                           'tests/shared/', shared_dir, options.quiet)
       transfer_gypi_files(cef_dir, cef_paths2['shared_sources_mac_helper'], \
                           'tests/shared/', shared_dir, options.quiet)

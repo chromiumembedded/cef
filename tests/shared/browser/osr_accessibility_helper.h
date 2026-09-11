@@ -2,8 +2,8 @@
 // 2013 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_CEFCLIENT_BROWSER_OSR_ACCESSIBILITY_HELPER_H_
-#define CEF_TESTS_CEFCLIENT_BROWSER_OSR_ACCESSIBILITY_HELPER_H_
+#ifndef CEF_TESTS_SHARED_BROWSER_OSR_ACCESSIBILITY_HELPER_H_
+#define CEF_TESTS_SHARED_BROWSER_OSR_ACCESSIBILITY_HELPER_H_
 
 #include <map>
 
@@ -26,6 +26,7 @@ class OsrAXTree {
   void SetRootNodeId(int nodeId) { root_node_id_ = nodeId; }
 
  private:
+  friend class OsrAccessibilityHelper;
   CefString parent_tree_id_;
   int root_node_id_ = -1;
   std::map<int, OsrAXNode*> node_map_;
@@ -38,6 +39,10 @@ class OsrAccessibilityHelper {
  public:
   OsrAccessibilityHelper(CefRefPtr<CefValue> value,
                          CefRefPtr<CefBrowser> browser);
+  ~OsrAccessibilityHelper();
+
+  OsrAccessibilityHelper(const OsrAccessibilityHelper&) = delete;
+  OsrAccessibilityHelper& operator=(const OsrAccessibilityHelper&) = delete;
 
   void UpdateAccessibilityTree(CefRefPtr<CefValue> value);
 
@@ -78,4 +83,4 @@ class OsrAccessibilityHelper {
 
 }  // namespace client
 
-#endif  // CEF_TESTS_CEFCLIENT_BROWSER_OSR_ACCESSIBILITY_HELPER_H_
+#endif  // CEF_TESTS_SHARED_BROWSER_OSR_ACCESSIBILITY_HELPER_H_

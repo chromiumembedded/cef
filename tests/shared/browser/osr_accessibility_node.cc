@@ -5,9 +5,9 @@
 // Base class implementation for CEF Acccessibility node. This is subclassed and
 // used by both IAccessible/NSAccessibility protocol implementation.
 
-#include "tests/cefclient/browser/osr_accessibility_node.h"
+#include "tests/shared/browser/osr_accessibility_node.h"
 
-#include "tests/cefclient/browser/osr_accessibility_helper.h"
+#include "tests/shared/browser/osr_accessibility_helper.h"
 
 namespace client {
 

@@ -2,9 +2,9 @@
 // 2013 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "tests/cefclient/browser/osr_accessibility_helper.h"
+#include "tests/shared/browser/osr_accessibility_helper.h"
 
-#include "tests/cefclient/browser/osr_accessibility_node.h"
+#include "tests/shared/browser/osr_accessibility_node.h"
 
 namespace client {
 
@@ -41,6 +41,10 @@ OsrAccessibilityHelper::OsrAccessibilityHelper(CefRefPtr<CefValue> value,
                                                CefRefPtr<CefBrowser> browser)
     : browser_(browser) {
   UpdateAccessibilityTree(value);
+}
+
+OsrAccessibilityHelper::~OsrAccessibilityHelper() {
+  Reset();
 }
 
 int OsrAccessibilityHelper::CastToInt(CefRefPtr<CefValue> value) {
@@ -226,10 +230,22 @@ void OsrAccessibilityHelper::UpdateFocusedNode(const CefString& treeId,
 }
 
 void OsrAccessibilityHelper::Reset() {
-  accessibility_node_map_.clear();
+  // Remove nodes from lookups before destruction notifications can reenter.
+  decltype(accessibility_node_map_) trees;
+  trees.swap(accessibility_node_map_);
   root_tree_id_ = "";
   focused_tree_id_ = "";
   focused_node_id_ = -1;
+  for (auto& [tree_id, tree] : trees) {
+    for (auto& [node_id, node] : tree.node_map_) {
+      node->SetParent(nullptr);
+    }
+  }
+  for (auto& [tree_id, tree] : trees) {
+    for (auto& [node_id, node] : tree.node_map_) {
+      node->Destroy();
+    }
+  }
 }
 
 void OsrAccessibilityHelper::DestroyNode(OsrAXNode* node) {

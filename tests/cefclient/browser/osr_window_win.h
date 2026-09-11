@@ -11,10 +11,10 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/browser/client_handler_osr.h"
-#include "tests/cefclient/browser/osr_accessibility_node.h"
 #include "tests/cefclient/browser/osr_dragdrop_win.h"
 #include "tests/cefclient/browser/osr_render_handler_win.h"
 #include "tests/cefclient/browser/osr_renderer_settings.h"
+#include "tests/shared/browser/osr_accessibility_node.h"
 
 namespace client {
 
