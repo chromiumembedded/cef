@@ -23,6 +23,7 @@
 #include "tests/cefclient/browser/util_mac.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
+#include "tests/shared/browser/osr_begin_frame_timer_mac.h"
 #include "tests/shared/browser/osr_renderer_metal.h"
 
 @interface BrowserOsrView
@@ -1460,6 +1461,7 @@ class BrowserWindowOsrMacImpl {
   // the same as the CEF UI thread.
   const OsrRendererSettings settings_;
   OsrRendererMetal renderer_;
+  OsrBeginFrameTimerMac begin_frame_timer_;
   std::optional<float> initial_scale_factor_;
   BrowserOsrView* native_browser_view_;
   bool hidden_;
@@ -1618,11 +1620,18 @@ ClientWindowHandle BrowserWindowOsrMacImpl::GetWindowHandle() const {
 
 void BrowserWindowOsrMacImpl::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
+  if (settings_.external_begin_frame_enabled) {
+    begin_frame_timer_.Start(settings_.begin_frame_rate, [browser]() {
+      browser->GetHost()->SendExternalBeginFrame();
+    });
+  }
 }
 
 void BrowserWindowOsrMacImpl::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
   REQUIRE_MAIN_THREAD();
+
+  begin_frame_timer_.Stop();
 
   // Detach |this| from the ClientHandlerOsr.
   auto handler =
@@ -1916,8 +1925,6 @@ void BrowserWindowOsrMacImpl::Create(ClientWindowHandle parent_handle,
                                      const CefRect& rect) {
   REQUIRE_MAIN_THREAD();
   DCHECK(!native_browser_view_);
-  CHECK(!settings_.external_begin_frame_enabled)
-      << "External begin frames are not supported by macOS cefclient OSR";
   CHECK(renderer_.Initialize())
       << "Failed to initialize the Metal OSR renderer";
 
