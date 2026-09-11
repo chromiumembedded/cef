@@ -63,6 +63,7 @@ declare_objc_library(
         "//tests/gmock",
         "//tests/gtest",
         "//tests/shared:BrowserLibMacCefTests",
+        "//tests/shared:OsrLibMac",
     ],
 )
 

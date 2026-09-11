@@ -15,6 +15,7 @@
     'shared_sources_common',
     'shared_sources_linux:LINUX',
     'shared_sources_mac:MAC',
+    'shared_sources_osr_mac:MAC',
     'shared_sources_renderer:WINDOWS',
     'shared_sources_renderer:LINUX',
     'shared_sources_win:WINDOWS',
@@ -140,7 +141,7 @@ if(OS_MAC)
   add_executable(${CEF_TARGET} MACOSX_BUNDLE ${UNITTESTS_RESOURCES_SRCS} ${UNITTESTS_SRCS})
   SET_EXECUTABLE_TARGET_PROPERTIES(${CEF_TARGET})
   add_dependencies(${CEF_TARGET} libcef_dll_wrapper cef_gmock cef_gtest)
-  target_link_libraries(${CEF_TARGET} libcef_dll_wrapper cef_gmock cef_gtest ${CEF_STANDARD_LIBS})
+  target_link_libraries(${CEF_TARGET} libcef_dll_wrapper cef_gmock cef_gtest ${CEF_STANDARD_LIBS} "-framework Metal" "-framework QuartzCore")
   set_target_properties(${CEF_TARGET} PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/mac/Info.plist.in
     )

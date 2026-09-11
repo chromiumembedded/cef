@@ -43,7 +43,8 @@ declare_main_app(
     ],
     linkopts = [
         "-framework IOSurface",
-        "-framework OpenGL",
+        "-framework Metal",
+        "-framework QuartzCore",
     ],
     resources = [
         ":ResourcesMac",
