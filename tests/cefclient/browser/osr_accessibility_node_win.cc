@@ -6,7 +6,7 @@
 // data back and forth between MSAA clients and CefClient renderers.
 // Sample implementation based on ui\accessibility\ax_platform_node_win.h
 
-#include "tests/cefclient/browser/osr_accessibility_node.h"
+#include "tests/shared/browser/osr_accessibility_node.h"
 
 #if defined(CEF_USE_ATL)
 
@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "tests/cefclient/browser/osr_accessibility_helper.h"
+#include "tests/shared/browser/osr_accessibility_helper.h"
 
 namespace client {
 
@@ -234,9 +234,9 @@ struct CefIAccessible : public IAccessible {
   STDMETHODIMP GetTypeInfoCount(unsigned int FAR* pctinfo) override;
   STDMETHODIMP GetTypeInfo(unsigned int iTInfo,
                            LCID lcid,
-                           ITypeInfo FAR* FAR* ppTInfo) override;
+                           ITypeInfo FAR * FAR * ppTInfo) override;
   STDMETHODIMP GetIDsOfNames(REFIID riid,
-                             OLECHAR FAR* FAR* rgszNames,
+                             OLECHAR FAR * FAR * rgszNames,
                              unsigned int cNames,
                              LCID lcid,
                              DISPID FAR* rgDispId) override;
@@ -673,12 +673,12 @@ STDMETHODIMP CefIAccessible::GetTypeInfoCount(unsigned int FAR* pctinfo) {
 
 STDMETHODIMP CefIAccessible::GetTypeInfo(unsigned int iTInfo,
                                          LCID lcid,
-                                         ITypeInfo FAR* FAR* ppTInfo) {
+                                         ITypeInfo FAR * FAR * ppTInfo) {
   return E_NOTIMPL;
 }
 
 STDMETHODIMP CefIAccessible::GetIDsOfNames(REFIID riid,
-                                           OLECHAR FAR* FAR* rgszNames,
+                                           OLECHAR FAR * FAR * rgszNames,
                                            unsigned int cNames,
                                            LCID lcid,
                                            DISPID FAR* rgDispId) {

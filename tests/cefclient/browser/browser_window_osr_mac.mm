@@ -17,12 +17,12 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/cefclient/browser/bytes_write_handler.h"
 #include "tests/cefclient/browser/main_context.h"
-#include "tests/cefclient/browser/osr_accessibility_helper.h"
-#include "tests/cefclient/browser/osr_accessibility_node.h"
 #include "tests/cefclient/browser/text_input_client_osr_mac.h"
 #include "tests/cefclient/browser/util_mac.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
+#include "tests/shared/browser/osr_accessibility_helper.h"
+#include "tests/shared/browser/osr_accessibility_node.h"
 #include "tests/shared/browser/osr_begin_frame_timer_mac.h"
 #include "tests/shared/browser/osr_renderer_metal.h"
 
@@ -119,6 +119,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (void)dealloc {
+  [self detach];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 #if !__has_feature(objc_arc)
   if (text_input_context_osr_mac_) {
@@ -132,6 +133,10 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 - (void)detach {
   [NSObject cancelPreviousPerformRequestsWithTarget:self];
   display_pending_ = false;
+  // Clear the view's pointer before destruction notifications can reenter it.
+  auto* accessibility_helper = accessibility_helper_;
+  accessibility_helper_ = nullptr;
+  delete accessibility_helper;
   renderer_ = nullptr;
   browser_window_ = nullptr;
   if (text_input_client_) {
@@ -1108,9 +1113,11 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
     client::OsrAXNode* node = accessibility_helper_->GetRootNode();
     // Add Root as first Kid
     NSMutableArray* kids = [NSMutableArray arrayWithCapacity:1];
-    NSObject* child = CAST_CEF_NATIVE_ACCESSIBLE_TO_NSOBJECT(
-        node->GetNativeAccessibleObject(nullptr));
-    [kids addObject:child];
+    if (node) {
+      NSObject* child = CAST_CEF_NATIVE_ACCESSIBLE_TO_NSOBJECT(
+          node->GetNativeAccessibleObject(nullptr));
+      [kids addObject:child];
+    }
     return NSAccessibilityUnignoredChildren(kids);
   } else {
     return [super accessibilityAttributeValue:attribute];

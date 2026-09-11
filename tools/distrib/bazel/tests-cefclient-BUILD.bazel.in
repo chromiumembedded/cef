@@ -96,7 +96,9 @@ cc_library(
 # when linking libraries.
 filegroup(
     name = "SrcsWin",
-    srcs = srcs_common + srcs_browser + srcs_browser_win + srcs_renderer,
+    srcs = srcs_common + srcs_browser + srcs_browser_win + srcs_renderer + [
+        "//tests/shared:OsrAccessibilitySrcsWin",
+    ],
     target_compatible_with = [
         "@platforms//os:windows",
     ],

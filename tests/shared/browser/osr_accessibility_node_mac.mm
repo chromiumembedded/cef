@@ -5,12 +5,12 @@
 // Sample implementation for the NSAccessibility protocol for interacting with
 // VoiceOver and other accessibility clients.
 
-#include "tests/cefclient/browser/osr_accessibility_node.h"
+#include "tests/shared/browser/osr_accessibility_node.h"
 
 #import <AppKit/NSAccessibility.h>
 #import <Cocoa/Cocoa.h>
 
-#include "tests/cefclient/browser/osr_accessibility_helper.h"
+#include "tests/shared/browser/osr_accessibility_helper.h"
 
 namespace {
 
@@ -354,60 +354,64 @@ inline int MiddleY(const CefRect& rect) {
 @interface OsrAXNodeObject : NSObject {
   // OsrAXNode* proxy object
   client::OsrAXNode* node_;
-  CefNativeAccessible* parent_;
 }
 
-- (id)init:(client::OsrAXNode*)node;
-+ (OsrAXNodeObject*)elementWithNode:(client::OsrAXNode*)node;
+- (id)initWithNode:(client::OsrAXNode*)node;
+- (void)detach;
 @end
 
 @implementation OsrAXNodeObject
-- (id)init:(client::OsrAXNode*)node {
-  node_ = node;
-  parent_ = node_->GetParentAccessibleObject();
-  if (!parent_) {
-    parent_ = node_->GetWindowHandle();
+- (id)initWithNode:(client::OsrAXNode*)node {
+  if ((self = [super init])) {
+    node_ = node;
   }
   return self;
 }
 
-+ (OsrAXNodeObject*)elementWithNode:(client::OsrAXNode*)node {
-  // We manage the release ourself
-  return [[OsrAXNodeObject alloc] init:node];
+- (void)detach {
+  node_ = nullptr;
 }
 
 - (BOOL)isEqual:(id)object {
-  if ([object isKindOfClass:[OsrAXNodeObject self]]) {
-    OsrAXNodeObject* other = object;
-    return (node_ == other->node_);
-  } else {
-    return NO;
-  }
+  // There is one native wrapper per node. Detached wrappers remain distinct.
+  return self == object;
 }
 
 // Utility methods to map AX information received from renderer
 // to platform properties
 - (NSString*)axRole {
   // Get the Role from CefAccessibilityHelper and Map to NSRole
-  return AxRoleToNSAxRole(node_->AxRole());
+  return node_ ? AxRoleToNSAxRole(node_->AxRole()) : nil;
 }
 
 - (NSString*)axDescription {
+  if (!node_) {
+    return nil;
+  }
   std::string desc = node_->AxDescription();
   return [NSString stringWithUTF8String:desc.c_str()];
 }
 
 - (NSString*)axName {
+  if (!node_) {
+    return nil;
+  }
   std::string desc = node_->AxName();
   return [NSString stringWithUTF8String:desc.c_str()];
 }
 
 - (NSString*)axValue {
+  if (!node_) {
+    return nil;
+  }
   std::string desc = node_->AxValue();
   return [NSString stringWithUTF8String:desc.c_str()];
 }
 
 - (void)doMouseClick:(cef_mouse_button_type_t)type {
+  if (!node_) {
+    return;
+  }
   CefRefPtr<CefBrowser> browser = node_->GetBrowser();
   if (browser) {
     CefMouseEvent mouse_event;
@@ -422,14 +426,18 @@ inline int MiddleY(const CefRect& rect) {
 }
 
 - (NSMutableArray*)getKids {
+  if (!node_) {
+    return nil;
+  }
   int numChilds = node_->GetChildCount();
   if (numChilds > 0) {
     NSMutableArray* kids = [NSMutableArray arrayWithCapacity:numChilds];
     for (int index = 0; index < numChilds; index++) {
       client::OsrAXNode* child = node_->ChildAtIndex(index);
-      [kids addObject:child ? CAST_CEF_NATIVE_ACCESSIBLE_TO_NSOBJECT(
-                                  child->GetNativeAccessibleObject(node_))
-                            : nil];
+      if (child) {
+        [kids addObject:CAST_CEF_NATIVE_ACCESSIBLE_TO_NSOBJECT(
+                            child->GetNativeAccessibleObject(node_))];
+      }
     }
     return kids;
   }
@@ -437,6 +445,9 @@ inline int MiddleY(const CefRect& rect) {
 }
 
 - (NSPoint)position {
+  if (!node_) {
+    return NSZeroPoint;
+  }
   CefRect cef_rect = node_->AxLocation();
   NSPoint origin = NSMakePoint(cef_rect.x, cef_rect.y);
   NSSize size = NSMakeSize(cef_rect.width, cef_rect.height);
@@ -454,6 +465,9 @@ inline int MiddleY(const CefRect& rect) {
 }
 
 - (NSSize)size {
+  if (!node_) {
+    return NSZeroSize;
+  }
   CefRect cef_rect = node_->AxLocation();
   NSRect rect =
       NSMakeRect(cef_rect.x, cef_rect.y, cef_rect.width, cef_rect.height);
@@ -469,7 +483,7 @@ inline int MiddleY(const CefRect& rect) {
 // attributes
 
 - (BOOL)accessibilityIsIgnored {
-  return NO;
+  return node_ == nullptr;
 }
 
 - (NSArray*)accessibilityAttributeNames {
@@ -493,10 +507,16 @@ inline int MiddleY(const CefRect& rect) {
 }
 
 - (id)accessibilityAttributeValue:(NSString*)attribute {
-  NSObject* typed_parent = CAST_CEF_NATIVE_ACCESSIBLE_TO_NSOBJECT(parent_);
   if (!node_) {
     return nil;
   }
+  // Resolve the current parent only while attached. Do not cache an unowned
+  // native parent pointer, which can outlive the parent or miss reparenting.
+  CefNativeAccessible* parent = node_->GetParentAccessibleObject();
+  if (!parent) {
+    parent = node_->GetWindowHandle();
+  }
+  NSObject* typed_parent = CAST_CEF_NATIVE_ACCESSIBLE_TO_NSOBJECT(parent);
   if ([attribute isEqualToString:NSAccessibilityRoleAttribute]) {
     return [self axRole];
   } else if ([attribute
@@ -535,15 +555,15 @@ inline int MiddleY(const CefRect& rect) {
 }
 
 - (id)accessibilityHitTest:(NSPoint)point {
-  return NSAccessibilityUnignoredAncestor(self);
+  return node_ ? NSAccessibilityUnignoredAncestor(self) : nil;
 }
 
 - (NSArray*)accessibilityActionNames {
-  return [NSArray arrayWithObject:NSAccessibilityPressAction];
+  return node_ ? @[ NSAccessibilityPressAction ] : @[];
 }
 
 - (NSString*)accessibilityActionDescription:(NSString*)action {
-  return NSAccessibilityActionDescription(action);
+  return node_ ? NSAccessibilityActionDescription(action) : nil;
 }
 
 - (void)accessibilityPerformAction:(NSString*)action {
@@ -557,13 +577,11 @@ inline int MiddleY(const CefRect& rect) {
 }
 
 - (id)accessibilityFocusedUIElement {
-  return NSAccessibilityUnignoredAncestor(self);
+  return node_ ? NSAccessibilityUnignoredAncestor(self) : nil;
 }
 
 - (BOOL)accessibilityNotifiesWhenDestroyed {
-  // Indicate that BrowserAccessibilityCocoa will post a notification when it's
-  // destroyed (see -detach). This allows VoiceOver to do some internal things
-  // more efficiently.
+  // OsrAXNode::Destroy posts the notification after detaching this wrapper.
   return YES;
 }
 
@@ -590,9 +608,21 @@ void OsrAXNode::NotifyAccessibilityEvent(std::string event_type) const {
 
 void OsrAXNode::Destroy() {
   if (platform_accessibility_) {
+    // Transfer our ownership to a local before notifying clients, which may
+    // reenter the wrapper or keep it alive after the C++ node is deleted.
+#if __has_feature(objc_arc)
+    OsrAXNodeObject* object =
+        (__bridge_transfer OsrAXNodeObject*)platform_accessibility_;
+#else
+    OsrAXNodeObject* object = (OsrAXNodeObject*)platform_accessibility_;
+#endif
+    platform_accessibility_ = nullptr;
+    [object detach];
     NSAccessibilityPostNotification(
-        CAST_CEF_NATIVE_ACCESSIBLE_TO_NSOBJECT(platform_accessibility_),
-        NSAccessibilityUIElementDestroyedNotification);
+        object, NSAccessibilityUIElementDestroyedNotification);
+#if !__has_feature(objc_arc)
+    [object release];
+#endif
   }
 
   delete this;
@@ -601,10 +631,16 @@ void OsrAXNode::Destroy() {
 // Create and return NSAccessibility Implementation Object for Mac
 CefNativeAccessible* OsrAXNode::GetNativeAccessibleObject(
     client::OsrAXNode* parent) {
-  if (!platform_accessibility_) {
-    platform_accessibility_ = CAST_NSOBJECT_TO_CEF_NATIVE_ACCESSIBLE(
-        [OsrAXNodeObject elementWithNode:this]);
+  if (parent) {
     SetParent(parent);
+  }
+  if (!platform_accessibility_) {
+    OsrAXNodeObject* object = [[OsrAXNodeObject alloc] initWithNode:this];
+#if __has_feature(objc_arc)
+    platform_accessibility_ = (__bridge_retained CefNativeAccessible*)object;
+#else
+    platform_accessibility_ = object;
+#endif
   }
   return platform_accessibility_;
 }

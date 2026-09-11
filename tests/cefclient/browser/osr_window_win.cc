@@ -15,14 +15,14 @@
 #include "include/base/cef_build.h"
 #include "include/views/cef_display.h"
 #include "tests/cefclient/browser/main_context.h"
-#include "tests/cefclient/browser/osr_accessibility_helper.h"
-#include "tests/cefclient/browser/osr_accessibility_node.h"
 #include "tests/cefclient/browser/osr_ime_handler_win.h"
 #include "tests/cefclient/browser/osr_render_handler_win_d3d11.h"
 #include "tests/cefclient/browser/osr_render_handler_win_gl.h"
 #include "tests/cefclient/browser/resource.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
+#include "tests/shared/browser/osr_accessibility_helper.h"
+#include "tests/shared/browser/osr_accessibility_node.h"
 #include "tests/shared/browser/util_win.h"
 
 namespace client {

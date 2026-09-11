@@ -2261,6 +2261,7 @@ if (is_mac) {
               gypi_paths2.cefclient_sources_browser +
               gypi_paths2.cefclient_sources_common +
               gypi_paths2.shared_sources_osr_mac +
+              gypi_paths2.shared_sources_osr_accessibility +
               gypi_paths2.cefclient_sources_mac
     deps = [
       ":libcef_dll_wrapper",
@@ -2483,6 +2484,7 @@ if (is_mac) {
               gypi_paths2.shared_sources_mac +
               gypi_paths2.ceftests_sources_common +
               gypi_paths2.shared_sources_osr_mac +
+              gypi_paths2.shared_sources_osr_accessibility +
               gypi_paths2.ceftests_sources_mac
     deps = [
       ":libcef_dll_wrapper",
@@ -2569,6 +2571,7 @@ if (is_mac) {
                  gypi_paths2.includes_wrapper_win +
                  gypi_paths2.shared_sources_win +
                  gypi_paths2.cefclient_sources_win +
+                 gypi_paths2.shared_sources_osr_accessibility +
                  gypi_paths2.cefclient_sources_resources_win_rc
 
       # Set /SUBSYSTEM:WINDOWS.
@@ -2665,6 +2668,7 @@ if (is_mac) {
                 gypi_paths2.cefclient_sources_common +
                 gypi_paths2.cefclient_sources_renderer +
                 gypi_paths2.cefclient_sources_win +
+                gypi_paths2.shared_sources_osr_accessibility +
                 gypi_paths2.cefclient_sources_resources_win_rc + [
                   # Generated installer config resource (embedded in client DLL,
                   # read by bootstrap.exe).

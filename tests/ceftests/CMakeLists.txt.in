@@ -16,6 +16,7 @@
     'shared_sources_linux:LINUX',
     'shared_sources_mac:MAC',
     'shared_sources_osr_mac:MAC',
+    'shared_sources_osr_accessibility:MAC',
     'shared_sources_renderer:WINDOWS',
     'shared_sources_renderer:LINUX',
     'shared_sources_win:WINDOWS',

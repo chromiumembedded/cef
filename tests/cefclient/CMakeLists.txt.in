@@ -53,6 +53,7 @@
   'includes': [
     'shared_sources_mac',
     'shared_sources_osr_mac',
+    'shared_sources_osr_accessibility',
     'cefclient_sources_mac',
   ],
 }}
@@ -72,6 +73,7 @@
   'set': 'CEFCLIENT_WINDOWS_SRCS',
   'includes': [
     'shared_sources_win',
+    'shared_sources_osr_accessibility',
     'cefclient_sources_win',
     'cefclient_sources_resources_win_rc',
   ],
