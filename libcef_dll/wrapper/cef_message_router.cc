@@ -702,13 +702,23 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
         }
 
         CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
+        CefRefPtr<CefBrowser> browser = context->GetBrowser();
+        CefRefPtr<CefFrame> frame = context->GetFrame();
+        // JavaScript can retain and invoke functions from a detached iframe.
+        // Check after reading arguments, which may execute JavaScript getters,
+        // and before registering a context that will never be released again.
+        if (!browser || !frame) {
+          exception =
+              "Cannot call message router functions from a detached frame";
+          return true;
+        }
         const int context_id = GetIDForContext(context);
         const bool persistent =
             (persistentVal.get() && persistentVal->GetBoolValue());
 
-        const int request_id = router_->SendQuery(
-            context->GetBrowser(), context->GetFrame(), context_id, requestVal,
-            persistent, successVal, failureVal);
+        const int request_id =
+            router_->SendQuery(browser, frame, context_id, requestVal,
+                               persistent, successVal, failureVal);
 
         retval = CefV8Value::CreateInt(request_id);
 
@@ -723,10 +733,15 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
         const int request_id = arguments[0]->GetIntValue();
         if (request_id != kReservedId) {
           CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
+          CefRefPtr<CefBrowser> browser = context->GetBrowser();
+          CefRefPtr<CefFrame> frame = context->GetFrame();
+          if (!browser || !frame) {
+            exception =
+                "Cannot call message router functions from a detached frame";
+            return true;
+          }
           const int context_id = GetIDForContext(context);
-          result =
-              router_->SendCancel(context->GetBrowser(), context->GetFrame(),
-                                  context_id, request_id);
+          result = router_->SendCancel(browser, frame, context_id, request_id);
         }
         retval = CefV8Value::CreateBool(result);
         return true;
