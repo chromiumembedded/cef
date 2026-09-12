@@ -1022,8 +1022,7 @@ class DownloadPauseResumeTestHandler : public TestHandler {
     // Continue the download
     callback->Continue(test_path_, false);
 
-    // Immediately pause the download (it hasn't started receiving data yet)
-    // This will be saved as the callback from the first OnDownloadUpdated
+    // OnDownloadUpdated will pause the download before receiving data.
     return true;
   }
 
@@ -1046,13 +1045,6 @@ class DownloadPauseResumeTestHandler : public TestHandler {
     if (!got_paused_ && download_item->IsInProgress()) {
       got_paused_.yes();
       callback->Pause();
-
-      // Resume after a short delay
-      CefPostDelayedTask(
-          TID_UI,
-          base::BindOnce(&DownloadPauseResumeTestHandler::ResumeDownload, this,
-                         callback),
-          50);
       return;
     }
 
@@ -1061,6 +1053,12 @@ class DownloadPauseResumeTestHandler : public TestHandler {
       got_paused_confirmed_.yes();
       // Continue the delayed download now that pause has taken effect.
       ContinueDelayedDownloadIfReady();
+
+      // Pause may be deferred while the download target is determined. Only
+      // resume after observing the paused state; a timer can fire before Pause
+      // takes effect, causing Resume to do nothing and leaving us paused.
+      got_resumed_.yes();
+      callback->Resume();
       return;
     }
 
@@ -1147,11 +1145,6 @@ class DownloadPauseResumeTestHandler : public TestHandler {
     if (got_paused_confirmed_ && !delay_callback_.is_null()) {
       std::move(delay_callback_).Run();
     }
-  }
-
-  void ResumeDownload(CefRefPtr<CefDownloadItemCallback> callback) {
-    got_resumed_.yes();
-    callback->Resume();
   }
 
   CefRefPtr<CefRequestContext> request_context_;
