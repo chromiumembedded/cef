@@ -2017,7 +2017,126 @@ class OSRTestHandler : public RoutingTestHandler,
   IMPLEMENT_REFCOUNTING(OSRTestHandler);
 };
 
+// Reproduce issue #2800 without a timer or animation supplying extra frames.
+class SingleBeginFrameTestHandler : public RoutingTestHandler,
+                                    public CefRenderHandler {
+ public:
+  explicit SingleBeginFrameTestHandler(float scale_factor)
+      : scale_factor_(scale_factor) {}
+
+  void RunTest() override {
+    const char kUrl[] = "https://tests/single_begin_frame";
+    AddResource(kUrl,
+                "<html style='background:#ff0000'><body style='margin:0'>"
+                "<div style='position:fixed;left:50%;top:0;right:0;bottom:0;"
+                "background:#0000ff'></div></body></html>",
+                "text/html");
+    CefWindowInfo window_info;
+    window_info.SetAsWindowless(kNullWindowHandle);
+    window_info.external_begin_frame_enabled = true;
+    window_info.shared_texture_enabled = false;
+    CefBrowserSettings settings;
+    settings.background_color = CefColorSetARGB(255, 255, 255, 255);
+    CefBrowserHost::CreateBrowser(window_info, this, kUrl, settings, nullptr,
+                                  nullptr);
+    SetTestTimeout(10000);
+  }
+
+  CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
+
+  void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override {
+    rect = CefRect(0, 0, 160, 120);
+  }
+
+  bool GetScreenInfo(CefRefPtr<CefBrowser> browser,
+                     CefScreenInfo& screen_info) override {
+    screen_info.device_scale_factor = scale_factor_;
+    screen_info.rect = CefRect(0, 0, 800, 600);
+    screen_info.available_rect = screen_info.rect;
+    return true;
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int http_status_code) override {
+    if (!frame->IsMain() || sent_frame_) {
+      return;
+    }
+    EXPECT_EQ(200, http_status_code);
+    sent_frame_ = true;
+    browser->GetHost()->WasResized();
+    browser->GetHost()->SendExternalBeginFrame();
+  }
+
+  void OnPaint(CefRefPtr<CefBrowser> browser,
+               PaintElementType type,
+               const RectList& dirty_rects,
+               const void* buffer,
+               int width,
+               int height) override {
+    if (type != PET_VIEW || finished_) {
+      return;
+    }
+    if (!sent_frame_) {
+      ++early_paints_;
+      return;
+    }
+    ++paints_;
+    ASSERT_NE(nullptr, buffer);
+    ASSERT_EQ(client::LogicalToDevice(160, scale_factor_), width);
+    ASSERT_EQ(client::LogicalToDevice(120, scale_factor_), height);
+    const auto* pixels = static_cast<const uint32_t*>(buffer);
+    last_pixel_ = pixels[0];
+    // Ignore interim blank frames, but require every pixel of the static page.
+    // Checking both halves rejects black/blank buffers and incomplete content.
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; ++x) {
+        if (pixels[y * width + x] !=
+            (x < width / 2 ? 0xffff0000U : 0xff0000ffU)) {
+          return;
+        }
+      }
+    }
+    finished_ = true;
+    CefPostTask(TID_UI, base::BindOnce(
+                            &SingleBeginFrameTestHandler::DestroyTest, this));
+  }
+
+  void DestroyTest() override {
+    EXPECT_TRUE(sent_frame_) << "Main-frame OnLoadEnd was not received";
+    EXPECT_TRUE(finished_)
+        << "No expected page pixels after one BeginFrame; paints=" << paints_
+        << ", paints before request=" << early_paints_
+        << ", last top-left pixel=" << last_pixel_;
+    RoutingTestHandler::DestroyTest();
+  }
+
+ private:
+  const float scale_factor_;
+  bool sent_frame_ = false;
+  bool finished_ = false;
+  int early_paints_ = 0;
+  int paints_ = 0;
+  uint32_t last_pixel_ = 0;
+
+  IMPLEMENT_REFCOUNTING(SingleBeginFrameTestHandler);
+};
+
 }  // namespace
+
+TEST(OSRTest, SingleFramePaint) {
+  CefRefPtr<SingleBeginFrameTestHandler> handler =
+      new SingleBeginFrameTestHandler(1.0f);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(OSRTest, SingleFramePaint2x) {
+  CefRefPtr<SingleBeginFrameTestHandler> handler =
+      new SingleBeginFrameTestHandler(2.0f);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
 
 // generic test
 #define OSR_TEST(name, test_mode, scale_factor)      \
