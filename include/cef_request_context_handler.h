@@ -77,7 +77,9 @@ class CefRequestContextHandler : public virtual CefBaseRefCounted {
   /// CefResourceRequestHandler object. This method will not be called if the
   /// client associated with |browser| returns a non-NULL value from
   /// CefRequestHandler::GetResourceRequestHandler for the same request
-  /// (identified by CefRequest::GetIdentifier).
+  /// (identified by CefRequest::GetIdentifier). For worker requests without an
+  /// associated frame or process handler, an arbitrary non-NULL handler from
+  /// the contexts sharing the same storage will be used.
   ///
   /*--cef(optional_param=browser,optional_param=frame,
           optional_param=request_initiator)--*/

@@ -9,12 +9,14 @@
 #include <string>
 
 #include "include/base/cef_callback.h"
+#include "include/cef_frame_handler.h"
 #include "include/cef_request_context_handler.h"
 #include "include/cef_scheme.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/ceftests/routing_test_handler.h"
 #include "tests/ceftests/test_handler.h"
+#include "tests/ceftests/test_server_observer.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
@@ -4102,6 +4104,391 @@ TEST(ResourceRequestHandlerTest, WorkerFetch) {
 
 TEST(ResourceRequestHandlerTest, ModuleWorkerFetch) {
   CefRefPtr<WorkerFetchTestHandler> handler = new WorkerFetchTestHandler(true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+namespace {
+
+// Regression test for issue #3593. Keep a service worker alive with waitUntil,
+// then issue a fetch after navigation or browser close destroys its page frame.
+class ServiceWorkerFetchTestHandler : public TestHandler,
+                                      public CefFrameHandler {
+ public:
+  enum class SharedContext { NONE, RETAIN, RELEASE };
+
+  explicit ServiceWorkerFetchTestHandler(
+      bool close_browser,
+      SharedContext shared_context = SharedContext::NONE)
+      : close_browser_(close_browser), shared_context_mode_(shared_context) {}
+
+  void RunTest() override {
+    CefPostTask(TID_UI,
+                base::BindOnce(&ServiceWorkerFetchTestHandler::Start, this));
+  }
+
+  CefRefPtr<CefFrameHandler> GetFrameHandler() override { return this; }
+
+  // All requests must use the request-context handler.
+  CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      bool is_navigation,
+      bool is_download,
+      const CefString& request_initiator,
+      bool& disable_default_handling) override {
+    return nullptr;
+  }
+
+  void OnFrameCreated(CefRefPtr<CefBrowser> browser,
+                      CefRefPtr<CefFrame> frame) override {
+    ++frame_count_;
+  }
+
+  void OnFrameDestroyed(CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefFrame> frame) override {
+    EXPECT_GT(frame_count_, 0);
+    --frame_count_;
+    if (frame->GetIdentifier() == original_frame_id_) {
+      original_frame_destroyed_ = true;
+    }
+    MaybeReleaseWorker();
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int http_status_code) override {
+    if (frame->GetURL() == other_url_) {
+      EXPECT_EQ(200, http_status_code);
+      navigated_ = true;
+      MaybeReleaseWorker();
+    }
+  }
+
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
+    TestHandler::OnBeforeClose(browser);
+    browser_closed_ = true;
+    MaybeReleaseWorker();
+  }
+
+  void DestroyTest() override {
+    EXPECT_UI_THREAD();
+    if (finishing_) {
+      return;
+    }
+    finishing_ = true;
+    EXPECT_EQ(close_browser_, browser_closed_);
+    EXPECT_TRUE(original_frame_destroyed_);
+    EXPECT_TRUE(got_context_handler_);
+    EXPECT_TRUE(got_before_load_);
+    EXPECT_TRUE(got_result_);
+    gate_callback_.Reset();
+    if (server_) {
+      if (server_initialized_) {
+        server_->Shutdown();
+      }
+      // Otherwise OnServerInitialized will shut it down when startup finishes.
+    } else {
+      OnServerShutdown();
+    }
+  }
+
+  void OnTestTimeout(int timeout_ms, bool treat_as_error) override {
+    EXPECT_UI_THREAD();
+    if (treat_as_error) {
+      ADD_FAILURE() << "Test timed out after " << timeout_ms << "ms";
+    }
+    // The base implementation clears the completion count immediately. Keep
+    // waiting for server shutdown before releasing this test's observer.
+    DestroyTest();
+  }
+
+ private:
+  class ContextHandler : public CefRequestContextHandler,
+                         public CefResourceRequestHandler {
+   public:
+    ContextHandler(ServiceWorkerFetchTestHandler* owner,
+                   const std::string& name)
+        : owner_(owner), name_(name) {}
+
+    void OnRequestContextInitialized(
+        CefRefPtr<CefRequestContext> request_context) override {
+      owner_->OnContextInitialized(request_context);
+    }
+
+    CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
+        CefRefPtr<CefBrowser> browser,
+        CefRefPtr<CefFrame> frame,
+        CefRefPtr<CefRequest> request,
+        bool is_navigation,
+        bool is_download,
+        const CefString& request_initiator,
+        bool& disable_default_handling) override {
+      EXPECT_IO_THREAD();
+      if (request->GetURL() != owner_->origin_ + kPath + "test.json") {
+        return nullptr;
+      }
+      EXPECT_FALSE(browser);
+      EXPECT_FALSE(frame);
+      EXPECT_FALSE(is_navigation);
+      EXPECT_FALSE(is_download);
+      EXPECT_EQ(owner_->origin_, request_initiator.ToString());
+      owner_->got_context_handler_.yes();
+      return this;
+    }
+
+    ReturnValue OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                                     CefRefPtr<CefFrame> frame,
+                                     CefRefPtr<CefRequest> request,
+                                     CefRefPtr<CefCallback> callback) override {
+      EXPECT_IO_THREAD();
+      EXPECT_FALSE(browser);
+      EXPECT_FALSE(frame);
+      owner_->got_before_load_.yes();
+      request->SetHeaderByName("X-CEF-Service-Worker", name_, true);
+      return RV_CONTINUE;
+    }
+
+   private:
+    CefRefPtr<ServiceWorkerFetchTestHandler> owner_;
+    const std::string name_;
+    IMPLEMENT_REFCOUNTING(ContextHandler);
+  };
+
+  class Server : public test_server::ObserverHelper {
+   public:
+    explicit Server(ServiceWorkerFetchTestHandler* owner) : owner_(owner) {}
+    void OnInitialized(const std::string& origin) override {
+      // A reused server can initialize synchronously. Continue only after
+      // ObserverHelper::Initialize has finished assigning its registration.
+      CefPostTask(
+          TID_UI,
+          base::BindOnce(&ServiceWorkerFetchTestHandler::OnServerInitialized,
+                         CefRefPtr<ServiceWorkerFetchTestHandler>(owner_),
+                         origin));
+    }
+    bool OnTestServerRequest(CefRefPtr<CefRequest> request,
+                             const ResponseCallback& callback) override {
+      return owner_->OnServerRequest(request, callback);
+    }
+    void OnShutdown() override {
+      // Destroy this observer after its shutdown callback has unwound.
+      CefPostTask(
+          TID_UI,
+          base::BindOnce(&ServiceWorkerFetchTestHandler::OnServerShutdown,
+                         CefRefPtr<ServiceWorkerFetchTestHandler>(owner_)));
+    }
+
+   private:
+    ServiceWorkerFetchTestHandler* const owner_;
+  };
+
+  void Start() {
+    SetSignalTestCompletionCount(1);
+    SetTestTimeout();
+    context_ = CefRequestContext::CreateContext(
+        CefRequestContextSettings(), new ContextHandler(this, "primary"));
+    if (shared_context_mode_ != SharedContext::NONE) {
+      shared_context_ = CefRequestContext::CreateContext(
+          context_, new ContextHandler(this, "shared"));
+    }
+  }
+
+  void OnContextInitialized(CefRefPtr<CefRequestContext> request_context) {
+    EXPECT_UI_THREAD();
+    if (finishing_) {
+      return;
+    }
+    // IsSame compares the underlying browser context, so it cannot distinguish
+    // these two sharing contexts. Their handler instances are distinct.
+    if (request_context->GetHandler().get() == context_->GetHandler().get()) {
+      EXPECT_FALSE(context_initialized_);
+      context_initialized_ = true;
+    } else {
+      EXPECT_TRUE(shared_context_);
+      EXPECT_EQ(shared_context_->GetHandler().get(),
+                request_context->GetHandler().get());
+      EXPECT_FALSE(shared_context_initialized_);
+      shared_context_initialized_ = true;
+    }
+    // Browser creation must wait for all custom contexts to finish
+    // initializing.
+    if (!context_initialized_ ||
+        (shared_context_ && !shared_context_initialized_)) {
+      return;
+    }
+    server_ = std::make_unique<Server>(this);
+    server_->Initialize(false);
+  }
+
+  static void Reply(const test_server::ResponseCallback& callback,
+                    const std::string& data,
+                    const std::string& mime_type = "text/plain") {
+    auto response = CefResponse::Create();
+    response->SetStatus(200);
+    response->SetMimeType(mime_type);
+    callback.Run(response, data);
+  }
+
+  void OnServerInitialized(const std::string& origin) {
+    EXPECT_UI_THREAD();
+    EXPECT_FALSE(server_initialized_);
+    server_initialized_ = true;
+    if (finishing_) {
+      server_->Shutdown();
+      return;
+    }
+    origin_ = origin;
+    other_url_ = origin;
+    other_url_.replace(other_url_.find("127.0.0.1"), 9, "localhost");
+    other_url_ += std::string(kPath) + "other.html";
+    CreateBrowser(origin + kPath + "index.html", context_);
+  }
+
+  bool OnServerRequest(CefRefPtr<CefRequest> request,
+                       const test_server::ResponseCallback& callback) {
+    const std::string url = request->GetURL();
+    const std::string base = origin_ + kPath;
+    if (url == base + "index.html") {
+      Reply(callback, R"(<html><script>
+        navigator.serviceWorker.register('worker.js')
+          .then(() => navigator.serviceWorker.ready)
+          .then(registration => registration.active.postMessage('start'))
+          .catch(error => fetch('error?' + encodeURIComponent(error)));
+      </script></html>)",
+            "text/html");
+    } else if (url == base + "worker.js") {
+      Reply(callback, R"(
+        self.onmessage = event => event.waitUntil((async () => {
+          await fetch('gate');
+          const response = await fetch('test.json');
+          const data = await response.json();
+          await fetch('done?' + data.result);
+        })().catch(error => fetch('error?' + encodeURIComponent(error))));
+      )",
+            "text/javascript");
+    } else if (url == base + "gate") {
+      EXPECT_TRUE(gate_callback_.is_null());
+      gate_callback_ = callback;
+      auto browser = GetBrowser();
+      original_frame_id_ = browser->GetMainFrame()->GetIdentifier();
+      if (close_browser_) {
+        CloseBrowser(browser, false);
+      } else {
+        // Replace the entry so the old frame cannot remain in BackForwardCache.
+        browser->GetMainFrame()->ExecuteJavaScript(
+            "location.replace('" + other_url_ + "')", url, 0);
+      }
+    } else if (url == base + "other.html") {
+      Reply(callback, "<html>Another site</html>", "text/html");
+    } else if (url == base + "test.json") {
+      EXPECT_EQ(close_browser_, browser_closed_);
+      EXPECT_TRUE(original_frame_destroyed_);
+      const std::string handler =
+          request->GetHeaderByName("X-CEF-Service-Worker");
+      if (shared_context_mode_ == SharedContext::RETAIN) {
+        EXPECT_TRUE(handler == "primary" || handler == "shared") << handler;
+      } else {
+        EXPECT_EQ("primary", handler);
+      }
+      Reply(callback, R"({"result":"ok"})", "application/json");
+    } else if (url.starts_with(base + "done?") ||
+               url.starts_with(base + "error?")) {
+      EXPECT_EQ(base + "done?ok", url);
+      got_result_.yes();
+      Reply(callback, "done");
+      GetUIThreadHelper()->PostTask(base::BindOnce(
+          &ServiceWorkerFetchTestHandler::DestroyTest, base::Unretained(this)));
+    } else {
+      return false;
+    }
+    return true;
+  }
+
+  void MaybeReleaseWorker() {
+    if ((close_browser_ ? browser_closed_ : navigated_) &&
+        original_frame_destroyed_ && !gate_callback_.is_null()) {
+      // Let frame teardown finish before the worker issues the next request.
+      GetUIThreadHelper()->PostTask(
+          base::BindOnce(&ServiceWorkerFetchTestHandler::ReleaseWorker,
+                         base::Unretained(this)));
+    }
+  }
+
+  void ReleaseWorker() {
+    if (!gate_callback_.is_null()) {
+      if (shared_context_mode_ == SharedContext::RELEASE) {
+        shared_context_ = nullptr;
+      }
+      auto callback = gate_callback_;
+      gate_callback_.Reset();
+      Reply(callback, "continue");
+    }
+  }
+
+  void OnServerShutdown() {
+    EXPECT_UI_THREAD();
+    server_.reset();
+    shared_context_ = nullptr;
+    context_ = nullptr;
+    TestHandler::DestroyTest();
+    SignalTestCompletion();
+  }
+
+  static constexpr char kPath[] = "/service-worker-fetch/";
+  const bool close_browser_;
+  const SharedContext shared_context_mode_;
+  std::string origin_;
+  std::string other_url_;
+  CefString original_frame_id_;
+  CefRefPtr<CefRequestContext> context_;
+  CefRefPtr<CefRequestContext> shared_context_;
+  std::unique_ptr<Server> server_;
+  test_server::ResponseCallback gate_callback_;
+  int frame_count_ = 0;
+  bool context_initialized_ = false;
+  bool shared_context_initialized_ = false;
+  bool server_initialized_ = false;
+  bool browser_closed_ = false;
+  bool original_frame_destroyed_ = false;
+  bool navigated_ = false;
+  bool finishing_ = false;
+  TrackCallback got_context_handler_;
+  TrackCallback got_before_load_;
+  TrackCallback got_result_;
+
+  IMPLEMENT_REFCOUNTING(ServiceWorkerFetchTestHandler);
+};
+
+}  // namespace
+
+TEST(ResourceRequestHandlerTest, ServiceWorkerFetchAfterBrowserClose) {
+  CefRefPtr<ServiceWorkerFetchTestHandler> handler =
+      new ServiceWorkerFetchTestHandler(true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(ResourceRequestHandlerTest, ServiceWorkerFetchAfterNavigation) {
+  CefRefPtr<ServiceWorkerFetchTestHandler> handler =
+      new ServiceWorkerFetchTestHandler(false);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(ResourceRequestHandlerTest, ServiceWorkerFetchSharedContext) {
+  CefRefPtr<ServiceWorkerFetchTestHandler> handler =
+      new ServiceWorkerFetchTestHandler(
+          false, ServiceWorkerFetchTestHandler::SharedContext::RETAIN);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(ResourceRequestHandlerTest, ServiceWorkerFetchReleasedContext) {
+  CefRefPtr<ServiceWorkerFetchTestHandler> handler =
+      new ServiceWorkerFetchTestHandler(
+          false, ServiceWorkerFetchTestHandler::SharedContext::RELEASE);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }

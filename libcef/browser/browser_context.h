@@ -208,6 +208,10 @@ class CefBrowserContext {
   base::FilePath cache_path_;
 
  private:
+  // Update the handler for worker requests without an associated frame/process
+  // handler. Chooses an arbitrary non-null handler from the sharing contexts.
+  void UpdateWorkerRequestContextHandler();
+
   // For DeleteSoon().
   friend class base::DeleteHelper<CefBrowserContext>;
 

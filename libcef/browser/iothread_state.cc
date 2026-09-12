@@ -40,6 +40,18 @@ CefRefPtr<CefRequestContextHandler> CefIOThreadState::GetHandler(
   return handler_map_.GetHandler(global_id, require_frame_match);
 }
 
+void CefIOThreadState::SetWorkerRequestContextHandler(
+    CefRefPtr<CefRequestContextHandler> handler) {
+  CEF_REQUIRE_IOT();
+  worker_request_context_handler_ = handler;
+}
+
+CefRefPtr<CefRequestContextHandler>
+CefIOThreadState::GetWorkerRequestContextHandler() const {
+  CEF_REQUIRE_IOT();
+  return worker_request_context_handler_;
+}
+
 void CefIOThreadState::RegisterSchemeHandlerFactory(
     const std::string& scheme_name,
     const std::string& domain_name,
