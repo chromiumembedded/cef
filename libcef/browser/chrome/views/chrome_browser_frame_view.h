@@ -24,6 +24,9 @@ class ChromeBrowserFrameView : public BrowserFrameView {
   int GetTopInset(bool restored) const override;
   void UpdateThrobber(bool running) override {}
 
+  // views::FrameView methods:
+  gfx::Rect GetBoundsForClientView() const override;
+
   // views::View methods:
   const views::Widget* GetWidget() const override;
 };
