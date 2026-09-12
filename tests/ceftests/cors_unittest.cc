@@ -399,7 +399,18 @@ class CorsTestHandler : public RoutingTestHandler {
   // Necessary to make the method public in order to destroy the test from
   // ClientSchemeHandlerType::ProcessRequest().
   void DestroyTest() override {
-    EXPECT_TRUE(shutting_down_);
+    CEF_REQUIRE_UI_THREAD();
+
+    // Timeouts also enter here. Finish asynchronous cleanup before closing the
+    // browser so the server observer cannot outlive the stack-owned setup.
+    if (!shutting_down_) {
+      shutting_down_ = true;
+      StopServer();
+      return;
+    }
+    if (server_ || (setup_->clear_cookies && !got_cleared_cookies_)) {
+      return;
+    }
 
     if (setup_->NeedsServer()) {
       EXPECT_TRUE(got_stopped_server_);
@@ -531,11 +542,16 @@ class CorsTestHandler : public RoutingTestHandler {
 
  protected:
   void TriggerCreateBrowser() {
+    server_ready_ = true;
     setup_->Initialize();
     setup_->Validate();
 
     main_url_ = setup_->GetMainURL();
     CreateBrowser(main_url_);
+
+    if (shutting_down_) {
+      StopServer();
+    }
   }
 
   void TriggerDestroyTestIfDone() {
@@ -550,8 +566,7 @@ class CorsTestHandler : public RoutingTestHandler {
     }
 
     if (setup_->IsDone()) {
-      shutting_down_ = true;
-      StopServer();
+      DestroyTest();
     }
   }
 
@@ -578,6 +593,12 @@ class CorsTestHandler : public RoutingTestHandler {
     if (!server_) {
       DCHECK(!setup_->NeedsServer());
       AfterStoppedServer();
+      return;
+    }
+
+    // ObserverHelper requires initialization to finish before Shutdown(). If
+    // the test timed out during startup, TriggerCreateBrowser will retry.
+    if (!server_ready_) {
       return;
     }
 
@@ -625,6 +646,7 @@ class CorsTestHandler : public RoutingTestHandler {
   TestSetup* setup_;
   std::string main_url_;
   TestServerObserver* server_ = nullptr;
+  bool server_ready_ = false;
   bool shutting_down_ = false;
 
   TrackCallback got_stopped_server_;
@@ -742,6 +764,9 @@ struct CookieTestSetup : TestSetup {
     }
 
     EXPECT_EQ(1U, cookies.size());
+    if (cookies.size() != 1U) {
+      return false;
+    }
     const std::string& cookie = CefString(&cookies[0].name).ToString() + "=" +
                                 CefString(&cookies[0].value).ToString();
     EXPECT_STREQ(kDefaultCookie, cookie.c_str());
@@ -1071,6 +1096,9 @@ struct PreflightResource : Resource {
         IsNonStandardType(main_handler) ? "null" : GetOrigin(main_handler);
 
     method = "OPTIONS";
+    // Repeated tests reuse the URL and global request context, but still
+    // expect an OPTIONS request each time. Do not reuse a cached preflight.
+    response->SetHeaderByName("Access-Control-Max-Age", "0", false);
     response->SetHeaderByName("Access-Control-Allow-Methods",
                               "GET,HEAD,OPTIONS,POST", false);
     response->SetHeaderByName("Access-Control-Allow-Headers",
