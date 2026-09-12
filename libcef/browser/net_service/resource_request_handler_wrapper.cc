@@ -17,6 +17,7 @@
 #include "cef/libcef/browser/prefs/browser_prefs.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/common/frame_util.h"
 #include "cef/libcef/common/net/scheme_registration.h"
 #include "cef/libcef/common/net_service/net_service_util.h"
 #include "cef/libcef/common/request_impl.h"
@@ -1234,6 +1235,15 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       CefRefPtr<CefRequestContextHandler> context_handler =
           init_state_->iothread_state_->GetHandler(
               init_state_->global_id_, /*require_frame_match=*/false);
+      if (!context_handler && !init_state_->browser_ &&
+          frame_util::IsValidChildId(init_state_->global_id_.child_id) &&
+          init_state_->global_id_.frame_routing_id ==
+              IPC::mojom::kRoutingIdNone) {
+        // Service workers can run in a process without any registered frames,
+        // including after their originating page has navigated or closed.
+        context_handler =
+            init_state_->iothread_state_->GetWorkerRequestContextHandler();
+      }
       if (context_handler) {
         if (!requestPtr) {
           requestPtr = MakeRequest(request, request_id, true);

@@ -233,6 +233,7 @@ void CefBrowserContext::Shutdown() {
 void CefBrowserContext::AddCefRequestContext(CefRequestContextImpl* context) {
   CEF_REQUIRE_UIT();
   request_context_set_.insert(context);
+  UpdateWorkerRequestContextHandler();
 }
 
 void CefBrowserContext::RemoveCefRequestContext(
@@ -240,6 +241,7 @@ void CefBrowserContext::RemoveCefRequestContext(
   CEF_REQUIRE_UIT();
 
   request_context_set_.erase(context);
+  UpdateWorkerRequestContextHandler();
 
   // Delete ourselves when the reference count reaches zero.
   if (request_context_set_.empty()) {
@@ -249,6 +251,22 @@ void CefBrowserContext::RemoveCefRequestContext(
     content::BrowserThread::GetTaskRunnerForThread(CEF_UIT)->DeleteSoon(
         FROM_HERE, this);
   }
+}
+
+void CefBrowserContext::UpdateWorkerRequestContextHandler() {
+  CEF_REQUIRE_UIT();
+  CefRefPtr<CefRequestContextHandler> handler;
+  for (const auto& context : request_context_set_) {
+    if ((handler = context->GetHandler())) {
+      // Like the process fallback in CefRequestContextHandlerMap, choose an
+      // arbitrary handler. Workers belong to the shared profile and may have
+      // no associated frame or process handler.
+      break;
+    }
+  }
+  CEF_POST_TASK(
+      CEF_IOT, base::BindOnce(&CefIOThreadState::SetWorkerRequestContextHandler,
+                              iothread_state_, handler));
 }
 
 // static

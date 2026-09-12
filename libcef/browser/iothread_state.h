@@ -38,6 +38,12 @@ class CefIOThreadState : public base::RefCountedThreadSafe<
       const content::GlobalRenderFrameHostId& global_id,
       bool require_frame_match) const;
 
+  // The worker fallback follows request-context lifetime instead of frame
+  // lifetime. Null indicates that no sharing context has a handler.
+  void SetWorkerRequestContextHandler(
+      CefRefPtr<CefRequestContextHandler> handler);
+  CefRefPtr<CefRequestContextHandler> GetWorkerRequestContextHandler() const;
+
   // Manage scheme handler factories associated with this context.
   void RegisterSchemeHandlerFactory(const std::string& scheme_name,
                                     const std::string& domain_name,
@@ -54,6 +60,7 @@ class CefIOThreadState : public base::RefCountedThreadSafe<
 
   // Map IDs to CefRequestContextHandler objects.
   CefRequestContextHandlerMap handler_map_;
+  CefRefPtr<CefRequestContextHandler> worker_request_context_handler_;
 
   // Map (scheme, domain) to factories.
   using SchemeHandlerFactoryMap = std::map<std::pair<std::string, std::string>,
