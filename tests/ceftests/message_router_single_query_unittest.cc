@@ -627,3 +627,88 @@ TEST(MessageRouterTest, SingleUnhandledQuery) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
+
+namespace {
+
+// A parent can retain and invoke functions from a detached iframe (issue
+// #4119).
+class DetachedFrameTestHandler : public SingleLoadTestHandler {
+ public:
+  explicit DetachedFrameTestHandler(bool cancel) : cancel_(cancel) {}
+
+  void AddOtherResources() override {
+    AddResource("https://tests-mr.com/child.html",
+                "<script>parent.savedCallback = function() { " +
+                    std::string(cancel_ ? "mrtQueryCancel(1);"
+                                        : "mrtQuery({request: 'detached'});") +
+                    " };</script>",
+                "text/html");
+  }
+
+  std::string GetMainHTML() override {
+    return R"HTML(
+      <html><body>
+      <script>
+      function run() {
+        document.querySelector('iframe').remove();
+        try {
+          savedCallback();
+          mrtNotify('missing exception');
+        } catch (e) {
+          mrtAssertTotalCount(0, 0);
+          mrtNotify(e.message);
+        }
+      }
+      </script>
+      <iframe src="child.html" onload="run()"></iframe>
+      </body></html>
+    )HTML";
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    ADD_FAILURE() << "Query from a detached frame";
+    return false;
+  }
+
+  void OnNotify(CefRefPtr<CefBrowser> browser,
+                CefRefPtr<CefFrame> frame,
+                const std::string& message) override {
+    AssertMainBrowser(browser);
+    AssertMainFrame(frame);
+    EXPECT_EQ("Cannot call message router functions from a detached frame",
+              message);
+    AssertQueryCount(nullptr, nullptr, 0);
+    got_notify_.yes();
+    DestroyTest();
+  }
+
+  void DestroyTest() override {
+    EXPECT_TRUE(got_notify_);
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  const bool cancel_;
+  TrackCallback got_notify_;
+};
+
+}  // namespace
+
+TEST(MessageRouterTest, DetachedFrameQuery) {
+  CefRefPtr<DetachedFrameTestHandler> handler =
+      new DetachedFrameTestHandler(false);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(MessageRouterTest, DetachedFrameCancel) {
+  CefRefPtr<DetachedFrameTestHandler> handler =
+      new DetachedFrameTestHandler(true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
