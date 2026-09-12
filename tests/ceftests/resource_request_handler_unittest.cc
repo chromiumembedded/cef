@@ -4008,6 +4008,104 @@ TEST(ResourceRequestHandlerTest, FilterError) {
   ReleaseAndWaitForDestructor(handler);
 }
 
+namespace {
+
+// Regression test for issue #3780.
+// The worker must receive the response supplied by the browser's handler.
+class WorkerFetchTestHandler : public RoutingTestHandler {
+ public:
+  explicit WorkerFetchTestHandler(bool module) : module_(module) {}
+
+  void RunTest() override {
+    AddResource(kPageURL,
+                std::string(R"(<html><script>
+                  const worker = new Worker('worker.js', {type: ')") +
+                    (module_ ? "module" : "classic") + R"('});
+                  worker.onmessage = event => {
+                    worker.terminate();
+                    window.testQuery({request: event.data});
+                  };
+                  worker.onerror = event => {
+                    worker.terminate();
+                    window.testQuery({request: 'worker error: ' + event.message});
+                  };
+                </script></html>)",
+                "text/html");
+    AddResource(kWorkerURL, R"(
+      fetch('test.json')
+        .then(response => {
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          return response.json();
+        })
+        .then(data => postMessage(data.result))
+        .catch(error => postMessage('fetch error: ' + error));
+    )",
+                "text/javascript");
+    AddResource(kFetchURL, R"({"result":"worker fetch handled"})",
+                "application/json");
+    CreateBrowser(kPageURL);
+    SetTestTimeout();
+  }
+
+  CefRefPtr<CefResourceHandler> GetResourceHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) override {
+    EXPECT_IO_THREAD();
+    if (request->GetURL() == kFetchURL) {
+      EXPECT_TRUE(browser);
+      EXPECT_TRUE(frame);
+      EXPECT_EQ("GET", request->GetMethod().ToString());
+      got_fetch_.yes();
+    }
+    return TestHandler::GetResourceHandler(browser, frame, request);
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    EXPECT_UI_THREAD();
+    EXPECT_EQ("worker fetch handled", request.ToString());
+    got_result_.yes();
+    callback->Success("");
+    DestroyTest();
+    return true;
+  }
+
+  void DestroyTest() override {
+    EXPECT_TRUE(got_fetch_);
+    EXPECT_TRUE(got_result_);
+    RoutingTestHandler::DestroyTest();
+  }
+
+ private:
+  static constexpr char kPageURL[] = "https://tests/worker-fetch/index.html";
+  static constexpr char kWorkerURL[] = "https://tests/worker-fetch/worker.js";
+  static constexpr char kFetchURL[] = "https://tests/worker-fetch/test.json";
+  const bool module_;
+  TrackCallback got_fetch_;
+  TrackCallback got_result_;
+
+  IMPLEMENT_REFCOUNTING(WorkerFetchTestHandler);
+};
+
+}  // namespace
+
+TEST(ResourceRequestHandlerTest, WorkerFetch) {
+  CefRefPtr<WorkerFetchTestHandler> handler = new WorkerFetchTestHandler(false);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(ResourceRequestHandlerTest, ModuleWorkerFetch) {
+  CefRefPtr<WorkerFetchTestHandler> handler = new WorkerFetchTestHandler(true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
 // Entry point for registering custom schemes.
 // Called from client_app_delegates.cc.
 void RegisterResourceRequestHandlerCustomSchemes(
