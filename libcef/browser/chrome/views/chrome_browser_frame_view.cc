@@ -17,6 +17,13 @@ int ChromeBrowserFrameView::GetTopInset(bool restored) const {
   return GetBrowserView()->y();
 }
 
+gfx::Rect ChromeBrowserFrameView::GetBoundsForClientView() const {
+  // This stub is not in the view hierarchy. Use the hosted BrowserView's
+  // bounds so browser layout and modal dialogs follow its current size and
+  // position within the CEF parent view.
+  return GetBrowserView()->bounds();
+}
+
 const views::Widget* ChromeBrowserFrameView::GetWidget() const {
   return browser_widget();
 }

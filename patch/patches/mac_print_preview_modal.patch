@@ -1,0 +1,105 @@
+diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
+index de68bbca9bcb0248255e22ad92f294059dc0d8d1..faec550cc32136fb5c95f9075b35fd24f1447391 100644
+--- chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
++++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
+@@ -530,8 +530,10 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
+   }
+ #endif
+ 
+-  select_file_dialog_ =
+-      ui::SelectFileDialog::Create(this, nullptr /*policy already checked*/);
++  // Preserve the source contents so CEF can associate the file dialog with
++  // the print initiator, even when the preview owns a separate native window.
++  select_file_dialog_ = ui::SelectFileDialog::Create(
++      this, std::make_unique<ChromeSelectFilePolicy>(preview_web_contents_));
+   select_file_dialog_->SelectFile(
+       ui::SelectFileDialog::SELECT_SAVEAS_FILE, std::u16string(), path,
+       &file_type_info, 0, kPdfExtension,
+diff --git components/remote_cocoa/app_shim/native_widget_mac_nswindow.mm components/remote_cocoa/app_shim/native_widget_mac_nswindow.mm
+index 9de655b17ceae246ecc650e5432103fdd2c0636a..d9619e25518c1fbba880187aed36fe07b19554b1 100644
+--- components/remote_cocoa/app_shim/native_widget_mac_nswindow.mm
++++ components/remote_cocoa/app_shim/native_widget_mac_nswindow.mm
+@@ -771,6 +771,12 @@ struct NSEdgeAndCornerThicknesses {
+     // window, swallow the event to prevent the web contents from processing it
+     // (and potentially triggering new dialogs).
+     if (is_blocked_by_modal && child_modal_window) {
++      // Let AppKit handle native resize edges, even when they overlap the
++      // blocked web contents view.
++      if ([self _resizeDirectionForMouseLocation:event.locationInWindow] != -1) {
++        [super sendEvent:event];
++        return;
++      }
+       if (![child_modal_window isKeyWindow]) {
+         [child_modal_window makeKeyWindow];
+       }
+diff --git components/remote_cocoa/app_shim/native_widget_ns_window_bridge.h components/remote_cocoa/app_shim/native_widget_ns_window_bridge.h
+index cbbaaa553900f581ba74fe64cd1f3f463c249525..12e26470218f34dea34d40a0d9e66aa8d696ac57 100644
+--- components/remote_cocoa/app_shim/native_widget_ns_window_bridge.h
++++ components/remote_cocoa/app_shim/native_widget_ns_window_bridge.h
+@@ -389,6 +389,10 @@ class REMOTE_COCOA_APP_SHIM_EXPORT NativeWidgetNSWindowBridge
+  private:
+   friend class views::test::BridgedNativeWidgetTestApi;
+ 
++  // Restore child-modal activation after AppKit finishes resizing the parent,
++  // provided focus still belongs to this window and application.
++  void RestoreChildModalFocusAfterResize();
++
+   // Attach child windows, if the window is visible (see comment inline).
+   void OrderChildren();
+ 
+diff --git components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
+index 09df8a41e1209922b95de1355acbe732f8a24d01..858d13e45b0465ca2ab301cf5eeb65cf380a1d00 100644
+--- components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
++++ components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
+@@ -1485,7 +1485,51 @@ void NativeWidgetNSWindowBridge::OnWindowWillStartLiveResize() {
+ }
+ 
+ void NativeWidgetNSWindowBridge::OnWindowDidEndLiveResize() {
++  auto weak_this = factory_.GetWeakPtr();
+   host_->OnWindowDidEndLiveResize();
++
++  // Defer until AppKit has finished its resize handling. The host notification
++  // or subsequent tasks may close the window or change focus.
++  base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
++      FROM_HERE,
++      base::BindOnce(
++          &NativeWidgetNSWindowBridge::RestoreChildModalFocusAfterResize,
++          weak_this));
++}
++
++void NativeWidgetNSWindowBridge::RestoreChildModalFocusAfterResize() {
++  if (!NSApp.active || NSApp.keyWindow != window_ || !window_.visible ||
++      window_.inLiveResize) {
++    return;
++  }
++
++  auto* modal = this;
++  while (true) {
++    // Native sheets (including file dialogs) manage their own activation.
++    if (modal->window_.attachedSheet) {
++      return;
++    }
++    const auto& children = modal->child_windows_;
++    auto it = std::find_if(children.rbegin(), children.rend(), [](auto* child) {
++      return child->modal_type_ != ui::mojom::ModalType::kNone &&
++             child->window_.visible;
++    });
++    if (it == children.rend()) {
++      break;
++    }
++    modal = *it;
++    if (modal->modal_type_ != ui::mojom::ModalType::kChild) {
++      return;
++    }
++  }
++
++  if (modal != this) {
++    // Making the dialog key restores its saved responder/focused view instead
++    // of resetting focus to the dialog's initially focused control.
++    // Retain the window across activation callbacks that may close its bridge.
++    NSWindow* modal_window = modal->window_;
++    [modal_window makeKeyWindow];
++  }
+ }
+ 
+ void NativeWidgetNSWindowBridge::OnVisibilityChanged() {
