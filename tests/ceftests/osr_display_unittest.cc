@@ -5,6 +5,7 @@
 #include "include/base/cef_callback.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/routing_test_handler.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -171,6 +172,185 @@ class DisplayTestHandler : public RoutingTestHandler, public CefRenderHandler {
 // Test that browser visibility is not changed due to navigation.
 TEST(OSRTest, NavigateWhileHidden) {
   CefRefPtr<DisplayTestHandler> handler = new DisplayTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+namespace {
+
+const char kResizeCacheUrlA[] = "https://tests/osr-cache-a.html";
+const char kResizeCacheUrlB[] = "https://tests/osr-cache-b.html";
+
+class OsrBackForwardCacheResizeTestHandler : public RoutingTestHandler,
+                                             public CefRenderHandler {
+ public:
+  CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
+
+  void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override {
+    rect = CefRect(0, 0, width_, height_);
+  }
+
+  bool GetScreenInfo(CefRefPtr<CefBrowser> browser,
+                     CefScreenInfo& screen_info) override {
+    screen_info.device_scale_factor = 1.0f;
+    screen_info.rect = CefRect(0, 0, 1920, 1080);
+    screen_info.available_rect = screen_info.rect;
+    return true;
+  }
+
+  void RunTest() override {
+    AddResource(kResizeCacheUrlA, Page("a", "#ff0000"), "text/html");
+    AddResource(kResizeCacheUrlB, Page("b", "#0000ff"), "text/html");
+    CefWindowInfo window_info;
+    window_info.SetAsWindowless(kNullWindowHandle);
+    CefBrowserHost::CreateBrowser(window_info, this, kResizeCacheUrlA,
+                                  CefBrowserSettings(), nullptr, nullptr);
+    SetTestTimeout();
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    const std::string message = request.ToString();
+    callback->Success("");
+    if (step_ == kBack) {
+      if (message.find("restored:") == 0) {
+        restored_ = true;
+      } else if (message.find("a:") == 0) {
+        ADD_FAILURE() << "Page A was reloaded instead of restored from BFCache";
+        step_ = kDone;
+        CefPostTask(
+            TID_UI,
+            base::BindOnce(&OsrBackForwardCacheResizeTestHandler::DestroyTest,
+                           this));
+        return true;
+      }
+    }
+    last_viewport_ = message;
+    const std::string expected = std::string(step_ == kInitial ? "a:"
+                                             : step_ == kBack  ? "restored:"
+                                                               : "b:") +
+                                 std::to_string(width_) + "x" +
+                                 std::to_string(height_);
+    if (message == expected) {
+      got_viewport_ = true;
+      AdvanceIfReady();
+    }
+    return true;
+  }
+
+  void OnPaint(CefRefPtr<CefBrowser> browser,
+               PaintElementType type,
+               const RectList& dirty_rects,
+               const void* buffer,
+               int width,
+               int height) override {
+    if (type != PET_VIEW || step_ == kDone) {
+      return;
+    }
+    // The restored page changes to green in pageshow. This excludes queued
+    // frames from B and the old red surface of A, even at the expected size.
+    const auto* pixels = static_cast<const unsigned char*>(buffer);
+    const int channel = step_ == kInitial ? 2 : step_ == kBack ? 1 : 0;
+    if (pixels[channel] != 255 || pixels[(channel + 1) % 3] != 0 ||
+        pixels[(channel + 2) % 3] != 0) {
+      return;
+    }
+    last_paint_width_ = width;
+    last_paint_height_ = height;
+    if (width == width_ && height == height_) {
+      got_paint_ = true;
+      AdvanceIfReady();
+    }
+  }
+
+  void DestroyTest() override {
+    EXPECT_TRUE(restored_) << "No persisted pageshow event";
+    EXPECT_EQ(kDone, step_)
+        << "Last viewport: " << last_viewport_
+        << "; last matching-page paint: " << last_paint_width_ << "x"
+        << last_paint_height_;
+    EXPECT_TRUE(got_viewport_);
+    EXPECT_TRUE(got_paint_);
+    RoutingTestHandler::DestroyTest();
+  }
+
+ private:
+  static std::string Page(const std::string& name, const std::string& color) {
+    return "<!doctype html><html style='background:" + color +
+           "'><style>@keyframes pulse{to{opacity:0}}"
+           "div{position:absolute;left:10px;top:10px;width:10px;height:10px;"
+           "background:white;animation:pulse .1s infinite alternate}</style>"
+           "<body><div></div><script>let name='" +
+           name +
+           "';function report(){window.testQuery({request:name+':' +"
+           "innerWidth+'x'+innerHeight});}"
+           "addEventListener('pageshow',e=>{if(e.persisted){name='restored';"
+           "document.documentElement.style.background='#00ff00';}report();});"
+           "addEventListener('resize',report);</script></body></html>";
+  }
+
+  void AdvanceIfReady() {
+    if (got_viewport_ && got_paint_ && !advance_pending_) {
+      advance_pending_ = true;
+      CefPostTask(
+          TID_UI,
+          base::BindOnce(&OsrBackForwardCacheResizeTestHandler::Advance, this));
+    }
+  }
+
+  void Advance() {
+    advance_pending_ = false;
+    if (step_ == kDone) {
+      return;
+    }
+    if (step_ == kBack) {
+      step_ = kDone;
+      DestroyTest();
+      return;
+    }
+    got_viewport_ = false;
+    got_paint_ = false;
+    if (step_ == kInitial) {
+      step_ = kNavigate;
+      GetBrowser()->GetMainFrame()->LoadURL(kResizeCacheUrlB);
+    } else if (step_ == kNavigate) {
+      step_ = kResize;
+      width_ = 800;
+      height_ = 600;
+      GetBrowser()->GetHost()->WasResized();
+    } else {
+      step_ = kBack;
+      GetBrowser()->GoBack();
+    }
+  }
+
+  enum Step { kInitial, kNavigate, kResize, kBack, kDone };
+  Step step_ = kInitial;
+  int width_ = kOsrWidth;
+  int height_ = kOsrHeight;
+  bool got_viewport_ = false;
+  bool got_paint_ = false;
+  bool advance_pending_ = false;
+  bool restored_ = false;
+  std::string last_viewport_;
+  int last_paint_width_ = 0;
+  int last_paint_height_ = 0;
+
+  IMPLEMENT_REFCOUNTING(OsrBackForwardCacheResizeTestHandler);
+};
+
+}  // namespace
+
+TEST(OSRTest, ResizeWhileInBackForwardCache) {
+  if (!IsBFCacheEnabled()) {
+    GTEST_SKIP() << "Requires BackForwardCache";
+  }
+  CefRefPtr<OsrBackForwardCacheResizeTestHandler> handler =
+      new OsrBackForwardCacheResizeTestHandler;
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
