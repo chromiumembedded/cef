@@ -157,6 +157,8 @@ std::string MainContextImpl::GetMainURL(
   std::string main_url = kDefaultUrl;
   if (command_line->HasSwitch(switches::kUrl)) {
     main_url = command_line->GetSwitchValue(switches::kUrl);
+  } else if (command_line->HasSwitch(switches::kTransparencyDemo)) {
+    main_url = test_runner::GetTestURL("transparency_demo");
   } else if (use_views_ && command_line->HasSwitch(switches::kHideFrame)) {
     // Use the draggable regions test as the default URL for frameless windows.
     main_url = test_runner::GetTestURL("draggable");

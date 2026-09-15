@@ -88,7 +88,9 @@ void CefNativeWidgetDelegate::Init(gfx::AcceleratedWidget parent_widget,
   // Set the WS_VISIBLE flag.
   params.type = views::Widget::InitParams::TYPE_CONTROL;
   // Don't set the WS_EX_COMPOSITED flag.
-  params.opacity = views::Widget::InitParams::WindowOpacity::kOpaque;
+  params.opacity = background_color_ == SK_ColorTRANSPARENT
+                       ? views::Widget::InitParams::WindowOpacity::kTranslucent
+                       : views::Widget::InitParams::WindowOpacity::kOpaque;
   // Tell Aura not to draw the window frame on resize.
   params.remove_standard_frame = true;
   // Cause WidgetDelegate::CanActivate to return true. See comments in
