@@ -381,19 +381,28 @@ void CefRenderWidgetHostViewOSR::ShowWithVisibility(
     return;
   }
 
+  const bool has_browser =
+      browser_impl_ || (parent_host_view_ && parent_host_view_->browser_impl_);
   if (!content::GpuDataManagerImpl::GetInstance()->IsGpuCompositingDisabled() &&
-      !browser_impl_ &&
-      (!parent_host_view_ || !parent_host_view_->browser_impl_)) {
+      !has_browser) {
     return;
   }
 
   is_showing_ = true;
 
   // If the viz::LocalSurfaceId is invalid, we may have been evicted,
-  // and no other visual properties have since been changed. Allocate a new id
-  // and start synchronizing.
-  if (!GetLocalSurfaceId().is_valid()) {
+  // and no other visual properties have since been changed. Allocate a new id.
+  const bool needs_surface_id = !GetLocalSurfaceId().is_valid();
+  if (needs_surface_id) {
     AllocateLocalSurfaceId();
+  }
+
+  // Refresh the embedder's bounds before showing. A view restored from
+  // BackForwardCache may still have a valid surface ID but have missed resize
+  // notifications while another view was active. Software-rendered popups can
+  // be shown before their browser is attached, so defer the refresh in that
+  // case.
+  if (needs_surface_id || has_browser) {
     SynchronizeVisualProperties(cc::DeadlinePolicy::UseDefaultDeadline(),
                                 GetLocalSurfaceId());
   }
