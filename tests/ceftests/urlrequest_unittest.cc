@@ -2748,7 +2748,13 @@ class RequestTestHandler : public TestHandler {
     }
 
     if (test_frame_method_) {
-      AddResource(test_url_, "<html><body>TEST</body></html>", "text/html");
+      // Use an inline favicon to avoid unrelated network requests from the
+      // browser that supplies the initiating frame.
+      AddResource(test_url_,
+                  "<html><head><link rel=\"icon\" href=\"data:image/gif;base64,"
+                  "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                  "\"></head><body>TEST</body></html>",
+                  "text/html");
 
       // Create the browser who's main frame will be the initiator for the
       // request.

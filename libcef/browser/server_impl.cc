@@ -492,6 +492,12 @@ void CefServerImpl::OnHttpRequest(
 
   DCHECK(!info->is_websocket);
 
+  if (request_info.peer.address().empty()) {
+    LOG(ERROR) << "HTTP request has no peer address: connection_id="
+               << connection_id << ", method=" << request_info.method
+               << ", path=" << request_info.path;
+  }
+
   handler_->OnHttpRequest(this, connection_id, request_info.peer.ToString(),
                           CreateRequest(address_, request_info, false));
 }
