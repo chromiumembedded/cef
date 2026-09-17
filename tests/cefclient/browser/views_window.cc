@@ -1103,6 +1103,12 @@ void ViewsWindow::OnLayoutChanged(CefRefPtr<CefView> view,
 void ViewsWindow::OnThemeChanged(CefRefPtr<CefView> view) {
   // Apply colors when the theme changes.
   views_style::OnThemeChanged(view);
+
+  if (command_line_->HasSwitch(switches::kTransparencyDemo)) {
+    // Make the Window and BrowserView fully transparent so the page's
+    // semi-transparent background blends with whatever is behind the window.
+    view->SetBackgroundColor(0x00000000);
+  }
 }
 
 void ViewsWindow::MenuBarExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
