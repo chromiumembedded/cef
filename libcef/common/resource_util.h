@@ -22,9 +22,9 @@ void OverrideUserDataDir(CefSettings* settings,
                          const base::CommandLine* command_line);
 
 #if BUILDFLAG(IS_LINUX)
-// Look for binary files (*.bin, *.dat, *.pak, chrome-sandbox, libGLESv2.so,
-// libEGL.so, locales/*.pak, swiftshader/*.so) next to libcef instead of the exe
-// on Linux. This is already the default on Windows.
+// Look for binary files (*.bin, *.dat, *.pak, chrome-sandbox, locales/*.pak,
+// swiftshader/*.so) next to libcef instead of the exe on Linux. This is already
+// the default on Windows.
 void OverrideAssetPath();
 #endif
 
