@@ -15,8 +15,6 @@ cefclient.app
     │   ├── Chromium Embedded Framework.framework
     │   │   ├── Chromium Embedded Framework <= main application library
     │   │   ├── Libraries
-    │   │   │   ├── libEGL.dylib <= ANGLE support libraries
-    │   │   │   ├── libGLESv2.dylib <=^
     │   │   │   ├── libvk_swiftshader.dylib <= SwANGLE support libraries
     │   │   │   └── vk_swiftshader_icd.json <=^
     │   │   └── Resources
@@ -108,12 +106,9 @@ run but any related functionality may become broken or disabled.
     These files contain non-localized resources used by CEF, Chromium and Blink.
     Without these files arbitrary Web components may display incorrectly.
 
-* ANGLE support.
-  * Chromium Embedded Framework.framework/Libraries/libEGL.dylib
-  * Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib
+* ANGLE Metal shader cache.
   * Chromium Embedded Framework.framework/Resources/gpu_shader_cache.bin
-  Support for rendering of HTML5 content like 2D canvas, 3D CSS and WebGL.
-  Without these files the aforementioned capabilities may fail.
+  Precompiled shaders used by ANGLE's Metal backend.
 
 * SwANGLE support.
   * Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib

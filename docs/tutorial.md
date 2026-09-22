@@ -147,7 +147,6 @@ Application/
     cefsimple.exe  <= cefsimple application executable
     libcef.dll <= main CEF library
     icudtl.dat <= unicode support data
-    libEGL.dll, libGLESv2.dll, ... <= accelerated compositing support libraries
     cef.pak, devtools_resources.pak, ... <= non-localized resources and strings
     natives_blob.bin, snapshot_blob.bin <= V8 initial snapshot
     locales/

@@ -8,8 +8,6 @@
 
 SOS = [
     "libcef.so",
-    "libEGL.so",
-    "libGLESv2.so",
     "libvk_swiftshader.so",
     "libvulkan.so.1",
 ]
@@ -65,4 +63,3 @@ COMMON_DEFINES_RELEASE = [
     # Not a debug build
     "NDEBUG",
 ]
-

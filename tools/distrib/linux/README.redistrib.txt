@@ -46,12 +46,6 @@ run but any related functionality may become broken or disabled.
     These files contain non-localized resources used by CEF, Chromium and Blink.
     Without these files arbitrary Web components may display incorrectly.
 
-* ANGLE support.
-  * libEGL.so
-  * libGLESv2.so
-  Support for rendering of HTML5 content like 2D canvas, 3D CSS and WebGL.
-  Without these files the aforementioned capabilities may fail.
-
 * SwANGLE support.
   * libvk_swiftshader.so
   * libvulkan.so.1
