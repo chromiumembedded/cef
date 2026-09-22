@@ -10,8 +10,6 @@ DLLS = [
     "chrome_elf.dll",
     "d3dcompiler_47.dll",
     "libcef.dll",
-    "libEGL.dll",
-    "libGLESv2.dll",
     "vk_swiftshader.dll",
     "vulkan-1.dll",
 ]

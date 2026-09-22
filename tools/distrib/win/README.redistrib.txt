@@ -61,12 +61,6 @@ run but any related functionality may become broken or disabled.
   Support for DirectX rendering of WebGPU. Without these files the
   aforementioned capabilities may fail.
 
-* ANGLE support.
-  * libEGL.dll
-  * libGLESv2.dll
-  Support for rendering of HTML5 content like 2D canvas, 3D CSS and WebGL.
-  Without these files the aforementioned capabilities may fail.
-
 * SwANGLE support.
   * vk_swiftshader.dll
   * vk_swiftshader_icd.json

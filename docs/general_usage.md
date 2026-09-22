@@ -327,7 +327,6 @@ Application/
     cefclient.exe  <= cefclient application executable
     libcef.dll <= main CEF library
     icudtl.dat <= unicode support data
-    libEGL.dll, libGLESv2.dll, ... <= accelerated compositing support libraries
     chrome_100_percent.pak, chrome_200_percent.pak, resources.pak <= non-localized resources and strings
     snapshot_blob.bin, v8_context_snapshot.bin <= V8 initial snapshot
     locales/

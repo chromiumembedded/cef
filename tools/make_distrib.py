@@ -1143,8 +1143,6 @@ def main(argv=None):
         {'path': 'dxcompiler.dll', 'conditional': True},
         {'path': 'dxil.dll', 'conditional': True},
         {'path': libcef_dll},
-        {'path': 'libEGL.dll'},
-        {'path': 'libGLESv2.dll'},
         {'path': 'v8_context_snapshot.bin'},
         {'path': 'vk_swiftshader.dll'},
         {'path': 'vk_swiftshader_icd.json'},
@@ -1154,8 +1152,6 @@ def main(argv=None):
         {'path': 'chrome_elf.dll.pdb'},
         {'path': 'dxcompiler.dll.pdb', 'conditional': True},
         {'path': '%s.pdb' % libcef_dll},
-        {'path': 'libEGL.dll.pdb'},
-        {'path': 'libGLESv2.dll.pdb'},
         {'path': 'vk_swiftshader.dll.pdb'},
         {'path': 'vulkan-1.dll.pdb'},
     ]
@@ -1327,8 +1323,6 @@ def main(argv=None):
 
     dsym_dirs = [
         '%s.dSYM' % framework_name,
-        'libEGL.dylib.dSYM',
-        'libGLESv2.dylib.dSYM',
         'libvk_swiftshader.dylib.dSYM',
     ]
 
@@ -1496,8 +1490,6 @@ def main(argv=None):
     binaries = [
         {'path': 'chrome_sandbox', 'out_path': 'chrome-sandbox'},
         {'path': libcef_so},
-        {'path': 'libEGL.so'},
-        {'path': 'libGLESv2.so'},
         {'path': 'libvk_swiftshader.so'},
         {'path': 'libvulkan.so.1'},
         {'path': 'v8_context_snapshot.bin'},
