@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 443976e1b6ad4d1b2e86b2a886ed39b354f71393..d6e601b6df0734816cc26ad038c3c56d73967a2c 100644
+index 3324954f298227456904c4d3cfe9e1e42dcc61af..c7db8755f9f25ad1a56ce8b002fe85c260d9157a 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -8,6 +8,7 @@

@@ -465,7 +465,7 @@ index 37b7ad5300599a4de008175c3c535d1ff63c5398..37bb81ae4af81898b7ebadf24ce09c54
  
  void MaybeBlockDynamicCodeForBrowserProcess() {
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 92e1a5aa484bad30fb93a3ec82ac4b8a599daf4f..4991214e91fe84c38052ac9c986dd5d14b1499c9 100644
+index 033f22b4146513c92f89eaa26bffc0366d7c9f19..55f1e22422a98df16a2010c85e82d8f96a10571b 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -55,6 +55,7 @@
@@ -527,7 +527,7 @@ index 92e1a5aa484bad30fb93a3ec82ac4b8a599daf4f..4991214e91fe84c38052ac9c986dd5d1
  }
  
  std::vector<base::FilePath>
-@@ -8241,11 +8253,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -8239,11 +8251,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -541,7 +541,7 @@ index 92e1a5aa484bad30fb93a3ec82ac4b8a599daf4f..4991214e91fe84c38052ac9c986dd5d1
            FROM_HERE, keepalive_deadline_ - now,
            base::BindOnce(
                &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -8267,7 +8279,9 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -8265,7 +8277,9 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -552,7 +552,7 @@ index 92e1a5aa484bad30fb93a3ec82ac4b8a599daf4f..4991214e91fe84c38052ac9c986dd5d1
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -8475,7 +8489,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -8473,7 +8487,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -593,7 +593,7 @@ index 2ea677f146e3d286fb040b9984f0a4cb6a9e575f..211eeab755d93ab35c70cdc9d5e0199c
  
    // Keeps the browser process and relevant profiles alive while browser-side
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 1b5fcc030f2fd98404a4a6f56efbf82abc3153b8..819dec7e3ec8e1c9f563da597591705360078692 100644
+index 085b77cb112a792cba97dc548ead347ea9eb8375..13dd4d0f2bf016dc236a176e65c98949aa145dc7 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -18,6 +18,7 @@

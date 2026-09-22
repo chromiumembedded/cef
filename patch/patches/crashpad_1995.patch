@@ -144,10 +144,10 @@ index a274b3e364084c90d2f4783bab576ac85af285ea..3d995cf6433991f6f8abe7cd2d4eac17
  // on the given `command_line`. For non-browser processes, allocates crash keys
  // from the switch value set by AppendStringAnnotationsCommandLineSwitch().
 diff --git components/crash/core/app/crash_reporter_client.cc components/crash/core/app/crash_reporter_client.cc
-index 7552a9b98da5e897c04f4ea7279ab87bf4ab9ef5..ee2bdc6f30f51494cf9ca1f018c9244d2c5d8ad0 100644
+index 652e9e22e0de52565d5bbd26c3b4e2e297158e06..ded9769c2bb5105730979244d6103c5202715216 100644
 --- components/crash/core/app/crash_reporter_client.cc
 +++ components/crash/core/app/crash_reporter_client.cc
-@@ -117,6 +117,23 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
+@@ -114,6 +114,23 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
    return false;
  }
  
@@ -172,7 +172,7 @@ index 7552a9b98da5e897c04f4ea7279ab87bf4ab9ef5..ee2bdc6f30f51494cf9ca1f018c9244d
  unsigned int CrashReporterClient::GetCrashDumpPercentage() {
    return 100;
 diff --git components/crash/core/app/crash_reporter_client.h components/crash/core/app/crash_reporter_client.h
-index ceda11ed43d222ae46ec9c6a82351fd79d0c0aff..65b677ca74d99b0215816438f86a715e2dcad28f 100644
+index 2b5dc2f17ecc4d3d8a7cd5e427221592d2cb1810..6a5008a3c86b9c5f83b6b13a8ed1393d864d195d 100644
 --- components/crash/core/app/crash_reporter_client.h
 +++ components/crash/core/app/crash_reporter_client.h
 @@ -7,6 +7,7 @@
@@ -181,9 +181,9 @@ index ceda11ed43d222ae46ec9c6a82351fd79d0c0aff..65b677ca74d99b0215816438f86a715e
  
 +#include <map>
  #include <string>
- #include <vector>
- 
-@@ -193,6 +194,20 @@ class CrashReporterClient {
+ #include <string_view>
+ #include <type_traits>
+@@ -212,6 +213,20 @@ class CrashReporterClient {
    // Returns true if breakpad should run in the given process type.
    virtual bool EnableBreakpadForProcess(const std::string& process_type);
  
@@ -219,10 +219,10 @@ index db68eaa22030aca74f31a9d8612b4952a3b25642..e02625e502b73f10569ab54714ad4826
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/core/app/crashpad_linux.cc components/crash/core/app/crashpad_linux.cc
-index d4d3555891b19d61676465c856055fb04e0168bc..68914d91147fbb53bbc8f9b742cd551b326cae27 100644
+index ce5c8a721fb1e4f10a5ffaa8cfdddb74ed60da86..82a2bf9f5e03d2933451770ee13738dac623e376 100644
 --- components/crash/core/app/crashpad_linux.cc
 +++ components/crash/core/app/crashpad_linux.cc
-@@ -23,6 +23,7 @@
+@@ -24,6 +24,7 @@
  #include "components/crash/core/app/crash_reporter_client.h"
  #include "components/crash/core/app/crash_switches.h"
  #include "content/public/common/content_descriptors.h"
@@ -230,7 +230,7 @@ index d4d3555891b19d61676465c856055fb04e0168bc..68914d91147fbb53bbc8f9b742cd551b
  #include "sandbox/linux/services/namespace_sandbox.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -165,11 +166,10 @@ bool PlatformCrashpadInitialization(
+@@ -166,11 +167,10 @@ bool PlatformCrashpadInitialization(
      crash_reporter_client->GetCrashDumpLocation(database_path);
      crash_reporter_client->GetCrashMetricsLocation(&metrics_path);
  
@@ -245,19 +245,19 @@ index d4d3555891b19d61676465c856055fb04e0168bc..68914d91147fbb53bbc8f9b742cd551b
  
      // When --use-cros-crash-reporter is set (below), the handler passes dumps
      // to ChromeOS's /sbin/crash_reporter which in turn passes the dump to
-@@ -185,8 +185,8 @@ bool PlatformCrashpadInitialization(
+@@ -186,8 +186,8 @@ bool PlatformCrashpadInitialization(
      crash_reporter_client->GetProductInfo(&product_info);
  
      std::map<std::string, std::string> annotations;
--    annotations["prod"] = product_info.product_name;
--    annotations["ver"] = product_info.version;
-+    annotations["product"] = product_info.product_name;
-+    annotations["version"] = product_info.version;
+-    annotations["prod"] = std::string(product_info.product_name());
+-    annotations["ver"] = std::string(product_info.version());
++    annotations["product"] = std::string(product_info.product_name());
++    annotations["version"] = std::string(product_info.version());
  
+     std::string_view channel = product_info.channel();
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-     // Empty means stable.
-@@ -203,7 +203,20 @@ bool PlatformCrashpadInitialization(
-       annotations["channel"] = product_info.channel;
+@@ -205,7 +205,20 @@ bool PlatformCrashpadInitialization(
+       annotations["channel"] = std::string(channel);
      }
  
 -    annotations["plat"] = std::string("Linux");
@@ -278,7 +278,7 @@ index d4d3555891b19d61676465c856055fb04e0168bc..68914d91147fbb53bbc8f9b742cd551b
  
  #if BUILDFLAG(IS_CHROMEOS_DEVICE)
      // Chromium OS: save board and builder path for 'tast symbolize'.
-@@ -240,6 +253,12 @@ bool PlatformCrashpadInitialization(
+@@ -242,6 +255,12 @@ bool PlatformCrashpadInitialization(
      }
  #endif
  
