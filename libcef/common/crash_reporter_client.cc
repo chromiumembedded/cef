@@ -632,8 +632,7 @@ bool CefCrashReporterClient::GetCrashDumpLocation(std::wstring* crash_dir) {
 #elif BUILDFLAG(IS_POSIX)
 
 void CefCrashReporterClient::GetProductInfo(ProductInfo* product_info) {
-  product_info->product_name = product_name_;
-  product_info->version = product_version_;
+  *product_info = ProductInfo(product_name_, product_version_, "");
 }
 
 bool CefCrashReporterClient::GetCrashDumpLocation(base::FilePath* crash_dir) {

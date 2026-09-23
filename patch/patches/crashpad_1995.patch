@@ -292,7 +292,7 @@ index ce5c8a721fb1e4f10a5ffaa8cfdddb74ed60da86..82a2bf9f5e03d2933451770ee13738da
                                annotations, arguments, false, false,
                                attachments));
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
-index 3b131e1fc804a55c80b3b2704686270211fcf9fb..c2a7dd560f841aaa7d4f74ea831a5758c01310c3 100644
+index 3b131e1fc804a55c80b3b2704686270211fcf9fb..f2d110b321c7e19cadd6e88b0343357ce3df9039 100644
 --- components/crash/core/app/crashpad_mac.mm
 +++ components/crash/core/app/crashpad_mac.mm
 @@ -17,10 +17,13 @@
@@ -316,7 +316,7 @@ index 3b131e1fc804a55c80b3b2704686270211fcf9fb..c2a7dd560f841aaa7d4f74ea831a5758
 +      ProductInfo product_info;
 +      GetCrashReporterClient()->GetProductInfo(&product_info);
 +
-+      if (product_info.product_name.empty()) {
++      if (product_info.product_name().empty()) {
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 -      process_annotations["prod"] = "Chrome_Mac";
 +        process_annotations["product"] = "Chrome_Mac";
@@ -333,7 +333,7 @@ index 3b131e1fc804a55c80b3b2704686270211fcf9fb..c2a7dd560f841aaa7d4f74ea831a5758
 +            base::SysNSStringToUTF8(product).append("_Mac");
  #endif
 +      } else {
-+        process_annotations["product"] = product_info.product_name;
++        process_annotations["product"] = product_info.product_name();
 +      }
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
@@ -346,13 +346,13 @@ index 3b131e1fc804a55c80b3b2704686270211fcf9fb..c2a7dd560f841aaa7d4f74ea831a5758
 -          base::apple::ObjCCast<NSString>([base::apple::FrameworkBundle()
 -              objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
 -      process_annotations["ver"] = base::SysNSStringToUTF8(version);
-+      if (product_info.version.empty()) {
++      if (product_info.version().empty()) {
 +        NSString* version =
 +            base::apple::ObjCCast<NSString>([base::apple::FrameworkBundle()
 +                objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
 +        process_annotations["version"] = base::SysNSStringToUTF8(version);
 +      } else {
-+        process_annotations["version"] = product_info.version;
++        process_annotations["version"] = product_info.version();
 +      }
  
 -      process_annotations["plat"] = std::string("OS X");

@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/sessions/sessions_api.cc chrome/browser/extensions/api/sessions/sessions_api.cc
-index f77b18e9cf7961ead505227abd9052f169976bdb..df130e9e96c2c85931d689597f4f98988975b127 100644
+index 99844c7182bcd96622dfa3d70c705756a9db8c82..95e9e108a78e7c5e2c9200be9c6fdbf5cfe43ca9 100644
 --- chrome/browser/extensions/api/sessions/sessions_api.cc
 +++ chrome/browser/extensions/api/sessions/sessions_api.cc
 @@ -579,6 +579,7 @@ SessionsGetDevicesFunction::CreateWindowModel(
@@ -49,7 +49,7 @@ index c7c19d9eef5edb3d05470dcecbe219e69a02f695..b290ac41009cf0548266734bc2def354
      case ui::mojom::WindowShowState::kMaximized:
        return PERSISTED_SHOW_STATE_MAXIMIZED;
 diff --git components/sessions/core/tab_restore_service_impl.cc components/sessions/core/tab_restore_service_impl.cc
-index 23f1d02112a64e13b150bc38d07848fde1a6b4e2..dbdf6ebff4901a54808f55971dd378488fb85eb6 100644
+index 28174f9137db041562b18257c7f8d0adce80b34c..b96a0abd5b252111c3cf44d669090dc73d46c174 100644
 --- components/sessions/core/tab_restore_service_impl.cc
 +++ components/sessions/core/tab_restore_service_impl.cc
 @@ -214,6 +214,7 @@ int SerializeWindowShowState(ui::mojom::WindowShowState show_state) {
@@ -258,10 +258,10 @@ index aeaf8e35f7eda89598149117fe8508d197bf2610..4b7cc3f03d3cf9c91ac8efe11ae820cf
 +  [MinVersion=1] kEnd = 7,
  };
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
-index de7873f39561d047db7023933c18cedd7d5d9a8f..cfe5ce81b04ecbe03ff5ba4567d1b2a09bad2942 100644
+index 1947486ac72c51f05145874e3af4c29328d52c62..36fb1fbdceb763798b58071405ab6c4fddf2c99b 100644
 --- ui/ozone/platform/x11/x11_window.cc
 +++ ui/ozone/platform/x11/x11_window.cc
-@@ -1936,7 +1936,17 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
+@@ -1935,7 +1935,17 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
    req.border_pixel = 0;
  
    last_set_bounds_px_ = SanitizeBounds(bounds);
@@ -578,7 +578,7 @@ index 4b50e1882176b4e5e0a077c0f96a6a405ddf1826..dc257ff2955d820918cb4d9df2753afb
        break;
      case ui::mojom::WindowShowState::kEnd:
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 2574bc2da3a76201a17c59110e58d135623abe7b..c15ee197c4219d66e1f68bbfdbd95ec1104b85c6 100644
+index 5100d0c214cff5147397da70832425b4960657cc..fef316da5ee8433944c9b530220dc2d7dc18063f 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -268,8 +268,8 @@ ui::ZOrderLevel Widget::InitParams::EffectiveZOrderLevel() const {
@@ -631,7 +631,7 @@ index 2574bc2da3a76201a17c59110e58d135623abe7b..c15ee197c4219d66e1f68bbfdbd95ec1
      }
    }
  
-@@ -2170,10 +2181,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -2178,10 +2189,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -648,7 +648,7 @@ index 2574bc2da3a76201a17c59110e58d135623abe7b..c15ee197c4219d66e1f68bbfdbd95ec1
    return non_client_view_ ? non_client_view_->GetMaximumSize() : gfx::Size();
  }
  
-@@ -2479,7 +2496,8 @@ bool Widget::SetInitialFocus(ui::mojom::WindowShowState show_state) {
+@@ -2487,7 +2504,8 @@ bool Widget::SetInitialFocus(ui::mojom::WindowShowState show_state) {
    View* v = widget_delegate_->GetInitiallyFocusedView();
    if (!focus_on_creation_ ||
        show_state == ui::mojom::WindowShowState::kInactive ||
