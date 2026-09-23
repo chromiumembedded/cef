@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/sessions/sessions_api.cc chrome/browser/extensions/api/sessions/sessions_api.cc
-index f77b18e9cf7961ead505227abd9052f169976bdb..df130e9e96c2c85931d689597f4f98988975b127 100644
+index 99844c7182bcd96622dfa3d70c705756a9db8c82..95e9e108a78e7c5e2c9200be9c6fdbf5cfe43ca9 100644
 --- chrome/browser/extensions/api/sessions/sessions_api.cc
 +++ chrome/browser/extensions/api/sessions/sessions_api.cc
 @@ -579,6 +579,7 @@ SessionsGetDevicesFunction::CreateWindowModel(
@@ -49,7 +49,7 @@ index c7c19d9eef5edb3d05470dcecbe219e69a02f695..b290ac41009cf0548266734bc2def354
      case ui::mojom::WindowShowState::kMaximized:
        return PERSISTED_SHOW_STATE_MAXIMIZED;
 diff --git components/sessions/core/tab_restore_service_impl.cc components/sessions/core/tab_restore_service_impl.cc
-index 23f1d02112a64e13b150bc38d07848fde1a6b4e2..dbdf6ebff4901a54808f55971dd378488fb85eb6 100644
+index 28174f9137db041562b18257c7f8d0adce80b34c..b96a0abd5b252111c3cf44d669090dc73d46c174 100644
 --- components/sessions/core/tab_restore_service_impl.cc
 +++ components/sessions/core/tab_restore_service_impl.cc
 @@ -214,6 +214,7 @@ int SerializeWindowShowState(ui::mojom::WindowShowState show_state) {
@@ -577,7 +577,7 @@ index 4b50e1882176b4e5e0a077c0f96a6a405ddf1826..dc257ff2955d820918cb4d9df2753afb
        break;
      case ui::mojom::WindowShowState::kEnd:
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index edb9eb307d53fae9cb8853de2a9deee06ecb4545..8873603850fea9acb990949f56bb489b0dcc6f86 100644
+index 452decf5bffe234343e9fdbb48c0bc3ffafbcef9..99813c94198700ec7288bfdb4e167f77e0314a0d 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -244,8 +244,8 @@ ui::ZOrderLevel Widget::InitParams::EffectiveZOrderLevel() const {
@@ -630,7 +630,7 @@ index edb9eb307d53fae9cb8853de2a9deee06ecb4545..8873603850fea9acb990949f56bb489b
      }
    }
  
-@@ -2101,10 +2112,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -2109,10 +2120,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -647,7 +647,7 @@ index edb9eb307d53fae9cb8853de2a9deee06ecb4545..8873603850fea9acb990949f56bb489b
    return non_client_view_ ? non_client_view_->GetMaximumSize() : gfx::Size();
  }
  
-@@ -2410,7 +2427,8 @@ bool Widget::SetInitialFocus(ui::mojom::WindowShowState show_state) {
+@@ -2418,7 +2435,8 @@ bool Widget::SetInitialFocus(ui::mojom::WindowShowState show_state) {
    View* v = widget_delegate_->GetInitiallyFocusedView();
    if (!focus_on_creation_ ||
        show_state == ui::mojom::WindowShowState::kInactive ||
