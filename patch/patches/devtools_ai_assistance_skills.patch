@@ -1,0 +1,57 @@
+diff --git front_end/models/ai_assistance/BUILD.gn front_end/models/ai_assistance/BUILD.gn
+index c49c747cb6120045dca1f51e2e829ba43e308d90..ec0c2e046fb01c8e989fd79073c59e574847ad91 100644
+--- front_end/models/ai_assistance/BUILD.gn
++++ front_end/models/ai_assistance/BUILD.gn
+@@ -115,6 +115,8 @@ devtools_entrypoint("bundle") {
+   split_compilation = true
+   entrypoint = "ai_assistance.ts"
+ 
++  deps = [ "skills:generate_skills" ]
++
+   ts_deps = [ ":ai_assistance" ]
+ 
+   visibility = [
+diff --git front_end/models/ai_assistance/skills/BUILD.gn front_end/models/ai_assistance/skills/BUILD.gn
+index 0201e52480006393c46709d24c32569b684d9be1..80c20acd835c4fe479d866e4bc5045a5551153f2 100644
+--- front_end/models/ai_assistance/skills/BUILD.gn
++++ front_end/models/ai_assistance/skills/BUILD.gn
+@@ -10,17 +10,19 @@ import("../../../../scripts/build/ninja/vars.gni")
+ # gen/front_end/models/ai_assistance/skills/
+ # so they can be imported relatively by files in this directory.
+ 
+-action_foreach("generate_skills") {
++_skill_sources = [
++  "accessibility.md",
++  "network.md",
++  "performance.md",
++  "sources.md",
++  "storage.md",
++  "styling.md",
++]
++
++action_foreach("_generate_skills") {
+   script = "//third_party/node/node.py"
+ 
+-  sources = [
+-    "accessibility.md",
+-    "network.md",
+-    "performance.md",
+-    "sources.md",
+-    "storage.md",
+-    "styling.md",
+-  ]
++  sources = _skill_sources
+ 
+   inputs = [
+     "../../../../scripts/build/build_ai_skills.mjs",
+@@ -48,3 +50,10 @@ action_foreach("generate_skills") {
+     }
+   }
+ }
++
++group("generate_skills") {
++  public_deps = [ ":_generate_skills" ]
++  public_inputs =
++      process_file_template(_skill_sources,
++                            [ "$target_gen_dir/{{source_name_part}}.skill.js" ])
++}
