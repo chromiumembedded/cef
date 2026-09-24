@@ -58,6 +58,20 @@ const int kExpectedSelectRectWidthVariance = 0;
 // word to be written into edit box
 const char kKeyTestWord[] = "done";
 
+// Characters whose low byte is VK_ESCAPE (0x1B) or VK_BACK (0x08). Blink does
+// not treat those key codes as character keys, so a character event that loses
+// its high byte on the way is dropped rather than inserted (see issue #4282).
+//   U+0410  control: low byte 0x10, shows input works when the rest is missing
+//   U+041B  Cyrillic, 0x1B
+//   U+0408  Cyrillic, 0x08
+//   U+011B  Latin Extended-A, 0x1B
+//   U+0E08  Thai, 0x08; Thai layouts deliver it as WM_CHAR without an IME
+//   U+FF1B  high byte 0xFF, which catches a sign extension as well as a drop
+const char16_t kCharTestWord[] = u"\u0410\u041B\u0408\u011B\u0E08\uFF1B";
+// The same characters as the page reports them, percent-encoded UTF-8.
+const char kCharTestWordEncoded[] =
+    "%D0%90%D0%9B%D0%88%C4%9B%E0%B8%88%EF%BC%9B";
+
 constexpr uint32_t kAllTouchHandleFlags =
     (CEF_THS_FLAG_ENABLED | CEF_THS_FLAG_ORIENTATION | CEF_THS_FLAG_ORIGIN |
      CEF_THS_FLAG_ALPHA);
@@ -133,6 +147,9 @@ enum OSRTestType {
   OSR_TEST_INVALIDATE,
   // write into editbox LI08, click to navigate on LI09
   OSR_TEST_KEY_EVENTS,
+  // write non-ASCII characters into editbox LI08 with character events only,
+  // click to navigate on LI09
+  OSR_TEST_CHAR_EVENTS,
   // mouse over LI10 will show a tooltip
   OSR_TEST_TOOLTIP,
   // mouse wheel will trigger a scroll event
@@ -234,6 +251,12 @@ class OSRTestHandler : public RoutingTestHandler,
       case OSR_TEST_KEY_EVENTS: {
         const std::string& expected_url =
             std::string(kTestUrl) + "?k=" + kKeyTestWord;
+        EXPECT_STREQ(expected_url.c_str(), frame->GetURL().ToString().c_str());
+        DestroySucceededTestSoon();
+      } break;
+      case OSR_TEST_CHAR_EVENTS: {
+        const std::string& expected_url =
+            std::string(kTestUrl) + "?k=" + kCharTestWordEncoded;
         EXPECT_STREQ(expected_url.c_str(), frame->GetURL().ToString().c_str());
         DestroySucceededTestSoon();
       } break;
@@ -389,6 +412,7 @@ class OSRTestHandler : public RoutingTestHandler,
             200);
       } break;
       case OSR_TEST_KEY_EVENTS:
+      case OSR_TEST_CHAR_EVENTS:
       case OSR_TEST_IME_COMMIT_TEXT:
       case OSR_TEST_IME_FINISH_COMPOSITION:
       case OSR_TEST_IME_CANCEL_COMPOSITION:
@@ -557,6 +581,14 @@ class OSRTestHandler : public RoutingTestHandler,
           // Wait a bit after the focus change before continuing.
           CefPostDelayedTask(
               TID_UI, base::BindOnce(&OSRTestHandler::SendKeyEvents, this),
+              100);
+        }
+        break;
+      case OSR_TEST_CHAR_EVENTS:
+        if (messageStr == "osrfocuseditbox") {
+          // Wait a bit after the focus change before continuing.
+          CefPostDelayedTask(
+              TID_UI, base::BindOnce(&OSRTestHandler::SendCharEvents, this),
               100);
         }
         break;
@@ -1669,6 +1701,32 @@ class OSRTestHandler : public RoutingTestHandler,
     ClickButtonToNavigate(browser);
   }
 
+  void SendCharEvents() {
+    auto browser = GetBrowser();
+
+    // Character events only. The key down and key up around them take a
+    // different path, which OSR_TEST_KEY_EVENTS already covers.
+    for (const char16_t* c = kCharTestWord; *c; ++c) {
+      CefKeyEvent event;
+      event.type = KEYEVENT_CHAR;
+#if defined(OS_WIN)
+      // Windows clients pass on the WM_CHAR wParam, which is the character.
+      event.windows_key_code = *c;
+#endif
+      event.character = event.unmodified_character = *c;
+      browser->GetHost()->SendKeyEvent(event);
+    }
+
+    // Click with the mouse rather than from script. Mouse and keyboard events
+    // share one queue to the renderer, so the click cannot overtake the
+    // characters; script travels separately and can.
+    CefMouseEvent mouse_event;
+    const CefRect& button = GetElementBounds("btnnavigate");
+    mouse_event.x = MiddleX(button);
+    mouse_event.y = MiddleY(button);
+    SendMouseClickEvent(browser, mouse_event);
+  }
+
   void SendIMECommitText() {
     auto browser = GetBrowser();
 
@@ -2181,6 +2239,10 @@ OSR_TEST(Invalidate, OSR_TEST_INVALIDATE, 1.0f)
 OSR_TEST(Invalidate2x, OSR_TEST_INVALIDATE, 2.0f)
 OSR_TEST(KeyEvents, OSR_TEST_KEY_EVENTS, 1.0f)
 OSR_TEST(KeyEvents2x, OSR_TEST_KEY_EVENTS, 2.0f)
+#if defined(OS_WIN) || defined(OS_LINUX)
+// macOS builds character events from a synthetic NSEvent instead.
+OSR_TEST(CharEvents, OSR_TEST_CHAR_EVENTS, 1.0f)
+#endif
 OSR_TEST(Tooltip, OSR_TEST_TOOLTIP, 1.0f)
 OSR_TEST(Tooltip2x, OSR_TEST_TOOLTIP, 2.0f)
 OSR_TEST(Scrolling, OSR_TEST_SCROLLING, 1.0f)

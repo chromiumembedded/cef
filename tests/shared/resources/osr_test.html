@@ -38,7 +38,9 @@
   function getElement(id) { return document.getElementById(id); }
   function makeH1Red() { getElement('LI00').style.color='red'; }
   function makeH1Black() { getElement('LI00').style.color='black'; }
-  function navigate() { location.href='?k='+getElement('editbox').value; }
+  function navigate() {
+    location.href='?k='+encodeURIComponent(getElement('editbox').value);
+  }
   function load() {
     var elems = [];
     var param = { type: 'ElementBounds', elems: elems };
