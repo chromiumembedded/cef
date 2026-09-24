@@ -498,6 +498,10 @@ class OSRTestHandler : public RoutingTestHandler,
 
     const std::string& messageStr = request;
     if (messageStr.length() > 0 && messageStr[0] == '{') {
+      // Paint-only tests do not use element bounds.
+      if (test_type_ == OSR_TEST_PAINT || test_type_ == OSR_TEST_TRANSPARENCY) {
+        return true;
+      }
       return HandleBoundsQuery(browser, frame, query_id, request, persistent,
                                callback);
     }
