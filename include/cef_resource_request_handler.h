@@ -128,6 +128,28 @@ class CefResourceRequestHandler : public virtual CefBaseRefCounted {
                                   CefRefPtr<CefResponse> response,
                                   CefString& new_url) {}
 
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// Called on the IO thread after response headers are received and before
+  /// they are processed by CEF. The |browser| and |frame| values represent the
+  /// source of the request, and may be NULL for requests originating from
+  /// service workers or CefURLRequest. The |request| object cannot be modified
+  /// in this callback. The |response| object may be modified in this callback
+  /// to change the status code, status text, MIME type, charset or response
+  /// headers. Changes to other response properties will be ignored. The
+  /// |response| object will be read-only after this callback returns.
+  ///
+  /// For responses received from the network this callback is executed before
+  /// CORS validation. Cached responses may be delivered after CORS validation
+  /// and modifications are therefore not guaranteed to affect CORS handling.
+  ///
+  /*--cef(optional_param=browser,optional_param=frame,added=next)--*/
+  virtual void OnBeforeResourceResponse(CefRefPtr<CefBrowser> browser,
+                                        CefRefPtr<CefFrame> frame,
+                                        CefRefPtr<CefRequest> request,
+                                        CefRefPtr<CefResponse> response) {}
+#endif
+
   ///
   /// Called on the IO thread when a resource response is received. The
   /// |browser| and |frame| values represent the source of the request, and may

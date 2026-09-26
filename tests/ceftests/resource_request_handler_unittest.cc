@@ -3472,6 +3472,579 @@ TEST(ResourceRequestHandlerTest, BeforeResourceLoadContinueAsync) {
   ReleaseAndWaitForDestructor(handler);
 }
 
+#if CEF_API_ADDED(CEF_NEXT)
+
+namespace {
+
+const char kBeforeResourceResponseMainUrl[] =
+    "https://test.com/before_resource_response.html";
+const char kBeforeResourceResponseSubUrl[] =
+    "https://test.com/before_resource_response.css";
+const char kBeforeResourceResponseDoneMsg[] = "BeforeResourceResponseDone:";
+
+// Verify the OnBeforeResourceResponse callback on the custom resource handler
+// path (AddResource returns a CefStreamResourceHandler):
+// - Receives the response for both the main frame and subresources.
+// - Header modifications (SetHeaderMap), MIME type modifications
+//   (SetMimeType) and status code modifications (SetStatus) are all
+//   observable from JavaScript via same-origin fetch().
+// - The CefResponse object stays coherent: later callbacks observe the
+//   modified MIME type.
+class BeforeResourceResponseTest : public RoutingTestHandler {
+ public:
+  enum TestMode {
+    // Do not modify the response; the subresource keeps its original
+    // "text/plain" Content-Type and 200 status.
+    NO_MODIFY,
+    // Rewrite the response Content-Type header via SetHeaderMap.
+    MODIFY_HEADERS,
+    // Rewrite the MIME type via SetMimeType only.
+    MODIFY_MIME,
+    // Rewrite the status code via SetStatus only.
+    MODIFY_STATUS,
+  };
+
+  explicit BeforeResourceResponseTest(TestMode mode) : mode_(mode) {}
+
+  BeforeResourceResponseTest(const BeforeResourceResponseTest&) = delete;
+  BeforeResourceResponseTest& operator=(const BeforeResourceResponseTest&) =
+      delete;
+
+  // TestHandler:
+  void RunTest() override {
+    AddResource(kBeforeResourceResponseMainUrl, GetMainHtml(), "text/html");
+    AddResource(kBeforeResourceResponseSubUrl, "p { color: red; }",
+                "text/plain");
+    CreateBrowser(kBeforeResourceResponseMainUrl);
+    SetTestTimeout();
+  }
+
+  CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      bool is_navigation,
+      bool is_download,
+      const CefString& request_initiator,
+      bool& disable_default_handling) override {
+    EXPECT_IO_THREAD();
+
+    if (request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return nullptr;
+    }
+
+    return this;
+  }
+
+  void OnBeforeResourceResponse(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                CefRefPtr<CefRequest> request,
+                                CefRefPtr<CefResponse> response) override {
+    EXPECT_IO_THREAD();
+
+    const std::string& url = request->GetURL();
+    if (url == kBeforeResourceResponseSubUrl) {
+      EXPECT_FALSE(got_sub_callback_);
+      got_sub_callback_.yes();
+
+      EXPECT_TRUE(browser.get());
+      EXPECT_TRUE(frame.get() && frame->IsMain());
+
+      // The response is readable in this callback.
+      EXPECT_EQ(200, response->GetStatus());
+      EXPECT_STREQ("text/plain", response->GetMimeType().ToString().c_str());
+
+      if (mode_ == MODIFY_HEADERS) {
+        // Rewrite the Content-Type header.
+        CefResponse::HeaderMap map;
+        response->GetHeaderMap(map);
+        map.erase("Content-Type");
+        map.insert(std::make_pair("Content-Type", "text/css"));
+        response->SetHeaderMap(map);
+      } else if (mode_ == MODIFY_MIME) {
+        // Rewrite only the MIME type field.
+        response->SetMimeType("text/css");
+      } else if (mode_ == MODIFY_STATUS) {
+        // Rewrite only the status code.
+        response->SetStatus(201);
+      }
+    } else if (url == kBeforeResourceResponseMainUrl) {
+      EXPECT_FALSE(got_main_callback_);
+      got_main_callback_.yes();
+    } else {
+      EXPECT_TRUE(false);  // Not reached.
+    }
+  }
+
+  bool OnResourceResponse(CefRefPtr<CefBrowser> browser,
+                          CefRefPtr<CefFrame> frame,
+                          CefRefPtr<CefRequest> request,
+                          CefRefPtr<CefResponse> response) override {
+    EXPECT_IO_THREAD();
+
+    const std::string& url = request->GetURL();
+    if (url == kBeforeResourceResponseSubUrl) {
+      got_resource_response_.yes();
+
+      // The response object must stay coherent after the
+      // OnBeforeResourceResponse modification: the MIME type field must
+      // match the modified Content-Type header.
+      if (mode_ == MODIFY_HEADERS || mode_ == MODIFY_MIME) {
+        EXPECT_STREQ("text/css", response->GetMimeType().ToString().c_str());
+      } else {
+        EXPECT_STREQ("text/plain", response->GetMimeType().ToString().c_str());
+      }
+    }
+
+    return false;
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    EXPECT_UI_THREAD();
+
+    const std::string& request_str = request.ToString();
+    static_assert(sizeof(kBeforeResourceResponseDoneMsg) > 1,
+                  "kBeforeResourceResponseDoneMsg must not be empty");
+    constexpr size_t kDoneMsgLen =
+        sizeof(kBeforeResourceResponseDoneMsg) - 1;
+    if (request_str.compare(0, kDoneMsgLen, kBeforeResourceResponseDoneMsg) !=
+        0) {
+      return false;
+    }
+
+    // The result is "<content-type>;<status>".
+    const std::string result = request_str.substr(kDoneMsgLen);
+    switch (mode_) {
+      case NO_MODIFY:
+        EXPECT_STREQ("text/plain;200", result.c_str());
+        break;
+      case MODIFY_HEADERS:
+        EXPECT_STREQ("text/css;200", result.c_str());
+        break;
+      case MODIFY_MIME:
+        EXPECT_STREQ("text/css;200", result.c_str());
+        break;
+      case MODIFY_STATUS:
+        EXPECT_STREQ("text/plain;201", result.c_str());
+        break;
+    }
+
+    got_result_.yes();
+    callback->Success("");
+
+    DestroyTest();
+    return true;
+  }
+
+  void DestroyTest() override {
+    EXPECT_TRUE(got_main_callback_);
+    EXPECT_TRUE(got_sub_callback_);
+    EXPECT_TRUE(got_resource_response_);
+    EXPECT_TRUE(got_result_);
+
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  std::string GetMainHtml() const {
+    return "<html><head><script>"
+           "function report(value) {"
+           "window.testQuery({request:'" +
+           std::string(kBeforeResourceResponseDoneMsg) +
+           "' + value});"
+           "}"
+           "fetch('" +
+           std::string(kBeforeResourceResponseSubUrl) +
+           "').then(function(r) {"
+           "var ct = r.headers.get('Content-Type') || 'no-content-type';"
+           "return ct + ';' + r.status;"
+           "}).then(report).catch(function(e) {"
+           "report('error;0');"
+           "});"
+           "</script></head><body>Test</body></html>";
+  }
+
+  const TestMode mode_;
+
+  TrackCallback got_main_callback_;
+  TrackCallback got_sub_callback_;
+  TrackCallback got_resource_response_;
+  TrackCallback got_result_;
+
+  IMPLEMENT_REFCOUNTING(BeforeResourceResponseTest);
+};
+
+// Verify the OnBeforeResourceResponse callback on the default network path
+// using the test HTTP server:
+// - STYLESHEET modes: the stylesheet is served with a "text/plain"
+//   Content-Type and the "nosniff" header. Blink will refuse to apply it
+//   unless the MIME type is changed to "text/css" in OnBeforeResourceResponse
+//   (and the response head MIME type updated accordingly), providing a
+//   consumer-level verification that touches URLResponseHead::mime_type.
+// - COOKIE modes: Set-Cookie headers can be removed or added in
+//   OnBeforeResourceResponse, with the result observable via document.cookie.
+class BeforeResourceResponseNetworkTest : public RoutingTestHandler {
+ public:
+  enum TestMode {
+    // Do not modify; the stylesheet is refused due to nosniff.
+    STYLESHEET_NOMODIFY,
+    // Change the MIME type via SetMimeType; the stylesheet is applied.
+    STYLESHEET_MODIFY_MIME,
+    // The server sends Set-Cookie and the callback removes it.
+    COOKIE_REMOVE,
+    // The callback adds Set-Cookie.
+    COOKIE_ADD,
+  };
+
+  explicit BeforeResourceResponseNetworkTest(TestMode mode) : mode_(mode) {}
+
+  BeforeResourceResponseNetworkTest(const BeforeResourceResponseNetworkTest&) =
+      delete;
+  BeforeResourceResponseNetworkTest& operator=(
+      const BeforeResourceResponseNetworkTest&) = delete;
+
+  // TestHandler:
+  void RunTest() override {
+    SetSignalTestCompletionCount(1);
+    server_ = std::make_unique<Server>(this);
+    server_->Initialize(false /* https_server */);
+    SetTestTimeout();
+  }
+
+  CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      bool is_navigation,
+      bool is_download,
+      const CefString& request_initiator,
+      bool& disable_default_handling) override {
+    EXPECT_IO_THREAD();
+
+    if (request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return nullptr;
+    }
+
+    return this;
+  }
+
+  void OnBeforeResourceResponse(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                CefRefPtr<CefRequest> request,
+                                CefRefPtr<CefResponse> response) override {
+    EXPECT_IO_THREAD();
+
+    const std::string& url = request->GetURL();
+    if (url == origin_ + "/style.css") {
+      EXPECT_FALSE(got_sub_callback_);
+      got_sub_callback_.yes();
+
+      EXPECT_TRUE(browser.get());
+
+      EXPECT_EQ(200, response->GetStatus());
+      EXPECT_STREQ("text/plain", response->GetMimeType().ToString().c_str());
+
+      if (mode_ == STYLESHEET_MODIFY_MIME) {
+        // Rewrite only the MIME type field.
+        response->SetMimeType("text/css");
+      }
+    } else if (url == origin_ + "/cookie.html") {
+      EXPECT_FALSE(got_cookie_callback_);
+      got_cookie_callback_.yes();
+
+      if (mode_ == COOKIE_REMOVE) {
+        // Remove the Set-Cookie header.
+        CefResponse::HeaderMap map;
+        response->GetHeaderMap(map);
+        map.erase("Set-Cookie");
+        response->SetHeaderMap(map);
+      } else if (mode_ == COOKIE_ADD) {
+        // Add a Set-Cookie header.
+        response->SetHeaderByName("Set-Cookie", "brr_network=client", true);
+      }
+    } else if (url == origin_ + "/main.html") {
+      EXPECT_FALSE(got_main_callback_);
+      got_main_callback_.yes();
+    }
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    EXPECT_UI_THREAD();
+
+    const std::string& request_str = request.ToString();
+    static_assert(sizeof(kBeforeResourceResponseDoneMsg) > 1,
+                  "kBeforeResourceResponseDoneMsg must not be empty");
+    constexpr size_t kDoneMsgLen =
+        sizeof(kBeforeResourceResponseDoneMsg) - 1;
+    if (request_str.compare(0, kDoneMsgLen, kBeforeResourceResponseDoneMsg) !=
+        0) {
+      return false;
+    }
+
+    const std::string result = request_str.substr(kDoneMsgLen);
+    switch (mode_) {
+      case STYLESHEET_NOMODIFY:
+        EXPECT_STREQ("not-applied", result.c_str());
+        break;
+      case STYLESHEET_MODIFY_MIME:
+        EXPECT_STREQ("applied", result.c_str());
+        break;
+      case COOKIE_REMOVE:
+        EXPECT_STREQ("absent", result.c_str());
+        break;
+      case COOKIE_ADD:
+        EXPECT_STREQ("present", result.c_str());
+        break;
+    }
+
+    got_result_.yes();
+    callback->Success("");
+
+    DestroyTest();
+    return true;
+  }
+
+  void DestroyTest() override {
+    EXPECT_UI_THREAD();
+    if (finishing_) {
+      return;
+    }
+    finishing_ = true;
+
+    EXPECT_TRUE(got_main_callback_);
+    if (mode_ == STYLESHEET_NOMODIFY || mode_ == STYLESHEET_MODIFY_MIME) {
+      EXPECT_TRUE(got_sub_callback_);
+    } else {
+      EXPECT_TRUE(got_cookie_callback_);
+    }
+    EXPECT_TRUE(got_result_);
+
+    if (server_) {
+      if (server_initialized_) {
+        server_->Shutdown();
+      }
+      // Otherwise OnServerInitialized will shut it down when startup
+      // finishes.
+    } else {
+      OnServerShutdown();
+    }
+  }
+
+ private:
+  class Server : public test_server::ObserverHelper {
+   public:
+    explicit Server(BeforeResourceResponseNetworkTest* owner) : owner_(owner) {}
+
+    Server(const Server&) = delete;
+    Server& operator=(const Server&) = delete;
+
+    // test_server::ObserverHelper:
+    void OnInitialized(const std::string& origin) override {
+      // A reused server can initialize synchronously. Continue only after
+      // ObserverHelper::Initialize has finished assigning its registration.
+      CefPostTask(
+          TID_UI,
+          base::BindOnce(
+              &BeforeResourceResponseNetworkTest::OnServerInitialized,
+              CefRefPtr<BeforeResourceResponseNetworkTest>(owner_), origin));
+    }
+
+    bool OnTestServerRequest(CefRefPtr<CefRequest> request,
+                             const ResponseCallback& callback) override {
+      return owner_->OnServerRequest(request, callback);
+    }
+
+    void OnShutdown() override {
+      // Destroy this observer after its shutdown callback has unwound.
+      CefPostTask(
+          TID_UI,
+          base::BindOnce(&BeforeResourceResponseNetworkTest::OnServerShutdown,
+                         CefRefPtr<BeforeResourceResponseNetworkTest>(owner_)));
+    }
+
+   private:
+    BeforeResourceResponseNetworkTest* const owner_;
+  };
+
+  void OnServerInitialized(const std::string& origin) {
+    EXPECT_UI_THREAD();
+    EXPECT_FALSE(server_initialized_);
+    server_initialized_ = true;
+    if (finishing_) {
+      server_->Shutdown();
+      return;
+    }
+    origin_ = origin;
+    CreateBrowser(origin_ + "/main.html");
+  }
+
+  bool OnServerRequest(CefRefPtr<CefRequest> request,
+                       const test_server::ResponseCallback& callback) {
+    const std::string& url = request->GetURL();
+    if (url == origin_ + "/main.html") {
+      auto response = CefResponse::Create();
+      response->SetStatus(200);
+      response->SetMimeType("text/html");
+      callback.Run(response, GetMainHtml());
+    } else if (url == origin_ + "/style.css") {
+      auto response = CefResponse::Create();
+      response->SetStatus(200);
+      // Deliberately the wrong MIME type. Because of the "nosniff" header
+      // Blink will refuse to apply the stylesheet unless the MIME type is
+      // changed to "text/css" in OnBeforeResourceResponse.
+      response->SetMimeType("text/plain");
+      response->SetHeaderByName("X-Content-Type-Options", "nosniff", true);
+      callback.Run(response, "p { color: rgb(1, 2, 3); }");
+    } else if (url == origin_ + "/cookie.html") {
+      auto response = CefResponse::Create();
+      response->SetStatus(200);
+      response->SetMimeType("text/plain");
+      if (mode_ == COOKIE_REMOVE) {
+        response->SetHeaderByName("Set-Cookie", "brr_network=server", true);
+      }
+      callback.Run(response, "");
+    } else {
+      // Not handled (e.g. favicon).
+      return false;
+    }
+    return true;
+  }
+
+  void OnServerShutdown() {
+    EXPECT_UI_THREAD();
+    server_.reset();
+    TestHandler::DestroyTest();
+    SignalTestCompletion();
+  }
+
+  std::string GetMainHtml() const {
+    std::string script;
+    if (mode_ == STYLESHEET_NOMODIFY || mode_ == STYLESHEET_MODIFY_MIME) {
+      script =
+          "window.addEventListener('load', function() {"
+          "setTimeout(function() {"
+          "var applied = false;"
+          "try { applied = getComputedStyle("
+          "document.getElementById('p')).color == 'rgb(1, 2, 3)'; } catch (e) {}"
+          "window.testQuery({request:'" +
+          std::string(kBeforeResourceResponseDoneMsg) +
+          "' + (applied ? 'applied' : 'not-applied')});"
+          "}, 100);"
+          "});";
+    } else {
+      script =
+          "fetch('cookie.html').then(function() {"
+          "setTimeout(function() {"
+          "window.testQuery({request:'" +
+          std::string(kBeforeResourceResponseDoneMsg) +
+          "' + (document.cookie.indexOf('brr_network') >= 0 ? 'present'"
+          " : 'absent')});"
+          "}, 200);"
+          "}).catch(function(e) {"
+          "window.testQuery({request:'" +
+          std::string(kBeforeResourceResponseDoneMsg) + "' + 'error'});"
+          "});";
+    }
+
+    return "<html><head><link rel=\"stylesheet\" href=\"style.css\">"
+           "<script>" +
+           script +
+           "</script></head><body><p id=\"p\">Test</p></body></html>";
+  }
+
+  const TestMode mode_;
+
+  std::unique_ptr<Server> server_;
+  bool server_initialized_ = false;
+  bool finishing_ = false;
+  std::string origin_;
+
+  TrackCallback got_main_callback_;
+  TrackCallback got_sub_callback_;
+  TrackCallback got_cookie_callback_;
+  TrackCallback got_result_;
+
+  IMPLEMENT_REFCOUNTING(BeforeResourceResponseNetworkTest);
+};
+
+}  // namespace
+
+TEST(ResourceRequestHandlerTest, BeforeResourceResponseNoModify) {
+  CefRefPtr<BeforeResourceResponseTest> handler =
+      new BeforeResourceResponseTest(BeforeResourceResponseTest::NO_MODIFY);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(ResourceRequestHandlerTest, BeforeResourceResponseModifyHeaders) {
+  CefRefPtr<BeforeResourceResponseTest> handler =
+      new BeforeResourceResponseTest(
+          BeforeResourceResponseTest::MODIFY_HEADERS);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(ResourceRequestHandlerTest, BeforeResourceResponseModifyMime) {
+  CefRefPtr<BeforeResourceResponseTest> handler =
+      new BeforeResourceResponseTest(BeforeResourceResponseTest::MODIFY_MIME);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(ResourceRequestHandlerTest, BeforeResourceResponseModifyStatus) {
+  CefRefPtr<BeforeResourceResponseTest> handler =
+      new BeforeResourceResponseTest(
+          BeforeResourceResponseTest::MODIFY_STATUS);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(ResourceRequestHandlerTest, BeforeResourceResponseNetworkNoModify) {
+  CefRefPtr<BeforeResourceResponseNetworkTest> handler =
+      new BeforeResourceResponseNetworkTest(
+          BeforeResourceResponseNetworkTest::STYLESHEET_NOMODIFY);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(ResourceRequestHandlerTest, BeforeResourceResponseNetworkModifyMime) {
+  CefRefPtr<BeforeResourceResponseNetworkTest> handler =
+      new BeforeResourceResponseNetworkTest(
+          BeforeResourceResponseNetworkTest::STYLESHEET_MODIFY_MIME);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(ResourceRequestHandlerTest, BeforeResourceResponseNetworkCookieRemove) {
+  CefRefPtr<BeforeResourceResponseNetworkTest> handler =
+      new BeforeResourceResponseNetworkTest(
+          BeforeResourceResponseNetworkTest::COOKIE_REMOVE);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(ResourceRequestHandlerTest, BeforeResourceResponseNetworkCookieAdd) {
+  CefRefPtr<BeforeResourceResponseNetworkTest> handler =
+      new BeforeResourceResponseNetworkTest(
+          BeforeResourceResponseNetworkTest::COOKIE_ADD);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+#endif  // CEF_API_ADDED(CEF_NEXT)
+
 namespace {
 
 // For response filtering we need to test:

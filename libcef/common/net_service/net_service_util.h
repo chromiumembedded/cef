@@ -22,6 +22,12 @@ namespace network {
 struct ResourceRequest;
 }  // namespace network
 
+namespace network {
+namespace mojom {
+class URLResponseHead;
+}
+}  // namespace network::mojom
+
 class GURL;
 
 namespace net_service {
@@ -54,6 +60,12 @@ scoped_refptr<net::HttpResponseHeaders> MakeResponseHeaders(
     int64_t content_length,
     const std::multimap<std::string, std::string>& extra_headers,
     bool allow_existing_header_override);
+
+// Update the MIME type and charset in |head| based on its response headers.
+// Called when response headers have been replaced (e.g. with override headers
+// from the CefResourceRequestHandler::OnBeforeResourceResponse callback) so
+// that the response head seen by the renderer reflects the final headers.
+void UpdateResponseHeadMimeType(network::mojom::URLResponseHead* head);
 
 // Make a RedirectInfo structure.
 net::RedirectInfo MakeRedirectInfo(const network::ResourceRequest& request,
