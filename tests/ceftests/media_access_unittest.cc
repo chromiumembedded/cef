@@ -166,11 +166,7 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
         "});"
         "}";
 
-    if (test_setup_->deny_implicitly && !use_alloy_style_browser()) {
-      // Default behavior with Chrome style is to show a UI prompt, so add
-      // a timeout.
-      page += "setTimeout(() => { onResult(`TIMEOUT`); }, 1000);";
-    } else if (test_setup_->deny_with_navigation) {
+    if (test_setup_->deny_with_navigation) {
       // Cancel the pending request by navigating.
       page += "setTimeout(() => { document.location = '" +
               std::string(kMediaNavUrl) + "'; }, 1000);";
@@ -237,6 +233,13 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
     test_setup_->got_request.yes();
 
     if (test_setup_->deny_implicitly) {
+      if (!use_alloy_style_browser()) {
+        // Chrome shows a UI prompt. Start the timeout only after the media
+        // request reaches this handler, since device enumeration may be slow.
+        frame->ExecuteJavaScript(
+            "setTimeout(() => { onResult(`TIMEOUT`); }, 1000);",
+            frame->GetURL(), 0);
+      }
       return false;
     }
 
