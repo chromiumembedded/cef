@@ -3075,6 +3075,10 @@ class RedirectResponseTest : public TestHandler {
         bool is_download,
         const CefString& request_initiator,
         bool& disable_default_handling) override {
+      if (!browser) {
+        // Ignore browserless requests from Chrome UI that share this context.
+        return nullptr;
+      }
       return resource_request_handler_;
     }
 
