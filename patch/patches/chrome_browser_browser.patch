@@ -395,7 +395,7 @@ index bccf4c6a0c037ad620eaf30340c0b6688fa81afd..23c97d79c4be50b7372f7c5e367c4799
    }
  
 diff --git chrome/browser/ui/browser_ui_controller/browser_ui_controller.cc chrome/browser/ui/browser_ui_controller/browser_ui_controller.cc
-index 60a3a7ebaa07d600ec4143736b5ceaaca01f74a9..8bd9a7eede20d81dab9bcf3fcef40c2e09a1902e 100644
+index 60a3a7ebaa07d600ec4143736b5ceaaca01f74a9..31cc18ebb5b0a2b7580993b84076d75ae88aaf84 100644
 --- chrome/browser/ui/browser_ui_controller/browser_ui_controller.cc
 +++ chrome/browser/ui/browser_ui_controller/browser_ui_controller.cc
 @@ -11,8 +11,10 @@
@@ -416,7 +416,7 @@ index 60a3a7ebaa07d600ec4143736b5ceaaca01f74a9..8bd9a7eede20d81dab9bcf3fcef40c2e
 -    NotifyTabUIChanged(tab, TabChangeType::kLoadingOnly);
 +    // Guard against notifications during tab insertion when the tab strip model
 +    // state is not yet fully consistent.
-+    if (tab_strip_model_->GetActiveWebContents()) {
++    if (tab_strip_model_->GetIndexOfTab(tab) != TabStripModel::kNoTab) {
 +      NotifyTabUIChanged(tab, TabChangeType::kLoadingOnly);
 +    }
      // The status bubble needs to be updated during INVALIDATE_TYPE_LOAD too,
