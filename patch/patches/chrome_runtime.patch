@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index b8eeec779ce30b20cc550f12cfda599c4604ced3..41df3a233d09e83884c6935b7b16bb51f59cf395 100644
+index b8eeec779ce30b20cc550f12cfda599c4604ced3..00217e5c2b3b022918d3adba4671117043f76ad6 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -38,6 +38,7 @@
@@ -94,15 +94,30 @@ index b8eeec779ce30b20cc550f12cfda599c4604ced3..41df3a233d09e83884c6935b7b16bb51
    crash_reporter::InitializeCrashKeys();
  
  #if BUILDFLAG(IS_POSIX)
-@@ -1450,6 +1462,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1435,18 +1447,21 @@ void ChromeMainDelegate::PreSandboxStartup() {
+   InitMacCrashReporter(command_line, process_type);
+   SetUpInstallerPreferences(command_line);
+ #endif
++#endif  // !BUILDFLAG(ENABLE_CEF)
+ 
+ #if !defined(BUILDING_CHROME_RENDERER)
++#if !BUILDFLAG(ENABLE_CEF)
+   // Initialize the user data dir for any process type that needs it.
+   if (chrome::ProcessNeedsProfileDir(process_type)) {
+     InitializeUserDataDir(base::CommandLine::ForCurrentProcess());
+   }
++#endif  // !BUILDFLAG(ENABLE_CEF)
+ 
+   // Register component_updater PathProvider after DIR_USER_DATA overridden by
+   // command line flags. Maybe move the chrome PathProvider down here also?
+   component_updater::RegisterPathProvider(chrome::DIR_COMPONENTS,
+                                           chrome::DIR_USER_DATA);
+-#else   // !defined(BUILDING_CHROME_RENDERER)
++#elif !BUILDFLAG(ENABLE_CEF)
    // Renderers on Windows never require a profile directory.
    CHECK(!chrome::ProcessNeedsProfileDir(process_type));
  #endif  // !defined(BUILDING_CHROME_RENDERER)
-+#endif  // !BUILDFLAG(ENABLE_CEF)
- 
- #if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_WIN)
-   // Android does InitLogging when library is loaded. Skip here.
-@@ -1543,7 +1556,8 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1543,7 +1558,8 @@ void ChromeMainDelegate::PreSandboxStartup() {
  #else
      const std::string loaded_locale =
          ui::ResourceBundle::InitSharedInstanceWithLocale(
@@ -112,7 +127,7 @@ index b8eeec779ce30b20cc550f12cfda599c4604ced3..41df3a233d09e83884c6935b7b16bb51
  
      base::FilePath resources_pack_path;
      base::PathService::Get(chrome::FILE_RESOURCES_PACK, &resources_pack_path);
-@@ -1553,6 +1567,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1553,6 +1569,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
      CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
    }
  
@@ -120,7 +135,7 @@ index b8eeec779ce30b20cc550f12cfda599c4604ced3..41df3a233d09e83884c6935b7b16bb51
  #if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
    // Zygote needs to call InitCrashReporter() in RunZygote().
    if (process_type != switches::kZygoteProcess &&
-@@ -1589,6 +1604,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1589,6 +1606,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    // After all the platform Breakpads have been initialized, store the command
    // line for crash reporting.
    crash_keys::SetCrashKeysFromCommandLine(command_line);
@@ -128,7 +143,7 @@ index b8eeec779ce30b20cc550f12cfda599c4604ced3..41df3a233d09e83884c6935b7b16bb51
  
  #if BUILDFLAG(ENABLE_PDF) && !defined(BUILDING_CHROME_RENDERER)
    MaybePatchGdiGetFontData();
-@@ -1721,6 +1737,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1721,6 +1739,7 @@ void ChromeMainDelegate::ZygoteForked() {
    }
  #endif  // !defined(BUILDING_CHROME_RENDERER)
  
@@ -136,7 +151,7 @@ index b8eeec779ce30b20cc550f12cfda599c4604ced3..41df3a233d09e83884c6935b7b16bb51
    // Needs to be called after we have chrome::DIR_USER_DATA.  BrowserMain sets
    // this up for the browser process in a different manner.
    const base::CommandLine* command_line =
-@@ -1733,6 +1750,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1733,6 +1752,7 @@ void ChromeMainDelegate::ZygoteForked() {
  
    // Reset the command line for the newly spawned process.
    crash_keys::SetCrashKeysFromCommandLine(*command_line);
@@ -144,7 +159,7 @@ index b8eeec779ce30b20cc550f12cfda599c4604ced3..41df3a233d09e83884c6935b7b16bb51
  }
  
  #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-@@ -1859,6 +1877,7 @@ void ChromeMainDelegate::InitializeMemorySystem() {
+@@ -1859,6 +1879,7 @@ void ChromeMainDelegate::InitializeMemorySystem() {
                               : memory_system::DispatcherParameters::
                                     AllocationTraceRecorderInclusion::kIgnore;
  
@@ -152,7 +167,7 @@ index b8eeec779ce30b20cc550f12cfda599c4604ced3..41df3a233d09e83884c6935b7b16bb51
    memory_system::Initializer()
        .SetGwpAsanParameters(gwp_asan_boost_sampling, process_type)
        .SetProfilingClientParameters(chrome::GetChannel(),
-@@ -1866,7 +1885,7 @@ void ChromeMainDelegate::InitializeMemorySystem() {
+@@ -1866,7 +1887,7 @@ void ChromeMainDelegate::InitializeMemorySystem() {
        .SetDispatcherParameters(memory_system::DispatcherParameters::
                                     PoissonAllocationSamplerInclusion::kEnforce,
                                 allocation_recorder_inclusion, process_type)
