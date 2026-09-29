@@ -58,6 +58,22 @@ const int kExpectedSelectRectWidthVariance = 0;
 // word to be written into edit box
 const char kKeyTestWord[] = "done";
 
+// Characters whose low byte is VK_ESCAPE (0x1B) or VK_BACK (0x08). Blink does
+// not treat those key codes as character keys, so a character event that loses
+// its high byte on the way is dropped rather than inserted (see issue #4282).
+//   U+0410  control: low byte 0x10, shows input works when the rest is missing
+//   U+041B  Cyrillic, 0x1B
+//   U+0408  Cyrillic, 0x08
+//   U+011B  Latin Extended-A, 0x1B
+//   U+0E08  Thai, 0x08; Thai layouts deliver it as WM_CHAR without an IME
+//   U+FF1B  high byte 0xFF, which catches a sign extension as well as a drop
+const char16_t kCharTestWord[] = u"\u0410\u041B\u0408\u011B\u0E08\uFF1B";
+
+// What the page reports in OSR_TEST_CHAR_EVENTS: each keypress on the edit box
+// as "charCode:keyCode:key", then the edit box value.
+const char kKeypressPrefix[] = "osrkeypress:";
+const char kValuePrefix[] = "osrvalue:";
+
 constexpr uint32_t kAllTouchHandleFlags =
     (CEF_THS_FLAG_ENABLED | CEF_THS_FLAG_ORIENTATION | CEF_THS_FLAG_ORIGIN |
      CEF_THS_FLAG_ALPHA);
@@ -133,6 +149,9 @@ enum OSRTestType {
   OSR_TEST_INVALIDATE,
   // write into editbox LI08, click to navigate on LI09
   OSR_TEST_KEY_EVENTS,
+  // write non-ASCII characters into editbox LI08 with character events only,
+  // click on LI09 to report the keypresses and the value
+  OSR_TEST_CHAR_EVENTS,
   // mouse over LI10 will show a tooltip
   OSR_TEST_TOOLTIP,
   // mouse wheel will trigger a scroll event
@@ -388,6 +407,13 @@ class OSRTestHandler : public RoutingTestHandler,
                            browser->GetHost(), mouse_event, false),
             200);
       } break;
+      case OSR_TEST_CHAR_EVENTS:
+        // Have the page report keypresses and the value instead of
+        // navigating. Sent before the focus on the same channel, so it is in
+        // place before any input.
+        browser->GetMainFrame()->ExecuteJavaScript(
+            "window.reportInput = true;", browser->GetMainFrame()->GetURL(), 0);
+        [[fallthrough]];
       case OSR_TEST_KEY_EVENTS:
       case OSR_TEST_IME_COMMIT_TEXT:
       case OSR_TEST_IME_FINISH_COMPOSITION:
@@ -558,6 +584,19 @@ class OSRTestHandler : public RoutingTestHandler,
           CefPostDelayedTask(
               TID_UI, base::BindOnce(&OSRTestHandler::SendKeyEvents, this),
               100);
+        }
+        break;
+      case OSR_TEST_CHAR_EVENTS:
+        if (messageStr == "osrfocuseditbox") {
+          // Wait a bit after the focus change before continuing.
+          CefPostDelayedTask(
+              TID_UI, base::BindOnce(&OSRTestHandler::SendCharEvents, this),
+              100);
+        } else if (messageStr.rfind(kKeypressPrefix, 0) == 0) {
+          char_keypresses_.push_back(
+              messageStr.substr(sizeof(kKeypressPrefix) - 1));
+        } else if (messageStr.rfind(kValuePrefix, 0) == 0) {
+          FinishCharEvents(messageStr.substr(sizeof(kValuePrefix) - 1));
         }
         break;
       case OSR_TEST_IME_COMMIT_TEXT:
@@ -1669,6 +1708,56 @@ class OSRTestHandler : public RoutingTestHandler,
     ClickButtonToNavigate(browser);
   }
 
+  void SendCharEvents() {
+    auto browser = GetBrowser();
+
+    // Character events only. The key down and key up around them take a
+    // different path, which OSR_TEST_KEY_EVENTS already covers.
+    for (const char16_t* c = kCharTestWord; *c; ++c) {
+      CefKeyEvent event;
+      event.type = KEYEVENT_CHAR;
+#if defined(OS_WIN)
+      // Windows clients pass on the WM_CHAR wParam, which is the character.
+      event.windows_key_code = *c;
+#endif
+      event.character = event.unmodified_character = *c;
+      browser->GetHost()->SendKeyEvent(event);
+    }
+
+    // Click with the mouse rather than from script. Mouse and keyboard events
+    // share one queue to the renderer, so the click cannot overtake the
+    // characters; script travels separately and can.
+    CefMouseEvent mouse_event;
+    const CefRect& button = GetElementBounds("btnnavigate");
+    mouse_event.x = MiddleX(button);
+    mouse_event.y = MiddleY(button);
+    SendMouseClickEvent(browser, mouse_event);
+  }
+
+  void FinishCharEvents(const std::string& value) {
+    const std::u16string word(kCharTestWord);
+    EXPECT_EQ(CefString(word).ToString(), value);
+
+    // A keypress for each character, carrying the whole code point. keyCode
+    // equals charCode for a keypress.
+    EXPECT_EQ(word.size(), char_keypresses_.size());
+    for (size_t i = 0; i < word.size() && i < char_keypresses_.size(); ++i) {
+      const std::string code = std::to_string(word[i]);
+      std::string expected = code + ":" + code + ":";
+      std::string actual = char_keypresses_[i];
+#if defined(OS_WIN)
+      // Only Windows builds the key from the character itself; Linux builds
+      // it from the key code, which a character event does not need to carry.
+      expected += CefString(word.substr(i, 1)).ToString();
+#else
+      actual = actual.substr(0, expected.size());
+#endif
+      EXPECT_EQ(expected, actual) << "character " << i;
+    }
+
+    DestroySucceededTestSoon();
+  }
+
   void SendIMECommitText() {
     auto browser = GetBrowser();
 
@@ -2018,6 +2107,9 @@ class OSRTestHandler : public RoutingTestHandler,
   typedef std::map<std::string, CefRect> ElementBoundsMap;
   ElementBoundsMap element_bounds_;
 
+  // OSR_TEST_CHAR_EVENTS: the page's keypress reports, in order.
+  std::vector<std::string> char_keypresses_;
+
   IMPLEMENT_REFCOUNTING(OSRTestHandler);
 };
 
@@ -2181,6 +2273,10 @@ OSR_TEST(Invalidate, OSR_TEST_INVALIDATE, 1.0f)
 OSR_TEST(Invalidate2x, OSR_TEST_INVALIDATE, 2.0f)
 OSR_TEST(KeyEvents, OSR_TEST_KEY_EVENTS, 1.0f)
 OSR_TEST(KeyEvents2x, OSR_TEST_KEY_EVENTS, 2.0f)
+#if defined(OS_WIN) || defined(OS_LINUX)
+// macOS builds character events from a synthetic NSEvent instead.
+OSR_TEST(CharEvents, OSR_TEST_CHAR_EVENTS, 1.0f)
+#endif
 OSR_TEST(Tooltip, OSR_TEST_TOOLTIP, 1.0f)
 OSR_TEST(Tooltip2x, OSR_TEST_TOOLTIP, 2.0f)
 OSR_TEST(Scrolling, OSR_TEST_SCROLLING, 1.0f)
