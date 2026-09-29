@@ -33,7 +33,8 @@ WNDPROC SetWndProcPtr(HWND hWnd, WNDPROC wndProc);
 std::wstring GetResourceString(UINT id);
 
 int GetCefMouseModifiers(WPARAM wparam);
-int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam);
+int GetCefKeyboardModifiers();
+int GetCefKeyboardModifiersFromKeyEvent(WPARAM wparam, LPARAM lparam);
 bool IsKeyDown(WPARAM wparam);
 
 // Returns the device scale factor. For example, 200% display scaling will
