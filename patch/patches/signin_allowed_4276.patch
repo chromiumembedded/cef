@@ -1,0 +1,37 @@
+diff --git chrome/browser/signin/account_consistency_mode_manager.cc chrome/browser/signin/account_consistency_mode_manager.cc
+index 7d4c893cbcd995c48a00631f9cbfd736fb188e63..bfca8880151207480763f6a9d1f01bfb29864600 100644
+--- chrome/browser/signin/account_consistency_mode_manager.cc
++++ chrome/browser/signin/account_consistency_mode_manager.cc
+@@ -12,6 +12,7 @@
+ #include "base/metrics/histogram_macros.h"
+ #include "base/strings/string_util.h"
+ #include "build/build_config.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/profiles/profile.h"
+ #include "chrome/browser/profiles/profile_attributes_storage.h"
+@@ -146,7 +147,8 @@ AccountConsistencyModeManager::~AccountConsistencyModeManager() = default;
+ // static
+ void AccountConsistencyModeManager::RegisterProfilePrefs(
+     user_prefs::PrefRegistrySyncable* registry) {
+-  registry->RegisterBooleanPref(prefs::kSigninAllowedOnNextStartup, true);
++  registry->RegisterBooleanPref(prefs::kSigninAllowedOnNextStartup,
++                                !BUILDFLAG(ENABLE_CEF));
+ }
+ 
+ // static
+diff --git components/signin/internal/identity_manager/gaia_cookie_manager_service.cc components/signin/internal/identity_manager/gaia_cookie_manager_service.cc
+index db2e0266aa2200f23d47eba563dac73e96fef1c7..cb8e446b47aa714914af2a1a195384a5b06163eb 100644
+--- components/signin/internal/identity_manager/gaia_cookie_manager_service.cc
++++ components/signin/internal/identity_manager/gaia_cookie_manager_service.cc
+@@ -525,6 +525,10 @@ GaiaCookieManagerService::GetCachedListAccounts() {
+ }
+ 
+ void GaiaCookieManagerService::TriggerListAccounts() {
++  if (!signin_client_->GetPrefs()->GetBoolean(prefs::kSigninAllowed)) {
++    return;
++  }
++
+   // Callers suspect that a check to Gaia needs to be done, don't rely on the
+   // in progress request, conditions might have changed while the request is
+   // in-flight.

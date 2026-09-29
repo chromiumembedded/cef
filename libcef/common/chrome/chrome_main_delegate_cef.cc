@@ -32,6 +32,7 @@
 #include "components/autofill/core/common/autofill_features.h"
 #include "components/embedder_support/switches.h"
 #include "components/lens/lens_features.h"
+#include "components/signin/public/base/signin_switches.h"
 #include "components/variations/service/buildflags.h"
 #include "content/common/features.h"
 #include "content/public/common/content_switches.h"
@@ -379,6 +380,12 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
                             disable_features);
     // -- "Search with Google Lens" support.
     DisableFeatureByDefault(lens::features::kLensOverlay, disable_features);
+
+#if BUILDFLAG(ENABLE_DICE_SUPPORT)
+    // Disable the sign-in promo on the avatar button by default.
+    DisableFeatureByDefault(switches::kSigninPromoOnAvatarPill,
+                            disable_features);
+#endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
 
     // Disable features that break CEF APIs.
     // -- KillOnInvalidNavigationHeaders kills the renderer when a navigation

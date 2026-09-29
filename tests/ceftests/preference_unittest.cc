@@ -24,6 +24,7 @@ const char kPrefTestDict[] = "test.dict";
 const char kPrefTestNoExist[] = "test.noexist";
 #if CEF_API_ADDED(CEF_NEXT)
 const char kPrefTestOverride[] = "test.override";
+const char kSigninAllowed[] = "signin.allowed";
 const char kSigninAllowedOnNextStartup[] = "signin.allowed_on_next_startup";
 #endif
 
@@ -134,9 +135,23 @@ class PreferenceBrowserTest : public client::ClientAppBrowser::Delegate {
       // Registered by a Chrome keyed service, after RegisterUserProfilePrefs.
       EXPECT_FALSE(registrar->AddPreference(kSigninAllowedOnNextStartup,
                                             CreateBoolValue(true)));
+      auto signin_default =
+          registrar->GetDefaultPreference(kSigninAllowedOnNextStartup);
+      ASSERT_TRUE(signin_default);
+      EXPECT_EQ(VTYPE_BOOL, signin_default->GetType());
+      EXPECT_FALSE(signin_default->GetBool());
+
+      // Applications can opt in before the profile is created.
       EXPECT_TRUE(registrar->SetDefaultPreference(
           kSigninAllowedOnNextStartup, CreateBoolValue(true), error));
       EXPECT_TRUE(error.empty());
+      EXPECT_TRUE(registrar->GetDefaultPreference(kSigninAllowedOnNextStartup)
+                      ->GetBool());
+      EXPECT_TRUE(registrar->SetDefaultPreference(
+          kSigninAllowedOnNextStartup, signin_default, error));
+      EXPECT_TRUE(error.empty());
+      EXPECT_FALSE(registrar->GetDefaultPreference(kSigninAllowedOnNextStartup)
+                       ->GetBool());
     }
 #endif
   }
@@ -742,6 +757,36 @@ TEST(PreferenceTest, OverriddenRequestContextDefault) {
   init_event->Wait();
   auto event = CefWaitableEvent::CreateWaitableEvent(true, false);
   ValidateOverriddenDefault(context, event);
+  event->Wait();
+}
+
+void ValidateSigninDisabled(CefRefPtr<CefRequestContext> context,
+                            CefRefPtr<CefWaitableEvent> event) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI, base::BindOnce(ValidateSigninDisabled, context, event));
+    return;
+  }
+
+  // The registration default is applied before account consistency initializes.
+  auto next_startup = context->GetPreference(kSigninAllowedOnNextStartup);
+  EXPECT_TRUE(next_startup);
+  if (next_startup) {
+    EXPECT_EQ(VTYPE_BOOL, next_startup->GetType());
+    EXPECT_FALSE(next_startup->GetBool());
+  }
+
+  auto allowed = context->GetPreference(kSigninAllowed);
+  EXPECT_TRUE(allowed);
+  if (allowed) {
+    EXPECT_EQ(VTYPE_BOOL, allowed->GetType());
+    EXPECT_FALSE(allowed->GetBool());
+  }
+  event->Signal();
+}
+
+TEST(PreferenceTest, RequestContextSigninDisabledByDefault) {
+  auto event = CefWaitableEvent::CreateWaitableEvent(true, false);
+  ValidateSigninDisabled(CefRequestContext::GetGlobalContext(), event);
   event->Wait();
 }
 #endif  // CEF_API_ADDED(CEF_NEXT)
