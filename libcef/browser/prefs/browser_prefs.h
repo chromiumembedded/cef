@@ -13,8 +13,10 @@ class Profile;
 
 namespace browser_prefs {
 
-// Register preferences specific to CEF.
-// Called from chrome/browser/prefs/browser_prefs.cc
+// Register preferences specific to CEF. Local state preferences are registered
+// from chrome/browser/prefs/browser_prefs.cc. Profile preferences are
+// registered from chrome/browser/profiles/pref_service_builder_utils.cc, after
+// all Chromium profile preferences.
 void RegisterLocalStatePrefs(PrefRegistrySimple* registry);
 void RegisterProfilePrefs(PrefRegistrySimple* registry);
 

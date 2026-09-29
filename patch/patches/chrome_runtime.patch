@@ -244,7 +244,7 @@ index 2b3ed5cf2e01569c71e7dd6872b630983956f419..059ffb20f277f8d18b7706f0a71e9fb5
  #include "chrome/app/chrome_crash_reporter_client.h"
  #include "chrome/app_shim/app_shim_application.h"
  #include "chrome/app_shim/app_shim_controller.h"
-@@ -77,7 +78,9 @@ std::optional<int> AppShimMainDelegate::BasicStartupComplete() {
+@@ -77,7 +78,9 @@ void HandleBadMessage(const std::string& error) {
  }
  
  void AppShimMainDelegate::PreSandboxStartup() {
@@ -430,7 +430,7 @@ index b269f1610a55d31aa58beab694fa7cbb214b58d1..d313c11d63e73b061cd4d66949fc8e81
  #import "chrome/browser/app_controller_mac.h"
  #include "chrome/browser/apps/app_shim/app_shim_listener.h"
  #include "chrome/browser/browser_process.h"
-@@ -154,6 +155,7 @@ int ChromeBrowserMainPartsMac::PreCreateThreads() {
+@@ -154,6 +155,7 @@
      return ret;
    }
  
@@ -438,7 +438,7 @@ index b269f1610a55d31aa58beab694fa7cbb214b58d1..d313c11d63e73b061cd4d66949fc8e81
    // Create the app delegate by requesting the shared AppController.
    CHECK_EQ(nil, NSApp.delegate);
    AppController* app_controller = AppController.sharedController;
-@@ -164,6 +166,7 @@ int ChromeBrowserMainPartsMac::PreCreateThreads() {
+@@ -164,6 +166,7 @@
                          /*is_pwa=*/false,
                          /*is_rtl=*/base::i18n::IsRTL());
    [app_controller mainMenuCreated];
@@ -446,7 +446,7 @@ index b269f1610a55d31aa58beab694fa7cbb214b58d1..d313c11d63e73b061cd4d66949fc8e81
  
    return content::RESULT_CODE_NORMAL_EXIT;
  }
-@@ -182,5 +185,7 @@ void ChromeBrowserMainPartsMac::PostProfileInit(Profile* profile,
+@@ -182,5 +185,7 @@
  }
  
  void ChromeBrowserMainPartsMac::DidEndMainMessageLoop() {
@@ -611,7 +611,7 @@ index 2ea677f146e3d286fb040b9984f0a4cb6a9e575f..211eeab755d93ab35c70cdc9d5e0199c
  
    // Keeps the browser process and relevant profiles alive while browser-side
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 1b5fcc030f2fd98404a4a6f56efbf82abc3153b8..819dec7e3ec8e1c9f563da597591705360078692 100644
+index 1b5fcc030f2fd98404a4a6f56efbf82abc3153b8..dae9808941093f70b8c11c4886506532508a7437 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -18,6 +18,7 @@
@@ -645,14 +645,36 @@ index 1b5fcc030f2fd98404a4a6f56efbf82abc3153b8..819dec7e3ec8e1c9f563da5975917053
  }
  
  // Register prefs applicable to all profiles.
-@@ -2332,6 +2342,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
-                               const std::string& locale) {
-   RegisterProfilePrefs(registry, locale);
+diff --git chrome/browser/profiles/pref_service_builder_utils.cc chrome/browser/profiles/pref_service_builder_utils.cc
+index 8986f4d47cc58ab13493cbafea52e91673e25144..2f23c7765f7d7325d4c6d1999fb6845f303d4d90 100644
+--- chrome/browser/profiles/pref_service_builder_utils.cc
++++ chrome/browser/profiles/pref_service_builder_utils.cc
+@@ -16,6 +16,7 @@
+ #include "base/task/sequenced_task_runner.h"
+ #include "base/threading/scoped_blocking_call.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/policy/chrome_browser_policy_connector.h"
+ #include "chrome/browser/prefs/browser_prefs.h"
+@@ -39,6 +40,10 @@
+ #include "services/preferences/public/mojom/tracked_preference_validation_delegate.mojom.h"
+ #include "ui/base/l10n/l10n_util.h"
  
 +#if BUILDFLAG(ENABLE_CEF)
-+  browser_prefs::RegisterProfilePrefs(registry);
++#include "cef/libcef/browser/prefs/browser_prefs.h"
 +#endif
 +
- #if BUILDFLAG(IS_ANDROID)
-   ::android::RegisterUserProfilePrefs(registry);
- #endif
+ namespace {
+ 
+ // Text content of README file created in each profile directory. Both %s
+@@ -77,6 +82,9 @@ void RegisterProfilePrefs(bool is_signin_profile,
+       pref_registry);
+   BrowserContextDependencyManager::GetInstance()
+       ->RegisterProfilePrefsForServices(pref_registry);
++#if BUILDFLAG(ENABLE_CEF)
++  browser_prefs::RegisterProfilePrefs(pref_registry);
++#endif
+ }
+ 
+ std::unique_ptr<sync_preferences::PrefServiceSyncable> CreateProfilePrefService(

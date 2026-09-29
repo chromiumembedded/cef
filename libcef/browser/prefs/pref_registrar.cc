@@ -4,7 +4,10 @@
 
 #include "cef/libcef/browser/prefs/pref_registrar.h"
 
+#include <utility>
+
 #include "base/memory/raw_ptr.h"
+#include "base/strings/stringprintf.h"
 #include "cef/include/cef_app.h"
 #include "cef/include/cef_browser_process_handler.h"
 #include "cef/include/cef_preference.h"
@@ -65,6 +68,43 @@ class CefPreferenceRegistrarImpl : public CefPreferenceRegistrar {
 
     LOG(ERROR) << "Invalid value type for preference: " << nameStr;
     return false;
+  }
+
+  bool SetDefaultPreference(const CefString& name,
+                            CefRefPtr<CefValue> value,
+                            CefString& error) override {
+    const std::string name_str = name;
+    const base::Value* current_value = nullptr;
+    if (!registry_->defaults()->GetValue(name_str, &current_value)) {
+      error = "Trying to modify an unregistered preference";
+      return false;
+    }
+
+    if (!value || !value->IsValid() || value->GetType() == VTYPE_INVALID ||
+        value->GetType() == VTYPE_NULL) {
+      error = "A valid value is required";
+      return false;
+    }
+
+    auto* impl = static_cast<CefValueImpl*>(value.get());
+    auto new_value = impl->CopyValue();
+    if (new_value.type() != current_value->type()) {
+      error =
+          base::StringPrintf("Wrong type for preference: %s", name_str.c_str());
+      return false;
+    }
+
+    registry_->SetDefaultPrefValue(name_str, std::move(new_value));
+    error.clear();
+    return true;
+  }
+
+  CefRefPtr<CefValue> GetDefaultPreference(const CefString& name) override {
+    const base::Value* value = nullptr;
+    if (!registry_->defaults()->GetValue(std::string(name), &value)) {
+      return nullptr;
+    }
+    return new CefValueImpl(value->Clone());
   }
 
  private:
