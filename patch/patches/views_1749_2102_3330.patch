@@ -794,7 +794,7 @@ index a19a0fa4dfd6b723d2128cb2acf3b9029de25c4a..a59a8ee1ebfc930cea1e0968e8f1d2c6
    if (root_location != root_current_location &&
        !g_ozone_ui_controls_test_helper->MustUseUiControlsForMoveCursorTo() &&
 diff --git ui/views/view.h ui/views/view.h
-index af4a0c943c0ed04c915b88b13bb139ca17a2a258..9cbb2008fff64889267c4463f9bae2ce110dede3 100644
+index d5604b2c6bac27d359b5d5fc00e43d34e8c49a4a..ad1d4564b28ab0a7b519c42b3de80ea58f68a8a4 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -27,6 +27,7 @@
