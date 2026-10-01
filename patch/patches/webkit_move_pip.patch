@@ -1,8 +1,8 @@
 diff --git chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
-index 10d227e113dd1f4d6b347c8f38419384154fd8d0..4e914c782ecfd1d2a88ef7505f289ff906ff7cae 100644
+index eede532d87e042dbf899850457a4cc826a6847ae..89256425f98205743fd15fac19e35e9c352537b2 100644
 --- chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
 +++ chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
-@@ -447,7 +447,8 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
+@@ -451,7 +451,8 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
      // Ignore the result if we're asked to do so.  Note that we still have to
      // ask the cache, so that it's set up to accept position updates later for
      // this request.
@@ -12,7 +12,7 @@ index 10d227e113dd1f4d6b347c8f38419384154fd8d0..4e914c782ecfd1d2a88ef7505f289ff9
        // Cache hit!  Just return it as the window bounds.
        return *cached_window_bounds;
      }
-@@ -501,6 +502,11 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
+@@ -505,6 +506,11 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
    }
  #endif
    // Position the window.
