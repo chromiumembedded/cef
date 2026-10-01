@@ -201,7 +201,7 @@ index 673a1bf2acb2467aa3ac5746c4d6193fba8487f2..121986d07d325c7d628c431733a104a8
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 727f17ba7ddb9b26f91a948b1e897d5ce4b8a4f3..7c139d84cf725decbbeef5c99ff69f9869dd1725 100644
+index 48cc8389a51d58db8d1804bcb29ebc2e1d447bde..82619c1161ab0161cfbc531bd7a92c4336f3fd66 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -845,13 +845,23 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
@@ -304,7 +304,7 @@ index 727f17ba7ddb9b26f91a948b1e897d5ce4b8a4f3..7c139d84cf725decbbeef5c99ff69f98
  int BrowserView::GetTabStripHeight() const {
    // We want to return tabstrip_->height(), but we might be called in the midst
    // of layout, when that hasn't yet been updated to reflect the current state.
-@@ -1749,6 +1782,28 @@ gfx::Point BrowserView::GetThemeOffsetFromBrowserView() const {
+@@ -1754,6 +1787,28 @@ gfx::Point BrowserView::GetThemeOffsetFromBrowserView() const {
        ThemeProperties::kFrameHeightAboveTabs - browser_view_origin.y());
  }
  
@@ -333,7 +333,7 @@ index 727f17ba7ddb9b26f91a948b1e897d5ce4b8a4f3..7c139d84cf725decbbeef5c99ff69f98
  bool BrowserView::IsLoadingAnimationRunning() const {
    return loading_animation_timer_.IsRunning();
  }
-@@ -2079,7 +2134,11 @@ void BrowserView::Restore() {
+@@ -2084,7 +2139,11 @@ void BrowserView::Restore() {
  
  bool BrowserView::ShouldHideUIForFullscreen() const {
    // Immersive mode needs UI for the slide-down top panel.
@@ -346,7 +346,7 @@ index 727f17ba7ddb9b26f91a948b1e897d5ce4b8a4f3..7c139d84cf725decbbeef5c99ff69f98
      return false;
    }
  
-@@ -3260,6 +3319,9 @@ void BrowserView::ShowOneClickSigninConfirmation(
+@@ -3265,6 +3324,9 @@ void BrowserView::ShowOneClickSigninConfirmation(
  
  DownloadBubbleUIController* BrowserView::GetDownloadBubbleUIController() {
  #if !BUILDFLAG(IS_CHROMEOS)
@@ -356,7 +356,7 @@ index 727f17ba7ddb9b26f91a948b1e897d5ce4b8a4f3..7c139d84cf725decbbeef5c99ff69f98
    if (auto* download_controller =
            browser_->GetFeatures().download_toolbar_ui_controller()) {
      return download_controller->bubble_controller();
-@@ -4374,9 +4436,10 @@ bool BrowserView::GetSavedWindowPlacement(
+@@ -4379,9 +4441,10 @@ bool BrowserView::GetSavedWindowPlacement(
  views::View* BrowserView::GetContentsView() {
    if (multi_contents_view_) {
      return multi_contents_view_->GetActiveContentsView();
@@ -368,7 +368,7 @@ index 727f17ba7ddb9b26f91a948b1e897d5ce4b8a4f3..7c139d84cf725decbbeef5c99ff69f98
  }
  
  views::ClientView* BrowserView::CreateClientView(views::Widget* widget) {
-@@ -4555,9 +4618,22 @@ void BrowserView::DeleteBrowserWindow() {
+@@ -4560,9 +4623,22 @@ void BrowserView::DeleteBrowserWindow() {
    // before the frame is destroyed to mitigate UAF risk.
    browser_widget_->SaveWindowPlacementIfNeeded();
  
@@ -394,7 +394,7 @@ index 727f17ba7ddb9b26f91a948b1e897d5ce4b8a4f3..7c139d84cf725decbbeef5c99ff69f98
  }
  
  void BrowserView::SetForceShowBookmarkBarFlag(
-@@ -4872,11 +4948,36 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+@@ -4877,11 +4953,36 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
  bool BrowserView::ShouldDescendIntoChildForEventHandling(
      gfx::NativeView child,
      const gfx::Point& location) {
@@ -433,7 +433,7 @@ index 727f17ba7ddb9b26f91a948b1e897d5ce4b8a4f3..7c139d84cf725decbbeef5c99ff69f98
      // Draggable regions are defined relative to the web contents.
      gfx::Point point_in_contents_web_view_coords(location);
      views::View::ConvertPointToTarget(GetWidget()->GetRootView(),
-@@ -4885,9 +4986,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+@@ -4890,9 +4991,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
  
      // Draggable regions should be ignored for clicks into any browser view's
      // owned widgets, for example alerts, permission prompts or find bar.
@@ -445,7 +445,7 @@ index 727f17ba7ddb9b26f91a948b1e897d5ce4b8a4f3..7c139d84cf725decbbeef5c99ff69f98
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
    }
  
-@@ -5141,7 +5241,9 @@ void BrowserView::Layout(PassKey) {
+@@ -5146,7 +5246,9 @@ void BrowserView::Layout(PassKey) {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -456,7 +456,7 @@ index 727f17ba7ddb9b26f91a948b1e897d5ce4b8a4f3..7c139d84cf725decbbeef5c99ff69f98
    GetFrameView()->UpdateMinimumSize();
  
    // Some of the situations when the BrowserView is laid out are:
-@@ -5210,6 +5312,12 @@ void BrowserView::AddedToWidget() {
+@@ -5215,6 +5317,12 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->GetProfile());
  #endif
  
@@ -469,7 +469,7 @@ index 727f17ba7ddb9b26f91a948b1e897d5ce4b8a4f3..7c139d84cf725decbbeef5c99ff69f98
    toolbar_->Init();
  
    UpdateTabSearchBubbleHost();
-@@ -5308,12 +5416,6 @@ void BrowserView::AddedToWidget() {
+@@ -5313,12 +5421,6 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -482,7 +482,7 @@ index 727f17ba7ddb9b26f91a948b1e897d5ce4b8a4f3..7c139d84cf725decbbeef5c99ff69f98
  #if !BUILDFLAG(IS_CHROMEOS)
    browser_->GetFeatures().download_toolbar_ui_controller()->Init();
  #endif
-@@ -5347,6 +5449,13 @@ void BrowserView::AddedToWidget() {
+@@ -5352,6 +5454,13 @@ void BrowserView::AddedToWidget() {
                  weak_ptr_factory_.GetWeakPtr()));
    }
  
