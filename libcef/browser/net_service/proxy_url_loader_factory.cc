@@ -391,6 +391,11 @@ class InterceptedRequest : public network::mojom::URLLoader,
   mojo::ScopedDataPipeConsumerHandle current_body_;
   std::optional<mojo_base::BigBuffer> current_cached_metadata_;
   scoped_refptr<net::HttpResponseHeaders> current_headers_;
+  // True if |current_headers_| holds override headers from the
+  // OnBeforeResourceResponse callback (as opposed to headers received from
+  // OnHeadersReceived). Used to update the response head MIME type only when
+  // the headers have actually been modified.
+  bool current_headers_from_override_ = false;
   scoped_refptr<net::HttpResponseHeaders> override_headers_;
   GURL original_url_;
   GURL redirect_url_;
@@ -676,6 +681,12 @@ void InterceptedRequest::OnReceiveResponse(
     // Set-Cookie if it existed.
     current_response_->headers = current_headers_;
     current_headers_ = nullptr;
+    if (current_headers_from_override_) {
+      // The response head may carry a stale MIME type derived from the
+      // original headers.
+      net_service::UpdateResponseHeadMimeType(current_response_.get());
+      current_headers_from_override_ = false;
+    }
     ContinueToResponseStarted(net::OK);
   } else {
     HandleResponseOrRedirectHeaders(
@@ -704,6 +715,12 @@ void InterceptedRequest::OnReceiveRedirect(
     // Set-Cookie if it existed.
     current_response_->headers = current_headers_;
     current_headers_ = nullptr;
+    if (current_headers_from_override_) {
+      // The response head may carry a stale MIME type derived from the
+      // original headers.
+      net_service::UpdateResponseHeadMimeType(current_response_.get());
+      current_headers_from_override_ = false;
+    }
   }
 
   if (--redirect_limit_ == 0) {
@@ -973,10 +990,18 @@ void InterceptedRequest::ContinueResponseOrRedirect(
 
   override_headers_ = override_headers;
   if (override_headers_) {
-    // Make sure to update current_response_, since when OnReceiveResponse
-    // is called we will not use its headers as it might be missing the
-    // Set-Cookie line (which gets stripped by the IPC layer).
-    current_response_->headers = override_headers_;
+    if (current_response_) {
+      // Preserve the override for response paths that do not use
+      // OnHeadersReceived.
+      current_response_->headers = override_headers_;
+      // The response head may carry a stale MIME type derived from the
+      // original headers.
+      net_service::UpdateResponseHeadMimeType(current_response_.get());
+    } else {
+      // Preserve the override for the subsequent OnReceiveResponse call.
+      current_headers_ = override_headers_;
+      current_headers_from_override_ = true;
+    }
   }
   redirect_url_ = redirect_url;
 

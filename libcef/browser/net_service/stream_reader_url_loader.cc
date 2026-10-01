@@ -701,6 +701,9 @@ void StreamReaderURLLoader::ContinueWithResponseHeaders(
     DCHECK(header_client_.is_bound());
     pending_response->headers =
         base::MakeRefCounted<net::HttpResponseHeaders>(*headers);
+    // The response head was built before the header client roundtrip, so
+    // re-derive the MIME type and charset from the possibly-modified headers.
+    net_service::UpdateResponseHeadMimeType(pending_response.get());
   }
 
   auto pending_headers = pending_response->headers;
