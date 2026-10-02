@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 3d46f9e7d35332f594f46cb50c93a072bc5b8208..159bfadb6e51231b2533de3e20d467a242fbb885 100644
+index 2d9befa5eb11c3d9cba54005486761ec2e3eeff3..cfef7c43d2f0b409a0d8733593679e59f5e846a2 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -393,8 +393,13 @@ void AddAdditionalRequestHeaders(
+@@ -397,8 +397,13 @@ void AddAdditionalRequestHeaders(
      blink::mojom::Referrer* referrer,
      FrameTreeNode* frame_tree_node,
      bool is_browser_initiated) {
@@ -18,7 +18,7 @@ index 3d46f9e7d35332f594f46cb50c93a072bc5b8208..159bfadb6e51231b2533de3e20d467a2
  
    bool is_reload = NavigationTypeUtils::IsReload(navigation_type);
    bool is_history = NavigationTypeUtils::IsHistory(navigation_type);
-@@ -9853,7 +9858,8 @@ std::optional<url::Origin> NavigationRequest::GetOriginToCommit() {
+@@ -9943,7 +9948,8 @@ std::optional<url::Origin> NavigationRequest::GetOriginToCommit() {
  }
  
  url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
@@ -28,7 +28,7 @@ index 3d46f9e7d35332f594f46cb50c93a072bc5b8208..159bfadb6e51231b2533de3e20d467a2
    // Calculate an approximation of the origin. The sandbox/csp are ignored.
    url::Origin origin = GetOriginForURLLoaderFactoryUnchecked();
  
-@@ -9870,6 +9876,17 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
+@@ -9960,6 +9966,17 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
    bool use_opaque_origin =
        (sandbox_flags & network::mojom::WebSandboxFlags::kOrigin) ==
        network::mojom::WebSandboxFlags::kOrigin;
@@ -46,7 +46,7 @@ index 3d46f9e7d35332f594f46cb50c93a072bc5b8208..159bfadb6e51231b2533de3e20d467a2
    if (use_opaque_origin) {
      origin = origin.DeriveNewOpaqueOrigin();
    }
-@@ -9930,8 +9947,9 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
+@@ -10020,8 +10037,9 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
      return GetRenderFrameHost()->GetLastCommittedOrigin();
    }
  
@@ -58,7 +58,7 @@ index 3d46f9e7d35332f594f46cb50c93a072bc5b8208..159bfadb6e51231b2533de3e20d467a2
  
    SCOPED_CRASH_KEY_BOOL("Bug1454273", "is_in_main_frame", IsInMainFrame());
    SCOPED_CRASH_KEY_STRING256(
-@@ -9966,10 +9984,17 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
+@@ -10056,10 +10074,17 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
        DetermineInitiatorRelationship(initiator_rfh,
                                       frame_tree_node_->current_frame_host()));
  
@@ -78,10 +78,10 @@ index 3d46f9e7d35332f594f46cb50c93a072bc5b8208..159bfadb6e51231b2533de3e20d467a2
    // If the target of this navigation will be rendered in a RenderFrameHost,
    // then verify that the chosen origin is allowed to be accessed from that
 diff --git content/browser/renderer_host/navigation_request.h content/browser/renderer_host/navigation_request.h
-index 63ae86f505f4f2dbd3f48f252087f317c7d799ee..7face03534fe8522bcdea4e59549ee3b931bbaa4 100644
+index c7b5335cbbb79c619ef19a84e7214baa75acce00..854b7022ef81d7521525f785846ec9f54f391919 100644
 --- content/browser/renderer_host/navigation_request.h
 +++ content/browser/renderer_host/navigation_request.h
-@@ -2624,7 +2624,8 @@ class CONTENT_EXPORT NavigationRequest
+@@ -2658,7 +2658,8 @@ class CONTENT_EXPORT NavigationRequest
    // situations where the final frame host hasn't been determined but the origin
    // is needed to create URLLoaderFactory.
    url::Origin GetOriginForURLLoaderFactoryBeforeResponse(
@@ -92,10 +92,10 @@ index 63ae86f505f4f2dbd3f48f252087f317c7d799ee..7face03534fe8522bcdea4e59549ee3b
    // Superset of GetOriginForURLLoaderFactoryBeforeResponse(). Calculates
    // the origin with information from the final frame host. Can be called only
 diff --git content/browser/security/cpsp/child_process_security_policy_impl.cc content/browser/security/cpsp/child_process_security_policy_impl.cc
-index 62e399f851aadddfc704f6f7c3d45883c467d95a..79cae8cc32f06d1596c2f596202643b68af93e4b 100644
+index a0fd1878545f842d492d5103039fa9ca8ae5364f..950d006aa44b6b9b17aeee1dee41cee413b88a72 100644
 --- content/browser/security/cpsp/child_process_security_policy_impl.cc
 +++ content/browser/security/cpsp/child_process_security_policy_impl.cc
-@@ -2732,6 +2732,17 @@ bool ChildProcessSecurityPolicyImpl::PerformJailAndCitadelChecks(
+@@ -2716,6 +2716,17 @@ bool ChildProcessSecurityPolicyImpl::PerformJailAndCitadelChecks(
          if (actual_process_lock.MatchesScheme(url::kDataScheme)) {
            return true;
          }

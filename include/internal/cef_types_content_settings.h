@@ -511,6 +511,9 @@ typedef enum {
   /// page.
   CEF_CONTENT_SETTING_TYPE_JAVASCRIPT_OPTIMIZER,
 
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CONTENT_SETTING_TYPE_STORAGE_ACCESS_HEADER_ORIGIN_TRIAL_DEPRECATED,
+#else
   /// Content Setting for the Storage Access Headers persistent origin trial
   /// that allows origins to opt into the storage access header behavior. Should
   /// be scoped to `REQUESTING_ORIGIN_AND_TOP_SCHEMEFUL_SITE_SCOPE` in order to
@@ -521,6 +524,7 @@ typedef enum {
   ///        origins to retry a request or load with storage access.
   /// BLOCK (default): no effect.
   CEF_CONTENT_SETTING_TYPE_STORAGE_ACCESS_HEADER_ORIGIN_TRIAL,
+#endif
 
   /// Whether or not sites can request Hand Tracking data within WebXR Sessions.
   CEF_CONTENT_SETTING_TYPE_HAND_TRACKING,
@@ -529,9 +533,13 @@ typedef enum {
   /// install other web apps.
   CEF_CONTENT_SETTING_TYPE_WEB_APP_INSTALLATION,
 
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CONTENT_SETTING_TYPE_DIRECT_SOCKETS_PRIVATE_NETWORK_ACCESS_DEPRECATED,
+#else
   /// Content settings for private network access in the context of the
   /// Direct Sockets API.
   CEF_CONTENT_SETTING_TYPE_DIRECT_SOCKETS_PRIVATE_NETWORK_ACCESS,
+#endif
 
   /// Content settings for legacy cookie scope.
   /// Checks whether cookies scope is handled according to origin-bound cookies

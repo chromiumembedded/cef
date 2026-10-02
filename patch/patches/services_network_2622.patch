@@ -99,10 +99,10 @@ index 97ef5928c9ceee112f3f3ab3b47eeaaa95114268..43697f0ef88f38e53cd00652f5443141
    // reset to null.
    const CookieAccessDelegate* cookie_access_delegate() const {
 diff --git services/network/cookie_manager.cc services/network/cookie_manager.cc
-index 24740b2adea6bd54b65fe8bfcd376539b4cd7c45..36328a81d8e8c5b09e1cd09f0a406a43344e82ab 100644
+index b980d4df597a77ac915369a9543a74189156dc2a..0cbaca555dfe12d8a80c737d3da626fa281440df 100644
 --- services/network/cookie_manager.cc
 +++ services/network/cookie_manager.cc
-@@ -346,13 +346,13 @@ void CookieManager::AllowFileSchemeCookies(
+@@ -344,13 +344,13 @@ void CookieManager::AllowFileSchemeCookies(
      AllowFileSchemeCookiesCallback callback) {
    OnSettingsWillChange();
  
@@ -122,10 +122,10 @@ index 24740b2adea6bd54b65fe8bfcd376539b4cd7c45..36328a81d8e8c5b09e1cd09f0a406a43
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 053a25db4b88e1a4e94a55c96d03babdbc011660..071bd30f8822c0f2dd042d742d681c1180d5b442 100644
+index 66e2d0450518803f1531470045ffadc1412c497f..a43cc4ba3e4d52dd8837c88ab0e911099cd9db3a 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -3136,22 +3136,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -3117,22 +3117,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
              pref_service.get(), network_service_->network_quality_estimator());
    }
  
@@ -169,10 +169,10 @@ index 053a25db4b88e1a4e94a55c96d03babdbc011660..071bd30f8822c0f2dd042d742d681c11
    base::FilePath transport_security_persister_file_name;
    if (GetFullDataFilePath(params_->file_paths,
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index b085fd3a05f74bfbf062d78b845b3fbe9322cc8f..73efd06c4843d9b2eb1b6f2053285be822c1703e 100644
+index 5eb7be85b1897244caed5096c5e58922e964aae1..261d842d89e67cb152b91073d1e8c6f0aeda45e3 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -400,6 +400,9 @@ struct NetworkContextParams {
+@@ -402,6 +402,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

@@ -66,7 +66,7 @@ index 8af69cac78b7488d28f1f05ccb174793fe5148cd..9f74e511c263d147b5fbe81fe100d217
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 2003602cb1be887ebfea1233e67b1fff0bb455bd..98881caf3deca2cea67f93c09fd5026796f5ee02 100644
+index 42fc3926fd9e3712d93d8f67e4ba7cfb3f24dbb9..c41528b9c0f7258c5b5d1383c0dc018eed34ca35 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -284,6 +284,8 @@ viz_component("service") {
@@ -187,7 +187,7 @@ index 4f9e8946fa02d859e92a6896beba82721914f868..cf20c96a84c5551eba592fecfce21350
  
    TRACE_EVENT_BEGIN("viz", "SoftwareOutputDeviceWinProxy::Draw",
 diff --git components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
-index be30bdc58bbd50fc735772106a9dda78fb5ddf1f..18aa76c5f7268c221bc345a8f648a812c291e451 100644
+index 39ebd59074a86a6ff5982bbb5e16be402726b968..74183e3b1e0decfed7fca2238339c589017df2a2 100644
 --- components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
 +++ components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
 @@ -131,7 +131,8 @@ RootCompositorFrameSinkImpl::Create(
@@ -284,7 +284,7 @@ index f0899f2c823dd77bdff63e1f9ae1d89ce1d85caa..fb1b88b359d4caa1b1162b9e4c4200e8
  
    // Sends the created child window to the browser process so that it can be
 diff --git services/viz/privileged/mojom/compositing/frame_sink_manager.mojom services/viz/privileged/mojom/compositing/frame_sink_manager.mojom
-index ad19a581d7fd503d4091ac5d1f5b3c1139387c7f..9350f2259fec7fdc353bf5f74b007f858b5e8709 100644
+index a360316b8f0b1c4de98248bf2cb44b5a7ac3c272..ecbe2129f70a52b7ac1415a6f3af68659e89004c 100644
 --- services/viz/privileged/mojom/compositing/frame_sink_manager.mojom
 +++ services/viz/privileged/mojom/compositing/frame_sink_manager.mojom
 @@ -70,6 +70,8 @@ struct RootCompositorFrameSinkParams {

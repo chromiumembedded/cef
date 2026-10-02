@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-index de68bbca9bcb0248255e22ad92f294059dc0d8d1..faec550cc32136fb5c95f9075b35fd24f1447391 100644
+index 2b88546362d2b791378a451d08804d121978b500..30f460367d1d7999ccce63cb80ca445455e283d3 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-@@ -530,8 +530,10 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
+@@ -531,8 +531,10 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
    }
  #endif
  
@@ -16,10 +16,10 @@ index de68bbca9bcb0248255e22ad92f294059dc0d8d1..faec550cc32136fb5c95f9075b35fd24
        ui::SelectFileDialog::SELECT_SAVEAS_FILE, std::u16string(), path,
        &file_type_info, 0, kPdfExtension,
 diff --git components/remote_cocoa/app_shim/native_widget_mac_nswindow.mm components/remote_cocoa/app_shim/native_widget_mac_nswindow.mm
-index 9de655b17ceae246ecc650e5432103fdd2c0636a..d9619e25518c1fbba880187aed36fe07b19554b1 100644
+index 6f02db406326ba00fec8007b19a638b6c3354a55..452fdf6986c0ada065fc85bca384511de1c489b6 100644
 --- components/remote_cocoa/app_shim/native_widget_mac_nswindow.mm
 +++ components/remote_cocoa/app_shim/native_widget_mac_nswindow.mm
-@@ -771,6 +771,12 @@ struct NSEdgeAndCornerThicknesses {
+@@ -776,6 +776,12 @@ struct NSEdgeAndCornerThicknesses {
      // window, swallow the event to prevent the web contents from processing it
      // (and potentially triggering new dialogs).
      if (is_blocked_by_modal && child_modal_window) {
@@ -33,7 +33,7 @@ index 9de655b17ceae246ecc650e5432103fdd2c0636a..d9619e25518c1fbba880187aed36fe07
          [child_modal_window makeKeyWindow];
        }
 diff --git components/remote_cocoa/app_shim/native_widget_ns_window_bridge.h components/remote_cocoa/app_shim/native_widget_ns_window_bridge.h
-index cbbaaa553900f581ba74fe64cd1f3f463c249525..12e26470218f34dea34d40a0d9e66aa8d696ac57 100644
+index 49a322bb5d3c2e68d9e5ac604f9274d3e2eebf83..8ee6f45ae962f181f9d1c71ad263f290ca9ea152 100644
 --- components/remote_cocoa/app_shim/native_widget_ns_window_bridge.h
 +++ components/remote_cocoa/app_shim/native_widget_ns_window_bridge.h
 @@ -389,6 +389,10 @@ class REMOTE_COCOA_APP_SHIM_EXPORT NativeWidgetNSWindowBridge
@@ -48,10 +48,10 @@ index cbbaaa553900f581ba74fe64cd1f3f463c249525..12e26470218f34dea34d40a0d9e66aa8
    void OrderChildren();
  
 diff --git components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
-index 09df8a41e1209922b95de1355acbe732f8a24d01..858d13e45b0465ca2ab301cf5eeb65cf380a1d00 100644
+index 26a877e3a629380251d72faf43f675dc7106eacc..7241f8b35517e40be4140f5bf907b22ae3f7daa3 100644
 --- components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
 +++ components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
-@@ -1485,7 +1485,51 @@ void NativeWidgetNSWindowBridge::OnWindowWillStartLiveResize() {
+@@ -1535,7 +1535,51 @@ void NativeWidgetNSWindowBridge::OnWindowWillStartLiveResize() {
  }
  
  void NativeWidgetNSWindowBridge::OnWindowDidEndLiveResize() {

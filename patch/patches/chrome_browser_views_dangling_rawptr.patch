@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/tab_search_bubble_host.cc chrome/browser/ui/views/tab_search_bubble_host.cc
-index f1fde0675150def37c232d8c5588c84b29c5d3b6..d4aebd2e39d0aa449ba7226491a1cea0104d1add 100644
+index 01a6b7e97a77293168c27ee49c6e3ee89551bd92..4377d3a49af9782c568bab9568726c0b3b8f9070 100644
 --- chrome/browser/ui/views/tab_search_bubble_host.cc
 +++ chrome/browser/ui/views/tab_search_bubble_host.cc
-@@ -65,7 +65,7 @@ TabSearchOpenAction GetActionForEvent(const ui::Event& event) {
+@@ -66,7 +66,7 @@ TabSearchOpenAction GetActionForEvent(const ui::Event& event) {
  TabSearchBubbleHost::TabSearchBubbleHost(
      views::Button* button,
      BrowserWindowInterface* browser_window_interface)
@@ -11,7 +11,7 @@ index f1fde0675150def37c232d8c5588c84b29c5d3b6..d4aebd2e39d0aa449ba7226491a1cea0
        profile_(browser_window_interface->GetProfile()),
        browser_window_interface_(browser_window_interface),
        webui_bubble_manager_(WebUIBubbleManager::Create<TabSearchUI>(
-@@ -203,7 +203,7 @@ bool TabSearchBubbleHost::ShowTabSearchBubble(
+@@ -204,7 +204,7 @@ bool TabSearchBubbleHost::ShowTabSearchBubble(
    const tabs::TabSearchPosition position =
        tabs::GetTabSearchPosition(browser_window_interface_);
    webui_bubble_manager_->ShowBubble(
@@ -20,7 +20,7 @@ index f1fde0675150def37c232d8c5588c84b29c5d3b6..d4aebd2e39d0aa449ba7226491a1cea0
        (position == tabs::TabSearchPosition::kLeadingHorizontalTabstrip ||
         position == tabs::TabSearchPosition::kVerticalTabstrip)
            ? views::BubbleBorder::TOP_LEFT
-@@ -223,9 +223,11 @@ bool TabSearchBubbleHost::ShowTabSearchBubble(
+@@ -224,9 +224,11 @@ bool TabSearchBubbleHost::ShowTabSearchBubble(
  
    // Hold the pressed lock while the |bubble_| is active.
    // LINT.IfChange(pressed_lock_)

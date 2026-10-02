@@ -1,9 +1,9 @@
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index 0d8af7d65e0c322191b923be3042eccecdd91a40..9fb421146a5f02dcc8e878802c2951bb9ab53b5c 100644
+index 41afec12a8b37454b6e4606aeb3f1121c9f195f2..17f6cfb2d63d4d16c5275120e5a7004585b50d18 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
-@@ -215,6 +215,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
-   }
+@@ -223,6 +223,10 @@ const gfx::Size& WebView::AutoResizeMaxSize() const {
+   return max_size_;
  }
  
 +void WebView::SetResizeBackgroundColor(SkColor resize_background_color) {
@@ -14,12 +14,12 @@ index 0d8af7d65e0c322191b923be3042eccecdd91a40..9fb421146a5f02dcc8e878802c2951bb
      std::unique_ptr<View> crashed_overlay_view,
      ReturnCrashOverlayToOwnerCallback return_to_owner) {
 diff --git ui/views/controls/webview/webview.h ui/views/controls/webview/webview.h
-index 3c0f097e6084b9bbc9361ec65baf0f724e0c0f15..a5756ae40a349dd7e02d0292d296f11188bb4c9c 100644
+index 28aaa94abd83d47fdc5cb3c2082c0da3f1a28725..b38320797d00b6edd00bf5d013cf74854ac56803 100644
 --- ui/views/controls/webview/webview.h
 +++ ui/views/controls/webview/webview.h
-@@ -135,6 +135,10 @@ class WEBVIEW_EXPORT WebView : public View,
-   void EnableSizingFromWebContents(const gfx::Size& min_size,
-                                    const gfx::Size& max_size);
+@@ -137,6 +137,10 @@ class WEBVIEW_EXPORT WebView : public View,
+   const gfx::Size& AutoResizeMinSize() const;
+   const gfx::Size& AutoResizeMaxSize() const;
  
 +  // Set the background color to use while resizing with a clip. This is white
 +  // by default.

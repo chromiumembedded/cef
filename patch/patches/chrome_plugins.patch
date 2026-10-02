@@ -20,7 +20,7 @@ index ea2891a279371f7967786e44188aee9afe19607f..595e5b8eb2cb66d0a8cdf70629fed806
    BrowserPluginEmbedder(const BrowserPluginEmbedder&) = delete;
    BrowserPluginEmbedder& operator=(const BrowserPluginEmbedder&) = delete;
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index 9c2b92be1dd0797d6e7867f3c9f7c6a0f2421984..adfda85e74ea891842dc28b95e13176b3a1ba4e7 100644
+index 791474a502c1b730aceaecd97ce47ff87fc14311..021417d8342017401afab175458cfd656c08dca4 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
 @@ -49,6 +49,8 @@ std::unique_ptr<WebContentsImpl> BrowserPluginGuest::CreateNewGuestWindow(
@@ -31,7 +31,7 @@ index 9c2b92be1dd0797d6e7867f3c9f7c6a0f2421984..adfda85e74ea891842dc28b95e13176b
 +
    RenderWidgetHostImpl* rwhi =
        GetWebContents()->GetPrimaryMainFrame()->GetRenderWidgetHost();
-   DCHECK(rwhi);
+   CHECK(rwhi, base::NotFatalUntil::M159);
 diff --git content/browser/browser_plugin/browser_plugin_guest.h content/browser/browser_plugin/browser_plugin_guest.h
 index 91c9f60d586972c294da016e8ae19ddda02a2023..987b2f68146044f130b7ff94fbe972ca4e78b164 100644
 --- content/browser/browser_plugin/browser_plugin_guest.h

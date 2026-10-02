@@ -1,8 +1,8 @@
 diff --git ui/color/color_provider_manager.cc ui/color/color_provider_manager.cc
-index b92bf5aef117c22a97b3625600d4cb1e045c9bbd..8f54026b8046a56d9044d5118c4c7362a0aa8494 100644
+index 78cdb9346664d4c8f5a24d639925c65540d80fdf..f5b735552cbdb23197f39b487bd48e7fee06fed9 100644
 --- ui/color/color_provider_manager.cc
 +++ ui/color/color_provider_manager.cc
-@@ -44,6 +44,15 @@ std::optional<GlobalManager>& GetGlobalManager() {
+@@ -45,6 +45,15 @@ std::optional<GlobalManager>& GetGlobalManager() {
  
  }  // namespace
  
@@ -18,7 +18,7 @@ index b92bf5aef117c22a97b3625600d4cb1e045c9bbd..8f54026b8046a56d9044d5118c4c7362
  ColorProviderManager::ColorProviderManager() {
    ResetColorProviderInitializerList();
  }
-@@ -85,6 +94,16 @@ void ColorProviderManager::ResetColorProviderInitializerList() {
+@@ -86,6 +95,16 @@ void ColorProviderManager::ResetColorProviderInitializerList() {
  void ColorProviderManager::ResetColorProviderCache() {
    if (!color_providers_.empty()) {
      color_providers_.clear();
@@ -36,7 +36,7 @@ index b92bf5aef117c22a97b3625600d4cb1e045c9bbd..8f54026b8046a56d9044d5118c4c7362
  }
  
 diff --git ui/color/color_provider_manager.h ui/color/color_provider_manager.h
-index 0e210b91ffa28fb93fe91b95215e0d9498b4c1f0..d5085a2374c3515589de4a3029875463cfa28dbc 100644
+index 300c89806d400dfb91834c19d9867dac93ec593a..6dd6c1dbc865b744937dfe79305bd8ca9a2b1956 100644
 --- ui/color/color_provider_manager.h
 +++ ui/color/color_provider_manager.h
 @@ -13,12 +13,26 @@
@@ -76,8 +76,8 @@ index 0e210b91ffa28fb93fe91b95215e0d9498b4c1f0..d5085a2374c3515589de4a3029875463
    // Appends `initializer` to the end of the current `initializer_list_`.
    void AppendColorProviderInitializer(
        ColorProviderInitializerList::CallbackType Initializer);
-@@ -54,6 +71,10 @@ class COMPONENT_EXPORT(COLOR) ColorProviderManager {
-     return num_providers_initialized_;
+@@ -58,6 +75,10 @@ class COMPONENT_EXPORT(COLOR) ColorProviderManager {
+     return color_providers_.size();
    }
  
 +  // Add or remove observers.
@@ -87,7 +87,7 @@ index 0e210b91ffa28fb93fe91b95215e0d9498b4c1f0..d5085a2374c3515589de4a3029875463
   protected:
    ColorProviderManager();
    virtual ~ColorProviderManager();
-@@ -71,6 +92,9 @@ class COMPONENT_EXPORT(COLOR) ColorProviderManager {
+@@ -75,6 +96,9 @@ class COMPONENT_EXPORT(COLOR) ColorProviderManager {
    // Tracks the number of ColorProviders constructed and initialized by the
    // manager for metrics purposes.
    size_t num_providers_initialized_ = 0;

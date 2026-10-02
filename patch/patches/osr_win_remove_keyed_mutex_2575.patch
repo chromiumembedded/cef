@@ -1,8 +1,8 @@
 diff --git gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc
-index 78bae674bb15266927ac54740de534156b3bf2a0..c75a562a8d1914950d337937dd0368953db4e54d 100644
+index d86c7d7089483abbe19c88a81d8d40ef49cd4473..c44ec3cc4130ec1bf1fd16fcf286304b7007e3d2 100644
 --- gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc
 +++ gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc
-@@ -372,7 +372,8 @@ gfx::GpuMemoryBufferHandle D3DImageBackingFactory::CreateGpuMemoryBufferHandle(
+@@ -380,7 +380,8 @@ gfx::GpuMemoryBufferHandle D3DImageBackingFactory::CreateGpuMemoryBufferHandle(
    // so make sure that the usage is one that we support.
    DCHECK(usage == gfx::BufferUsage::GPU_READ ||
           usage == gfx::BufferUsage::SCANOUT ||
@@ -12,7 +12,7 @@ index 78bae674bb15266927ac54740de534156b3bf2a0..c75a562a8d1914950d337937dd036895
        << "Incorrect usage, usage=" << gfx::BufferUsageToString(usage);
  
    D3D11_TEXTURE2D_DESC desc = {
-@@ -386,7 +387,9 @@ gfx::GpuMemoryBufferHandle D3DImageBackingFactory::CreateGpuMemoryBufferHandle(
+@@ -394,7 +395,9 @@ gfx::GpuMemoryBufferHandle D3DImageBackingFactory::CreateGpuMemoryBufferHandle(
        D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
        0,
        D3D11_RESOURCE_MISC_SHARED_NTHANDLE |
@@ -23,11 +23,11 @@ index 78bae674bb15266927ac54740de534156b3bf2a0..c75a562a8d1914950d337937dd036895
  
    Microsoft::WRL::ComPtr<ID3D11Texture2D> d3d11_texture;
  
-diff --git media/video/renderable_mappable_shared_image_video_frame_pool.cc media/video/renderable_mappable_shared_image_video_frame_pool.cc
-index 831725ed249a80ea6033702ff91a37a23e8a24d4..5e236270e302a54c31d700f04c3fe4331499cd2e 100644
---- media/video/renderable_mappable_shared_image_video_frame_pool.cc
-+++ media/video/renderable_mappable_shared_image_video_frame_pool.cc
-@@ -197,6 +197,23 @@ bool FrameResources::Initialize(VideoPixelFormat format,
+diff --git media/gfx/renderable_mappable_shared_image_video_frame_pool.cc media/gfx/renderable_mappable_shared_image_video_frame_pool.cc
+index b5305162c8bb957e6195c4145ba158dbd382dc87..1f41a6da8d11b5e4c303fc9253feff68b1f2053c 100644
+--- media/gfx/renderable_mappable_shared_image_video_frame_pool.cc
++++ media/gfx/renderable_mappable_shared_image_video_frame_pool.cc
+@@ -208,6 +208,23 @@ bool FrameResources::Initialize(VideoPixelFormat format,
  
    gfx::BufferUsage buffer_usage = gfx::BufferUsage::SCANOUT_CPU_READ_WRITE;
  

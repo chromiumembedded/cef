@@ -1,5 +1,5 @@
 diff --git chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
-index 0a39123d3afe04dfec0e4c7cd62a30e5e5bd3d06..26573df939299a8d607caf9601282fa6eafe0e3c 100644
+index b5727472c2386f3a82cb8cf3042c808ecf9e0960..e80cc7d3c82018a3196a05fcf3cb8a5b22adc09a 100644
 --- chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
 +++ chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
 @@ -35,6 +35,7 @@
@@ -10,7 +10,7 @@ index 0a39123d3afe04dfec0e4c7cd62a30e5e5bd3d06..26573df939299a8d607caf9601282fa6
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/buildflags.h"
-@@ -928,9 +929,11 @@ void RecordStartupMetrics() {
+@@ -942,9 +943,11 @@ void RecordStartupMetrics() {
    key_credential_manager_support::ReportKeyCredentialManagerSupport();
  #endif  // BUILDFLAG(IS_WIN)
  

@@ -21,6 +21,7 @@
 #include "chrome/browser/ui/navigator/browser_navigator.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/views/frame/contents_web_view.h"
+#include "chrome/browser/ui/views/frame/multi_contents_view.h"
 #include "chrome/common/pref_names.h"
 
 // static
@@ -459,7 +460,9 @@ Browser* ChromeBrowserHostImpl::CreateBrowser(
     chrome_browser_view->InitBrowser(browser);
 
     // Don't set theme colors in ContentsWebView::UpdateBackgroundColor.
-    chrome_browser_view->contents_web_view()->SetBackgroundVisible(false);
+    chrome_browser_view->multi_contents_view()
+        ->GetActiveContentsView()
+        ->SetBackgroundVisible(false);
 
     // Don't show the browser by default.
     show_browser = false;

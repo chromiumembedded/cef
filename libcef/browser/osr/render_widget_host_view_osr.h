@@ -169,7 +169,9 @@ class CefRenderWidgetHostViewOSR
   void UpdateCursor(const ui::Cursor& cursor) override;
   void SetIsLoading(bool is_loading) override;
   void RenderProcessGone() override;
-  void Destroy() override;
+  void DestroyImpl() override;
+  void OnDestroyOrDefer() override;
+  void CleanUpHostObservers() override;
   void UpdateTooltipUnderCursor(const std::u16string& tooltip_text) override;
   input::CursorManager* GetCursorManager() override;
   gfx::Size GetCompositorViewportPixelSize() override;

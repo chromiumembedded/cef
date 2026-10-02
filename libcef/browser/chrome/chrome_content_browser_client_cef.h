@@ -26,6 +26,10 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
 
   ~ChromeContentBrowserClientCef() override;
 
+#if BUILDFLAG(IS_MAC)
+  base::FilePath GetChildProcessPath(int flags) override;
+#endif
+
   void CleanupOnUIThread() override;
 
   // ChromeContentBrowserClient overrides.

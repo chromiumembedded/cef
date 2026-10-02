@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/chrome_extensions_api_client.cc chrome/browser/extensions/api/chrome_extensions_api_client.cc
-index 2d73f4cf7e49380c9793751b24ceab848d753e6c..2e95396a5fd514d2953234ca6f57a3f482e23bd5 100644
+index e875b597230e0626c036797971fd06b3b6dc8061..567580698f9ce55f094ff1967ef6df14e21cd3a6 100644
 --- chrome/browser/extensions/api/chrome_extensions_api_client.cc
 +++ chrome/browser/extensions/api/chrome_extensions_api_client.cc
 @@ -16,6 +16,7 @@
@@ -21,7 +21,7 @@ index 2d73f4cf7e49380c9793751b24ceab848d753e6c..2e95396a5fd514d2953234ca6f57a3f4
  #if BUILDFLAG(ENABLE_PRINTING)
  #include "chrome/browser/printing/printing_init.h"
  #endif
-@@ -364,7 +369,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
+@@ -368,7 +373,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
  std::unique_ptr<MimeHandlerViewGuestDelegate>
  ChromeExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
      MimeHandlerViewGuest* guest) const {
@@ -34,10 +34,10 @@ index 2d73f4cf7e49380c9793751b24ceab848d753e6c..2e95396a5fd514d2953234ca6f57a3f4
  #endif
  
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index d225b3926e66808ba3f78ed9b654517d9fec4b1d..a6b39be6be391e2ec72bc79bdf80efee7c6cbe1a 100644
+index 8599fed2dfbbc43a1f222c45143133020bf7e337..5a4fcd344a8488584419583a2a5a3673267fb0d7 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
-@@ -2593,31 +2593,31 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2661,31 +2661,31 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  
    // tabs_internal::GetTabById may return a null window for prerender tabs.
@@ -90,7 +90,7 @@ index d225b3926e66808ba3f78ed9b654517d9fec4b1d..a6b39be6be391e2ec72bc79bdf80efee
  
    if (params->update_properties.muted &&
        !SetTabAudioMuted(contents, *params->update_properties.muted,
-@@ -2627,6 +2627,10 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2695,6 +2695,10 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  
    if (params->update_properties.opener_tab_id) {
@@ -101,7 +101,7 @@ index d225b3926e66808ba3f78ed9b654517d9fec4b1d..a6b39be6be391e2ec72bc79bdf80efee
      int opener_id = *params->update_properties.opener_tab_id;
      content::WebContents* opener_contents = nullptr;
      if (opener_id == tab_id) {
-@@ -2642,8 +2646,13 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2709,8 +2713,13 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
  
      ::tabs::TabInterface* opener_tab =
          ::tabs::TabInterface::GetFromContents(opener_contents);
@@ -117,7 +117,7 @@ index d225b3926e66808ba3f78ed9b654517d9fec4b1d..a6b39be6be391e2ec72bc79bdf80efee
        return RespondNow(Error(std::move(error)));
      }
    }
-@@ -2651,14 +2660,19 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2718,14 +2727,19 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // TODO(https://crbug.com/505306735): Support on desktop android.
  #if !BUILDFLAG(IS_ANDROID)
    if (params->update_properties.auto_discardable) {
@@ -142,7 +142,7 @@ index d225b3926e66808ba3f78ed9b654517d9fec4b1d..a6b39be6be391e2ec72bc79bdf80efee
      bool pinned = *params->update_properties.pinned;
  
      if (target_tab->IsPinned() != pinned) {
-@@ -2688,7 +2702,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -2755,7 +2769,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
@@ -153,10 +153,10 @@ index d225b3926e66808ba3f78ed9b654517d9fec4b1d..a6b39be6be391e2ec72bc79bdf80efee
        return RespondNow(Error(ErrorUtils::FormatErrorMessage(
            tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
-index 285481f45a49b82ba50e9b5b0df33519add40a7d..da312fc7869222d7e88963a02b51d0185cf6c9ad 100644
+index dd919b9675f64712572b162ee15e23680edbbee2..fc2af59c4529bd6cfbd2505c317a6790fa440957 100644
 --- chrome/browser/extensions/extension_tab_util.cc
 +++ chrome/browser/extensions/extension_tab_util.cc
-@@ -70,6 +70,7 @@
+@@ -73,6 +73,7 @@
  #include "chrome/browser/ui/android/tab_model/tab_model.h"
  #include "chrome/browser/ui/android/tab_model/tab_model_list.h"
  #else
@@ -164,7 +164,7 @@ index 285481f45a49b82ba50e9b5b0df33519add40a7d..da312fc7869222d7e88963a02b51d018
  #include "chrome/browser/resource_coordinator/tab_lifecycle_unit_external.h"
  // nogncheck
  #include "chrome/browser/ui/navigator/browser_navigator_params.h"  // nogncheck
-@@ -86,6 +87,10 @@
+@@ -93,6 +94,10 @@
  
  static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
  
@@ -175,7 +175,7 @@ index 285481f45a49b82ba50e9b5b0df33519add40a7d..da312fc7869222d7e88963a02b51d018
  using content::NavigationEntry;
  using content::WebContents;
  using extensions::mojom::APIPermissionID;
-@@ -671,6 +676,14 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
+@@ -672,6 +677,14 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
      }
    }
  
@@ -191,7 +191,7 @@ index 285481f45a49b82ba50e9b5b0df33519add40a7d..da312fc7869222d7e88963a02b51d018
    // tab id exists as a prerendering tab, and the API will returns
    // `api::tabs::TAB_INDEX_NONE` for `out_tab_index` and a valid `WebContents`.
 diff --git chrome/browser/ui/tab_helpers.h chrome/browser/ui/tab_helpers.h
-index d80eafa666b384cf1ec16ebc638456b570ca4e79..bff4d77829ad5875518b8c9434e00fba69833cf8 100644
+index c6e05eb620dd216529c32d6b3660fc44c8b47baf..99b20faea5b8b70d0720ccca1a6aaf92bb3637c5 100644
 --- chrome/browser/ui/tab_helpers.h
 +++ chrome/browser/ui/tab_helpers.h
 @@ -6,6 +6,7 @@
@@ -213,7 +213,7 @@ index d80eafa666b384cf1ec16ebc638456b570ca4e79..bff4d77829ad5875518b8c9434e00fba
  // A "tab contents" is a WebContents that is used as a tab in a browser window
  // (or the equivalent on Android). The TabHelpers class allows specific classes
  // to attach the set of tab helpers that is used for tab contents.
-@@ -80,6 +85,10 @@ class TabHelpers {
+@@ -79,6 +84,10 @@ class TabHelpers {
    // Link Preview shows a preview of a page, then promote it as a new tab.
    friend class PreviewTab;
  

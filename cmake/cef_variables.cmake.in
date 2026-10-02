@@ -618,7 +618,6 @@ if(OS_WINDOWS)
 
   if(PROJECT_ARCH STREQUAL "x86_64")
     list(APPEND CEF_BINARY_FILES
-      dxil.dll
       dxcompiler.dll
       )
   endif()

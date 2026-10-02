@@ -1,8 +1,8 @@
 diff --git base/test/BUILD.gn base/test/BUILD.gn
-index bd2e9da070de2e65e15629f1c7349cbdfb4d77d5..4478a654ad57dd67fda4030a96aa8b0a6edd6d30 100644
+index afddfd4a555750837875292fee037329f4b0e585..4ae691ca4eb1ccdcbf1436a02142ba590c4e00cf 100644
 --- base/test/BUILD.gn
 +++ base/test/BUILD.gn
-@@ -272,11 +272,6 @@ static_library("test_support") {
+@@ -299,11 +299,6 @@ static_library("test_support") {
    # that would require special support in gn2bp (AOSP Cronet).
    if (!is_cronet_build) {
      public_deps += [ "//third_party/perfetto:perfetto_test_support" ]
@@ -14,7 +14,7 @@ index bd2e9da070de2e65e15629f1c7349cbdfb4d77d5..4478a654ad57dd67fda4030a96aa8b0a
      deps += [
        ":amalgamated_perfetto_sql_stdlib",
        ":gen_cc_chrome_track_event_descriptor",
-@@ -696,7 +691,7 @@ action("amalgamated_perfetto_sql_stdlib") {
+@@ -724,7 +719,7 @@ action("amalgamated_perfetto_sql_stdlib") {
  # processor depends on dev_sqlite. The two share the same symbols but have
  # different implementations, so we need to hide dev_sqlite in this shared
  # library even in non-component builds to prevent duplicate symbols.
@@ -23,7 +23,7 @@ index bd2e9da070de2e65e15629f1c7349cbdfb4d77d5..4478a654ad57dd67fda4030a96aa8b0a
  if (is_ios) {
    _target_type = "ios_framework_bundle"
  }
-@@ -705,6 +700,8 @@ target(_target_type, "test_trace_processor") {
+@@ -733,6 +728,8 @@ target(_target_type, "test_trace_processor") {
    defines = [ "TEST_TRACE_PROCESSOR_IMPL" ]
    testonly = true
    sources = [
@@ -32,7 +32,7 @@ index bd2e9da070de2e65e15629f1c7349cbdfb4d77d5..4478a654ad57dd67fda4030a96aa8b0a
      "tracing/test_trace_processor_export.h",
      "tracing/test_trace_processor_impl.cc",
      "tracing/test_trace_processor_impl.h",
-@@ -722,33 +719,6 @@ target(_target_type, "test_trace_processor") {
+@@ -750,33 +747,6 @@ target(_target_type, "test_trace_processor") {
      output_name = "TestTraceProcessor"
      bundle_deps_filter = [ "//third_party/icu:icudata" ]
    }
@@ -88,10 +88,10 @@ index dc5c18bd66d1cc6fe55edc1a0709795cb2b3b3ec..15f25c0e92f87b2dc73be30b5366c084
 +
  #endif  // BASE_TEST_TRACING_TEST_TRACE_PROCESSOR_EXPORT_H_
 diff --git content/shell/BUILD.gn content/shell/BUILD.gn
-index ea8664f6ba1b01d5d2a90c589633a40da630ff3b..47d63fab8413e3f3574bcbd99d16a81d9fc6ac3d 100644
+index b469f348694065feb03ddc3ea389124b125acf7c..8ca38caa6899d17c8fbad8633048ff4993f06477 100644
 --- content/shell/BUILD.gn
 +++ content/shell/BUILD.gn
-@@ -941,7 +941,6 @@ if (is_mac) {
+@@ -942,7 +942,6 @@ if (is_mac) {
        # Specify a sensible install_name for static builds. The library is
        # dlopen()ed so this is not used to resolve the module.
        ldflags = [ "-Wl,-install_name,@executable_path/../Frameworks/$output_name.framework/$output_name" ]
@@ -100,10 +100,10 @@ index ea8664f6ba1b01d5d2a90c589633a40da630ff3b..47d63fab8413e3f3574bcbd99d16a81d
        # Both the main :content_shell and :content_shell_helper_app executables
        # need to link the framework. Because they are at different directory
 diff --git ui/views/examples/BUILD.gn ui/views/examples/BUILD.gn
-index 7ecb90086e29fce23aba5cd8b6a69651584f21c3..d911f999330ab9cd9c2c88e242b29067dd7f8226 100644
+index db6385c2d4761aff2617004f589cd8d2fa3b3d9f..ca4596413082681894eb42da5fcd46b6e3210312 100644
 --- ui/views/examples/BUILD.gn
 +++ ui/views/examples/BUILD.gn
-@@ -373,7 +373,6 @@ if (is_mac) {
+@@ -372,7 +372,6 @@ if (is_mac) {
        # Specify a sensible install_name for static builds. The library is
        # dlopen()ed so this is not used to resolve the module.
        ldflags = [ "-Wl,-install_name,@executable_path/../Frameworks/$output_name.framework/$output_name.framework" ]

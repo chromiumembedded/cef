@@ -56,9 +56,8 @@ run but any related functionality may become broken or disabled.
   installed version.
 
 * DirectX compiler support (x64 only).
-  * dxil.dll
   * dxcompiler.dll
-  Support for DirectX rendering of WebGPU. Without these files the
+  Support for DirectX rendering of WebGPU. Without this file the
   aforementioned capabilities may fail.
 
 * SwANGLE support.

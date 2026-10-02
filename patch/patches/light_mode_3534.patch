@@ -32,26 +32,38 @@ index daecebb5070705c1eb5281a3a7df4ace6b89c119..aed51c2e6b06e3527bd6c2003e4b6a82
    return (dark_mode_support.allow_dark_mode_for_app ||
            dark_mode_support.set_preferred_app_mode) &&
 diff --git chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-index 83d1f694eaf78e97c32054d4a71744d7f0f2b6b3..98de79083632c364309ae00e58ac4207a2d15589 100644
+index 65d9f24b665a1f244a759f1dc51e30adc13090df..9447b849d1f7ba5125c92616f7093549c662030e 100644
 --- chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 +++ chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-@@ -66,7 +66,10 @@ void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
+@@ -69,7 +69,10 @@ void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
  #endif
  
  #if BUILDFLAG(USE_DBUS)
--  dark_mode_manager_ = std::make_unique<ui::DarkModeManagerLinux>();
+-  portal_settings_ = std::make_unique<ui::PortalSettingsLinux>();
 +  if (!ui::NativeTheme::IsForcedDarkMode() &&
 +      !ui::NativeTheme::IsForcedLightMode()) {
-+    dark_mode_manager_ = std::make_unique<ui::DarkModeManagerLinux>();
++    portal_settings_ = std::make_unique<ui::PortalSettingsLinux>();
 +  }
  #endif
  }
  
 diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
-index 049cbdd2000458534dca9b08c02264661b75f4ca..1248babf31411463c5539abf056952ae01e6acc7 100644
+index 412c163a231ba7b70930acb84e7921bffcbbda17..190b7584c45dbef5e2b5791bbeb2a37cd8937cf6 100644
 --- ui/native_theme/native_theme.cc
 +++ ui/native_theme/native_theme.cc
-@@ -297,6 +297,8 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
+@@ -70,7 +70,10 @@ PreferredColorSchemeOverride() {
+       base::CommandLine::ForCurrentProcess()->HasSwitch(
+           switches::kForceDarkMode)
+           ? std::make_optional(NativeTheme::PreferredColorScheme::kDark)
+-          : std::nullopt;
++          : (base::CommandLine::ForCurrentProcess()->HasSwitch(
++                 "force-light-mode")
++                 ? std::make_optional(NativeTheme::PreferredColorScheme::kLight)
++                 : std::nullopt);
+   return value;
+ }
+ 
+@@ -316,6 +319,8 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
  
    NotifyOnNativeThemeUpdatedImpl();
  
@@ -60,57 +72,53 @@ index 049cbdd2000458534dca9b08c02264661b75f4ca..1248babf31411463c5539abf056952ae
    RecordNumColorProvidersInitializedDuringOnNativeThemeUpdated(
        color_provider_manager.num_providers_initialized() -
        initial_providers_initialized);
-@@ -378,6 +380,13 @@ bool NativeTheme::IsForcedDarkMode() {
-   return kIsForcedDarkMode;
+@@ -406,6 +411,19 @@ NativeTheme::GetPreferredColorSchemeOverride() {
+   return PreferredColorSchemeOverride();
  }
  
++bool NativeTheme::IsForcedDarkMode() {
++  static bool kIsForcedDarkMode =
++      base::CommandLine::ForCurrentProcess()->HasSwitch(
++          switches::kForceDarkMode);
++  return kIsForcedDarkMode;
++}
++
 +bool NativeTheme::IsForcedLightMode() {
 +  static bool kIsForcedLightMode =
-+      base::CommandLine::ForCurrentProcess()->HasSwitch(
-+          "force-light-mode");
++      base::CommandLine::ForCurrentProcess()->HasSwitch("force-light-mode");
 +  return kIsForcedLightMode;
 +}
 +
  bool NativeTheme::IsForcedHighContrast() {
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
-@@ -594,8 +603,13 @@ ColorProviderKey::ForcedColors NativeTheme::CalculateForcedColors() const {
- 
- NativeTheme::PreferredColorScheme NativeTheme::CalculatePreferredColorScheme()
-     const {
--  return IsForcedDarkMode() ? PreferredColorScheme::kDark
--                            : OsSettingsProvider::Get().PreferredColorScheme();
-+  if (IsForcedDarkMode()) {
-+    return PreferredColorScheme::kDark;
-+  }
-+  if (IsForcedLightMode()) {
-+    return PreferredColorScheme::kLight;
-+  }
-+  return OsSettingsProvider::Get().PreferredColorScheme();
- }
- 
- NativeTheme::PreferredContrast NativeTheme::CalculatePreferredContrast() const {
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index e131113a7d5eeea02929ff037d898f1c2f281a43..0327964801b17658f08f1ac8c4f74032bb951c85 100644
+index 64dc19f32a6824a251c167e1bac161d06a78d076..f564d2d5e3b9cbae455eb2c89c3d958e635cbfc5 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
-@@ -539,13 +539,16 @@ class COMPONENT_EXPORT(NATIVE_THEME) NativeTheme {
+@@ -385,9 +385,9 @@ class COMPONENT_EXPORT(NATIVE_THEME) NativeTheme {
+ 
+   // A process-wide preferred color scheme that takes precedence over the
+   // `OsSettingsProvider` value, e.g. for an application-level light/dark
+-  // setting. Initially kDark if `switches::kForceDarkMode` is present and unset
+-  // otherwise. Changing it notifies observers of every instance that observes
+-  // OS setting changes.
++  // setting. Initially kDark if `switches::kForceDarkMode` is present, kLight
++  // if `force-light-mode` is present, and unset otherwise. Changing it notifies
++  // observers of every instance that observes OS setting changes.
+   static void SetPreferredColorSchemeOverride(
+       std::optional<PreferredColorScheme> color_scheme);
+   static std::optional<PreferredColorScheme> GetPreferredColorSchemeOverride();
+@@ -548,6 +548,12 @@ class COMPONENT_EXPORT(NATIVE_THEME) NativeTheme {
    size_t system_color_version() const { return system_color_version_; }
    void IncrementSystemColorVersion() { ++system_color_version_; }
  
-- protected:
--  explicit NativeTheme(SystemTheme system_theme = SystemTheme::kDefault);
--  virtual ~NativeTheme();
 +  // Whether light mode is forced via command-line flag.
 +  static bool IsForcedLightMode();
- 
-   // Whether dark mode is forced via command-line flag.
-   static bool IsForcedDarkMode();
- 
-+ protected:
-+  explicit NativeTheme(SystemTheme system_theme = SystemTheme::kDefault);
-+  virtual ~NativeTheme();
 +
-   // Whether high contrast is forced via command-line flag.
-   static bool IsForcedHighContrast();
- 
++  // Whether dark mode is forced via command-line flag.
++  static bool IsForcedDarkMode();
++
+  protected:
+   explicit NativeTheme(SystemTheme system_theme = SystemTheme::kDefault);
+   virtual ~NativeTheme();

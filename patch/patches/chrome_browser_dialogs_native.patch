@@ -1,8 +1,8 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index 9b7c30c3b2f7c3489d32a0e82a3ce0288d249f98..127b3250c766d173eeea24ee9c9f20c7a901e420 100644
+index 227ace408690fc9586b39692234902336a22cd1a..1087d42e8c07b610e8ea4a47b280a657ca8baeaf 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
-@@ -262,6 +262,12 @@ void FileSelectHelper::OnListDone(int error) {
+@@ -264,6 +264,12 @@ void FileSelectHelper::OnListDone(int error) {
    }
  
    if (dialog_type_ == ui::SelectFileDialog::SELECT_UPLOAD_FOLDER) {
@@ -15,7 +15,7 @@ index 9b7c30c3b2f7c3489d32a0e82a3ce0288d249f98..127b3250c766d173eeea24ee9c9f20c7
      auto model = CreateConfirmationDialog(
          entry->display_name_, std::move(chooser_files),
          base::BindOnce(&FileSelectHelper::PerformContentAnalysisIfNeeded,
-@@ -524,31 +530,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -526,31 +532,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    std::vector<base::FilePath::StringType>* extensions =
        &file_type->extensions.back();
  
@@ -71,7 +71,7 @@ index 9b7c30c3b2f7c3489d32a0e82a3ce0288d249f98..127b3250c766d173eeea24ee9c9f20c7
      if (extensions->size() > old_extension_size)
        valid_type_count++;
    }
-@@ -564,13 +590,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -566,13 +592,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    //    "ehtml,shtml,htm,html" for "text/html". On Windows, the select file
    //    dialog uses the first extension in the list to form the description,
    //    like "EHTML Files". This is not what we want.
@@ -105,7 +105,7 @@ index 9b7c30c3b2f7c3489d32a0e82a3ce0288d249f98..127b3250c766d173eeea24ee9c9f20c7
    }
  
    return file_type;
-@@ -580,7 +621,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -582,7 +623,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
  void FileSelectHelper::RunFileChooser(
      content::RenderFrameHost* render_frame_host,
      scoped_refptr<content::FileSelectListener> listener,
@@ -115,7 +115,7 @@ index 9b7c30c3b2f7c3489d32a0e82a3ce0288d249f98..127b3250c766d173eeea24ee9c9f20c7
    Profile* profile = Profile::FromBrowserContext(
        render_frame_host->GetProcess()->GetBrowserContext());
  
-@@ -588,6 +630,7 @@ void FileSelectHelper::RunFileChooser(
+@@ -590,6 +632,7 @@ void FileSelectHelper::RunFileChooser(
    // message.
    scoped_refptr<FileSelectHelper> file_select_helper(
        new FileSelectHelper(profile));
@@ -123,7 +123,7 @@ index 9b7c30c3b2f7c3489d32a0e82a3ce0288d249f98..127b3250c766d173eeea24ee9c9f20c7
    file_select_helper->RunFileChooser(render_frame_host, std::move(listener),
                                       params.Clone());
  }
-@@ -703,8 +746,11 @@ void FileSelectHelper::RunFileChooserOnUIThread(
+@@ -728,8 +771,11 @@ void FileSelectHelper::RunFileChooserOnUIThread(
        NOTREACHED();
    }
  
@@ -137,7 +137,7 @@ index 9b7c30c3b2f7c3489d32a0e82a3ce0288d249f98..127b3250c766d173eeea24ee9c9f20c7
  #if BUILDFLAG(IS_ANDROID)
    select_file_dialog_->SetAcceptTypes(params->accept_types);
 diff --git chrome/browser/file_select_helper.h chrome/browser/file_select_helper.h
-index 16e77ae3d7c3576d36076e1f3133f2806fd759b3..de8140917a8e291273fc62b5c18f7f82815739ab 100644
+index a2acc4f5af93365996c34bf9330769b1054f3c6c..ac04b678a93170c663632fccb74d9f63415767a6 100644
 --- chrome/browser/file_select_helper.h
 +++ chrome/browser/file_select_helper.h
 @@ -69,7 +69,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
@@ -150,7 +150,7 @@ index 16e77ae3d7c3576d36076e1f3133f2806fd759b3..de8140917a8e291273fc62b5c18f7f82
  
    // Enumerates all the files in directory.
    static void EnumerateDirectory(
-@@ -353,6 +354,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -354,6 +355,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    std::unique_ptr<ScopedTuckPictureInPicture> scoped_tuck_picture_in_picture_;
  #endif  // !BUILDFLAG(IS_ANDROID)
  
@@ -204,7 +204,7 @@ index d44aa9ea9f3f81e2d6dd3f28f67980ded747f7d8..60f42e1299d5cd909974de91cd48c4b7
    return CreateSelectFileDialog(listener, std::move(policy));
  }
 diff --git ui/shell_dialogs/select_file_dialog.h ui/shell_dialogs/select_file_dialog.h
-index b0f4b3df0a4f10b306ba2d25e5fd51440a25bcd4..7fbb2be86bce8cf7676c0166a5510335ab94e0b5 100644
+index 5b4ccd238c48b83d0233c5a07bfa97773844a738..593cbbb98983a26ad9c4c91c4372d8b81d3bc1ca 100644
 --- ui/shell_dialogs/select_file_dialog.h
 +++ ui/shell_dialogs/select_file_dialog.h
 @@ -96,7 +96,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
@@ -248,9 +248,9 @@ index b0f4b3df0a4f10b306ba2d25e5fd51440a25bcd4..7fbb2be86bce8cf7676c0166a5510335
   protected:
    friend class base::RefCountedThreadSafe<SelectFileDialog>;
  
-@@ -248,6 +266,11 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
-   // The listener to be notified of selection completion.
-   raw_ptr<Listener> listener_;
+@@ -250,6 +268,11 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+ 
+   SelectFilePolicy* select_file_policy() { return select_file_policy_.get(); }
  
 +  std::unique_ptr<SelectFilePolicy> select_file_policy_;
 +
@@ -260,7 +260,7 @@ index b0f4b3df0a4f10b306ba2d25e5fd51440a25bcd4..7fbb2be86bce8cf7676c0166a5510335
   private:
    // Tests if the file selection dialog can be displayed by
    // testing if the AllowFileSelectionDialogs-Policy is
-@@ -260,8 +283,6 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+@@ -262,8 +285,6 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
  
    // Returns true if the dialog has multiple file type choices.
    virtual bool HasMultipleFileTypeChoicesImpl() = 0;

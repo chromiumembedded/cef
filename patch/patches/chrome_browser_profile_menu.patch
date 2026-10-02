@@ -1,28 +1,34 @@
 diff --git chrome/browser/ui/bookmarks/bookmark_stats.cc chrome/browser/ui/bookmarks/bookmark_stats.cc
-index c4f17d2d26f4deabc14caa1c25d0d1651ee6524a..d6b3ee825b779ef60c9fcd0512370a2ff3dfc7fd 100644
+index 19d75a725dbcfaf100cfe2d1ec2fc551ffecde65..c325a7116c45ad68f9bd54d3e7760dd7b388b0d8 100644
 --- chrome/browser/ui/bookmarks/bookmark_stats.cc
 +++ chrome/browser/ui/bookmarks/bookmark_stats.cc
-@@ -28,7 +28,9 @@ bool IsBookmarkBarLocation(BookmarkLaunchLocation location) {
- 
+@@ -29,10 +29,14 @@ bool IsBookmarkBarLocation(BookmarkLaunchLocation location) {
  auto GetMetricProfile(const Profile* profile) {
    DCHECK(profile);
--  DCHECK(profile->IsRegularProfile() || profile->IsIncognitoProfile());
-+  DCHECK(profile->IsRegularProfile() || profile->IsIncognitoProfile() ||
+   DCHECK(profile->IsRegularProfile() ||
+-         profile->IsPrimaryOTRProfileWithRegularParent());
++         profile->IsPrimaryOTRProfileWithRegularParent() ||
 +         (profile->IsOffTheRecord() &&
 +          profile->GetOTRProfileID().IsUniqueForCEF()));
-   return profile->IsRegularProfile()
-              ? profile_metrics::BrowserProfileType::kRegular
-              : profile_metrics::BrowserProfileType::kIncognito;
+   if (profile->IsRegularProfile()) {
+     return profile_metrics::BrowserProfileType::kRegular;
+-  } else if (profile->IsIncognitoProfile()) {
++  } else if (profile->IsIncognitoProfile() ||
++             (profile->IsOffTheRecord() &&
++              profile->GetOTRProfileID().IsUniqueForCEF())) {
+     return profile_metrics::BrowserProfileType::kIncognito;
+   }
+   return profile_metrics::BrowserProfileType::kEnterpriseIsolated;
 diff --git chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
-index 708badf944b48df40e13ce6c150246089c64f289..181ce408a7210a7d442595eea42aacb226f6b8a9 100644
+index f25b0d6283336b899d58cc83879820d2b46e9cfe..5aedb7c65fe40e40dd061156fb38625fbed24c58 100644
 --- chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
 +++ chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
 @@ -30,7 +30,9 @@ IncognitoClearBrowsingDataDialog::IncognitoClearBrowsingDataDialog(
        dialog_type_(type),
        incognito_profile_(incognito_profile) {
    DCHECK(incognito_profile_);
--  DCHECK(incognito_profile_->IsIncognitoProfile());
-+  DCHECK(incognito_profile_->IsIncognitoProfile() ||
+-  DCHECK(incognito_profile_->IsPrimaryOTRProfileWithRegularParent());
++  DCHECK(incognito_profile_->IsPrimaryOTRProfileWithRegularParent() ||
 +         (incognito_profile_->IsOffTheRecord() &&
 +          incognito_profile_->GetOTRProfileID().IsUniqueForCEF()));
    SetButtons(static_cast<int>(ui::mojom::DialogButton::kNone));
@@ -59,10 +65,10 @@ index 5e34acec16e1f581d7842e4210f00fd9b107ad70..bbe3cd63f1a921d0e62ad91a60af4ee0
                                   ax::mojom::NameFrom::kAttribute);
  
 diff --git chrome/browser/ui/views/profiles/profile_menu_coordinator.cc chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-index 8cfb7cb05b9eec7ff9d6484d3cf11069d67d9495..9011404bac62e5b3be3a4ebbfe8e93f6dac974b4 100644
+index 74ccee8d69fbf8ad8c621bcd53d8aff02e6c0671..7dcd7b25770852088c8c674982a8a739a45e6364 100644
 --- chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-@@ -91,7 +91,9 @@ void ProfileMenuCoordinator::ShowWithPromoResults(
+@@ -99,7 +99,9 @@ void ProfileMenuCoordinator::ShowWithPromoResults(
    auto avatar_toolbar_button = GetAvatarToolbarButton();
    std::unique_ptr<ProfileMenuViewBase> bubble;
    const bool is_incognito = GetProfile()->IsIncognitoProfile();
@@ -72,4 +78,4 @@ index 8cfb7cb05b9eec7ff9d6484d3cf11069d67d9495..9011404bac62e5b3be3a4ebbfe8e93f6
 +          GetProfile()->GetOTRProfileID().IsUniqueForCEF())) {
      bubble = std::make_unique<IncognitoMenuView>(avatar_toolbar_button,
                                                   &browser_.get());
-   } else {
+   } else if (GetProfile()->IsEnterpriseIsolatedModeProfile()) {

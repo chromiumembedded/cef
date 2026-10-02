@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/autofill/address_bubbles_controller.cc chrome/browser/ui/autofill/address_bubbles_controller.cc
-index af32d3bd996d221e5653ac97deb494bd757bbe6b..c29ec520432e1520445cb100be03fc35cdb2fe4b 100644
+index 86828b91de9b7e618330ded3038565ab3ff1614b..cba56ee71628529ca7b841c91803af516b3bb0b9 100644
 --- chrome/browser/ui/autofill/address_bubbles_controller.cc
 +++ chrome/browser/ui/autofill/address_bubbles_controller.cc
 @@ -55,11 +55,15 @@ AutofillBubbleBase* ShowSaveBubble(
@@ -56,7 +56,7 @@ index af32d3bd996d221e5653ac97deb494bd757bbe6b..c29ec520432e1520445cb100be03fc35
  }
  #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
  
-@@ -243,8 +255,6 @@ void AddressBubblesController::DoShowBubble() {
+@@ -244,8 +256,6 @@ void AddressBubblesController::DoShowBubble() {
  
    SetBubbleView(*show_bubble_view_callback_.Run(
        web_contents(), shown_by_user_gesture_, GetWeakPtr()));
@@ -65,7 +65,7 @@ index af32d3bd996d221e5653ac97deb494bd757bbe6b..c29ec520432e1520445cb100be03fc35
  }
  
  BubbleType AddressBubblesController::GetBubbleType() const {
-@@ -311,10 +321,13 @@ void AddressBubblesController::SetUpBubble(
+@@ -312,10 +322,13 @@ void AddressBubblesController::SetUpBubble(
  }
  
  void AddressBubblesController::MaybeShowIOSDektopAddressPromo() {
@@ -83,12 +83,12 @@ index af32d3bd996d221e5653ac97deb494bd757bbe6b..c29ec520432e1520445cb100be03fc35
    // Verify if user is eligible for iOS promo, and attempt showing if they are.
    ios_promos_utils::VerifyIOSPromoEligibility(
 diff --git chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
-index 111e05ccf46482e54c0a458f20a5ba137def91ed..85486c29a938ff46c835d3dafbfb675fecc6de5b 100644
+index 2db367da2d14316abbb12cb4ffeb9cc8d0987bc1..2694cb3f2a00ff77f0bec50f9cb650639d790f33 100644
 --- chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
 +++ chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
-@@ -823,7 +823,9 @@ SaveCardBubbleControllerImpl::GetAutofillBubbleHandler() {
-   tabs::TabInterface* tab = tabs::TabInterface::GetFromContents(web_contents());
-   CHECK(tab);
+@@ -830,7 +830,9 @@ SaveCardBubbleControllerImpl::GetAutofillBubbleHandler() {
+     return nullptr;
+   }
    BrowserWindowInterface* browser = tab->GetBrowserWindowInterface();
 -  CHECK(browser);
 +  if (!browser) {
@@ -97,10 +97,11 @@ index 111e05ccf46482e54c0a458f20a5ba137def91ed..85486c29a938ff46c835d3dafbfb675f
    return AutofillBubbleHandler::Get(browser->GetUnownedUserDataHost());
  }
  
-@@ -833,6 +835,9 @@ void SaveCardBubbleControllerImpl::DoShowBubble() {
+@@ -840,7 +842,9 @@ void SaveCardBubbleControllerImpl::DoShowBubble() {
    }
  
    AutofillBubbleHandler* autofill_bubble_handler = GetAutofillBubbleHandler();
+-  CHECK(autofill_bubble_handler);
 +  if (!autofill_bubble_handler) {
 +    return;
 +  }

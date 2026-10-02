@@ -79,7 +79,7 @@ index 975ad7d990fe9f0c5e1b6d636898b91b9416a5d5..1d75a1250afb70a81d1ca15a85dbbcf7
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 4c8063b363574bde263e0fef3bd8b073165f9901..b1bfd749a2b5ba197fd1d6d69692c6458e7d7a85 100644
+index 523879a76b60930953de2c1594af84e3ebda5b65..ba514934713f06d1f59e932fd74e21d273b92da4 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -6,6 +6,7 @@
@@ -90,19 +90,19 @@ index 4c8063b363574bde263e0fef3bd8b073165f9901..b1bfd749a2b5ba197fd1d6d69692c645
  #include <string_view>
  
  #include "base/base_switches.h"
-@@ -110,8 +111,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
-       "commandline-disabled-feature");
- }
+@@ -36,8 +37,10 @@ namespace {
+ 
+ constexpr std::string_view kStringAnnotationsSwitch = "string-annotations";
  
 +}  // namespace
 +
  // Return true if we DON'T want to upload this flag to the crash server.
 -bool IsBoringSwitch(const std::string& flag) {
 +bool IsBoringChromeSwitch(const std::string& flag) {
-   static const auto kIgnoreSwitches = std::to_array<std::string_view>({
-       kStringAnnotationsSwitch,
-       switches::kEnableLogging,
-@@ -170,6 +173,8 @@ bool IsBoringSwitch(const std::string& flag) {
+   if (crash_keys::IsDefaultBoringSwitch(flag)) {
+     return true;
+   }
+@@ -96,6 +99,8 @@ bool IsBoringSwitch(const std::string& flag) {
    return false;
  }
  
@@ -111,10 +111,10 @@ index 4c8063b363574bde263e0fef3bd8b073165f9901..b1bfd749a2b5ba197fd1d6d69692c645
  std::deque<CrashKeyWithName>& GetCommandLineStringAnnotations() {
    static base::NoDestructor<std::deque<CrashKeyWithName>>
        command_line_string_annotations;
-@@ -218,7 +223,7 @@ void AppendStringAnnotationsCommandLineSwitch(base::CommandLine* command_line) {
+@@ -144,7 +149,7 @@ void AppendStringAnnotationsCommandLineSwitch(base::CommandLine* command_line) {
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
    SetStringAnnotations(command_line);
-   HandleEnableDisableFeatures(command_line);
+   SetFeaturesFromCommandLine(command_line);
 -  SetSwitchesFromCommandLine(command_line, &IsBoringSwitch);
 +  SetSwitchesFromCommandLine(command_line, &IsBoringChromeSwitch);
  
@@ -144,10 +144,10 @@ index a274b3e364084c90d2f4783bab576ac85af285ea..3d995cf6433991f6f8abe7cd2d4eac17
  // on the given `command_line`. For non-browser processes, allocates crash keys
  // from the switch value set by AppendStringAnnotationsCommandLineSwitch().
 diff --git components/crash/core/app/crash_reporter_client.cc components/crash/core/app/crash_reporter_client.cc
-index 7552a9b98da5e897c04f4ea7279ab87bf4ab9ef5..ee2bdc6f30f51494cf9ca1f018c9244d2c5d8ad0 100644
+index 0941e78cef59417f8ded359c02d8e97477908ea9..5353b701011c526d7ad9b1b5aeb6c9ea3192ded2 100644
 --- components/crash/core/app/crash_reporter_client.cc
 +++ components/crash/core/app/crash_reporter_client.cc
-@@ -117,6 +117,23 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
+@@ -114,6 +114,23 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
    return false;
  }
  
@@ -172,18 +172,10 @@ index 7552a9b98da5e897c04f4ea7279ab87bf4ab9ef5..ee2bdc6f30f51494cf9ca1f018c9244d
  unsigned int CrashReporterClient::GetCrashDumpPercentage() {
    return 100;
 diff --git components/crash/core/app/crash_reporter_client.h components/crash/core/app/crash_reporter_client.h
-index ceda11ed43d222ae46ec9c6a82351fd79d0c0aff..65b677ca74d99b0215816438f86a715e2dcad28f 100644
+index 70f0b4c8d4bbf7e340c0e01d3208e64561de8f9a..521a1ba0cd3a2cdbd47393406aa7aeb38a95f856 100644
 --- components/crash/core/app/crash_reporter_client.h
 +++ components/crash/core/app/crash_reporter_client.h
-@@ -7,6 +7,7 @@
- 
- #include <stdint.h>
- 
-+#include <map>
- #include <string>
- #include <vector>
- 
-@@ -193,6 +194,20 @@ class CrashReporterClient {
+@@ -228,6 +228,20 @@ class CrashReporterClient {
    // Returns true if breakpad should run in the given process type.
    virtual bool EnableBreakpadForProcess(const std::string& process_type);
  
@@ -219,18 +211,18 @@ index db68eaa22030aca74f31a9d8612b4952a3b25642..e02625e502b73f10569ab54714ad4826
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/core/app/crashpad_linux.cc components/crash/core/app/crashpad_linux.cc
-index d4d3555891b19d61676465c856055fb04e0168bc..68914d91147fbb53bbc8f9b742cd551b326cae27 100644
+index 879b0a5d1ebbb63499a5e0e57d38d5d26b862bbf..c21345f949579d39a059b53d35b548418fb1b034 100644
 --- components/crash/core/app/crashpad_linux.cc
 +++ components/crash/core/app/crashpad_linux.cc
-@@ -23,6 +23,7 @@
- #include "components/crash/core/app/crash_reporter_client.h"
+@@ -29,6 +29,7 @@
  #include "components/crash/core/app/crash_switches.h"
+ #include "components/crash/core/app/shared_memory_user_stream_args.h"
  #include "content/public/common/content_descriptors.h"
 +#include "content/public/common/content_paths.h"
  #include "sandbox/linux/services/namespace_sandbox.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -165,11 +166,10 @@ bool PlatformCrashpadInitialization(
+@@ -171,11 +172,10 @@ bool PlatformCrashpadInitialization(
      crash_reporter_client->GetCrashDumpLocation(database_path);
      crash_reporter_client->GetCrashMetricsLocation(&metrics_path);
  
@@ -245,19 +237,19 @@ index d4d3555891b19d61676465c856055fb04e0168bc..68914d91147fbb53bbc8f9b742cd551b
  
      // When --use-cros-crash-reporter is set (below), the handler passes dumps
      // to ChromeOS's /sbin/crash_reporter which in turn passes the dump to
-@@ -185,8 +185,8 @@ bool PlatformCrashpadInitialization(
+@@ -191,8 +191,8 @@ bool PlatformCrashpadInitialization(
      crash_reporter_client->GetProductInfo(&product_info);
  
      std::map<std::string, std::string> annotations;
--    annotations["prod"] = product_info.product_name;
--    annotations["ver"] = product_info.version;
-+    annotations["product"] = product_info.product_name;
-+    annotations["version"] = product_info.version;
+-    annotations["prod"] = std::string(product_info.product_name());
+-    annotations["ver"] = std::string(product_info.version());
++    annotations["product"] = std::string(product_info.product_name());
++    annotations["version"] = std::string(product_info.version());
  
+     std::string_view channel = product_info.channel();
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-     // Empty means stable.
-@@ -203,7 +203,20 @@ bool PlatformCrashpadInitialization(
-       annotations["channel"] = product_info.channel;
+@@ -210,7 +210,20 @@ bool PlatformCrashpadInitialization(
+       annotations["channel"] = std::string(channel);
      }
  
 -    annotations["plat"] = std::string("Linux");
@@ -278,9 +270,9 @@ index d4d3555891b19d61676465c856055fb04e0168bc..68914d91147fbb53bbc8f9b742cd551b
  
  #if BUILDFLAG(IS_CHROMEOS_DEVICE)
      // Chromium OS: save board and builder path for 'tast symbolize'.
-@@ -240,6 +253,12 @@ bool PlatformCrashpadInitialization(
-     }
- #endif
+@@ -263,6 +276,12 @@ bool PlatformCrashpadInitialization(
+     internal::AppendSharedMemoryUserStreamArgs(user_streams, &arguments,
+                                                &preserve_handles);
  
 +    // Since we're using the same main or subprocess helper exe we must specify
 +    // the process type.
@@ -289,13 +281,13 @@ index d4d3555891b19d61676465c856055fb04e0168bc..68914d91147fbb53bbc8f9b742cd551b
 +    crash_reporter_client->GetCrashOptionalArguments(&arguments);
 +
      CHECK(client.StartHandler(handler_path, *database_path, metrics_path, url,
-                               annotations, arguments, false, false,
-                               attachments));
+                               annotations, arguments, false, false, attachments,
+                               preserve_handles));
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
-index 3b131e1fc804a55c80b3b2704686270211fcf9fb..c2a7dd560f841aaa7d4f74ea831a5758c01310c3 100644
+index 0b236c31fdad45679ce7935ed7b685136aff3205..98ffe7470c4ac1ba68f438750d4b13a8f758208e 100644
 --- components/crash/core/app/crashpad_mac.mm
 +++ components/crash/core/app/crashpad_mac.mm
-@@ -17,10 +17,13 @@
+@@ -19,10 +19,13 @@
  #include "base/apple/foundation_util.h"
  #include "base/check.h"
  #include "base/files/file_path.h"
@@ -309,14 +301,14 @@ index 3b131e1fc804a55c80b3b2704686270211fcf9fb..c2a7dd560f841aaa7d4f74ea831a5758
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -38,15 +41,22 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+@@ -40,15 +43,22 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
      std::map<std::string, std::string> process_annotations;
      @autoreleasepool {
        NSBundle* outer_bundle = base::apple::OuterBundle();
 +      ProductInfo product_info;
 +      GetCrashReporterClient()->GetProductInfo(&product_info);
 +
-+      if (product_info.product_name.empty()) {
++      if (product_info.product_name().empty()) {
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 -      process_annotations["prod"] = "Chrome_Mac";
 +        process_annotations["product"] = "Chrome_Mac";
@@ -333,12 +325,12 @@ index 3b131e1fc804a55c80b3b2704686270211fcf9fb..c2a7dd560f841aaa7d4f74ea831a5758
 +            base::SysNSStringToUTF8(product).append("_Mac");
  #endif
 +      } else {
-+        process_annotations["product"] = product_info.product_name;
++        process_annotations["product"] = product_info.product_name();
 +      }
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
        // Empty means stable.
-@@ -77,12 +87,20 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+@@ -79,12 +89,20 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
          }
        }
  
@@ -346,13 +338,13 @@ index 3b131e1fc804a55c80b3b2704686270211fcf9fb..c2a7dd560f841aaa7d4f74ea831a5758
 -          base::apple::ObjCCast<NSString>([base::apple::FrameworkBundle()
 -              objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
 -      process_annotations["ver"] = base::SysNSStringToUTF8(version);
-+      if (product_info.version.empty()) {
++      if (product_info.version().empty()) {
 +        NSString* version =
 +            base::apple::ObjCCast<NSString>([base::apple::FrameworkBundle()
 +                objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
 +        process_annotations["version"] = base::SysNSStringToUTF8(version);
 +      } else {
-+        process_annotations["version"] = product_info.version;
++        process_annotations["version"] = product_info.version();
 +      }
  
 -      process_annotations["plat"] = std::string("OS X");
@@ -362,9 +354,9 @@ index 3b131e1fc804a55c80b3b2704686270211fcf9fb..c2a7dd560f841aaa7d4f74ea831a5758
 +      process_annotations["platform"] = std::string("macos");
 +#endif
      }  // @autoreleasepool
-     return process_annotations;
-   }();
-@@ -145,10 +163,10 @@ bool PlatformCrashpadInitialization(
+     for (auto& [key, value] :
+          GetCrashReporterClient()->GetExtraProcessAnnotations()) {
+@@ -151,10 +169,10 @@ bool PlatformCrashpadInitialization(
  
    if (initial_client) {
      @autoreleasepool {
@@ -379,7 +371,7 @@ index 3b131e1fc804a55c80b3b2704686270211fcf9fb..c2a7dd560f841aaa7d4f74ea831a5758
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -177,6 +195,12 @@ bool PlatformCrashpadInitialization(
+@@ -189,6 +207,12 @@ bool PlatformCrashpadInitialization(
              "--reset-own-crash-exception-port-to-system-default");
        }
  
@@ -393,10 +385,10 @@ index 3b131e1fc804a55c80b3b2704686270211fcf9fb..c2a7dd560f841aaa7d4f74ea831a5758
            handler_path, *database_path, metrics_path, url,
            GetProcessSimpleAnnotations(), arguments, true, false);
 diff --git components/crash/core/app/crashpad_win.cc components/crash/core/app/crashpad_win.cc
-index a7af39181e259b4c793fa9a39cb95e4f86ac47d1..398a08918df751d757f85bffa6baa5ff4a1348a6 100644
+index c5b54c43492be1d1c36af79620d1dc965534dae7..4975973cb6ad9ec5a510230c2472c1e0090e7d4e 100644
 --- components/crash/core/app/crashpad_win.cc
 +++ components/crash/core/app/crashpad_win.cc
-@@ -38,8 +38,8 @@ void GetPlatformCrashpadAnnotations(
+@@ -42,8 +42,8 @@ void GetPlatformCrashpadAnnotations(
    std::wstring product_name, version, special_build, channel_name;
    crash_reporter_client->GetProductNameAndVersion(
        exe_file, &product_name, &version, &special_build, &channel_name);
@@ -407,7 +399,7 @@ index a7af39181e259b4c793fa9a39cb95e4f86ac47d1..398a08918df751d757f85bffa6baa5ff
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
    // Empty means stable.
    const bool allow_empty_channel = true;
-@@ -56,9 +56,11 @@ void GetPlatformCrashpadAnnotations(
+@@ -60,9 +60,11 @@ void GetPlatformCrashpadAnnotations(
    if (!special_build.empty())
      (*annotations)["special"] = base::WideToUTF8(special_build);
  #if defined(ARCH_CPU_X86)
@@ -421,7 +413,7 @@ index a7af39181e259b4c793fa9a39cb95e4f86ac47d1..398a08918df751d757f85bffa6baa5ff
  #endif
  }
  
-@@ -113,13 +115,14 @@ bool PlatformCrashpadInitialization(
+@@ -121,13 +123,14 @@ bool PlatformCrashpadInitialization(
        exe_file = base::FilePath(exe_file_path);
      }
  
@@ -441,7 +433,7 @@ index a7af39181e259b4c793fa9a39cb95e4f86ac47d1..398a08918df751d757f85bffa6baa5ff
        if (!user_data_dir.empty()) {
          start_arguments.push_back(std::string("--user-data-dir=") +
                                    user_data_dir);
-@@ -129,9 +132,12 @@ bool PlatformCrashpadInitialization(
+@@ -137,9 +140,12 @@ bool PlatformCrashpadInitialization(
                app_launch_prefetch::SubprocessType::kCrashpad)));
      } else {
        base::FilePath exe_dir = exe_file.DirName();

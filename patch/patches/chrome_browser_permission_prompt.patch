@@ -17,10 +17,10 @@ index 6e9bba3c993b0c3c3ce71851b45e4316c5673d77..26f4c4771f9b7817fdd92e42b410c7ab
  std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPrompt(
      content::WebContents* web_contents,
 diff --git chrome/browser/ui/views/permissions/permission_prompt_factory.cc chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-index 0c03be841cac2008e2ec8d0610337ca3e39e8d37..f13e680a2828eb9de558df65ee122045c808703e 100644
+index 12bb0ac5fb39cbf8c67bf38586a84708e05f7cb7..a70d61f366d7b1332cb615569c9932fd89b9c0d5 100644
 --- chrome/browser/ui/views/permissions/permission_prompt_factory.cc
 +++ chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-@@ -250,6 +250,8 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
+@@ -258,6 +258,8 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
    }
  }
  
@@ -29,7 +29,7 @@ index 0c03be841cac2008e2ec8d0610337ca3e39e8d37..f13e680a2828eb9de558df65ee122045
  }  // namespace
  
  bool ShouldShowPermissionPromptEvenIfOmniboxEditedOrEmpty(
-@@ -281,9 +283,25 @@ bool ShouldShowPermissionPromptEvenIfOmniboxEditedOrEmpty(
+@@ -289,9 +291,25 @@ bool ShouldShowPermissionPromptEvenIfOmniboxEditedOrEmpty(
    return false;
  }
  

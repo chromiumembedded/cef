@@ -101,7 +101,7 @@ index 3fa72db86530efd9025cba5605580691e00c3412..6e73f2f15e967d1ed07312875d3955bd
    bool enforce_errors_from_incoming_receiver_ = true;
  
 diff --git mojo/public/cpp/bindings/interface_endpoint_client.h mojo/public/cpp/bindings/interface_endpoint_client.h
-index a496f0b2635d2bc7c5f57e9f0e3cedc6eeeffbe8..fca2780025bb50af44587e38d8b1e1b65f97f1af 100644
+index 60aacd41e9fcd11f633373bed974aac54ec51de9..8697235eb42551487916fb0495a1833c0bfc74a8 100644
 --- mojo/public/cpp/bindings/interface_endpoint_client.h
 +++ mojo/public/cpp/bindings/interface_endpoint_client.h
 @@ -77,6 +77,7 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) InterfaceEndpointClient
@@ -128,7 +128,7 @@ index a496f0b2635d2bc7c5f57e9f0e3cedc6eeeffbe8..fca2780025bb50af44587e38d8b1e1b6
    }
  
    // Returns true if an error was encountered.
-@@ -156,7 +166,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) InterfaceEndpointClient
+@@ -164,7 +174,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) InterfaceEndpointClient
  
    // NOTE: |message| must have passed message header validation.
    bool HandleIncomingMessage(Message* message);
@@ -138,7 +138,7 @@ index a496f0b2635d2bc7c5f57e9f0e3cedc6eeeffbe8..fca2780025bb50af44587e38d8b1e1b6
  
    // The following methods send interface control messages.
    // They must only be called when the handle is not in pending association
-@@ -346,6 +357,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) InterfaceEndpointClient
+@@ -354,6 +365,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) InterfaceEndpointClient
  
    base::OnceClosure error_handler_;
    ConnectionErrorWithReasonCallback error_with_reason_handler_;
@@ -197,10 +197,10 @@ index 9a927711bddb7e3baca78375424e497bdb57fec0..3d5497888e37eb3df7cc22e6f8490f79
      // No more messages on the pipe and the peer is closed.
      HandleError(false /* force_pipe_reset */, false /* force_async_handler */);
 diff --git mojo/public/cpp/bindings/lib/interface_endpoint_client.cc mojo/public/cpp/bindings/lib/interface_endpoint_client.cc
-index 6f691959d02ce002574fcf309fdb4b73238a7eeb..e0665b387be9fd884cb4b22e2accc52d66db12b4 100644
+index fb6a8145b007f1a001488fa337f8cac891a79dba..81e203165cecab47242f8224bdbc9a294b9dad9d 100644
 --- mojo/public/cpp/bindings/lib/interface_endpoint_client.cc
 +++ mojo/public/cpp/bindings/lib/interface_endpoint_client.cc
-@@ -754,7 +754,8 @@ bool InterfaceEndpointClient::HandleIncomingMessage(Message* message) {
+@@ -658,7 +658,8 @@ bool InterfaceEndpointClient::HandleIncomingMessage(Message* message) {
  }
  
  void InterfaceEndpointClient::NotifyError(
@@ -210,7 +210,7 @@ index 6f691959d02ce002574fcf309fdb4b73238a7eeb..e0665b387be9fd884cb4b22e2accc52d
    TRACE_EVENT("toplevel", "Closed mojo endpoint",
                [&](perfetto::EventContext& ctx) {
                  auto* info = ctx.event()->set_chrome_mojo_event_info();
-@@ -791,6 +792,14 @@ void InterfaceEndpointClient::NotifyError(
+@@ -695,6 +696,14 @@ void InterfaceEndpointClient::NotifyError(
      } else {
        std::move(error_with_reason_handler_).Run(0, std::string());
      }
@@ -225,7 +225,7 @@ index 6f691959d02ce002574fcf309fdb4b73238a7eeb..e0665b387be9fd884cb4b22e2accc52d
    }
  }
  
-@@ -935,7 +944,8 @@ void InterfaceEndpointClient::OnAssociationEvent(
+@@ -839,7 +848,8 @@ void InterfaceEndpointClient::OnAssociationEvent(
      task_runner_->PostTask(FROM_HERE,
                             base::BindOnce(&InterfaceEndpointClient::NotifyError,
                                            weak_ptr_factory_.GetWeakPtr(),

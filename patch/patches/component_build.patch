@@ -1,8 +1,8 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 774a3b6839b155a4140ea3224d89201702e68142..95b73b7a0f4c0394299229177c6d9a0da33e4e11 100644
+index d215484acb2f036cfdbfaa34c9195b29dd46f46e..6d9d750b9c549027fc07f5938116180044482704 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
-@@ -152,7 +152,7 @@ bool ApplyUserAgentMetadataOverrides(
+@@ -151,7 +151,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
      std::optional<blink::UserAgentMetadata>* override_out);
  
@@ -46,7 +46,7 @@ index 09d80f2ba678df9ab1b9b2b74ad66d4546036fb2..5dbff44c280a145c65146279a971620f
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index eb9f60860200150b291648a2cc5f96a4ceb26ff5..f7a8b2f7574527a4ef46990babe82a65a44eeef4 100644
+index 0a8db62080e2e8a182467c60d1174bb40c198ec5..7c3cc3818f7b34a810247dd7a7a20185dc9cc3bf 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -3,6 +3,7 @@
@@ -57,7 +57,7 @@ index eb9f60860200150b291648a2cc5f96a4ceb26ff5..f7a8b2f7574527a4ef46990babe82a65
  import("//testing/test.gni")
  import("//third_party/blink/renderer/bindings/bindings.gni")
  import("//third_party/blink/renderer/config.gni")
-@@ -70,6 +71,15 @@ component("controller") {
+@@ -72,6 +73,15 @@ component("controller") {
      "performance_manager/v8_worker_memory_reporter.h",
    ]
  

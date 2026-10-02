@@ -13,7 +13,7 @@ index b56dc499e4c31eb7cb10bd1b79e56dafa63d9fa9..c39757bccdded4b7544522137cb88bd3
    void Focus();
  
 diff --git third_party/blink/renderer/core/exported/web_element.cc third_party/blink/renderer/core/exported/web_element.cc
-index 4f626dc0b938033e875f7b996e3751cd977e66bc..07770d1d1da9bb23d9c7037b760318332c266a28 100644
+index 1d885fc9cccb1e5d3a9a5ea5abab59f73b99c4db..7b35d52a5a461f149d85e7076dea35e09d1cb2ab 100644
 --- third_party/blink/renderer/core/exported/web_element.cc
 +++ third_party/blink/renderer/core/exported/web_element.cc
 @@ -210,6 +210,24 @@ void WebElement::SetAttribute(const WebString& attr_name,

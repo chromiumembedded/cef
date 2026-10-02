@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/frame/browser_native_widget_mac.h chrome/browser/ui/views/frame/browser_native_widget_mac.h
-index 927117fb0565681bd25261211e48188cd011ebc9..07b253059d7a43f6f6c619a649b6b734de9d9de8 100644
+index 2d84f6ff903e9d13ec3c1be83e3e110a12e243ef..279f38dd7f92c604a985fee79f77e9d55ea2f953 100644
 --- chrome/browser/ui/views/frame/browser_native_widget_mac.h
 +++ chrome/browser/ui/views/frame/browser_native_widget_mac.h
-@@ -18,6 +18,7 @@
+@@ -19,6 +19,7 @@
  #include "ui/native_theme/native_theme.h"
  #include "ui/views/widget/native_widget_mac.h"
  
@@ -10,7 +10,7 @@ index 927117fb0565681bd25261211e48188cd011ebc9..07b253059d7a43f6f6c619a649b6b734
  class BrowserWidget;
  class BrowserView;
  @class BrowserWindowTouchBarController;
-@@ -70,6 +71,19 @@ class BrowserNativeWidgetMac : public views::NativeWidgetMac,
+@@ -76,6 +77,19 @@ class BrowserNativeWidgetMac : public views::NativeWidgetMac,
    bool ShouldUseInitialVisibleOnAllWorkspaces() const override;
    void AnnounceTextInInProcessWindow(const std::u16string& text) override;
  
@@ -31,10 +31,10 @@ index 927117fb0565681bd25261211e48188cd011ebc9..07b253059d7a43f6f6c619a649b6b734
    ~BrowserNativeWidgetMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_native_widget_mac.mm chrome/browser/ui/views/frame/browser_native_widget_mac.mm
-index fb1e87f83493475668792b1f4b59b4c4e777162f..0ab9ba2e66efd6ec30e3577d1cdfb005ac25dd50 100644
+index 818924fc76681c38faad1c2082b686cbf67f3cdd..15dd0cbd1fc07045b263dae1fd9a08ad83159dcc 100644
 --- chrome/browser/ui/views/frame/browser_native_widget_mac.mm
 +++ chrome/browser/ui/views/frame/browser_native_widget_mac.mm
-@@ -397,8 +397,15 @@ void BrowserNativeWidgetMac::OnWidgetDestroyed(views::Widget* widget) {
+@@ -401,8 +401,15 @@ void BrowserNativeWidgetMac::OnWidgetDestroyed(views::Widget* widget) {
  void BrowserNativeWidgetMac::ValidateUserInterfaceItem(
      int32_t tag,
      remote_cocoa::mojom::ValidateUserInterfaceItemResult* result) {
@@ -52,7 +52,7 @@ index fb1e87f83493475668792b1f4b59b4c4e777162f..0ab9ba2e66efd6ec30e3577d1cdfb005
    if (!browser || !chrome::SupportsCommand(browser, tag)) {
      result->enable = false;
      return;
-@@ -609,9 +616,16 @@ bool BrowserNativeWidgetMac::WillExecuteCommand(
+@@ -613,9 +620,16 @@ bool BrowserNativeWidgetMac::WillExecuteCommand(
    if (!browser_view_) {
      return false;
    }
@@ -71,7 +71,7 @@ index fb1e87f83493475668792b1f4b59b4c4e777162f..0ab9ba2e66efd6ec30e3577d1cdfb005
    if (is_before_first_responder) {
      // The specification for this private extensions API is incredibly vague.
      // For now, we avoid triggering chrome commands prior to giving the
-@@ -643,12 +657,23 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
+@@ -647,12 +661,23 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {
@@ -98,7 +98,7 @@ index fb1e87f83493475668792b1f4b59b4c4e777162f..0ab9ba2e66efd6ec30e3577d1cdfb005
  
    if (command == IDC_TOGGLE_VERTICAL_TABS) {
      if (auto* controller =
-@@ -695,10 +720,13 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
+@@ -699,10 +724,13 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
        return true;
      }
    } else if (command == IDC_CLEAR_BROWSING_DATA) {

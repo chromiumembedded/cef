@@ -1,22 +1,26 @@
 diff --git content/browser/scheduler/responsiveness/native_event_observer_mac.mm content/browser/scheduler/responsiveness/native_event_observer_mac.mm
-index c2e0d72fe68b01c0aa93b0b45fe524e18ef0db54..b7db8d67811940879f0a12668f793e4b2d8cc4d3 100644
+index 511c2ca8d36bf0fc635458e96ff81eae7cf6f2fa..4257a8dde28bdeb0eba63bb04b0f355fbb972fbe 100644
 --- content/browser/scheduler/responsiveness/native_event_observer_mac.mm
 +++ content/browser/scheduler/responsiveness/native_event_observer_mac.mm
-@@ -11,13 +11,15 @@
+@@ -11,15 +11,17 @@
  namespace content::responsiveness {
  
  void BrowserUINativeEventObserver::RegisterObserver() {
--  DCHECK([NSApp conformsToProtocol:@protocol(NativeEventProcessor)]);
-+  if (![NSApp conformsToProtocol:@protocol(NativeEventProcessor)])
+-  CHECK([NSApp conformsToProtocol:@protocol(NativeEventProcessor)],
+-        base::NotFatalUntil::M160);
++  if (![NSApp conformsToProtocol:@protocol(NativeEventProcessor)]) {
 +    return;
++  }
    id<NativeEventProcessor> processor =
        static_cast<id<NativeEventProcessor>>(NSApp);
    [processor addNativeEventProcessorObserver:this];
  }
  void BrowserUINativeEventObserver::UnregisterObserver() {
--  DCHECK([NSApp conformsToProtocol:@protocol(NativeEventProcessor)]);
-+  if (![NSApp conformsToProtocol:@protocol(NativeEventProcessor)])
+-  CHECK([NSApp conformsToProtocol:@protocol(NativeEventProcessor)],
+-        base::NotFatalUntil::M160);
++  if (![NSApp conformsToProtocol:@protocol(NativeEventProcessor)]) {
 +    return;
++  }
    id<NativeEventProcessor> processor =
        static_cast<id<NativeEventProcessor>>(NSApp);
    [processor removeNativeEventProcessorObserver:this];

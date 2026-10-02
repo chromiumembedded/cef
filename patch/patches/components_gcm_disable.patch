@@ -1,5 +1,5 @@
 diff --git components/gcm_driver/gcm_client_impl.cc components/gcm_driver/gcm_client_impl.cc
-index d3fb7da1069716355f8de888067f93e1115ac369..a7e4ec602da2c26d24ceccf06e64c3904896722d 100644
+index 2bd1a15816d10213433ebd4d863accd669475279..fcdae6ccacb8b9f9e3107ab08111cb43415316dc 100644
 --- components/gcm_driver/gcm_client_impl.cc
 +++ components/gcm_driver/gcm_client_impl.cc
 @@ -296,6 +296,9 @@ void GCMClientImpl::Initialize(

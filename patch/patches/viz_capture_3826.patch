@@ -1,8 +1,8 @@
 diff --git components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc
-index 3e5d9426b39af120da83d903b2de4ba0be0aec88..3b5c31ad9274d3a8e67c19d556098c8be724c4dd 100644
+index 5105b026559b6504c8cfa4296bf7c804fea8b90f..2678cd721b9c725df0ef08cbee593ae4a14359af 100644
 --- components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc
 +++ components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc
-@@ -1481,16 +1481,20 @@ void FrameSinkVideoCapturerImpl::MaybeDeliverFrame(FrameCapture frame_capture) {
+@@ -1534,16 +1534,20 @@ void FrameSinkVideoCapturerImpl::MaybeDeliverFrame(FrameCapture frame_capture) {
      // frame is desirable.)
      if (frame_capture.frame->metadata().capture_version != capture_version()) {
        frame_capture.CaptureFailed(CaptureResult::kSubCaptureTargetChanged);
@@ -30,7 +30,7 @@ index 3e5d9426b39af120da83d903b2de4ba0be0aec88..3b5c31ad9274d3a8e67c19d556098c8b
    if (!frame_capture.success()) {
      const media::VideoFrameMetadata& metadata = frame_capture.frame_metadata();
      TRACE_EVENT_END("gpu.capture", CaptureTrack(metadata), "result",
-@@ -1601,6 +1605,8 @@ void FrameSinkVideoCapturerImpl::OnLog(const std::string& message) {
+@@ -1654,6 +1658,8 @@ void FrameSinkVideoCapturerImpl::OnLog(const std::string& message) {
  bool FrameSinkVideoCapturerImpl::ShouldMark(const media::VideoFrame& frame,
                                              int64_t content_version) const {
    return !marked_frame_ || content_version > content_version_in_marked_frame_ ||
@@ -39,7 +39,7 @@ index 3e5d9426b39af120da83d903b2de4ba0be0aec88..3b5c31ad9274d3a8e67c19d556098c8b
           frame.coded_size() != marked_frame_->coded_size();
  }
  
-@@ -1614,7 +1620,8 @@ void FrameSinkVideoCapturerImpl::MarkFrame(
+@@ -1667,7 +1673,8 @@ void FrameSinkVideoCapturerImpl::MarkFrame(
  bool FrameSinkVideoCapturerImpl::CanResurrectFrame(
      const gfx::Size& size) const {
    return content_version_ == content_version_in_marked_frame_ &&
@@ -50,10 +50,10 @@ index 3e5d9426b39af120da83d903b2de4ba0be0aec88..3b5c31ad9274d3a8e67c19d556098c8b
  
  void FrameSinkVideoCapturerImpl::NotifyFrameReleased(
 diff --git components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc
-index 3bdea0e0b3935ef4c12be9856e25c7544d25b199..8a86149bdee908d6e2f4f0086d0f05273bcb0ed4 100644
+index 5d5ffc8544d2a1eba6fc9369c9f33c372b8ebdf3..58d56a9311c495499152998c74b9f8455036466d 100644
 --- components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc
 +++ components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc
-@@ -557,6 +557,12 @@ class FakeCapturableFrameSink : public CapturableFrameSink {
+@@ -580,6 +580,12 @@ class FakeCapturableFrameSink : public CapturableFrameSink {
      PropagateMojoTasks(task_runner_);
    }
  
@@ -66,7 +66,7 @@ index 3bdea0e0b3935ef4c12be9856e25c7544d25b199..8a86149bdee908d6e2f4f0086d0f0527
    void set_task_runner(scoped_refptr<base::TestMockTimeTaskRunner> runner) {
      task_runner_ = std::move(runner);
    }
-@@ -1538,6 +1544,66 @@ TEST_P(FrameSinkVideoCapturerTest, EventuallySendsARefreshFrame) {
+@@ -1570,6 +1576,66 @@ TEST_P(FrameSinkVideoCapturerTest, EventuallySendsARefreshFrame) {
    StopCapture();
  }
  

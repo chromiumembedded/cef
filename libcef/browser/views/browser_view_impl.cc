@@ -435,7 +435,11 @@ views::WebView* CefBrowserViewImpl::web_view() const {
   }
 
   if (!is_alloy_style_) {
-    return chrome_browser_view()->contents_web_view();
+    auto* browser_view = chrome_browser_view();
+    // SetDefaults runs before InitBrowser creates the contents views.
+    return browser_view->multi_contents_view()
+               ? browser_view->GetActiveContentsWebView()
+               : nullptr;
   }
 
   return static_cast<CefBrowserViewView*>(root_view());

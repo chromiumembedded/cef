@@ -382,9 +382,10 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
     DisableFeatureByDefault(lens::features::kLensOverlay, disable_features);
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
-    // Disable the sign-in promo on the avatar button by default.
-    DisableFeatureByDefault(switches::kSigninPromoOnAvatarPill,
-                            disable_features);
+    // Chromium no longer has a feature flag for the avatar sign-in promo.
+    // Clients can remove this switch in OnBeforeCommandLineProcessing.
+    command_line->AppendSwitch(
+        switches::kDisableSigninPromoOnAvatarPillForTesting);
 #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
 
     // Disable features that break CEF APIs.

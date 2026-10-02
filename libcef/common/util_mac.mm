@@ -51,26 +51,13 @@ void OverrideBaseBundleID() {
   base::apple::SetBaseBundleIDOverride(bundle_id);
 }
 
-base::FilePath GetNormalChildProcessPath() {
-  base::FilePath frameworks_path = GetFrameworksPath();
-  if (frameworks_path.empty()) {
-    return base::FilePath();
-  }
-
-  std::string exe_name = GetMainProcessPath().BaseName().value();
-  return frameworks_path.Append(FILE_PATH_LITERAL(exe_name + " Helper.app"))
-      .Append(FILE_PATH_LITERAL("Contents"))
-      .Append(FILE_PATH_LITERAL("MacOS"))
-      .Append(FILE_PATH_LITERAL(exe_name + " Helper"));
-}
-
 void OverrideChildProcessPath() {
   base::FilePath child_process_path =
       base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
           switches::kBrowserSubprocessPath);
 
   if (child_process_path.empty()) {
-    child_process_path = GetNormalChildProcessPath();
+    child_process_path = GetChildProcessPath();
     CHECK(!child_process_path.empty());
   }
 
@@ -81,6 +68,20 @@ void OverrideChildProcessPath() {
 }
 
 }  // namespace
+
+base::FilePath GetChildProcessPath(std::string_view suffix) {
+  base::FilePath frameworks_path = GetFrameworksPath();
+  if (frameworks_path.empty()) {
+    return base::FilePath();
+  }
+
+  const std::string helper_name =
+      GetMainProcessPath().BaseName().value() + " Helper" + std::string(suffix);
+  return frameworks_path.Append(helper_name + ".app")
+      .Append(FILE_PATH_LITERAL("Contents"))
+      .Append(FILE_PATH_LITERAL("MacOS"))
+      .Append(helper_name);
+}
 
 bool GetLocalLibraryDirectory(base::FilePath* result) {
   return base::apple::GetLocalDirectory(NSLibraryDirectory, result);

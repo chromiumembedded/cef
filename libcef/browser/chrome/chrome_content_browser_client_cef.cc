@@ -55,6 +55,13 @@
 #include "cef/libcef_dll/bootstrap/bootstrap_util_win.h"
 #endif
 
+#if BUILDFLAG(IS_MAC)
+#include "base/apple/foundation_util.h"
+#include "cef/libcef/common/util_mac.h"
+#include "chrome/browser/child_process_host_flags.h"
+#include "chrome/common/chrome_constants.h"
+#endif
+
 namespace {
 
 class CefSelectClientCertificateCallbackImpl
@@ -181,6 +188,21 @@ HINSTANCE GetCodeModuleHandle() {
 
 ChromeContentBrowserClientCef::ChromeContentBrowserClientCef() = default;
 ChromeContentBrowserClientCef::~ChromeContentBrowserClientCef() = default;
+
+#if BUILDFLAG(IS_MAC)
+base::FilePath ChromeContentBrowserClientCef::GetChildProcessPath(int flags) {
+  if (flags !=
+      std::to_underlying(ChildProcessHostFlags::kChildProcessHelperAlerts)) {
+    return ChromeContentBrowserClient::GetChildProcessPath(flags);
+  }
+
+  if (!base::apple::AmIBundled()) {
+    return base::FilePath();
+  }
+
+  return util_mac::GetChildProcessPath(chrome::kMacHelperSuffixAlerts);
+}
+#endif
 
 void ChromeContentBrowserClientCef::CleanupOnUIThread() {
   browser_main_parts_ = nullptr;

@@ -108,7 +108,7 @@ index 0fd60fa820805069ff01a2442f14de2b5e984e5a..c5f0025875ec42eb93008f280c93a01c
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 641912283e3c8f1c6e27c10e3d133442a656a5e1..cc930ce2f1d4143744004c56e6fa0c31aeb34570 100644
+index 92ab96d48ce1419d2af33390b0a5b5e2ef745ea2..e74a6c2156e81f5592b63dba12bbc93aedd1d4b5 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -54,6 +54,7 @@
@@ -119,7 +119,7 @@ index 641912283e3c8f1c6e27c10e3d133442a656a5e1..cc930ce2f1d4143744004c56e6fa0c31
  #include "base/time/default_clock.h"
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
-@@ -1045,18 +1046,12 @@ int ContentMainRunnerImpl::Initialize(ContentMainParams params) {
+@@ -1041,18 +1042,12 @@ int ContentMainRunnerImpl::Initialize(ContentMainParams params) {
        }));
  
  #if !defined(OFFICIAL_BUILD) || BUILDFLAG(CHROME_FOR_TESTING)
@@ -139,7 +139,7 @@ index 641912283e3c8f1c6e27c10e3d133442a656a5e1..cc930ce2f1d4143744004c56e6fa0c31
      base::debug::EnableInProcessStackDumping();
    }
  
-@@ -1468,6 +1463,13 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1483,6 +1478,13 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -154,10 +154,10 @@ index 641912283e3c8f1c6e27c10e3d133442a656a5e1..cc930ce2f1d4143744004c56e6fa0c31
  std::unique_ptr<ContentMainRunner> ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 522cbe3ed008202b3fe9169c61964c2fb692bd17..55683a6db13b822ea213b30f453324f189567b4d 100644
+index cd125f445f0fee01e37f6634dcb93eb23ae08fb4..ded45ca4a85a2c2f15387292351a35052a1dcb49 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
-@@ -31,7 +31,7 @@ namespace content {
+@@ -32,7 +32,7 @@ class BackgroundTracingManagerImpl;
  class BrowserMemoryCoordinator;
  class MojoIpcSupport;
  
@@ -166,7 +166,7 @@ index 522cbe3ed008202b3fe9169c61964c2fb692bd17..55683a6db13b822ea213b30f453324f1
   public:
    static std::unique_ptr<ContentMainRunnerImpl> Create();
  
-@@ -50,6 +50,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
+@@ -51,6 +51,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
    int Run() override;
    void Shutdown() override;
  
@@ -176,7 +176,7 @@ index 522cbe3ed008202b3fe9169c61964c2fb692bd17..55683a6db13b822ea213b30f453324f1
    int RunBrowser(MainFunctionParams main_function_params,
                   bool start_minimal_browser);
 diff --git content/public/app/content_main.h content/public/app/content_main.h
-index 7f9b51529735789778df928b06ac5e8f1c564a42..5606867e437806bc94a64aca0e61d21dfbd31a8d 100644
+index abbb4f4cccccff8e6fa2d8f1948fab4ef345c89f..c1fafecb9aab15352b8d2498703b87dc21cd34cc 100644
 --- content/public/app/content_main.h
 +++ content/public/app/content_main.h
 @@ -66,6 +66,11 @@ struct CONTENT_EXPORT ContentMainParams {

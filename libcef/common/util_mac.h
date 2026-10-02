@@ -7,6 +7,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 #include "base/files/file_path.h"
 
@@ -33,6 +34,10 @@ base::FilePath GetFrameworkResourcesDirectory();
 // Returns the path to the main (running) process executable (e.g.
 // "myapp.app/Contents/MacOS/myapp").
 base::FilePath GetMainProcessPath();
+
+// Returns the path to an application helper executable. `suffix` selects a
+// specialized helper, e.g. " (Alerts)". Returns an empty path outside a bundle.
+base::FilePath GetChildProcessPath(std::string_view suffix = {});
 
 // Returns the path to the top-level app bundle that contains the main process
 // executable (e.g. "myapp.app").

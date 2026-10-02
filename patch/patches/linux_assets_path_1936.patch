@@ -1,14 +1,14 @@
 diff --git content/browser/child_process_launcher_helper_linux.cc content/browser/child_process_launcher_helper_linux.cc
-index d6eb32b48c165050637d815846075bc86be4a963..104fc50352e746a9bde689b59323e678be3d0c89 100644
+index 230b4d7c7b5c74fe374e7e26bd4df4be2faaf7fa..d78b75691402597471a2d55fdc003061cfe606fd 100644
 --- content/browser/child_process_launcher_helper_linux.cc
 +++ content/browser/child_process_launcher_helper_linux.cc
-@@ -191,7 +191,7 @@ ZygoteCommunication* ChildProcessLauncherHelper::GetZygoteForLaunch() {
+@@ -193,7 +193,7 @@ ZygoteCommunication* ChildProcessLauncherHelper::GetZygoteForLaunch() {
  base::File OpenFileToShare(const base::FilePath& path,
                             base::MemoryMappedFile::Region* region) {
    base::FilePath exe_dir;
 -  bool result = base::PathService::Get(base::BasePathKey::DIR_EXE, &exe_dir);
 +  bool result = base::PathService::Get(base::BasePathKey::DIR_ASSETS, &exe_dir);
-   DCHECK(result);
+   CHECK(result, base::NotFatalUntil::M159);
    base::File file(exe_dir.Append(path),
                    base::File::FLAG_OPEN | base::File::FLAG_READ);
 diff --git sandbox/linux/suid/client/setuid_sandbox_host.cc sandbox/linux/suid/client/setuid_sandbox_host.cc

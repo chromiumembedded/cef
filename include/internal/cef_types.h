@@ -1163,7 +1163,16 @@ typedef enum {
   CEF_RESULT_CODE_INVALID_ISOLATED_BROWSER_PROCESS = 40,
 #endif
 
-#if CEF_API_ADDED(14700)
+#if CEF_API_ADDED(CEF_NEXT)
+  /// A relaunch was requested during shutdown of an isolated browser process.
+  CEF_RESULT_CODE_NORMAL_EXIT_RELAUNCH_REQUESTED = 41,
+
+  /// A relaunch in background mode was requested during shutdown of an
+  /// isolated browser process.
+  CEF_RESULT_CODE_NORMAL_EXIT_RELAUNCH_BACKGROUND = 42,
+
+  CEF_RESULT_CODE_CHROME_LAST = 43,
+#elif CEF_API_ADDED(14700)
   CEF_RESULT_CODE_CHROME_LAST = 41,
 #elif CEF_API_ADDED(13900)
   CEF_RESULT_CODE_CHROME_LAST = 40,
@@ -3953,6 +3962,9 @@ typedef enum {
 #endif
 #if CEF_API_ADDED(14700)
   CEF_PERMISSION_TYPE_SENSORS = 1 << 28,
+#endif
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_PERMISSION_TYPE_AMBIENT_LOGIN = 1 << 29,
 #endif
 } cef_permission_request_types_t;
 

@@ -1,8 +1,8 @@
 diff --git components/os_crypt/common/BUILD.gn components/os_crypt/common/BUILD.gn
-index 3128f3ac6df25aa259f6f854a0ca48c017097dcc..926b03582fc05581143c636f23194e9bf1c6b74a 100644
+index 10db0687101b69542f9dd33592d0655c7343e3c8..941912695c5e00a31873ed456662f74c9121b8d4 100644
 --- components/os_crypt/common/BUILD.gn
 +++ components/os_crypt/common/BUILD.gn
-@@ -7,11 +7,16 @@ source_set("switches") {
+@@ -17,11 +17,16 @@ group("crypto_lib") {
  }
  
  if (is_apple) {

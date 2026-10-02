@@ -1,5 +1,5 @@
 diff --git chrome/browser/policy/BUILD.gn chrome/browser/policy/BUILD.gn
-index 14a3dd2b3bafcb7bc932b39b48202fefd7d752f5..08485bfe16f49f4615c50982f6a6ec98009bbbad 100644
+index 6eddac1b429bd87b45925008a1ddf653ee9fc938..5a61d6aca068f1b0a6fb2e288e9dfa59d80d5a28 100644
 --- chrome/browser/policy/BUILD.gn
 +++ chrome/browser/policy/BUILD.gn
 @@ -28,6 +28,7 @@ source_set("path_parser") {
@@ -365,10 +365,10 @@ index ee71a5e319c2c910d4f93a0c05c9d247acae8d12..f4f2d783bfd77e93f3a3bbeee8bfcf72
      *dir = base::FilePath(policy::path_parser::ExpandPathVariables(value));
      return true;
 diff --git chrome/common/chrome_paths.cc chrome/common/chrome_paths.cc
-index 56ff14c59c12ac006dbb6a68fe2d430dee6eafd7..0ef4f32c3da3bae33ad6c6157c883467efa1006b 100644
+index 32d01c008e1341eb8142cd80e1c91afe7928ed42..223112aede4b84107a732a12fa2b6c4aed49acc7 100644
 --- chrome/common/chrome_paths.cc
 +++ chrome/common/chrome_paths.cc
-@@ -405,7 +405,8 @@ bool PathProvider(int key, base::FilePath* result) {
+@@ -406,7 +406,8 @@ bool PathProvider(int key, base::FilePath* result) {
        break;
      }
  #endif
@@ -400,10 +400,10 @@ index e36249713bfd5c254a322c3c55fd31d129937fab..8e60ff056d2bf996e6fb84b924379f2f
                       // policy files that allow sys-admins
                       // to set policies for chrome. This directory
 diff --git components/policy/BUILD.gn components/policy/BUILD.gn
-index 5f345583e6c6f2bfdc486ebcc0a0112c2b953a3f..55f024e969a2c8828eb98a6521c8bf0af8b85b6f 100644
+index f724bf914a934de95d71eda0c17cc475b51a2eae..8d9bee4da75693d32ca8c99b87690382d5e1acae 100644
 --- components/policy/BUILD.gn
 +++ components/policy/BUILD.gn
-@@ -305,6 +305,7 @@ static_library("generated") {
+@@ -307,6 +307,7 @@ static_library("generated") {
      ":cloud_policy_proto_generated_compile",
      ":policy_code_generate",
      "//base",

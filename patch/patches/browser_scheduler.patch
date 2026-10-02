@@ -1,17 +1,17 @@
 diff --git content/browser/scheduler/browser_task_executor.cc content/browser/scheduler/browser_task_executor.cc
-index 5a1f4d5d5f650824aee1d09973bf0e43c3e9e2b4..155d8506315755f5db45cfe1dc752e49e121b07b 100644
+index 09614985b936857db61013f774d668204dd2fe26..955d0cd3daadbbf5531d5196ed803b40acb77125 100644
 --- content/browser/scheduler/browser_task_executor.cc
 +++ content/browser/scheduler/browser_task_executor.cc
-@@ -216,11 +216,9 @@ void BrowserTaskExecutor::ResetForTesting() {
+@@ -230,11 +230,10 @@ void BrowserTaskExecutor::ResetForTesting() {
  
  // static
  void BrowserTaskExecutor::Shutdown() {
 -  if (!g_browser_task_executor) {
-+  if (!g_browser_task_executor || !Get()->browser_ui_thread_scheduler_)
++  if (!g_browser_task_executor || !Get()->browser_ui_thread_scheduler_) {
      return;
--  }
+   }
  
--  DCHECK(Get()->browser_ui_thread_scheduler_);
+-  CHECK(Get()->browser_ui_thread_scheduler_, base::NotFatalUntil::M160);
    // We don't delete |g_browser_task_executor| because other threads may
    // PostTask or call BrowserTaskExecutor::GetTaskRunner while we're tearing
    // things down. We don't want to add locks so we just leak instead of dealing

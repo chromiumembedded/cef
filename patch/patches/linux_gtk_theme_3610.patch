@@ -1,8 +1,8 @@
 diff --git ui/gtk/gtk_ui.cc ui/gtk/gtk_ui.cc
-index 7c1861c59c7c03c31087de8580c4b3eed0d0cd6c..d752c814348fab48a41e5389ef1fb0a50af45c92 100644
+index ce43b29eb301a846c84f26811b8632d737e91a5f..9b07c156ac04d735ab90d6ef78b9050d681abe34 100644
 --- ui/gtk/gtk_ui.cc
 +++ ui/gtk/gtk_ui.cc
-@@ -32,6 +32,7 @@
+@@ -33,6 +33,7 @@
  #include "base/scoped_environment_variable_override.h"
  #include "base/strings/string_number_conversions.h"
  #include "base/strings/string_split.h"
@@ -10,7 +10,7 @@ index 7c1861c59c7c03c31087de8580c4b3eed0d0cd6c..d752c814348fab48a41e5389ef1fb0a5
  #include "chrome/browser/themes/theme_properties.h"  // nogncheck
  #include "third_party/skia/include/core/SkBitmap.h"
  #include "third_party/skia/include/core/SkColor.h"
-@@ -405,10 +406,15 @@ bool GtkUi::Initialize() {
+@@ -408,10 +409,15 @@ bool GtkUi::Initialize() {
      connect(settings, "notify::gtk-key-theme-name",
              &GtkUi::OnKeyThemeNameChanged);
    }

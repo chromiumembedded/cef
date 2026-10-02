@@ -14,7 +14,7 @@ index 5c555d8768e2a1d9e6ac86fc9392420a42f5193d..9d343a47c7896569b3ba4de67fbed50e
  
    return gfx::Size();
 diff --git ui/linux/BUILD.gn ui/linux/BUILD.gn
-index eaee77fb50333c7b18a6bfdca8f4cae378fd65f5..df25b3d338d340c5f6254a00f1b4302012fad64b 100644
+index 655012d45653c443bd3a769d31bcf0b4c025ac80..726cbc53babef62e92ad1f4b94d7c49e653ba933 100644
 --- ui/linux/BUILD.gn
 +++ ui/linux/BUILD.gn
 @@ -4,6 +4,7 @@
@@ -38,7 +38,7 @@ index eaee77fb50333c7b18a6bfdca8f4cae378fd65f5..df25b3d338d340c5f6254a00f1b43020
  }
  
 diff --git ui/linux/linux_ui.cc ui/linux/linux_ui.cc
-index c94906d0711fd86bc36c5e58ba5f02ec4f337e4c..10a7caaf03d69f78987e0cdd07f7e09db259b8ae 100644
+index 010672d309694991f50e208a4e965f9b1ce84801..6f8764480a6e069f4d82cc31d81193102dec975d 100644
 --- ui/linux/linux_ui.cc
 +++ ui/linux/linux_ui.cc
 @@ -20,6 +20,7 @@ namespace ui {
@@ -76,7 +76,7 @@ index c94906d0711fd86bc36c5e58ba5f02ec4f337e4c..10a7caaf03d69f78987e0cdd07f7e09d
    if (old_instance != instance) {
      GetAnimationsEnabledCallbackList().Notify();
 diff --git ui/linux/linux_ui.h ui/linux/linux_ui.h
-index 6c150f23c3260ce2dfc84e8d35dab2efbcf1b702..416bcf7fd6b8e1ec2be542742943bc81db16f41e 100644
+index 84c76516ba2758ab4e7ffad71a9622560edde448..91bcf4e7973d39c575110064cb460fbb313310d0 100644
 --- ui/linux/linux_ui.h
 +++ ui/linux/linux_ui.h
 @@ -23,6 +23,10 @@

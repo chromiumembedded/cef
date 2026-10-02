@@ -15,7 +15,6 @@ DLLS = [
 ]
 
 DLLS_X64 = [
-    "dxil.dll",
     "dxcompiler.dll",
 ]
 

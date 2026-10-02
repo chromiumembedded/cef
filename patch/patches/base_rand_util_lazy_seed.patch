@@ -1,8 +1,8 @@
 diff --git base/rand_util.cc base/rand_util.cc
-index 0387c25e436c1e7d6b379fcbfcd0cb62970792c8..57c434330ac31cb661ec15c6e9581c5dc3ddee3e 100644
+index 0387c25e436c1e7d6b379fcbfcd0cb62970792c8..96503e3f54a1788394bc5a1286650d48de04aa36 100644
 --- base/rand_util.cc
 +++ base/rand_util.cc
-@@ -130,17 +130,28 @@ std::vector<uint8_t> RandBytesAsVector(size_t length) {
+@@ -130,17 +130,27 @@ std::vector<uint8_t> RandBytesAsVector(size_t length) {
    return result;
  }
  
@@ -20,15 +20,14 @@ index 0387c25e436c1e7d6b379fcbfcd0cb62970792c8..57c434330ac31cb661ec15c6e9581c5d
  }
  
  uint64_t InsecureRandomGenerator::RandUint64() const {
-+  // Lazy seed on first use. Done here rather than in the constructor so that
-+  // constructing an `InsecureRandomGenerator` (e.g. as part of a dynamic-init
-+  // `thread_local`) is allocator-safe: `base::RandUint64()` can call into
-+  // BoringSSL, which may allocate. `(0, 0)` is XorShift128+'s unique fixed
-+  // point, so it cannot occur post-seeding and is safe to use as the sentinel.
++  // First use can occur while holding an allocator lock (e.g. lock metrics
++  // sampling), so seeding must also avoid allocation. `(0, 0)` is
++  // XorShift128+'s unique fixed point, so it cannot occur post-seeding and is
++  // safe to use as the sentinel.
 +  if (a_ == 0 && b_ == 0) [[unlikely]] {
 +    do {
-+      a_ = base::RandUint64();
-+      b_ = base::RandUint64();
++      internal::RandBytesAvoidAllocation(byte_span_from_ref(a_));
++      internal::RandBytesAvoidAllocation(byte_span_from_ref(b_));
 +    } while (a_ == 0 && b_ == 0);  // ~2^-128; effectively never iterates.
 +  }
 +
@@ -36,25 +35,35 @@ index 0387c25e436c1e7d6b379fcbfcd0cb62970792c8..57c434330ac31cb661ec15c6e9581c5d
    // https://en.wikipedia.org/wiki/Xorshift#xorshift+ for details.
    uint64_t t = a_;
 diff --git base/rand_util.h base/rand_util.h
-index ae5425cf171e811447a5a0a82f67429b2914188f..6b1b98440fb1babc32cc7b506c207eb7dc991b36 100644
+index ae5425cf171e811447a5a0a82f67429b2914188f..8478bb0c18cd5f0725156288a6afa3d63e301e9a 100644
 --- base/rand_util.h
 +++ base/rand_util.h
-@@ -246,8 +246,12 @@ class MetricsSubSampler;
+@@ -39,6 +39,10 @@ namespace internal {
+ 
+ void ConfigureBoringSSLBackedRandBytesFieldTrial();
+ 
++// Fills `output` with random bytes without entering BoringSSL or allocating.
++// For use on allocator-critical paths. Thread-safe.
++BASE_EXPORT void RandBytesAvoidAllocation(span<uint8_t> output);
++
+ // Returns a random double in range [0, 1). For use in allocator shim to avoid
+ // infinite recursion. Thread-safe.
+ BASE_EXPORT double RandDoubleAvoidAllocation();
+@@ -246,8 +250,11 @@ class MetricsSubSampler;
  // system call to generate a new number, except to seed it.  This should *never*
  // be used for cryptographic applications, and is not thread-safe.
  //
 -// It is seeded using base::RandUint64() in the constructor, meaning that it
 -// doesn't need to be seeded. It can be re-seeded though, with
-+// It is lazily seeded using base::RandUint64() on first use, meaning that it
-+// doesn't need to be seeded. Seeding is deferred (rather than done in the
-+// constructor) so that constructing one is allocator-safe: base::RandUint64()
-+// can call into BoringSSL, which may allocate, and constructing this object on
-+// a malloc-critical path (e.g. as part of a dynamic-init thread_local) would
-+// otherwise cause reentrant malloc. It can be re-seeded though, with
++// It is lazily seeded using internal::RandBytesAvoidAllocation() on first use,
++// so callers don't need to seed it. Seeding is deferred (rather than done in the
++// constructor) so that constructing one is cheap. Seeding also avoids
++// BoringSSL, which may allocate, so first use on an allocator-critical path
++// cannot cause reentrant malloc. It can be re-seeded though, with
  // ReseedForTesting(). Its period is long enough that it should not need to be
  // re-seeded during use.
  //
-@@ -266,6 +270,10 @@ class BASE_EXPORT InsecureRandomGenerator {
+@@ -266,6 +273,10 @@ class BASE_EXPORT InsecureRandomGenerator {
    InsecureRandomGenerator();
    // State. These are mutable to allow Rand* functions to be declared as const.
    // This, in turn, enables use of `MetricsSubSampler` in const contexts.
@@ -65,3 +74,48 @@ index ae5425cf171e811447a5a0a82f67429b2914188f..6b1b98440fb1babc32cc7b506c207eb7
    mutable uint64_t a_ = 0, b_ = 0;
  
    // Before adding a new friend class, make sure that the overhead of
+diff --git base/rand_util_fuchsia.cc base/rand_util_fuchsia.cc
+index 49951ac5ffcd4d134d00264b2d9adbde38fb50f8..909e317b3188688a86f828b803d5214b36034b19 100644
+--- base/rand_util_fuchsia.cc
++++ base/rand_util_fuchsia.cc
+@@ -49,6 +49,10 @@ void RandBytes(span<uint8_t> output) {
+ 
+ namespace internal {
+ 
++void RandBytesAvoidAllocation(span<uint8_t> output) {
++  zx_cprng_draw(output.data(), output.size());
++}
++
+ double RandDoubleAvoidAllocation() {
+   uint64_t number;
+   zx_cprng_draw(&number, sizeof(number));
+diff --git base/rand_util_posix.cc base/rand_util_posix.cc
+index 6560a29287de45bc41c1083c272d40b6850ee8f7..dff4a24a88c133d2163e2e7f39d5650ca1df1cda 100644
+--- base/rand_util_posix.cc
++++ base/rand_util_posix.cc
+@@ -157,6 +157,10 @@ void RandBytesInternal(span<uint8_t> output, bool avoid_allocation) {
+ 
+ namespace internal {
+ 
++void RandBytesAvoidAllocation(span<uint8_t> output) {
++  RandBytesInternal(output, /*avoid_allocation=*/true);
++}
++
+ double RandDoubleAvoidAllocation() {
+   uint64_t number;
+   RandBytesInternal(byte_span_from_ref(number), /*avoid_allocation=*/true);
+diff --git base/rand_util_win.cc base/rand_util_win.cc
+index bf9a489b95f2eb4ffd43c900eeb7d3c2e3fe8b08..9631d700ff0c4f0177c8599ab8e231da292a06e3 100644
+--- base/rand_util_win.cc
++++ base/rand_util_win.cc
+@@ -84,6 +84,10 @@ void RandBytes(span<uint8_t> output) {
+ 
+ namespace internal {
+ 
++void RandBytesAvoidAllocation(span<uint8_t> output) {
++  RandBytesInternal(output, /*avoid_allocation=*/true);
++}
++
+ double RandDoubleAvoidAllocation() {
+   uint64_t number;
+   RandBytesInternal(byte_span_from_ref(number),

@@ -1,5 +1,5 @@
 diff --git chrome/browser/taskbar/taskbar_decorator_win.cc chrome/browser/taskbar/taskbar_decorator_win.cc
-index 90969f7bb07a642d37a348d33d7220ec035d7a3f..bed8ea65e00a2886c71ecff256699674b774ea4c 100644
+index 90969f7bb07a642d37a348d33d7220ec035d7a3f..a91b4587514165c5925e8d8632651acd0bf93a25 100644
 --- chrome/browser/taskbar/taskbar_decorator_win.cc
 +++ chrome/browser/taskbar/taskbar_decorator_win.cc
 @@ -20,12 +20,14 @@
@@ -17,7 +17,18 @@ index 90969f7bb07a642d37a348d33d7220ec035d7a3f..bed8ea65e00a2886c71ecff256699674
  #include "skia/ext/font_utils.h"
  #include "skia/ext/image_operations.h"
  #include "skia/ext/legacy_display_globals.h"
-@@ -203,6 +205,24 @@ void UpdateTaskbarDecoration(Profile* profile, gfx::NativeWindow window) {
+@@ -42,6 +44,10 @@
+ #include "ui/gfx/win/icon_util.h"
+ #include "ui/views/win/hwnd_util.h"
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/browser/chrome/browser_delegate.h"
++#endif
++
+ namespace taskbar {
+ 
+ namespace {
+@@ -203,6 +209,24 @@ void UpdateTaskbarDecoration(Profile* profile, gfx::NativeWindow window) {
      return;
    }
  

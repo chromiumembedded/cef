@@ -1141,7 +1141,6 @@ def main(argv=None):
         {'path': 'chrome_elf.dll'},
         {'path': 'd3dcompiler_47.dll'},
         {'path': 'dxcompiler.dll', 'conditional': True},
-        {'path': 'dxil.dll', 'conditional': True},
         {'path': libcef_dll},
         {'path': 'v8_context_snapshot.bin'},
         {'path': 'vk_swiftshader.dll'},
