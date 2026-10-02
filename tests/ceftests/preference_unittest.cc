@@ -6,6 +6,7 @@
 #include "include/cef_request_context_handler.h"
 #include "include/cef_waitable_event.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "include/wrapper/cef_scoped_temp_dir.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -94,8 +95,24 @@ class PreferenceBrowserTest : public client::ClientAppBrowser::Delegate {
     registrar->AddPreference(
         kPrefTestDict, CreateDictionaryValue(CefDictionaryValue::Create()));
 #if CEF_API_ADDED(CEF_NEXT)
-    ASSERT_TRUE(
-        registrar->AddPreference(kPrefTestOverride, CreateBoolValue(true)));
+    const bool added_override =
+        registrar->AddPreference(kPrefTestOverride, CreateBoolValue(true));
+    const auto* test_info =
+        testing::UnitTest::GetInstance()->current_test_info();
+    const bool run_registration_tests =
+        type == CEF_PREFERENCES_TYPE_REQUEST_CONTEXT && test_info &&
+        std::string(test_info->test_suite_name()) == "PreferenceTest" &&
+        std::string(test_info->name()) == "OverriddenRequestContextDefault";
+    if (!run_registration_tests) {
+      // Establish test defaults without running registration assertions during
+      // startup or while unrelated tests create request contexts.
+      CefString error;
+      registrar->SetDefaultPreference(kPrefTestOverride, CreateBoolValue(false),
+                                      error);
+      return;
+    }
+
+    ASSERT_TRUE(added_override);
     auto original_default = registrar->GetDefaultPreference(kPrefTestOverride);
     ASSERT_TRUE(original_default);
     EXPECT_EQ(VTYPE_BOOL, original_default->GetType());
@@ -147,8 +164,8 @@ class PreferenceBrowserTest : public client::ClientAppBrowser::Delegate {
       EXPECT_TRUE(error.empty());
       EXPECT_TRUE(registrar->GetDefaultPreference(kSigninAllowedOnNextStartup)
                       ->GetBool());
-      EXPECT_TRUE(registrar->SetDefaultPreference(
-          kSigninAllowedOnNextStartup, signin_default, error));
+      EXPECT_TRUE(registrar->SetDefaultPreference(kSigninAllowedOnNextStartup,
+                                                  signin_default, error));
       EXPECT_TRUE(error.empty());
       EXPECT_FALSE(registrar->GetDefaultPreference(kSigninAllowedOnNextStartup)
                        ->GetBool());
@@ -750,8 +767,19 @@ TEST(PreferenceTest, OverriddenGlobalDefault) {
 }
 
 TEST(PreferenceTest, OverriddenRequestContextDefault) {
+  // An in-memory context shares an existing profile's registered defaults.
+  // Use a fresh profile so this test runs the registration-time assertions.
+  CefScopedTempDir tempdir;
+  ASSERT_TRUE(tempdir.CreateUniqueTempDirUnderPath(
+      CefTestSuite::GetInstance()->root_cache_path()));
+  // Take ownership so the directory isn't deleted while the profile is still
+  // initializing on-disk storage (e.g. the WebDatabase) in the background. It
+  // will be cleaned up when the root_cache_path is deleted during test
+  // shutdown. See https://crbug.com/416755456.
+  const std::string cache_path = tempdir.Take();
   auto init_event = CefWaitableEvent::CreateWaitableEvent(true, false);
   CefRequestContextSettings settings;
+  CefString(&settings.cache_path) = cache_path;
   auto context = CefRequestContext::CreateContext(
       settings, new TestRequestContextHandler(init_event));
   init_event->Wait();
