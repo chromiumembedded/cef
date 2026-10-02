@@ -1,6 +1,18 @@
-# Claude Code Tools for CEF Development
+# Tools and Detailed Instructions for CEF Development
 
-This directory contains tools and instructions for using Claude Code to assist with CEF (Chromium Embedded Framework) development.
+This directory contains tools and detailed instructions for using coding
+agents to assist with CEF (Chromium Embedded Framework) development. Use these
+guides with models that benefit from explicit workflows, examples, and
+verification steps, including Claude Opus 4.x and GPT Terra.
+
+The guides were originally written for Claude Code and retain their `CLAUDE_*`
+filenames. Other coding agents can use them directly; adapt any Claude-specific
+setup or file attachment syntax to your agent. For GPT Sol or other frontier
+models that work well with concise instructions, see the
+[GPT guides](../gpt/README.md) for concise patch and build instructions and
+example prompts. For other tasks, newer frontier models can often discover the
+relevant details themselves, using the detailed instruction files here as
+reference material when needed.
 
 ***
 [TOC]
