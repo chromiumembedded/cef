@@ -294,7 +294,7 @@ index 077855979045d4862abd099ec16befa0fcecff65..69f369b06c29e65dead98a52cc8b743e
    return host ? host->GetAcceleratedWidget() : nullptr;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
-index 3b6e7c0b55b8cfdbad42237dfd7082e520976bb3..2b750b7991131e12c1100b17a3fba2be946ff122 100644
+index 3b6e7c0b55b8cfdbad42237dfd7082e520976bb3..834633ffc64dc9135e661d5f574e0d9dcc514094 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
 @@ -31,6 +31,7 @@
@@ -305,26 +305,41 @@ index 3b6e7c0b55b8cfdbad42237dfd7082e520976bb3..2b750b7991131e12c1100b17a3fba2be
  #include "ui/platform_window/extensions/wayland_extension.h"
  #include "ui/platform_window/extensions/x11_extension.h"
  #include "ui/platform_window/platform_window.h"
-@@ -373,6 +374,18 @@ Widget::MoveLoopResult DesktopWindowTreeHostLinux::RunMoveLoop(
+@@ -373,6 +374,20 @@ Widget::MoveLoopResult DesktopWindowTreeHostLinux::RunMoveLoop(
    return result;
  }
  
 +gfx::Rect DesktopWindowTreeHostLinux::GetWindowBoundsInScreen() const {
-+  if (!screen_bounds_.IsEmpty())
++  if (!screen_bounds_.IsEmpty()) {
 +    return screen_bounds_;
++  }
 +  return DesktopWindowTreeHostPlatform::GetWindowBoundsInScreen();
 +}
 +
 +gfx::Point DesktopWindowTreeHostLinux::GetLocationOnScreenInPixels() const {
-+  if (!screen_bounds_.IsEmpty())
++  if (!screen_bounds_.IsEmpty()) {
 +    return screen_bounds_.origin();
++  }
 +  return DesktopWindowTreeHostPlatform::GetLocationOnScreenInPixels();
 +}
 +
  void DesktopWindowTreeHostLinux::DispatchEvent(ui::Event* event) {
    // In Windows, the native events sent to chrome are separated into client
    // and non-client versions of events, which we record on our LocatedEvent
-@@ -514,6 +527,15 @@ void DesktopWindowTreeHostLinux::AddAdditionalInitProperties(
+@@ -430,6 +445,12 @@ void DesktopWindowTreeHostLinux::DispatchEvent(ui::Event* event) {
+   }
+ }
+ 
++void DesktopWindowTreeHostLinux::OnWidgetInitDone() {
++  DesktopWindowTreeHostPlatform::OnWidgetInitDone();
++  // The FrameView didn't exist yet during the initial OnBoundsChanged() calls.
++  UpdateFrameRegions();
++}
++
+ void DesktopWindowTreeHostLinux::OnClosed() {
+   DestroyNonClientEventFilter();
+   DesktopWindowTreeHostPlatform::OnClosed();
+@@ -514,6 +535,15 @@ void DesktopWindowTreeHostLinux::AddAdditionalInitProperties(
    properties->wayland_app_id = params.wayland_app_id;
    properties->startup_id = params.startup_id;
  
@@ -341,19 +356,20 @@ index 3b6e7c0b55b8cfdbad42237dfd7082e520976bb3..2b750b7991131e12c1100b17a3fba2be
    properties->x11_extension_delegate = this;
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
-index 73e98a4aa21bfe514287e5138909de11a98ffe15..2ae913e294c579a20d97780523f24a981d49e890 100644
+index 73e98a4aa21bfe514287e5138909de11a98ffe15..5c9c6240c7f614bddcb5bea11476fca328e3810a 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
-@@ -70,6 +70,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
+@@ -69,6 +69,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
+   // Sets hints for the WM/compositor that reflect the extents of the
    // client-drawn shadow.
    virtual void UpdateFrameHints();
- 
-+  void set_screen_bounds(const gfx::Rect& bounds) { screen_bounds_ = bounds; }
++  void OnWidgetInitDone() override;
 +
++  void set_screen_bounds(const gfx::Rect& bounds) { screen_bounds_ = bounds; }
+ 
   protected:
    // Overridden from DesktopWindowTreeHost:
-   void Init(const Widget::InitParams& params) override;
-@@ -81,6 +83,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
+@@ -81,6 +84,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
        const gfx::Vector2d& drag_offset,
        Widget::MoveLoopSource source,
        Widget::MoveLoopEscapeBehavior escape_behavior) override;
@@ -362,11 +378,11 @@ index 73e98a4aa21bfe514287e5138909de11a98ffe15..2ae913e294c579a20d97780523f24a98
  
    // PlatformWindowDelegate:
    gfx::Insets CalculateInsetsInDIP(
-@@ -148,6 +152,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
+@@ -148,6 +153,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
    base::ScopedObservation<ui::NativeTheme, ui::NativeThemeObserver>
        theme_observation_{this};
  
-+   // Override the screen bounds when the host is a child window.
++  // Override the screen bounds when the host is a child window.
 +  gfx::Rect screen_bounds_;
 +
    // The display and the native X window hosting the root window.
