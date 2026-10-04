@@ -312,6 +312,23 @@ class SyntheticOwnedWindowTestHandler : public TestHandler,
         CefGetChromeBrowserOwnedWidgetCountForTests(browser);
     ASSERT_GE(initial_owned_widget_count_, 0);
 
+    load_ended_ = true;
+    MaybeCreateOwnedWindow();
+  }
+
+  void OnWindowActivationChanged(int browser_id, bool active) override {
+    main_window_active_ = active;
+    MaybeCreateOwnedWindow();
+  }
+
+  // Wait for the main window to become active before creating the owned menu
+  // window. Otherwise, later activation of the main window may dismiss the
+  // menu (e.g. Wayland popups) before the test closes the main window.
+  void MaybeCreateOwnedWindow() {
+    if (!load_ended_ || !main_window_active_ || owned_window_delegate_) {
+      return;
+    }
+
     owned_window_delegate_ = new OwnedWindowDelegate(main_window_, this);
     CefWindow::CreateTopLevelWindow(owned_window_delegate_);
   }
@@ -380,6 +397,8 @@ class SyntheticOwnedWindowTestHandler : public TestHandler,
   CefRefPtr<OwnedWindowDelegate> owned_window_delegate_;
   int initial_owned_widget_count_ = -1;
   int pending_browser_id_ = 0;
+  bool load_ended_ = false;
+  bool main_window_active_ = false;
 
   IMPLEMENT_REFCOUNTING(SyntheticOwnedWindowTestHandler);
 };

@@ -72,6 +72,11 @@ class TestWindowDelegate : public CefWindowDelegate {
     handler_->OnWindowDestroyed(browser_id_);
   }
 
+  void OnWindowActivationChanged(CefRefPtr<CefWindow> window,
+                                 bool active) override {
+    handler_->OnWindowActivationChanged(browser_id_, active);
+  }
+
   bool CanClose(CefRefPtr<CefWindow> window) override {
     // Allow the window to close if the browser says it's OK.
     CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
