@@ -73,7 +73,7 @@ class CefOverlayControllerImpl : public CefOverlayController {
 
   CefRect GetBounds() override {
     if (IsValid()) {
-      const auto& bounds = host_->bounds();
+      const auto bounds = host_->bounds();
       return CefRect(bounds.x(), bounds.y(), bounds.width(), bounds.height());
     }
     return CefRect();
@@ -90,7 +90,7 @@ class CefOverlayControllerImpl : public CefOverlayController {
   void SetSize(const CefSize& size) override {
     if (IsValid() && host_->docking_mode() == CEF_DOCKING_MODE_CUSTOM) {
       // Update the size without changing the origin.
-      const auto& origin = host_->bounds().origin();
+      const auto origin = host_->bounds().origin();
       host_->SetOverlayBounds(
           gfx::Rect(origin, gfx::Size(size.width, size.height)));
     }
@@ -104,7 +104,7 @@ class CefOverlayControllerImpl : public CefOverlayController {
   void SetPosition(const CefPoint& position) override {
     if (IsValid() && host_->docking_mode() == CEF_DOCKING_MODE_CUSTOM) {
       // Update the origin without changing the size.
-      const auto& size = host_->bounds().size();
+      const auto size = host_->bounds().size();
       host_->SetOverlayBounds(
           gfx::Rect(gfx::Point(position.x, position.y), size));
     }
@@ -132,7 +132,7 @@ class CefOverlayControllerImpl : public CefOverlayController {
     if (IsValid()) {
       if (host_->docking_mode() == CEF_DOCKING_MODE_CUSTOM) {
         // Update the size without changing the origin.
-        const auto& origin = host_->bounds().origin();
+        const auto origin = host_->bounds().origin();
         const auto& preferred_size = host_->view()->GetPreferredSize();
         host_->SetOverlayBounds(gfx::Rect(origin, preferred_size));
       } else {
