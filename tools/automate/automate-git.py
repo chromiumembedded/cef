@@ -25,6 +25,8 @@ if sys.version_info.major != 3:
   sys.stderr.write('Python3 is required!')
   sys.exit(1)
 
+from urllib.error import HTTPError
+from urllib.parse import urlsplit, urlunsplit
 from urllib.request import urlopen
 
 ##
@@ -298,7 +300,62 @@ def sha256_of_file(file_path):
   return sha256_hash.hexdigest()
 
 
-def download_and_extract(src, target, strip_components=0, sha256_hash=''):
+def archive_sidecar_sha256(src):
+  """ Read an optional .sha256 sidecar; only a missing file is optional. """
+  if src[:4] == 'http':
+    parts = urlsplit(src)
+    sidecar = urlunsplit(parts._replace(path=parts.path + '.sha256'))
+    try:
+      with urlopen(sidecar) as response:
+        value = response.read(4097).decode('ascii')
+    except HTTPError as error:
+      if error.code != 404:
+        raise
+      msg('No SHA256 sidecar found at ' + sidecar)
+      return ''
+  else:
+    sidecar = src + '.sha256'
+    if not os.path.exists(sidecar):
+      msg('No SHA256 sidecar found at ' + sidecar)
+      return ''
+    with open(sidecar, 'r', encoding='ascii') as response:
+      value = response.read(4097)
+
+  # Accept a bare hash or the single-entry format emitted by sha256sum/shasum.
+  lines = value.strip().splitlines()
+  fields = lines[0].split() if len(lines) == 1 else []
+  if len(value) > 4096 or not fields or not is_valid_sha256(fields[0]):
+    raise Exception('Invalid SHA256 sidecar: ' + sidecar)
+  msg('Using SHA256 sidecar ' + sidecar)
+  return fields[0].lower()
+
+
+def download_archive(src, extension):
+  """ Stream a URL to a temporary file without single-write size limits. """
+  msg('Downloading %s' % src)
+  handle, archive_path = tempfile.mkstemp(suffix=extension)
+  try:
+    with os.fdopen(handle, 'wb') as archive, urlopen(src) as response:
+      size = 0
+      while True:
+        chunk = response.read(1024 * 1024)
+        if not chunk:
+          break
+        archive.write(chunk)
+        size += len(chunk)
+      expected_size = response.headers.get('Content-Length')
+      if expected_size is not None and size != int(expected_size):
+        raise Exception('Incomplete download of %s: expected %s bytes, got %d' %
+                        (src, expected_size, size))
+    msg('Downloaded %d bytes to %s' % (size, archive_path))
+    return archive_path
+  except:
+    os.remove(archive_path)
+    raise
+
+
+def download_and_extract(src, target, strip_components=0, sha256_hash='',
+                         check_sidecar=False):
   """ Extracts the contents of src, which may be a URL or local file, to the
       target directory. """
   temporary = False
@@ -311,15 +368,16 @@ def download_and_extract(src, target, strip_components=0, sha256_hash=''):
   if extension is None:
     raise Exception('Unsupported file extension for: ' + src)
 
+  if check_sidecar:
+    sidecar_hash = archive_sidecar_sha256(src)
+    if sha256_hash and sidecar_hash and sha256_hash.lower() != sidecar_hash:
+      raise Exception('SHA256 sidecar conflicts with the specified hash for: ' + src)
+    sha256_hash = sidecar_hash or sha256_hash
+
   if src[:4] == 'http':
     # Attempt to download a URL.
-    msg('Downloading %s' % src)
-
     temporary = True
-    handle, archive_path = tempfile.mkstemp(suffix=extension)
-    with urlopen(src) as response:
-      os.write(handle, response.read())
-    os.close(handle)
+    archive_path = download_archive(src, extension)
   elif os.path.exists(src):
     # Use a local file.
     archive_path = src
@@ -329,8 +387,9 @@ def download_and_extract(src, target, strip_components=0, sha256_hash=''):
   if len(sha256_hash) == 64:
     hash = sha256_of_file(archive_path)
     if hash != sha256_hash.lower():
-      raise Exception('SHA256 hash check failed for: ' + archive_path)
-    msg('SHA56 hash %s verified for %s' % (sha256_hash, archive_path))
+      raise Exception('SHA256 hash check failed for %s: expected %s, got %s' %
+                      (archive_path, sha256_hash.lower(), hash))
+    msg('SHA256 hash %s verified for %s' % (sha256_hash, archive_path))
 
   msg('Extracting ' + archive_path)
 
@@ -761,7 +820,8 @@ parser.add_option(
 parser.add_option(
     '--chromium-archive',
     dest='chromiumarchive',
-    help='Archive file that contains a single top-level chromium src directory.',
+    help='Archive file that contains a single top-level chromium src directory. '
+         'An adjacent .sha256 sidecar is verified when available.',
     default='')
 parser.add_option(
     '--chromium-archive-sha256',
@@ -1480,7 +1540,8 @@ if not options.nochromiumupdate and not os.path.exists(chromium_src_dir):
     if not options.dryrun:
       # Extract without the top-level directory, which has the same name as the archive file.
       download_and_extract(options.chromiumarchive, chromium_src_dir, strip_components=1,
-                           sha256_hash=options.chromiumarchivesha256)
+                           sha256_hash=options.chromiumarchivesha256,
+                           check_sidecar=True)
 
     # Apply patches required for source tarball support.
     apply_patch('tarball_deps', chromium_src_dir, required=True)
