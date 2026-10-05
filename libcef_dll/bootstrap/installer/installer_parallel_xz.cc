@@ -4,8 +4,6 @@
 
 #include "cef/libcef_dll/bootstrap/installer/installer_parallel_xz.h"
 
-#include <windows.h>
-
 #include <algorithm>
 #include <atomic>
 #include <vector>
@@ -188,13 +186,9 @@ ArchiveError ExtractTarXzParallel(const base::FilePath& archive_path,
   EnsureCrcInitialized();
 
   // 2. Determine thread count and priority.
-  // Query available memory directly via Win32 instead of
-  // base::SysInfo::AmountOfAvailablePhysicalMemory(), which internally calls
-  // CommandLine::ForCurrentProcess(). The bootstrap does not initialize the
-  // CommandLine singleton.
-  MEMORYSTATUSEX mem_status = {sizeof(mem_status)};
+  // Honor Chromium's available-memory estimate, including low-end device mode.
   const uint64_t available_memory =
-      ::GlobalMemoryStatusEx(&mem_status) ? mem_status.ullAvailPhys : 0;
+      base::SysInfo::AmountOfAvailablePhysicalMemory().InBytes();
   int max_threads = internal::DetermineThreadCount(
       config, *stream_info, base::SysInfo::NumberOfProcessors(),
       available_memory);

@@ -143,6 +143,10 @@ next milestone.
 
 ## Command-Line Options
 
+Archive extraction uses Chromium's available-memory estimate when selecting
+parallel extraction. `--enable-low-end-device-mode` can reduce that estimate
+and cause extraction to fall back to single-threaded streaming.
+
 When the bootstrap executable is run with these flags, it enters installer mode:
 
 | Flag | Description |

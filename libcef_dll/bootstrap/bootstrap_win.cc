@@ -10,6 +10,7 @@
 #include <optional>
 #include <string_view>
 
+#include "base/at_exit.h"
 #include "base/auto_reset.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
@@ -833,9 +834,12 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   base::EnableTerminationOnOutOfMemory();
   logging::RegisterAbslAbortHook();
 
-  // Parse command-line arguments.
-  const base::CommandLine command_line =
-      base::CommandLine::FromString(::GetCommandLineW());
+  // Initialize the process command line before logging, installer dispatch,
+  // and sandbox setup. On Windows, Init reads GetCommandLineW and is safe to
+  // call again when libcef initializes later.
+  base::CommandLine::Init(0, nullptr);
+  const base::CommandLine& command_line =
+      *base::CommandLine::ForCurrentProcess();
 
   constexpr char kProcessType[] = "type";
   const bool is_subprocess = command_line.HasSwitch(kProcessType);
@@ -846,9 +850,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     return CEF_RESULT_CODE_BAD_PROCESS_TYPE;
   }
 
-  // Enable VLOG output based on --v flag. The bootstrap doesn't call
-  // CommandLine::Init(), so the logging system can't read verbosity from the
-  // global singleton. Apply it manually.
+  // Enable VLOG output based on --v flag before handing off to libcef, which
+  // configures logging later in startup.
   if (command_line.HasSwitch("v")) {
     int verbose_level = 0;
     if (base::StringToInt(command_line.GetSwitchValueASCII("v"),
@@ -1116,12 +1119,19 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
       // The sandbox broker owns objects created inside libcef.dll
       // (SandboxWin::InitBrokerServices) and cleanup is triggered via an
       // _onexit handler (SingletonBase::OnExit) called after wWinMain exits.
+      int exit_code;
+      {
+        // Startup metrics can register exit callbacks before libcef creates
+        // its content runner. Keep this manager scoped to client execution so
+        // it doesn't overlap the installer's temporary thread-pool manager.
+        base::AtExitManager exit_manager;
 #if defined(CEF_BUILD_BOOTSTRAP_CONSOLE)
-      int exit_code = pFunc(argc, argv, &sandbox_info, &version_info);
+        exit_code = pFunc(argc, argv, &sandbox_info, &version_info);
 #else
-      int exit_code =
-          pFunc(hInstance, lpCmdLine, nCmdShow, &sandbox_info, &version_info);
+        exit_code =
+            pFunc(hInstance, lpCmdLine, nCmdShow, &sandbox_info, &version_info);
 #endif
+      }
 
       // Client loading/execution has completed. Release the shared-store lease
       // before any post-exit pruning so deferred removal can now proceed.
