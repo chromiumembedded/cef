@@ -1883,6 +1883,13 @@ class OSRTestHandler : public RoutingTestHandler,
       // SetFocus is called by the system when we explicitly set the focus and
       // when popups are dismissed.
       EXPECT_TRUE(got_system_focus_event_);
+    } else if (test_type_ == OSR_TEST_KEY_EVENTS ||
+               test_type_ == OSR_TEST_IME_COMMIT_TEXT ||
+               test_type_ == OSR_TEST_IME_FINISH_COMPOSITION ||
+               test_type_ == OSR_TEST_IME_CANCEL_COMPOSITION) {
+      // These tests navigate with a focused editor. Chromium transfers focus
+      // to the new page view through the client callback.
+      EXPECT_TRUE(got_system_focus_event_);
     } else if (test_type_ == OSR_TEST_TEXT_SELECTION_CHANGE) {
       EXPECT_TRUE(got_initial_text_selection_event_);
     } else {

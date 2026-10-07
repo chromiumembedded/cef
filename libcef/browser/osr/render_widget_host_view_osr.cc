@@ -363,10 +363,16 @@ CefRenderWidgetHostViewOSR::GetNativeViewAccessible() {
   return gfx::NativeViewAccessible();
 }
 
-void CefRenderWidgetHostViewOSR::Focus() {}
+void CefRenderWidgetHostViewOSR::Focus() {
+  if (browser_impl_) {
+    // Let the client accept or cancel the request before focusing the widget.
+    browser_impl_->SetFocus(true);
+  }
+}
 
 bool CefRenderWidgetHostViewOSR::HasFocus() {
-  return false;
+  // Chromium uses this state to preserve focus when replacing a page's view.
+  return render_widget_host_ && render_widget_host_->is_focused();
 }
 
 bool CefRenderWidgetHostViewOSR::IsSurfaceAvailableForCopy() {

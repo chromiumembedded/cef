@@ -360,14 +360,18 @@ namespace {
 const char kFocusCacheUrlA[] = "https://tests/osr-focus-a.html";
 const char kFocusCacheUrlB[] = "https://tests/osr-focus-b.html";
 const char kFocusCacheFrameUrl[] = "https://other-tests/osr-focus-select.html";
+const char kFocusLinkUrlB[] = "https://navigation-tests/osr-focus-b.html";
 
 class OsrHistoryPopupTestHandler : public RoutingTestHandler,
                                    public CefRenderHandler,
                                    public CefFocusHandler {
  public:
   explicit OsrHistoryPopupTestHandler(bool cancel_focus = false,
-                                      bool use_iframe = false)
-      : cancel_focus_(cancel_focus), use_iframe_(use_iframe) {}
+                                      bool use_iframe = false,
+                                      bool use_link = false)
+      : cancel_focus_(cancel_focus),
+        use_iframe_(use_iframe),
+        use_link_(use_link) {}
 
   CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
   CefRefPtr<CefFocusHandler> GetFocusHandler() override { return this; }
@@ -375,7 +379,12 @@ class OsrHistoryPopupTestHandler : public RoutingTestHandler,
   bool OnSetFocus(CefRefPtr<CefBrowser> browser, FocusSource source) override {
     if (checking_focus_) {
       got_focus_request_ = true;
-      EXPECT_EQ(FOCUS_SOURCE_SYSTEM, source);
+      if (source == FOCUS_SOURCE_SYSTEM) {
+        got_system_focus_request_ = true;
+      }
+      if (!use_link_) {
+        EXPECT_EQ(FOCUS_SOURCE_SYSTEM, source);
+      }
       return cancel_focus_;
     }
     return false;
@@ -401,7 +410,8 @@ class OsrHistoryPopupTestHandler : public RoutingTestHandler,
 
   void RunTest() override {
     AddResource(kFocusCacheUrlA, Page("a"), "text/html");
-    AddResource(kFocusCacheUrlB, Page("b"), "text/html");
+    AddResource(use_link_ ? kFocusLinkUrlB : kFocusCacheUrlB, Page("b"),
+                "text/html");
     if (use_iframe_) {
       AddResource(kFocusCacheFrameUrl,
                   "<!doctype html><body style='margin:0;background:#00ffff'>" +
@@ -422,9 +432,16 @@ class OsrHistoryPopupTestHandler : public RoutingTestHandler,
                bool persistent,
                CefRefPtr<Callback> callback) override {
     callback->Success("");
+    if (request == "link-click") {
+      EXPECT_TRUE(use_link_);
+      got_link_click_ = true;
+      return true;
+    }
     if (request == "select-click") {
       EXPECT_EQ(!use_iframe_, frame->IsMain());
-      EXPECT_EQ(use_iframe_ ? kFocusCacheFrameUrl : kFocusCacheUrlB,
+      EXPECT_EQ(use_iframe_ ? kFocusCacheFrameUrl
+                : use_link_ ? kFocusLinkUrlB
+                            : kFocusCacheUrlB,
                 frame->GetURL().ToString());
       got_select_click_ = true;
       return true;
@@ -463,7 +480,7 @@ class OsrHistoryPopupTestHandler : public RoutingTestHandler,
 
   void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) override {
     if (show) {
-      EXPECT_EQ(4, step_);
+      EXPECT_EQ(FinalStep(), step_);
       got_popup_show_ = true;
     }
   }
@@ -501,8 +518,10 @@ class OsrHistoryPopupTestHandler : public RoutingTestHandler,
   }
 
   void DestroyTest() override {
-    EXPECT_EQ(4, step_);
+    EXPECT_EQ(FinalStep(), step_);
+    EXPECT_EQ(use_link_, got_link_click_);
     EXPECT_TRUE(got_focus_request_);
+    EXPECT_TRUE(got_system_focus_request_);
     EXPECT_TRUE(got_focus_result_);
     EXPECT_EQ(!cancel_focus_, got_focus_notification_);
     EXPECT_EQ(!cancel_focus_, got_select_click_);
@@ -526,7 +545,15 @@ class OsrHistoryPopupTestHandler : public RoutingTestHandler,
                   "<iframe style='border:0' width=600 height=400 src='") +
                   kFocusCacheFrameUrl + "'></iframe>"
             : SelectHTML();
-    return "<!doctype html><body style='margin:0'>" + content +
+    const std::string link =
+        use_link_ && name == "a"
+            ? std::string("<a href='") + kFocusLinkUrlB +
+                  "' style='position:absolute;left:20px;top:70px;width:160px;"
+                  "height:30px' "
+                  "onmousedown=\"testQuery({request:'link-click'})\">"
+                  "Navigate</a>"
+            : "";
+    return "<!doctype html><body style='margin:0'>" + content + link +
            "<div id='ready' style='position:fixed;left:0;top:0;width:10px;"
            "height:10px;background:red;z-index:10'></div>"
            "<script>addEventListener('pageshow',e=>testQuery({request:'" +
@@ -535,7 +562,23 @@ class OsrHistoryPopupTestHandler : public RoutingTestHandler,
 
   void Advance() {
     auto browser = GetBrowser();
-    if (step_ == 1) {
+    if (use_link_ && step_ == 1) {
+      checking_focus_ = true;
+      CefMouseEvent event;
+      event.x = 100;
+      event.y = 85;
+      browser->GetHost()->SendMouseMoveEvent(event, false);
+      SendMouseClickEvent(browser, event, MBT_LEFT);
+    } else if (step_ == FinalStep()) {
+      if (!use_link_) {
+        // Model focus returning from the toolbar through the public CEF API.
+        // The client must be able to cancel this request.
+        browser->GetHost()->SetFocus(true);
+      }
+      browser->GetMainFrame()->ExecuteJavaScript(
+          "testQuery({request:document.hasFocus()?'focused':'blurred'});",
+          browser->GetMainFrame()->GetURL(), 0);
+    } else if (step_ == 1) {
       browser->GetMainFrame()->LoadURL(kFocusCacheUrlB);
     } else if (step_ == 2) {
       // Model focus moving to the back button before B is cached.
@@ -545,15 +588,10 @@ class OsrHistoryPopupTestHandler : public RoutingTestHandler,
       browser->GetHost()->SetFocus(true);
       checking_focus_ = true;
       browser->GoForward();
-    } else {
-      // Model focus returning from the toolbar through the public CEF API.
-      // The client must be able to cancel this request.
-      browser->GetHost()->SetFocus(true);
-      browser->GetMainFrame()->ExecuteJavaScript(
-          "testQuery({request:document.hasFocus()?'focused':'blurred'});",
-          browser->GetMainFrame()->GetURL(), 0);
     }
   }
+
+  int FinalStep() const { return use_link_ ? 2 : 4; }
 
   void ClickSelect() {
     CefMouseEvent event;
@@ -566,9 +604,12 @@ class OsrHistoryPopupTestHandler : public RoutingTestHandler,
 
   const bool cancel_focus_;
   const bool use_iframe_;
+  const bool use_link_;
   int step_ = 0;
   bool checking_focus_ = false;
   bool got_focus_request_ = false;
+  bool got_system_focus_request_ = false;
+  bool got_link_click_ = false;
   bool got_focus_notification_ = false;
   bool got_focus_result_ = false;
   bool click_pending_ = false;
@@ -598,6 +639,27 @@ TEST(OSRTest, CancelFocusAfterHistoryNavigation) {
 TEST(OSRTest, PopupInIframeAfterHistoryNavigation) {
   CefRefPtr<OsrHistoryPopupTestHandler> handler =
       new OsrHistoryPopupTestHandler(false, true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(OSRTest, PopupAfterLinkNavigation) {
+  CefRefPtr<OsrHistoryPopupTestHandler> handler =
+      new OsrHistoryPopupTestHandler(false, false, true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(OSRTest, PopupInIframeAfterLinkNavigation) {
+  CefRefPtr<OsrHistoryPopupTestHandler> handler =
+      new OsrHistoryPopupTestHandler(false, true, true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(OSRTest, CancelFocusAfterLinkNavigation) {
+  CefRefPtr<OsrHistoryPopupTestHandler> handler =
+      new OsrHistoryPopupTestHandler(true, false, true);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
