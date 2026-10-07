@@ -406,7 +406,7 @@ struct CefSettingsTraits {
     cef_string_clear(&s->accept_language_list);
     cef_string_clear(&s->cookieable_schemes_list);
     cef_string_clear(&s->chrome_policy_id);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15600)
     cef_string_clear(&s->keychain_service_name);
     cef_string_clear(&s->keychain_account_name);
 #endif
@@ -479,7 +479,7 @@ struct CefSettingsTraits {
     }
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15600)
     if (CEF_MEMBER_EXISTS(src, keychain_service_name)) {
       cef_string_set(src->keychain_service_name.str,
                      src->keychain_service_name.length,

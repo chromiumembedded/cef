@@ -65,7 +65,7 @@ class CefPreferenceRegistrar : public CefBaseScoped {
   virtual bool AddPreference(const CefString& name,
                              CefRefPtr<CefValue> default_value) = 0;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15600)
   ///
   /// Override the default value of a previously registered preference. |value|
   /// is required and must have the same type as the registered default. Its
@@ -74,7 +74,7 @@ class CefPreferenceRegistrar : public CefBaseScoped {
   /// registered or |value| is invalid or has the wrong type. This method must
   /// be called from within OnRegisterCustomPreferences.
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=15600)--*/
   virtual bool SetDefaultPreference(const CefString& name,
                                     CefRefPtr<CefValue> value,
                                     CefString& error) = 0;
@@ -84,7 +84,7 @@ class CefPreferenceRegistrar : public CefBaseScoped {
   /// specified |name|, or NULL if the preference is not registered. This method
   /// must be called from within OnRegisterCustomPreferences.
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=15600)--*/
   virtual CefRefPtr<CefValue> GetDefaultPreference(const CefString& name) = 0;
 #endif
 };

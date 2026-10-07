@@ -23,7 +23,7 @@ const char kPrefTestString[] = "test.string";
 const char kPrefTestList[] = "test.list";
 const char kPrefTestDict[] = "test.dict";
 const char kPrefTestNoExist[] = "test.noexist";
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15600)
 const char kPrefTestOverride[] = "test.override";
 const char kSigninAllowed[] = "signin.allowed";
 const char kSigninAllowedOnNextStartup[] = "signin.allowed_on_next_startup";
@@ -36,7 +36,7 @@ const char kPrefDouble[] = "double";
 const char kPrefString[] = "string";
 const char kPrefList[] = "list";
 const char kPrefDict[] = "dict";
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15600)
 const char kPrefOverride[] = "override";
 #endif
 
@@ -94,7 +94,7 @@ class PreferenceBrowserTest : public client::ClientAppBrowser::Delegate {
                              CreateListValue(CefListValue::Create()));
     registrar->AddPreference(
         kPrefTestDict, CreateDictionaryValue(CefDictionaryValue::Create()));
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15600)
     const bool added_override =
         registrar->AddPreference(kPrefTestOverride, CreateBoolValue(true));
     const auto* test_info =
@@ -337,7 +337,7 @@ void PopulateRootDefaults(CefRefPtr<CefDictionaryValue> val) {
   val->SetString(kPrefString, "default");
   val->SetList(kPrefList, CefListValue::Create());
   val->SetDictionary(kPrefDict, CefDictionaryValue::Create());
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15600)
   val->SetBool(kPrefOverride, false);
 #endif
 }
@@ -427,7 +427,7 @@ void PopulateRootSet(CefRefPtr<CefDictionaryValue> val) {
   val->SetString(kPrefString, "My test string");
   val->SetList(kPrefList, list_val);
   val->SetDictionary(kPrefDict, dict_val);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15600)
   val->SetBool(kPrefOverride, false);
 #endif
 }
@@ -465,7 +465,7 @@ void ValidateSetGet(CefRefPtr<CefPreferenceManager> context,
   ValidateRoot(context->GetAllPreferences(true), expected);
 
   // Validate all preferences excluding defaults.
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15600)
   expected->Remove(kPrefOverride);
 #endif
   ValidateRoot(context->GetAllPreferences(false), expected);
@@ -506,7 +506,7 @@ void ValidateGet(CefRefPtr<CefPreferenceManager> context,
   ValidateRoot(context->GetAllPreferences(true), expected);
 
   // Validate all preferences excluding defaults.
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15600)
   expected->Remove(kPrefOverride);
 #endif
   ValidateRoot(context->GetAllPreferences(false), expected);
@@ -729,7 +729,7 @@ TEST(PreferenceTest, RequestContextCustomSetGetShared) {
   event->Wait();
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15600)
 void ValidateOverriddenDefault(CefRefPtr<CefPreferenceManager> context,
                                CefRefPtr<CefWaitableEvent> event) {
   if (!CefCurrentlyOn(TID_UI)) {
@@ -817,7 +817,7 @@ TEST(PreferenceTest, RequestContextSigninDisabledByDefault) {
   ValidateSigninDisabled(CefRequestContext::GetGlobalContext(), event);
   event->Wait();
 }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15600)
 
 // Entry point for creating preference browser test objects.
 // Called from client_app_delegates.cc.

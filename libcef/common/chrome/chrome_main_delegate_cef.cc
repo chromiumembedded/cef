@@ -343,7 +343,7 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
     }
 
 #if BUILDFLAG(IS_MAC)
-    if (CEF_API_IS_ADDED(CEF_NEXT)) {
+    if (CEF_API_IS_ADDED(15600)) {
       if (CEF_MEMBER_EXISTS(settings_, keychain_service_name) &&
           settings_->keychain_service_name.length > 0) {
         KeychainPassword::GetServiceName() =

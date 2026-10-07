@@ -511,7 +511,7 @@ typedef enum {
   /// page.
   CEF_CONTENT_SETTING_TYPE_JAVASCRIPT_OPTIMIZER,
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15600)
   CEF_CONTENT_SETTING_TYPE_STORAGE_ACCESS_HEADER_ORIGIN_TRIAL_DEPRECATED,
 #else
   /// Content Setting for the Storage Access Headers persistent origin trial
@@ -533,7 +533,7 @@ typedef enum {
   /// install other web apps.
   CEF_CONTENT_SETTING_TYPE_WEB_APP_INSTALLATION,
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15600)
   CEF_CONTENT_SETTING_TYPE_DIRECT_SOCKETS_PRIVATE_NETWORK_ACCESS_DEPRECATED,
 #else
   /// Content settings for private network access in the context of the
