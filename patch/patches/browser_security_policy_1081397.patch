@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 2d9befa5eb11c3d9cba54005486761ec2e3eeff3..cfef7c43d2f0b409a0d8733593679e59f5e846a2 100644
+index 2d9befa5eb11c3d9cba54005486761ec2e3eeff3..4c700d497478eabd7ddae203bd3d5368fedc0c91 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
 @@ -397,8 +397,13 @@ void AddAdditionalRequestHeaders(
@@ -28,7 +28,7 @@ index 2d9befa5eb11c3d9cba54005486761ec2e3eeff3..cfef7c43d2f0b409a0d8733593679e59
    // Calculate an approximation of the origin. The sandbox/csp are ignored.
    url::Origin origin = GetOriginForURLLoaderFactoryUnchecked();
  
-@@ -9960,6 +9966,17 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
+@@ -9960,6 +9966,19 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
    bool use_opaque_origin =
        (sandbox_flags & network::mojom::WebSandboxFlags::kOrigin) ==
        network::mojom::WebSandboxFlags::kOrigin;
@@ -37,7 +37,9 @@ index 2d9befa5eb11c3d9cba54005486761ec2e3eeff3..cfef7c43d2f0b409a0d8733593679e59
 +    // Always return an opaque origin for non-standard URLs. Otherwise, the
 +    // CanAccessDataForOrigin() check may fail for unregistered custom
 +    // scheme requests in CEF.
-+    use_opaque_origin = true;
++    // Preserve an existing opaque origin's nonce, including origins inherited
++    // by about:blank and about:srcdoc. Sandboxing still requires a new origin.
++    use_opaque_origin = use_opaque_origin || !origin.opaque();
 +    if (cef_nonstandard) {
 +      *cef_nonstandard = true;
 +    }
@@ -46,7 +48,7 @@ index 2d9befa5eb11c3d9cba54005486761ec2e3eeff3..cfef7c43d2f0b409a0d8733593679e59
    if (use_opaque_origin) {
      origin = origin.DeriveNewOpaqueOrigin();
    }
-@@ -10020,8 +10037,9 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
+@@ -10020,8 +10039,9 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
      return GetRenderFrameHost()->GetLastCommittedOrigin();
    }
  
@@ -58,7 +60,7 @@ index 2d9befa5eb11c3d9cba54005486761ec2e3eeff3..cfef7c43d2f0b409a0d8733593679e59
  
    SCOPED_CRASH_KEY_BOOL("Bug1454273", "is_in_main_frame", IsInMainFrame());
    SCOPED_CRASH_KEY_STRING256(
-@@ -10056,10 +10074,17 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
+@@ -10056,10 +10076,17 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
        DetermineInitiatorRelationship(initiator_rfh,
                                       frame_tree_node_->current_frame_host()));
  
