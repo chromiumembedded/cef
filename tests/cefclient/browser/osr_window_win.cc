@@ -644,8 +644,7 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
           CefMouseEvent mouse_event;
           mouse_event.x = x;
           mouse_event.y = y;
-          if (last_mouse_down_on_view_ && IsOverPopupWidget(x, y) &&
-              (GetPopupXOffset() || GetPopupYOffset())) {
+          if (last_mouse_down_on_view_ && IsOverPopupWidget(x, y)) {
             break;
           }
           ApplyPopupOffset(mouse_event.x, mouse_event.y);
