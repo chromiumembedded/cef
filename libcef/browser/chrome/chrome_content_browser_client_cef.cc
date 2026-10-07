@@ -448,6 +448,14 @@ void ChromeContentBrowserClientCef::OverrideWebPreferences(
   if (browser) {
     renderer_prefs::SetCefPrefs(browser->settings(), *prefs);
 
+#if BUILDFLAG(IS_MAC)
+    // Use internal select menus for OSR, including when Blink reapplies
+    // preferences after navigation or in out-of-process iframes.
+    if (browser->IsWindowless()) {
+      prefs->should_disable_external_popups = true;
+    }
+#endif
+
     // Runtime override takes precedence over CefBrowserSettings.
     if (browser->ax_viewport_collapse().has_value()) {
       prefs->accessibility_viewport_collapse =
