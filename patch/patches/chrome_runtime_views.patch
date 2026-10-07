@@ -223,7 +223,7 @@ index 4e81edc2c67425cbab6ed0b00a80157287d64e7d..8e92d6c750426d3946188e6d9b9bf7e1
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index cfa9bbe1e00b4ef75a6afa4cd9f92821abdc3f94..cc3edd6a08c48ffd0133966f17b0e2fa99696aa3 100644
+index 4c178650ff11d01042b0e0ea2c5ea70861b73870..3a4492c9c71968fc6d0d768353de030b4533c39c 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -879,11 +879,21 @@ class BrowserView::PipExclusionObserverImpl
