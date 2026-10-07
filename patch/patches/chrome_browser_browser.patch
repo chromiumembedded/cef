@@ -124,7 +124,7 @@ index 7613579e79ca9afa3936ae2210e164c811d12467..4c4d286503098454abe43e5a4ac15652
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 8f08231710621490d173d8fe83371d53e7ce1950..e40ee6a11e5e7062328edd1b5944179ba4462592 100644
+index 238f8625e42d8703c72c266c36e32bbfb2113095..a86959ab748e9ff2a0aba41ad49ca0cfac46a003 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -8,6 +8,7 @@ import("//build/config/compiler/compiler.gni")
@@ -135,7 +135,7 @@ index 8f08231710621490d173d8fe83371d53e7ce1950..e40ee6a11e5e7062328edd1b5944179b
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/captive_portal/core/features.gni")
-@@ -1589,6 +1590,10 @@ static_library("ui") {
+@@ -1553,6 +1554,10 @@ static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -146,7 +146,7 @@ index 8f08231710621490d173d8fe83371d53e7ce1950..e40ee6a11e5e7062328edd1b5944179b
    public_deps = [
      # WARNING WARNING WARNING
      # New dependencies outside of //chrome/browser should be added to
-@@ -1639,6 +1644,7 @@ static_library("ui") {
+@@ -1603,6 +1608,7 @@ static_library("ui") {
      ":ui_features",
      ":url_identity",
      "//base",
@@ -154,7 +154,7 @@ index 8f08231710621490d173d8fe83371d53e7ce1950..e40ee6a11e5e7062328edd1b5944179b
      "//chrome/app:chrome_dll_resources",
      "//chrome/app/resources:platform_locale_settings",
      "//chrome/app/theme:chrome_unscaled_resources",
-@@ -1941,6 +1947,13 @@ static_library("ui") {
+@@ -1905,6 +1911,13 @@ static_library("ui") {
      ]
    }
  
@@ -168,7 +168,7 @@ index 8f08231710621490d173d8fe83371d53e7ce1950..e40ee6a11e5e7062328edd1b5944179b
    if (!is_android) {
      deps += [
        ":ui_controller_factory",
-@@ -4682,6 +4695,7 @@ static_library("ui") {
+@@ -4648,6 +4661,7 @@ static_library("ui") {
      deps += [
        "//chrome/browser/printing",
        "//chrome/browser/printing:impl",

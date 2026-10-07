@@ -1,5 +1,5 @@
 diff --git chrome/browser/policy/BUILD.gn chrome/browser/policy/BUILD.gn
-index 6eddac1b429bd87b45925008a1ddf653ee9fc938..5a61d6aca068f1b0a6fb2e288e9dfa59d80d5a28 100644
+index 3005bb54c67679a0ddb5e9a5457c705f61eaf2f2..347d1bb20cc376dfc2529656452d4f3a44b5c0d5 100644
 --- chrome/browser/policy/BUILD.gn
 +++ chrome/browser/policy/BUILD.gn
 @@ -28,6 +28,7 @@ source_set("path_parser") {

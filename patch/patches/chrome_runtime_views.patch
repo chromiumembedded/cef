@@ -1127,7 +1127,7 @@ index f3468b8df860303d49052587004ca1e0f501d4fd..44c59704cad310c5f577470eb3b0e2c4
      CHECK(location_bar);
      if (location_bar->ShouldCloseOmniboxPopup(event)) {
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 136f1c7c87a446ff5192a58f87f874800f09375d..3177568b2663a824f308a94d6874585fec0ecc26 100644
+index f9bb38f92374559f70077dfcb24c2010d1b7efba..5e277026ab05aaa026d47d8f58c4bf565959ff57 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -43,6 +43,7 @@
