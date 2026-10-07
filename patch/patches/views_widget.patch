@@ -148,7 +148,7 @@ index 39aa17737a96018776a97f831415f6b7ca10c395..43069e8190704f51286e8dd4472e5a58
    // renderer process changes. This method is called before notifying
    // RenderWidgetHostImpl in order to allow the view to allocate a new
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index 36dcb04e400fa7bac58d5b8aa89151707a9666a1..89a152a8047b73945ce922789248642bd8f36793 100644
+index 0de09e162bb4b16f84a90a29c5b70505f343ee1d..d57e71788b8271826701083f477c90aac0dbe528 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -53,6 +53,10 @@ namespace {
@@ -162,7 +162,7 @@ index 36dcb04e400fa7bac58d5b8aa89151707a9666a1..89a152a8047b73945ce922789248642b
  #if BUILDFLAG(IS_WIN)
  // A callback function for EnumThreadWindows to enumerate and dismiss
  // any owned popup windows.
-@@ -858,6 +862,14 @@ void RenderWidgetHostViewEventHandler::MoveCursorToCenter(
+@@ -873,6 +877,14 @@ void RenderWidgetHostViewEventHandler::MoveCursorToCenter(
      }
      return;
    }
@@ -177,7 +177,7 @@ index 36dcb04e400fa7bac58d5b8aa89151707a9666a1..89a152a8047b73945ce922789248642b
  #endif
    synthetic_move_position_ = center_in_screen;
  }
-@@ -888,6 +900,17 @@ bool RenderWidgetHostViewEventHandler::MatchesSynthesizedMovePosition(
+@@ -903,6 +915,17 @@ bool RenderWidgetHostViewEventHandler::MatchesSynthesizedMovePosition(
  }
  
  void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {

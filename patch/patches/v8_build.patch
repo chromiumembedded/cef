@@ -1,5 +1,5 @@
 diff --git BUILD.gn BUILD.gn
-index 39f578a9c8e3d2053164307095e2860191e05443..2b6ba065a03df9c21d822a922f8f820a3907d642 100644
+index 1b38ef86e7b2d2db99ed24caa9dd3b5763f41bbd..d179d278a9bbd6e503e10fdc1c727a62c74f6a6d 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -14,6 +14,7 @@ import("//build/config/mips.gni")
