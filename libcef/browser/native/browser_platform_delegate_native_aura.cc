@@ -198,6 +198,12 @@ ui::MouseEvent CefBrowserPlatformDelegateNativeAura::TranslateUiClickEvent(
     case MBT_RIGHT:
       changed_button_flags |= ui::EF_RIGHT_MOUSE_BUTTON;
       break;
+    case MBT_X1:
+      changed_button_flags |= ui::EF_BACK_MOUSE_BUTTON;
+      break;
+    case MBT_X2:
+      changed_button_flags |= ui::EF_FORWARD_MOUSE_BUTTON;
+      break;
     default:
       DCHECK(false);
   }
@@ -289,6 +295,12 @@ int CefBrowserPlatformDelegateNativeAura::TranslateUiEventModifiers(
   if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
     result |= ui::EF_RIGHT_MOUSE_BUTTON;
   }
+  if (cef_modifiers & EVENTFLAG_X1_MOUSE_BUTTON) {
+    result |= ui::EF_BACK_MOUSE_BUTTON;
+  }
+  if (cef_modifiers & EVENTFLAG_X2_MOUSE_BUTTON) {
+    result |= ui::EF_FORWARD_MOUSE_BUTTON;
+  }
   if (cef_modifiers & EVENTFLAG_COMMAND_DOWN) {
     result |= ui::EF_COMMAND_DOWN;
   }
@@ -324,6 +336,10 @@ int CefBrowserPlatformDelegateNativeAura::TranslateUiChangedButtonFlags(
     result |= ui::EF_MIDDLE_MOUSE_BUTTON;
   } else if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
     result |= ui::EF_RIGHT_MOUSE_BUTTON;
+  } else if (cef_modifiers & EVENTFLAG_X1_MOUSE_BUTTON) {
+    result |= ui::EF_BACK_MOUSE_BUTTON;
+  } else if (cef_modifiers & EVENTFLAG_X2_MOUSE_BUTTON) {
+    result |= ui::EF_FORWARD_MOUSE_BUTTON;
   }
   return result;
 }

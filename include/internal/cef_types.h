@@ -2088,10 +2088,36 @@ typedef enum {
 /// Mouse button types.
 ///
 typedef enum {
+#if CEF_API_ADDED(CEF_NEXT)
+  MBT_INVALID = -1,
+#endif
   MBT_LEFT = 0,
   MBT_MIDDLE,
   MBT_RIGHT,
+#if CEF_API_ADDED(CEF_NEXT)
+  MBT_X1,  // Often "back"
+  MBT_X2,  // Often "forward"
+
+  MBT_NUM_VALUES
+#endif
 } cef_mouse_button_type_t;
+
+#if CEF_API_ADDED(CEF_NEXT)
+///
+/// Mouse event types.
+///
+typedef enum {
+  MET_INVALID = -1,
+  MET_DOWN,
+  MET_UP,
+  MET_MOVE,
+  MET_ENTER,
+  MET_LEAVE,
+  MET_CONTEXT_MENU,
+
+  MET_NUM_VALUES
+} cef_mouse_event_type_t;
+#endif
 
 ///
 /// Structure representing mouse event information.
@@ -2118,10 +2144,17 @@ typedef struct _cef_mouse_event_t {
 /// Touch points states types.
 ///
 typedef enum {
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_TET_INVALID = -1,
+#endif
   CEF_TET_RELEASED = 0,
   CEF_TET_PRESSED,
   CEF_TET_MOVED,
-  CEF_TET_CANCELLED
+  CEF_TET_CANCELLED,
+
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_TET_NUM_VALUES
+#endif
 } cef_touch_event_type_t;
 
 ///
@@ -2134,6 +2167,37 @@ typedef enum {
   CEF_POINTER_TYPE_ERASER,
   CEF_POINTER_TYPE_UNKNOWN
 } cef_pointer_type_t;
+
+#if CEF_API_ADDED(CEF_NEXT)
+///
+/// The gesture type that caused the event.
+///
+typedef enum {
+  CEF_GESTURE_TYPE_INVALID = -1,
+  CEF_GESTURE_TYPE_SCROLL_BEGIN,
+  CEF_GESTURE_TYPE_SCROLL_END,
+  CEF_GESTURE_TYPE_SCROLL_UPDATE,
+  CEF_GESTURE_TYPE_FLING_START,
+  CEF_GESTURE_TYPE_FLING_CANCEL,
+  CEF_GESTURE_TYPE_PINCH_BEGIN,
+  CEF_GESTURE_TYPE_PINCH_END,
+  CEF_GESTURE_TYPE_PINCH_UPDATE,
+  CEF_GESTURE_TYPE_BEGIN,
+  CEF_GESTURE_TYPE_TAP,
+  CEF_GESTURE_TYPE_TAP_DOWN,
+  CEF_GESTURE_TYPE_TAP_CANCEL,
+  CEF_GESTURE_TYPE_TAP_UNCONFIRMED,
+  CEF_GESTURE_TYPE_DOUBLE_TAP,
+  CEF_GESTURE_TYPE_TWO_FINGER_TAP,
+  CEF_GESTURE_TYPE_SHORT_PRESS,
+  CEF_GESTURE_TYPE_LONG_PRESS,
+  CEF_GESTURE_TYPE_LONG_TAP,
+  CEF_GESTURE_TYPE_SHOW_PRESS,
+  CEF_GESTURE_TYPE_END,
+
+  CEF_GESTURE_TYPE_NUM_VALUES
+} cef_gesture_type_t;
+#endif
 
 ///
 /// Structure representing touch event information.
@@ -2195,7 +2259,6 @@ typedef struct _cef_touch_event_t {
   /// The device type that caused the event.
   ///
   cef_pointer_type_t pointer_type;
-
 } cef_touch_event_t;
 
 ///
@@ -2228,6 +2291,10 @@ typedef enum {
   EVENTFLAG_IS_REPEAT = 1 << 13,
   EVENTFLAG_PRECISION_SCROLLING_DELTA = 1 << 14,
   EVENTFLAG_SCROLL_BY_PAGE = 1 << 15,
+#if CEF_API_ADDED(CEF_NEXT)
+  EVENTFLAG_X1_MOUSE_BUTTON = 1 << 16,
+  EVENTFLAG_X2_MOUSE_BUTTON = 1 << 17,
+#endif
 } cef_event_flags_t;
 
 ///

@@ -33,7 +33,13 @@ class ClientHandler : public BaseClientHandler,
                       public CefDownloadHandler,
                       public CefDragHandler,
                       public CefKeyboardHandler,
-                      public CefPermissionHandler {
+                      public CefPermissionHandler
+#if CEF_API_ADDED(CEF_NEXT)
+    ,
+                      public CefMouseHandler,
+                      public CefTouchHandler
+#endif
+{
  public:
   // Implement this interface to receive notification of ClientHandler
   // events. The methods of this class will be called on the main thread unless
@@ -218,11 +224,28 @@ class ClientHandler : public BaseClientHandler,
   void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) override;
   bool OnSetFocus(CefRefPtr<CefBrowser> browser, FocusSource source) override;
 
+#if CEF_API_ADDED(CEF_NEXT)
+  // CefTouchHandler methods
+  bool OnPreGestureEvent(CefRefPtr<CefBrowser> browser,
+                         const CefTouchEvent& event,
+                         cef_gesture_type_t gesture_type,
+                         int tap_count) override;
+#endif
+
   // CefKeyboardHandler methods
   bool OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
                      const CefKeyEvent& event,
                      CefEventHandle os_event,
                      bool* is_keyboard_shortcut) override;
+
+#if CEF_API_ADDED(CEF_NEXT)
+  // CefMouseHandler methods
+  bool OnPreMouseEvent(CefRefPtr<CefBrowser> browser,
+                       const CefMouseEvent& event,
+                       cef_mouse_event_type_t event_type,
+                       cef_mouse_button_type_t button_type,
+                       int click_count) override;
+#endif
 
   // CefLifeSpanHandler methods
   bool OnBeforePopup(

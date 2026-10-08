@@ -106,6 +106,28 @@ ChromeBrowserWebContentsDelegate::PreHandleKeyboardEvent(
   return BrowserWebContentsDelegate::PreHandleKeyboardEvent(source, event);
 }
 
+bool ChromeBrowserWebContentsDelegate::PreHandleMouseEvent(
+    content::WebContents* source,
+    const blink::WebMouseEvent& event) {
+  if (auto delegate = GetContentsDelegate(browser_.get(), source)) {
+    if (delegate->PreHandleMouseEvent(source, event)) {
+      return true;
+    }
+  }
+  return BrowserWebContentsDelegate::PreHandleMouseEvent(source, event);
+}
+
+bool ChromeBrowserWebContentsDelegate::PreHandleGestureEvent(
+    content::WebContents* source,
+    const blink::WebGestureEvent& event) {
+  if (auto delegate = GetContentsDelegate(browser_.get(), source)) {
+    if (delegate->PreHandleGestureEvent(source, event)) {
+      return true;
+    }
+  }
+  return BrowserWebContentsDelegate::PreHandleGestureEvent(source, event);
+}
+
 bool ChromeBrowserWebContentsDelegate::HandleKeyboardEvent(
     content::WebContents* source,
     const input::NativeWebKeyboardEvent& event) {

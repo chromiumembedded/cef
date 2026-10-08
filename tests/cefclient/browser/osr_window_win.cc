@@ -486,9 +486,11 @@ LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd,
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
     case WM_MBUTTONDOWN:
+    case WM_XBUTTONDOWN:
     case WM_LBUTTONUP:
     case WM_RBUTTONUP:
     case WM_MBUTTONUP:
+    case WM_XBUTTONUP:
     case WM_MOUSEMOVE:
     case WM_MOUSELEAVE:
     case WM_MOUSEWHEEL:
@@ -563,8 +565,8 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
   bool cancelPreviousClick = false;
 
   if (message == WM_LBUTTONDOWN || message == WM_RBUTTONDOWN ||
-      message == WM_MBUTTONDOWN || message == WM_MOUSEMOVE ||
-      message == WM_MOUSELEAVE) {
+      message == WM_MBUTTONDOWN || message == WM_XBUTTONDOWN ||
+      message == WM_MOUSEMOVE || message == WM_MOUSELEAVE) {
     currentTime = GetMessageTime();
     int x = GET_X_LPARAM(lParam);
     int y = GET_Y_LPARAM(lParam);
@@ -584,21 +586,24 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
   switch (message) {
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
-    case WM_MBUTTONDOWN: {
+    case WM_MBUTTONDOWN:
+    case WM_XBUTTONDOWN: {
       ::SetCapture(hwnd_);
       ::SetFocus(hwnd_);
       int x = GET_X_LPARAM(lParam);
       int y = GET_Y_LPARAM(lParam);
-      if (wParam & MK_SHIFT) {
+      if (GET_KEYSTATE_WPARAM(wParam) & MK_SHIFT) {
         // Start rotation effect.
         last_mouse_pos_.x = current_mouse_pos_.x = x;
         last_mouse_pos_.y = current_mouse_pos_.y = y;
         mouse_rotation_ = true;
       } else {
-        CefBrowserHost::MouseButtonType btnType =
-            (message == WM_LBUTTONDOWN
-                 ? MBT_LEFT
-                 : (message == WM_RBUTTONDOWN ? MBT_RIGHT : MBT_MIDDLE));
+        CefBrowserHost::MouseButtonType btnType = MBT_LEFT;
+        if (message == WM_XBUTTONDOWN) {
+          btnType = (GET_XBUTTON_WPARAM(wParam) == 1) ? MBT_X1 : MBT_X2;
+        } else if (message != WM_LBUTTONDOWN) {
+          btnType = (message == WM_RBUTTONDOWN) ? MBT_RIGHT : MBT_MIDDLE;
+        }
         if (!cancelPreviousClick && (btnType == last_click_button_)) {
           ++last_click_count_;
         } else {
@@ -626,6 +631,7 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     case WM_LBUTTONUP:
     case WM_RBUTTONUP:
     case WM_MBUTTONUP:
+    case WM_XBUTTONUP:
       if (GetCapture() == hwnd_) {
         ReleaseCapture();
       }
@@ -636,10 +642,12 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
       } else {
         int x = GET_X_LPARAM(lParam);
         int y = GET_Y_LPARAM(lParam);
-        CefBrowserHost::MouseButtonType btnType =
-            (message == WM_LBUTTONUP
-                 ? MBT_LEFT
-                 : (message == WM_RBUTTONUP ? MBT_RIGHT : MBT_MIDDLE));
+        CefBrowserHost::MouseButtonType btnType = MBT_LEFT;
+        if (message == WM_XBUTTONUP) {
+          btnType = (GET_XBUTTON_WPARAM(wParam) == 1) ? MBT_X1 : MBT_X2;
+        } else if (message != WM_LBUTTONUP) {
+          btnType = (message == WM_RBUTTONUP) ? MBT_RIGHT : MBT_MIDDLE;
+        }
         if (browser_host) {
           CefMouseEvent mouse_event;
           mouse_event.x = x;
