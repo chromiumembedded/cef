@@ -38,7 +38,15 @@
   function getElement(id) { return document.getElementById(id); }
   function makeH1Red() { getElement('LI00').style.color='red'; }
   function makeH1Black() { getElement('LI00').style.color='black'; }
-  function navigate() { location.href='?k='+getElement('editbox').value; }
+  function navigate() {
+    // OSR_TEST_CHAR_EVENTS reports the value on the same channel as the
+    // keypresses instead of navigating, so that they arrive in order.
+    if (window.reportInput && window.testQuery) {
+      window.testQuery({request: "osrvalue:" + getElement('editbox').value});
+      return;
+    }
+    location.href='?k='+getElement('editbox').value;
+  }
   function load() {
     var elems = [];
     var param = { type: 'ElementBounds', elems: elems };
@@ -103,6 +111,13 @@
   function onFocusTest(ev) {
     if (window.testQuery)
       window.testQuery({request: "osrfocus" + ev.target.id});
+  }
+
+  function onKeypressTest(ev) {
+    if (window.reportInput && window.testQuery) {
+      window.testQuery({request: "osrkeypress:" + ev.charCode + ":" +
+                                 ev.keyCode + ":" + ev.key});
+    }
   }
 
   function allowDrop(ev) {
@@ -174,7 +189,7 @@
       </li>
   <li id='LI07'>Invalidate should trigger OnPaint once</li>
   <li id='LI08'>Click and write here with SendKeyEvent to trigger repaints:
-      <input id='editbox' type='text' value='' size="5" onfocus="onFocusTest(event)"></li>
+      <input id='editbox' type='text' value='' size="5" onfocus="onFocusTest(event)" onkeypress="onKeypressTest(event)"></li>
   <li id='LI09'>Click here with SendMouseClickEvent to navigate:
       <input id='btnnavigate' type='button' onclick='navigate()'
       value='Click here to navigate' /></li>
