@@ -19,8 +19,6 @@ namespace client {
 class BrowserWindowOsrGtk : public BrowserWindow,
                             public ClientHandlerOsr::OsrDelegate {
  public:
-  typedef void* CefXIDeviceEvent;
-
   // Constructor may be called on any thread.
   // |delegate| must outlive this object.
   BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
@@ -30,9 +28,6 @@ class BrowserWindowOsrGtk : public BrowserWindow,
 
   BrowserWindowOsrGtk(const BrowserWindowOsrGtk&) = delete;
   BrowserWindowOsrGtk& operator=(const BrowserWindowOsrGtk&) = delete;
-
-  // Called from RootWindowGtk::CreateRootWindow before CreateBrowser.
-  void set_xdisplay(XDisplay* xdisplay);
 
   // BrowserWindow methods.
   void CreateBrowser(ClientWindowHandle parent_handle,
@@ -178,11 +173,6 @@ class BrowserWindowOsrGtk : public BrowserWindow,
                                guint info,
                                guint time,
                                BrowserWindowOsrGtk* self);
-  static GdkFilterReturn EventFilter(GdkXEvent* gdk_xevent,
-                                     GdkEvent* event,
-                                     gpointer data);
-
-  XDisplay* xdisplay_;
 
   // Members only accessed on the UI thread.
   OsrRenderer renderer_;

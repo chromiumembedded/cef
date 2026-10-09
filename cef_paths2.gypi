@@ -219,6 +219,8 @@
     'shared_sources_linux': [
       'tests/shared/browser/main_message_loop_external_pump_linux.cc',
       'tests/shared/browser/resource_util_posix.cc',
+      'tests/shared/browser/util_linux.cc',
+      'tests/shared/browser/util_linux.h',
     ],
     'shared_sources_mac': [
       'tests/shared/browser/main_message_loop_external_pump_mac.mm',
