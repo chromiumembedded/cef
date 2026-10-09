@@ -4,6 +4,7 @@
 
 #include "cef/libcef/browser/osr/video_consumer_osr.h"
 
+#include "build/build_config.h"
 #include "cef/libcef/browser/osr/render_widget_host_view_osr.h"
 #include "media/base/video_frame_metadata.h"
 #include "media/capture/mojom/video_capture_buffer.mojom.h"
@@ -51,7 +52,12 @@ void CefVideoConsumerOSR::SetActive(bool active) {
     video_capturer_->Start(
         this,
         use_shared_texture_
+#if BUILDFLAG(IS_LINUX)
+            ? viz::mojom::BufferFormatPreference::
+                  kPreferSharedImageWithNativeHandle
+#else
             ? viz::mojom::BufferFormatPreference::kPreferMappableSharedImage
+#endif
             : viz::mojom::BufferFormatPreference::kDefault);
   } else {
     video_capturer_->Stop();
