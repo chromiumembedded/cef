@@ -2603,17 +2603,7 @@ if (is_mac) {
         "shlwapi.lib",
       ]
 
-      if (target_cpu != "arm64") {
-        libs += [
-          "glu32.lib",
-          "opengl32.lib",
-        ]
-        ldflags = [
-          "/DELAYLOAD:glu32.dll",
-          "/DELAYLOAD:oleaut32.dll",
-          "/DELAYLOAD:opengl32.dll",
-        ]
-      }
+      ldflags = [ "/DELAYLOAD:oleaut32.dll" ]
     }
 
     if (is_linux) {
@@ -2702,17 +2692,7 @@ if (is_mac) {
         "shlwapi.lib",
       ]
 
-      if (target_cpu != "arm64") {
-        libs += [
-          "glu32.lib",
-          "opengl32.lib",
-        ]
-        ldflags = [
-          "/DELAYLOAD:glu32.dll",
-          "/DELAYLOAD:oleaut32.dll",
-          "/DELAYLOAD:opengl32.dll",
-        ]
-      }
+      ldflags = [ "/DELAYLOAD:oleaut32.dll" ]
 
       # Disable clang modules for this target (see issue #3611).
       use_libcxx_modules = false
@@ -2995,6 +2975,8 @@ if (is_mac) {
                  gypi_paths2.ceftests_sources_win +
                  gypi_paths2.ceftests_sources_resources_win_rc
 
+      libs = [ "d3d11.lib" ]
+
       # Delay-load as many DLLs as possible for sandbox and startup perf
       # improvements.
       configs += [
@@ -3040,6 +3022,8 @@ if (is_mac) {
       testonly = true
 
       output_name = "ceftests"
+
+      libs = [ "d3d11.lib" ]
 
       sources = includes_common +
                 gypi_paths2.includes_wrapper +

@@ -41,6 +41,7 @@ declare_dll(
         "//tests/gmock",
         "//tests/gtest",
     ],
+    linkopts = ["/DEFAULTLIB:d3d11.lib"],
     rc_file = "{}.rc".format(PRODUCT_NAME),
     resources_srcs = [
         "{}.ico".format(PRODUCT_NAME),
