@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "include/base/cef_lock.h"
+#include "include/base/cef_ref_counted.h"
 #include "tests/cefclient/browser/browser_window.h"
 #include "tests/cefclient/browser/client_handler_osr.h"
 #include "tests/cefclient/browser/osr_gl_surface_gtk.h"
@@ -184,6 +185,10 @@ class BrowserWindowOsrGtk : public BrowserWindow,
                                BrowserWindowOsrGtk* self);
 
   const OsrRendererSettings settings_;
+
+  // Only accessed on the UI thread.
+  class BeginFrameTimer;
+  scoped_refptr<BeginFrameTimer> begin_frame_timer_;
 
   // Members accessed with the GDK lock held, on the UI thread or (for
   // rendering) the main thread.
