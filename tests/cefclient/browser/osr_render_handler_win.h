@@ -6,66 +6,72 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_OSR_RENDER_HANDLER_WIN_H_
 #pragma once
 
+#include <dxgi.h>
+#include <wrl/client.h>
+
 #include "include/base/cef_weak_ptr.h"
 #include "include/cef_render_handler.h"
 #include "tests/cefclient/browser/osr_renderer_settings.h"
+#include "tests/shared/browser/osr_renderer_d3d11_win.h"
 
 namespace client {
 
-// Abstract base class for implementing OSR rendering with different backends on
-// Windows. Methods are only called on the UI thread.
+// Owns Windows presentation and begin-frame timing, delegating image storage
+// and composition to the shared D3D11 renderer. Both CPU and accelerated paints
+// use the same renderer. Methods are only called on the UI thread.
 class OsrRenderHandlerWin {
  public:
   OsrRenderHandlerWin(const OsrRendererSettings& settings, HWND hwnd);
-  virtual ~OsrRenderHandlerWin();
+  ~OsrRenderHandlerWin();
 
   OsrRenderHandlerWin(const OsrRenderHandlerWin&) = delete;
   OsrRenderHandlerWin& operator=(const OsrRenderHandlerWin&) = delete;
 
+  bool Initialize(CefRefPtr<CefBrowser> browser, int width, int height);
   void SetBrowser(CefRefPtr<CefBrowser> browser);
 
   // Rotate the texture based on mouse events.
-  virtual void SetSpin(float spinX, float spinY) = 0;
-  virtual void IncrementSpin(float spinDX, float spinDY) = 0;
+  void SetSpin(float spinX, float spinY);
+  void IncrementSpin(float spinDX, float spinDY);
 
   // Popup hit testing.
-  virtual bool IsOverPopupWidget(int x, int y) const = 0;
-  virtual int GetPopupXOffset() const = 0;
-  virtual int GetPopupYOffset() const = 0;
+  bool IsOverPopupWidget(int x, int y) const;
+  int GetPopupXOffset() const;
+  int GetPopupYOffset() const;
 
   // CefRenderHandler callbacks.
-  virtual void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) = 0;
+  void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show);
   // |rect| must be in pixel coordinates.
-  virtual void OnPopupSize(CefRefPtr<CefBrowser> browser,
-                           const CefRect& rect) = 0;
+  void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect);
 
   // Used when not rendering with shared textures.
-  virtual void OnPaint(CefRefPtr<CefBrowser> browser,
-                       CefRenderHandler::PaintElementType type,
-                       const CefRenderHandler::RectList& dirtyRects,
-                       const void* buffer,
-                       int width,
-                       int height) = 0;
+  void OnPaint(CefRefPtr<CefBrowser> browser,
+               CefRenderHandler::PaintElementType type,
+               const CefRenderHandler::RectList& dirtyRects,
+               const void* buffer,
+               int width,
+               int height);
 
   // Used when rendering with shared textures.
-  virtual void OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
-                                  CefRenderHandler::PaintElementType type,
-                                  const CefRenderHandler::RectList& dirtyRects,
-                                  const CefAcceleratedPaintInfo& info) = 0;
+  void OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
+                          CefRenderHandler::PaintElementType type,
+                          const CefRenderHandler::RectList& dirtyRects,
+                          const CefAcceleratedPaintInfo& info);
+
+  // Redraw the last owned image on native exposure or from the BeginFrame
+  // timer. This must not request another CEF paint or access its live
+  // framebuffer.
+  void Render();
 
   bool send_begin_frame() const {
     return settings_.external_begin_frame_enabled;
   }
   HWND hwnd() const { return hwnd_; }
 
- protected:
+ private:
   // Called to trigger the BeginFrame timer.
   void Invalidate();
 
-  // Called by the BeginFrame timer.
-  virtual void Render() = 0;
-
- private:
   void TriggerBeginFrame(uint64_t last_time_us, float delay_us);
 
   // The below members are only accessed on the UI thread.
@@ -73,6 +79,11 @@ class OsrRenderHandlerWin {
   const HWND hwnd_;
   bool begin_frame_pending_ = false;
   CefRefPtr<CefBrowser> browser_;
+
+  OsrRendererD3D11 renderer_;
+  Microsoft::WRL::ComPtr<IDXGISwapChain> swap_chain_;
+  int width_ = 0;
+  int height_ = 0;
 
   // Must be the last member.
   base::WeakPtrFactory<OsrRenderHandlerWin> weak_factory_;

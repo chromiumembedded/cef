@@ -16,8 +16,6 @@
 #include "include/views/cef_display.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/osr_ime_handler_win.h"
-#include "tests/cefclient/browser/osr_render_handler_win_d3d11.h"
-#include "tests/cefclient/browser/osr_render_handler_win_gl.h"
 #include "tests/cefclient/browser/resource.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
@@ -824,14 +822,15 @@ void OsrWindowWin::OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam) {
 }
 
 void OsrWindowWin::OnPaint() {
-  // Paint nothing here. Invalidate will cause OnPaint to be called for the
-  // render handler.
   PAINTSTRUCT ps;
   BeginPaint(hwnd_, &ps);
   EndPaint(hwnd_, &ps);
 
-  if (browser_) {
-    browser_->GetHost()->Invalidate(PET_VIEW);
+  if (render_handler_) {
+    // Redraw owned pixels, including while waiting for a resized CEF frame.
+    // Invalidate(PET_VIEW) can synchronously read the software compositor's
+    // shared framebuffer while it is being drawn, exposing its debug clear.
+    render_handler_->Render();
   }
 }
 
@@ -1225,25 +1224,13 @@ CefBrowserHost::DragOperationsMask OsrWindowWin::OnDrop(
 void OsrWindowWin::EnsureRenderHandler() {
   CEF_REQUIRE_UI_THREAD();
   if (!render_handler_) {
-    if (settings_.shared_texture_enabled) {
-      // Try to initialize D3D11 rendering.
-      auto render_handler = new OsrRenderHandlerWinD3D11(settings_, hwnd_);
-      if (render_handler->Initialize(browser_,
+    auto render_handler =
+        std::make_unique<OsrRenderHandlerWin>(settings_, hwnd_);
+    CHECK(render_handler->Initialize(browser_,
                                      client_rect_.right - client_rect_.left,
-                                     client_rect_.bottom - client_rect_.top)) {
-        render_handler_.reset(render_handler);
-      } else {
-        LOG(ERROR) << "Failed to initialize D3D11 rendering.";
-        delete render_handler;
-      }
-    }
-
-    // Fall back to GL rendering.
-    if (!render_handler_) {
-      auto render_handler = new OsrRenderHandlerWinGL(settings_, hwnd_);
-      render_handler->Initialize(browser_);
-      render_handler_.reset(render_handler);
-    }
+                                     client_rect_.bottom - client_rect_.top))
+        << "Failed to initialize D3D11 rendering.";
+    render_handler_ = std::move(render_handler);
   }
 }
 

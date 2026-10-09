@@ -13,17 +13,13 @@ package(default_visibility = [
 LINK_LIBS = [
     "comdlg32.lib",
     "d3d11.lib",
-    "glu32.lib",
     "imm32.lib",
-    "opengl32.lib",
     "shell32.lib",
 ]
 
 DELAYLOAD_DLLS = [
     "comdlg32.dll",
-    "glu32.dll",
     "oleaut32.dll",
-    "opengl32.dll",
 ]
 
 #
