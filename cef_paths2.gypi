@@ -218,6 +218,10 @@
     ],
     'shared_sources_linux': [
       'tests/shared/browser/main_message_loop_external_pump_linux.cc',
+      'tests/shared/browser/osr_gl_linux.cc',
+      'tests/shared/browser/osr_gl_linux.h',
+      'tests/shared/browser/osr_renderer_gl_linux.cc',
+      'tests/shared/browser/osr_renderer_gl_linux.h',
       'tests/shared/browser/resource_util_posix.cc',
       'tests/shared/browser/util_linux.cc',
       'tests/shared/browser/util_linux.h',
@@ -291,7 +295,6 @@
       'tests/cefclient/browser/media_router_test.cc',
       'tests/cefclient/browser/media_router_test.h',
       'tests/cefclient/browser/osr_dragdrop_events.h',
-      'tests/cefclient/browser/osr_renderer.h',
       'tests/cefclient/browser/osr_renderer_settings.h',
       'tests/cefclient/browser/preferences_test.cc',
       'tests/cefclient/browser/preferences_test.h',
@@ -379,6 +382,7 @@
     ],
     'cefclient_sources_win': [
       'tests/cefclient/browser/osr_renderer.cc',
+      'tests/cefclient/browser/osr_renderer.h',
       'tests/cefclient/browser/browser_window_osr_win.cc',
       'tests/cefclient/browser/browser_window_osr_win.h',
       'tests/cefclient/browser/browser_window_std_win.cc',
@@ -446,7 +450,6 @@
       'tests/cefclient/mac/Info.plist.in',
     ],
     'cefclient_sources_linux': [
-      'tests/cefclient/browser/osr_renderer.cc',
       'tests/cefclient/browser/browser_window_osr_gtk.cc',
       'tests/cefclient/browser/browser_window_osr_gtk.h',
       'tests/cefclient/browser/browser_window_std_gtk.cc',
@@ -468,6 +471,8 @@
       'tests/cefclient/browser/window_test_runner_gtk.cc',
       'tests/cefclient/browser/window_test_runner_gtk.h',
       'tests/cefclient/cefclient_gtk.cc',
+      'tests/cefclient/browser/osr_gl_surface_gtk.cc',
+      'tests/cefclient/browser/osr_gl_surface_gtk.h',
     ],
     'cefsimple_sources_common': [
       'tests/cefsimple/simple_app.cc',
@@ -771,6 +776,7 @@
       'tests/ceftests/mac/Info.plist.in',
     ],
     'ceftests_sources_linux': [
+      'tests/ceftests/osr_renderer_gl_linux_unittest.cc',
       'tests/ceftests/resource_util_linux.cc',
     ],
   },

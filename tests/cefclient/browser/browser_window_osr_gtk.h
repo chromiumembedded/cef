@@ -6,10 +6,14 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_BROWSER_WINDOW_OSR_GTK_H_
 #pragma once
 
+#include <memory>
+
 #include "include/base/cef_lock.h"
 #include "tests/cefclient/browser/browser_window.h"
 #include "tests/cefclient/browser/client_handler_osr.h"
-#include "tests/cefclient/browser/osr_renderer.h"
+#include "tests/cefclient/browser/osr_gl_surface_gtk.h"
+#include "tests/cefclient/browser/osr_renderer_settings.h"
+#include "tests/shared/browser/osr_renderer_gl_linux.h"
 
 namespace client {
 
@@ -72,6 +76,10 @@ class BrowserWindowOsrGtk : public BrowserWindow,
                const void* buffer,
                int width,
                int height) override;
+  void OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
+                          CefRenderHandler::PaintElementType type,
+                          const CefRenderHandler::RectList& dirtyRects,
+                          const CefAcceleratedPaintInfo& info) override;
   void OnCursorChange(CefRefPtr<CefBrowser> browser,
                       CefCursorHandle cursor,
                       cef_cursor_type_t type,
@@ -126,8 +134,9 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   int GetPopupYOffset() const;
   void ApplyPopupOffset(int& x, int& y) const;
 
-  void EnableGL();
+  bool EnableGL();
   void DisableGL();
+  void RenderSurface(unsigned int framebuffer, int width, int height);
 
   // Drag & drop
   void RegisterDragDrop();
@@ -174,16 +183,19 @@ class BrowserWindowOsrGtk : public BrowserWindow,
                                guint time,
                                BrowserWindowOsrGtk* self);
 
-  // Members only accessed on the UI thread.
-  OsrRenderer renderer_;
+  const OsrRendererSettings settings_;
+
+  // Members accessed with the GDK lock held, on the UI thread or (for
+  // rendering) the main thread.
+  OsrRendererGl renderer_;
   bool gl_enabled_;
-  bool painting_popup_;
 
   // Members only accessed on the main thread.
   bool hidden_;
 
   // Members protected by the GDK global lock.
-  ClientWindowHandle glarea_;
+  std::unique_ptr<OsrGlSurfaceGtk> surface_;
+  ClientWindowHandle widget_;
 
   // Drag & drop
   GdkEvent* drag_trigger_event_;  // mouse event, a possible trigger for drag

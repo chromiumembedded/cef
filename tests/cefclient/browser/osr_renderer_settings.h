@@ -27,7 +27,8 @@ struct OsrRendererSettings {
   // Background color. Enables transparency if the alpha component is 0.
   cef_color_t background_color = 0;
 
-  // Render using shared textures (D3D11 on Windows, Metal on macOS).
+  // Render using shared textures (D3D11 on Windows, Metal on macOS, DMA-BUF on
+  // Linux).
   bool shared_texture_enabled = false;
 
   // Client implements a BeginFrame timer by calling

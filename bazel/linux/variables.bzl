@@ -19,6 +19,7 @@ SOS = [
 # Standard link libraries.
 STANDARD_LIBS = [
     "X11",
+    "dl",
 ]
 
 COMMON_LINKOPTS_DEBUG = [
