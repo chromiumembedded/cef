@@ -1030,6 +1030,46 @@ GdkCursor* CreateGdkCursor(GdkDisplay* display,
 
 }  // namespace
 
+// Calls CefBrowserHost::SendExternalBeginFrame at a fixed rate on the UI
+// thread. Reference counted so that pending tasks remain valid after the
+// browser window is destroyed.
+class BrowserWindowOsrGtk::BeginFrameTimer
+    : public base::RefCountedThreadSafe<BeginFrameTimer> {
+ public:
+  BeginFrameTimer(CefRefPtr<CefBrowser> browser, int frame_rate)
+      : browser_(browser),
+        interval_ms_(std::max(1, 1000 / std::max(1, frame_rate))) {}
+
+  void Start() {
+    CEF_REQUIRE_UI_THREAD();
+    Tick();
+  }
+
+  void Stop() {
+    CEF_REQUIRE_UI_THREAD();
+    browser_ = nullptr;
+  }
+
+ private:
+  friend class base::RefCountedThreadSafe<BeginFrameTimer>;
+  ~BeginFrameTimer() = default;
+
+  void Tick() {
+    CEF_REQUIRE_UI_THREAD();
+    if (!browser_) {
+      return;
+    }
+    browser_->GetHost()->SendExternalBeginFrame();
+    CefPostDelayedTask(TID_UI,
+                       base::BindOnce(&BeginFrameTimer::Tick,
+                                      scoped_refptr<BeginFrameTimer>(this)),
+                       interval_ms_);
+  }
+
+  CefRefPtr<CefBrowser> browser_;
+  const int64_t interval_ms_;
+};
+
 BrowserWindowOsrGtk::BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
                                          bool with_controls,
                                          const std::string& startup_url,
@@ -1223,10 +1263,23 @@ ClientWindowHandle BrowserWindowOsrGtk::GetWindowHandle() const {
 
 void BrowserWindowOsrGtk::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
+
+  if (settings_.external_begin_frame_enabled) {
+    // The client drives frame production, so frames are only produced while
+    // the timer is running.
+    begin_frame_timer_ = base::MakeRefCounted<BeginFrameTimer>(
+        browser, settings_.begin_frame_rate);
+    begin_frame_timer_->Start();
+  }
 }
 
 void BrowserWindowOsrGtk::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
+
+  if (begin_frame_timer_) {
+    begin_frame_timer_->Stop();
+    begin_frame_timer_ = nullptr;
+  }
 
   // Detach |this| from the ClientHandlerOsr.
   auto handler = ClientHandlerOsr::GetForClient(client_handler_);
