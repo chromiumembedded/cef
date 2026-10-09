@@ -143,6 +143,16 @@ gfx::Point CefBrowserPlatformDelegateNativeAura::GetScreenPoint(
 input::NativeWebKeyboardEvent
 CefBrowserPlatformDelegateNativeAura::TranslateWebKeyEvent(
     const CefKeyEvent& key_event) const {
+  if (key_event.type == KEYEVENT_CHAR) {
+    // Pass the character rather than the key code: ui::KeyboardCode is a
+    // uint8_t on Windows, and a character whose low byte is 0x08 or 0x1B is
+    // then dropped by Blink as VK_BACK or VK_ESCAPE (see issue #4282).
+    // RenderWidgetHostViewAura::InsertChar does the same for windowed
+    // browsers.
+    return input::NativeWebKeyboardEvent(
+        TranslateUiKeyEvent(key_event),
+        static_cast<char16_t>(key_event.windows_key_code));
+  }
   return input::NativeWebKeyboardEvent(TranslateUiKeyEvent(key_event));
 }
 
