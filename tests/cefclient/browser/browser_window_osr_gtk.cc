@@ -4,7 +4,6 @@
 
 #include "tests/cefclient/browser/browser_window_osr_gtk.h"
 
-#include <GL/gl.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms-compat.h>
 #include <gdk/gdkx.h>
@@ -20,6 +19,7 @@
 #include "tests/cefclient/browser/util_gtk.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
+#include "tests/shared/browser/osr_gl_linux.h"
 
 namespace client {
 
@@ -895,33 +895,6 @@ CefBrowserHost::DragOperationsMask GetDragOperationsMask(
   return static_cast<CefBrowserHost::DragOperationsMask>(allowed_ops);
 }
 
-class ScopedGLContext {
- public:
-  ScopedGLContext(GtkWidget* widget, bool swap_buffers)
-      : swap_buffers_(swap_buffers), widget_(widget) {
-    gtk_gl_area_make_current(GTK_GL_AREA(widget));
-    is_valid_ = gtk_gl_area_get_error(GTK_GL_AREA(widget)) == nullptr;
-    if (swap_buffers_ && is_valid_) {
-      gtk_gl_area_queue_render(GTK_GL_AREA(widget_));
-      gtk_gl_area_attach_buffers(GTK_GL_AREA(widget));
-    }
-  }
-
-  virtual ~ScopedGLContext() {
-    if (swap_buffers_ && is_valid_) {
-      glFlush();
-    }
-  }
-
-  bool IsValid() const { return is_valid_; }
-
- private:
-  bool swap_buffers_;
-  GtkWidget* const widget_;
-  bool is_valid_;
-  ScopedGdkThreadsEnter scoped_gdk_threads_;
-};
-
 // Returns the CSS cursor name for |type|, or nullptr for the default cursor.
 const char* GetCursorName(cef_cursor_type_t type) {
   switch (type) {
@@ -1062,11 +1035,11 @@ BrowserWindowOsrGtk::BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
                                          const std::string& startup_url,
                                          const OsrRendererSettings& settings)
     : BrowserWindow(delegate),
-      renderer_(settings),
+      settings_(settings),
+      renderer_(settings.background_color, settings.show_update_rect),
       gl_enabled_(false),
-      painting_popup_(false),
       hidden_(false),
-      glarea_(nullptr),
+      widget_(nullptr),
       drag_trigger_event_(nullptr),
       drag_data_(nullptr),
       drag_operation_(DRAG_OPERATION_NONE),
@@ -1124,10 +1097,9 @@ void BrowserWindowOsrGtk::CreateBrowser(
   CefWindowInfo window_info;
   window_info.SetAsWindowless(handle);
 
-  window_info.shared_texture_enabled =
-      renderer_.settings().shared_texture_enabled;
+  window_info.shared_texture_enabled = settings_.shared_texture_enabled;
   window_info.external_begin_frame_enabled =
-      renderer_.settings().external_begin_frame_enabled;
+      settings_.external_begin_frame_enabled;
 
   // Windowless rendering requires Alloy style.
   DCHECK_EQ(CEF_RUNTIME_STYLE_ALLOY, window_info.runtime_style);
@@ -1149,10 +1121,9 @@ void BrowserWindowOsrGtk::GetPopupConfig(CefWindowHandle temp_handle,
   // Windowless rendering requires Alloy style.
   DCHECK_EQ(CEF_RUNTIME_STYLE_ALLOY, windowInfo.runtime_style);
 
-  windowInfo.shared_texture_enabled =
-      renderer_.settings().shared_texture_enabled;
+  windowInfo.shared_texture_enabled = settings_.shared_texture_enabled;
   windowInfo.external_begin_frame_enabled =
-      renderer_.settings().external_begin_frame_enabled;
+      settings_.external_begin_frame_enabled;
 
   client = client_handler_;
 }
@@ -1212,8 +1183,8 @@ void BrowserWindowOsrGtk::SetBounds(int x, int y, size_t width, size_t height) {
 
 void BrowserWindowOsrGtk::SetFocus(bool focus) {
   REQUIRE_MAIN_THREAD();
-  if (glarea_ && focus) {
-    gtk_widget_grab_focus(glarea_);
+  if (widget_ && focus) {
+    gtk_widget_grab_focus(widget_);
   }
 }
 
@@ -1247,7 +1218,7 @@ float BrowserWindowOsrGtk::GetDeviceScaleFactor() const {
 
 ClientWindowHandle BrowserWindowOsrGtk::GetWindowHandle() const {
   REQUIRE_MAIN_THREAD();
-  return glarea_;
+  return widget_;
 }
 
 void BrowserWindowOsrGtk::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
@@ -1267,7 +1238,7 @@ void BrowserWindowOsrGtk::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   UnregisterDragDrop();
 
   // Disconnect all signal handlers that reference |this|.
-  g_signal_handlers_disconnect_matched(glarea_, G_SIGNAL_MATCH_DATA, 0, 0,
+  g_signal_handlers_disconnect_matched(widget_, G_SIGNAL_MATCH_DATA, 0, 0,
                                        nullptr, nullptr, this);
 
   DisableGL();
@@ -1277,11 +1248,11 @@ bool BrowserWindowOsrGtk::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
                                             CefRect& rect) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (!renderer_.settings().real_screen_bounds) {
+  if (!settings_.real_screen_bounds) {
     return false;
   }
 
-  if (!glarea_) {
+  if (!widget_) {
     return false;
   }
 
@@ -1293,7 +1264,7 @@ bool BrowserWindowOsrGtk::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
 
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
-  GtkWidget* toplevel = gtk_widget_get_toplevel(glarea_);
+  GtkWidget* toplevel = gtk_widget_get_toplevel(widget_);
 
   // Convert to DIP coordinates.
   rect = DeviceToLogical(
@@ -1306,7 +1277,7 @@ void BrowserWindowOsrGtk::GetViewRect(CefRefPtr<CefBrowser> browser,
                                       CefRect& rect) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (!glarea_) {
+  if (!widget_) {
     // Never return an empty rectangle.
     rect.width = rect.height = 1;
     return;
@@ -1321,7 +1292,7 @@ void BrowserWindowOsrGtk::GetViewRect(CefRefPtr<CefBrowser> browser,
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
   GtkAllocation allocation = {};
-  gtk_widget_get_allocation(glarea_, &allocation);
+  gtk_widget_get_allocation(widget_, &allocation);
 
   // Convert to DIP coordinates.
   rect = DeviceToLogical(
@@ -1333,7 +1304,7 @@ void BrowserWindowOsrGtk::GetViewRect(CefRefPtr<CefBrowser> browser,
   if (rect.height == 0) {
     rect.height = 1;
   }
-  if (!renderer_.settings().real_screen_bounds) {
+  if (!settings_.real_screen_bounds) {
     rect.x = rect.y = 0;
   }
 }
@@ -1353,7 +1324,7 @@ bool BrowserWindowOsrGtk::GetScreenPoint(CefRefPtr<CefBrowser> browser,
 
   // Get the widget position in the window.
   GtkAllocation allocation;
-  gtk_widget_get_allocation(glarea_, &allocation);
+  gtk_widget_get_allocation(widget_, &allocation);
 
   // Convert from view DIP coordinates to window (pixel) coordinates.
   screenX = allocation.x + LogicalToDevice(viewX, device_scale_factor);
@@ -1373,7 +1344,7 @@ bool BrowserWindowOsrGtk::GetScreenInfo(CefRefPtr<CefBrowser> browser,
 
   screen_info.device_scale_factor = device_scale_factor;
 
-  if (renderer_.settings().real_screen_bounds) {
+  if (settings_.real_screen_bounds) {
     CefRect root_rect;
     GetRootScreenRect(browser, root_rect);
 
@@ -1397,11 +1368,14 @@ void BrowserWindowOsrGtk::OnPopupShow(CefRefPtr<CefBrowser> browser,
                                       bool show) {
   CEF_REQUIRE_UI_THREAD();
 
+  {
+    // The renderer is also accessed on the main thread when drawing.
+    ScopedGdkThreadsEnter scoped_gdk_threads;
+    renderer_.OnPopupShow(show);
+  }
   if (!show) {
-    renderer_.ClearPopupRects();
     browser->GetHost()->Invalidate(PET_VIEW);
   }
-  renderer_.OnPopupShow(browser, show);
 }
 
 void BrowserWindowOsrGtk::OnPopupSize(CefRefPtr<CefBrowser> browser,
@@ -1414,7 +1388,9 @@ void BrowserWindowOsrGtk::OnPopupSize(CefRefPtr<CefBrowser> browser,
     device_scale_factor = device_scale_factor_;
   }
 
-  renderer_.OnPopupSize(browser, LogicalToDevice(rect, device_scale_factor));
+  // The renderer is also accessed on the main thread when drawing.
+  ScopedGdkThreadsEnter scoped_gdk_threads;
+  renderer_.OnPopupSize(LogicalToDevice(rect, device_scale_factor));
 }
 
 void BrowserWindowOsrGtk::OnPaint(CefRefPtr<CefBrowser> browser,
@@ -1430,27 +1406,60 @@ void BrowserWindowOsrGtk::OnPaint(CefRefPtr<CefBrowser> browser,
     return;
   }
 
-  if (painting_popup_) {
-    renderer_.OnPaint(browser, type, dirtyRects, buffer, width, height);
+  if (!EnableGL()) {
     return;
   }
 
-  if (!gl_enabled_) {
-    EnableGL();
+  ScopedGdkThreadsEnter scoped_gdk_threads;
+  if (!surface_->MakeCurrent()) {
+    return;
   }
+  const bool updated =
+      renderer_.OnPaint(type, dirtyRects, buffer, width, height);
+  surface_->ReleaseCurrent();
+  if (updated) {
+    surface_->Invalidate();
+  }
+}
 
-  ScopedGLContext scoped_gl_context(glarea_, true);
-  if (!scoped_gl_context.IsValid()) {
+void BrowserWindowOsrGtk::OnAcceleratedPaint(
+    CefRefPtr<CefBrowser> browser,
+    CefRenderHandler::PaintElementType type,
+    const CefRenderHandler::RectList& dirtyRects,
+    const CefAcceleratedPaintInfo& info) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (!EnableGL()) {
     return;
   }
 
-  renderer_.OnPaint(browser, type, dirtyRects, buffer, width, height);
-  if (type == PET_VIEW && !renderer_.popup_rect().IsEmpty()) {
-    painting_popup_ = true;
-    browser->GetHost()->Invalidate(PET_POPUP);
-    painting_popup_ = false;
+  ScopedGdkThreadsEnter scoped_gdk_threads;
+  if (!surface_->MakeCurrent()) {
+    return;
   }
-  renderer_.Render();
+  // Copies the frame before returning, as CEF reuses the buffer.
+  const bool updated = renderer_.OnAcceleratedPaint(type, dirtyRects, info);
+  surface_->ReleaseCurrent();
+  if (updated) {
+    surface_->Invalidate();
+  }
+}
+
+void BrowserWindowOsrGtk::RenderSurface(unsigned int framebuffer,
+                                        int width,
+                                        int height) {
+  REQUIRE_MAIN_THREAD();
+
+  // Draw the most recent frame scaled to the surface, including while waiting
+  // for a frame at a new size. Called with the GDK lock held.
+  if (!gl_enabled_ || !renderer_.Render(framebuffer, width, height)) {
+    const gl::Api* api = gl::GetApi();
+    if (api) {
+      api->glBindFramebuffer(gl::kGlFramebuffer, framebuffer);
+      api->glClearColor(0, 0, 0, 0);
+      api->glClear(gl::kGlColorBufferBit);
+    }
+  }
 }
 
 void BrowserWindowOsrGtk::OnCursorChange(
@@ -1462,7 +1471,7 @@ void BrowserWindowOsrGtk::OnCursorChange(
 
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
-  GdkWindow* gdk_window = gtk_widget_get_window(glarea_);
+  GdkWindow* gdk_window = gtk_widget_get_window(widget_);
   if (!gdk_window) {
     return;
   }
@@ -1499,7 +1508,7 @@ bool BrowserWindowOsrGtk::StartDragging(
     DragReset();
     return false;
   }
-  drag_context_ = gtk_drag_begin(glarea_, drag_targets_, GDK_ACTION_COPY,
+  drag_context_ = gtk_drag_begin(widget_, drag_targets_, GDK_ACTION_COPY,
                                  1,  // left mouse button
                                  drag_trigger_event_);
   if (!drag_context_) {
@@ -1544,53 +1553,55 @@ void BrowserWindowOsrGtk::UpdateAccessibilityLocation(
 
 void BrowserWindowOsrGtk::Create(ClientWindowHandle parent_handle) {
   REQUIRE_MAIN_THREAD();
-  DCHECK(!glarea_);
+  DCHECK(!widget_);
 
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
-  glarea_ = gtk_gl_area_new();
-  DCHECK(glarea_);
+  surface_ = OsrGlSurfaceGtk::Create(
+      [this](unsigned int framebuffer, int width, int height) {
+        RenderSurface(framebuffer, width, height);
+      });
+  widget_ = surface_->widget();
+  DCHECK(widget_);
 
-  gtk_widget_set_can_focus(glarea_, TRUE);
+  gtk_widget_set_can_focus(widget_, TRUE);
 
-  gtk_gl_area_set_auto_render(GTK_GL_AREA(glarea_), FALSE);
-
-  g_signal_connect(G_OBJECT(glarea_), "size_allocate",
+  g_signal_connect(G_OBJECT(widget_), "size_allocate",
                    G_CALLBACK(&BrowserWindowOsrGtk::SizeAllocation), this);
 
   gtk_widget_set_events(
-      glarea_, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
+      widget_, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
                    GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK |
                    GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK |
                    GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK |
                    GDK_SCROLL_MASK | GDK_FOCUS_CHANGE_MASK);
-  g_signal_connect(G_OBJECT(glarea_), "button_press_event",
+  g_signal_connect(G_OBJECT(widget_), "button_press_event",
                    G_CALLBACK(&BrowserWindowOsrGtk::ClickEvent), this);
-  g_signal_connect(G_OBJECT(glarea_), "button_release_event",
+  g_signal_connect(G_OBJECT(widget_), "button_release_event",
                    G_CALLBACK(&BrowserWindowOsrGtk::ClickEvent), this);
-  g_signal_connect(G_OBJECT(glarea_), "key_press_event",
+  g_signal_connect(G_OBJECT(widget_), "key_press_event",
                    G_CALLBACK(&BrowserWindowOsrGtk::KeyEvent), this);
-  g_signal_connect(G_OBJECT(glarea_), "key_release_event",
+  g_signal_connect(G_OBJECT(widget_), "key_release_event",
                    G_CALLBACK(&BrowserWindowOsrGtk::KeyEvent), this);
-  g_signal_connect(G_OBJECT(glarea_), "enter_notify_event",
+  g_signal_connect(G_OBJECT(widget_), "enter_notify_event",
                    G_CALLBACK(&BrowserWindowOsrGtk::MoveEvent), this);
-  g_signal_connect(G_OBJECT(glarea_), "leave_notify_event",
+  g_signal_connect(G_OBJECT(widget_), "leave_notify_event",
                    G_CALLBACK(&BrowserWindowOsrGtk::MoveEvent), this);
-  g_signal_connect(G_OBJECT(glarea_), "motion_notify_event",
+  g_signal_connect(G_OBJECT(widget_), "motion_notify_event",
                    G_CALLBACK(&BrowserWindowOsrGtk::MoveEvent), this);
-  g_signal_connect(G_OBJECT(glarea_), "scroll_event",
+  g_signal_connect(G_OBJECT(widget_), "scroll_event",
                    G_CALLBACK(&BrowserWindowOsrGtk::ScrollEvent), this);
-  g_signal_connect(G_OBJECT(glarea_), "focus_in_event",
+  g_signal_connect(G_OBJECT(widget_), "focus_in_event",
                    G_CALLBACK(&BrowserWindowOsrGtk::FocusEvent), this);
-  g_signal_connect(G_OBJECT(glarea_), "focus_out_event",
+  g_signal_connect(G_OBJECT(widget_), "focus_out_event",
                    G_CALLBACK(&BrowserWindowOsrGtk::FocusEvent), this);
-  g_signal_connect(G_OBJECT(glarea_), "touch-event",
+  g_signal_connect(G_OBJECT(widget_), "touch-event",
                    G_CALLBACK(&BrowserWindowOsrGtk::TouchEvent), this);
 
   RegisterDragDrop();
 
-  gtk_widget_set_vexpand(glarea_, TRUE);
-  gtk_grid_attach(GTK_GRID(parent_handle), glarea_, 0, 3, 1, 1);
+  gtk_widget_set_vexpand(widget_, TRUE);
+  gtk_grid_attach(GTK_GRID(parent_handle), widget_, 0, 3, 1, 1);
 
   // Make the GlArea visible in the parent container.
   gtk_widget_show_all(parent_handle);
@@ -1924,21 +1935,21 @@ void BrowserWindowOsrGtk::ApplyPopupOffset(int& x, int& y) const {
   }
 }
 
-void BrowserWindowOsrGtk::EnableGL() {
+bool BrowserWindowOsrGtk::EnableGL() {
   CEF_REQUIRE_UI_THREAD();
 
   if (gl_enabled_) {
-    return;
+    return true;
   }
 
-  ScopedGLContext scoped_gl_context(glarea_, false);
-  if (!scoped_gl_context.IsValid()) {
-    return;
+  ScopedGdkThreadsEnter scoped_gdk_threads;
+  if (!surface_ || !surface_->MakeCurrent()) {
+    return false;
   }
 
-  renderer_.Initialize();
-
-  gl_enabled_ = true;
+  gl_enabled_ = renderer_.Initialize();
+  surface_->ReleaseCurrent();
+  return gl_enabled_;
 }
 
 void BrowserWindowOsrGtk::DisableGL() {
@@ -1948,12 +1959,12 @@ void BrowserWindowOsrGtk::DisableGL() {
     return;
   }
 
-  ScopedGLContext scoped_gl_context(glarea_, false);
-  if (!scoped_gl_context.IsValid()) {
-    return;
+  ScopedGdkThreadsEnter scoped_gdk_threads;
+  if (surface_->MakeCurrent()) {
+    renderer_.Cleanup();
+    surface_->ReleaseCurrent();
   }
-
-  renderer_.Cleanup();
+  surface_->Destroy();
 
   gl_enabled_ = false;
 }
@@ -1987,35 +1998,35 @@ void BrowserWindowOsrGtk::RegisterDragDrop() {
   // Default values for drag threshold are set to 8 pixels in both GTK and
   // Chromium, but doesn't work as expected.
   // --OFF--
-  // gtk_drag_source_set(glarea_, GDK_BUTTON1_MASK, nullptr, 0,
+  // gtk_drag_source_set(widget_, GDK_BUTTON1_MASK, nullptr, 0,
   // GDK_ACTION_COPY);
 
   // Source widget events.
-  g_signal_connect(G_OBJECT(glarea_), "drag_begin",
+  g_signal_connect(G_OBJECT(widget_), "drag_begin",
                    G_CALLBACK(&BrowserWindowOsrGtk::DragBegin), this);
-  g_signal_connect(G_OBJECT(glarea_), "drag_data_get",
+  g_signal_connect(G_OBJECT(widget_), "drag_data_get",
                    G_CALLBACK(&BrowserWindowOsrGtk::DragDataGet), this);
-  g_signal_connect(G_OBJECT(glarea_), "drag_end",
+  g_signal_connect(G_OBJECT(widget_), "drag_end",
                    G_CALLBACK(&BrowserWindowOsrGtk::DragEnd), this);
 
   // Destination widget and its events.
-  gtk_drag_dest_set(glarea_, (GtkDestDefaults)0, (GtkTargetEntry*)nullptr, 0,
+  gtk_drag_dest_set(widget_, (GtkDestDefaults)0, (GtkTargetEntry*)nullptr, 0,
                     (GdkDragAction)GDK_ACTION_COPY);
-  g_signal_connect(G_OBJECT(glarea_), "drag_motion",
+  g_signal_connect(G_OBJECT(widget_), "drag_motion",
                    G_CALLBACK(&BrowserWindowOsrGtk::DragMotion), this);
-  g_signal_connect(G_OBJECT(glarea_), "drag_leave",
+  g_signal_connect(G_OBJECT(widget_), "drag_leave",
                    G_CALLBACK(&BrowserWindowOsrGtk::DragLeave), this);
-  g_signal_connect(G_OBJECT(glarea_), "drag_failed",
+  g_signal_connect(G_OBJECT(widget_), "drag_failed",
                    G_CALLBACK(&BrowserWindowOsrGtk::DragFailed), this);
-  g_signal_connect(G_OBJECT(glarea_), "drag_drop",
+  g_signal_connect(G_OBJECT(widget_), "drag_drop",
                    G_CALLBACK(&BrowserWindowOsrGtk::DragDrop), this);
-  g_signal_connect(G_OBJECT(glarea_), "drag_data_received",
+  g_signal_connect(G_OBJECT(widget_), "drag_data_received",
                    G_CALLBACK(&BrowserWindowOsrGtk::DragDataReceived), this);
 }
 
 void BrowserWindowOsrGtk::UnregisterDragDrop() {
   ScopedGdkThreadsEnter scoped_gdk_threads;
-  gtk_drag_dest_unset(glarea_);
+  gtk_drag_dest_unset(widget_);
   // Drag events are unregistered in OnBeforeClose by calling
   // g_signal_handlers_disconnect_matched.
 }
@@ -2184,7 +2195,7 @@ gboolean BrowserWindowOsrGtk::DragMotion(GtkWidget* widget,
   }
 
   // Update GTK drag status.
-  if (widget == self->glarea_) {
+  if (widget == self->widget_) {
     gdk_drag_status(drag_context, GDK_ACTION_COPY, time);
     if (self->drag_leave_) {
       self->drag_leave_ = false;

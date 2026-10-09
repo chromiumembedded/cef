@@ -246,6 +246,7 @@ if(OS_LINUX)
   # Standard libraries.
   set(CEF_STANDARD_LIBS
     X11
+    ${CMAKE_DL_LIBS}
     )
 
   # CEF directory paths.

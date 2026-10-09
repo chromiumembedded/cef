@@ -24,6 +24,7 @@
 #include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/browser/main_message_loop_external_pump.h"
 #include "tests/shared/browser/main_message_loop_std.h"
+#include "tests/shared/browser/osr_gl_linux.h"
 #include "tests/shared/browser/util_linux.h"
 #include "tests/shared/common/client_app_other.h"
 #include "tests/shared/common/client_switches.h"
@@ -98,9 +99,17 @@ int RunMain(int argc, char* argv[]) {
     return 1;
   }
 
-  // Off-screen rendering uses GtkGLArea. Chromium disables GDK's OpenGL support
-  // while initializing GTK unless GDK_GL is already set, and an empty value
-  // keeps the default behavior.
+  // Off-screen rendering draws with OpenGL via EGL, which is loaded at runtime.
+  if (command_line->HasSwitch(switches::kOffScreenRenderingEnabled) &&
+      !gl::GetApi()) {
+    LOG(ERROR) << "Off-screen rendering requires EGL and OpenGL 3.3 "
+                  "(libEGL.so.1). See the previous error for details.";
+    return 1;
+  }
+
+  // Off-screen rendering uses GtkGLArea on Wayland. Chromium disables GDK's
+  // OpenGL support while initializing GTK unless GDK_GL is already set, and an
+  // empty value keeps the default behavior.
   if (command_line->HasSwitch(switches::kOffScreenRenderingEnabled)) {
     setenv("GDK_GL", "", /*overwrite=*/0);
   }

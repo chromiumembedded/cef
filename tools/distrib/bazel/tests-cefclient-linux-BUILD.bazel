@@ -44,9 +44,6 @@ declare_exe(
     copts = [
          "-Wno-deprecated-declarations",
     ],
-    linkopts = [
-        "-lGL",
-    ],
     deps = [
         # Declared in the top-level WORKSPACE file.
         "@gmodule2//:lib",
