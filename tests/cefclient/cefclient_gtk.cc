@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include <X11/Xlib.h>
+#include <gdk/gdkx.h>
 #include <gtk/gtk.h>
 #undef Success     // Definition conflicts with cef_message_router.h
 #undef RootWindow  // Definition conflicts with root_window.h
@@ -23,6 +24,7 @@
 #include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/browser/main_message_loop_external_pump.h"
 #include "tests/shared/browser/main_message_loop_std.h"
+#include "tests/shared/browser/util_linux.h"
 #include "tests/shared/common/client_app_other.h"
 #include "tests/shared/common/client_switches.h"
 #include "tests/shared/renderer/client_app_renderer.h"
@@ -85,6 +87,24 @@ int RunMain(int argc, char* argv[]) {
   // Create the main context object.
   auto context = std::make_unique<MainContextImpl>(command_line, true);
 
+  // Windowed browsers are parented to an X11 window, and CEF does not support
+  // parent windows with the Wayland Ozone platform.
+  if (!context->UseViewsGlobal() &&
+      !command_line->HasSwitch(switches::kOffScreenRenderingEnabled) &&
+      IsRunningOnWayland(command_line)) {
+    LOG(ERROR) << "Native parent windows are not supported with Wayland. Run "
+                  "with --ozone-platform=x11 (uses XWayland) or without "
+                  "--use-native.";
+    return 1;
+  }
+
+  // Off-screen rendering uses GtkGLArea. Chromium disables GDK's OpenGL support
+  // while initializing GTK unless GDK_GL is already set, and an empty value
+  // keeps the default behavior.
+  if (command_line->HasSwitch(switches::kOffScreenRenderingEnabled)) {
+    setenv("GDK_GL", "", /*overwrite=*/0);
+  }
+
   CefSettings settings;
 
 // When generating projects with CMake the CEF_USE_SANDBOX value will be defined
@@ -114,8 +134,13 @@ int RunMain(int argc, char* argv[]) {
     return CefGetExitCode();
   }
 
-  // Force Gtk to use Xwayland (in case a Wayland compositor is being used).
-  gdk_set_allowed_backends("x11");
+  // Use the GDK backend that matches the Ozone platform. Chromium already
+  // initializes GTK with the matching backend unless GtkUi is disabled (for
+  // example, with multi-threaded message loop mode). The global command line
+  // includes switches added during CEF initialization.
+  gdk_set_allowed_backends(
+      IsRunningOnWayland(CefCommandLine::GetGlobalCommandLine()) ? "wayland"
+                                                                 : "x11");
 
   // The Chromium sandbox requires that there only be a single thread during
   // initialization. Therefore initialize GTK after CEF.
@@ -123,8 +148,10 @@ int RunMain(int argc, char* argv[]) {
 
   // Install xlib error handlers so that the application won't be terminated
   // on non-fatal errors. Must be done after initializing GTK.
-  XSetErrorHandler(XErrorHandlerImpl);
-  XSetIOErrorHandler(XIOErrorHandlerImpl);
+  if (GDK_IS_X11_DISPLAY(gdk_display_get_default())) {
+    XSetErrorHandler(XErrorHandlerImpl);
+    XSetIOErrorHandler(XIOErrorHandlerImpl);
+  }
 
   // Install a signal handler so we clean up after ourselves.
   signal(SIGINT, TerminationSignalHandler);

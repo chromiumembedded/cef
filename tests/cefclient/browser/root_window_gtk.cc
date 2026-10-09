@@ -39,12 +39,12 @@ void UseDefaultX11VisualForGtk(GtkWidget* widget) {
   // Let's use the default X11 visual instead of the GTK's blessed one.
   // Copied from: https://github.com/cztomczak/cefcapi.
   GdkScreen* screen = gdk_screen_get_default();
-  GList* visuals = gdk_screen_list_visuals(screen);
-
-  GdkX11Screen* x11_screen = GDK_X11_SCREEN(screen);
-  if (x11_screen == nullptr) {
+  if (!GDK_IS_X11_SCREEN(screen)) {
     return;
   }
+
+  GdkX11Screen* x11_screen = GDK_X11_SCREEN(screen);
+  GList* visuals = gdk_screen_list_visuals(screen);
 
   Visual* default_xvisual = DefaultVisual(GDK_SCREEN_XDISPLAY(x11_screen),
                                           GDK_SCREEN_XNUMBER(x11_screen));
@@ -641,13 +641,10 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
   // added to the grid container for automatic layout-based sizing.
   GtkWidget* parent = with_osr_ ? grid : window_;
 
-  // Set the Display associated with the browser.
-  ::Display* xdisplay = GDK_WINDOW_XDISPLAY(gtk_widget_get_window(window_));
-  CHECK(xdisplay);
-  if (with_osr_) {
-    static_cast<BrowserWindowOsrGtk*>(browser_window_.get())
-        ->set_xdisplay(xdisplay);
-  } else {
+  if (!with_osr_) {
+    // Set the Display associated with the browser.
+    ::Display* xdisplay = GDK_WINDOW_XDISPLAY(gtk_widget_get_window(window_));
+    CHECK(xdisplay);
     static_cast<BrowserWindowStdGtk*>(browser_window_.get())
         ->set_xdisplay(xdisplay);
   }
@@ -1130,6 +1127,9 @@ gboolean RootWindowGtk::URLEntryButtonPress(GtkWidget* widget,
   // by X11.
   GtkWidget* window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
   GdkWindow* gdk_window = gtk_widget_get_window(window);
+  if (!GDK_IS_X11_WINDOW(gdk_window)) {
+    return FALSE;
+  }
   ::Display* xdisplay = GDK_WINDOW_XDISPLAY(gdk_window);
   ::Window xwindow = GDK_WINDOW_XID(gdk_window);
 

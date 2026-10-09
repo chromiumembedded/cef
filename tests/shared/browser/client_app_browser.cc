@@ -82,17 +82,10 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
     // While Mesa supports DMABUFs via both EGL and pixmaps, the EGL based
     // DMA BUF import path is more robust and required for compatibility with
     // drivers like NVIDIA that do not support pixmaps.
-    //
-    // We also append the kOzonePlatform switch with value x11 to ensure
-    // that X11 semantics are preserved, which is necessary for compatibility
-    // with some GDK/X11 integrations (e.g. Wayland with AMD).
     if (command_line->HasSwitch(switches::kOffScreenRenderingEnabled) &&
         command_line->HasSwitch(switches::kSharedTextureEnabled)) {
       if (!command_line->HasSwitch(switches::kUseAngle)) {
         command_line->AppendSwitchWithValue(switches::kUseAngle, "gl-egl");
-      }
-      if (!command_line->HasSwitch(switches::kOzonePlatform)) {
-        command_line->AppendSwitchWithValue(switches::kOzonePlatform, "x11");
       }
     }
 #endif

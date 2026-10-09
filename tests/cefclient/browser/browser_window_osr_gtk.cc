@@ -11,11 +11,6 @@
 #include <glib-object.h>
 #include <gtk/gtk.h>
 
-#define XK_3270  // for XK_3270_BackTab
-#include <X11/XF86keysym.h>
-#include <X11/Xcursor/Xcursor.h>
-#include <X11/keysym.h>
-
 #include <algorithm>
 
 #include "include/base/cef_logging.h"
@@ -262,324 +257,324 @@ enum KeyboardCode {
 };
 
 // From ui/events/keycodes/keyboard_code_conversion_x.cc.
-// Gdk key codes (e.g. GDK_BackSpace) and X keysyms (e.g. XK_BackSpace) share
-// the same values.
+// Gdk key codes (e.g. GDK_KEY_BackSpace) and X keysyms (e.g. XK_BackSpace)
+// share the same values.
 KeyboardCode KeyboardCodeFromXKeysym(unsigned int keysym) {
   switch (keysym) {
-    case XK_BackSpace:
+    case GDK_KEY_BackSpace:
       return VKEY_BACK;
-    case XK_Delete:
-    case XK_KP_Delete:
+    case GDK_KEY_Delete:
+    case GDK_KEY_KP_Delete:
       return VKEY_DELETE;
-    case XK_Tab:
-    case XK_KP_Tab:
-    case XK_ISO_Left_Tab:
-    case XK_3270_BackTab:
+    case GDK_KEY_Tab:
+    case GDK_KEY_KP_Tab:
+    case GDK_KEY_ISO_Left_Tab:
+    case GDK_KEY_3270_BackTab:
       return VKEY_TAB;
-    case XK_Linefeed:
-    case XK_Return:
-    case XK_KP_Enter:
-    case XK_ISO_Enter:
+    case GDK_KEY_Linefeed:
+    case GDK_KEY_Return:
+    case GDK_KEY_KP_Enter:
+    case GDK_KEY_ISO_Enter:
       return VKEY_RETURN;
-    case XK_Clear:
-    case XK_KP_Begin:  // NumPad 5 without Num Lock, for crosbug.com/29169.
+    case GDK_KEY_Clear:
+    case GDK_KEY_KP_Begin:  // NumPad 5 without Num Lock, for crosbug.com/29169.
       return VKEY_CLEAR;
-    case XK_KP_Space:
-    case XK_space:
+    case GDK_KEY_KP_Space:
+    case GDK_KEY_space:
       return VKEY_SPACE;
-    case XK_Home:
-    case XK_KP_Home:
+    case GDK_KEY_Home:
+    case GDK_KEY_KP_Home:
       return VKEY_HOME;
-    case XK_End:
-    case XK_KP_End:
+    case GDK_KEY_End:
+    case GDK_KEY_KP_End:
       return VKEY_END;
-    case XK_Page_Up:
-    case XK_KP_Page_Up:  // aka XK_KP_Prior
+    case GDK_KEY_Page_Up:
+    case GDK_KEY_KP_Page_Up:  // aka GDK_KEY_KP_Prior
       return VKEY_PRIOR;
-    case XK_Page_Down:
-    case XK_KP_Page_Down:  // aka XK_KP_Next
+    case GDK_KEY_Page_Down:
+    case GDK_KEY_KP_Page_Down:  // aka GDK_KEY_KP_Next
       return VKEY_NEXT;
-    case XK_Left:
-    case XK_KP_Left:
+    case GDK_KEY_Left:
+    case GDK_KEY_KP_Left:
       return VKEY_LEFT;
-    case XK_Right:
-    case XK_KP_Right:
+    case GDK_KEY_Right:
+    case GDK_KEY_KP_Right:
       return VKEY_RIGHT;
-    case XK_Down:
-    case XK_KP_Down:
+    case GDK_KEY_Down:
+    case GDK_KEY_KP_Down:
       return VKEY_DOWN;
-    case XK_Up:
-    case XK_KP_Up:
+    case GDK_KEY_Up:
+    case GDK_KEY_KP_Up:
       return VKEY_UP;
-    case XK_Escape:
+    case GDK_KEY_Escape:
       return VKEY_ESCAPE;
-    case XK_Kana_Lock:
-    case XK_Kana_Shift:
+    case GDK_KEY_Kana_Lock:
+    case GDK_KEY_Kana_Shift:
       return VKEY_KANA;
-    case XK_Hangul:
+    case GDK_KEY_Hangul:
       return VKEY_HANGUL;
-    case XK_Hangul_Hanja:
+    case GDK_KEY_Hangul_Hanja:
       return VKEY_HANJA;
-    case XK_Kanji:
+    case GDK_KEY_Kanji:
       return VKEY_KANJI;
-    case XK_Henkan:
+    case GDK_KEY_Henkan:
       return VKEY_CONVERT;
-    case XK_Muhenkan:
+    case GDK_KEY_Muhenkan:
       return VKEY_NONCONVERT;
-    case XK_Zenkaku_Hankaku:
+    case GDK_KEY_Zenkaku_Hankaku:
       return VKEY_DBE_DBCSCHAR;
-    case XK_A:
-    case XK_a:
+    case GDK_KEY_A:
+    case GDK_KEY_a:
       return VKEY_A;
-    case XK_B:
-    case XK_b:
+    case GDK_KEY_B:
+    case GDK_KEY_b:
       return VKEY_B;
-    case XK_C:
-    case XK_c:
+    case GDK_KEY_C:
+    case GDK_KEY_c:
       return VKEY_C;
-    case XK_D:
-    case XK_d:
+    case GDK_KEY_D:
+    case GDK_KEY_d:
       return VKEY_D;
-    case XK_E:
-    case XK_e:
+    case GDK_KEY_E:
+    case GDK_KEY_e:
       return VKEY_E;
-    case XK_F:
-    case XK_f:
+    case GDK_KEY_F:
+    case GDK_KEY_f:
       return VKEY_F;
-    case XK_G:
-    case XK_g:
+    case GDK_KEY_G:
+    case GDK_KEY_g:
       return VKEY_G;
-    case XK_H:
-    case XK_h:
+    case GDK_KEY_H:
+    case GDK_KEY_h:
       return VKEY_H;
-    case XK_I:
-    case XK_i:
+    case GDK_KEY_I:
+    case GDK_KEY_i:
       return VKEY_I;
-    case XK_J:
-    case XK_j:
+    case GDK_KEY_J:
+    case GDK_KEY_j:
       return VKEY_J;
-    case XK_K:
-    case XK_k:
+    case GDK_KEY_K:
+    case GDK_KEY_k:
       return VKEY_K;
-    case XK_L:
-    case XK_l:
+    case GDK_KEY_L:
+    case GDK_KEY_l:
       return VKEY_L;
-    case XK_M:
-    case XK_m:
+    case GDK_KEY_M:
+    case GDK_KEY_m:
       return VKEY_M;
-    case XK_N:
-    case XK_n:
+    case GDK_KEY_N:
+    case GDK_KEY_n:
       return VKEY_N;
-    case XK_O:
-    case XK_o:
+    case GDK_KEY_O:
+    case GDK_KEY_o:
       return VKEY_O;
-    case XK_P:
-    case XK_p:
+    case GDK_KEY_P:
+    case GDK_KEY_p:
       return VKEY_P;
-    case XK_Q:
-    case XK_q:
+    case GDK_KEY_Q:
+    case GDK_KEY_q:
       return VKEY_Q;
-    case XK_R:
-    case XK_r:
+    case GDK_KEY_R:
+    case GDK_KEY_r:
       return VKEY_R;
-    case XK_S:
-    case XK_s:
+    case GDK_KEY_S:
+    case GDK_KEY_s:
       return VKEY_S;
-    case XK_T:
-    case XK_t:
+    case GDK_KEY_T:
+    case GDK_KEY_t:
       return VKEY_T;
-    case XK_U:
-    case XK_u:
+    case GDK_KEY_U:
+    case GDK_KEY_u:
       return VKEY_U;
-    case XK_V:
-    case XK_v:
+    case GDK_KEY_V:
+    case GDK_KEY_v:
       return VKEY_V;
-    case XK_W:
-    case XK_w:
+    case GDK_KEY_W:
+    case GDK_KEY_w:
       return VKEY_W;
-    case XK_X:
-    case XK_x:
+    case GDK_KEY_X:
+    case GDK_KEY_x:
       return VKEY_X;
-    case XK_Y:
-    case XK_y:
+    case GDK_KEY_Y:
+    case GDK_KEY_y:
       return VKEY_Y;
-    case XK_Z:
-    case XK_z:
+    case GDK_KEY_Z:
+    case GDK_KEY_z:
       return VKEY_Z;
 
-    case XK_0:
-    case XK_1:
-    case XK_2:
-    case XK_3:
-    case XK_4:
-    case XK_5:
-    case XK_6:
-    case XK_7:
-    case XK_8:
-    case XK_9:
-      return static_cast<KeyboardCode>(VKEY_0 + (keysym - XK_0));
+    case GDK_KEY_0:
+    case GDK_KEY_1:
+    case GDK_KEY_2:
+    case GDK_KEY_3:
+    case GDK_KEY_4:
+    case GDK_KEY_5:
+    case GDK_KEY_6:
+    case GDK_KEY_7:
+    case GDK_KEY_8:
+    case GDK_KEY_9:
+      return static_cast<KeyboardCode>(VKEY_0 + (keysym - GDK_KEY_0));
 
-    case XK_parenright:
+    case GDK_KEY_parenright:
       return VKEY_0;
-    case XK_exclam:
+    case GDK_KEY_exclam:
       return VKEY_1;
-    case XK_at:
+    case GDK_KEY_at:
       return VKEY_2;
-    case XK_numbersign:
+    case GDK_KEY_numbersign:
       return VKEY_3;
-    case XK_dollar:
+    case GDK_KEY_dollar:
       return VKEY_4;
-    case XK_percent:
+    case GDK_KEY_percent:
       return VKEY_5;
-    case XK_asciicircum:
+    case GDK_KEY_asciicircum:
       return VKEY_6;
-    case XK_ampersand:
+    case GDK_KEY_ampersand:
       return VKEY_7;
-    case XK_asterisk:
+    case GDK_KEY_asterisk:
       return VKEY_8;
-    case XK_parenleft:
+    case GDK_KEY_parenleft:
       return VKEY_9;
 
-    case XK_KP_0:
-    case XK_KP_1:
-    case XK_KP_2:
-    case XK_KP_3:
-    case XK_KP_4:
-    case XK_KP_5:
-    case XK_KP_6:
-    case XK_KP_7:
-    case XK_KP_8:
-    case XK_KP_9:
-      return static_cast<KeyboardCode>(VKEY_NUMPAD0 + (keysym - XK_KP_0));
+    case GDK_KEY_KP_0:
+    case GDK_KEY_KP_1:
+    case GDK_KEY_KP_2:
+    case GDK_KEY_KP_3:
+    case GDK_KEY_KP_4:
+    case GDK_KEY_KP_5:
+    case GDK_KEY_KP_6:
+    case GDK_KEY_KP_7:
+    case GDK_KEY_KP_8:
+    case GDK_KEY_KP_9:
+      return static_cast<KeyboardCode>(VKEY_NUMPAD0 + (keysym - GDK_KEY_KP_0));
 
-    case XK_multiply:
-    case XK_KP_Multiply:
+    case GDK_KEY_multiply:
+    case GDK_KEY_KP_Multiply:
       return VKEY_MULTIPLY;
-    case XK_KP_Add:
+    case GDK_KEY_KP_Add:
       return VKEY_ADD;
-    case XK_KP_Separator:
+    case GDK_KEY_KP_Separator:
       return VKEY_SEPARATOR;
-    case XK_KP_Subtract:
+    case GDK_KEY_KP_Subtract:
       return VKEY_SUBTRACT;
-    case XK_KP_Decimal:
+    case GDK_KEY_KP_Decimal:
       return VKEY_DECIMAL;
-    case XK_KP_Divide:
+    case GDK_KEY_KP_Divide:
       return VKEY_DIVIDE;
-    case XK_KP_Equal:
-    case XK_equal:
-    case XK_plus:
+    case GDK_KEY_KP_Equal:
+    case GDK_KEY_equal:
+    case GDK_KEY_plus:
       return VKEY_OEM_PLUS;
-    case XK_comma:
-    case XK_less:
+    case GDK_KEY_comma:
+    case GDK_KEY_less:
       return VKEY_OEM_COMMA;
-    case XK_minus:
-    case XK_underscore:
+    case GDK_KEY_minus:
+    case GDK_KEY_underscore:
       return VKEY_OEM_MINUS;
-    case XK_greater:
-    case XK_period:
+    case GDK_KEY_greater:
+    case GDK_KEY_period:
       return VKEY_OEM_PERIOD;
-    case XK_colon:
-    case XK_semicolon:
+    case GDK_KEY_colon:
+    case GDK_KEY_semicolon:
       return VKEY_OEM_1;
-    case XK_question:
-    case XK_slash:
+    case GDK_KEY_question:
+    case GDK_KEY_slash:
       return VKEY_OEM_2;
-    case XK_asciitilde:
-    case XK_quoteleft:
+    case GDK_KEY_asciitilde:
+    case GDK_KEY_quoteleft:
       return VKEY_OEM_3;
-    case XK_bracketleft:
-    case XK_braceleft:
+    case GDK_KEY_bracketleft:
+    case GDK_KEY_braceleft:
       return VKEY_OEM_4;
-    case XK_backslash:
-    case XK_bar:
+    case GDK_KEY_backslash:
+    case GDK_KEY_bar:
       return VKEY_OEM_5;
-    case XK_bracketright:
-    case XK_braceright:
+    case GDK_KEY_bracketright:
+    case GDK_KEY_braceright:
       return VKEY_OEM_6;
-    case XK_quoteright:
-    case XK_quotedbl:
+    case GDK_KEY_quoteright:
+    case GDK_KEY_quotedbl:
       return VKEY_OEM_7;
-    case XK_ISO_Level5_Shift:
+    case GDK_KEY_ISO_Level5_Shift:
       return VKEY_OEM_8;
-    case XK_Shift_L:
-    case XK_Shift_R:
+    case GDK_KEY_Shift_L:
+    case GDK_KEY_Shift_R:
       return VKEY_SHIFT;
-    case XK_Control_L:
-    case XK_Control_R:
+    case GDK_KEY_Control_L:
+    case GDK_KEY_Control_R:
       return VKEY_CONTROL;
-    case XK_Meta_L:
-    case XK_Meta_R:
-    case XK_Alt_L:
-    case XK_Alt_R:
+    case GDK_KEY_Meta_L:
+    case GDK_KEY_Meta_R:
+    case GDK_KEY_Alt_L:
+    case GDK_KEY_Alt_R:
       return VKEY_MENU;
-    case XK_ISO_Level3_Shift:
+    case GDK_KEY_ISO_Level3_Shift:
       return VKEY_ALTGR;
-    case XK_Multi_key:
+    case GDK_KEY_Multi_key:
       return VKEY_COMPOSE;
-    case XK_Pause:
+    case GDK_KEY_Pause:
       return VKEY_PAUSE;
-    case XK_Caps_Lock:
+    case GDK_KEY_Caps_Lock:
       return VKEY_CAPITAL;
-    case XK_Num_Lock:
+    case GDK_KEY_Num_Lock:
       return VKEY_NUMLOCK;
-    case XK_Scroll_Lock:
+    case GDK_KEY_Scroll_Lock:
       return VKEY_SCROLL;
-    case XK_Select:
+    case GDK_KEY_Select:
       return VKEY_SELECT;
-    case XK_Print:
+    case GDK_KEY_Print:
       return VKEY_PRINT;
-    case XK_Execute:
+    case GDK_KEY_Execute:
       return VKEY_EXECUTE;
-    case XK_Insert:
-    case XK_KP_Insert:
+    case GDK_KEY_Insert:
+    case GDK_KEY_KP_Insert:
       return VKEY_INSERT;
-    case XK_Help:
+    case GDK_KEY_Help:
       return VKEY_HELP;
-    case XK_Super_L:
+    case GDK_KEY_Super_L:
       return VKEY_LWIN;
-    case XK_Super_R:
+    case GDK_KEY_Super_R:
       return VKEY_RWIN;
-    case XK_Menu:
+    case GDK_KEY_Menu:
       return VKEY_APPS;
-    case XK_F1:
-    case XK_F2:
-    case XK_F3:
-    case XK_F4:
-    case XK_F5:
-    case XK_F6:
-    case XK_F7:
-    case XK_F8:
-    case XK_F9:
-    case XK_F10:
-    case XK_F11:
-    case XK_F12:
-    case XK_F13:
-    case XK_F14:
-    case XK_F15:
-    case XK_F16:
-    case XK_F17:
-    case XK_F18:
-    case XK_F19:
-    case XK_F20:
-    case XK_F21:
-    case XK_F22:
-    case XK_F23:
-    case XK_F24:
-      return static_cast<KeyboardCode>(VKEY_F1 + (keysym - XK_F1));
-    case XK_KP_F1:
-    case XK_KP_F2:
-    case XK_KP_F3:
-    case XK_KP_F4:
-      return static_cast<KeyboardCode>(VKEY_F1 + (keysym - XK_KP_F1));
+    case GDK_KEY_F1:
+    case GDK_KEY_F2:
+    case GDK_KEY_F3:
+    case GDK_KEY_F4:
+    case GDK_KEY_F5:
+    case GDK_KEY_F6:
+    case GDK_KEY_F7:
+    case GDK_KEY_F8:
+    case GDK_KEY_F9:
+    case GDK_KEY_F10:
+    case GDK_KEY_F11:
+    case GDK_KEY_F12:
+    case GDK_KEY_F13:
+    case GDK_KEY_F14:
+    case GDK_KEY_F15:
+    case GDK_KEY_F16:
+    case GDK_KEY_F17:
+    case GDK_KEY_F18:
+    case GDK_KEY_F19:
+    case GDK_KEY_F20:
+    case GDK_KEY_F21:
+    case GDK_KEY_F22:
+    case GDK_KEY_F23:
+    case GDK_KEY_F24:
+      return static_cast<KeyboardCode>(VKEY_F1 + (keysym - GDK_KEY_F1));
+    case GDK_KEY_KP_F1:
+    case GDK_KEY_KP_F2:
+    case GDK_KEY_KP_F3:
+    case GDK_KEY_KP_F4:
+      return static_cast<KeyboardCode>(VKEY_F1 + (keysym - GDK_KEY_KP_F1));
 
-    case XK_guillemotleft:
-    case XK_guillemotright:
-    case XK_degree:
+    case GDK_KEY_guillemotleft:
+    case GDK_KEY_guillemotright:
+    case GDK_KEY_degree:
     // In the case of canadian multilingual keyboard layout, VKEY_OEM_102 is
     // assigned to ugrave key.
-    case XK_ugrave:
-    case XK_Ugrave:
-    case XK_brokenbar:
+    case GDK_KEY_ugrave:
+    case GDK_KEY_Ugrave:
+    case GDK_KEY_brokenbar:
       return VKEY_OEM_102;  // international backslash key in 102 keyboard.
 
     // When evdev is in use, /usr/share/X11/xkb/symbols/inet maps F13-18 keys
@@ -587,76 +582,76 @@ KeyboardCode KeyboardCodeFromXKeysym(unsigned int keysym) {
     // https://bugs.freedesktop.org/show_bug.cgi?id=5783
     // In Chrome, we map these X key symbols back to F13-18 since we don't have
     // VKEYs for these XF86XK symbols.
-    case XF86XK_Tools:
+    case GDK_KEY_Tools:
       return VKEY_F13;
-    case XF86XK_Launch5:
+    case GDK_KEY_Launch5:
       return VKEY_F14;
-    case XF86XK_Launch6:
+    case GDK_KEY_Launch6:
       return VKEY_F15;
-    case XF86XK_Launch7:
+    case GDK_KEY_Launch7:
       return VKEY_F16;
-    case XF86XK_Launch8:
+    case GDK_KEY_Launch8:
       return VKEY_F17;
-    case XF86XK_Launch9:
+    case GDK_KEY_Launch9:
       return VKEY_F18;
-    case XF86XK_Refresh:
-    case XF86XK_History:
-    case XF86XK_OpenURL:
-    case XF86XK_AddFavorite:
-    case XF86XK_Go:
-    case XF86XK_ZoomIn:
-    case XF86XK_ZoomOut:
-      // ui::AcceleratorGtk tries to convert the XF86XK_ keysyms on Chrome
+    case GDK_KEY_Refresh:
+    case GDK_KEY_History:
+    case GDK_KEY_OpenURL:
+    case GDK_KEY_AddFavorite:
+    case GDK_KEY_Go:
+    case GDK_KEY_ZoomIn:
+    case GDK_KEY_ZoomOut:
+      // ui::AcceleratorGtk tries to convert the GDK_KEY_ keysyms on Chrome
       // startup. It's safe to return VKEY_UNKNOWN here since ui::AcceleratorGtk
       // also checks a Gdk keysym. http://crbug.com/109843
       return VKEY_UNKNOWN;
     // For supporting multimedia buttons on a USB keyboard.
-    case XF86XK_Back:
+    case GDK_KEY_Back:
       return VKEY_BROWSER_BACK;
-    case XF86XK_Forward:
+    case GDK_KEY_Forward:
       return VKEY_BROWSER_FORWARD;
-    case XF86XK_Reload:
+    case GDK_KEY_Reload:
       return VKEY_BROWSER_REFRESH;
-    case XF86XK_Stop:
+    case GDK_KEY_Stop:
       return VKEY_BROWSER_STOP;
-    case XF86XK_Search:
+    case GDK_KEY_Search:
       return VKEY_BROWSER_SEARCH;
-    case XF86XK_Favorites:
+    case GDK_KEY_Favorites:
       return VKEY_BROWSER_FAVORITES;
-    case XF86XK_HomePage:
+    case GDK_KEY_HomePage:
       return VKEY_BROWSER_HOME;
-    case XF86XK_AudioMute:
+    case GDK_KEY_AudioMute:
       return VKEY_VOLUME_MUTE;
-    case XF86XK_AudioLowerVolume:
+    case GDK_KEY_AudioLowerVolume:
       return VKEY_VOLUME_DOWN;
-    case XF86XK_AudioRaiseVolume:
+    case GDK_KEY_AudioRaiseVolume:
       return VKEY_VOLUME_UP;
-    case XF86XK_AudioNext:
+    case GDK_KEY_AudioNext:
       return VKEY_MEDIA_NEXT_TRACK;
-    case XF86XK_AudioPrev:
+    case GDK_KEY_AudioPrev:
       return VKEY_MEDIA_PREV_TRACK;
-    case XF86XK_AudioStop:
+    case GDK_KEY_AudioStop:
       return VKEY_MEDIA_STOP;
-    case XF86XK_AudioPlay:
+    case GDK_KEY_AudioPlay:
       return VKEY_MEDIA_PLAY_PAUSE;
-    case XF86XK_Mail:
+    case GDK_KEY_Mail:
       return VKEY_MEDIA_LAUNCH_MAIL;
-    case XF86XK_LaunchA:  // F3 on an Apple keyboard.
+    case GDK_KEY_LaunchA:  // F3 on an Apple keyboard.
       return VKEY_MEDIA_LAUNCH_APP1;
-    case XF86XK_LaunchB:  // F4 on an Apple keyboard.
-    case XF86XK_Calculator:
+    case GDK_KEY_LaunchB:  // F4 on an Apple keyboard.
+    case GDK_KEY_Calculator:
       return VKEY_MEDIA_LAUNCH_APP2;
-    case XF86XK_WLAN:
+    case GDK_KEY_WLAN:
       return VKEY_WLAN;
-    case XF86XK_PowerOff:
+    case GDK_KEY_PowerOff:
       return VKEY_POWER;
-    case XF86XK_MonBrightnessDown:
+    case GDK_KEY_MonBrightnessDown:
       return VKEY_BRIGHTNESS_DOWN;
-    case XF86XK_MonBrightnessUp:
+    case GDK_KEY_MonBrightnessUp:
       return VKEY_BRIGHTNESS_UP;
-    case XF86XK_KbdBrightnessDown:
+    case GDK_KEY_KbdBrightnessDown:
       return VKEY_KBD_BRIGHTNESS_DOWN;
-    case XF86XK_KbdBrightnessUp:
+    case GDK_KEY_KbdBrightnessUp:
       return VKEY_KBD_BRIGHTNESS_UP;
 
       // TODO(sad): some keycodes are still missing.
@@ -927,6 +922,139 @@ class ScopedGLContext {
   ScopedGdkThreadsEnter scoped_gdk_threads_;
 };
 
+// Returns the CSS cursor name for |type|, or nullptr for the default cursor.
+const char* GetCursorName(cef_cursor_type_t type) {
+  switch (type) {
+    case CT_CROSS:
+      return "crosshair";
+    case CT_HAND:
+      return "pointer";
+    case CT_IBEAM:
+      return "text";
+    case CT_WAIT:
+      return "wait";
+    case CT_HELP:
+      return "help";
+    case CT_EASTRESIZE:
+      return "e-resize";
+    case CT_NORTHRESIZE:
+      return "n-resize";
+    case CT_NORTHEASTRESIZE:
+      return "ne-resize";
+    case CT_NORTHWESTRESIZE:
+      return "nw-resize";
+    case CT_SOUTHRESIZE:
+      return "s-resize";
+    case CT_SOUTHEASTRESIZE:
+      return "se-resize";
+    case CT_SOUTHWESTRESIZE:
+      return "sw-resize";
+    case CT_WESTRESIZE:
+      return "w-resize";
+    case CT_NORTHSOUTHRESIZE:
+      return "ns-resize";
+    case CT_EASTWESTRESIZE:
+      return "ew-resize";
+    case CT_NORTHEASTSOUTHWESTRESIZE:
+      return "nesw-resize";
+    case CT_NORTHWESTSOUTHEASTRESIZE:
+      return "nwse-resize";
+    case CT_COLUMNRESIZE:
+      return "col-resize";
+    case CT_ROWRESIZE:
+      return "row-resize";
+    case CT_MIDDLEPANNING:
+    case CT_EASTPANNING:
+    case CT_NORTHPANNING:
+    case CT_NORTHEASTPANNING:
+    case CT_NORTHWESTPANNING:
+    case CT_SOUTHPANNING:
+    case CT_SOUTHEASTPANNING:
+    case CT_SOUTHWESTPANNING:
+    case CT_WESTPANNING:
+    case CT_MIDDLE_PANNING_VERTICAL:
+    case CT_MIDDLE_PANNING_HORIZONTAL:
+      return "all-scroll";
+    case CT_MOVE:
+    case CT_DND_MOVE:
+      return "move";
+    case CT_VERTICALTEXT:
+      return "vertical-text";
+    case CT_CELL:
+      return "cell";
+    case CT_CONTEXTMENU:
+      return "context-menu";
+    case CT_ALIAS:
+    case CT_DND_LINK:
+      return "alias";
+    case CT_PROGRESS:
+      return "progress";
+    case CT_NODROP:
+    case CT_DND_NONE:
+      return "no-drop";
+    case CT_COPY:
+    case CT_DND_COPY:
+      return "copy";
+    case CT_NONE:
+      return "none";
+    case CT_NOTALLOWED:
+      return "not-allowed";
+    case CT_ZOOMIN:
+      return "zoom-in";
+    case CT_ZOOMOUT:
+      return "zoom-out";
+    case CT_GRAB:
+      return "grab";
+    case CT_GRABBING:
+      return "grabbing";
+    default:
+      return nullptr;
+  }
+}
+
+// Returns a new cursor reference, or nullptr for the default cursor.
+GdkCursor* CreateGdkCursor(GdkDisplay* display,
+                           cef_cursor_type_t type,
+                           const CefCursorInfo& custom_cursor_info) {
+  if (type == CT_CUSTOM) {
+    const int width = custom_cursor_info.size.width;
+    const int height = custom_cursor_info.size.height;
+    if (!custom_cursor_info.buffer || width <= 0 || height <= 0) {
+      return nullptr;
+    }
+
+    // Convert from premultiplied BGRA to non-premultiplied RGBA.
+    GdkPixbuf* pixbuf =
+        gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, width, height);
+    const int stride = gdk_pixbuf_get_rowstride(pixbuf);
+    guchar* dst = gdk_pixbuf_get_pixels(pixbuf);
+    const auto* src = static_cast<const uint8_t*>(custom_cursor_info.buffer);
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; ++x) {
+        const uint8_t* s = src + (y * width + x) * 4;
+        guchar* d = dst + y * stride + x * 4;
+        const uint8_t a = s[3];
+        d[0] = a ? s[2] * 255 / a : 0;
+        d[1] = a ? s[1] * 255 / a : 0;
+        d[2] = a ? s[0] * 255 / a : 0;
+        d[3] = a;
+      }
+    }
+
+    GdkCursor* cursor = gdk_cursor_new_from_pixbuf(
+        display, pixbuf, custom_cursor_info.hotspot.x,
+        custom_cursor_info.hotspot.y);
+    g_object_unref(pixbuf);
+    return cursor;
+  }
+
+  const char* name = GetCursorName(type);
+  if (!name) {
+    return nullptr;
+  }
+  return gdk_cursor_new_from_name(display, name);
+}
+
 }  // namespace
 
 BrowserWindowOsrGtk::BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
@@ -934,7 +1062,6 @@ BrowserWindowOsrGtk::BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
                                          const std::string& startup_url,
                                          const OsrRendererSettings& settings)
     : BrowserWindow(delegate),
-      xdisplay_(nullptr),
       renderer_(settings),
       gl_enabled_(false),
       painting_popup_(false),
@@ -967,12 +1094,6 @@ BrowserWindowOsrGtk::~BrowserWindowOsrGtk() {
   gtk_target_list_unref(drag_targets_);
 }
 
-void BrowserWindowOsrGtk::set_xdisplay(XDisplay* xdisplay) {
-  REQUIRE_MAIN_THREAD();
-  DCHECK(!xdisplay_);
-  xdisplay_ = xdisplay;
-}
-
 void BrowserWindowOsrGtk::CreateBrowser(
     ClientWindowHandle parent_handle,
     const CefRect& rect,
@@ -989,11 +1110,16 @@ void BrowserWindowOsrGtk::CreateBrowser(
 
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
-  // Retrieve the X11 Window ID for the GTK parent window.
+  // Retrieve the X11 Window ID for the GTK parent window. The parent window is
+  // optional and Wayland has no equivalent.
   GtkWidget* window =
       gtk_widget_get_ancestor(GTK_WIDGET(parent_handle), GTK_TYPE_WINDOW);
-  CefWindowHandle handle = GDK_WINDOW_XID(gtk_widget_get_window(window));
-  DCHECK(handle);
+  GdkWindow* gdk_window = gtk_widget_get_window(window);
+  CefWindowHandle handle = kNullWindowHandle;
+  if (GDK_IS_X11_WINDOW(gdk_window)) {
+    handle = GDK_WINDOW_XID(gdk_window);
+    DCHECK(handle);
+  }
 
   CefWindowInfo window_info;
   window_info.SetAsWindowless(handle);
@@ -1334,16 +1460,19 @@ void BrowserWindowOsrGtk::OnCursorChange(
     const CefCursorInfo& custom_cursor_info) {
   CEF_REQUIRE_UI_THREAD();
 
-  // Retrieve the X11 display shared with Chromium.
-  CHECK(xdisplay_ != 0);
-
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
-  // Retrieve the X11 window handle for the GTK widget.
-  ::Window xwindow = GDK_WINDOW_XID(gtk_widget_get_window(glarea_));
+  GdkWindow* gdk_window = gtk_widget_get_window(glarea_);
+  if (!gdk_window) {
+    return;
+  }
 
-  // Set the cursor.
-  XDefineCursor(xdisplay_, xwindow, cursor);
+  GdkCursor* gdk_cursor = CreateGdkCursor(gdk_window_get_display(gdk_window),
+                                          type, custom_cursor_info);
+  gdk_window_set_cursor(gdk_window, gdk_cursor);
+  if (gdk_cursor) {
+    g_object_unref(gdk_cursor);
+  }
 }
 
 bool BrowserWindowOsrGtk::StartDragging(

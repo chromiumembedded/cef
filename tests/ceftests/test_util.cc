@@ -19,6 +19,10 @@
 #include "tests/shared/common/client_switches.h"
 #include "tests/shared/common/string_util.h"
 
+#if defined(OS_LINUX)
+#include "tests/shared/browser/util_linux.h"
+#endif
+
 void TestMapEqual(const CefRequest::HeaderMap& map1,
                   const CefRequest::HeaderMap& map2,
                   bool allowExtras) {
@@ -320,15 +324,8 @@ bool UseAlloyStyleWindowGlobal() {
 
 bool IsRunningOnWayland() {
 #if defined(OS_LINUX)
-  static bool is_wayland = []() {
-    auto command_line = CefCommandLine::GetGlobalCommandLine();
-    if (command_line->HasSwitch(client::switches::kOzonePlatform)) {
-      return command_line->GetSwitchValue(client::switches::kOzonePlatform) ==
-             "wayland";
-    }
-    // Fall back to checking environment if flag not set.
-    return getenv("WAYLAND_DISPLAY") != nullptr;
-  }();
+  static bool is_wayland =
+      client::IsRunningOnWayland(CefCommandLine::GetGlobalCommandLine());
   return is_wayland;
 #else
   return false;
