@@ -131,9 +131,17 @@ class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
   /// CefDoMessageLoopWork). This callback should schedule a
   /// CefDoMessageLoopWork() call to happen on the main (UI) thread. |delay_ms|
   /// is the requested delay in milliseconds. If |delay_ms| is <= 0 then the
-  /// call should happen reasonably soon. If |delay_ms| is > 0 then the call
-  /// should be scheduled to happen after the specified delay and any currently
-  /// pending scheduled call should be cancelled.
+  /// call should happen reasonably soon. If |delay_ms| is > 0 then replace any
+  /// pending scheduled call with a call after the specified delay or after the
+  /// application's maximum pumping interval, whichever is shorter.
+  ///
+  /// The application must also schedule CefDoMessageLoopWork() calls when no
+  /// callback is received. Scheduling callbacks do not provide a complete
+  /// sequence of requests for processing all CEF work. A maximum pumping
+  /// interval of approximately 33 milliseconds between calls (30 calls per
+  /// second) is recommended. Marshal scheduling requests to the main
+  /// application thread and avoid recursively calling CefDoMessageLoopWork();
+  /// defer additional work until the active call returns.
   ///
   /*--cef()--*/
   virtual void OnScheduleMessagePumpWork(int64_t delay_ms) {}

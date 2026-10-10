@@ -245,9 +245,9 @@ typedef struct _cef_settings_t {
 
   ///
   /// Set to true (1) to have the browser process message loop run in a separate
-  /// thread. If false (0) then the CefDoMessageLoopWork() function must be
-  /// called from your application message loop. This option is only supported
-  /// on Windows and Linux.
+  /// thread. If false (0) then use CefRunMessageLoop() or call
+  /// CefDoMessageLoopWork() regularly from your application message loop. This
+  /// option is only supported on Windows and Linux.
   ///
   int multi_threaded_message_loop;
 
@@ -257,10 +257,12 @@ typedef struct _cef_settings_t {
   /// callback. This option is recommended for use in combination with the
   /// CefDoMessageLoopWork() function in cases where the CEF message loop must
   /// be integrated into an existing application message loop (see additional
-  /// comments and warnings on CefDoMessageLoopWork). Enabling this option is
-  /// not recommended for most users; leave this option disabled and use either
-  /// the CefRunMessageLoop() function or multi_threaded_message_loop if
-  /// possible.
+  /// comments and warnings on CefDoMessageLoopWork). Scheduling callbacks
+  /// supplement regular CefDoMessageLoopWork() calls; the application must
+  /// continue to schedule calls even when no callback is received. Enabling
+  /// this option is not recommended for most users; leave this option disabled
+  /// and use either the CefRunMessageLoop() function or
+  /// multi_threaded_message_loop if possible.
   ///
   int external_message_pump;
 

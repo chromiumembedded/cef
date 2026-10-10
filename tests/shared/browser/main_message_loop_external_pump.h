@@ -13,12 +13,14 @@ namespace client {
 // This MessageLoop implementation simulates the embedding of CEF into an
 // existing host application that runs its own message loop. The scheduling
 // implementation provided by this class is very simplistic and does not handle
-// all cases (for example, nested message loops on Windows will not function
-// correctly). See comments in Chromium's platform-specific
-// base/message_loop/message_pump_* source files for additional guidance when
-// implementing CefBrowserProcessHandler::OnScheduleMessagePumpWork() in your
-// application. Run cefclient or ceftests with the
-// "--external-message-pump" command-line flag to test this mode.
+// all cases. If a nested native message loop is entered during a
+// CefDoMessageLoopWork() call, the reentrancy guard defers further CEF
+// processing until that call returns. Applications that require CEF work to
+// continue during such loops need additional integration. See comments in
+// Chromium's platform-specific base/message_loop/message_pump_* source files
+// for guidance when implementing CefBrowserProcessHandler::
+// OnScheduleMessagePumpWork() in your application. Run cefclient or ceftests
+// with the "--external-message-pump" command-line flag to test this mode.
 class MainMessageLoopExternalPump : public MainMessageLoopStd {
  public:
   // Creates the singleton instance of this object. Must be called on the main

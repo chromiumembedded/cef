@@ -112,10 +112,20 @@ void CefShutdown();
 /// usage. It is recommended to enable the cef_settings_t.external_message_pump
 /// option when using this function so that
 /// CefBrowserProcessHandler::OnScheduleMessagePumpWork() callbacks can
-/// facilitate the scheduling process. This function should only be called on
-/// the main application thread and only if CefInitialize() is called with a
-/// cef_settings_t.multi_threaded_message_loop value of false. This function
-/// will not block.
+/// facilitate the scheduling process.
+///
+/// This function must be called regularly, including when external_message_pump
+/// is enabled and no OnScheduleMessagePumpWork() callback has been received.
+/// Scheduling callbacks do not provide a complete sequence of requests for
+/// processing all CEF work. A maximum interval of approximately 33 milliseconds
+/// between calls (30 calls per second) is recommended. Calling too infrequently
+/// may starve CEF work; calling too frequently may increase CPU usage.
+///
+/// This function should only be called on the main application thread and only
+/// if CefInitialize() is called with a
+/// cef_settings_t.multi_threaded_message_loop value of false. Avoid recursively
+/// calling this function; defer additional work until the active call returns.
+/// This function will not block.
 ///
 /*--cef()--*/
 void CefDoMessageLoopWork();
