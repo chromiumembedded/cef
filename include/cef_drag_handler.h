@@ -53,10 +53,12 @@ class CefDragHandler : public virtual CefBaseRefCounted {
   typedef cef_drag_operations_mask_t DragOperationsMask;
 
   ///
-  /// Called when an external drag event enters the browser window. |dragData|
-  /// contains the drag event data and |mask| represents the type of drag
-  /// operation. Return false for default drag handling behavior or true to
-  /// cancel the drag event.
+  /// Called when a drag event enters the browser's web view. Drag events may
+  /// originate outside the browser or within the web view itself. |dragData|
+  /// contains the drag event data and |mask| represents the allowed drag
+  /// operations. Return false for default drag handling behavior or true to
+  /// cancel the drag event, including dropping within the web view. Only used
+  /// with Alloy style.
   ///
   /*--cef()--*/
   virtual bool OnDragEnter(CefRefPtr<CefBrowser> browser,
