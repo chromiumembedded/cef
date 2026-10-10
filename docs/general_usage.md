@@ -985,13 +985,11 @@ void MyHandler::OnContextReleased(CefRefPtr<CefBrowser> browser,
                                   CefRefPtr<CefFrame> frame,
                                   CefRefPtr<CefV8Context> context) {
   // Remove any JavaScript callbacks registered for the context that has been released.
-  if (!callback_map_.empty()) {
-    CallbackMap::iterator it = callback_map_.begin();
-    for (; it != callback_map_.end();) {
-      if (it->second.first->IsSame(context))
-        callback_map_.erase(it++);
-      else
-        ++it;
+  for (auto it = callback_map_.begin(); it != callback_map_.end();) {
+    if (it->second.first->IsSame(context)) {
+      it = callback_map_.erase(it);
+    } else {
+      ++it;
     }
   }
 }
