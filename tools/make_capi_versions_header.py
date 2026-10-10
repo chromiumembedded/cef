@@ -17,8 +17,13 @@ def _version_finder(header, name):
 def make_capi_global_funcs(version, version_finder, funcs, defined_names):
   result = ''
   for func in funcs:
+    platform_check = get_platform_check(func)
+    if platform_check:
+      result += '#if %s\n' % platform_check
     result += 'CEF_EXPORT ' + func.get_capi_proto(
         defined_names, version=version, version_finder=version_finder) + ';\n'
+    if platform_check:
+      result += '#endif\n'
   return result
 
 

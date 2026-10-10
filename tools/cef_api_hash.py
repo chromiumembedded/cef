@@ -293,7 +293,7 @@ class CefApiHasher:
       content = read_file(os.path.join(header_dir, filename), normalize=True)
       content_objects = None
 
-      is_platform_specific = OS_TOKEN in content
+      is_platform_specific = OS_TOKEN in content or '#if !defined(OS_' in content
       is_version_specific = API_TOKEN in content
 
       # Special case for parsing cef_string.h:

@@ -8,6 +8,7 @@
 from cef_api_hash import *
 from collections import Counter
 import unittest
+from unittest.mock import patch
 
 # Test constants:
 FILENAME = 'test.h'
@@ -211,6 +212,37 @@ typedef enum {
 
 
 class TestRunClangEval(unittest.TestCase):
+
+  def test_excluded_and_mixed_platform_hashes(self):
+    for predicate, included in (('!defined(OS_MAC)', {
+        'windows', 'linux'
+    }), ('!defined(OS_MAC) && (defined(OS_WIN) || defined(OS_MAC))',
+         {'windows'})):
+      with self.subTest(predicate=predicate):
+        content = '''
+#include "include/cef_api_hash.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+typedef int cef_fixture_common_t;
+#if %s
+#if CEF_API_ADDED(CEF_NEXT)
+CEF_EXPORT int cef_fixture_platform(void);
+#endif
+#endif
+#ifdef __cplusplus
+}
+#endif
+''' % predicate
+        # Exercise file classification as well as actual Clang evaluation.
+        with patch('cef_api_hash._get_filenames', return_value=[FILENAME]), \
+            patch('cef_api_hash.read_file', return_value=content):
+          hasher = CefApiHasher('include', NONE_DEBUG_DIR)
+        old = hasher.calculate('13300', ADDED_DEFINES)
+        new = hasher.calculate(EXP_VERSION, ADDED_DEFINES)
+        self.assertEqual(1, len(set(old.values())))
+        for platform in PLATFORM_DEFINES:
+          self.assertEqual(platform in included, old[platform] != new[platform])
 
   def test_parse_platformed_content_version_13304(self):
     expected_objects = [{
