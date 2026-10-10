@@ -75,6 +75,15 @@ and must all exist on a single line.
 
 Supported method/function attributes:
 
+   platform=[win|mac|linux] (Optional, global functions only) Restrict the
+                           generated declarations and bindings to an OS.
+                           Repeat for alternatives (platform=win,platform=mac).
+                           Prefix values with ! to exclude instead
+                           (platform=!mac). Repeated exclusions are ANDed.
+                           Mixed entries include the positive platforms, then
+                           remove the exclusions. Exclusions alone start with
+                           all platforms.
+                           Match the public declaration's OS_* guards.
    capi_name=[string]      (Optional) Force a specific output name for the
                            resulting C API function.
    optional_param=[param]  (Optional) Parameter name that will be optional
