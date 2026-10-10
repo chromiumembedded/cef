@@ -91,6 +91,10 @@ code-signing certificate. Both must be signed before deployment. CEF
 installations are signed and verified separately using their own catalog and
 certificate.
 
+See [Code Signing](code_signing.md#windows) for application signing commands and
+[signed catalog creation](code_signing.md#create-a-signed-catalog) for CEF
+distributions.
+
 ## Command-Line Usage
 
 Run the bootstrap executable with installer flags:

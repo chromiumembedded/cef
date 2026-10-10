@@ -1671,6 +1671,9 @@ and a matching client-side load policy. See
 [Signature Verification](SECURITY.md#1-signature-verification) for the
 authoritative trust model and invariants.
 
+See [Create a signed catalog](../../../docs/code_signing.md#create-a-signed-catalog)
+for distribution catalog generation, signing, and verification commands.
+
 ### Config Security
 
 Config is loaded with the following priority:
