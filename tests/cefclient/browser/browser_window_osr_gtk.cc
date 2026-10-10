@@ -1694,6 +1694,12 @@ gint BrowserWindowOsrGtk::ClickEvent(GtkWidget* widget,
     case 3:
       button_type = MBT_RIGHT;
       break;
+    case 8:
+      button_type = MBT_X1;
+      break;
+    case 9:
+      button_type = MBT_X2;
+      break;
     default:
       // Other mouse buttons are not handled here.
       return FALSE;

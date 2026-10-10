@@ -49,24 +49,31 @@ std::wstring GetResourceString(UINT id) {
 }
 
 int GetCefMouseModifiers(WPARAM wparam) {
+  const int key_state = GET_KEYSTATE_WPARAM(wparam);
   int modifiers = 0;
-  if (wparam & MK_CONTROL) {
+  if (key_state & MK_CONTROL) {
     modifiers |= EVENTFLAG_CONTROL_DOWN;
   }
-  if (wparam & MK_SHIFT) {
+  if (key_state & MK_SHIFT) {
     modifiers |= EVENTFLAG_SHIFT_DOWN;
   }
   if (IsKeyDown(VK_MENU)) {
     modifiers |= EVENTFLAG_ALT_DOWN;
   }
-  if (wparam & MK_LBUTTON) {
+  if (key_state & MK_LBUTTON) {
     modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
   }
-  if (wparam & MK_MBUTTON) {
+  if (key_state & MK_MBUTTON) {
     modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
   }
-  if (wparam & MK_RBUTTON) {
+  if (key_state & MK_RBUTTON) {
     modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
+  }
+  if (key_state & MK_XBUTTON1) {
+    modifiers |= EVENTFLAG_X1_MOUSE_BUTTON;
+  }
+  if (key_state & MK_XBUTTON2) {
+    modifiers |= EVENTFLAG_X2_MOUSE_BUTTON;
   }
 
   // Low bit set from GetKeyState indicates "toggled".

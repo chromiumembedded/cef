@@ -53,11 +53,13 @@
 #include "include/cef_keyboard_handler.h"
 #include "include/cef_life_span_handler.h"
 #include "include/cef_load_handler.h"
+#include "include/cef_mouse_handler.h"
 #include "include/cef_permission_handler.h"
 #include "include/cef_print_handler.h"
 #include "include/cef_process_message.h"
 #include "include/cef_render_handler.h"
 #include "include/cef_request_handler.h"
+#include "include/cef_touch_handler.h"
 
 ///
 /// Implement this interface to provide handler implementations.
@@ -154,6 +156,20 @@ class CefClient : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() { return nullptr; }
+
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// Return the handler for mouse events.
+  ///
+  /*--cef(added=next)--*/
+  virtual CefRefPtr<CefMouseHandler> GetMouseHandler() { return nullptr; }
+
+  ///
+  /// Return the handler for touch events.
+  ///
+  /*--cef(added=next)--*/
+  virtual CefRefPtr<CefTouchHandler> GetTouchHandler() { return nullptr; }
+#endif
 
   ///
   /// Return the handler for browser life span events.

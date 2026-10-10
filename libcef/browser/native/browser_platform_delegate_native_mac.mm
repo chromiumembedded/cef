@@ -553,21 +553,24 @@ CefBrowserPlatformDelegateNativeMac::TranslateWebClickEvent(
   blink::WebMouseEvent result;
   TranslateWebMouseEvent(result, mouse_event);
 
+  result.SetType(mouseUp ? blink::WebInputEvent::Type::kMouseUp
+                         : blink::WebInputEvent::Type::kMouseDown);
+
   switch (type) {
     case MBT_LEFT:
-      result.SetType(mouseUp ? blink::WebInputEvent::Type::kMouseUp
-                             : blink::WebInputEvent::Type::kMouseDown);
       result.button = blink::WebMouseEvent::Button::kLeft;
       break;
     case MBT_MIDDLE:
-      result.SetType(mouseUp ? blink::WebInputEvent::Type::kMouseUp
-                             : blink::WebInputEvent::Type::kMouseDown);
       result.button = blink::WebMouseEvent::Button::kMiddle;
       break;
     case MBT_RIGHT:
-      result.SetType(mouseUp ? blink::WebInputEvent::Type::kMouseUp
-                             : blink::WebInputEvent::Type::kMouseDown);
       result.button = blink::WebMouseEvent::Button::kRight;
+      break;
+    case MBT_X1:
+      result.button = blink::WebMouseEvent::Button::kBack;
+      break;
+    case MBT_X2:
+      result.button = blink::WebMouseEvent::Button::kForward;
       break;
     default:
       DCHECK(false);
@@ -592,6 +595,10 @@ blink::WebMouseEvent CefBrowserPlatformDelegateNativeMac::TranslateWebMoveEvent(
       result.button = blink::WebMouseEvent::Button::kMiddle;
     } else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
       result.button = blink::WebMouseEvent::Button::kRight;
+    } else if (mouse_event.modifiers & EVENTFLAG_X1_MOUSE_BUTTON) {
+      result.button = blink::WebMouseEvent::Button::kBack;
+    } else if (mouse_event.modifiers & EVENTFLAG_X2_MOUSE_BUTTON) {
+      result.button = blink::WebMouseEvent::Button::kForward;
     } else {
       result.button = blink::WebMouseEvent::Button::kNoButton;
     }
@@ -628,6 +635,10 @@ CefBrowserPlatformDelegateNativeMac::TranslateWebWheelEvent(
     result.button = blink::WebMouseEvent::Button::kMiddle;
   } else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
     result.button = blink::WebMouseEvent::Button::kRight;
+  } else if (mouse_event.modifiers & EVENTFLAG_X1_MOUSE_BUTTON) {
+    result.button = blink::WebMouseEvent::Button::kBack;
+  } else if (mouse_event.modifiers & EVENTFLAG_X2_MOUSE_BUTTON) {
+    result.button = blink::WebMouseEvent::Button::kForward;
   } else {
     result.button = blink::WebMouseEvent::Button::kNoButton;
   }
