@@ -795,7 +795,10 @@ void OsrWindowWin::OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam) {
   } else {
     event.type = KEYEVENT_CHAR;
   }
-  event.modifiers = GetCefKeyboardModifiers(wParam, lParam);
+  event.modifiers = GetCefKeyboardModifiers();
+  if (message != WM_CHAR && message != WM_SYSCHAR) {
+    event.modifiers |= GetCefKeyboardModifiersFromKeyEvent(wParam, lParam);
+  }
 
   // mimic alt-gr check behaviour from
   // src/ui/events/win/events_win_utils.cc: GetModifiersFromKeyState

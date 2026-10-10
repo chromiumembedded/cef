@@ -681,6 +681,7 @@
       'tests/ceftests/osr_renderer_d3d11_win_unittest.cc',
       'tests/ceftests/resource_util_win_dir.cc',
       'tests/ceftests/resource_util_win_idmap.cc',
+	  'tests/ceftests/keyboard_dom_code_unittest_win.cc',
     ],
     'ceftests_sources_resources_win': [
       'tests/ceftests/win/ceftests.exe.manifest',
