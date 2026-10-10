@@ -66,7 +66,9 @@
 class CefClient : public virtual CefBaseRefCounted {
  public:
   ///
-  /// Return the handler for audio rendering events.
+  /// Return the handler for audio capture events. Only supported with Alloy
+  /// style browsers. If no handler is provided normal audio playback will be
+  /// used. See CefAudioHandler for audio capture behavior.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefAudioHandler> GetAudioHandler() { return nullptr; }

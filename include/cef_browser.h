@@ -997,14 +997,19 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
                                     const CefSize& max_size) = 0;
 
   ///
-  /// Set whether the browser's audio is muted.
+  /// Set whether the browser's audio is muted. This method does not affect the
+  /// muting of audio output caused by capture via CefAudioHandler. Calling this
+  /// method with false will not restore normal audio playback while capture is
+  /// active.
   ///
   /*--cef()--*/
   virtual void SetAudioMuted(bool mute) = 0;
 
   ///
-  /// Returns true if the browser's audio is muted.  This method can only be
-  /// called on the UI thread.
+  /// Returns true if the browser's audio is muted. This method can only be
+  /// called on the UI thread. The returned value does not reflect the muting of
+  /// audio output caused by capture via CefAudioHandler and may be false while
+  /// capture is active.
   ///
   /*--cef()--*/
   virtual bool IsAudioMuted() = 0;

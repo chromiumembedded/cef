@@ -42,7 +42,10 @@
 #include "include/cef_browser.h"
 
 ///
-/// Implement this interface to handle audio events.
+/// Implement this interface to receive captured audio from Alloy style
+/// browsers. The browser's audio output is muted during capture. Clients
+/// that require audible playback must provide their own playback of the
+/// audio data received via OnAudioStreamPacket.
 ///
 /*--cef(source=client)--*/
 class CefAudioHandler : public virtual CefBaseRefCounted {
@@ -51,9 +54,10 @@ class CefAudioHandler : public virtual CefBaseRefCounted {
 
   ///
   /// Called on the UI thread to allow configuration of audio stream parameters.
-  /// Return true to proceed with audio stream capture, or false to cancel it.
-  /// All members of |params| can optionally be configured here, but they are
-  /// also pre-filled with some sensible defaults.
+  /// Return true to proceed with audio stream capture and mute the browser's
+  /// audio output, or false to cancel capture and leave normal audio playback
+  /// unchanged. All members of |params| can optionally be configured here, but
+  /// they are also pre-filled with some sensible defaults.
   ///
   /*--cef()--*/
   virtual bool GetAudioParameters(CefRefPtr<CefBrowser> browser,
@@ -90,7 +94,7 @@ class CefAudioHandler : public virtual CefBaseRefCounted {
                                    int64_t pts) = 0;
 
   ///
-  /// Called on the UI thread when the stream has stopped. OnAudioSteamStopped
+  /// Called on the UI thread when the stream has stopped. OnAudioStreamStopped
   /// will always be called after OnAudioStreamStarted; both methods may be
   /// called multiple times for the same stream.
   ///
