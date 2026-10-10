@@ -40,6 +40,14 @@ Binary distributions, which include all files necessary to build a CEF-based app
 
 The CEF project is an extension of the Chromium project. CEF maintains development and release branches that track Chromium branches. CEF source code can be downloaded, built and packaged manually or with automated tools. Visit the [Branches and Building](https://chromiumembedded.github.io/cef/branches_and_building) page for more information.
 
+# Security Updates
+
+CEF is based on Chromium, so Chromium security vulnerabilities (CVEs) are likely to affect CEF using the same Chromium version. Applications that distribute CEF should keep their CEF version up to date.
+
+Security fixes are announced in Stable Channel updates on the [Chrome Releases blog](https://chromereleases.googleblog.com/). To receive updates automatically, subscribe to the blog's [feed](https://chromereleases.googleblog.com/feeds/posts/default) using a feed reader or a service that delivers feed updates by email. CEF does not provide a separate security announcement mailing list. See the [Chromium security documentation](https://www.chromium.org/Home/chromium-security/#how-can-i-get-access-to-chromium-vulnerabilities) for additional information, including eligibility for advance notification.
+
+There may be a delay between Chromium release announcements and the availability of corresponding CEF builds. See [Branches and Building](https://chromiumembedded.github.io/cef/branches_and_building#current-release-branches-supported) for supported branches and [Downloads](https://cef-builds.spotifycdn.com/index.html) for available builds.
+
 # External Projects
 
 The base CEF framework includes support for the C and C++ programming languages. Thanks to the hard work of external maintainers CEF can integrate with a number of other programming languages and frameworks. These external projects are not maintained by CEF so please contact the respective project maintainer if you have any questions or issues.
