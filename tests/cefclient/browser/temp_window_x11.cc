@@ -25,12 +25,18 @@ namespace {
   memset(&swa, 0, sizeof(swa));
   swa.background_pixmap = None;
   swa.override_redirect = false;
-  return XCreateWindow(xdisplay, parent_xwindow, 0, 0, 1, 1,  // size (1x1px)
-                       0,                                     // border width
-                       CopyFromParent,                        // depth
-                       InputOutput,
-                       CopyFromParent,  // visual
-                       CWBackPixmap | CWOverrideRedirect, &swa);
+  ::Window xwindow =
+      XCreateWindow(xdisplay, parent_xwindow, 0, 0, 1, 1,  // size (1x1px)
+                    0,                                     // border width
+                    CopyFromParent,                        // depth
+                    InputOutput,
+                    CopyFromParent,  // visual
+                    CWBackPixmap | CWOverrideRedirect, &swa);
+  // Chromium sends requests on the shared connection via XCB, bypassing
+  // Xlib's output buffer. Flush so that the window exists on the server before
+  // Chromium creates a browser window parented to it.
+  XFlush(xdisplay);
+  return xwindow;
 }
 
 // Close the temp window.
