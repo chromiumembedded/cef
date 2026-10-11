@@ -238,11 +238,9 @@ if (is_win) {
 
 if (is_linux) {
   declare_args() {
-    # The cefclient target depends on GTK packages that are not available in the
-    # default sysroot environment. So we should only use them when we are not
-    # using the sysroot. Alternatively, the developer might not want to use the
-    # GTK dependencies at all, in which case they can set `cef_use_gtk=false`.
-    cef_use_gtk = !use_sysroot
+    # The default Chromium sysroot includes GTK development packages. Developers
+    # who do not want GTK dependencies can set `cef_use_gtk=false`.
+    cef_use_gtk = true
   }
 }
 
@@ -412,11 +410,16 @@ source_set("libcef_static_unittested") {
   sources = [
     "libcef/browser/devtools/devtools_util.cc",
     "libcef/browser/devtools/devtools_util.h",
-    "libcef/browser/geometry_util.h",
     "libcef/browser/geometry_util.cc",
+    "libcef/browser/geometry_util.h",
+    "libcef/browser/key_event_util.h",
+    "libcef/browser/keyboard_input_event_util.cc",
   ]
 
   deps = [
+    "//components/input",
+    "//third_party/blink/public/common",
+    "//ui/events",
     "//ui/gfx/geometry",
   ]
 
@@ -424,6 +427,14 @@ source_set("libcef_static_unittested") {
     # Support relative include paths.
     "//base",
   ]
+
+  if (is_mac) {
+    sources += [ "libcef/browser/key_event_util_mac.mm" ]
+    frameworks = [ "AppKit.framework" ]
+  } else {
+    sources += [ "libcef/browser/key_event_util_aura.cc" ]
+    deps += [ "//ui/events/blink" ]
+  }
 
   configs += [
     "libcef/features:config",
@@ -439,12 +450,18 @@ test("libcef_static_unittests") {
   sources = [
     "libcef/browser/devtools/devtools_util_unittest.cc",
     "libcef/browser/geometry_util_unittest.cc",
+    "libcef/browser/key_event_util_unittest.cc",
+    "libcef/browser/keyboard_input_event_util_unittest.cc",
   ]
 
   deps = [
     ":libcef_static_unittested",
     "//base/test:run_all_unittests",
+    "//components/input",
     "//testing/gtest",
+    "//third_party/blink/public/common",
+    "//ui/events",
+    "//ui/events/blink",
   ]
 
   configs += [
@@ -1040,6 +1057,7 @@ source_set("libcef_static") {
 
   if (is_win) {
     sources += includes_win + [
+      "libcef/browser/input_event_utils_win.cc",
       "libcef/browser/native/browser_platform_delegate_native_win.cc",
       "libcef/browser/native/browser_platform_delegate_native_win.h",
       "libcef/browser/osr/browser_platform_delegate_osr_win.cc",
@@ -1066,6 +1084,7 @@ source_set("libcef_static") {
 
   if (is_linux) {
     sources += includes_linux + [
+      "libcef/browser/input_event_utils_linux.cc",
       "libcef/browser/native/browser_platform_delegate_native_linux.cc",
       "libcef/browser/native/browser_platform_delegate_native_linux.h",
       "libcef/browser/osr/browser_platform_delegate_osr_linux.cc",
@@ -1078,6 +1097,7 @@ source_set("libcef_static") {
 
     deps += [
       "//third_party/fontconfig",
+      "//ui/events/keycodes:xkb",
     ]
 
     if (ozone_platform_x11) {
@@ -1099,6 +1119,7 @@ source_set("libcef_static") {
     sources += includes_mac + [
       "libcef/browser/chrome/chrome_content_browser_client_cef_mac.mm",
       "libcef/browser/chrome/chrome_web_contents_view_delegate_cef_mac.mm",
+      "libcef/browser/input_event_utils_mac.mm",
       "libcef/browser/native/browser_platform_delegate_native_mac.h",
       "libcef/browser/native/browser_platform_delegate_native_mac.mm",
       "libcef/browser/native/cursor_util_mac.mm",
@@ -2497,6 +2518,7 @@ if (is_mac) {
     ]
     frameworks = [
       "AppKit.framework",
+      "Carbon.framework",
       "IOSurface.framework",
       "Metal.framework",
       "QuartzCore.framework",
@@ -2609,6 +2631,7 @@ if (is_mac) {
     if (is_linux) {
       sources += includes_linux +
                  gypi_paths2.shared_sources_linux +
+                 gypi_paths2.shared_sources_linux_gtk +
                  gypi_paths2.cefclient_sources_linux
 
       deps += [
@@ -2993,6 +3016,12 @@ if (is_mac) {
     if (is_linux) {
       sources += gypi_paths2.shared_sources_linux +
                  gypi_paths2.ceftests_sources_linux
+
+      if (cef_use_gtk && ozone_platform_x11) {
+        sources += gypi_paths2.shared_sources_linux_gtk
+        configs += [ ":gtk" ]
+        defines += [ "CEF_TESTS_USE_GTK" ]
+      }
 
       if (ozone_platform_x11) {
         libs = [

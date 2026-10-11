@@ -196,36 +196,54 @@ void TranslateKey(int c, int* keycode, uint32_t* modifiers) {
 class TestTextfieldDelegate : public CefTextfieldDelegate {
  public:
   TestTextfieldDelegate() = default;
+#if CEF_API_ADDED(CEF_NEXT)
+  explicit TestTextfieldDelegate(bool unified) : unified_(unified) {}
+
+  bool OnKeyboardEvent(CefRefPtr<CefTextfield> textfield,
+                       const CefKeyboardInputEvent& event) override {
+    EXPECT_EQ(sizeof(cef_keyboard_input_event_t), event.size);
+    EXPECT_GT(event.timestamp, 0);
+    latest_event_ = event;
+    ++unified_count_;
+    if (event.type == CEF_KEYEVENT_RAWKEYDOWN &&
+        event.windows_key_code == VKEY_RETURN) {
+      EXPECT_EQ(CEF_DOM_CODE_ENTER, event.dom_code);
+      EXPECT_EQ(CEF_DOM_KEY_ENTER, event.dom_key);
+    }
+    if (unified_) {
+      const bool handled = HandleEvent(textfield, event.type,
+                                       event.windows_key_code, event.modifiers);
+      if (handled) {
+        ++handled_count_;
+      }
+      return handled;
+    }
+    return false;
+  }
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
   TestTextfieldDelegate(const TestTextfieldDelegate&) = delete;
   TestTextfieldDelegate& operator=(const TestTextfieldDelegate&) = delete;
 
+  // DEPRECATED: Use OnKeyboardEvent(); retained to verify legacy fallthrough.
   bool OnKeyEvent(CefRefPtr<CefTextfield> textfield,
                   const CefKeyEvent& event) override {
-    EXPECT_TRUE(textfield.get());
-    EXPECT_EQ(textfield->GetID(), kTextfieldID);
-
-    if (event.type == KEYEVENT_RAWKEYDOWN &&
-        event.windows_key_code == VKEY_RETURN) {
-      // Got the whole string. Finish the test asynchronously.
-      CefPostTask(TID_UI, base::BindOnce(&TestTextfieldDelegate::FinishTest,
-                                         this, textfield));
-      return true;
+#if CEF_API_ADDED(CEF_NEXT)
+    ++legacy_count_;
+    EXPECT_EQ(legacy_count_, unified_count_ - handled_count_);
+    EXPECT_EQ(latest_event_.type, event.type);
+    EXPECT_EQ(latest_event_.windows_key_code, event.windows_key_code);
+    EXPECT_EQ(latest_event_.text[0], event.character);
+    EXPECT_EQ(latest_event_.unmodified_text[0], event.unmodified_character);
+    // Unhandled unified events still fall through, but handled Return must not.
+    EXPECT_FALSE(unified_ && event.type == KEYEVENT_RAWKEYDOWN &&
+                 event.windows_key_code == VKEY_RETURN);
+    if (unified_) {
+      return false;
     }
-
-    if (event.type == KEYEVENT_CHAR) {
-      int keycode;
-      uint32_t modifiers;
-      TranslateKey(kTestInputMessage[index_++], &keycode, &modifiers);
-
-      EXPECT_EQ(keycode, event.windows_key_code);
-      // Shift modifier is sometimes missing on macOS, see issue #2774.
-#if !defined(OS_MAC)
-      EXPECT_EQ(modifiers, event.modifiers);
-#endif
-    }
-
-    return false;
+#endif  // CEF_API_ADDED(CEF_NEXT)
+    return HandleEvent(textfield, event.type, event.windows_key_code,
+                       event.modifiers);
   }
 
   void OnAfterUserAction(CefRefPtr<CefTextfield> textfield) override {
@@ -233,12 +251,46 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
   }
 
  private:
+  bool HandleEvent(CefRefPtr<CefTextfield> textfield,
+                   cef_key_event_type_t type,
+                   int windows_key_code,
+                   uint32_t event_modifiers) {
+    EXPECT_TRUE(textfield.get());
+    EXPECT_EQ(textfield->GetID(), kTextfieldID);
+
+    if (type == KEYEVENT_RAWKEYDOWN && windows_key_code == VKEY_RETURN) {
+      // Got the whole string. Finish the test asynchronously.
+      CefPostTask(TID_UI, base::BindOnce(&TestTextfieldDelegate::FinishTest,
+                                         this, textfield));
+      return true;
+    }
+
+    if (type == KEYEVENT_CHAR) {
+      int keycode;
+      uint32_t modifiers;
+      TranslateKey(kTestInputMessage[index_++], &keycode, &modifiers);
+
+      EXPECT_EQ(keycode, windows_key_code);
+      // Shift modifier is sometimes missing on macOS, see issue #2774.
+#if !defined(OS_MAC)
+      EXPECT_EQ(modifiers, event_modifiers);
+#endif
+    }
+
+    return false;
+  }
+
   void FinishTest(CefRefPtr<CefTextfield> textfield) {
     // OnAfterUserAction() should be called for each unhandled character.
     EXPECT_EQ(sizeof(kTestInputMessage) - 1, after_user_action_ct_);
 
     // Verify the completed contents.
     EXPECT_STREQ(kTestInputMessage, textfield->GetText().ToString().c_str());
+#if CEF_API_ADDED(CEF_NEXT)
+    EXPECT_GT(unified_count_, 0U);
+    EXPECT_EQ(unified_ ? 1U : 0U, handled_count_);
+    EXPECT_EQ(unified_count_ - handled_count_, legacy_count_);
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
     // Close the window to end the test.
     textfield->GetWindow()->Close();
@@ -246,6 +298,11 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
 
   int index_ = 0;
   size_t after_user_action_ct_ = 0;
+#if CEF_API_ADDED(CEF_NEXT)
+  bool unified_ = false;
+  size_t unified_count_ = 0, legacy_count_ = 0, handled_count_ = 0;
+  CefKeyboardInputEvent latest_event_;
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
   IMPLEMENT_REFCOUNTING(TestTextfieldDelegate);
 };
@@ -263,9 +320,9 @@ void SendKeyEvents(CefRefPtr<CefWindow> window) {
   window->SendKeyPress(VKEY_RETURN, 0);
 }
 
-void RunTextfieldKeyEvent(CefRefPtr<CefWindow> window) {
-  CefRefPtr<CefTextfield> textfield =
-      CefTextfield::CreateTextfield(new TestTextfieldDelegate());
+void RunTextfieldKeyEventWithDelegate(CefRefPtr<CefTextfieldDelegate> delegate,
+                                      CefRefPtr<CefWindow> window) {
+  CefRefPtr<CefTextfield> textfield = CefTextfield::CreateTextfield(delegate);
   textfield->SetID(kTextfieldID);
 
   EXPECT_TRUE(textfield->AsTextfield());
@@ -292,6 +349,10 @@ void RunTextfieldKeyEvent(CefRefPtr<CefWindow> window) {
   CefPostDelayedTask(TID_UI, base::BindOnce(&SendKeyEvents, window), 100);
 }
 
+void RunTextfieldKeyEvent(CefRefPtr<CefWindow> window) {
+  RunTextfieldKeyEventWithDelegate(new TestTextfieldDelegate(), window);
+}
+
 void TextfieldKeyEventImpl(CefRefPtr<CefWaitableEvent> event) {
   if (IsRunningOnWayland()) {
     // Skipping test on Wayland. EventGenerator key events don't go through
@@ -306,9 +367,27 @@ void TextfieldKeyEventImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, std::move(config));
 }
 
+#if CEF_API_ADDED(CEF_NEXT)
+void TextfieldKeyboardEventImpl(CefRefPtr<CefWaitableEvent> event) {
+  if (IsRunningOnWayland()) {
+    event->Signal();
+    return;
+  }
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(
+      RunTextfieldKeyEventWithDelegate,
+      CefRefPtr<CefTextfieldDelegate>(new TestTextfieldDelegate(true)));
+  config->close_window = false;
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+#endif  // CEF_API_ADDED(CEF_NEXT)
+
 }  // namespace
 
 // Test Textfield input and events. This is primarily to exercise exposed CEF
 // APIs and is not intended to comprehensively test Textfield-related behavior
 // (which we presume that Chromium is testing).
 TEXTFIELD_TEST_ASYNC(TextfieldKeyEvent)
+#if CEF_API_ADDED(CEF_NEXT)
+TEXTFIELD_TEST_ASYNC(TextfieldKeyboardEvent)
+#endif  // CEF_API_ADDED(CEF_NEXT)

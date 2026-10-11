@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "include/base/cef_build.h"
+#include "include/cef_input_event_utils.h"
 #include "include/views/cef_display.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/osr_ime_handler_win.h"
@@ -782,6 +783,12 @@ void OsrWindowWin::OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     return;
   }
 
+#if CEF_API_ADDED(CEF_NEXT)
+  CefKeyboardInputEvent event;
+  if (CefKeyboardInputEventFromWindowsMessage(message, wParam, lParam, event)) {
+    browser_->GetHost()->SendKeyboardEvent(event);
+  }
+#else
   CefKeyEvent event;
   event.windows_key_code = wParam;
   event.native_key_code = lParam;
@@ -819,6 +826,7 @@ void OsrWindowWin::OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam) {
   }
 
   browser_->GetHost()->SendKeyEvent(event);
+#endif  // CEF_API_ADDED(CEF_NEXT)
 }
 
 void OsrWindowWin::OnPaint() {

@@ -123,22 +123,38 @@ void ViewsMenuBar::SetMenuFocusable(bool focusable) {
   }
 }
 
+#if CEF_API_ADDED(CEF_NEXT)
+bool ViewsMenuBar::OnKeyEvent(const CefKeyboardInputEvent& event) {
+  constexpr auto kRawKeyDown = CEF_KEYEVENT_RAWKEYDOWN;
+  constexpr auto kIgnoredModifiers =
+      CEF_EVENTFLAG_ALT_DOWN | CEF_EVENTFLAG_CONTROL_DOWN;
+#else
+// DEPRECATED: Use CefKeyboardInputEvent; retained for older API versions.
 bool ViewsMenuBar::OnKeyEvent(const CefKeyEvent& event) {
+  constexpr auto kRawKeyDown = KEYEVENT_RAWKEYDOWN;
+  constexpr auto kIgnoredModifiers =
+      EVENTFLAG_ALT_DOWN | EVENTFLAG_CONTROL_DOWN;
+#endif  // CEF_API_ADDED(CEF_NEXT)
   if (!panel_) {
     return false;
   }
 
-  if (event.type != KEYEVENT_RAWKEYDOWN) {
+  if (event.type != kRawKeyDown) {
     return false;
   }
 
   // Do not check mnemonics if the Alt or Ctrl modifiers are pressed. For
   // example Ctrl+<T> is an accelerator, but <T> only is a mnemonic.
-  if (event.modifiers & (EVENTFLAG_ALT_DOWN | EVENTFLAG_CONTROL_DOWN)) {
+  if (event.modifiers & kIgnoredModifiers) {
     return false;
   }
 
-  MnemonicMap::const_iterator it = mnemonics_.find(ToLower(event.character));
+#if CEF_API_ADDED(CEF_NEXT)
+  const auto character = event.text[0];
+#else
+  const auto character = event.character;
+#endif  // CEF_API_ADDED(CEF_NEXT)
+  MnemonicMap::const_iterator it = mnemonics_.find(ToLower(character));
   if (it == mnemonics_.end()) {
     return false;
   }

@@ -229,9 +229,7 @@ bool CefBrowserViewImpl::HandleKeyboardEvent(
 
   // Give the CefWindowDelegate a chance to handle the event.
   if (auto* window_impl = cef_window_impl()) {
-    CefKeyEvent cef_event;
-    if (GetCefKeyEvent(event, cef_event) &&
-        window_impl->OnKeyEvent(cef_event)) {
+    if (window_impl->OnKeyboardEvent(event)) {
       return true;
     }
   }

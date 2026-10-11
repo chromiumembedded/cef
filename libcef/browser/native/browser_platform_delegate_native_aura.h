@@ -45,6 +45,8 @@ class CefBrowserPlatformDelegateNativeAura
                             bool want_dip_coords) const override;
 
   // CefBrowserPlatformDelegateNative methods:
+  // DEPRECATED: Legacy SendKeyEvent conversion; use
+  // TranslateWebKeyboardInputEvent for unified keyboard input.
   input::NativeWebKeyboardEvent TranslateWebKeyEvent(
       const CefKeyEvent& key_event) const override;
   blink::WebMouseEvent TranslateWebClickEvent(
@@ -60,6 +62,8 @@ class CefBrowserPlatformDelegateNativeAura
       int deltaY) const override;
 
   // Translate CEF events to Chromium UI events.
+  // DEPRECATED: Retained for the legacy SendKeyEvent native key/IME path.
+  // Unified input uses SendKeyboardEvent with a resolved portable snapshot.
   virtual ui::KeyEvent TranslateUiKeyEvent(
       const CefKeyEvent& key_event) const = 0;
   virtual ui::MouseEvent TranslateUiClickEvent(

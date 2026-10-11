@@ -5,6 +5,8 @@
 #include "cef/libcef/browser/native/browser_platform_delegate_native.h"
 
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/browser_event_util.h"
+#include "components/input/native_web_keyboard_event.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
@@ -14,6 +16,12 @@ CefBrowserPlatformDelegateNative::CefBrowserPlatformDelegateNative(
     const CefWindowInfo& window_info,
     SkColor background_color)
     : window_info_(window_info), background_color_(background_color) {}
+
+input::NativeWebKeyboardEvent
+CefBrowserPlatformDelegateNative::TranslateWebKeyboardInputEvent(
+    const blink::WebKeyboardEvent& event) const {
+  return CreateNativeKeyboardInputEvent(event, gfx::NativeView());
+}
 
 SkColor CefBrowserPlatformDelegateNative::GetBackgroundColor() const {
   return background_color_;

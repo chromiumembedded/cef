@@ -35,8 +35,12 @@ class CefBrowserPlatformDelegateNative
   void NotifyScreenInfoChanged() override;
 
   // Translate CEF events to Chromium/Blink Web events.
+  // DEPRECATED: Legacy SendKeyEvent conversion; use
+  // TranslateWebKeyboardInputEvent for unified keyboard input.
   virtual input::NativeWebKeyboardEvent TranslateWebKeyEvent(
       const CefKeyEvent& key_event) const = 0;
+  virtual input::NativeWebKeyboardEvent TranslateWebKeyboardInputEvent(
+      const blink::WebKeyboardEvent& event) const;
   virtual blink::WebMouseEvent TranslateWebClickEvent(
       const CefMouseEvent& mouse_event,
       CefBrowserHost::MouseButtonType type,

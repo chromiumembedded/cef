@@ -39,9 +39,10 @@
 #include "include/internal/cef_types.h"
 
 ///
-/// Template class that provides common functionality for complex CEF structure
-/// wrapping. Use only with non-POD types that begin with a `size_t size` member
-/// and can benefit from referencing unowned members.
+/// Template class that provides common functionality for CEF structure
+/// wrapping. Use with types that begin with a `size_t size` member. Types with
+/// owned resources require custom traits; POD types without owned resources
+/// can use CefStructBaseSimpleTraits.
 ///
 template <class traits>
 class CefStructBase : public traits::struct_type {
@@ -146,6 +147,28 @@ class CefStructBase : public traits::struct_type {
   static void Clear(struct_type* s) { traits::clear(s); }
 
   struct_type* attached_to_ = nullptr;
+};
+
+///
+/// Traits for wrapping POD structures that begin with a `size_t size` member
+/// and contain no owned resources. Copies are bounded by the source size, and
+/// members absent from older structures are zero-initialized.
+///
+template <class T>
+struct CefStructBaseSimpleTraits {
+  using struct_type = T;
+
+  static void init(struct_type* s) { s->size = sizeof(struct_type); }
+  static void clear(struct_type*) {}
+  static void set(const struct_type* src, struct_type* target, bool) {
+    if (src == target) {
+      return;
+    }
+    const size_t size = target->size;
+    memset(target, 0, sizeof(struct_type));
+    memcpy(target, src, std::min(src->size, sizeof(struct_type)));
+    target->size = size;
+  }
 };
 
 ///
@@ -358,9 +381,21 @@ class CefScreenInfo : public CefStructBaseSimple<cef_screen_info_t> {
 };
 
 ///
-/// Class representing a a keyboard event.
+/// Class representing a keyboard event.
+/// DEPRECATED: Use CefKeyboardInputEvent with the unified browser and Views
+/// keyboard callbacks instead. This type remains supported by legacy keyboard
+/// callbacks.
 ///
 using CefKeyEvent = CefStructBaseSimple<cef_key_event_t>;
+
+#if CEF_API_ADDED(CEF_NEXT)
+
+using CefKeyboardInputEvent =
+    CefStructBase<CefStructBaseSimpleTraits<cef_keyboard_input_event_t>>;
+using CefInputEventContext =
+    CefStructBase<CefStructBaseSimpleTraits<cef_input_event_context_t>>;
+
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
 ///
 /// Class representing a mouse event.

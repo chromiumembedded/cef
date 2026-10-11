@@ -50,10 +50,34 @@ class CefTextfield;
 /*--cef(source=client)--*/
 class CefTextfieldDelegate : public CefViewDelegate {
  public:
+#if CEF_API_ADDED(CEF_NEXT)
+
+  ///
+  /// Called when |textfield| receives a keyboard event. |event| contains the
+  /// resolved platform-independent keyboard snapshot. Return true to handle
+  /// the event or false to try OnKeyEvent before default handling.
+  ///
+  /// On macOS, native Views text interpretation may consume a printable
+  /// keydown and deliver CEF_KEYEVENT_CHAR instead. CEF_KEYEVENT_KEYUP can
+  /// still follow, so do not assume that every keyup has a corresponding
+  /// keydown callback.
+  ///
+  /*--cef(added=next)--*/
+  virtual bool OnKeyboardEvent(CefRefPtr<CefTextfield> textfield,
+                               const CefKeyboardInputEvent& event) {
+    return false;
+  }
+
+#endif  // CEF_API_ADDED(CEF_NEXT)
+
   ///
   /// Called when |textfield| receives a keyboard event. |event| contains
   /// information about the keyboard event. Return true if the keyboard event
   /// was handled or false otherwise for default handling.
+  /// On macOS, native Views text interpretation may deliver KEYEVENT_CHAR
+  /// instead of a printable keydown, followed by KEYEVENT_KEYUP. Do not assume
+  /// that every keyup has a corresponding keydown callback.
+  /// DEPRECATED: Use OnKeyboardEvent with CefKeyboardInputEvent instead.
   ///
   /*--cef()--*/
   virtual bool OnKeyEvent(CefRefPtr<CefTextfield> textfield,

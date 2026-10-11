@@ -9,7 +9,7 @@
 #include "tests/cefclient/browser/browser_window.h"
 #include "tests/cefclient/browser/client_handler_osr.h"
 #include "tests/cefclient/browser/osr_renderer_settings.h"
-#include "tests/cefclient/browser/text_input_client_osr_mac.h"
+#include "tests/shared/browser/text_input_client_osr_mac.h"
 
 namespace client {
 

@@ -216,6 +216,16 @@ class TestHandler : public CefClient,
   void OnWindowCreated(int browser_id);
   virtual void OnWindowDestroyed(int browser_id);
   virtual void OnWindowActivationChanged(int browser_id, bool active) {}
+#if CEF_API_ADDED(CEF_NEXT)
+  virtual bool OnWindowKeyboardEvent(int browser_id,
+                                     const CefKeyboardInputEvent& event) {
+    return false;
+  }
+#endif  // CEF_API_ADDED(CEF_NEXT)
+  // DEPRECATED: Use OnWindowKeyboardEvent(); retained for legacy route tests.
+  virtual bool OnWindowKeyEvent(int browser_id, const CefKeyEvent& event) {
+    return false;
+  }
 
   // Returns the count of TestHandlers the currently exist.
   static size_t GetTestHandlerCount() {

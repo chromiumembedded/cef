@@ -14,7 +14,9 @@
 #include "base/threading/thread_restrictions.h"
 #include "cef/include/internal/cef_types_mac.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/browser_event_util.h"
 #include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/key_event_util.h"
 #include "cef/libcef/browser/native/javascript_dialog_runner_mac.h"
 #include "cef/libcef/browser/native/menu_runner_mac.h"
 #include "cef/libcef/browser/thread_util.h"
@@ -120,30 +122,6 @@ NSTimeInterval currentEventTimestamp() {
     // and let the client provide it.
     return 0;
   }
-}
-
-NSUInteger NativeModifiers(int cef_modifiers) {
-  NSUInteger native_modifiers = 0;
-  if (cef_modifiers & EVENTFLAG_SHIFT_DOWN) {
-    native_modifiers |= NSEventModifierFlagShift;
-  }
-  if (cef_modifiers & EVENTFLAG_CONTROL_DOWN) {
-    native_modifiers |= NSEventModifierFlagControl;
-  }
-  if (cef_modifiers & EVENTFLAG_ALT_DOWN) {
-    native_modifiers |= NSEventModifierFlagOption;
-  }
-  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN) {
-    native_modifiers |= NSEventModifierFlagCommand;
-  }
-  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON) {
-    native_modifiers |= NSEventModifierFlagCapsLock;
-  }
-  if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON) {
-    native_modifiers |= NSEventModifierFlagNumericPad;
-  }
-
-  return native_modifiers;
 }
 
 constexpr int kDefaultHeight = 750;
@@ -482,66 +460,19 @@ bool CefBrowserPlatformDelegateNativeMac::IsPrintPreviewSupported() const {
 }
 
 input::NativeWebKeyboardEvent
+CefBrowserPlatformDelegateNativeMac::TranslateWebKeyboardInputEvent(
+    const blink::WebKeyboardEvent& event) const {
+  return CreateNativeKeyboardInputEvent(
+      event,
+      gfx::NativeView(CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(GetHostWindowHandle())));
+}
+
+// DEPRECATED: Legacy SendKeyEvent conversion; use
+// TranslateWebKeyboardInputEvent for unified keyboard input.
+input::NativeWebKeyboardEvent
 CefBrowserPlatformDelegateNativeMac::TranslateWebKeyEvent(
     const CefKeyEvent& key_event) const {
-  input::NativeWebKeyboardEvent result(
-      blink::WebInputEvent::Type::kUndefined,
-      blink::WebInputEvent::Modifiers::kNoModifiers, ui::EventTimeForNow());
-
-  // Use a synthetic NSEvent in order to obtain the windowsKeyCode member from
-  // the NativeWebKeyboardEvent constructor. This is the only member which can
-  // not be easily translated (without hardcoding keyCodes)
-  // Determining whether a modifier key is left or right seems to be done
-  // through the key code as well.
-  NSEventType event_type;
-  if (key_event.character == 0 && key_event.unmodified_character == 0) {
-    // Check if both character and unmodified_characther are empty to determine
-    // if this was a NSEventTypeFlagsChanged event.
-    // A dead key will have an empty character, but a non-empty unmodified
-    // character
-    event_type = NSEventTypeFlagsChanged;
-  } else {
-    switch (key_event.type) {
-      case KEYEVENT_RAWKEYDOWN:
-      case KEYEVENT_KEYDOWN:
-      case KEYEVENT_CHAR:
-        event_type = NSEventTypeKeyDown;
-        break;
-      case KEYEVENT_KEYUP:
-        event_type = NSEventTypeKeyUp;
-        break;
-    }
-  }
-
-  NSString* charactersIgnoringModifiers =
-      [[NSString alloc] initWithCharacters:reinterpret_cast<const unichar*>(
-                                               &key_event.unmodified_character)
-                                    length:1];
-  NSString* characters = [[NSString alloc]
-      initWithCharacters:reinterpret_cast<const unichar*>(&key_event.character)
-                  length:1];
-
-  NSEvent* synthetic_event =
-      [NSEvent keyEventWithType:event_type
-                             location:NSMakePoint(0, 0)
-                        modifierFlags:NativeModifiers(key_event.modifiers)
-                            timestamp:currentEventTimestamp()
-                         windowNumber:0
-                              context:nil
-                           characters:characters
-          charactersIgnoringModifiers:charactersIgnoringModifiers
-                            isARepeat:NO
-                              keyCode:key_event.native_key_code];
-
-  result =
-      input::NativeWebKeyboardEvent(base::apple::OwnedNSEvent(synthetic_event));
-  if (key_event.type == KEYEVENT_CHAR) {
-    result.SetType(blink::WebInputEvent::Type::kChar);
-  }
-
-  result.is_system_key = key_event.is_system_key;
-
-  return result;
+  return GetLegacyWebKeyEvent(key_event, currentEventTimestamp());
 }
 
 blink::WebMouseEvent

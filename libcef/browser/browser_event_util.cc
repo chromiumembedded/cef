@@ -5,65 +5,19 @@
 #include "cef/libcef/browser/browser_event_util.h"
 
 #include "components/input/native_web_keyboard_event.h"
+#include "ui/events/keycodes/dom/keycode_converter.h"
 
-bool GetCefKeyEvent(const input::NativeWebKeyboardEvent& event,
-                    CefKeyEvent& cef_event) {
-  switch (event.GetType()) {
-    case blink::WebKeyboardEvent::Type::kRawKeyDown:
-      cef_event.type = KEYEVENT_RAWKEYDOWN;
-      break;
-    case blink::WebKeyboardEvent::Type::kKeyDown:
-      cef_event.type = KEYEVENT_KEYDOWN;
-      break;
-    case blink::WebKeyboardEvent::Type::kKeyUp:
-      cef_event.type = KEYEVENT_KEYUP;
-      break;
-    case blink::WebKeyboardEvent::Type::kChar:
-      cef_event.type = KEYEVENT_CHAR;
-      break;
-    default:
-      return false;
+#if !BUILDFLAG(IS_MAC)
+input::NativeWebKeyboardEvent CreateNativeKeyboardInputEvent(
+    const blink::WebKeyboardEvent& event,
+    gfx::NativeView native_view) {
+  if (!event.dom_code ||
+      event.native_key_code == ui::KeycodeConverter::InvalidNativeKeycode()) {
+    input::NativeWebKeyboardEvent result(event.GetType(), event.GetModifiers(),
+                                         event.TimeStamp());
+    static_cast<blink::WebKeyboardEvent&>(result) = event;
+    return result;
   }
-
-  cef_event.modifiers = 0;
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kShiftKey) {
-    cef_event.modifiers |= EVENTFLAG_SHIFT_DOWN;
-  }
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kControlKey) {
-    cef_event.modifiers |= EVENTFLAG_CONTROL_DOWN;
-  }
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kAltKey) {
-    cef_event.modifiers |= EVENTFLAG_ALT_DOWN;
-  }
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kMetaKey) {
-    cef_event.modifiers |= EVENTFLAG_COMMAND_DOWN;
-  }
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsKeyPad) {
-    cef_event.modifiers |= EVENTFLAG_IS_KEY_PAD;
-  }
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsLeft) {
-    cef_event.modifiers |= EVENTFLAG_IS_LEFT;
-  }
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsRight) {
-    cef_event.modifiers |= EVENTFLAG_IS_RIGHT;
-  }
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kAltGrKey) {
-    cef_event.modifiers |= EVENTFLAG_ALTGR_DOWN;
-  }
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsAutoRepeat) {
-    cef_event.modifiers |= EVENTFLAG_IS_REPEAT;
-  }
-
-  cef_event.windows_key_code = event.windows_key_code;
-  cef_event.native_key_code = event.native_key_code;
-  cef_event.is_system_key = event.is_system_key;
-  cef_event.character = event.text[0];
-  cef_event.unmodified_character = event.unmodified_text[0];
-
-  return true;
+  return input::NativeWebKeyboardEvent(event, native_view);
 }
-
-bool GetCefKeyEvent(const ui::KeyEvent& event, CefKeyEvent& cef_event) {
-  input::NativeWebKeyboardEvent native_event(event);
-  return GetCefKeyEvent(native_event, cef_event);
-}
+#endif

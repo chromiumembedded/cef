@@ -17,6 +17,7 @@
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/geometry_util.h"
+#include "cef/libcef/browser/key_event_util.h"
 #include "cef/libcef/browser/native/native_widget_delegate.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "components/input/native_web_keyboard_event.h"
@@ -27,10 +28,6 @@
 #include "ui/display/display.h"
 #include "ui/display/screen.h"
 #include "ui/display/win/screen_win.h"
-#include "ui/events/keycodes/dom/dom_key.h"
-#include "ui/events/keycodes/dom/keycode_converter.h"
-#include "ui/events/keycodes/keyboard_code_conversion_win.h"
-#include "ui/events/keycodes/platform_key_map_win.h"
 #include "ui/gfx/geometry/vector2d.h"
 #include "ui/gfx/win/hwnd_util.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_win.h"
@@ -449,36 +446,11 @@ CefBrowserPlatformDelegateNativeWin::GetRootWindowBounds() {
   return std::nullopt;
 }
 
+// DEPRECATED: Retained for the legacy SendKeyEvent native key/IME path.
+// Unified input uses SendKeyboardEvent with a resolved portable snapshot.
 ui::KeyEvent CefBrowserPlatformDelegateNativeWin::TranslateUiKeyEvent(
     const CefKeyEvent& key_event) const {
-  int flags = TranslateUiEventModifiers(key_event.modifiers);
-  ui::KeyboardCode key_code =
-      ui::KeyboardCodeForWindowsKeyCode(key_event.windows_key_code);
-  ui::DomCode dom_code =
-      ui::KeycodeConverter::NativeKeycodeToDomCode(key_event.native_key_code);
-  base::TimeTicks time_stamp = GetEventTimeStamp();
-
-  if (key_event.type == KEYEVENT_CHAR) {
-    return ui::KeyEvent::FromCharacter(/*character=*/key_event.windows_key_code,
-                                       key_code, dom_code, flags, time_stamp);
-  }
-
-  ui::EventType type = ui::EventType::kUnknown;
-  switch (key_event.type) {
-    case KEYEVENT_RAWKEYDOWN:
-    case KEYEVENT_KEYDOWN:
-      type = ui::EventType::kKeyPressed;
-      break;
-    case KEYEVENT_KEYUP:
-      type = ui::EventType::kKeyReleased;
-      break;
-    default:
-      DCHECK(false);
-  }
-
-  ui::DomKey dom_key =
-      ui::PlatformKeyMap::DomKeyFromKeyboardCode(key_code, &flags);
-  return ui::KeyEvent(type, key_code, dom_code, flags, dom_key, time_stamp);
+  return GetLegacyUiKeyEvent(key_event, GetEventTimeStamp());
 }
 
 gfx::Vector2d CefBrowserPlatformDelegateNativeWin::GetUiWheelEventOffset(

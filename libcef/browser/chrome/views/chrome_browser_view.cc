@@ -19,6 +19,14 @@ ChromeBrowserView::~ChromeBrowserView() {
   }
 }
 
+bool ChromeBrowserView::HandleKeyboardEvent(
+    const input::NativeWebKeyboardEvent& event) {
+  // Preserve platform handling, then let CEF handle accelerators and window
+  // callbacks before Chromium's native fallback. See CEF issue #3797.
+  return browser_widget()->HandleKeyboardEvent(event) ||
+         cef_browser_view_->HandleKeyboardEvent(event);
+}
+
 void ChromeBrowserView::InitBrowser(Browser* browser) {
   DCHECK(!web_view_);
 

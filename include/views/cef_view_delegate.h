@@ -121,7 +121,11 @@ class CefViewDelegate : public virtual CefBaseRefCounted {
                                const CefRect& new_bounds) {}
 
   ///
-  /// Called when |view| gains focus.
+  /// Called when |view| gains focus within its containing Window. Containers,
+  /// including CefWindow, are not focusable by default; call SetFocusable(true)
+  /// and RequestFocus() to focus them. This callback does not report focus
+  /// gained by child Views or activation of the native Window. Use
+  /// CefWindowDelegate::OnWindowActivationChanged for native Window activation.
   ///
   /*--cef()--*/
   virtual void OnFocus(CefRefPtr<CefView> view) {}

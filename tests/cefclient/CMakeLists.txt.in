@@ -42,6 +42,7 @@
   'set': 'CEFCLIENT_LINUX_SRCS',
   'includes': [
     'shared_sources_linux',
+    'shared_sources_linux_gtk',
     'cefclient_sources_linux',
   ],
 }}

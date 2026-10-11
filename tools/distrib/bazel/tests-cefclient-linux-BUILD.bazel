@@ -37,6 +37,7 @@ declare_exe(
     srcs = [
         "{}:SrcsLinux".format(PKG_NAME),
         "//tests/shared:SrcsLinux",
+        "//tests/shared:KeyboardInputGtk",
     ],
     data = [
         ":{}".format(copy_target),

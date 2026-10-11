@@ -43,6 +43,7 @@ class CefNativeWidgetMac : public views::NativeWidgetMac {
   void OnWindowFullscreenTransitionStart() override;
   void OnWindowFullscreenTransitionComplete() override;
   void OnWindowInitialized() override;
+  ui::EventDispatchDetails DispatchKeyEventPostIME(ui::KeyEvent* key) override;
 
  private:
   const CefRefPtr<CefWindow> window_;
