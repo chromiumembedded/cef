@@ -42,6 +42,7 @@ declare_main_app(
         "{}:BrowserLibMac".format(PKG_NAME),
     ],
     linkopts = [
+        "-framework Carbon",
         "-framework IOSurface",
         "-framework Metal",
         "-framework QuartzCore",

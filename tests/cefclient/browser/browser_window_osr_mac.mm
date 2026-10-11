@@ -12,12 +12,12 @@
 #include <optional>
 
 #include "include/base/cef_logging.h"
+#include "include/cef_input_event_utils.h"
 #include "include/cef_parser.h"
 #include "include/views/cef_display.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/cefclient/browser/bytes_write_handler.h"
 #include "tests/cefclient/browser/main_context.h"
-#include "tests/cefclient/browser/text_input_client_osr_mac.h"
 #include "tests/cefclient/browser/util_mac.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
@@ -25,6 +25,7 @@
 #include "tests/shared/browser/osr_accessibility_node.h"
 #include "tests/shared/browser/osr_begin_frame_timer_mac.h"
 #include "tests/shared/browser/osr_renderer_metal.h"
+#include "tests/shared/browser/text_input_client_osr_mac.h"
 
 @interface BrowserOsrView
     : NSView <NSDraggingSource, NSDraggingDestination, NSAccessibility> {
@@ -293,10 +294,23 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
       // ignore it and ask the host view whether IME is active or not.
       [text_input_context_osr_mac_ handleEvent:event];
 
+#if CEF_API_ADDED(CEF_NEXT)
+      CefKeyboardInputEvent keyEvent;
+      // The text client still processes composition/oversized insertion when
+      // native conversion rejects the keyboard text capacity.
+      const BOOL keyEventValid = CefKeyboardInputEventFromMacEvent(
+          CAST_NSEVENT_TO_CEF_EVENT_HANDLE(event), keyEvent);
+#else
       CefKeyEvent keyEvent;
       [self getKeyEvent:keyEvent forEvent:event];
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
+#if CEF_API_ADDED(CEF_NEXT)
+      [text_input_client_ HandleKeyEventAfterTextInputClient:keyEvent
+                                               keyEventValid:keyEventValid];
+#else
       [text_input_client_ HandleKeyEventAfterTextInputClient:keyEvent];
+#endif  // CEF_API_ADDED(CEF_NEXT)
     }
   }
 
@@ -416,19 +430,39 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
     return;
   }
 
+#if CEF_API_ADDED(CEF_NEXT)
+  CefKeyboardInputEvent keyEvent;
+  if (CefKeyboardInputEventFromMacEvent(CAST_NSEVENT_TO_CEF_EVENT_HANDLE(event),
+                                        keyEvent)) {
+    browser->GetHost()->SendKeyboardEvent(keyEvent);
+  }
+#else
   CefKeyEvent keyEvent;
   [self getKeyEvent:keyEvent forEvent:event];
 
   keyEvent.type = KEYEVENT_KEYUP;
   browser->GetHost()->SendKeyEvent(keyEvent);
+#endif  // CEF_API_ADDED(CEF_NEXT)
 }
 
 - (void)flagsChanged:(NSEvent*)event {
+#if CEF_API_ADDED(CEF_NEXT)
+  CefRefPtr<CefBrowser> browser = [self getBrowser];
+  CefKeyboardInputEvent keyEvent;
+  if (browser && CefKeyboardInputEventFromMacEvent(
+                     CAST_NSEVENT_TO_CEF_EVENT_HANDLE(event), keyEvent)) {
+    browser->GetHost()->SendKeyboardEvent(keyEvent);
+  }
+  if (client::MainContext::Get()->TouchEventsEnabled()) {
+    [self toggleTouchEmulation:event];
+  }
+#else
   if ([self isKeyUpEvent:event]) {
     [self keyUp:event];
   } else {
     [self keyDown:event];
   }
+#endif  // CEF_API_ADDED(CEF_NEXT)
 }
 
 - (void)shortCircuitScrollWheelEvent:(NSEvent*)event {

@@ -2,8 +2,10 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#if defined(CEF_TESTS_USE_X11)
 #include <X11/Xlib.h>
 #include <gdk/gdkx.h>
+#endif
 #include <gtk/gtk.h>
 #undef Success     // Definition conflicts with cef_message_router.h
 #undef RootWindow  // Definition conflicts with root_window.h
@@ -33,6 +35,7 @@
 namespace client {
 namespace {
 
+#if defined(CEF_TESTS_USE_X11)
 int XErrorHandlerImpl(Display* display, XErrorEvent* event) {
   LOG(WARNING) << "X error received: " << "type " << event->type << ", "
                << "serial " << event->serial << ", " << "error_code "
@@ -45,6 +48,7 @@ int XErrorHandlerImpl(Display* display, XErrorEvent* event) {
 int XIOErrorHandlerImpl(Display* display) {
   return 0;
 }
+#endif  // defined(CEF_TESTS_USE_X11)
 
 void TerminationSignalHandler(int signatl) {
   LOG(ERROR) << "Received termination signal: " << signatl;
@@ -87,6 +91,16 @@ int RunMain(int argc, char* argv[]) {
 
   // Create the main context object.
   auto context = std::make_unique<MainContextImpl>(command_line, true);
+
+#if !defined(CEF_TESTS_USE_X11)
+  // Native parent windows and OSR rendering with the X11 Ozone platform
+  // require X11 support.
+  if (!IsRunningOnWayland(command_line)) {
+    LOG(ERROR) << "The X11 Ozone platform requires cef_use_x11=true. Run with "
+                  "--ozone-platform=wayland.";
+    return 1;
+  }
+#endif  // !defined(CEF_TESTS_USE_X11)
 
   // Windowed browsers are parented to an X11 window, and CEF does not support
   // parent windows with the Wayland Ozone platform.
@@ -157,10 +171,12 @@ int RunMain(int argc, char* argv[]) {
 
   // Install xlib error handlers so that the application won't be terminated
   // on non-fatal errors. Must be done after initializing GTK.
+#if defined(CEF_TESTS_USE_X11)
   if (GDK_IS_X11_DISPLAY(gdk_display_get_default())) {
     XSetErrorHandler(XErrorHandlerImpl);
     XSetIOErrorHandler(XIOErrorHandlerImpl);
   }
+#endif
 
   // Install a signal handler so we clean up after ourselves.
   signal(SIGINT, TerminationSignalHandler);

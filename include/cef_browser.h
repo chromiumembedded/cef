@@ -1094,6 +1094,32 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /*--cef(added=experimental)--*/
   virtual void SetAxViewportCollapse(bool enabled) = 0;
 #endif
+
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// Send a complete portable keyboard snapshot. Key identity and text are
+  /// preserved without consulting the receiving keyboard layout. Zero timestamp
+  /// uses the dispatch time. Invalid snapshots are silently ignored, including
+  /// unsupported types/modifier bits, invalid nonzero DOM encodings, negative
+  /// timestamps, unterminated text buffers, and is_system_key values other than
+  /// zero or one. Supports off-screen and native browser views. May be called
+  /// on any thread.
+  ///
+  /// For windowed browsers, events are forwarded directly to the focused web-
+  /// content renderer, bypassing the native browser view's key-event entry
+  /// point. This does not dispatch input to other native controls or run native
+  /// IME processing. Browser keyboard callbacks and unhandled-event fallback
+  /// handling still apply, including Views accelerator handling.
+  ///
+  /// Text in CEF_KEYEVENT_RAWKEYDOWN is metadata and does not generate a
+  /// CEF_KEYEVENT_CHAR event. For ordinary portable typing, send separate
+  /// RAWKEYDOWN, CHAR, and KEYUP events. Native key conversion alone does not
+  /// perform text insertion or IME composition. For off-screen IME composition,
+  /// use ImeSetComposition and related methods.
+  ///
+  /*--cef(added=next)--*/
+  virtual void SendKeyboardEvent(const CefKeyboardInputEvent& event) = 0;
+#endif  // CEF_API_ADDED(CEF_NEXT)
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

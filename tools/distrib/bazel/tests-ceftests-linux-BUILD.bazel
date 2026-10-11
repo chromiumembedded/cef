@@ -12,6 +12,7 @@ package(default_visibility = [
 
 load("//bazel:copy_filegroups.bzl", "copy_filegroups")
 load("//bazel/linux:exe_helpers.bzl", "declare_exe")
+load("@cef_gtk_tests//:defs.bzl", "CEF_TESTS_USE_GTK")
 
 #
 # Linux executable target.
@@ -37,18 +38,19 @@ declare_exe(
     srcs = [
         "{}:SrcsLinux".format(PKG_NAME),
         "//tests/shared:SrcsLinux",
-    ],
+    ] + (["//tests/shared:KeyboardInputGtk"] if CEF_TESTS_USE_GTK else []),
     data = [
         ":{}".format(copy_target),
     ],
     copts = [
          "-Wno-comments",
-    ],
+    ] + (["-Wno-deprecated-declarations"] if CEF_TESTS_USE_GTK else []),
+    local_defines = ["CEF_TESTS_USE_GTK"] if CEF_TESTS_USE_GTK else [],
     deps = [
         "//tests/gmock",
         "//tests/gtest",
         # Declared in the top-level WORKSPACE file.
         "@glib2//:lib",
-    ],
+    ] + (["@gtk3//:lib"] if CEF_TESTS_USE_GTK else []),
 )
 

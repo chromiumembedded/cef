@@ -35,7 +35,11 @@ class CefBrowserPlatformDelegateNativeLinux
       const input::NativeWebKeyboardEvent& event) const override;
 
   // CefBrowserPlatformDelegateNativeAura methods:
+  // DEPRECATED: Retained for the legacy SendKeyEvent native key/IME path.
+  // Unified input uses SendKeyboardEvent with a resolved portable snapshot.
   ui::KeyEvent TranslateUiKeyEvent(const CefKeyEvent& key_event) const override;
+  // DEPRECATED: Legacy SendKeyEvent conversion; use
+  // TranslateWebKeyboardInputEvent for unified keyboard input.
   input::NativeWebKeyboardEvent TranslateWebKeyEvent(
       const CefKeyEvent& key_event) const override;
 

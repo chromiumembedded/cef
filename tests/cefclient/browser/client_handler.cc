@@ -963,6 +963,30 @@ bool ClientHandler::OnSetFocus(CefRefPtr<CefBrowser> browser,
   return false;
 }
 
+#if CEF_API_ADDED(CEF_NEXT)
+bool ClientHandler::OnPreKeyboardEvent(CefRefPtr<CefBrowser> browser,
+                                       const CefKeyboardInputEvent& event,
+                                       const CefInputEventContext& context,
+                                       bool* is_keyboard_shortcut) {
+  CEF_REQUIRE_UI_THREAD();
+
+  /*
+  if (!context.focus_on_editable_field && event.windows_key_code == 0x20) {
+    // Special handling for the space character when an input element does not
+    // have focus. Handling the event in OnPreKeyboardEvent() keeps the event
+    // from being processed in the renderer. If we instead handled the event in
+    // the OnKeyboardEvent() method the space key would cause the window to
+    // scroll in addition to showing the alert box.
+    if (event.type == CEF_KEYEVENT_RAWKEYDOWN)
+      test_runner::Alert(browser, "You pressed the space bar!");
+    return true;
+  }
+  */
+
+  return false;
+}
+#else
+// DEPRECATED: Use OnPreKeyboardEvent(); retained for older API versions.
 bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
                                   const CefKeyEvent& event,
                                   CefEventHandle os_event,
@@ -984,6 +1008,7 @@ bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
 
   return false;
 }
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
 bool ClientHandler::OnBeforePopup(
     CefRefPtr<CefBrowser> browser,

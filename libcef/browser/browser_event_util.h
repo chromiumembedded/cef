@@ -7,20 +7,33 @@
 #pragma once
 
 #include "cef/include/internal/cef_types_wrappers.h"
+#include "ui/gfx/native_ui_types.h"
 
 namespace input {
 struct NativeWebKeyboardEvent;
 }
 
-namespace ui {
-class KeyEvent;
+namespace blink {
+class WebKeyboardEvent;
 }
 
-// Convert a input::NativeWebKeyboardEvent to a CefKeyEvent.
-bool GetCefKeyEvent(const input::NativeWebKeyboardEvent& event,
-                    CefKeyEvent& cef_event);
+// Convert between CEF event flags and Blink modifiers.
+int GetWebEventModifiers(uint32_t cef_modifiers);
+uint32_t GetCefEventModifiers(int web_modifiers);
 
-// Convert a ui::KeyEvent to a CefKeyEvent.
-bool GetCefKeyEvent(const ui::KeyEvent& event, CefKeyEvent& cef_event);
+// Complete portable keyboard conversions. No keyboard-layout interpretation.
+// Invalid portable values are rejected without changing |web_event|.
+bool GetWebKeyboardInputEvent(const CefKeyboardInputEvent& event,
+                              blink::WebKeyboardEvent& web_event);
+bool GetCefKeyboardInputEvent(const blink::WebKeyboardEvent& event,
+                              CefKeyboardInputEvent& cef_event);
+input::NativeWebKeyboardEvent CreateNativeKeyboardInputEvent(
+    const blink::WebKeyboardEvent& event,
+    gfx::NativeView native_view);
+
+// DEPRECATED: Use GetCefKeyboardInputEvent for unified keyboard callbacks.
+// Convert a blink::WebKeyboardEvent to a CefKeyEvent for legacy callbacks.
+bool GetCefKeyEvent(const blink::WebKeyboardEvent& event,
+                    CefKeyEvent& cef_event);
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_EVENT_UTIL_H_

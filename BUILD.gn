@@ -238,11 +238,13 @@ if (is_win) {
 
 if (is_linux) {
   declare_args() {
-    # The cefclient target depends on GTK packages that are not available in the
-    # default sysroot environment. So we should only use them when we are not
-    # using the sysroot. Alternatively, the developer might not want to use the
-    # GTK dependencies at all, in which case they can set `cef_use_gtk=false`.
-    cef_use_gtk = !use_sysroot
+    # The default Chromium sysroot includes GTK development packages. Developers
+    # who do not want GTK dependencies can set `cef_use_gtk=false`.
+    cef_use_gtk = true
+
+    # Enable X11 support in CEF sample applications and tests independently of
+    # GTK and libcef's Ozone platform support.
+    cef_use_x11 = ozone_platform_x11
   }
 }
 
@@ -325,6 +327,11 @@ group("cef") {
     ":libcef_static_unittests",
   ]
 
+  # Linux cefclient requires GTK, including when running in Views mode.
+  if (!is_linux || cef_use_gtk) {
+    deps += [ ":cefclient" ]
+  }
+
   if (is_win) {
     deps += [
       ":bootstrap",
@@ -335,10 +342,6 @@ group("cef") {
       ":ceftests_dll",
       "libcef_dll/bootstrap/installer:installer_tests",
     ]
-  }
-
-  if (!is_linux || ozone_platform_x11) {
-    deps += [ ":cefclient" ]
   }
 }
 
@@ -412,11 +415,16 @@ source_set("libcef_static_unittested") {
   sources = [
     "libcef/browser/devtools/devtools_util.cc",
     "libcef/browser/devtools/devtools_util.h",
-    "libcef/browser/geometry_util.h",
     "libcef/browser/geometry_util.cc",
+    "libcef/browser/geometry_util.h",
+    "libcef/browser/key_event_util.h",
+    "libcef/browser/keyboard_input_event_util.cc",
   ]
 
   deps = [
+    "//components/input",
+    "//third_party/blink/public/common",
+    "//ui/events",
     "//ui/gfx/geometry",
   ]
 
@@ -424,6 +432,14 @@ source_set("libcef_static_unittested") {
     # Support relative include paths.
     "//base",
   ]
+
+  if (is_mac) {
+    sources += [ "libcef/browser/key_event_util_mac.mm" ]
+    frameworks = [ "AppKit.framework" ]
+  } else {
+    sources += [ "libcef/browser/key_event_util_aura.cc" ]
+    deps += [ "//ui/events/blink" ]
+  }
 
   configs += [
     "libcef/features:config",
@@ -439,12 +455,18 @@ test("libcef_static_unittests") {
   sources = [
     "libcef/browser/devtools/devtools_util_unittest.cc",
     "libcef/browser/geometry_util_unittest.cc",
+    "libcef/browser/key_event_util_unittest.cc",
+    "libcef/browser/keyboard_input_event_util_unittest.cc",
   ]
 
   deps = [
     ":libcef_static_unittested",
     "//base/test:run_all_unittests",
+    "//components/input",
     "//testing/gtest",
+    "//third_party/blink/public/common",
+    "//ui/events",
+    "//ui/events/blink",
   ]
 
   configs += [
@@ -1040,6 +1062,7 @@ source_set("libcef_static") {
 
   if (is_win) {
     sources += includes_win + [
+      "libcef/browser/input_event_utils_win.cc",
       "libcef/browser/native/browser_platform_delegate_native_win.cc",
       "libcef/browser/native/browser_platform_delegate_native_win.h",
       "libcef/browser/osr/browser_platform_delegate_osr_win.cc",
@@ -1066,6 +1089,7 @@ source_set("libcef_static") {
 
   if (is_linux) {
     sources += includes_linux + [
+      "libcef/browser/input_event_utils_linux.cc",
       "libcef/browser/native/browser_platform_delegate_native_linux.cc",
       "libcef/browser/native/browser_platform_delegate_native_linux.h",
       "libcef/browser/osr/browser_platform_delegate_osr_linux.cc",
@@ -1078,6 +1102,7 @@ source_set("libcef_static") {
 
     deps += [
       "//third_party/fontconfig",
+      "//ui/events/keycodes:xkb",
     ]
 
     if (ozone_platform_x11) {
@@ -1099,6 +1124,7 @@ source_set("libcef_static") {
     sources += includes_mac + [
       "libcef/browser/chrome/chrome_content_browser_client_cef_mac.mm",
       "libcef/browser/chrome/chrome_web_contents_view_delegate_cef_mac.mm",
+      "libcef/browser/input_event_utils_mac.mm",
       "libcef/browser/native/browser_platform_delegate_native_mac.h",
       "libcef/browser/native/browser_platform_delegate_native_mac.mm",
       "libcef/browser/native/cursor_util_mac.mm",
@@ -2497,6 +2523,7 @@ if (is_mac) {
     ]
     frameworks = [
       "AppKit.framework",
+      "Carbon.framework",
       "IOSurface.framework",
       "Metal.framework",
       "QuartzCore.framework",
@@ -2511,9 +2538,9 @@ if (is_mac) {
   # cefclient targets.
   #
 
-  # The cefclient target depends on packages that are not available in the
-  # default sysroot environment.
-  if (is_linux && !use_sysroot) {
+  # ceftests needs GLib for the shared Linux external message pump even when
+  # GTK keyboard adapter tests are disabled.
+  if (is_linux) {
     pkg_config("glib") {
       packages = [
         "glib-2.0",
@@ -2528,8 +2555,17 @@ if (is_mac) {
         "gtk+-3.0",
         "gthread-2.0",
         "gtk+-unix-print-3.0",
-        "xi",
       ]
+      if (cef_use_x11) {
+        packages += [ "xi" ]
+      }
+    }
+  }
+
+  config("sample_x11") {
+    if (is_linux && cef_use_x11) {
+      defines = [ "CEF_TESTS_USE_X11" ]
+      libs = [ "X11" ]
     }
   }
 
@@ -2609,15 +2645,14 @@ if (is_mac) {
     if (is_linux) {
       sources += includes_linux +
                  gypi_paths2.shared_sources_linux +
+                 gypi_paths2.shared_sources_linux_gtk +
                  gypi_paths2.cefclient_sources_linux
 
       deps += [
         ":copy_cefclient_files",
       ]
 
-      libs = [
-        "X11",
-      ]
+      configs += [ ":sample_x11" ]
 
       if (cef_use_gtk) {
         configs += [
@@ -2757,11 +2792,7 @@ if (is_mac) {
       sources += includes_linux +
                  gypi_paths2.cefsimple_sources_linux
 
-      if (ozone_platform_x11) {
-        libs = [
-          "X11",
-        ]
-      }
+      configs += [ ":sample_x11" ]
 
       if (!is_component_build) {
         # Set rpath to find our own libfreetype even in a non-component build.
@@ -2872,11 +2903,7 @@ if (is_mac) {
       sources += includes_linux_capi +
                  gypi_paths2.cefsimple_capi_sources_linux
 
-      if (ozone_platform_x11) {
-        libs = [
-          "X11",
-        ]
-      }
+      configs += [ ":sample_x11" ]
 
       if (!is_component_build) {
         # Set rpath to find our own libfreetype even in a non-component build.
@@ -2994,14 +3021,13 @@ if (is_mac) {
       sources += gypi_paths2.shared_sources_linux +
                  gypi_paths2.ceftests_sources_linux
 
-      if (ozone_platform_x11) {
-        libs = [
-          "X11",
-        ]
+      configs += [ ":sample_x11" ]
+      if (cef_use_gtk) {
+        sources += gypi_paths2.shared_sources_linux_gtk
+        configs += [ ":gtk" ]
+        defines += [ "CEF_TESTS_USE_GTK" ]
       } else {
-        if (!use_sysroot) {
-          configs += [ ":glib" ]
-        }
+        configs += [ ":glib" ]
       }
 
       deps += [

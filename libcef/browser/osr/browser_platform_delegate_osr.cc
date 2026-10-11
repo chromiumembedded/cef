@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "base/task/current_thread.h"
+#include "cef/libcef/browser/browser_event_util.h"
 #include "cef/libcef/browser/image_impl.h"
 #include "cef/libcef/browser/osr/osr_accessibility_util.h"
 #include "cef/libcef/browser/osr/render_widget_host_view_osr.h"
@@ -100,6 +101,16 @@ void CefBrowserPlatformDelegateOsr::WasResized() {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
   if (view) {
     view->WasResized();
+  }
+}
+
+void CefBrowserPlatformDelegateOsr::SendKeyboardEvent(
+    const CefKeyboardInputEvent& event) {
+  auto* view = GetOSRHostView();
+  blink::WebKeyboardEvent web_event;
+  if (view && GetWebKeyboardInputEvent(event, web_event)) {
+    view->SendKeyEvent(
+        native_delegate_->TranslateWebKeyboardInputEvent(web_event));
   }
 }
 

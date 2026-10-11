@@ -30,6 +30,8 @@ class CefBrowserPlatformDelegateNativeMac
   void CloseHostWindow() override;
   CefWindowHandle GetHostWindowHandle() const override;
   void SendKeyEvent(const CefKeyEvent& event) override;
+  input::NativeWebKeyboardEvent TranslateWebKeyboardInputEvent(
+      const blink::WebKeyboardEvent& event) const override;
   void SendMouseClickEvent(const CefMouseEvent& event,
                            CefBrowserHost::MouseButtonType type,
                            bool mouseUp,
@@ -52,6 +54,8 @@ class CefBrowserPlatformDelegateNativeMac
   bool IsPrintPreviewSupported() const override;
 
   // CefBrowserPlatformDelegateNative methods:
+  // DEPRECATED: Legacy SendKeyEvent conversion; use
+  // TranslateWebKeyboardInputEvent for unified keyboard input.
   input::NativeWebKeyboardEvent TranslateWebKeyEvent(
       const CefKeyEvent& key_event) const override;
   blink::WebMouseEvent TranslateWebClickEvent(

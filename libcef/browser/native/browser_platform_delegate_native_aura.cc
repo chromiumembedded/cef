@@ -6,6 +6,7 @@
 
 #include "base/notimplemented.h"
 #include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/key_event_util.h"
 #include "cef/libcef/browser/native/menu_runner_views_aura.h"
 #include "cef/libcef/browser/views/view_util.h"
 #include "cef/libcef/common/api_version_util.h"
@@ -140,20 +141,12 @@ gfx::Point CefBrowserPlatformDelegateNativeAura::GetScreenPoint(
   return screen_pt;
 }
 
+// DEPRECATED: Legacy SendKeyEvent conversion; use
+// TranslateWebKeyboardInputEvent for unified keyboard input.
 input::NativeWebKeyboardEvent
 CefBrowserPlatformDelegateNativeAura::TranslateWebKeyEvent(
     const CefKeyEvent& key_event) const {
-  if (key_event.type == KEYEVENT_CHAR) {
-    // Pass the character rather than the key code: ui::KeyboardCode is a
-    // uint8_t on Windows, and a character whose low byte is 0x08 or 0x1B is
-    // then dropped by Blink as VK_BACK or VK_ESCAPE (see issue #4282).
-    // RenderWidgetHostViewAura::InsertChar does the same for windowed
-    // browsers.
-    return input::NativeWebKeyboardEvent(
-        TranslateUiKeyEvent(key_event),
-        static_cast<char16_t>(key_event.windows_key_code));
-  }
-  return input::NativeWebKeyboardEvent(TranslateUiKeyEvent(key_event));
+  return GetLegacyWebKeyEvent(key_event, GetEventTimeStamp());
 }
 
 blink::WebMouseEvent
@@ -276,52 +269,7 @@ base::TimeTicks CefBrowserPlatformDelegateNativeAura::GetEventTimeStamp() {
 // static
 int CefBrowserPlatformDelegateNativeAura::TranslateUiEventModifiers(
     uint32_t cef_modifiers) {
-  int result = 0;
-  // Set modifiers based on key state.
-  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON) {
-    result |= ui::EF_CAPS_LOCK_ON;
-  }
-  if (cef_modifiers & EVENTFLAG_SHIFT_DOWN) {
-    result |= ui::EF_SHIFT_DOWN;
-  }
-  if (cef_modifiers & EVENTFLAG_CONTROL_DOWN) {
-    result |= ui::EF_CONTROL_DOWN;
-  }
-  if (cef_modifiers & EVENTFLAG_ALT_DOWN) {
-    result |= ui::EF_ALT_DOWN;
-  }
-  if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON) {
-    result |= ui::EF_LEFT_MOUSE_BUTTON;
-  }
-  if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
-    result |= ui::EF_MIDDLE_MOUSE_BUTTON;
-  }
-  if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
-    result |= ui::EF_RIGHT_MOUSE_BUTTON;
-  }
-  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN) {
-    result |= ui::EF_COMMAND_DOWN;
-  }
-  if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON) {
-    result |= ui::EF_NUM_LOCK_ON;
-  }
-  if (cef_modifiers & EVENTFLAG_IS_KEY_PAD) {
-    result |= ui::EF_IS_EXTENDED_KEY;
-  }
-  if (cef_modifiers & EVENTFLAG_ALTGR_DOWN) {
-    result |= ui::EF_ALTGR_DOWN;
-  }
-  if (cef_modifiers & EVENTFLAG_IS_REPEAT) {
-    result |= ui::EF_IS_REPEAT;
-  }
-  if (cef_modifiers & EVENTFLAG_PRECISION_SCROLLING_DELTA) {
-    result |= ui::EF_PRECISION_SCROLLING_DELTA;
-  }
-  if (cef_modifiers & EVENTFLAG_SCROLL_BY_PAGE) {
-    result |= ui::EF_SCROLL_BY_PAGE;
-  }
-
-  return result;
+  return GetLegacyUiEventModifiers(cef_modifiers);
 }
 
 // static

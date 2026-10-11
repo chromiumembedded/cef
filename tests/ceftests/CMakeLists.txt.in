@@ -28,6 +28,15 @@
   ],
 }}
 
+# ceftests GTK adapter sources.
+{{
+  'prefix': 'ceftests_gtk',
+  'set': 'UNITTESTS_GTK_SRCS',
+  'includes': [
+    'shared_sources_linux_gtk',
+  ],
+}}
+
 # ceftests helper sources.
 {{
   'prefix': 'ceftests_helper',
@@ -83,6 +92,23 @@ SET_CEF_TARGET_OUT_DIR()
 #
 
 if(OS_LINUX)
+  set(CEF_TESTS_GTK_PACKAGES gtk+-3.0)
+  if(CEF_TESTS_USE_X11)
+    list(APPEND CEF_TESTS_GTK_PACKAGES x11)
+  endif()
+  find_package(PkgConfig QUIET)
+  if(PKG_CONFIG_FOUND)
+    pkg_check_modules(CEF_TESTS_GTK QUIET ${CEF_TESTS_GTK_PACKAGES})
+  endif()
+  option(CEF_TESTS_USE_GTK "Build shared GTK keyboard adapter tests." ${CEF_TESTS_GTK_FOUND})
+  if(CEF_TESTS_USE_GTK)
+    if(NOT CEF_TESTS_GTK_FOUND)
+      message(FATAL_ERROR "CEF_TESTS_USE_GTK requires development packages: ${CEF_TESTS_GTK_PACKAGES}")
+    endif()
+    list(APPEND UNITTESTS_SRCS ${UNITTESTS_GTK_SRCS})
+    add_definitions(-DCEF_TESTS_USE_GTK)
+    FIND_LINUX_LIBRARIES("${CEF_TESTS_GTK_PACKAGES}")
+  endif()
   # Find required libraries and update compiler/linker variables.
   FIND_LINUX_LIBRARIES("glib-2.0")
 
@@ -142,7 +168,7 @@ if(OS_MAC)
   add_executable(${CEF_TARGET} MACOSX_BUNDLE ${UNITTESTS_RESOURCES_SRCS} ${UNITTESTS_SRCS})
   SET_EXECUTABLE_TARGET_PROPERTIES(${CEF_TARGET})
   add_dependencies(${CEF_TARGET} libcef_dll_wrapper cef_gmock cef_gtest)
-  target_link_libraries(${CEF_TARGET} libcef_dll_wrapper cef_gmock cef_gtest ${CEF_STANDARD_LIBS} "-framework Metal" "-framework QuartzCore")
+  target_link_libraries(${CEF_TARGET} libcef_dll_wrapper cef_gmock cef_gtest ${CEF_STANDARD_LIBS} "-framework Carbon" "-framework Metal" "-framework QuartzCore")
   set_target_properties(${CEF_TARGET} PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/mac/Info.plist.in
     )

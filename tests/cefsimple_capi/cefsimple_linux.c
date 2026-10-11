@@ -4,7 +4,7 @@
 
 #include "tests/cefsimple_capi/simple_app.h"
 
-#if defined(CEF_X11)
+#if defined(CEF_TESTS_USE_X11)
 #include <X11/Xlib.h>
 #endif
 
@@ -12,7 +12,7 @@
 #include "include/cef_api_hash.h"
 #include "tests/cefsimple_capi/simple_utils.h"
 
-#if defined(CEF_X11)
+#if defined(CEF_TESTS_USE_X11)
 static int XErrorHandlerImpl(Display* display, XErrorEvent* event) {
   // X error handler - just return to avoid terminating the application.
   return 0;
@@ -21,7 +21,7 @@ static int XErrorHandlerImpl(Display* display, XErrorEvent* event) {
 static int XIOErrorHandlerImpl(Display* display) {
   return 0;
 }
-#endif  // defined(CEF_X11)
+#endif  // defined(CEF_TESTS_USE_X11)
 
 // Entry point function for all processes.
 int main(int argc, char* argv[]) {
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
     return exit_code;
   }
 
-#if defined(CEF_X11)
+#if defined(CEF_TESTS_USE_X11)
   // Install xlib error handlers so that the application won't be terminated
   // on non-fatal errors.
   XSetErrorHandler(XErrorHandlerImpl);

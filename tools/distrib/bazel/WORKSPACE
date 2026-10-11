@@ -53,3 +53,7 @@ pkg_config(
     pkg_name = "glib-2.0",
 )
 
+# Enable GTK keyboard adapter tests when development packages are available.
+load("//bazel/linux:gtk_configure.bzl", "configure_gtk_tests")
+configure_gtk_tests(name = "cef_gtk_tests")
+

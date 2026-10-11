@@ -28,6 +28,10 @@ namespace views {
 class MenuButton;
 }
 
+namespace blink {
+class WebKeyboardEvent;
+}
+
 class CefWindowImpl
     : public CefPanelImpl<CefWindowView, CefWindow, CefWindowDelegate>,
       public CefWindowView::Delegate,
@@ -134,7 +138,7 @@ class CefWindowImpl
 
   // Called for key events that have not been handled by other controls in the
   // window. Returns true if the event was handled.
-  bool OnKeyEvent(const CefKeyEvent& event);
+  bool OnKeyboardEvent(const blink::WebKeyboardEvent& event);
 
   void ShowMenu(views::MenuButton* menu_button,
                 CefRefPtr<CefMenuModel> menu_model,

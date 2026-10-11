@@ -41,6 +41,7 @@
 #include "include/internal/cef_time.h"
 #include "include/internal/cef_types_content_settings.h"
 #include "include/internal/cef_types_geometry.h"
+#include "include/internal/cef_types_input.h"
 
 // Bring in platform-specific definitions.
 #if defined(OS_WIN)
@@ -2209,30 +2210,6 @@ typedef enum {
 } cef_paint_element_type_t;
 
 ///
-/// Supported event bit flags.
-///
-typedef enum {
-  EVENTFLAG_NONE = 0,
-  EVENTFLAG_CAPS_LOCK_ON = 1 << 0,
-  EVENTFLAG_SHIFT_DOWN = 1 << 1,
-  EVENTFLAG_CONTROL_DOWN = 1 << 2,
-  EVENTFLAG_ALT_DOWN = 1 << 3,
-  EVENTFLAG_LEFT_MOUSE_BUTTON = 1 << 4,
-  EVENTFLAG_MIDDLE_MOUSE_BUTTON = 1 << 5,
-  EVENTFLAG_RIGHT_MOUSE_BUTTON = 1 << 6,
-  /// Mac OS-X command key.
-  EVENTFLAG_COMMAND_DOWN = 1 << 7,
-  EVENTFLAG_NUM_LOCK_ON = 1 << 8,
-  EVENTFLAG_IS_KEY_PAD = 1 << 9,
-  EVENTFLAG_IS_LEFT = 1 << 10,
-  EVENTFLAG_IS_RIGHT = 1 << 11,
-  EVENTFLAG_ALTGR_DOWN = 1 << 12,
-  EVENTFLAG_IS_REPEAT = 1 << 13,
-  EVENTFLAG_PRECISION_SCROLLING_DELTA = 1 << 14,
-  EVENTFLAG_SCROLL_BY_PAGE = 1 << 15,
-} cef_event_flags_t;
-
-///
 /// Supported menu item types.
 ///
 typedef enum {
@@ -2367,36 +2344,10 @@ typedef enum {
 } cef_quick_menu_edit_state_flags_t;
 
 ///
-/// Key event types.
-///
-typedef enum {
-  ///
-  /// Notification that a key transitioned from "up" to "down".
-  ///
-  KEYEVENT_RAWKEYDOWN = 0,
-
-  ///
-  /// Notification that a key was pressed. This does not necessarily correspond
-  /// to a character depending on the key and language. Use KEYEVENT_CHAR for
-  /// character input.
-  ///
-  KEYEVENT_KEYDOWN,
-
-  ///
-  /// Notification that a key was released.
-  ///
-  KEYEVENT_KEYUP,
-
-  ///
-  /// Notification that a character was typed. Use this for text input. Key
-  /// down events may generate 0, 1, or more than one character event depending
-  /// on the key, locale, and operating system.
-  ///
-  KEYEVENT_CHAR
-} cef_key_event_type_t;
-
-///
 /// Structure representing keyboard event information.
+/// DEPRECATED: Use cef_keyboard_input_event_t with the unified browser and
+/// Views keyboard callbacks instead. This structure remains supported by legacy
+/// keyboard callbacks.
 ///
 typedef struct _cef_key_event_t {
   ///

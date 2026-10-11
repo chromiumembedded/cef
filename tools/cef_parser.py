@@ -399,6 +399,24 @@ def _get_version_removed(attribs):
   return _get_version_attrib(attribs, 'removed')
 
 
+def get_platform_check(obj):
+  """Return the OS predicate for a global function's platform attributes."""
+  if not isinstance(obj, obj_function):
+    return None
+  platforms = obj.get_attrib_list('platform')
+  if not platforms:
+    return None
+  included = ' || '.join('defined(OS_%s)' % value.upper()
+                         for value in platforms
+                         if not value.startswith('!'))
+  excluded = ' && '.join('!defined(OS_%s)' % value[1:].upper()
+                         for value in platforms
+                         if value.startswith('!'))
+  if included and excluded:
+    return excluded + ' && (' + included + ')'
+  return included or excluded
+
+
 def get_version_surround(obj, long=False):
   """ Returns (pre,post) strings for a version check. """
   version_check = obj.get_version_check() if obj.has_version() else None
@@ -409,10 +427,17 @@ def get_version_surround(obj, long=False):
     obj.parent.has_version() and obj.parent.get_version_check() == version_check:
     version_check = None
 
+  platform_check = get_platform_check(obj)
   if not version_check is None:
-    return ('#if %s\n' % version_check, ('#endif  // %s\n' % version_check)
-            if long else '#endif\n')
-  return ('', '')
+    pre, post = ('#if %s\n' % version_check,
+                 ('#endif  // %s\n' % version_check) if long else '#endif\n')
+  else:
+    pre, post = '', ''
+  if platform_check:
+    # Keep API checks on their own line for CefApiHasher's version detection.
+    pre = '#if %s\n' % platform_check + pre
+    post += ('#endif  // %s\n' % platform_check) if long else '#endif\n'
+  return pre, post
 
 
 def get_clsname(cls, version):
@@ -524,10 +549,10 @@ COMMON_ATTRIB_KEYS = ('added', 'removed')
 CLASS_ATTRIB_KEYS = COMMON_ATTRIB_KEYS + ('no_debugct_check', 'source')
 FUNCTION_ATTRIB_KEYS = COMMON_ATTRIB_KEYS + (
     'api_hash_check', 'capi_name', 'count_func', 'default_retval',
-    'index_param', 'no_stack_protector', 'optional_param')
+    'index_param', 'no_stack_protector', 'optional_param', 'platform')
 
 # regex for matching comment-formatted attributes
-_cre_attrib = r'/\*--cef\(([A-Za-z0-9_ ,=:\n]{0,})\)--\*/'
+_cre_attrib = r'/\*--cef\(([A-Za-z0-9_ ,=:!\n]{0,})\)--\*/'
 # regex for matching class and function names
 _cre_cfname = r'([A-Za-z0-9_]{1,})'
 # regex for matching class and function names including path separators
@@ -1492,6 +1517,13 @@ class obj_function:
       if not key in FUNCTION_ATTRIB_KEYS:
         raise Exception('Invalid attribute key \"%s\" for %s' %
                         (key, self.get_qualified_name()))
+    if self.has_attrib('platform'):
+      platforms = self.get_attrib_list('platform')
+      valid = ('win', 'mac', 'linux', '!win', '!mac', '!linux')
+      if (any(value not in valid for value in platforms) or
+          isinstance(self.parent, obj_class)):
+        raise Exception('Invalid platform attribute for %s' %
+                        self.get_qualified_name())
 
   def get_file_name(self):
     """ Return the C++ header file name. """

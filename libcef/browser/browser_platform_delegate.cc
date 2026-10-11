@@ -9,6 +9,7 @@
 #include "base/notimplemented.h"
 #include "cef/include/views/cef_window.h"
 #include "cef/include/views/cef_window_delegate.h"
+#include "cef/libcef/browser/browser_event_util.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/browser/views/browser_view_impl.h"
@@ -18,7 +19,9 @@
 #include "chrome/browser/shell_integration.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
+#include "components/input/native_web_keyboard_event.h"
 #include "components/prefs/pref_service.h"
+#include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
@@ -292,6 +295,34 @@ SkColor CefBrowserPlatformDelegate::GetBackgroundColor() const {
 
 void CefBrowserPlatformDelegate::WasResized() {
   DCHECK(false);
+}
+
+void CefBrowserPlatformDelegate::SendKeyboardEvent(
+    const CefKeyboardInputEvent& event) {
+  if (!web_contents_ || !web_contents_->GetRenderWidgetHostView()) {
+    return;
+  }
+  auto* root = content::RenderWidgetHostImpl::From(
+      web_contents_->GetRenderWidgetHostView()->GetRenderWidgetHost());
+  if (!root || !root->delegate()) {
+    return;
+  }
+  auto* target = root->delegate()->GetFocusedRenderWidgetHost(root);
+  if (!target || !target->GetView()) {
+    return;
+  }
+  blink::WebKeyboardEvent web_event;
+  if (!GetWebKeyboardInputEvent(event, web_event)) {
+    return;
+  }
+  // ForwardKeyboardEvent requires a NativeWebKeyboardEvent. Reconstruct its
+  // native event to preserve platform fallback handling and callback
+  // native-event context; forwarding only the Blink payload would lose that
+  // functionality. The wrapper preserves all exposed fields without
+  // re-resolving identity/text.
+  auto native_event = CreateNativeKeyboardInputEvent(
+      web_event, target->GetView()->GetNativeView());
+  target->ForwardKeyboardEvent(native_event);
 }
 
 void CefBrowserPlatformDelegate::SendKeyEvent(const CefKeyEvent& event) {
@@ -582,49 +613,5 @@ cef::BrowserConfig CefBrowserPlatformDelegate::GetBrowserConfig() const {
 // static
 int CefBrowserPlatformDelegate::TranslateWebEventModifiers(
     uint32_t cef_modifiers) {
-  int result = 0;
-  // Set modifiers based on key state.
-  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON) {
-    result |= blink::WebInputEvent::kCapsLockOn;
-  }
-  if (cef_modifiers & EVENTFLAG_SHIFT_DOWN) {
-    result |= blink::WebInputEvent::kShiftKey;
-  }
-  if (cef_modifiers & EVENTFLAG_CONTROL_DOWN) {
-    result |= blink::WebInputEvent::kControlKey;
-  }
-  if (cef_modifiers & EVENTFLAG_ALT_DOWN) {
-    result |= blink::WebInputEvent::kAltKey;
-  }
-  if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON) {
-    result |= blink::WebInputEvent::kLeftButtonDown;
-  }
-  if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
-    result |= blink::WebInputEvent::kMiddleButtonDown;
-  }
-  if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
-    result |= blink::WebInputEvent::kRightButtonDown;
-  }
-  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN) {
-    result |= blink::WebInputEvent::kMetaKey;
-  }
-  if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON) {
-    result |= blink::WebInputEvent::kNumLockOn;
-  }
-  if (cef_modifiers & EVENTFLAG_IS_KEY_PAD) {
-    result |= blink::WebInputEvent::kIsKeyPad;
-  }
-  if (cef_modifiers & EVENTFLAG_IS_LEFT) {
-    result |= blink::WebInputEvent::kIsLeft;
-  }
-  if (cef_modifiers & EVENTFLAG_IS_RIGHT) {
-    result |= blink::WebInputEvent::kIsRight;
-  }
-  if (cef_modifiers & EVENTFLAG_ALTGR_DOWN) {
-    result |= blink::WebInputEvent::kAltGrKey;
-  }
-  if (cef_modifiers & EVENTFLAG_IS_REPEAT) {
-    result |= blink::WebInputEvent::kIsAutoRepeat;
-  }
-  return result;
+  return GetWebEventModifiers(cef_modifiers);
 }

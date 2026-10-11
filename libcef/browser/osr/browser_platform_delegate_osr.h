@@ -34,6 +34,7 @@ class CefBrowserPlatformDelegateOsr
   SkColor GetBackgroundColor() const override;
   void WasResized() override;
   void SendKeyEvent(const CefKeyEvent& event) override;
+  void SendKeyboardEvent(const CefKeyboardInputEvent& event) override;
   void SendMouseClickEvent(const CefMouseEvent& event,
                            CefBrowserHost::MouseButtonType type,
                            bool mouseUp,

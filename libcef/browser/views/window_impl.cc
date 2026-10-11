@@ -17,10 +17,12 @@
 #include "cef/libcef/browser/views/view_util.h"
 #include "cef/libcef/browser/views/widget.h"
 #include "cef/libcef/browser/views/window_view.h"
+#include "cef/libcef/common/api_version_util.h"
 #include "components/constrained_window/constrained_window_views.h"
 #include "ui/base/mojom/menu_source_type.mojom.h"
 #include "ui/base/test/ui_controls.h"
 #include "ui/compositor/compositor.h"
+#include "ui/events/blink/web_input_event.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/views/controls/button/menu_button.h"
 #include "ui/views/controls/menu/menu_runner.h"
@@ -111,9 +113,7 @@ class CefUnhandledKeyEventHandler : public ui::EventHandler {
       return;
     }
 
-    CefKeyEvent cef_event;
-    if (GetCefKeyEvent(*event, cef_event) &&
-        window_impl_->OnKeyEvent(cef_event)) {
+    if (window_impl_->OnKeyboardEvent(ui::MakeWebKeyboardEvent(*event))) {
       event->StopPropagation();
     }
   }
@@ -541,9 +541,18 @@ bool CefWindowImpl::CanHandleAccelerators() const {
   return false;
 }
 
-bool CefWindowImpl::OnKeyEvent(const CefKeyEvent& event) {
+bool CefWindowImpl::OnKeyboardEvent(const blink::WebKeyboardEvent& event) {
   if (delegate()) {
-    return delegate()->OnKeyEvent(this, event);
+    if (CEF_API_IS_ADDED(CEF_NEXT)) {
+      CefKeyboardInputEvent cef_event;
+      if (GetCefKeyboardInputEvent(event, cef_event) &&
+          delegate()->OnKeyboardEvent(this, cef_event)) {
+        return true;
+      }
+    }
+    CefKeyEvent cef_event;
+    return GetCefKeyEvent(event, cef_event) &&
+           delegate()->OnKeyEvent(this, cef_event);
   }
   return false;
 }

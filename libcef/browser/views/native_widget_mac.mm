@@ -15,6 +15,7 @@
 #include "chrome/browser/ui/views/frame/browser_native_widget_mac.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
 #import "components/remote_cocoa/app_shim/native_widget_ns_window_bridge.h"
+#include "ui/events/blink/web_input_event.h"
 #import "ui/views/cocoa/native_widget_mac_ns_window_host.h"
 
 namespace {
@@ -159,6 +160,31 @@ void CefNativeWidgetMac::OnWindowInitialized() {
       initialized_ = true;
     }
   }
+}
+
+ui::EventDispatchDetails CefNativeWidgetMac::DispatchKeyEventPostIME(
+    ui::KeyEvent* key) {
+  auto weak_this = GetWeakPtr();
+  auto details = views::NativeWidgetMac::DispatchKeyEventPostIME(key);
+  // Control or accelerator handling may destroy the native widget.
+  if (!weak_this) {
+    details.dispatcher_destroyed = true;
+    return details;
+  }
+  if (!key->handled() && window_->IsValid() && IsCefWindowInitialized()) {
+    // macOS has no Aura post-target handler. Offer unhandled native input at
+    // the same stage, after controls and accelerators. See CEF issue #3797.
+    const bool handled = static_cast<CefWindowImpl*>(window_.get())
+                             ->OnKeyboardEvent(ui::MakeWebKeyboardEvent(*key));
+    if (!weak_this) {
+      details.dispatcher_destroyed = true;
+      return details;
+    }
+    if (handled) {
+      key->StopPropagation();
+    }
+  }
+  return details;
 }
 
 bool CefNativeWidgetMac::IsCefWindowInitialized() const {

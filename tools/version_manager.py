@@ -115,7 +115,7 @@ def compute_next_api_version(api_versions_file):
 
 
 def git_grep_next(cef_dir):
-  cmd = "grep --no-color -n -E (CEF_NEXT|CEF_NEXT)|=next -- :!include/cef_api_hash.h *.h *.cc"
+  cmd = "grep --no-color -n -E (CEF_NEXT|CEF_NEXT)|=next -- :!include/cef_api_hash.h *.h *.cc *.mm"
   if sys.platform == 'win32':
     # Pass the pipe (|) character as a literal argument.
     cmd = cmd.replace('|', '^|')

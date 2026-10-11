@@ -152,11 +152,17 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
 
   SanityCheckWindowConfig(is_devtools, use_views, use_alloy_style, with_osr);
 
-  if (!temp_window_ && !use_views) {
+#if !defined(OS_LINUX) || defined(CEF_TESTS_USE_X11)
+  bool needs_temp_window = !use_views;
+#if defined(OS_LINUX)
+  needs_temp_window = needs_temp_window && !with_osr;
+#endif
+  if (!temp_window_ && needs_temp_window) {
     // TempWindow must be created on the UI thread. It is only used with
     // native (non-Views) parent windows.
     temp_window_.reset(new TempWindow());
   }
+#endif  // !defined(OS_LINUX) || defined(CEF_TESTS_USE_X11)
 
   MainContext::Get()->PopulateBrowserSettings(&settings);
 
@@ -455,10 +461,12 @@ void RootWindowManager::MaybeCleanup() {
 void RootWindowManager::CleanupOnUIThread() {
   CEF_REQUIRE_UI_THREAD();
 
+#if !defined(OS_LINUX) || defined(CEF_TESTS_USE_X11)
   if (temp_window_) {
     // TempWindow must be destroyed on the UI thread.
     temp_window_.reset(nullptr);
   }
+#endif  // !defined(OS_LINUX) || defined(CEF_TESTS_USE_X11)
 
   if (image_cache_) {
     image_cache_ = nullptr;

@@ -4,18 +4,18 @@
 
 #include "tests/cefsimple_capi/simple_handler.h"
 
-#if defined(CEF_X11)
+#if defined(CEF_TESTS_USE_X11)
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <string.h>
-#endif
+#endif  // defined(CEF_TESTS_USE_X11)
 
 #include "include/capi/cef_browser_capi.h"
 
 void simple_handler_platform_title_change(simple_handler_t* handler,
                                           cef_browser_t* browser,
                                           const cef_string_t* title) {
-#if defined(CEF_X11)
+#if defined(CEF_TESTS_USE_X11)
   // Convert the title to UTF-8.
   cef_string_utf8_t title_utf8 = {};
   cef_string_to_utf8(title->str, title->length, &title_utf8);
@@ -56,5 +56,5 @@ void simple_handler_platform_title_change(simple_handler_t* handler,
 
   host->base.release(&host->base);
   cef_string_utf8_clear(&title_utf8);
-#endif  // defined(CEF_X11)
+#endif  // defined(CEF_TESTS_USE_X11)
 }

@@ -9,6 +9,7 @@ load("//bazel/linux:variables.bzl",
      "COMMON_COPTS", "COMMON_COPTS_RELEASE", "COMMON_COPTS_DEBUG",
      "COMMON_DEFINES", "COMMON_DEFINES_RELEASE", "COMMON_DEFINES_DEBUG")
 load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@cef_gtk_tests//:defs.bzl", "CEF_TESTS_USE_X11")
 
 def declare_exe(name, srcs=[], deps=[], linkopts=[], copts=[], local_defines=[], data=[], **kwargs):
     # Copy SOs and resources into the current project.
@@ -36,7 +37,7 @@ def declare_exe(name, srcs=[], deps=[], linkopts=[], copts=[], local_defines=[],
             "@cef//:cef",
             "@cef//:cef_sandbox",
         ] + deps,
-        linkopts = COMMON_LINKOPTS + linkopts,
+        linkopts = COMMON_LINKOPTS + (["-lX11"] if CEF_TESTS_USE_X11 else []) + linkopts,
         copts = COMMON_COPTS + select({
             "@cef//:linux_dbg": COMMON_COPTS_DEBUG,
             "//conditions:default": COMMON_COPTS_RELEASE,
@@ -44,7 +45,7 @@ def declare_exe(name, srcs=[], deps=[], linkopts=[], copts=[], local_defines=[],
         local_defines = COMMON_DEFINES + select({
             "@cef//:linux_dbg": COMMON_DEFINES_DEBUG,
             "//conditions:default": COMMON_DEFINES_RELEASE,
-        }) + local_defines,
+        }) + (["CEF_TESTS_USE_X11"] if CEF_TESTS_USE_X11 else []) + local_defines,
         data = [
             ":{}".format(copy_target),
         ] + data,

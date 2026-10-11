@@ -4,8 +4,10 @@
 
 #include "tests/cefclient/browser/osr_gl_surface_gtk.h"
 
+#if defined(CEF_TESTS_USE_X11)
 #include <X11/Xlib.h>
 #include <gdk/gdkx.h>
+#endif
 
 #include <utility>
 #include <vector>
@@ -80,6 +82,7 @@ class OsrGlAreaSurface : public OsrGlSurfaceGtk {
   bool error_logged_ = false;
 };
 
+#if defined(CEF_TESTS_USE_X11)
 // Renders to an EGL window surface on the widget's native X11 window. Used
 // because GDK's OpenGL support on X11 is GLX-based.
 class OsrEglX11Surface : public OsrGlSurfaceGtk {
@@ -259,14 +262,18 @@ class OsrEglX11Surface : public OsrGlSurfaceGtk {
   bool destroyed_ = false;
 };
 
+#endif  // defined(CEF_TESTS_USE_X11)
+
 }  // namespace
 
 // static
 std::unique_ptr<OsrGlSurfaceGtk> OsrGlSurfaceGtk::Create(
     RenderCallback render) {
+#if defined(CEF_TESTS_USE_X11)
   if (GDK_IS_X11_DISPLAY(gdk_display_get_default())) {
     return std::make_unique<OsrEglX11Surface>(std::move(render));
   }
+#endif  // defined(CEF_TESTS_USE_X11)
   return std::make_unique<OsrGlAreaSurface>(std::move(render));
 }
 
