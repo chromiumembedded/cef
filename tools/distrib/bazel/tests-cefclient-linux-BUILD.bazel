@@ -12,6 +12,7 @@ package(default_visibility = [
 
 load("//bazel:copy_filegroups.bzl", "copy_filegroups")
 load("//bazel/linux:exe_helpers.bzl", "declare_exe")
+load("@cef_gtk_tests//:defs.bzl", "CEF_TESTS_USE_X11")
 
 #
 # Linux executable target.
@@ -51,7 +52,6 @@ declare_exe(
         "@gtk3//:lib",
         "@gthread2//:lib",
         "@gtkprint3//:lib",
-        "@xi//:lib",
-    ],
+    ] + (["@xi//:lib"] if CEF_TESTS_USE_X11 else []),
 )
 

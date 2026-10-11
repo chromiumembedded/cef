@@ -7,7 +7,7 @@
 #include "include/base/cef_build.h"
 #include "include/cef_version_info.h"
 
-#if defined(OS_LINUX) && defined(CEF_X11)
+#if defined(OS_LINUX) && defined(CEF_TESTS_USE_X11)
 #include <X11/Xlib.h>
 // Definitions conflict with gtest.
 #undef None
@@ -104,7 +104,7 @@ void ContinueOnUIThread(CefRefPtr<CefTaskRunner> test_task_runner) {
       CefCreateClosureTask(base::BindOnce(&RunTestsOnTestThread)));
 }
 
-#if defined(OS_LINUX) && defined(CEF_X11)
+#if defined(OS_LINUX) && defined(CEF_TESTS_USE_X11)
 int XErrorHandlerImpl(Display* display, XErrorEvent* event) {
   LOG(WARNING) << "X error received: " << "type " << event->type << ", "
                << "serial " << event->serial << ", " << "error_code "
@@ -117,7 +117,7 @@ int XErrorHandlerImpl(Display* display, XErrorEvent* event) {
 int XIOErrorHandlerImpl(Display* display) {
   return 0;
 }
-#endif  // defined(OS_LINUX) && defined(CEF_X11)
+#endif  // defined(OS_LINUX) && defined(CEF_TESTS_USE_X11)
 
 #if defined(OS_MAC)
 class ScopedPlatformSetup final {
@@ -196,7 +196,7 @@ int RunMain(int argc, char* argv[], void* sandbox_info) {
   ScopedPlatformSetup scoped_platform_setup;
 #endif
 
-#if defined(OS_LINUX) && defined(CEF_X11)
+#if defined(OS_LINUX) && defined(CEF_TESTS_USE_X11)
   // Install xlib error handlers so that the application won't be terminated
   // on non-fatal errors.
   XSetErrorHandler(XErrorHandlerImpl);

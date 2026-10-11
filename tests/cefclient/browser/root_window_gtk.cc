@@ -4,16 +4,20 @@
 
 #include "tests/cefclient/browser/root_window_gtk.h"
 
-#include <X11/Xlib.h>
 #include <gdk/gdk.h>
+#if defined(CEF_TESTS_USE_X11)
+#include <X11/Xlib.h>
 #include <gdk/gdkx.h>
+#endif
 #undef Success     // Definition conflicts with cef_message_router.h
 #undef RootWindow  // Definition conflicts with root_window.h
 
 #include "include/base/cef_callback.h"
 #include "include/cef_app.h"
 #include "tests/cefclient/browser/browser_window_osr_gtk.h"
+#if defined(CEF_TESTS_USE_X11)
 #include "tests/cefclient/browser/browser_window_std_gtk.h"
+#endif
 #include "tests/cefclient/browser/client_prefs.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/resource.h"
@@ -32,7 +36,7 @@ namespace {
 const char kMenuIdKey[] = "menu_id";
 
 void UseDefaultX11VisualForGtk(GtkWidget* widget) {
-#if GTK_CHECK_VERSION(3, 15, 1)
+#if defined(CEF_TESTS_USE_X11) && GTK_CHECK_VERSION(3, 15, 1)
   // GTK+ > 3.15.1 uses an X11 visual optimized for GTK+'s OpenGL stuff
   // since revid dae447728d: https://github.com/GNOME/gtk/commit/dae447728d
   // However, it breaks CEF: https://github.com/cztomczak/cefcapi/issues/9
@@ -59,7 +63,7 @@ void UseDefaultX11VisualForGtk(GtkWidget* widget) {
     cursor = cursor->next;
   }
   g_list_free(visuals);
-#endif
+#endif  // defined(CEF_TESTS_USE_X11) && GTK_CHECK_VERSION(3, 15, 1)
 }
 
 // Keep the bounds inside the closest display work area.
@@ -333,11 +337,16 @@ void RootWindowGtk::InitAsPopup(RootWindow::Delegate* delegate,
 
   initialized_ = true;
 
-  // The new popup is initially parented to a temporary window. The native root
-  // window will be created after the browser is created and the popup window
-  // will be re-parented to it at that time.
-  browser_window_->GetPopupConfig(TempWindow::GetWindowHandle(), windowInfo,
-                                  client, settings);
+  // Windowed popups are initially parented to a temporary window and
+  // re-parented after their root window is created. OSR popups need no native
+  // parent.
+  CefWindowHandle temp_handle = kNullWindowHandle;
+#if defined(CEF_TESTS_USE_X11)
+  if (!with_osr_) {
+    temp_handle = TempWindow::GetWindowHandle();
+  }
+#endif  // defined(CEF_TESTS_USE_X11)
+  browser_window_->GetPopupConfig(temp_handle, windowInfo, client, settings);
 }
 
 void RootWindowGtk::Show(ShowMode mode) {
@@ -503,8 +512,12 @@ void RootWindowGtk::CreateBrowserWindow(const std::string& startup_url) {
     browser_window_.reset(new BrowserWindowOsrGtk(this, with_controls_,
                                                   startup_url, osr_settings_));
   } else {
+#if defined(CEF_TESTS_USE_X11)
     browser_window_.reset(
         new BrowserWindowStdGtk(this, with_controls_, startup_url));
+#else
+    LOG(FATAL) << "Native parent windows require cef_use_x11=true";
+#endif  // defined(CEF_TESTS_USE_X11)
   }
 }
 
@@ -641,6 +654,7 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
   // added to the grid container for automatic layout-based sizing.
   GtkWidget* parent = with_osr_ ? grid : window_;
 
+#if defined(CEF_TESTS_USE_X11)
   if (!with_osr_) {
     // Set the Display associated with the browser.
     ::Display* xdisplay = GDK_WINDOW_XDISPLAY(gtk_widget_get_window(window_));
@@ -648,6 +662,7 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
     static_cast<BrowserWindowStdGtk*>(browser_window_.get())
         ->set_xdisplay(xdisplay);
   }
+#endif  // defined(CEF_TESTS_USE_X11)
 
   if (with_osr_) {
     std::optional<float> parent_scale_factor;
@@ -1122,6 +1137,7 @@ gboolean RootWindowGtk::URLEntryButtonPress(GtkWidget* widget,
                                             RootWindowGtk* self) {
   REQUIRE_MAIN_THREAD();
 
+#if defined(CEF_TESTS_USE_X11)
   // Give focus to the GTK window. This is a work-around for bad focus-related
   // interaction between the root window managed by GTK and the browser managed
   // by X11.
@@ -1155,6 +1171,7 @@ gboolean RootWindowGtk::URLEntryButtonPress(GtkWidget* widget,
   e.xclient.data.l[4] = 0;
 
   XSendEvent(xdisplay, xwindow, false, 0, &e);
+#endif  // defined(CEF_TESTS_USE_X11)
 
   return FALSE;
 }

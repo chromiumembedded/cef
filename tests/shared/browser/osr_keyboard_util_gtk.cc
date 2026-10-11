@@ -4,9 +4,12 @@
 
 #include "tests/shared/browser/osr_keyboard_util_gtk.h"
 
-#include <X11/XKBlib.h>
 #include <gdk/gdkkeysyms-compat.h>
+
+#if defined(CEF_TESTS_USE_X11)
+#include <X11/XKBlib.h>
 #include <gdk/gdkx.h>
+#endif
 
 #if defined(GDK_WINDOWING_WAYLAND)
 #include <gdk/gdkwayland.h>
@@ -127,14 +130,12 @@ bool KeyboardInputEventsFromGdkEvent(
     return false;
   }
   auto* display = gdk_window_get_display(event->window);
-  const bool is_x11 = GDK_IS_X11_DISPLAY(display);
-  bool supported_backend = is_x11;
-#if defined(GDK_WINDOWING_WAYLAND)
-  supported_backend |= GDK_IS_WAYLAND_DISPLAY(display);
-#endif  // defined(GDK_WINDOWING_WAYLAND)
-  if (!supported_backend) {
+  if (!IsKeyboardInputSupportedForDisplay(display)) {
     return false;
   }
+#if defined(CEF_TESTS_USE_X11)
+  const bool is_x11 = GDK_IS_X11_DISPLAY(display);
+#endif
   auto* keymap = gdk_keymap_get_for_display(display);
   std::vector<CefKeyboardInputEvent> events;
   CefKeyboardInputEvent key_event;
@@ -158,16 +159,23 @@ bool KeyboardInputEventsFromGdkEvent(
   GdkModifierType virtual_state = static_cast<GdkModifierType>(event->state);
   bool num_lock_on;
   guint alt_graph_mask;
+#if defined(CEF_TESTS_USE_X11)
   if (is_x11) {
-    // Resolve the source X11 connection's actual modifier assignments. Mod2
-    // and Mod5 are conventions, not guaranteed NumLock/AltGraph identities.
+    // With --ozone-platform=x11, apps must use the Xkb* functions for accurate
+    // NumLock/AltGraph state. The GDK keymap functions used for Wayland below
+    // may seem like a reasonable substitute, but on X11 they are not. GDK's
+    // X11 backend computes the GDK_MODIFIER_INTENT_SHIFT_GROUP mask only for
+    // its non-XKB keymap, so it is 0 with XKB. gdk_keymap_get_num_lock_state()
+    // reports the current lock state by design, not the event's.
     auto* native_display = gdk_x11_display_get_xdisplay(display);
     num_lock_on =
         event->state & XkbKeysymToModifiers(native_display, GDK_Num_Lock);
     alt_graph_mask =
         XkbKeysymToModifiers(native_display, GDK_ISO_Level3_Shift) |
         XkbKeysymToModifiers(native_display, GDK_Mode_switch);
-  } else {
+  } else
+#endif  // defined(CEF_TESTS_USE_X11)
+  {
     // Wayland has no Xlib connection. Use GTK's lock state and backend-specific
     // group-shift mask instead of guessing identities from Mod2/Mod5.
     num_lock_on = gdk_keymap_get_num_lock_state(keymap);
@@ -243,6 +251,23 @@ bool KeyboardInputEventsFromGdkEvent(
   }
   result = std::move(events);
   return true;
+}
+
+bool IsKeyboardInputSupportedForDisplay(GdkDisplay* display) {
+  if (!display) {
+    return false;
+  }
+#if defined(CEF_TESTS_USE_X11)
+  if (GDK_IS_X11_DISPLAY(display)) {
+    return true;
+  }
+#endif
+#if defined(GDK_WINDOWING_WAYLAND)
+  if (GDK_IS_WAYLAND_DISPLAY(display)) {
+    return true;
+  }
+#endif  // defined(GDK_WINDOWING_WAYLAND)
+  return false;
 }
 #endif  // CEF_API_ADDED(CEF_NEXT)
 

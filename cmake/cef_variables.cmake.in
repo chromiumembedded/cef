@@ -244,10 +244,21 @@ if(OS_LINUX)
   endif()
 
   # Standard libraries.
+  # Sample/test X11 support defaults to the binary distribution's capability.
+  file(STRINGS "${_CEF_ROOT}/include/cef_config.h" _CEF_X11_DEFINE
+       REGEX "^#define CEF_X11 1$")
+  set(_CEF_TESTS_USE_X11_DEFAULT OFF)
+  if(_CEF_X11_DEFINE)
+    set(_CEF_TESTS_USE_X11_DEFAULT ON)
+  endif()
+  option(CEF_TESTS_USE_X11 "Enable X11 support in CEF sample applications and tests." ${_CEF_TESTS_USE_X11_DEFAULT})
   set(CEF_STANDARD_LIBS
-    X11
     ${CMAKE_DL_LIBS}
     )
+  if(CEF_TESTS_USE_X11)
+    list(APPEND CEF_STANDARD_LIBS X11)
+    list(APPEND CEF_COMPILER_DEFINES CEF_TESTS_USE_X11)
+  endif()
 
   # CEF directory paths.
   set(CEF_RESOURCE_DIR        "${_CEF_ROOT}/Resources")

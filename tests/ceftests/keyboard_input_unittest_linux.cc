@@ -49,6 +49,17 @@ bool InitGtk() {
   return initialized;
 }
 
+// With --ozone-platform=x11, the GTK keyboard adapter must use the Xkb*
+// functions for accurate modifier state; the GDK keymap functions are not a
+// reliable substitute (see KeyboardInputEventsFromGdkEvent). Without
+// CEF_TESTS_USE_X11 the adapter therefore does not support X11 displays, and
+// these tests skip.
+#define SKIP_IF_KEYBOARD_INPUT_UNSUPPORTED()                          \
+  if (!IsNativeKeyboardInputSupported()) {                            \
+    GTEST_SKIP() << "GTK keyboard adapter does not support this GDK " \
+                    "backend";                                        \
+  }
+
 GdkEventKey NativeKey(GdkEventType type,
                       guint keyval,
                       guint16 code,
@@ -64,6 +75,7 @@ GdkEventKey NativeKey(GdkEventType type,
 
 void LinuxNativeKeyIdentityRepeatAndCharacterLocationImpl() {
   ASSERT_TRUE(InitGtk());
+  SKIP_IF_KEYBOARD_INPUT_UNSUPPORTED();
   auto native = NativeKey(GDK_KEY_PRESS, GDK_a, 38);
   std::vector<CefKeyboardInputEvent> events;
   ASSERT_TRUE(client::KeyboardInputEventsFromGdkEvent(&native, true, events));
@@ -87,6 +99,7 @@ void LinuxNativeKeyIdentityRepeatAndCharacterLocationImpl() {
 
 void LinuxNativeModifiersKeypadDeadAndUnicodeImpl() {
   ASSERT_TRUE(InitGtk());
+  SKIP_IF_KEYBOARD_INPUT_UNSUPPORTED();
   std::vector<CefKeyboardInputEvent> events;
   auto left = NativeKey(GDK_KEY_RELEASE, GDK_Shift_L, 50);
   ASSERT_TRUE(client::KeyboardInputEventsFromGdkEvent(&left, false, events));
@@ -138,6 +151,7 @@ void LinuxInvalidInputLeavesOutputUnchangedImpl() {
 
 void LinuxNativeShortcutAndReturnTextImpl() {
   ASSERT_TRUE(InitGtk());
+  SKIP_IF_KEYBOARD_INPUT_UNSUPPORTED();
   std::vector<CefKeyboardInputEvent> events;
   auto native = NativeKey(GDK_KEY_PRESS, GDK_a, 38, GDK_CONTROL_MASK);
   ASSERT_TRUE(client::KeyboardInputEventsFromGdkEvent(&native, false, events));
@@ -227,6 +241,11 @@ void LinuxWaylandModifierStateImpl() {
 #endif  // defined(GDK_WINDOWING_WAYLAND)
 
 }  // namespace
+
+bool IsNativeKeyboardInputSupported() {
+  return InitGtk() &&
+         client::IsKeyboardInputSupportedForDisplay(gdk_display_get_default());
+}
 
 bool BuildNativeKeyboardInputEvents(
     std::array<CefKeyboardInputEvent, 3>& events) {

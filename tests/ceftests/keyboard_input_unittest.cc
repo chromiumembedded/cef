@@ -910,6 +910,13 @@ TEST(KeyboardInputTest, LegacyPostHandlerConsumesUnhandledInput) {
 
 #if defined(OS_WIN) || defined(OS_MAC) || defined(CEF_TESTS_USE_GTK)
 TEST(KeyboardInputTest, NativeToPortableToWebAndCallbacks) {
+#if defined(CEF_TESTS_USE_GTK)
+  // X11 displays require CEF_TESTS_USE_X11 for Xkb modifier resolution. See
+  // SKIP_IF_KEYBOARD_INPUT_UNSUPPORTED in keyboard_input_unittest_linux.cc.
+  if (!IsNativeKeyboardInputSupported()) {
+    GTEST_SKIP() << "GTK keyboard adapter does not support this GDK backend";
+  }
+#endif
   RunKeyboardTest(Mode::Native);
 }
 #endif

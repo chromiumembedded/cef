@@ -17,6 +17,12 @@
 bool BuildNativeKeyboardInputEvents(
     std::array<CefKeyboardInputEvent, 3>& events);
 #endif
+
+#if defined(CEF_TESTS_USE_GTK)
+// Returns true if native GTK input can be converted on the current display.
+bool IsNativeKeyboardInputSupported();
+#endif
+
 #if defined(OS_MAC)
 enum class MacTextClientInput {
   Character,

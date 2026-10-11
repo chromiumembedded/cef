@@ -4,7 +4,9 @@
 
 #include "tests/cefclient/browser/main_message_loop_multithreaded_gtk.h"
 
+#if defined(CEF_TESTS_USE_X11)
 #include <X11/Xlib.h>
+#endif
 #include <gtk/gtk.h>
 
 #include "include/base/cef_callback.h"
@@ -70,7 +72,9 @@ MainMessageLoopMultithreadedGtk::MainMessageLoopMultithreadedGtk()
   // Initialize Xlib support for concurrent threads. This function must be the
   // first Xlib function a multi-threaded program calls, and it must complete
   // before any other Xlib call is made.
+#if defined(CEF_TESTS_USE_X11)
   CHECK(XInitThreads() != 0);
+#endif
 
   // Initialize GDK thread support. See comments on ScopedGdkThreadsEnter.
   gdk_threads_set_lock_functions(lock_enter, lock_leave);

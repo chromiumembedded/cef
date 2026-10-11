@@ -18,7 +18,6 @@ SOS = [
 
 # Standard link libraries.
 STANDARD_LIBS = [
-    "X11",
     "dl",
 ]
 

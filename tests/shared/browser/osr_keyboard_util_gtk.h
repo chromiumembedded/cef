@@ -23,6 +23,9 @@ bool KeyboardInputEventsFromGdkEvent(
     const GdkEventKey* event,
     bool repeat,
     std::vector<CefKeyboardInputEvent>& events);
+
+// Returns true if the adapter supports |display|'s GDK backend.
+bool IsKeyboardInputSupportedForDisplay(GdkDisplay* display);
 #endif  // CEF_API_ADDED(CEF_NEXT)
 }  // namespace client
 

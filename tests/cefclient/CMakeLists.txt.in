@@ -126,7 +126,10 @@ if(OS_LINUX)
     )
 
   # Find required libraries and update compiler/linker variables.
-  FIND_LINUX_LIBRARIES("gmodule-2.0 gtk+-3.0 gthread-2.0 gtk+-unix-print-3.0 xi")
+  FIND_LINUX_LIBRARIES("gmodule-2.0 gtk+-3.0 gthread-2.0 gtk+-unix-print-3.0")
+  if(CEF_TESTS_USE_X11)
+    FIND_LINUX_LIBRARIES("xi")
+  endif()
 
   # Executable target.
   add_executable(${CEF_TARGET} ${CEFCLIENT_SRCS})
