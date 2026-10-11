@@ -4,6 +4,8 @@
 
 #include "tests/cefclient/browser/browser_window_std_gtk.h"
 
+#if defined(CEF_TESTS_USE_X11)
+
 #include <X11/Xlib.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
@@ -197,3 +199,5 @@ ClientWindowHandle BrowserWindowStdGtk::GetWindowHandle() const {
 }
 
 }  // namespace client
+
+#endif  // defined(CEF_TESTS_USE_X11)

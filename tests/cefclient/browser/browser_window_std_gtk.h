@@ -8,6 +8,8 @@
 
 #include "tests/cefclient/browser/browser_window.h"
 
+#if defined(CEF_TESTS_USE_X11)
+
 namespace client {
 
 // Represents a native child window hosting a single windowed browser instance.
@@ -53,5 +55,7 @@ class BrowserWindowStdGtk : public BrowserWindow {
 };
 
 }  // namespace client
+
+#endif  // defined(CEF_TESTS_USE_X11)
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_BROWSER_WINDOW_STD_GTK_H_

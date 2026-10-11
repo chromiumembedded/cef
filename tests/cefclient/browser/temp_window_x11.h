@@ -8,6 +8,8 @@
 
 #include "include/cef_base.h"
 
+#if defined(CEF_TESTS_USE_X11)
+
 namespace client {
 
 // Represents a singleton hidden window that acts as a temporary parent for
@@ -33,5 +35,7 @@ class TempWindowX11 {
 };
 
 }  // namespace client
+
+#endif  // defined(CEF_TESTS_USE_X11)
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_TEMP_WINDOW_X11_H_

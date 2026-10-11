@@ -8,7 +8,7 @@
 // (CefWindowInfo::SetAsChild) are implemented via ChildWindowDelegate in
 // libcef/browser/chrome/views/chrome_child_window.cc. Not supported on MacOS.
 // On Linux a native parent window can only be created when running with X11.
-#if defined(OS_WIN) || (defined(OS_LINUX) && defined(CEF_X11))
+#if defined(OS_WIN) || (defined(OS_LINUX) && defined(CEF_TESTS_USE_X11))
 
 // These tests verify teardown of the browser and the native parent window in
 // both orders:
@@ -320,4 +320,4 @@ TEST(ChromeChildWindowTest, DestroyParentFirst) {
 }
 #endif  // defined(OS_WIN)
 
-#endif  // defined(OS_WIN) || (defined(OS_LINUX) && defined(CEF_X11))
+#endif  // defined(OS_WIN) || (defined(OS_LINUX) && defined(CEF_TESTS_USE_X11))

@@ -6,7 +6,9 @@
 
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms-compat.h>
+#if defined(CEF_TESTS_USE_X11)
 #include <gdk/gdkx.h>
+#endif
 #include <glib-object.h>
 #include <gtk/gtk.h>
 
@@ -286,14 +288,16 @@ void BrowserWindowOsrGtk::CreateBrowser(
 
   // Retrieve the X11 Window ID for the GTK parent window. The parent window is
   // optional and Wayland has no equivalent.
+  CefWindowHandle handle = kNullWindowHandle;
+#if defined(CEF_TESTS_USE_X11)
   GtkWidget* window =
       gtk_widget_get_ancestor(GTK_WIDGET(parent_handle), GTK_TYPE_WINDOW);
   GdkWindow* gdk_window = gtk_widget_get_window(window);
-  CefWindowHandle handle = kNullWindowHandle;
   if (GDK_IS_X11_WINDOW(gdk_window)) {
     handle = GDK_WINDOW_XID(gdk_window);
     DCHECK(handle);
   }
+#endif  // defined(CEF_TESTS_USE_X11)
 
   CefWindowInfo window_info;
   window_info.SetAsWindowless(handle);
@@ -919,6 +923,7 @@ gint BrowserWindowOsrGtk::KeyEvent(GtkWidget* widget,
 
   // GTK OSR supports X11 and Wayland. Keep all toolkit objects and
   // source keymap interpretation here; only the portable payload crosses CEF.
+#if defined(CEF_TESTS_USE_X11)
   if (event->type == GDK_KEY_RELEASE &&
       GDK_IS_X11_DISPLAY(gdk_window_get_display(event->window))) {
     // Only X11 represents repeat with a synthetic release/press pair. Wayland
@@ -936,6 +941,7 @@ gint BrowserWindowOsrGtk::KeyEvent(GtkWidget* widget,
       return TRUE;
     }
   }
+#endif  // defined(CEF_TESTS_USE_X11)
   bool repeat = false;
   {
     base::AutoLock lock(self->lock_);

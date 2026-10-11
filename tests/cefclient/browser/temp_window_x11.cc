@@ -4,6 +4,8 @@
 
 #include "tests/cefclient/browser/temp_window_x11.h"
 
+#if defined(CEF_TESTS_USE_X11)
+
 #include <X11/Xlib.h>
 
 #include "include/base/cef_logging.h"
@@ -64,3 +66,5 @@ CefWindowHandle TempWindowX11::GetWindowHandle() {
 }
 
 }  // namespace client
+
+#endif  // defined(CEF_TESTS_USE_X11)

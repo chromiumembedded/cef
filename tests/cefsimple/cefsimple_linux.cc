@@ -4,14 +4,14 @@
 
 #include "tests/cefsimple/simple_app.h"
 
-#if defined(CEF_X11)
+#if defined(CEF_TESTS_USE_X11)
 #include <X11/Xlib.h>
 #endif
 
 #include "include/base/cef_logging.h"
 #include "include/cef_command_line.h"
 
-#if defined(CEF_X11)
+#if defined(CEF_TESTS_USE_X11)
 namespace {
 
 int XErrorHandlerImpl(Display* display, XErrorEvent* event) {
@@ -28,7 +28,7 @@ int XIOErrorHandlerImpl(Display* display) {
 }
 
 }  // namespace
-#endif  // defined(CEF_X11)
+#endif  // defined(CEF_TESTS_USE_X11)
 
 // Entry point function for all processes.
 NO_STACK_PROTECTOR
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     return exit_code;
   }
 
-#if defined(CEF_X11)
+#if defined(CEF_TESTS_USE_X11)
   // Install xlib error handlers so that the application won't be terminated
   // on non-fatal errors.
   XSetErrorHandler(XErrorHandlerImpl);

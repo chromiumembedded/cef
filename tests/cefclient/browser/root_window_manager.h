@@ -127,7 +127,9 @@ class RootWindowManager : public RootWindow::Delegate {
   scoped_refptr<RootWindow> active_root_window_;
 
   // Singleton window used as the temporary parent for popup browsers.
+#if !defined(OS_LINUX) || defined(CEF_TESTS_USE_X11)
   std::unique_ptr<TempWindow> temp_window_;
+#endif
 
   CefRefPtr<CefRequestContext> shared_request_context_;
 

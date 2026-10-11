@@ -10,7 +10,7 @@
 
 #if defined(OS_WIN)
 #include "tests/cefclient/browser/temp_window_win.h"
-#elif defined(OS_LINUX)
+#elif defined(OS_LINUX) && defined(CEF_TESTS_USE_X11)
 #include "tests/cefclient/browser/temp_window_x11.h"
 #elif defined(OS_MAC)
 #include "tests/cefclient/browser/temp_window_mac.h"
@@ -20,7 +20,7 @@ namespace client {
 
 #if defined(OS_WIN)
 typedef TempWindowWin TempWindow;
-#elif defined(OS_LINUX)
+#elif defined(OS_LINUX) && defined(CEF_TESTS_USE_X11)
 typedef TempWindowX11 TempWindow;
 #elif defined(OS_MAC)
 typedef TempWindowMac TempWindow;

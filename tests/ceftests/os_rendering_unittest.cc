@@ -18,8 +18,6 @@
 #include <Carbon/Carbon.h>  // For character codes.
 
 #include "tests/ceftests/os_rendering_unittest_mac.h"
-#elif defined(OS_LINUX)
-#include <X11/keysym.h>
 #elif defined(OS_WIN)
 #include "tests/shared/browser/util_win.h"
 
@@ -88,10 +86,13 @@ constexpr uint32_t kAllTouchHandleFlags =
 #define VKEY_ESCAPE 0x1B
 #define VKEY_TAB 0x09
 
-const unsigned int kNativeKeyTestCodes[] = {XK_d, XK_o, XK_n, XK_e};
+// X11/XKB keysym values are shared by both backends. Keep these few test
+// constants local so OSR coverage needs no X11 or xkbcommon development
+// headers. XKB_KEY_d, XKB_KEY_o, XKB_KEY_n, XKB_KEY_e, respectively.
+const unsigned int kNativeKeyTestCodes[] = {'d', 'o', 'n', 'e'};
 
-const unsigned int kNativeKeyEscape = XK_Escape;
-const unsigned int kNativeKeyTab = XK_Tab;
+const unsigned int kNativeKeyEscape = 0xff1b;  // XKB_KEY_Escape
+const unsigned int kNativeKeyTab = 0xff09;     // XKB_KEY_Tab
 
 #elif defined(OS_MAC)
 
