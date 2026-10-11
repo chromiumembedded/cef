@@ -110,6 +110,7 @@ declare_cc_library(
     hdrs = glob(
         [
             "include/**/*.h",
+            "include/**/*.inc",
         ],
     ),
     defines = [

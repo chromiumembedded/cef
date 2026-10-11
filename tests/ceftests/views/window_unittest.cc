@@ -2,6 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <memory>
+
 #include "include/base/cef_callback.h"
 #include "include/views/cef_box_layout.h"
 #include "include/views/cef_layout.h"
@@ -461,6 +463,7 @@ void WindowMinimizeFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
   config->close_window = false;
   TestWindowDelegate::RunTest(event, std::move(config));
 }
+
 void WindowFullscreenTransitionComplete(CefRefPtr<CefWindow> window,
                                         size_t count) {
   EXPECT_FALSE(window->IsMinimized());
@@ -547,6 +550,67 @@ constexpr int kChar = 'A';
 constexpr int kCloseWindowId = 2;
 bool got_accelerator;
 
+void WindowFocusImpl(CefRefPtr<CefWaitableEvent> event) {
+  struct State {
+    bool requested = false;
+    int focus_count = 0;
+    int blur_count = 0;
+  };
+  auto state = std::make_shared<State>();
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->close_window = false;
+  config->on_window_created = base::BindOnce([](CefRefPtr<CefWindow> window) {
+    // Containers are not focusable by default. Activation alone must not
+    // report focus for a window whose content view is not focused.
+    EXPECT_FALSE(window->IsFocusable());
+    window->Show();
+  });
+  config->on_window_activation_changed = base::BindRepeating(
+      [](std::shared_ptr<State> state, CefRefPtr<CefWindow> window,
+         bool active) {
+        if (active && !state->requested) {
+          state->requested = true;
+          EXPECT_EQ(0, state->focus_count);
+          CefPostTask(TID_UI, base::BindOnce(
+                                  [](CefRefPtr<CefWindow> window) {
+                                    EXPECT_FALSE(window->HasFocus());
+                                    window->SetFocusable(true);
+                                    window->RequestFocus();
+                                  },
+                                  window));
+        }
+      },
+      state);
+  config->on_focus = base::BindRepeating(
+      [](std::shared_ptr<State> state, CefRefPtr<CefView> view) {
+        EXPECT_TRUE(view->HasFocus());
+        EXPECT_EQ(1, ++state->focus_count);
+        CefPostTask(TID_UI, base::BindOnce(
+                                [](CefRefPtr<CefView> view) {
+                                  // Removing focusability clears focus and
+                                  // reports blur.
+                                  view->SetFocusable(false);
+                                },
+                                view));
+      },
+      state);
+  config->on_blur = base::BindRepeating(
+      [](std::shared_ptr<State> state, CefRefPtr<CefView> view) {
+        EXPECT_FALSE(view->HasFocus());
+        EXPECT_EQ(1, ++state->blur_count);
+        CefPostTask(TID_UI, base::BindOnce(&CefWindow::Close,
+                                           view->AsPanel()->AsWindow()));
+      },
+      state);
+  config->on_window_destroyed = base::BindOnce(
+      [](std::shared_ptr<State> state, CefRefPtr<CefWindow>) {
+        EXPECT_EQ(1, state->focus_count);
+        EXPECT_EQ(1, state->blur_count);
+      },
+      state);
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+
 void TriggerAccelerator(CefRefPtr<CefWindow> window) {
   window->SendKeyPress(kChar, EVENTFLAG_ALT_DOWN);
 }
@@ -564,10 +628,9 @@ bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) {
 
 void RunWindowAccelerator(CefRefPtr<CefWindow> window) {
   window->SetAccelerator(kCloseWindowId, kChar, false, false, true, false);
+  window->SetFocusable(true);
   window->Show();
-
-  CefPostDelayedTask(TID_UI, base::BindOnce(TriggerAccelerator, window),
-                     kStateDelayMS);
+  window->RequestFocus();
 }
 
 void VerifyWindowAccelerator(CefRefPtr<CefWindow> window) {
@@ -581,9 +644,119 @@ void WindowAcceleratorImpl(CefRefPtr<CefWaitableEvent> event) {
   config->on_window_created = base::BindOnce(RunWindowAccelerator);
   config->on_window_destroyed = base::BindOnce(VerifyWindowAccelerator);
   config->on_accelerator = base::BindRepeating(OnAccelerator);
+  config->on_focus = base::BindRepeating([](CefRefPtr<CefView> view) {
+    EXPECT_TRUE(view->HasFocus());
+    // Dispatch after the focus notification finishes, without guessing timing.
+    CefPostTask(TID_UI, base::BindOnce(TriggerAccelerator,
+                                       view->AsPanel()->AsWindow()));
+  });
   config->close_window = false;
   TestWindowDelegate::RunTest(event, std::move(config));
 }
+
+#if CEF_API_ADDED(CEF_NEXT)
+
+struct WindowKeyboardState {
+  explicit WindowKeyboardState(bool handle) : handle_unified(handle) {}
+  const bool handle_unified;
+  bool sent = false;
+  size_t unified_count = 0, legacy_count = 0;
+  size_t keydown_count = 0, character_count = 0, keyup_count = 0;
+  CefKeyboardInputEvent latest;
+};
+
+void WindowKeyboardInputImpl(CefRefPtr<CefWaitableEvent> event,
+                             bool handle_unified) {
+  auto state = std::make_shared<WindowKeyboardState>(handle_unified);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->close_window = false;
+  config->on_window_created = base::BindOnce([](CefRefPtr<CefWindow> window) {
+    window->SetFocusable(true);
+    window->Show();
+    window->RequestFocus();
+  });
+  // Activation precedes native focus restoration on macOS. Dispatch only after
+  // the focus notification has finished so that the input has a recipient.
+  config->on_focus = base::BindRepeating(
+      [](std::shared_ptr<WindowKeyboardState> state, CefRefPtr<CefView> view) {
+        if (!state->sent) {
+          state->sent = true;
+          CefPostTask(TID_UI, base::BindOnce(
+                                  [](CefRefPtr<CefWindow> window) {
+                                    window->SendKeyPress('A', 0);
+                                  },
+                                  view->AsPanel()->AsWindow()));
+        }
+      },
+      state);
+  config->on_keyboard_event = base::BindRepeating(
+      [](std::shared_ptr<WindowKeyboardState> state,
+         CefRefPtr<CefWindow> window, const CefKeyboardInputEvent& input) {
+        EXPECT_EQ(sizeof(cef_keyboard_input_event_t), input.size);
+        EXPECT_GT(input.timestamp, 0);
+        state->latest = input;
+        ++state->unified_count;
+        const bool keydown = input.type == CEF_KEYEVENT_RAWKEYDOWN ||
+                             input.type == CEF_KEYEVENT_KEYDOWN;
+        if (keydown || input.type == CEF_KEYEVENT_CHAR ||
+            input.type == CEF_KEYEVENT_KEYUP) {
+          EXPECT_EQ(static_cast<uint32_t>(CEF_DOM_CODE_US_A), input.dom_code);
+          EXPECT_EQ(CEF_DOM_KEY_UNICODE_FLAG | uint32_t{'a'}, input.dom_key);
+          EXPECT_EQ('A', input.windows_key_code);
+          EXPECT_EQ(u'a', input.text[0]);
+          EXPECT_EQ(u'a', input.unmodified_text[0]);
+          if (keydown) {
+            ++state->keydown_count;
+          } else if (input.type == CEF_KEYEVENT_CHAR) {
+            ++state->character_count;
+          } else {
+            ++state->keyup_count;
+            CefPostTask(TID_UI, base::BindOnce(&CefWindow::Close, window));
+          }
+        }
+        return state->handle_unified;
+      },
+      state);
+  config->on_key_event = base::BindRepeating(
+      [](std::shared_ptr<WindowKeyboardState> state,
+         CefRefPtr<CefWindow> window, const CefKeyEvent& input) {
+        EXPECT_FALSE(state->handle_unified);
+        ++state->legacy_count;
+        EXPECT_EQ(state->unified_count, state->legacy_count);
+        EXPECT_EQ(state->latest.type, input.type);
+        EXPECT_EQ(state->latest.windows_key_code, input.windows_key_code);
+        EXPECT_EQ(state->latest.text[0], input.character);
+        return true;
+      },
+      state);
+  config->on_window_destroyed = base::BindOnce(
+      [](std::shared_ptr<WindowKeyboardState> state, CefRefPtr<CefWindow>) {
+        EXPECT_TRUE(state->sent);
+#if defined(OS_MAC)
+        // BridgedContentView::insertTextInternal dispatches the printable
+        // character and consumes the original native keydown.
+        EXPECT_EQ(0U, state->keydown_count);
+        EXPECT_EQ(1U, state->character_count);
+#else
+        EXPECT_EQ(1U, state->keydown_count);
+#endif
+        EXPECT_EQ(1U, state->keyup_count);
+        EXPECT_EQ(state->handle_unified ? 0U : state->unified_count,
+                  state->legacy_count);
+      },
+      state);
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+
+void WindowKeyboardEventImpl(CefRefPtr<CefWaitableEvent> event) {
+  WindowKeyboardInputImpl(event, true);
+}
+
+void WindowKeyboardLegacyFallthroughImpl(CefRefPtr<CefWaitableEvent> event) {
+  WindowKeyboardInputImpl(event, false);
+}
+
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
 }  // namespace
 
@@ -609,6 +782,11 @@ WINDOW_TEST_ASYNC(WindowFullscreenFrameless)
 WINDOW_TEST_ASYNC(WindowIcon)
 WINDOW_TEST_ASYNC(WindowIconFrameless)
 WINDOW_TEST_ASYNC(WindowAccelerator)
+WINDOW_TEST_ASYNC(WindowFocus)
+#if CEF_API_ADDED(CEF_NEXT)
+WINDOW_TEST_ASYNC(WindowKeyboardEvent)
+WINDOW_TEST_ASYNC(WindowKeyboardLegacyFallthrough)
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
 namespace {
 

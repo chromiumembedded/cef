@@ -170,8 +170,14 @@ class ViewsWindow : public CefBrowserViewDelegate,
                       cef_event_flags_t event_flags) override;
 
   // CefTextfieldDelegate methods:
+#if CEF_API_ADDED(CEF_NEXT)
+  bool OnKeyboardEvent(CefRefPtr<CefTextfield> textfield,
+                       const CefKeyboardInputEvent& event) override;
+#else
+  // DEPRECATED: Use OnKeyboardEvent(); retained for older API versions.
   bool OnKeyEvent(CefRefPtr<CefTextfield> textfield,
                   const CefKeyEvent& event) override;
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
   // CefWindowDelegate methods:
 #if defined(OS_LINUX)
@@ -202,8 +208,14 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool CanMinimize(CefRefPtr<CefWindow> window) override;
   bool CanClose(CefRefPtr<CefWindow> window) override;
   bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) override;
+#if CEF_API_ADDED(CEF_NEXT)
+  bool OnKeyboardEvent(CefRefPtr<CefWindow> window,
+                       const CefKeyboardInputEvent& event) override;
+#else
+  // DEPRECATED: Use OnKeyboardEvent(); retained for older API versions.
   bool OnKeyEvent(CefRefPtr<CefWindow> window,
                   const CefKeyEvent& event) override;
+#endif  // CEF_API_ADDED(CEF_NEXT)
   void OnWindowFullscreenTransition(CefRefPtr<CefWindow> window,
                                     bool is_completed) override;
   void OnThemeColorsChanged(CefRefPtr<CefWindow> window,

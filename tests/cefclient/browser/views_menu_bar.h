@@ -66,9 +66,14 @@ class ViewsMenuBar : public CefMenuButtonDelegate,
   // when a control not in the menu bar gains focus.
   void SetMenuFocusable(bool focusable);
 
-  // Key events forwarded from ViewsWindow::OnKeyEvent when the menu bar has
+  // Keyboard events forwarded from ViewsWindow when the menu bar has
   // focus.
+#if CEF_API_ADDED(CEF_NEXT)
+  bool OnKeyEvent(const CefKeyboardInputEvent& event);
+#else
+  // DEPRECATED: Use CefKeyboardInputEvent; retained for older API versions.
   bool OnKeyEvent(const CefKeyEvent& event);
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
   // Reset menu bar state.
   void Reset();

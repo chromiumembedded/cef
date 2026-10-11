@@ -5,7 +5,7 @@
 // Implementation based on
 // content/browser/renderer_host/render_widget_host_view_mac.mm from Chromium.
 
-#include "text_input_client_osr_mac.h"
+#include "tests/shared/browser/text_input_client_osr_mac.h"
 
 #include "include/cef_client.h"
 
@@ -124,6 +124,15 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
 - (void)doCommandBySelector:(SEL)aSelector {
   // An input method calls this function to dispatch an editing command to be
   // handled by this view.
+#if CEF_API_ADDED(CEF_NEXT)
+  if (handlingKeyDown_ && aSelector != @selector(noop:)) {
+    if ([NSStringFromSelector(aSelector) hasPrefix:@"insert"]) {
+      hasInsertionCommand_ = YES;
+    } else {
+      hasOtherCommand_ = YES;
+    }
+  }
+#endif  // CEF_API_ADDED(CEF_NEXT)
 }
 
 - (void)setMarkedText:(id)aString
@@ -275,11 +284,65 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
   underlines_.clear();
   setMarkedTextReplacementRange_ = CefRange::InvalidRange();
   unmarkTextCalled_ = NO;
+#if CEF_API_ADDED(CEF_NEXT)
+  hasInsertionCommand_ = NO;
+  hasOtherCommand_ = NO;
+#endif  // CEF_API_ADDED(CEF_NEXT)
 }
 
+#if CEF_API_ADDED(CEF_NEXT)
+- (void)HandleKeyEventAfterTextInputClient:(CefKeyboardInputEvent)keyEvent
+                             keyEventValid:(BOOL)valid {
+#else
 - (void)HandleKeyEventAfterTextInputClient:(CefKeyEvent)keyEvent {
+#endif  // CEF_API_ADDED(CEF_NEXT)
   handlingKeyDown_ = NO;
 
+#if CEF_API_ADDED(CEF_NEXT)
+  // insertText: records UTF-8. Eligibility is based on the actual UTF-16
+  // insertion, not byte length or a copied native key event.
+  const std::u16string insertion = CefString(textToBeInserted_).ToString16();
+  const bool composing = hasMarkedText_ || oldHasMarkedText_;
+  BOOL textInserted = NO;
+  if (valid && !composing && insertion.size() < 4) {
+    keyEvent.type = CEF_KEYEVENT_RAWKEYDOWN;
+    browser_->GetHost()->SendKeyboardEvent(keyEvent);
+    if (!insertion.empty() && keyEvent.dom_key != CEF_DOM_KEY_CLEAR) {
+      keyEvent.type = CEF_KEYEVENT_CHAR;
+      keyEvent.windows_key_code = insertion[0];
+      std::fill(std::begin(keyEvent.text), std::end(keyEvent.text), 0);
+      std::copy(insertion.begin(), insertion.end(), keyEvent.text);
+      // Keep the native snapshot's modifier-independent shortcut text, as
+      // Chromium does when replacing text with the AppKit insertion.
+      keyEvent.dom_key = CEF_DOM_KEY_UNICODE_FLAG | insertion[0];
+      if (insertion.size() == 2 &&
+          CFStringIsSurrogateHighCharacter(insertion[0]) &&
+          CFStringIsSurrogateLowCharacter(insertion[1])) {
+        const auto scalar = CFStringGetLongCharacterForSurrogatePair(
+            insertion[0], insertion[1]);
+        keyEvent.dom_key = CEF_DOM_KEY_UNICODE_FLAG | scalar;
+      }
+      browser_->GetHost()->SendKeyboardEvent(keyEvent);
+      textInserted = YES;
+    }
+    // Like Chromium, synthesize CHAR for AppKit insertion commands (Return,
+    // Tab, etc.) and Ctrl/Cmd keys that do not call insertText:. RAWKEYDOWN
+    // alone does not perform Blink's text insertion commands.
+    if (!textInserted && keyEvent.text[0] &&
+        keyEvent.dom_key != CEF_DOM_KEY_CLEAR &&
+        ((keyEvent.modifiers &
+          (CEF_EVENTFLAG_CONTROL_DOWN | CEF_EVENTFLAG_COMMAND_DOWN)) ||
+         (hasInsertionCommand_ && !hasOtherCommand_))) {
+      keyEvent.type = CEF_KEYEVENT_CHAR;
+      browser_->GetHost()->SendKeyboardEvent(keyEvent);
+    }
+  } else if (!insertion.empty()) {
+    browser_->GetHost()->ImeCommitText(textToBeInserted_,
+                                       CefRange::InvalidRange(), 0);
+    textInserted = YES;
+  }
+  textToBeInserted_.clear();
+#else
   // Send keypress and/or composition related events.
   // Note that |textToBeInserted_| is a UTF-16 string but it's fine to only
   // handle BMP characters here as we can always insert non-BMP characters as
@@ -314,6 +377,8 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
                                        CefRange::InvalidRange(), 0);
     textToBeInserted_.clear();
   }
+
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
   // Update or cancel the composition. If some text has been inserted then we
   // don't need to explicitly cancel the composition.

@@ -1558,6 +1558,8 @@ def main(argv=None):
       # transfer shared files
       transfer_gypi_files(cef_dir, cef_paths2['shared_sources_linux'], \
                           'tests/shared/', shared_dir, options.quiet)
+      transfer_gypi_files(cef_dir, cef_paths2['shared_sources_linux_gtk'], \
+                          'tests/shared/', shared_dir, options.quiet)
 
       if not options.ozone:
         # transfer cefclient files

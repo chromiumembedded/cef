@@ -26,6 +26,7 @@ class GURL;
 
 namespace blink {
 class WebGestureEvent;
+class WebKeyboardEvent;
 class WebMouseEvent;
 class WebMouseWheelEvent;
 class WebInputEvent;
@@ -227,6 +228,7 @@ class CefBrowserPlatformDelegate {
 
   // Send input events.
   virtual void SendKeyEvent(const CefKeyEvent& event);
+  virtual void SendKeyboardEvent(const CefKeyboardInputEvent& event);
   virtual void SendMouseClickEvent(const CefMouseEvent& event,
                                    CefBrowserHost::MouseButtonType type,
                                    bool mouseUp,

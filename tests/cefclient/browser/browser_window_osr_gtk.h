@@ -7,6 +7,7 @@
 #pragma once
 
 #include <memory>
+#include <set>
 
 #include "include/base/cef_lock.h"
 #include "include/base/cef_ref_counted.h"
@@ -215,6 +216,7 @@ class BrowserWindowOsrGtk : public BrowserWindow,
 
   // Access to these members must be protected by |lock_|.
   float device_scale_factor_;
+  std::set<uint32_t> pressed_keycodes_;
 };
 
 }  // namespace client

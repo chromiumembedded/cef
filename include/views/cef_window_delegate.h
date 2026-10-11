@@ -226,10 +226,37 @@ class CefWindowDelegate : public CefPanelDelegate {
     return false;
   }
 
+#if CEF_API_ADDED(CEF_NEXT)
+
+  ///
+  /// Called after all other controls in the window have had a chance to
+  /// handle the event. |event| contains the resolved platform-independent
+  /// keyboard snapshot. Return true to handle the event or false to try
+  /// OnKeyEvent before default handling.
+  ///
+  /// On macOS, native Views text interpretation may consume a printable
+  /// keydown and deliver CEF_KEYEVENT_CHAR instead. CEF_KEYEVENT_KEYUP can
+  /// still follow, so do not assume that every keyup has a corresponding
+  /// keydown callback. This applies to input routed through native Views
+  /// controls; BrowserView input follows the browser keyboard event dispatch
+  /// path.
+  ///
+  /*--cef(added=next)--*/
+  virtual bool OnKeyboardEvent(CefRefPtr<CefWindow> window,
+                               const CefKeyboardInputEvent& event) {
+    return false;
+  }
+
+#endif  // CEF_API_ADDED(CEF_NEXT)
+
   ///
   /// Called after all other controls in the window have had a chance to
   /// handle the event. |event| contains information about the keyboard event.
   /// Return true if the keyboard event was handled or false otherwise.
+  /// On macOS, native Views text interpretation may deliver KEYEVENT_CHAR
+  /// instead of a printable keydown, followed by KEYEVENT_KEYUP. Do not assume
+  /// that every keyup has a corresponding keydown callback.
+  /// DEPRECATED: Use OnKeyboardEvent with CefKeyboardInputEvent instead.
   ///
   /*--cef()--*/
   virtual bool OnKeyEvent(CefRefPtr<CefWindow> window,

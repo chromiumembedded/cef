@@ -7,22 +7,18 @@
 #include "base/no_destructor.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/key_event_util.h"
 #include "cef/libcef/browser/native/native_widget_delegate.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "components/input/native_web_keyboard_event.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/render_view_host.h"
 #include "third_party/blink/public/mojom/renderer_preferences.mojom.h"
-#include "ui/events/keycodes/dom/dom_key.h"
-#include "ui/events/keycodes/dom/keycode_converter.h"
-#include "ui/events/keycodes/keysym_to_unicode.h"
 #include "ui/gfx/font_render_params.h"
 #include "ui/views/widget/widget.h"
 
 #if BUILDFLAG(SUPPORTS_OZONE_X11)
 #include "cef/libcef/browser/native/window_x11.h"
-#include "ui/events/keycodes/keyboard_code_conversion_x.h"
-#include "ui/events/keycodes/keyboard_code_conversion_xkb.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"
 #endif
 
@@ -241,57 +237,17 @@ CefEventHandle CefBrowserPlatformDelegateNativeLinux::GetEventHandle(
   return nullptr;
 }
 
+// DEPRECATED: Retained for the legacy SendKeyEvent native key/IME path.
+// Unified input uses SendKeyboardEvent with a resolved portable snapshot.
 ui::KeyEvent CefBrowserPlatformDelegateNativeLinux::TranslateUiKeyEvent(
     const CefKeyEvent& key_event) const {
-  int flags = TranslateUiEventModifiers(key_event.modifiers);
-  ui::KeyboardCode key_code =
-      static_cast<ui::KeyboardCode>(key_event.windows_key_code);
-  ui::DomCode dom_code =
-      ui::KeycodeConverter::NativeKeycodeToDomCode(key_event.native_key_code);
-
-#if BUILDFLAG(SUPPORTS_OZONE_X11)
-  int keysym = ui::XKeysymForWindowsKeyCode(
-      key_code, !!(key_event.modifiers & EVENTFLAG_SHIFT_DOWN));
-  char16_t character = ui::GetUnicodeCharacterFromXKeySym(keysym);
-#else
-  char16_t character = key_event.character;
-#endif
-
-  base::TimeTicks time_stamp = GetEventTimeStamp();
-
-  if (key_event.type == KEYEVENT_CHAR) {
-    return ui::KeyEvent::FromCharacter(character, key_code, dom_code, flags,
-                                       time_stamp);
-  }
-
-  ui::EventType type = ui::EventType::kUnknown;
-  switch (key_event.type) {
-    case KEYEVENT_RAWKEYDOWN:
-    case KEYEVENT_KEYDOWN:
-      type = ui::EventType::kKeyPressed;
-      break;
-    case KEYEVENT_KEYUP:
-      type = ui::EventType::kKeyReleased;
-      break;
-    default:
-      DCHECK(false);
-  }
-
-#if BUILDFLAG(SUPPORTS_OZONE_X11)
-  ui::DomKey dom_key = ui::XKeySymToDomKey(keysym, character);
-#else
-  ui::DomKey dom_key = ui::DomKey::NONE;
-#endif
-
-  return ui::KeyEvent(type, key_code, dom_code, flags, dom_key, time_stamp);
+  return GetLegacyUiKeyEvent(key_event, GetEventTimeStamp());
 }
 
+// DEPRECATED: Legacy SendKeyEvent conversion; use
+// TranslateWebKeyboardInputEvent for unified keyboard input.
 input::NativeWebKeyboardEvent
 CefBrowserPlatformDelegateNativeLinux::TranslateWebKeyEvent(
     const CefKeyEvent& key_event) const {
-  ui::KeyEvent ui_event = TranslateUiKeyEvent(key_event);
-  if (key_event.type == KEYEVENT_CHAR) {
-    return input::NativeWebKeyboardEvent(ui_event, key_event.character);
-  }
-  return input::NativeWebKeyboardEvent(ui_event);
+  return GetLegacyWebKeyEvent(key_event, GetEventTimeStamp());
 }

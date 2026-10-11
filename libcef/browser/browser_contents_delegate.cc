@@ -266,6 +266,23 @@ CefBrowserContentsDelegate::PreHandleKeyboardEvent(
     const input::NativeWebKeyboardEvent& event) {
   if (auto delegate = platform_delegate()) {
     if (auto c = client()) {
+      if (CEF_API_IS_ADDED(CEF_NEXT)) {
+        if (auto handler = c->GetInputHandler()) {
+          CefKeyboardInputEvent cef_event;
+          if (GetCefKeyboardInputEvent(event, cef_event)) {
+            CefInputEventContext context;
+            context.focus_on_editable_field = focus_on_editable_field_;
+            context.os_event = delegate->GetEventHandle(event);
+            bool is_keyboard_shortcut = false;
+            if (handler->OnPreKeyboardEvent(browser(), cef_event, context,
+                                            &is_keyboard_shortcut)) {
+              return KeyboardEventProcessingResult::HANDLED;
+            } else if (is_keyboard_shortcut) {
+              return KeyboardEventProcessingResult::NOT_HANDLED_IS_SHORTCUT;
+            }
+          }
+        }
+      }
       if (auto handler = c->GetKeyboardHandler()) {
         CefKeyEvent cef_event;
         if (GetCefKeyEvent(event, cef_event)) {
@@ -298,6 +315,19 @@ bool CefBrowserContentsDelegate::HandleKeyboardEvent(
 
   if (auto delegate = platform_delegate()) {
     if (auto c = client()) {
+      if (CEF_API_IS_ADDED(CEF_NEXT)) {
+        if (auto handler = c->GetInputHandler()) {
+          CefKeyboardInputEvent cef_event;
+          if (GetCefKeyboardInputEvent(event, cef_event)) {
+            CefInputEventContext context;
+            context.focus_on_editable_field = focus_on_editable_field_;
+            context.os_event = delegate->GetEventHandle(event);
+            if (handler->OnKeyboardEvent(browser(), cef_event, context)) {
+              return true;
+            }
+          }
+        }
+      }
       if (auto handler = c->GetKeyboardHandler()) {
         CefKeyEvent cef_event;
         if (GetCefKeyEvent(event, cef_event)) {
@@ -648,8 +678,9 @@ void CefBrowserContentsDelegate::OnWebContentsFocused(
 
 void CefBrowserContentsDelegate::OnFocusChangedInPage(
     const content::FocusedNodeDetails& details) {
+  // FocusType describes how focus changed. kNone is a catch-all (including
+  // accessibility focus), not an indication that no element has focus.
   focus_on_editable_field_ =
-      details.focus_type != blink::mojom::FocusType::kNone &&
       details.editable_level != content::EditableLevel::kNotEditable;
 }
 

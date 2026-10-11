@@ -5,7 +5,9 @@
 #include "cef/libcef/browser/views/textfield_view.h"
 
 #include "cef/libcef/browser/browser_event_util.h"
+#include "cef/libcef/common/api_version_util.h"
 #include "ui/base/metadata/metadata_impl_macros.h"
+#include "ui/events/blink/web_input_event.h"
 
 CefTextfieldView::CefTextfieldView(CefTextfieldDelegate* cef_delegate)
     : ParentClass(cef_delegate) {
@@ -27,8 +29,17 @@ bool CefTextfieldView::HandleKeyEvent(views::Textfield* sender,
     return false;
   }
 
+  const auto web_event = ui::MakeWebKeyboardEvent(key_event);
+  if (CEF_API_IS_ADDED(CEF_NEXT)) {
+    CefKeyboardInputEvent cef_event;
+    if (GetCefKeyboardInputEvent(web_event, cef_event) &&
+        cef_delegate()->OnKeyboardEvent(GetCefTextfield(), cef_event)) {
+      return true;
+    }
+  }
+
   CefKeyEvent cef_key_event;
-  if (!GetCefKeyEvent(key_event, cef_key_event)) {
+  if (!GetCefKeyEvent(web_event, cef_key_event)) {
     return false;
   }
 

@@ -77,6 +77,19 @@ class TestWindowDelegate : public CefWindowDelegate {
     handler_->OnWindowActivationChanged(browser_id_, active);
   }
 
+#if CEF_API_ADDED(CEF_NEXT)
+  bool OnKeyboardEvent(CefRefPtr<CefWindow> window,
+                       const CefKeyboardInputEvent& event) override {
+    return handler_->OnWindowKeyboardEvent(browser_id_, event);
+  }
+#endif  // CEF_API_ADDED(CEF_NEXT)
+
+  // DEPRECATED: Use OnKeyboardEvent(); retained for legacy route tests.
+  bool OnKeyEvent(CefRefPtr<CefWindow> window,
+                  const CefKeyEvent& event) override {
+    return handler_->OnWindowKeyEvent(browser_id_, event);
+  }
+
   bool CanClose(CefRefPtr<CefWindow> window) override {
     // Allow the window to close if the browser says it's OK.
     CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();

@@ -161,6 +161,18 @@ void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
   }
 }
 
+void TestWindowDelegate::OnFocus(CefRefPtr<CefView> view) {
+  if (!config_->on_focus.is_null()) {
+    config_->on_focus.Run(view);
+  }
+}
+
+void TestWindowDelegate::OnBlur(CefRefPtr<CefView> view) {
+  if (!config_->on_blur.is_null()) {
+    config_->on_blur.Run(view);
+  }
+}
+
 void TestWindowDelegate::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
   EXPECT_TRUE(window->IsSame(window_));
 
@@ -247,6 +259,13 @@ CefSize TestWindowDelegate::GetPreferredSize(CefRefPtr<CefView> view) {
   return window_size_;
 }
 
+void TestWindowDelegate::OnWindowActivationChanged(CefRefPtr<CefWindow> window,
+                                                   bool active) {
+  if (!config_->on_window_activation_changed.is_null()) {
+    config_->on_window_activation_changed.Run(window, active);
+  }
+}
+
 bool TestWindowDelegate::OnAccelerator(CefRefPtr<CefWindow> window,
                                        int command_id) {
   if (!config_->on_accelerator.is_null()) {
@@ -255,6 +274,7 @@ bool TestWindowDelegate::OnAccelerator(CefRefPtr<CefWindow> window,
   return false;
 }
 
+// DEPRECATED: Use OnKeyboardEvent(); retained for legacy route tests.
 bool TestWindowDelegate::OnKeyEvent(CefRefPtr<CefWindow> window,
                                     const CefKeyEvent& event) {
   if (!config_->on_key_event.is_null()) {
@@ -262,6 +282,16 @@ bool TestWindowDelegate::OnKeyEvent(CefRefPtr<CefWindow> window,
   }
   return false;
 }
+
+#if CEF_API_ADDED(CEF_NEXT)
+bool TestWindowDelegate::OnKeyboardEvent(CefRefPtr<CefWindow> window,
+                                         const CefKeyboardInputEvent& event) {
+  if (!config_->on_keyboard_event.is_null()) {
+    return config_->on_keyboard_event.Run(window_, event);
+  }
+  return false;
+}
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
 cef_runtime_style_t TestWindowDelegate::GetWindowRuntimeStyle() {
   return UseAlloyStyleWindowGlobal() ? CEF_RUNTIME_STYLE_ALLOY

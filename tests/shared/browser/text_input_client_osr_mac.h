@@ -2,8 +2,8 @@
 // 2013 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_CEFCLIENT_BROWSER_OSR_TEXT_INPUT_CLIENT_OSR_MAC_H_
-#define CEF_TESTS_CEFCLIENT_BROWSER_OSR_TEXT_INPUT_CLIENT_OSR_MAC_H_
+#ifndef CEF_TESTS_SHARED_BROWSER_TEXT_INPUT_CLIENT_OSR_MAC_H_
+#define CEF_TESTS_SHARED_BROWSER_TEXT_INPUT_CLIENT_OSR_MAC_H_
 #pragma once
 
 #import <Cocoa/Cocoa.h>
@@ -45,6 +45,12 @@
   // event.
   BOOL unmarkTextCalled_;
 
+#if CEF_API_ADDED(CEF_NEXT)
+  // AppKit insertion commands need a CHAR event even without insertText:.
+  BOOL hasInsertionCommand_;
+  BOOL hasOtherCommand_;
+#endif  // CEF_API_ADDED(CEF_NEXT)
+
   // The selected range, cached from a message sent by the renderer.
   NSRange selectedRange_;
 
@@ -69,11 +75,16 @@
 - (id)initWithBrowser:(CefRefPtr<CefBrowser>)browser;
 - (void)detach;
 - (void)HandleKeyEventBeforeTextInputClient:(NSEvent*)keyEvent;
+#if CEF_API_ADDED(CEF_NEXT)
+- (void)HandleKeyEventAfterTextInputClient:(CefKeyboardInputEvent)keyEvent
+                             keyEventValid:(BOOL)valid;
+#else
 - (void)HandleKeyEventAfterTextInputClient:(CefKeyEvent)keyEvent;
+#endif  // CEF_API_ADDED(CEF_NEXT)
 - (void)ChangeCompositionRange:(CefRange)range
               character_bounds:(const CefRenderHandler::RectList&)bounds;
 - (void)cancelComposition;
 
 @end
 
-#endif  // CEF_TESTS_CEFCLIENT_BROWSER_OSR_TEXT_INPUT_CLIENT_OSR_MAC_H_
+#endif  // CEF_TESTS_SHARED_BROWSER_TEXT_INPUT_CLIENT_OSR_MAC_H_

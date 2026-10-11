@@ -644,13 +644,21 @@ void ViewsWindow::ExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
   }
 }
 
+#if CEF_API_ADDED(CEF_NEXT)
+bool ViewsWindow::OnKeyboardEvent(CefRefPtr<CefTextfield> textfield,
+                                  const CefKeyboardInputEvent& event) {
+  constexpr auto kRawKeyDown = CEF_KEYEVENT_RAWKEYDOWN;
+#else
+// DEPRECATED: Use OnKeyboardEvent(); retained for older API versions.
 bool ViewsWindow::OnKeyEvent(CefRefPtr<CefTextfield> textfield,
                              const CefKeyEvent& event) {
+  constexpr auto kRawKeyDown = KEYEVENT_RAWKEYDOWN;
+#endif  // CEF_API_ADDED(CEF_NEXT)
   CEF_REQUIRE_UI_THREAD();
   DCHECK_EQ(ID_URL_TEXTFIELD, textfield->GetID());
 
   // Trigger when the return key is pressed.
-  if (window_ && browser_view_ && event.type == KEYEVENT_RAWKEYDOWN &&
+  if (window_ && browser_view_ && event.type == kRawKeyDown &&
       event.windows_key_code == VK_RETURN) {
     CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
     if (browser) {
@@ -955,15 +963,23 @@ bool ViewsWindow::OnAccelerator(CefRefPtr<CefWindow> window, int command_id) {
   return false;
 }
 
+#if CEF_API_ADDED(CEF_NEXT)
+bool ViewsWindow::OnKeyboardEvent(CefRefPtr<CefWindow> window,
+                                  const CefKeyboardInputEvent& event) {
+  constexpr auto kRawKeyDown = CEF_KEYEVENT_RAWKEYDOWN;
+#else
+// DEPRECATED: Use OnKeyboardEvent(); retained for older API versions.
 bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,
                              const CefKeyEvent& event) {
+  constexpr auto kRawKeyDown = KEYEVENT_RAWKEYDOWN;
+#endif  // CEF_API_ADDED(CEF_NEXT)
   CEF_REQUIRE_UI_THREAD();
 
   if (!window_ || !with_controls_) {
     return false;
   }
 
-  if (event.type == KEYEVENT_RAWKEYDOWN && event.windows_key_code == VK_MENU) {
+  if (event.type == kRawKeyDown && event.windows_key_code == VK_MENU) {
     // ALT key is pressed.
     int last_focused_view = last_focused_view_;
     bool menu_had_focus = menu_has_focus_;
