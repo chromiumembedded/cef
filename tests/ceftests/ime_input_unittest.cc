@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "include/cef_devtools_message_observer.h"
+#include "include/cef_input_handler.h"
 #include "include/cef_parser.h"
 #include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -40,6 +41,12 @@ enum class Operation {
   ChromiumSet,
 };
 enum class Editor { Input, Textarea, ContentEditable };
+enum class KeyboardApi {
+  Legacy,
+#if CEF_API_ADDED(CEF_NEXT)
+  Portable,
+#endif
+};
 enum class Scenario {
   Commit,
   CommitUnicode,
@@ -193,6 +200,9 @@ bool CompositionTextColorEnabled() {
 // installed input method, particular keyboard layout, or toolkit dependency.
 class ImeInputTestHandler : public RoutingTestHandler,
                             public CefRenderHandler,
+#if CEF_API_ADDED(CEF_NEXT)
+                            public CefInputHandler,
+#endif
                             public CefKeyboardHandler,
                             public CefFocusHandler,
                             public CefDevToolsMessageObserver {
@@ -201,11 +211,13 @@ class ImeInputTestHandler : public RoutingTestHandler,
                       Editor editor,
                       float scale,
                       bool osr,
+                      KeyboardApi keyboard_api,
                       bool start_in_child = false)
       : scenario_(scenario),
         editor_(editor),
         scale_(scale),
         osr_(osr),
+        keyboard_api_(keyboard_api),
         start_in_child_(start_in_child) {
     BuildSteps(scenario);
     if (IsIframe()) {
@@ -218,6 +230,9 @@ class ImeInputTestHandler : public RoutingTestHandler,
   }
 
   CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
+#if CEF_API_ADDED(CEF_NEXT)
+  CefRefPtr<CefInputHandler> GetInputHandler() override { return this; }
+#endif
   CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() override { return this; }
   CefRefPtr<CefFocusHandler> GetFocusHandler() override { return this; }
 
@@ -238,14 +253,23 @@ class ImeInputTestHandler : public RoutingTestHandler,
     }
   }
 
+#if CEF_API_ADDED(CEF_NEXT)
+  bool OnKeyboardEvent(CefRefPtr<CefBrowser> browser,
+                       const CefKeyboardInputEvent& event,
+                       const CefInputEventContext&) override {
+    if (keyboard_api_ != KeyboardApi::Portable) {
+      return false;
+    }
+    AcknowledgeBarrier(browser, event.type, event.windows_key_code);
+    return true;
+  }
+#endif
+
   bool OnKeyEvent(CefRefPtr<CefBrowser> browser,
                   const CefKeyEvent& event,
                   CefEventHandle) override {
-    if (event.type == KEYEVENT_KEYUP && event.windows_key_code == 'A' &&
-        waiting_for_ack_) {
-      waiting_for_ack_ = false;
-      Execute(browser, "report()");
-    }
+    EXPECT_EQ(KeyboardApi::Legacy, keyboard_api_);
+    AcknowledgeBarrier(browser, event.type, event.windows_key_code);
     return true;
   }
 
@@ -1447,6 +1471,18 @@ class ImeInputTestHandler : public RoutingTestHandler,
     // unhandled key-up acknowledgement observes processing even when the IME
     // command intentionally emits no DOM event. A key-up inserts no text.
     waiting_for_ack_ = true;
+#if CEF_API_ADDED(CEF_NEXT)
+    if (keyboard_api_ == KeyboardApi::Portable) {
+      CefKeyboardInputEvent event;
+      event.type = CEF_KEYEVENT_KEYUP;
+      event.dom_code = CEF_DOM_CODE_US_A;
+      event.dom_key = CEF_DOM_KEY_UNICODE_FLAG | 'a';
+      event.windows_key_code = 'A';
+      event.text[0] = event.unmodified_text[0] = 'a';
+      browser->GetHost()->SendKeyboardEvent(event);
+      return;
+    }
+#endif
     CefKeyEvent event;
     event.type = KEYEVENT_KEYUP;
     event.windows_key_code = 'A';
@@ -1459,6 +1495,15 @@ class ImeInputTestHandler : public RoutingTestHandler,
     event.native_key_code = (0x1E << 16) | 0xC0000001;
 #endif
     browser->GetHost()->SendKeyEvent(event);
+  }
+
+  void AcknowledgeBarrier(CefRefPtr<CefBrowser> browser,
+                          cef_key_event_type_t type,
+                          int windows_key_code) {
+    if (type == KEYEVENT_KEYUP && windows_key_code == 'A' && waiting_for_ack_) {
+      waiting_for_ack_ = false;
+      Execute(browser, "report()");
+    }
   }
 
   void Send(CefRefPtr<CefBrowser> browser) {
@@ -1641,6 +1686,27 @@ class ImeInputTestHandler : public RoutingTestHandler,
   }
 
   void SendTypedWord(CefRefPtr<CefBrowser> browser) {
+#if CEF_API_ADDED(CEF_NEXT)
+    if (keyboard_api_ == KeyboardApi::Portable) {
+      constexpr uint32_t codes[] = {CEF_DOM_CODE_US_D, CEF_DOM_CODE_US_O,
+                                    CEF_DOM_CODE_US_N, CEF_DOM_CODE_US_E};
+      const std::u16string word = u"done";
+      for (size_t i = 0; i < word.size(); ++i) {
+        CefKeyboardInputEvent event;
+        event.dom_code = codes[i];
+        event.dom_key = CEF_DOM_KEY_UNICODE_FLAG | word[i];
+        event.text[0] = event.unmodified_text[0] = word[i];
+        for (const auto type :
+             {CEF_KEYEVENT_RAWKEYDOWN, CEF_KEYEVENT_CHAR, CEF_KEYEVENT_KEYUP}) {
+          event.type = type;
+          event.windows_key_code =
+              type == CEF_KEYEVENT_CHAR ? word[i] : word[i] - u'a' + 'A';
+          browser->GetHost()->SendKeyboardEvent(event);
+        }
+      }
+      return;
+    }
+#endif
     // Native codes for D/O/N/E, matching the legacy OSR keyboard sequence.
 #if defined(OS_MAC)
     constexpr int native_codes[] = {2, 31, 45, 14};
@@ -1792,6 +1858,7 @@ class ImeInputTestHandler : public RoutingTestHandler,
   const Editor editor_;
   const float scale_;
   const bool osr_;
+  const KeyboardApi keyboard_api_;
   const bool start_in_child_;
   std::u16string initial_;
   CefRange initial_selection_{0, 0};
@@ -1837,7 +1904,7 @@ class ImeInputTestHandler : public RoutingTestHandler,
   IMPLEMENT_REFCOUNTING(ImeInputTestHandler);
 };
 
-void RunImeTest(Scenario scenario) {
+void RunImeTestWithKeyboardApi(Scenario scenario, KeyboardApi keyboard_api) {
   // Public Ime* methods currently support Alloy OSR only. Keep the windowed
   // creation branch ready for additional support without running no-op APIs.
   for (auto editor :
@@ -1873,11 +1940,24 @@ void RunImeTest(Scenario scenario) {
           continue;
         }
         CefRefPtr<ImeInputTestHandler> handler = new ImeInputTestHandler(
-            scenario, editor, scale, true, start_in_child);
+            scenario, editor, scale, true, keyboard_api, start_in_child);
         handler->ExecuteTest();
         ReleaseAndWaitForDestructor(handler);
       }
     }
+  }
+}
+
+void RunImeTest(Scenario scenario) {
+  for (const auto keyboard_api : {
+           KeyboardApi::Legacy,
+#if CEF_API_ADDED(CEF_NEXT)
+           KeyboardApi::Portable,
+#endif
+       }) {
+    SCOPED_TRACE(keyboard_api == KeyboardApi::Legacy ? "SendKeyEvent"
+                                                     : "SendKeyboardEvent");
+    RunImeTestWithKeyboardApi(scenario, keyboard_api);
   }
 }
 

@@ -14,14 +14,33 @@
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
-#if CEF_API_ADDED(CEF_NEXT)
 namespace {
 
+#if CEF_API_ADDED(CEF_NEXT)
+using TestKeyEvent = CefKeyboardInputEvent;
+#else
+// Expected values for the legacy-only fixture. This is test data, not a
+// substitute public API type.
+struct TestKeyEvent {
+  cef_key_event_type_t type = KEYEVENT_RAWKEYDOWN;
+  uint32_t modifiers = 0;
+  int windows_key_code = 0;
+  int is_system_key = 0;
+  char16_t text[4] = {};
+  char16_t unmodified_text[4] = {};
+};
+#endif
+
 constexpr char kUrl[] = "https://tests/keyboard-input";
+// Preserve the character-only regression cases from OSRTest.CharEvents:
+// characters whose low bytes resemble Backspace/Escape, plus a control case.
+constexpr char16_t kCharacterOnlyText[] =
+    u"\u0410\u041b\u0408\u011b\u0e08\uff1b";
 enum class Scenario {
   Unicode,
   Alpha,
   Sequence,
+  CharacterOnly,
   Keypad,
   LeftShift,
   RightShift,
@@ -48,6 +67,7 @@ enum class Mode {
   LegacyWindowHandled
 };
 
+#if CEF_API_ADDED(CEF_NEXT)
 void ExpectSnapshot(const CefKeyboardInputEvent& expected,
                     const CefKeyboardInputEvent& actual,
                     bool compare_timestamp = true) {
@@ -70,22 +90,30 @@ void ExpectSnapshot(const CefKeyboardInputEvent& expected,
     EXPECT_EQ(expected.unmodified_text[i], actual.unmodified_text[i]);
   }
 }
+#endif
 
 class KeyboardInputTestHandler : public RoutingTestHandler,
                                  public CefRenderHandler,
+#if CEF_API_ADDED(CEF_NEXT)
                                  public CefInputHandler,
+#endif
                                  public CefKeyboardHandler {
  public:
-  KeyboardInputTestHandler(Mode mode, bool osr, Scenario scenario)
-      : mode_(mode), osr_(osr), scenario_(scenario) {}
+  KeyboardInputTestHandler(Mode mode,
+                           bool osr,
+                           Scenario scenario,
+                           float scale = 1.0f)
+      : mode_(mode), osr_(osr), scenario_(scenario), scale_(scale) {}
 
-#if defined(OS_MAC)
+#if CEF_API_ADDED(CEF_NEXT) && defined(OS_MAC)
   void SetMacTextClientInput(MacTextClientInput input) { mac_input_ = input; }
 #endif
 
   CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
 
+#if CEF_API_ADDED(CEF_NEXT)
   CefRefPtr<CefInputHandler> GetInputHandler() override { return this; }
+#endif
 
   // DEPRECATED: Use GetInputHandler(). Return both handlers here to verify
   // ordering and legacy fallthrough.
@@ -93,6 +121,11 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
 
   void GetViewRect(CefRefPtr<CefBrowser>, CefRect& rect) override {
     rect = CefRect(0, 0, 400, 300);
+  }
+
+  bool GetScreenInfo(CefRefPtr<CefBrowser>, CefScreenInfo& info) override {
+    info.device_scale_factor = scale_;
+    return true;
   }
 
   void OnPaint(CefRefPtr<CefBrowser> browser,
@@ -115,7 +148,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
     // correctly, including Chromium's catch-all focus type (CEF #3184).
     std::string html =
         R"(<style>body{margin:0}input{width:200px;height:40px}</style>
-      <input id='i'><script>
+      <input id='i'><button id='finish'>Report</button><script>
       const events = [];
       const cancel = CANCEL;
       let started = false;
@@ -131,6 +164,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
       window.addEventListener('focus', notifyReady);
       i.addEventListener('click', () => window.testQuery({request:'ready'}),
                          {once:true});
+      finish.addEventListener('click', report);
       for (const type of ['keydown', 'keypress', 'keyup']) {
         document.addEventListener(type, e => {
           events.push({type:e.type, key:e.key, code:e.code, location:e.location,
@@ -153,11 +187,13 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
         window.testQuery({request:JSON.stringify({events, value:i.value})});
       }
     </script>)";
+#if CEF_API_ADDED(CEF_NEXT)
     if (mode_ == Mode::NativeTextClient) {
       const std::string input = "<input id='i'>";
       html.replace(html.find(input), input.size(),
                    "<textarea id='i'></textarea>");
     }
+#endif
     html.replace(html.find("CANCEL"), 6,
                  mode_ == Mode::PageHandled ? "true" : "false");
     html.replace(html.find("EXPECTED_KEYUPS"), 15,
@@ -228,10 +264,10 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
                               IsShortcut() || suppress_character_dom_;
     EXPECT_EQ(no_character ? "" : insertion_,
               result->GetString("value").ToString());
-    std::vector<const CefKeyboardInputEvent*> dom_events;
+    std::vector<const TestKeyEvent*> dom_events;
     if (!suppressed) {
       for (const auto& event : expected_) {
-        if (!no_character || event.type != CEF_KEYEVENT_CHAR) {
+        if (!no_character || event.type != KEYEVENT_CHAR) {
           dom_events.push_back(&event);
         }
       }
@@ -241,57 +277,83 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
          ++i) {
       const auto& expected = *dom_events[i];
       auto entry = events->GetDictionary(i);
-      const bool character = expected.type == CEF_KEYEVENT_CHAR;
-      EXPECT_EQ(character                             ? "keypress"
-                : expected.type == CEF_KEYEVENT_KEYUP ? "keyup"
-                                                      : "keydown",
+      const bool character = expected.type == KEYEVENT_CHAR;
+      EXPECT_EQ(character                         ? "keypress"
+                : expected.type == KEYEVENT_KEYUP ? "keyup"
+                                                  : "keydown",
                 entry->GetString("type").ToString());
       const size_t sequence_index =
           static_cast<size_t>(dom_events[i] - expected_.data()) / 3;
       constexpr std::array sequence_codes = {"KeyA", "KeyB", "KeyC"};
-      EXPECT_EQ(scenario_ == Scenario::Sequence ? sequence_codes[sequence_index]
-                                                : code_,
-                entry->GetString("code").ToString());
-      EXPECT_EQ(scenario_ == Scenario::Sequence
-                    ? std::string(1, "abc"[sequence_index])
-                    : logical_key_,
-                entry->GetString("key").ToString());
+      if (scenario_ != Scenario::CharacterOnly) {
+        EXPECT_EQ(scenario_ == Scenario::Sequence
+                      ? sequence_codes[sequence_index]
+                      : code_,
+                  entry->GetString("code").ToString());
+        EXPECT_EQ(scenario_ == Scenario::Sequence
+                      ? std::string(1, "abc"[sequence_index])
+                      : logical_key_,
+                  entry->GetString("key").ToString());
+      }
       EXPECT_EQ(location_, entry->GetInt("location"));
-      EXPECT_EQ(!!(expected.modifiers & CEF_EVENTFLAG_IS_REPEAT),
+      EXPECT_EQ(!!(expected.modifiers & EVENTFLAG_IS_REPEAT),
                 entry->GetBool("repeat"));
-      for (const auto& modifier :
-           {std::pair{"shift", CEF_EVENTFLAG_SHIFT_DOWN},
-            std::pair{"ctrl", CEF_EVENTFLAG_CONTROL_DOWN},
-            std::pair{"alt", CEF_EVENTFLAG_ALT_DOWN},
-            std::pair{"meta", CEF_EVENTFLAG_COMMAND_DOWN},
-            std::pair{"caps", CEF_EVENTFLAG_CAPS_LOCK_ON},
-            std::pair{"num", CEF_EVENTFLAG_NUM_LOCK_ON},
-            std::pair{"altgr", CEF_EVENTFLAG_ALTGR_DOWN}}) {
+      for (const auto& modifier : {std::pair{"shift", EVENTFLAG_SHIFT_DOWN},
+                                   std::pair{"ctrl", EVENTFLAG_CONTROL_DOWN},
+                                   std::pair{"alt", EVENTFLAG_ALT_DOWN},
+                                   std::pair{"meta", EVENTFLAG_COMMAND_DOWN},
+                                   std::pair{"caps", EVENTFLAG_CAPS_LOCK_ON},
+                                   std::pair{"num", EVENTFLAG_NUM_LOCK_ON},
+                                   std::pair{"altgr", EVENTFLAG_ALTGR_DOWN}}) {
         EXPECT_EQ(!!(expected.modifiers & modifier.second),
                   entry->GetBool(modifier.first))
             << modifier.first;
       }
-      const int character_code = scenario_ == Scenario::Sequence
-                                     ? "abc"[sequence_index]
-                                     : character_code_;
+      const int character_code =
+          scenario_ == Scenario::CharacterOnly ? kCharacterOnlyText[i]
+          : scenario_ == Scenario::Sequence    ? "abc"[sequence_index]
+                                               : character_code_;
       const int key_code =
           character ? character_code : expected.windows_key_code;
       EXPECT_EQ(key_code, entry->GetInt("keyCode"));
       EXPECT_EQ(key_code, entry->GetInt("which"));
       EXPECT_EQ(character ? character_code : 0, entry->GetInt("charCode"));
+      if (scenario_ == Scenario::CharacterOnly) {
+        EXPECT_EQ("keypress", entry->GetString("type").ToString());
+#if defined(OS_WIN)
+        const bool check_key = true;
+#else
+        const bool check_key = !IsLegacySend();
+#endif
+        if (check_key) {
+          EXPECT_EQ(
+              CefString(std::u16string(1, kCharacterOnlyText[i])).ToString(),
+              entry->GetString("key").ToString());
+        }
+        if (!IsLegacySend()) {
+          EXPECT_TRUE(entry->GetString("code").empty());
+        }
+      }
     }
     reported_ = true;
     MaybeDone();
     return true;
   }
 
+#if CEF_API_ADDED(CEF_NEXT)
   bool OnPreKeyboardEvent(CefRefPtr<CefBrowser>,
                           const CefKeyboardInputEvent& event,
                           const CefInputEventContext& context,
                           bool* is_keyboard_shortcut) override {
     EXPECT_LT(pre_, expected_.size());
     if (pre_ < expected_.size()) {
-      ExpectSnapshot(expected_[pre_], event, !IsLegacySend());
+      if (scenario_ == Scenario::CharacterOnly && IsLegacySend()) {
+        EXPECT_EQ(KEYEVENT_CHAR, event.type);
+        EXPECT_EQ(expected_[pre_].text[0], event.text[0]);
+        EXPECT_EQ(0U, event.modifiers);
+      } else {
+        ExpectSnapshot(expected_[pre_], event, !IsLegacySend());
+      }
     }
     EXPECT_TRUE(context.focus_on_editable_field);
     ++pre_;
@@ -299,7 +361,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
     if (mode_ == Mode::PreHandled || mode_ == Mode::LegacySendPreHandled) {
       return true;
     }
-    if (mode_ == Mode::Shortcut && event.type == CEF_KEYEVENT_RAWKEYDOWN) {
+    if (mode_ == Mode::Shortcut && event.type == KEYEVENT_RAWKEYDOWN) {
       *is_keyboard_shortcut = true;
       return false;
     }
@@ -311,6 +373,11 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
                        const CefKeyboardInputEvent& event,
                        const CefInputEventContext& context) override {
     EXPECT_TRUE(context.focus_on_editable_field);
+    return OnPostEvent(browser, event);
+  }
+#endif
+
+  bool OnPostEvent(CefRefPtr<CefBrowser> browser, const TestKeyEvent& event) {
     size_t index = post_cursor_;
     for (; index < expected_.size(); ++index) {
       if (expected_[index].type == event.type) {
@@ -319,19 +386,23 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
       // Character insertion and editing commands may be consumed by the
       // renderer. Other raw downs and all key ups must reach this callback.
       if (!renderer_handles_keydown_) {
-        EXPECT_EQ(CEF_KEYEVENT_CHAR, expected_[index].type);
+        EXPECT_EQ(KEYEVENT_CHAR, expected_[index].type);
       }
     }
     EXPECT_LT(index, expected_.size());
     if (index < expected_.size()) {
+#if CEF_API_ADDED(CEF_NEXT)
       ExpectSnapshot(expected_[index], event, !IsLegacySend());
+#else
+      EXPECT_EQ(expected_[index].type, event.type);
+#endif
     }
     post_cursor_ = index + 1;
-    if (event.type == CEF_KEYEVENT_KEYUP ||
-        (event.type != CEF_KEYEVENT_CHAR && !renderer_handles_keydown_)) {
+    if (event.type == KEYEVENT_KEYUP ||
+        (event.type != KEYEVENT_CHAR && !renderer_handles_keydown_)) {
       ++post_;
     }
-    if (event.type == CEF_KEYEVENT_KEYUP && post_cursor_ == expected_.size()) {
+    if (event.type == KEYEVENT_KEYUP && post_cursor_ == expected_.size()) {
       // The acknowledgement guarantees the renderer processed the final
       // event. Also request a report when DOM dispatch itself is broken.
       Report(browser);
@@ -349,6 +420,10 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
                      const CefKeyEvent& event,
                      CefEventHandle,
                      bool* is_keyboard_shortcut) override {
+#if !CEF_API_ADDED(CEF_NEXT)
+    ++pre_;
+    ++pre_unhandled_;
+#endif
     EXPECT_EQ(legacy_pre_ + 1, pre_unhandled_);
     EXPECT_GT(pre_, 0U);
     if (pre_ && pre_ <= expected_.size()) {
@@ -366,9 +441,14 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   }
 
   // DEPRECATED: Use OnKeyboardEvent(); retained to test legacy fallthrough.
-  bool OnKeyEvent(CefRefPtr<CefBrowser>,
+  bool OnKeyEvent(CefRefPtr<CefBrowser> browser,
                   const CefKeyEvent& event,
                   CefEventHandle) override {
+#if !CEF_API_ADDED(CEF_NEXT)
+    TestKeyEvent snapshot;
+    snapshot.type = event.type;
+    OnPostEvent(browser, snapshot);
+#endif
     EXPECT_EQ(legacy_post_ + 1, post_unhandled_);
     EXPECT_TRUE(mode_ == Mode::LegacyPostHandled || IsWindowTest() ||
                 IsLegacySend());
@@ -387,6 +467,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
     return true;
   }
 
+#if CEF_API_ADDED(CEF_NEXT)
   bool OnWindowKeyboardEvent(int browser_id,
                              const CefKeyboardInputEvent& event) override {
     EXPECT_TRUE(IsWindowTest());
@@ -404,6 +485,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
     MaybeDone();
     return true;
   }
+#endif
 
   // DEPRECATED: Use OnWindowKeyboardEvent(); retained to test fallthrough.
   bool OnWindowKeyEvent(int browser_id, const CefKeyEvent& event) override {
@@ -435,30 +517,73 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   }
 
   void BuildEvents() {
+    if (scenario_ == Scenario::CharacterOnly) {
+      expected_.clear();
+      insertion_ = CefString(kCharacterOnlyText).ToString();
+      for (const char16_t* c = kCharacterOnlyText; *c; ++c) {
+        TestKeyEvent event;
+        event.type = KEYEVENT_CHAR;
+        event.text[0] = event.unmodified_text[0] = *c;
+#if CEF_API_ADDED(CEF_NEXT)
+        if (!IsLegacySend()) {
+          event.dom_key = CEF_DOM_KEY_UNICODE_FLAG | *c;
+        }
+#endif
+        event.windows_key_code = *c;
+        expected_.push_back(event);
+      }
+      return;
+    }
     if (scenario_ == Scenario::Sequence) {
       // Distinct keys expose loss, duplication, and reordering across the
       // asynchronous send, renderer, and callback routes.
       expected_.clear();
       insertion_ = "abc";
+#if CEF_API_ADDED(CEF_NEXT)
       constexpr std::array codes = {CEF_DOM_CODE_US_A, CEF_DOM_CODE_US_B,
                                     CEF_DOM_CODE_US_C};
+#endif
       for (size_t i = 0; i < insertion_.size(); ++i) {
-        CefKeyboardInputEvent key;
-        key.type = CEF_KEYEVENT_RAWKEYDOWN;
+        TestKeyEvent key;
+        key.type = KEYEVENT_RAWKEYDOWN;
+#if CEF_API_ADDED(CEF_NEXT)
         key.dom_code = codes[i];
         key.dom_key = CEF_DOM_KEY_UNICODE_FLAG | insertion_[i];
+#endif
         key.windows_key_code = "ABC"[i];
         key.text[0] = key.unmodified_text[0] = insertion_[i];
         expected_.push_back(key);
-        key.type = CEF_KEYEVENT_CHAR;
+        key.type = KEYEVENT_CHAR;
         key.windows_key_code = insertion_[i];
+#if defined(OS_MAC)
+        if (IsLegacySend()) {
+          key.windows_key_code = "ABC"[i];
+        }
+#endif
         expected_.push_back(key);
-        key.type = CEF_KEYEVENT_KEYUP;
+        key.type = KEYEVENT_KEYUP;
         key.windows_key_code = "ABC"[i];
         expected_.push_back(key);
       }
       return;
     }
+#if !CEF_API_ADDED(CEF_NEXT)
+    EXPECT_EQ(Scenario::Alpha, scenario_);
+    TestKeyEvent key;
+    key.windows_key_code = 'A';
+    key.text[0] = key.unmodified_text[0] = 'a';
+    logical_key_ = insertion_ = "a";
+    character_code_ = 'a';
+    expected_ = {key};
+    key.type = KEYEVENT_CHAR;
+#if !defined(OS_MAC)
+    key.windows_key_code = 'a';
+#endif
+    expected_.push_back(key);
+    key.type = KEYEVENT_KEYUP;
+    key.windows_key_code = 'A';
+    expected_.push_back(key);
+#else
 #if defined(OS_MAC)
     if (mode_ == Mode::NativeTextClient) {
       EXPECT_TRUE(BuildMacTextClientKeyboardInputEvents(mac_input_, expected_));
@@ -494,12 +619,12 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
     }
 #endif
     auto& down = expected_[0];
-    down.type = CEF_KEYEVENT_RAWKEYDOWN;
+    down.type = KEYEVENT_RAWKEYDOWN;
     down.dom_code = CEF_DOM_CODE_US_A;
     down.dom_key = CEF_DOM_KEY_UNICODE_FLAG | 0x1f600;
     down.windows_key_code = 'A';
-    down.modifiers = CEF_EVENTFLAG_SHIFT_DOWN | CEF_EVENTFLAG_IS_RIGHT |
-                     CEF_EVENTFLAG_IS_REPEAT;
+    down.modifiers =
+        EVENTFLAG_SHIFT_DOWN | EVENTFLAG_IS_RIGHT | EVENTFLAG_IS_REPEAT;
     down.text[0] = 0xd83d;
     down.text[1] = 0xde00;
     down.unmodified_text[0] = 'a';
@@ -507,12 +632,12 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
     // the entire native-compatible buffer, rather than rebuilding a string.
     down.unmodified_text[3] = 'Z';
     expected_[1] = down;
-    expected_[1].type = CEF_KEYEVENT_CHAR;
+    expected_[1].type = KEYEVENT_CHAR;
     expected_[1].windows_key_code = down.text[0];
-    expected_[1].modifiers &= ~CEF_EVENTFLAG_IS_REPEAT;
+    expected_[1].modifiers &= ~EVENTFLAG_IS_REPEAT;
     expected_[2] = down;
-    expected_[2].type = CEF_KEYEVENT_KEYUP;
-    expected_[2].modifiers &= ~CEF_EVENTFLAG_IS_REPEAT;
+    expected_[2].type = KEYEVENT_KEYUP;
+    expected_[2].modifiers &= ~EVENTFLAG_IS_REPEAT;
     logical_key_ = insertion_ = "\xF0\x9F\x98\x80";
     location_ = 2;
 #if defined(OS_WIN)
@@ -554,7 +679,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
       return;
     }
     CefKeyboardInputEvent key;
-    key.type = CEF_KEYEVENT_RAWKEYDOWN;
+    key.type = KEYEVENT_RAWKEYDOWN;
     key.dom_code = CEF_DOM_CODE_US_A;
     key.dom_key = CEF_DOM_KEY_UNICODE_FLAG | 'a';
     key.windows_key_code = 'A';
@@ -567,7 +692,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
       key.dom_code = CEF_DOM_CODE_DIGIT2;
       key.dom_key = CEF_DOM_KEY_UNICODE_FLAG | '@';
       key.windows_key_code = '2';
-      key.modifiers = CEF_EVENTFLAG_ALTGR_DOWN;
+      key.modifiers = EVENTFLAG_ALTGR_DOWN;
       key.text[0] = '@';
       key.unmodified_text[0] = '2';
       code_ = "Digit2";
@@ -577,7 +702,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
       key.dom_code = CEF_DOM_CODE_NUMPAD1;
       key.dom_key = CEF_DOM_KEY_UNICODE_FLAG | '1';
       key.windows_key_code = 0x61;
-      key.modifiers = CEF_EVENTFLAG_IS_KEY_PAD | CEF_EVENTFLAG_NUM_LOCK_ON;
+      key.modifiers = EVENTFLAG_IS_KEY_PAD | EVENTFLAG_NUM_LOCK_ON;
       key.text[0] = key.unmodified_text[0] = '1';
       code_ = "Numpad1";
       logical_key_ = insertion_ = "1";
@@ -602,35 +727,34 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
       key.dom_code = right ? CEF_DOM_CODE_SHIFT_RIGHT : CEF_DOM_CODE_SHIFT_LEFT;
       key.dom_key = CEF_DOM_KEY_SHIFT;
       key.windows_key_code = 16;
-      key.modifiers = CEF_EVENTFLAG_SHIFT_DOWN |
-                      (right ? CEF_EVENTFLAG_IS_RIGHT : CEF_EVENTFLAG_IS_LEFT);
+      key.modifiers = EVENTFLAG_SHIFT_DOWN |
+                      (right ? EVENTFLAG_IS_RIGHT : EVENTFLAG_IS_LEFT);
       key.text[0] = key.unmodified_text[0] = 0;
       code_ = right ? "ShiftRight" : "ShiftLeft";
       logical_key_ = "Shift";
       insertion_.clear();
       location_ = right ? 2 : 1;
       if (scenario_ == Scenario::Modifiers) {
-        key.modifiers |= CEF_EVENTFLAG_CONTROL_DOWN | CEF_EVENTFLAG_ALT_DOWN |
-                         CEF_EVENTFLAG_COMMAND_DOWN |
-                         CEF_EVENTFLAG_CAPS_LOCK_ON |
-                         CEF_EVENTFLAG_NUM_LOCK_ON | CEF_EVENTFLAG_ALTGR_DOWN;
+        key.modifiers |= EVENTFLAG_CONTROL_DOWN | EVENTFLAG_ALT_DOWN |
+                         EVENTFLAG_COMMAND_DOWN | EVENTFLAG_CAPS_LOCK_ON |
+                         EVENTFLAG_NUM_LOCK_ON | EVENTFLAG_ALTGR_DOWN;
       }
     }
     expected_.clear();
     expected_.push_back(key);
     if (!insertion_.empty()) {
       CefKeyboardInputEvent character(key);
-      character.type = CEF_KEYEVENT_CHAR;
+      character.type = KEYEVENT_CHAR;
       character.windows_key_code = key.text[0];
       expected_.push_back(character);
     } else if (scenario_ == Scenario::RepeatedShift) {
       CefKeyboardInputEvent repeated(key);
-      repeated.modifiers |= CEF_EVENTFLAG_IS_REPEAT;
+      repeated.modifiers |= EVENTFLAG_IS_REPEAT;
       expected_.push_back(repeated);
     }
-    key.type = CEF_KEYEVENT_KEYUP;
+    key.type = KEYEVENT_KEYUP;
     if (key.dom_key == CEF_DOM_KEY_SHIFT) {
-      key.modifiers &= ~CEF_EVENTFLAG_SHIFT_DOWN;
+      key.modifiers &= ~EVENTFLAG_SHIFT_DOWN;
     }
     expected_.push_back(key);
 #if defined(OS_MAC)
@@ -639,12 +763,13 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
       expected_[1].windows_key_code = 'A';
     }
 #endif
+#endif  // CEF_API_ADDED(CEF_NEXT)
   }
 
   void Start(CefRefPtr<CefBrowser> browser) {
     // Exercise the asynchronous public send/C API route as well as UI-thread
     // dispatch. Conversion happened synchronously before this thread hop.
-#if defined(OS_MAC)
+#if CEF_API_ADDED(CEF_NEXT) && defined(OS_MAC)
     if (mode_ == Mode::NativeTextClient) {
       SendMacTextClientKeyboardInput(browser, mac_input_, expected_);
     } else
@@ -654,7 +779,8 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   }
 
   void Send(CefRefPtr<CefBrowser> browser) {
-    for (const auto& event : expected_) {
+    for (size_t i = 0; i < expected_.size(); ++i) {
+      const auto& event = expected_[i];
       if (IsLegacySend()) {
         CefKeyEvent legacy;
         legacy.type = event.type;
@@ -663,21 +789,46 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
         legacy.character = event.text[0];
         legacy.unmodified_character = event.unmodified_text[0];
 #if defined(OS_WIN)
-        legacy.native_key_code = 0x1e;
+        constexpr int native_codes[] = {0x1e, 0x30, 0x2e};
 #elif defined(OS_MAC)
-        legacy.native_key_code = 0;
+        constexpr int native_codes[] = {0, 11, 8};
 #else
-        legacy.native_key_code = 38;
-        if (event.type == CEF_KEYEVENT_CHAR) {
-          // Legacy Linux CHAR uses the key-down accelerator key code. X11
-          // derives the character from it; callbacks report the character.
-          legacy.windows_key_code = expected_[0].windows_key_code;
-        }
+        constexpr int native_codes[] = {38, 56, 54};
 #endif
+        if (scenario_ == Scenario::CharacterOnly) {
+          // Preserve the old OSR character-only payload: no physical code,
+          // and only Windows carries the WM_CHAR character as key code.
+#if !defined(OS_WIN)
+          legacy.windows_key_code = 0;
+#endif
+        } else {
+          legacy.native_key_code =
+              native_codes[scenario_ == Scenario::Sequence ? i / 3 : 0];
+#if defined(OS_LINUX)
+          if (event.type == KEYEVENT_CHAR) {
+            // Legacy Linux CHAR uses the key-down accelerator key code. X11
+            // derives the character from it; callbacks report the character.
+            legacy.windows_key_code =
+                expected_[scenario_ == Scenario::Sequence ? i - 1 : 0]
+                    .windows_key_code;
+          }
+#endif
+        }
         browser->GetHost()->SendKeyEvent(legacy);
-      } else {
+      }
+#if CEF_API_ADDED(CEF_NEXT)
+      else {
         browser->GetHost()->SendKeyboardEvent(event);
       }
+#endif
+    }
+    if (scenario_ == Scenario::CharacterOnly) {
+      // Mouse and keyboard share the renderer input queue. Report from the
+      // button click after insertion, without adding down/up barrier events.
+      CefMouseEvent mouse;
+      mouse.x = 250;
+      mouse.y = 20;
+      SendMouseClickEvent(browser, mouse);
     }
     if (IsPreHandled()) {
       // All input dispatch tasks precede this task. No DOM event can trigger
@@ -701,7 +852,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
             ? 1
             : std::count_if(
                   expected_.begin(), expected_.end(),
-                  [](const auto& e) { return e.type != CEF_KEYEVENT_CHAR; });
+                  [](const auto& e) { return e.type != KEYEVENT_CHAR; });
     if (post_ != expected_post) {
       return;
     }
@@ -729,12 +880,18 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   }
 
   bool IsLegacySend() const {
+#if CEF_API_ADDED(CEF_NEXT)
     return mode_ == Mode::LegacySend || mode_ == Mode::LegacySendPreHandled;
+#else
+    return true;
+#endif
   }
 
-  void ExpectLegacySnapshot(const CefKeyboardInputEvent& expected,
+  void ExpectLegacySnapshot(const TestKeyEvent& expected,
                             const CefKeyEvent& event) {
-    EXPECT_EQ(expected.windows_key_code, event.windows_key_code);
+    if (scenario_ != Scenario::CharacterOnly) {
+      EXPECT_EQ(expected.windows_key_code, event.windows_key_code);
+    }
     EXPECT_EQ(expected.is_system_key, event.is_system_key);
     EXPECT_EQ(expected.text[0], event.character);
     EXPECT_EQ(expected.unmodified_text[0], event.unmodified_character);
@@ -752,10 +909,11 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   const Mode mode_;
   const bool osr_;
   const Scenario scenario_;
-#if defined(OS_MAC)
+  const float scale_;
+#if CEF_API_ADDED(CEF_NEXT) && defined(OS_MAC)
   MacTextClientInput mac_input_ = MacTextClientInput::Character;
 #endif
-  std::vector<CefKeyboardInputEvent> expected_{3};
+  std::vector<TestKeyEvent> expected_{3};
   std::string code_ = "KeyA";
   // DOM's legacy character codes contain the first UTF-16 unit.
   int character_code_ = 0xd83d;
@@ -772,12 +930,18 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   IMPLEMENT_REFCOUNTING(KeyboardInputTestHandler);
 };
 
-void RunKeyboardTest(Mode mode, Scenario scenario = Scenario::Unicode) {
+void RunKeyboardTest(Mode mode,
+                     Scenario scenario = Scenario::Unicode,
+                     float scale = 1.0f) {
   for (bool osr : {true, false}) {
     // Native-window legacy injection retains its separate view/IME entry path.
     // This comparison targets OSR, where both APIs share the same dispatcher.
+#if CEF_API_ADDED(CEF_NEXT)
     if (!osr &&
         (mode == Mode::LegacySend || mode == Mode::LegacySendPreHandled)) {
+#else
+    if (!osr) {
+#endif
       continue;
     }
     if (osr &&
@@ -786,9 +950,42 @@ void RunKeyboardTest(Mode mode, Scenario scenario = Scenario::Unicode) {
     }
     SCOPED_TRACE(osr ? "Alloy OSR" : "Native window (global runtime style)");
     CefRefPtr<KeyboardInputTestHandler> handler =
-        new KeyboardInputTestHandler(mode, osr, scenario);
+        new KeyboardInputTestHandler(mode, osr, scenario, scale);
     handler->ExecuteTest();
     ReleaseAndWaitForDestructor(handler);
+  }
+}
+
+TEST(KeyboardInputTest, LegacyTypingReachesDomAndCallbacks) {
+  RunKeyboardTest(Mode::LegacySend, Scenario::Alpha);
+}
+
+TEST(KeyboardInputTest, LegacyMultipleCharactersPreserveOrderAndCallbacks) {
+  RunKeyboardTest(Mode::LegacySend, Scenario::Sequence);
+}
+
+TEST(KeyboardInputTest, LegacyCharacterOnlyPreservesUnicodeAndCallbacks) {
+  for (float scale : {1.0f, 2.0f}) {
+    SCOPED_TRACE(scale);
+    RunKeyboardTest(Mode::LegacySend, Scenario::CharacterOnly, scale);
+  }
+}
+
+#if !CEF_API_ADDED(CEF_NEXT)
+TEST(KeyboardInputTest, LegacyPreHandlerConsumesInput) {
+  RunKeyboardTest(Mode::LegacyPreHandled, Scenario::Alpha);
+}
+
+TEST(KeyboardInputTest, LegacyShortcutSuppressesCharacter) {
+  RunKeyboardTest(Mode::LegacyShortcut, Scenario::Alpha);
+}
+#endif
+
+#if CEF_API_ADDED(CEF_NEXT)
+TEST(KeyboardInputTest, CharacterOnlyPreservesUnicodeAndCallbacks) {
+  for (float scale : {1.0f, 2.0f}) {
+    SCOPED_TRACE(scale);
+    RunKeyboardTest(Mode::Portable, Scenario::CharacterOnly, scale);
   }
 }
 
@@ -966,5 +1163,6 @@ TEST(KeyboardInputTest, MacTextClientClearHasNoCharacter) {
 }
 #endif
 
-}  // namespace
 #endif  // CEF_API_ADDED(CEF_NEXT)
+
+}  // namespace
