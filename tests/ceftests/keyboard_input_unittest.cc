@@ -136,7 +136,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
                int) override {
     if (waiting_for_paint_) {
       waiting_for_paint_ = false;
-      ClickInput(browser);
+      FocusInput(browser);
     }
   }
 
@@ -162,8 +162,10 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
         }
       }
       window.addEventListener('focus', notifyReady);
-      i.addEventListener('click', () => window.testQuery({request:'ready'}),
-                         {once:true});
+      function notifyInputReady() {
+        window.testQuery({request:'ready:' + Number(document.hasFocus()) +
+          ':' + Number(document.activeElement === i)});
+      }
       finish.addEventListener('click', report);
       for (const type of ['keydown', 'keypress', 'keyup']) {
         document.addEventListener(type, e => {
@@ -238,11 +240,12 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
         waiting_for_paint_ = true;
         browser->GetHost()->Invalidate(PET_VIEW);
       } else {
-        ClickInput(browser);
+        FocusInput(browser);
       }
       return true;
     }
-    if (request == "ready") {
+    if (request.ToString().rfind("ready:", 0) == 0) {
+      EXPECT_EQ("ready:1:1", request.ToString());
       EXPECT_EQ(use_alloy_style_browser() ? CEF_RUNTIME_STYLE_ALLOY
                                           : CEF_RUNTIME_STYLE_CHROME,
                 browser->GetHost()->GetRuntimeStyle());
@@ -510,10 +513,11 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   }
 
  private:
-  void ClickInput(CefRefPtr<CefBrowser> browser) {
-    CefMouseEvent event;
-    event.x = event.y = 20;
-    SendMouseClickEvent(browser, event);
+  void FocusInput(CefRefPtr<CefBrowser> browser) {
+    // OSRTest covers mouse targeting. Character-only reporting retains its
+    // queued click so the report cannot overtake keyboard input.
+    browser->GetMainFrame()->ExecuteJavaScript("i.focus();notifyInputReady()",
+                                               kUrl, 0);
   }
 
   void BuildEvents() {

@@ -315,7 +315,7 @@ class ImeInputTestHandler : public RoutingTestHandler,
     SCOPED_TRACE(Context());
     if (waiting_for_paint_) {
       waiting_for_paint_ = false;
-      ClickEditor(browser);
+      FocusEditor(browser);
     }
     if (step_ < steps_.size() && sent_ && !steps_[step_].paint_colors.empty()) {
       const auto* pixels = static_cast<const uint32_t*>(buffer);
@@ -383,7 +383,12 @@ class ImeInputTestHandler : public RoutingTestHandler,
       #editor { position:absolute; left:40px; top:40px; width:300px;
         height:40px; font:20px monospace; padding:0; border:0; margin:0;
         white-space:pre; }
-      </style>EDITOR<script>
+      </style>
+      <!-- Visible text releases Chromium's first-contentful-paint holding
+           without waiting for the 500 ms timeout of an empty editable. Keep
+           it outside the editor and use a color absent from paint assertions. -->
+      <span style='position:absolute;left:0;top:0;color:#808080'>IME</span>
+      EDITOR<script>
       let editor = document.getElementById('editor');
       const primary = editor;
       const other = editor.cloneNode(false);
@@ -402,8 +407,11 @@ class ImeInputTestHandler : public RoutingTestHandler,
         loaded = true;
         window.testQuery({request:'loaded'});
       });
-      editor.addEventListener('click', () =>
-        window.testQuery({request:'clicked'}), {once:true});
+      function notifyEditorReady() {
+        window.testQuery({request:'editorReady:' + Number(document.hasFocus()) +
+          ':' + Number(document.activeElement === editor)});
+      }
+      editor.addEventListener('click', notifyEditorReady, {once:true});
       function initialize(value, from, to) {
         setEditorText(value, from, to);
         window.testQuery({request:'initialized'});
@@ -567,14 +575,15 @@ class ImeInputTestHandler : public RoutingTestHandler,
       }
     } else if (request == "focused") {
       if (IsIframe()) {
-        // The initial click already gives the child frame editable focus.
+        // Child-frame editor readiness is reported separately.
       } else if (osr_) {
         waiting_for_paint_ = true;
         browser->GetHost()->Invalidate(PET_VIEW);
       } else {
-        ClickEditor(browser);
+        FocusEditor(browser);
       }
-    } else if (request == "clicked") {
+    } else if (request.ToString().rfind("editorReady:", 0) == 0) {
+      EXPECT_EQ("editorReady:1:1", request.ToString());
       Execute(browser, "initialize(" + JsonString(initial_) + "," +
                            std::to_string(initial_selection_.from) + "," +
                            std::to_string(initial_selection_.to) + ")");
@@ -1425,18 +1434,25 @@ class ImeInputTestHandler : public RoutingTestHandler,
         ->ExecuteJavaScript(script, kUrl, 0);
   }
 
-  void ClickEditor(CefRefPtr<CefBrowser> browser) {
-    CefMouseEvent event;
-    event.x = 50;
-    event.y = 50;
-    if (IsCrossFrameMonitoring()) {
-      event.x = origin_x_ + 10;
-      event.y = origin_y_ + 10;
-    } else if (IsIframe()) {
-      event.x += 30;
-      event.y += 20;
+  void FocusEditor(CefRefPtr<CefBrowser> browser) {
+    if (IsIframe() || IsCrossFrameMonitoring()) {
+      // Retain routed mouse setup: DOM focus can reach the child editor before
+      // root-relative composition bounds are ready.
+      CefMouseEvent event;
+      event.x = 50;
+      event.y = 50;
+      if (IsCrossFrameMonitoring()) {
+        event.x = origin_x_ + 10;
+        event.y = origin_y_ + 10;
+      } else {
+        event.x += 30;
+        event.y += 20;
+      }
+      SendMouseClickEvent(browser, event);
+    } else {
+      // Root-editor cases exercise IME behavior after focus, not targeting.
+      Execute(browser, "editor.focus();notifyEditorReady()");
     }
-    SendMouseClickEvent(browser, event);
   }
 
   void MaybePrepareInitialSelection(CefRefPtr<CefBrowser> browser) {
