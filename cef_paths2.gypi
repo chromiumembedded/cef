@@ -579,6 +579,7 @@
       'tests/ceftests/base/to_address_unittest.cc',
       'tests/ceftests/base/weak_ptr_unittest.cc',
       'tests/ceftests/browser_info_map_unittest.cc',
+      'tests/ceftests/browser_reuse_unittest.cc',
       'tests/ceftests/browser_settings_unittest.cc',
       'tests/ceftests/certificate_error_unittest.cc',
       'tests/ceftests/chrome_child_window_unittest.cc',
@@ -710,11 +711,13 @@
       'tests/ceftests/os_rendering_unittest_mac.h',
       'tests/ceftests/os_rendering_unittest_mac.mm',
       'tests/ceftests/run_all_unittests_mac.mm',
+      'tests/ceftests/test_util_mac.mm',
     ],
     'ceftests_sources_mac_browser_shared': [
       'tests/shared/renderer/client_app_renderer.h',
     ],
     'ceftests_sources_mac_helper_shared': [
+      'tests/ceftests/test_util_mac.mm',
       'tests/shared/browser/client_app_browser.h',
       'tests/shared/browser/file_util.cc',
       'tests/shared/browser/file_util.h',

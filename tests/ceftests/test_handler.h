@@ -10,6 +10,7 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -54,6 +55,31 @@ class TestHandler : public CefClient,
                     public CefRequestHandler,
                     public CefResourceRequestHandler {
  public:
+  // Close pooled browsers on the test thread before shutting down CEF.
+  static void ShutdownReusableBrowsers();
+  // Snapshot for harness diagnostics and focused reuse tests. May be called on
+  // the UI or test thread. Closing entries remain included in total.
+  struct ReusableBrowserStats {
+    bool enabled = false;
+    size_t limit = 0;
+    size_t total = 0;
+    size_t idle = 0;
+    size_t leased = 0;
+    size_t closing = 0;
+    size_t hidden_windows = 0;
+    size_t window_hides = 0;
+    size_t window_shows = 0;
+  };
+  static ReusableBrowserStats GetReusableBrowserStats();
+  struct ReusableBrowserOptions {
+    bool enabled = false;
+    size_t max_browsers = 4;
+  };
+  // Override command-line configuration for targeted harness tests. The cache
+  // must be empty. Pass nullopt to restore command-line behavior. UI/test
+  // thread.
+  static void SetReusableBrowserOptionsForTesting(
+      std::optional<ReusableBrowserOptions> options);
   // Tracks the completion state of related test runs.
   class CompletionState {
    public:
@@ -237,6 +263,71 @@ class TestHandler : public CefClient,
   bool use_alloy_style_window() const { return use_alloy_style_window_; }
 
  protected:
+  // Opt-in browser reuse for sequential, single-browser tests using the global
+  // request context. --reuse-test-browsers enables reuse; without it this
+  // creates an ordinary browser. Test selection is unchanged.
+  // --reuse-test-browsers-timing adds lease/navigation timing logs.
+  // --reuse-test-browsers-max limits all pool-owned browsers (default 4; zero
+  // forces isolated execution). Leased and closing browsers count toward the
+  // limit. A full pool evicts its least recently released idle browser and
+  // waits for closure before replacing it. If none is idle, this test runs
+  // isolated; its browser closes normally and never enters the pool.
+  // Windowed browsers stay visible across sequential leases. After one second
+  // idle, they are hidden and shown again on acquisition. If native visibility
+  // control is unavailable, they close after that grace period instead.
+  //
+  // The harness derives a capability key from browser settings and windowed
+  // hosting/runtime styles and size, or OSR parent, texture/begin-frame modes,
+  // GetViewRect, and GetScreenInfo (including scale). Compatible browsers may
+  // be shared across fixtures. For OSR, the render handler must supply its
+  // initial geometry/screen information with a null browser. This geometry
+  // must stay fixed for the lease, unless the test restores it.
+  //
+  // Each lease loads its URL, including when unchanged, preserving the normal
+  // navigation-focus request. DestroyTest releases the handler; the document
+  // is replaced when the next lease begins. Document callbacks are gated until
+  // the new main-frame commit and restricted to its current frame tree.
+  // Subsequent navigations within the lease are supported. Reuse invokes
+  // OnReusableBrowserAttached and OnReusableBrowserReleased instead of fixture
+  // lifespan callbacks.
+  //
+  // Do NOT use this for tests that:
+  // - Require browser creation/closure, lifespan callbacks, initial browser
+  //   state, or browser destruction to cancel pending work.
+  // - Create multiple browsers/popups or run concurrently through Collection.
+  //   These are not supported by this trial.
+  // - Require a custom request context.
+  // - Leave outstanding requests, delayed tasks, or input callbacks that can
+  //   reach the next test. Quiesce/cancel all such work before DestroyTest.
+  // - Change browser-scoped state (zoom, DevTools overrides, preferences, etc.)
+  //   without restoring it, or require an empty per-browser navigation history.
+  //
+  // Cookies/storage follow normal global-context behavior; this helper does
+  // not introduce a profile-state reset. Use ordinary creation for ineligible
+  // tests, rather than assigning them a separate capability key.
+  // Use browser-assigned IDs (for example, DevTools message IDs); their
+  // counters do not restart with each handler.
+  //
+  // When enabling reuse for a new suite, validate with --gtest_shuffle and
+  // include other reuse-enabled suites to expose state leaking between leases.
+  // Record the seed so failures can be reproduced. Compare representative
+  // cases with reuse disabled; configuration-equivalence tests can cover
+  // equivalent modes without repeating the full suite in each mode.
+  void CreateReusableBrowser(const CefWindowInfo& window_info,
+                             const CefString& url,
+                             const CefBrowserSettings& settings);
+  // Windowed equivalent using the fixture's Views/native hosting and Alloy/
+  // Chrome style settings. Window dimensions are part of the capability key.
+  // Do not use for window lifecycle, activation, initial focus, or resize
+  // tests. Keyboard callbacks are forwarded to the current lease. Leave window
+  // geometry/state unchanged, or restore it before release. Defaults match
+  // ordinary Views test windows.
+  void CreateReusableBrowser(
+      const CefString& url,
+      const CefSize& window_size = CefSize(800, 600),
+      const CefBrowserSettings& settings = CefBrowserSettings());
+  virtual void OnReusableBrowserAttached(CefRefPtr<CefBrowser> browser);
+  virtual void OnReusableBrowserReleased(CefRefPtr<CefBrowser> browser);
   // Indicate that test setup is complete. Only used in combination with a
   // Collection.
   virtual void SetupComplete();
@@ -256,7 +347,8 @@ class TestHandler : public CefClient,
       const CefString& url,
       const CefBrowserSettings& settings,
       CefRefPtr<CefRequestContext> request_context = nullptr,
-      CefRefPtr<CefDictionaryValue> extra_info = nullptr);
+      CefRefPtr<CefDictionaryValue> extra_info = nullptr,
+      const CefSize& window_size = CefSize(800, 600));
 
   static void CloseBrowser(CefRefPtr<CefBrowser> browser, bool force_close);
 
@@ -316,6 +408,14 @@ class TestHandler : public CefClient,
   UIThreadHelper* GetUIThreadHelper();
 
  private:
+  void CreateReusableBrowserImpl(const CefWindowInfo& window_info,
+                                 const CefString& url,
+                                 const CefBrowserSettings& settings,
+                                 bool use_views,
+                                 cef_runtime_style_t window_style);
+  friend class ReusableBrowserClient;
+  CefRefPtr<class ReusableBrowserClient> reusable_client_;
+  bool reusable_creation_pending_ = false;
   void MaybeTestComplete();
 
   // Complete the test. It is an error to call this method before all browsers

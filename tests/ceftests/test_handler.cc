@@ -4,8 +4,15 @@
 
 #include "tests/ceftests/test_handler.h"
 
+#include <algorithm>
+#include <charconv>
+#include <chrono>
+#include <cmath>
+#include <functional>
 #include <memory>
+#include <mutex>
 #include <sstream>
+#include <tuple>
 
 #include "include/base/cef_callback.h"
 #include "include/base/cef_logging.h"
@@ -20,6 +27,625 @@
 
 // Set to 1 to enable verbose debugging info logging.
 #define VERBOSE_DEBUGGING 0
+
+namespace {
+
+auto BrowserSettingsKey(const CefBrowserSettings& s) {
+  // Compare values, not struct padding or cef_string_t buffer addresses.
+  return std::make_tuple(
+      s.windowless_frame_rate, CefString(&s.standard_font_family).ToString16(),
+      CefString(&s.fixed_font_family).ToString16(),
+      CefString(&s.serif_font_family).ToString16(),
+      CefString(&s.sans_serif_font_family).ToString16(),
+      CefString(&s.cursive_font_family).ToString16(),
+      CefString(&s.fantasy_font_family).ToString16(), s.default_font_size,
+      s.default_fixed_font_size, s.minimum_font_size,
+      s.minimum_logical_font_size, CefString(&s.default_encoding).ToString16(),
+      s.remote_fonts, s.javascript, s.javascript_close_windows,
+      s.javascript_access_clipboard, s.javascript_dom_paste, s.image_loading,
+      s.image_shrink_standalone_to_fit, s.text_area_resize, s.tab_to_links,
+      s.local_storage,
+#if CEF_API_ADDED(13800)
+      s.databases_deprecated,
+#else
+      s.databases,
+#endif
+      s.webgl, s.background_color, s.chrome_status_bubble, s.chrome_zoom_bubble
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+      ,
+      s.ax_viewport_collapse
+#endif
+  );
+}
+
+auto RectKey(const cef_rect_t& r) {
+  return std::make_tuple(r.x, r.y, r.width, r.height);
+}
+
+struct BrowserReuseKey {
+  decltype(BrowserSettingsKey(CefBrowserSettings())) settings;
+  bool windowless;
+  bool use_views;
+  cef_runtime_style_t browser_style;
+  cef_runtime_style_t window_style;
+  cef_window_handle_t parent;
+  bool shared_texture;
+  bool external_begin_frame;
+  decltype(RectKey(CefRect())) view_rect;
+  bool provides_screen_info;
+  float device_scale_factor;
+  int depth;
+  int depth_per_component;
+  bool monochrome;
+  decltype(RectKey(CefRect())) screen_rect;
+  decltype(RectKey(CefRect())) available_rect;
+
+  auto Values() const {
+    return std::tie(settings, windowless, use_views, browser_style,
+                    window_style, shared_texture, external_begin_frame,
+                    view_rect, provides_screen_info, device_scale_factor, depth,
+                    depth_per_component, monochrome, screen_rect,
+                    available_rect);
+  }
+  bool operator<(const BrowserReuseKey& other) const {
+    if (parent != other.parent) {
+      return std::less<cef_window_handle_t>()(parent, other.parent);
+    }
+    return Values() < other.Values();
+  }
+};
+
+BrowserReuseKey MakeBrowserReuseKey(const CefWindowInfo& info,
+                                    const CefBrowserSettings& settings,
+                                    const CefRect& rect,
+                                    const CefScreenInfo& screen,
+                                    bool provides_screen_info,
+                                    bool use_views,
+                                    cef_runtime_style_t window_style) {
+  // Normalize default runtime aliases. OSR always uses Alloy.
+  CHECK(!provides_screen_info || screen.device_scale_factor > 0);
+  CHECK(std::isfinite(screen.device_scale_factor));
+  const auto browser_style =
+      info.windowless_rendering_enabled ||
+              info.runtime_style == CEF_RUNTIME_STYLE_ALLOY
+          ? CEF_RUNTIME_STYLE_ALLOY
+          : CEF_RUNTIME_STYLE_CHROME;
+  return {BrowserSettingsKey(settings),
+          !!info.windowless_rendering_enabled,
+          use_views,
+          browser_style,
+          use_views ? window_style : browser_style,
+#if defined(OS_MAC)
+          info.parent_view,
+#else
+          info.parent_window,
+#endif
+          !!info.shared_texture_enabled,
+          !!info.external_begin_frame_enabled,
+          RectKey(rect),
+          provides_screen_info,
+          screen.device_scale_factor,
+          screen.depth,
+          screen.depth_per_component,
+          !!screen.is_monochrome,
+          RectKey(screen.rect),
+          RectKey(screen.available_rect)};
+}
+
+}  // namespace
+
+void ReusableBrowserClosed(class ReusableBrowserClient* client);
+
+// The client stays with the browser; each lease gets a fresh TestHandler.
+// Interface getters may be called on the IO thread, so guard the delegate.
+class ReusableBrowserClient : public CefClient,
+                              public CefLifeSpanHandler,
+                              public CefLoadHandler,
+                              public CefRenderHandler {
+ public:
+  explicit ReusableBrowserClient(bool windowless) : windowless_(windowless) {}
+#if CEF_API_ADDED(CEF_NEXT)
+  bool WindowKeyboardEvent(const CefKeyboardInputEvent& event) {
+    EXPECT_UI_THREAD();
+    auto handler = resetting_ ? nullptr : GetDelegate(true);
+    return handler && browser_ &&
+           handler->OnWindowKeyboardEvent(browser_->GetIdentifier(), event);
+  }
+#endif
+  bool WindowKeyEvent(const CefKeyEvent& event) {
+    EXPECT_UI_THREAD();
+    auto handler = resetting_ ? nullptr : GetDelegate(true);
+    return handler && browser_ &&
+           handler->OnWindowKeyEvent(browser_->GetIdentifier(), event);
+  }
+  void WindowCreated() { window_alive_ = true; }
+  void WindowDestroyed() {
+    window_alive_ = false;
+    if (!browser_) {
+      ReusableBrowserClosed(this);
+      RunCloseCallbacks();
+    }
+  }
+  bool HasBrowser() const { return !!browser_; }
+  bool IsWindowHidden() const { return idle_hidden_; }
+  size_t WindowHides() const { return window_hides_; }
+  size_t WindowShows() const { return window_shows_; }
+  bool IsClosing() const { return closing_; }
+  bool IsIdle() {
+    EXPECT_UI_THREAD();
+    return !closing_ && !GetDelegate();
+  }
+  auto LastUsed() const { return last_used_; }
+  void AfterClose(base::OnceClosure done) {
+    EXPECT_UI_THREAD();
+    close_callbacks_.push_back(std::move(done));
+  }
+  void CancelAttach() {
+    EXPECT_UI_THREAD();
+    std::lock_guard<std::mutex> guard(lock_);
+    delegate_ = nullptr;
+  }
+  void Attach(CefRefPtr<TestHandler> handler,
+              const CefString& url,
+              const CefRect& rect,
+              const CefScreenInfo& screen_info,
+              bool provides_screen_info) {
+    EXPECT_UI_THREAD();
+    CHECK(!GetDelegate());
+    CHECK(!closing_);
+    timing_start_ = std::chrono::steady_clock::now();
+    TraceTiming("Attach");
+    target_url_ = url;
+    awaiting_commit_ = true;
+    active_frame_id_.clear();
+    ++leases_;
+    {
+      std::lock_guard<std::mutex> guard(lock_);
+      delegate_ = handler;
+    }
+    rect_ = rect;
+    screen_info_ = screen_info;
+    provides_screen_info_ = provides_screen_info;
+    if (browser_) {
+      handler->OnReusableBrowserAttached(browser_);
+      if (idle_hidden_) {
+        CHECK(SetWindowVisible(true));
+        idle_hidden_ = false;
+      }
+      // Match ordinary creation's navigation-focus request even for the same
+      // URL. ReloadIgnoreCache does not issue FOCUS_SOURCE_NAVIGATION.
+      browser_->GetMainFrame()->LoadURL(url);
+    }
+  }
+
+  void Release(bool discard) {
+    EXPECT_UI_THREAD();
+    CHECK(browser_);
+    resetting_ = true;
+    TraceTiming(discard ? "Close" : "Release");
+    discarding_ = discard;
+    browser_->GetHost()->SetFocus(false);
+    if (discard) {
+      closing_ = true;
+      browser_->GetHost()->CloseBrowser(true);
+    } else {
+      // Detach the handler outside the current callback. The next lease
+      // replaces this document before enabling callbacks for its new handler.
+      CefPostTask(TID_UI, base::BindOnce(&ReusableBrowserClient::FinishRelease,
+                                         this, browser_));
+    }
+  }
+
+  void Close(base::OnceClosure done) {
+    EXPECT_UI_THREAD();
+    CHECK(!GetDelegate());
+    AfterClose(std::move(done));
+    if (closing_) {
+      return;
+    }
+    closing_ = true;
+    LOG(INFO) << "Reusable browser: " << leases_ << " leases, " << creations_
+              << " creations";
+    if (browser_) {
+      // CloseBrowser may synchronously invoke OnBeforeClose. Leave the cache
+      // acquisition callback first, retaining this closing slot in the interim.
+      CefPostTask(TID_UI, base::BindOnce(
+                              [](CefRefPtr<CefBrowser> browser) {
+                                browser->GetHost()->CloseBrowser(true);
+                              },
+                              browser_));
+    } else if (!window_alive_) {
+      ReusableBrowserClosed(this);
+      RunCloseCallbacks();
+    }
+  }
+
+#define FORWARD_HANDLER(name)                                   \
+  CefRefPtr<Cef##name##Handler> Get##name##Handler() override { \
+    auto handler = GetDelegate(true);                           \
+    return handler ? handler->Get##name##Handler() : nullptr;   \
+  }
+  FORWARD_HANDLER(Audio)
+  FORWARD_HANDLER(Command)
+  FORWARD_HANDLER(ContextMenu)
+  FORWARD_HANDLER(Dialog)
+  FORWARD_HANDLER(Display)
+  FORWARD_HANDLER(Download)
+  FORWARD_HANDLER(Drag)
+  FORWARD_HANDLER(Find)
+  FORWARD_HANDLER(Frame)
+  FORWARD_HANDLER(Permission)
+  FORWARD_HANDLER(JSDialog)
+  FORWARD_HANDLER(Keyboard)
+  FORWARD_HANDLER(Print)
+#if CEF_API_ADDED(CEF_NEXT)
+  FORWARD_HANDLER(Input)
+#endif
+#undef FORWARD_HANDLER
+
+  CefRefPtr<CefFocusHandler> GetFocusHandler() override {
+    // Navigation focus can precede the document's initial commit. It belongs
+    // to the new lease, just like its resource callbacks, and must be
+    // forwarded.
+    auto handler = GetDelegate();
+    return handler ? handler->GetFocusHandler() : nullptr;
+  }
+  CefRefPtr<CefRequestHandler> GetRequestHandler() override {
+    // The new handler must serve resources while its document is loading.
+    auto handler = GetDelegate();
+    return handler ? handler->GetRequestHandler() : nullptr;
+  }
+
+  CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
+  CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
+  CefRefPtr<CefRenderHandler> GetRenderHandler() override {
+    auto handler = GetDelegate();
+    return handler ? handler->GetRenderHandler()
+                   : (windowless_ ? this : nullptr);
+  }
+  void GetViewRect(CefRefPtr<CefBrowser>, CefRect& rect) override {
+    rect = rect_;
+  }
+  bool GetScreenInfo(CefRefPtr<CefBrowser>, CefScreenInfo& info) override {
+    info = screen_info_;
+    return provides_screen_info_;
+  }
+  void OnPaint(CefRefPtr<CefBrowser>,
+               PaintElementType,
+               const RectList&,
+               const void*,
+               int,
+               int) override {}
+
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
+    EXPECT_UI_THREAD();
+    browser_ = browser;
+    TraceTiming("BrowserCreated");
+    ++creations_;
+    GetDelegate()->OnReusableBrowserAttached(browser);
+  }
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
+    EXPECT_UI_THREAD();
+    browser_ = nullptr;
+    if (!window_alive_) {
+      ReusableBrowserClosed(this);
+    }
+    if (GetDelegate()) {
+      FinishRelease(browser);
+    }
+    if (!window_alive_) {
+      RunCloseCallbacks();
+    }
+  }
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool loading,
+                            bool back,
+                            bool forward) override {
+    if (!loading) {
+      TraceTiming("LoadingStopped");
+    }
+    if (!resetting_) {
+      if (auto handler = GetDelegate(true)) {
+        handler->OnLoadingStateChange(browser, loading, back, forward);
+      }
+    }
+  }
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType type) override {
+    if (!resetting_) {
+      // Require the requested document for the initial lease commit. Once
+      // committed, navigation belongs to this lease and may replace its RFH.
+      if (frame->IsMain() &&
+          (!awaiting_commit_ || frame->GetURL() == target_url_) &&
+          frame->GetIdentifier() == browser->GetMainFrame()->GetIdentifier()) {
+        active_frame_id_ = frame->GetIdentifier();
+        awaiting_commit_ = false;
+        TraceTiming("DocumentCommitted");
+      }
+      if (IsCurrentFrame(frame)) {
+        if (auto handler = GetDelegate(true)) {
+          handler->OnLoadStart(browser, frame, type);
+        }
+      }
+    }
+  }
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int status) override {
+    if (frame->IsMain()) {
+      TraceTiming("LoadEnd " + frame->GetURL().ToString());
+    }
+    if (IsCurrentFrame(frame)) {
+      if (auto handler = GetDelegate(true)) {
+        handler->OnLoadEnd(browser, frame, status);
+      }
+    }
+  }
+  void OnLoadError(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   ErrorCode code,
+                   const CefString& text,
+                   const CefString& url) override {
+    if (!resetting_ && (awaiting_commit_ ? frame->IsMain() && url == target_url_
+                                         : IsCurrentFrame(frame))) {
+      if (auto handler = GetDelegate()) {
+        handler->OnLoadError(browser, frame, code, text, url);
+      }
+    }
+  }
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                CefProcessId source,
+                                CefRefPtr<CefProcessMessage> message) override {
+    if (IsCurrentFrame(frame)) {
+      if (auto handler = GetDelegate(true)) {
+        return handler->OnProcessMessageReceived(browser, frame, source,
+                                                 message);
+      }
+    }
+    return false;
+  }
+
+ private:
+  bool SetWindowVisible(bool visible) {
+    bool changed = false;
+    if (auto view = CefBrowserView::GetForBrowser(browser_)) {
+      auto window = view->GetWindow();
+      if (!window) {
+        return false;
+      }
+      if (visible) {
+        window->Show();
+      } else {
+        window->Hide();
+      }
+      changed = true;
+    } else {
+      changed = SetNativeTestBrowserVisible(browser_, visible);
+    }
+    if (changed) {
+      if (visible) {
+        ++window_shows_;
+      } else {
+        ++window_hides_;
+      }
+    }
+    return changed;
+  }
+  void HideIfStillIdle(size_t lease) {
+    EXPECT_UI_THREAD();
+    if (!browser_ || !IsIdle() || leases_ != lease) {
+      return;
+    }
+    idle_hidden_ = SetWindowVisible(false);
+    if (!idle_hidden_) {
+      // Native visibility is unavailable on some platforms (e.g. Wayland).
+      // Preserve immediate reuse but close after the same idle grace period.
+      Close(base::BindOnce([] {}));
+    }
+  }
+  bool IsCurrentFrame(CefRefPtr<CefFrame> frame) {
+    EXPECT_UI_THREAD();
+    if (resetting_ || awaiting_commit_ || !browser_ || !frame->IsValid() ||
+        browser_->GetMainFrame()->GetIdentifier() != active_frame_id_) {
+      return false;
+    }
+    if (frame->IsMain()) {
+      return frame->GetIdentifier() == active_frame_id_;
+    }
+    // GetFrameIdentifiers excludes speculative and BFCache frames. A retained
+    // old frame can still be valid, so IsValid/GetParent alone is insufficient.
+    std::vector<CefString> identifiers;
+    browser_->GetFrameIdentifiers(identifiers);
+    if (std::find(identifiers.begin(), identifiers.end(),
+                  frame->GetIdentifier()) == identifiers.end()) {
+      return false;
+    }
+    while (auto parent = frame->GetParent()) {
+      frame = parent;
+    }
+    return frame->IsMain() && frame->GetIdentifier() == active_frame_id_;
+  }
+  void TraceTiming(const std::string& stage) {
+    if (!trace_timing_) {
+      return;
+    }
+    LOG(INFO) << "REUSE_TIMING " << (browser_ ? browser_->GetIdentifier() : 0)
+              << " "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(
+                     std::chrono::steady_clock::now() - timing_start_)
+                     .count()
+              << "ms " << stage;
+  }
+  std::chrono::steady_clock::time_point timing_start_;
+  const bool trace_timing_ = CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+      "reuse-test-browsers-timing");
+  CefRefPtr<TestHandler> GetDelegate(bool committed_only = false) {
+    std::lock_guard<std::mutex> guard(lock_);
+    return committed_only && awaiting_commit_ ? nullptr : delegate_;
+  }
+  void FinishRelease(CefRefPtr<CefBrowser> browser) {
+    TraceTiming("FinishRelease");
+    EXPECT_UI_THREAD();
+    if (discarding_ && browser_) {
+      // If timeout interrupted an ordinary release, only OnBeforeClose may
+      // return this lease; the closing browser must not be acquired again.
+      return;
+    }
+    CefRefPtr<TestHandler> handler;
+    {
+      std::lock_guard<std::mutex> guard(lock_);
+      handler.swap(delegate_);
+    }
+    if (!handler) {
+      return;
+    }
+    resetting_ = false;
+    discarding_ = false;
+    awaiting_commit_ = true;
+    active_frame_id_.clear();
+    last_used_ = std::chrono::steady_clock::now();
+    if (!windowless_ && !closing_) {
+      // The lease count cancels older idle timers. Sequential acquisitions
+      // avoid hide/show entirely; only genuinely idle windows are hidden.
+      CefPostDelayedTask(TID_UI,
+                         base::BindOnce(&ReusableBrowserClient::HideIfStillIdle,
+                                        this, leases_),
+                         1000);
+    }
+    handler->OnReusableBrowserReleased(browser);
+  }
+  void RunCloseCallbacks() {
+    auto callbacks = std::move(close_callbacks_);
+    for (auto& callback : callbacks) {
+      std::move(callback).Run();
+    }
+  }
+  std::mutex lock_;
+  CefRefPtr<TestHandler> delegate_;
+  CefRefPtr<CefBrowser> browser_;
+  CefRect rect_;
+  CefScreenInfo screen_info_;
+  bool provides_screen_info_ = false;
+  bool resetting_ = false;
+  bool discarding_ = false;
+  bool closing_ = false;
+  const bool windowless_;
+  bool window_alive_ = false;
+  bool idle_hidden_ = false;
+  size_t window_hides_ = 0;
+  size_t window_shows_ = 0;
+  std::chrono::steady_clock::time_point last_used_;
+  std::atomic<bool> awaiting_commit_{true};
+  CefString target_url_;
+  CefString active_frame_id_;
+  size_t leases_ = 0;
+  size_t creations_ = 0;
+  std::vector<base::OnceClosure> close_callbacks_;
+  IMPLEMENT_REFCOUNTING(ReusableBrowserClient);
+};
+
+namespace {
+// These delegates live with the cached window and never retain a fixture.
+class ReusableWindowDelegate : public CefWindowDelegate {
+ public:
+  ReusableWindowDelegate(CefRefPtr<ReusableBrowserClient> client,
+                         CefRefPtr<CefBrowserView> view,
+                         CefSize size,
+                         cef_runtime_style_t style)
+      : client_(client), view_(view), size_(size), style_(style) {}
+  void OnWindowCreated(CefRefPtr<CefWindow> window) override {
+    client_->WindowCreated();
+    window->CenterWindow(size_);
+    window->SetTitle(ComputeViewsWindowTitle(window, view_));
+    window->AddChildView(view_);
+    window->Show();
+  }
+  void OnWindowDestroyed(CefRefPtr<CefWindow>) override {
+    view_ = nullptr;
+    client_->WindowDestroyed();
+  }
+  bool CanClose(CefRefPtr<CefWindow>) override {
+    auto browser = view_->GetBrowser();
+    return !browser || browser->GetHost()->TryCloseBrowser();
+  }
+#if CEF_API_ADDED(CEF_NEXT)
+  bool OnKeyboardEvent(CefRefPtr<CefWindow>,
+                       const CefKeyboardInputEvent& event) override {
+    return client_->WindowKeyboardEvent(event);
+  }
+#endif
+  bool OnKeyEvent(CefRefPtr<CefWindow>, const CefKeyEvent& event) override {
+    return client_->WindowKeyEvent(event);
+  }
+  cef_runtime_style_t GetWindowRuntimeStyle() override { return style_; }
+
+ private:
+  CefRefPtr<ReusableBrowserClient> client_;
+  CefRefPtr<CefBrowserView> view_;
+  const CefSize size_;
+  const cef_runtime_style_t style_;
+  IMPLEMENT_REFCOUNTING(ReusableWindowDelegate);
+};
+
+class ReusableBrowserViewDelegate : public CefBrowserViewDelegate {
+ public:
+  explicit ReusableBrowserViewDelegate(cef_runtime_style_t style)
+      : style_(style) {}
+  cef_runtime_style_t GetBrowserRuntimeStyle() override { return style_; }
+  void OnBrowserDestroyed(CefRefPtr<CefBrowserView> view,
+                          CefRefPtr<CefBrowser>) override {
+    if (auto window = view->GetWindow()) {
+      window->Close();
+    }
+  }
+
+ private:
+  const cef_runtime_style_t style_;
+  IMPLEMENT_REFCOUNTING(ReusableBrowserViewDelegate);
+};
+
+// Accessed only on the UI thread; explicitly drained before CefShutdown.
+using ReusableBrowserMap =
+    std::multimap<BrowserReuseKey, CefRefPtr<ReusableBrowserClient>>;
+ReusableBrowserMap* reusable_browsers = nullptr;
+std::optional<TestHandler::ReusableBrowserOptions> reusable_options_override;
+
+TestHandler::ReusableBrowserOptions CurrentReusableBrowserOptions() {
+  if (reusable_options_override) {
+    return *reusable_options_override;
+  }
+  TestHandler::ReusableBrowserOptions options;
+  const auto command_line = CefCommandLine::GetGlobalCommandLine();
+  options.enabled = command_line->HasSwitch("reuse-test-browsers");
+  if (!options.enabled || !command_line->HasSwitch("reuse-test-browsers-max")) {
+    return options;
+  }
+  const std::string value =
+      command_line->GetSwitchValue("reuse-test-browsers-max");
+  size_t limit = 0;
+  const auto parsed =
+      std::from_chars(value.data(), value.data() + value.size(), limit);
+  CHECK(parsed.ec == std::errc() && parsed.ptr == value.data() + value.size())
+      << "Invalid --reuse-test-browsers-max: " << value;
+  options.max_browsers = limit;
+  return options;
+}
+}  // namespace
+
+void ReusableBrowserClosed(ReusableBrowserClient* client) {
+  EXPECT_UI_THREAD();
+  if (reusable_browsers) {
+    for (auto it = reusable_browsers->begin(); it != reusable_browsers->end();
+         ++it) {
+      if (it->second.get() == client) {
+        reusable_browsers->erase(it);
+        break;
+      }
+    }
+  }
+}
 
 namespace {
 
@@ -43,9 +669,10 @@ class TestWindowDelegate : public CefWindowDelegate {
   // Create a new top-level Window hosting |browser_view|.
   static void CreateBrowserWindow(TestHandler* handler,
                                   CefRefPtr<CefBrowserView> browser_view,
-                                  bool is_devtools_popup) {
+                                  bool is_devtools_popup,
+                                  CefSize size = CefSize(800, 600)) {
     auto window = CefWindow::CreateTopLevelWindow(
-        new TestWindowDelegate(handler, browser_view, is_devtools_popup));
+        new TestWindowDelegate(handler, browser_view, is_devtools_popup, size));
     EXPECT_EQ(
         GetExpectedRuntimeStyle(handler, is_devtools_popup, /*is_window=*/true),
         window->GetRuntimeStyle());
@@ -55,7 +682,7 @@ class TestWindowDelegate : public CefWindowDelegate {
 
   void OnWindowCreated(CefRefPtr<CefWindow> window) override {
     // Add the browser view and show the window.
-    window->CenterWindow(CefSize(800, 600));
+    window->CenterWindow(size_);
     window->SetTitle(ComputeViewsWindowTitle(window, browser_view_));
     window->AddChildView(browser_view_);
     window->Show();
@@ -110,14 +737,17 @@ class TestWindowDelegate : public CefWindowDelegate {
  private:
   TestWindowDelegate(TestHandler* handler,
                      CefRefPtr<CefBrowserView> browser_view,
-                     bool is_devtools_popup)
+                     bool is_devtools_popup,
+                     CefSize size)
       : handler_(handler),
         browser_view_(browser_view),
-        is_devtools_popup_(is_devtools_popup) {}
+        is_devtools_popup_(is_devtools_popup),
+        size_(size) {}
 
   TestHandler* const handler_;
   CefRefPtr<CefBrowserView> browser_view_;
   const bool is_devtools_popup_;
+  const CefSize size_;
   int browser_id_ = 0;
 
   IMPLEMENT_REFCOUNTING(TestWindowDelegate);
@@ -551,9 +1181,24 @@ void TestHandler::DestroyTest() {
 
   EXPECT_TRUE(destroy_test_expected_);
   if (destroy_test_called_) {
+    if (reusable_client_ && test_timeout_called_) {
+      // A stuck reset must close the browser and release the test handler.
+      reusable_client_->Release(true);
+    }
     return;
   }
   destroy_test_called_ = true;
+
+  if (reusable_creation_pending_) {
+    reusable_creation_pending_ = false;
+    TestComplete();
+    return;
+  }
+
+  if (reusable_client_) {
+    reusable_client_->Release(test_timeout_called_);
+    return;
+  }
 
   if (!browser_map_.empty()) {
     // Use a copy of the map since the original may be modified while we're
@@ -577,7 +1222,8 @@ void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
     EXPECT_TRUE(false) << "Test timed out after " << timeout_ms << "ms";
   }
 
-  EXPECT_FALSE(AllBrowsersClosed() && AllowTestCompletionWhenAllBrowsersClose())
+  EXPECT_FALSE(!reusable_creation_pending_ && AllBrowsersClosed() &&
+               AllowTestCompletionWhenAllBrowsersClose())
       << "Test timed out unexpectedly; should be complete";
 
   // Keep |this| alive until after the method completes.
@@ -593,6 +1239,269 @@ void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
   }
 }
 
+void TestHandler::CreateReusableBrowser(const CefWindowInfo& window_info,
+                                        const CefString& url,
+                                        const CefBrowserSettings& settings) {
+  CHECK(window_info.windowless_rendering_enabled);
+  CreateReusableBrowserImpl(window_info, url, settings, false,
+                            CEF_RUNTIME_STYLE_ALLOY);
+}
+
+void TestHandler::CreateReusableBrowser(const CefString& url,
+                                        const CefSize& window_size,
+                                        const CefBrowserSettings& settings) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI,
+                base::BindOnce(
+                    [](CefRefPtr<TestHandler> handler, CefString url,
+                       CefSize size, CefBrowserSettings settings) {
+                      handler->CreateReusableBrowser(url, size, settings);
+                    },
+                    CefRefPtr<TestHandler>(this), url, window_size, settings));
+    return;
+  }
+  CHECK_GT(window_size.width, 0);
+  CHECK_GT(window_size.height, 0);
+  CefWindowInfo info;
+#if defined(OS_WIN)
+  info.SetAsPopup(nullptr, ComputeNativeWindowTitle(use_alloy_style_browser_));
+  info.style |= WS_VISIBLE;
+#endif
+  info.bounds = CefRect(0, 0, window_size.width, window_size.height);
+  info.runtime_style = use_alloy_style_browser_ ? CEF_RUNTIME_STYLE_ALLOY
+                                                : CEF_RUNTIME_STYLE_CHROME;
+  CreateReusableBrowserImpl(info, url, settings, use_views_,
+                            use_alloy_style_window_ ? CEF_RUNTIME_STYLE_ALLOY
+                                                    : CEF_RUNTIME_STYLE_CHROME);
+}
+
+void TestHandler::CreateReusableBrowserImpl(const CefWindowInfo& window_info,
+                                            const CefString& url,
+                                            const CefBrowserSettings& settings,
+                                            bool use_views,
+                                            cef_runtime_style_t window_style) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI, base::BindOnce(&TestHandler::CreateReusableBrowserImpl,
+                                       this, window_info, url, settings,
+                                       use_views, window_style));
+    return;
+  }
+  if (destroy_test_called_) {
+    // An eviction wait may have been canceled by test timeout.
+    return;
+  }
+  reusable_creation_pending_ = false;
+  CHECK(url != "about:blank");
+  const auto options = CurrentReusableBrowserOptions();
+  const auto create_isolated = [&] {
+    if (use_views) {
+      CreateBrowserWithSettings(
+          url, settings, nullptr, nullptr,
+          CefSize(window_info.bounds.width, window_info.bounds.height));
+    } else {
+      EXPECT_TRUE(CefBrowserHost::CreateBrowser(window_info, this, url,
+                                                settings, nullptr, nullptr));
+    }
+  };
+  if (!options.enabled) {
+    create_isolated();
+    return;
+  }
+  if (!reusable_browsers) {
+    reusable_browsers = new ReusableBrowserMap;
+  }
+  CefRect rect(window_info.bounds);
+  CefScreenInfo screen_info;
+  bool provides_screen_info = false;
+  if (window_info.windowless_rendering_enabled) {
+    auto render = GetRenderHandler();
+    CHECK(render);
+    render->GetViewRect(nullptr, rect);
+    provides_screen_info = render->GetScreenInfo(nullptr, screen_info);
+  }
+  if (!provides_screen_info) {
+    // Ignore output from a declined callback; CEF supplies monitor defaults.
+    screen_info = CefScreenInfo();
+  }
+  const auto key =
+      MakeBrowserReuseKey(window_info, settings, rect, screen_info,
+                          provides_screen_info, use_views, window_style);
+  CefRefPtr<ReusableBrowserClient> client;
+  const auto [first, last] = reusable_browsers->equal_range(key);
+  for (auto it = first; it != last; ++it) {
+    if (it->second->IsIdle()) {
+      client = it->second;
+      break;
+    }
+  }
+  if (!client && reusable_browsers->size() >= options.max_browsers) {
+    CefRefPtr<ReusableBrowserClient> oldest;
+    for (const auto& [cached_key, cached] : *reusable_browsers) {
+      if (cached->IsIdle() &&
+          (!oldest || cached->LastUsed() < oldest->LastUsed())) {
+        oldest = cached;
+      }
+    }
+    if (oldest) {
+      reusable_creation_pending_ = true;
+      // Keep the closing entry counted until browser/window closure removes
+      // it; another pending acquisition may have claimed that slot.
+      oldest->Close(base::BindOnce(
+          [](CefRefPtr<TestHandler> handler, CefWindowInfo info, CefString url,
+             CefBrowserSettings settings, bool use_views,
+             cef_runtime_style_t window_style) {
+            CefPostTask(
+                TID_UI,
+                base::BindOnce(&TestHandler::CreateReusableBrowserImpl, handler,
+                               info, url, settings, use_views, window_style));
+          },
+          CefRefPtr<TestHandler>(this), window_info, url, settings, use_views,
+          window_style));
+      return;
+    }
+    // Every pool slot is leased or closing (or the configured limit is zero).
+    // This isolated browser never enters the cache and closes normally.
+    create_isolated();
+    return;
+  }
+  if (!client) {
+    CHECK_LT(reusable_browsers->size(), options.max_browsers);
+    client =
+        new ReusableBrowserClient(window_info.windowless_rendering_enabled);
+    reusable_browsers->emplace(key, client);
+  }
+  reusable_client_ = client;
+  const bool create = !client->HasBrowser();
+  client->Attach(this, url, rect, screen_info, provides_screen_info);
+  if (create) {
+    bool created;
+    if (use_views) {
+      auto view = CefBrowserView::CreateBrowserView(
+          client, url, settings, nullptr, nullptr,
+          new ReusableBrowserViewDelegate(window_info.runtime_style));
+      created = !!view;
+      if (view) {
+        CefWindow::CreateTopLevelWindow(new ReusableWindowDelegate(
+            client, view, CefSize(rect.width, rect.height), window_style));
+      }
+    } else {
+      created = CefBrowserHost::CreateBrowser(window_info, client, url,
+                                              settings, nullptr, nullptr);
+    }
+    EXPECT_TRUE(created);
+    if (!created) {
+      client->CancelAttach();
+      ReusableBrowserClosed(client.get());
+      reusable_client_ = nullptr;
+      destroy_test_called_ = true;
+      TestComplete();
+    }
+  }
+}
+
+void TestHandler::OnReusableBrowserAttached(CefRefPtr<CefBrowser> browser) {
+  // Register ownership without manufacturing a lifespan callback.
+  TestHandler::OnAfterCreated(browser);
+}
+
+void TestHandler::OnReusableBrowserReleased(CefRefPtr<CefBrowser> browser) {
+  EXPECT_UI_THREAD();
+  CHECK_EQ(browser_map_.size(), 1U);
+  CHECK_EQ(browser->GetIdentifier(), first_browser_id_);
+  browser_map_.clear();
+  browser_status_map_.clear();
+  first_browser_ = nullptr;
+  first_browser_id_ = 0;
+  reusable_client_ = nullptr;
+  MaybeTestComplete();
+}
+
+void TestHandler::ShutdownReusableBrowsers() {
+  CHECK(!CefCurrentlyOn(TID_UI));
+  auto done = CefWaitableEvent::CreateWaitableEvent(true, false);
+  CefPostTask(TID_UI,
+              base::BindOnce(
+                  [](CefRefPtr<CefWaitableEvent> done) {
+                    if (!reusable_browsers || reusable_browsers->empty()) {
+                      delete reusable_browsers;
+                      reusable_browsers = nullptr;
+                      done->Signal();
+                      return;
+                    }
+                    auto remaining =
+                        std::make_shared<size_t>(reusable_browsers->size());
+                    auto browsers = std::move(*reusable_browsers);
+                    delete reusable_browsers;
+                    reusable_browsers = nullptr;
+                    for (auto& [key, client] : browsers) {
+                      client->Close(base::BindOnce(
+                          [](std::shared_ptr<size_t> remaining,
+                             CefRefPtr<CefWaitableEvent> done) {
+                            if (--*remaining == 0) {
+                              done->Signal();
+                            }
+                          },
+                          remaining, done));
+                    }
+                  },
+                  done));
+  done->Wait();
+}
+
+TestHandler::ReusableBrowserStats TestHandler::GetReusableBrowserStats() {
+  if (!CefCurrentlyOn(TID_UI)) {
+    ReusableBrowserStats result;
+    auto done = CefWaitableEvent::CreateWaitableEvent(true, false);
+    CefPostTask(TID_UI, base::BindOnce(
+                            [](ReusableBrowserStats* result,
+                               CefRefPtr<CefWaitableEvent> done) {
+                              *result = GetReusableBrowserStats();
+                              done->Signal();
+                            },
+                            &result, done));
+    done->Wait();
+    return result;
+  }
+  ReusableBrowserStats result;
+  const auto options = CurrentReusableBrowserOptions();
+  result.enabled = options.enabled;
+  result.limit = result.enabled ? options.max_browsers : 0;
+  if (reusable_browsers) {
+    result.total = reusable_browsers->size();
+    for (const auto& [key, client] : *reusable_browsers) {
+      result.hidden_windows += client->IsWindowHidden();
+      result.window_hides += client->WindowHides();
+      result.window_shows += client->WindowShows();
+      if (client->IsClosing()) {
+        ++result.closing;
+      } else if (client->IsIdle()) {
+        ++result.idle;
+      } else {
+        ++result.leased;
+      }
+    }
+  }
+  return result;
+}
+
+void TestHandler::SetReusableBrowserOptionsForTesting(
+    std::optional<ReusableBrowserOptions> options) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    auto done = CefWaitableEvent::CreateWaitableEvent(true, false);
+    CefPostTask(TID_UI, base::BindOnce(
+                            [](std::optional<ReusableBrowserOptions> options,
+                               CefRefPtr<CefWaitableEvent> done) {
+                              SetReusableBrowserOptionsForTesting(options);
+                              done->Signal();
+                            },
+                            options, done));
+    done->Wait();
+    return;
+  }
+  CHECK(!reusable_browsers || reusable_browsers->empty());
+  reusable_options_override = options;
+}
+
 void TestHandler::CreateBrowser(const CefString& url,
                                 CefRefPtr<CefRequestContext> request_context,
                                 CefRefPtr<CefDictionaryValue> extra_info) {
@@ -604,11 +1513,12 @@ void TestHandler::CreateBrowserWithSettings(
     const CefString& url,
     const CefBrowserSettings& settings,
     CefRefPtr<CefRequestContext> request_context,
-    CefRefPtr<CefDictionaryValue> extra_info) {
+    CefRefPtr<CefDictionaryValue> extra_info,
+    const CefSize& window_size) {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI,
-                base::BindOnce(&TestHandler::CreateBrowserWithSettings, this,
-                               url, settings, request_context, extra_info));
+    CefPostTask(TID_UI, base::BindOnce(&TestHandler::CreateBrowserWithSettings,
+                                       this, url, settings, request_context,
+                                       extra_info, window_size));
     return;
   }
 
@@ -625,7 +1535,8 @@ void TestHandler::CreateBrowserWithSettings(
 
     // Create the Window. It will show itself after creation.
     TestWindowDelegate::CreateBrowserWindow(this, browser_view,
-                                            /*is_devtools_popup=*/false);
+                                            /*is_devtools_popup=*/false,
+                                            window_size);
   } else {
 #if defined(OS_WIN)
     windowInfo.SetAsPopup(nullptr,

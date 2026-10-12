@@ -206,7 +206,13 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
         SetUseViews(true);
       }
       // Native-window path honors global runtime/style flags and --use-views.
-      CreateBrowser(kUrl);
+      if (mode_ == Mode::Portable && scenario_ == Scenario::Unicode) {
+        // Retain a fresh-browser representative of the initial-focus
+        // regression in each hosting mode. Other cases test input routing.
+        CreateBrowser(kUrl);
+      } else {
+        CreateReusableBrowser(kUrl);
+      }
       SetTestTimeout(10000);
       return;
     }
@@ -218,8 +224,12 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
 #endif
     CefBrowserSettings settings;
     window_info.runtime_style = CEF_RUNTIME_STYLE_ALLOY;
-    CefBrowserHost::CreateBrowser(window_info, this, kUrl, settings, nullptr,
-                                  nullptr);
+    if (mode_ == Mode::Portable && scenario_ == Scenario::Unicode) {
+      CefBrowserHost::CreateBrowser(window_info, this, kUrl, settings, nullptr,
+                                    nullptr);
+    } else {
+      CreateReusableBrowser(window_info, kUrl, settings);
+    }
     SetTestTimeout(10000);
   }
 

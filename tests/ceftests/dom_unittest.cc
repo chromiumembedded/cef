@@ -305,7 +305,8 @@ class TestDOMHandler : public TestHandler {
                 "</html>";
 
     AddResource(kTestUrl, mainHtml.str(), "text/html");
-    CreateBrowser(kTestUrl);
+    // These document-only tests do not depend on browser/window lifespan.
+    CreateReusableBrowser(kTestUrl);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();

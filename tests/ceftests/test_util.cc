@@ -21,6 +21,40 @@
 
 #if defined(OS_LINUX)
 #include "tests/shared/browser/util_linux.h"
+#if defined(CEF_TESTS_USE_X11)
+#include <X11/Xlib.h>
+#endif
+#endif
+
+#if !defined(OS_MAC)
+bool SetNativeTestBrowserVisible(CefRefPtr<CefBrowser> browser, bool visible) {
+  CEF_REQUIRE_UI_THREAD();
+#if defined(OS_WIN)
+  const auto window =
+      GetAncestor(browser->GetHost()->GetWindowHandle(), GA_ROOT);
+  if (!window) {
+    return false;
+  }
+  ShowWindow(window, visible ? SW_SHOW : SW_HIDE);
+  return true;
+#elif defined(OS_LINUX) && defined(CEF_TESTS_USE_X11)
+  if (!IsRunningOnWayland()) {
+    auto* display = XOpenDisplay(nullptr);
+    if (display) {
+      const auto window = browser->GetHost()->GetWindowHandle();
+      if (visible) {
+        XMapWindow(display, window);
+      } else {
+        XUnmapWindow(display, window);
+      }
+      XFlush(display);
+      XCloseDisplay(display);
+      return true;
+    }
+  }
+#endif
+  return false;
+}
 #endif
 
 void TestMapEqual(const CefRequest::HeaderMap& map1,

@@ -21,6 +21,10 @@
 CefTime CefTimeFrom(CefBaseTime value);
 CefBaseTime CefBaseTimeFrom(const CefTime& value);
 
+// Change visibility of a top-level native test browser on the UI thread.
+// Returns false when native visibility control is unavailable.
+bool SetNativeTestBrowserVisible(CefRefPtr<CefBrowser> browser, bool visible);
+
 // Test that CefRequest::HeaderMap objects are equal. Multiple values with the
 // same key are allowed, but not duplicate entries with the same key/value. If
 // |allowExtras| is true then additional header fields will be allowed in

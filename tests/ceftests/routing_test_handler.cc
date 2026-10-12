@@ -62,6 +62,11 @@ RoutingTestHandler::RoutingTestHandler(CompletionState* completion_state)
     : TestHandler(completion_state) {}
 
 void RoutingTestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
+  InitializeRouter();
+  TestHandler::OnAfterCreated(browser);
+}
+
+void RoutingTestHandler::InitializeRouter() {
   if (!message_router_.get()) {
     // Create the browser-side router for query handling.
     CefMessageRouterConfig config;
@@ -69,7 +74,18 @@ void RoutingTestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     message_router_ = CefMessageRouterBrowserSide::Create(config);
     message_router_->AddHandler(this, false);
   }
-  TestHandler::OnAfterCreated(browser);
+}
+
+void RoutingTestHandler::OnReusableBrowserAttached(
+    CefRefPtr<CefBrowser> browser) {
+  InitializeRouter();
+  TestHandler::OnReusableBrowserAttached(browser);
+}
+
+void RoutingTestHandler::OnReusableBrowserReleased(
+    CefRefPtr<CefBrowser> browser) {
+  message_router_->OnBeforeClose(browser);
+  TestHandler::OnReusableBrowserReleased(browser);
 }
 
 void RoutingTestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {

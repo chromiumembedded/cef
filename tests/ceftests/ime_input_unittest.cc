@@ -535,8 +535,12 @@ class ImeInputTestHandler : public RoutingTestHandler,
       info.runtime_style = CEF_RUNTIME_STYLE_ALLOY;
       info.external_begin_frame_enabled =
           scenario_ == Scenario::SelectionExternalBeginFrame;
-      CefBrowserHost::CreateBrowser(info, this, kUrl, CefBrowserSettings(),
-                                    nullptr, nullptr);
+      if (CanReuseBrowser()) {
+        CreateReusableBrowser(info, kUrl, CefBrowserSettings());
+      } else {
+        CefBrowserHost::CreateBrowser(info, this, kUrl, CefBrowserSettings(),
+                                      nullptr, nullptr);
+      }
     } else {
       CreateBrowser(kUrl);
     }
@@ -604,10 +608,9 @@ class ImeInputTestHandler : public RoutingTestHandler,
         features->SetDictionary(0, feature);
         auto params = CefDictionaryValue::Create();
         params->SetList("features", features);
-        ++devtools_id_;
-        EXPECT_EQ(devtools_id_,
-                  host->ExecuteDevToolsMethod(
-                      devtools_id_, "Emulation.setEmulatedMedia", params));
+        devtools_id_ = host->ExecuteDevToolsMethod(
+            0, "Emulation.setEmulatedMedia", params);
+        EXPECT_GT(devtools_id_, 0);
       } else if (scenario_ == Scenario::PasswordTypeChange) {
         // Initialization selects plain text. Observe that selection before
         // arming the password step's strict redaction assertion, since the
@@ -742,6 +745,33 @@ class ImeInputTestHandler : public RoutingTestHandler,
   }
 
  private:
+  // These cases require browser destruction or cleanup not yet implemented
+  // for reusable leases. All other scenarios operate on fresh documents.
+  bool CanReuseBrowser() const {
+    switch (scenario_) {
+      case Scenario::DestroyDuringComposition:
+      case Scenario::MultipleUnderlines:
+      case Scenario::UnderlineStyles:
+      case Scenario::CompositionTextColor:
+      case Scenario::PasswordUnicode:
+      case Scenario::PasswordUnicodeChromium:
+      case Scenario::SetCompositionRange:
+      case Scenario::ResizeGeometry:
+      case Scenario::SelectionExternalBeginFrame:
+        return false;
+      default:
+        return true;
+    }
+  }
+
+  void OnReusableBrowserReleased(CefRefPtr<CefBrowser> browser) override {
+    EXPECT_EQ(steps_.size(), step_);
+    devtools_registration_ = nullptr;
+    frame_ = nullptr;
+    root_frame_ = child_frame_ = nullptr;
+    RoutingTestHandler::OnReusableBrowserReleased(browser);
+  }
+
   std::string Context() const {
     const char* editor = editor_ == Editor::Input      ? "input"
                          : editor_ == Editor::Textarea ? "textarea"
@@ -1553,13 +1583,14 @@ class ImeInputTestHandler : public RoutingTestHandler,
         params->SetInt("selectionStart", step.selection.from);
         params->SetInt("selectionEnd", step.selection.to);
       }
-      ++devtools_id_;
-      EXPECT_EQ(devtools_id_,
-                host->ExecuteDevToolsMethod(devtools_id_,
-                                            step.operation == Operation::Commit
-                                                ? "Input.insertText"
-                                                : "Input.imeSetComposition",
-                                            params));
+      // IDs belong to the browser's DevTools session, which can outlive this
+      // handler when reused. Let CEF allocate the next ID across leases.
+      devtools_id_ = host->ExecuteDevToolsMethod(
+          0,
+          step.operation == Operation::Commit ? "Input.insertText"
+                                              : "Input.imeSetComposition",
+          params);
+      EXPECT_GT(devtools_id_, 0);
       return;
     }
     switch (step.operation) {

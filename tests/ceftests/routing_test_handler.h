@@ -37,7 +37,12 @@ class RoutingTestHandler : public TestHandler,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override;
 
+ protected:
+  void OnReusableBrowserAttached(CefRefPtr<CefBrowser> browser) override;
+  void OnReusableBrowserReleased(CefRefPtr<CefBrowser> browser) override;
+
  private:
+  void InitializeRouter();
   CefRefPtr<CefMessageRouterBrowserSide> message_router_;
 };
 
