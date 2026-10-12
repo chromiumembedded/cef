@@ -1,0 +1,176 @@
+diff --git content/browser/devtools/protocol/devtools_protocol_browsertest.cc content/browser/devtools/protocol/devtools_protocol_browsertest.cc
+index 7a957bb..ba30882 100644
+--- content/browser/devtools/protocol/devtools_protocol_browsertest.cc
++++ content/browser/devtools/protocol/devtools_protocol_browsertest.cc
+@@ -6358,6 +6358,138 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, DetachWithCrashedHiddenTargets) {
+   Detach();
+ }
+
++// Capture all replies because popup setup and resume are sent without waiting
++// for each other, and the opener's window.open must complete after injection.
++class PausedPopupDevToolsProtocolTest : public DevToolsProtocolTest {
++ protected:
++  void DispatchProtocolMessage(DevToolsAgentHost* agent_host,
++                               base::span<const uint8_t> message) override {
++    auto parsed = base::JSONReader::Read(
++        std::string_view(reinterpret_cast<const char*>(message.data()),
++                         message.size()),
++        base::JSON_PARSE_CHROMIUM_EXTENSIONS);
++    if (parsed && parsed->is_dict()) {
++      auto id = parsed->GetDict().FindInt("id");
++      if (id && *id >= 100 && *id <= 105) {
++        replies_.Set(base::NumberToString(*id), std::move(*parsed));
++      }
++    }
++    DevToolsProtocolTest::DispatchProtocolMessage(agent_host, message);
++  }
++
++  base::DictValue replies_;
++};
++
++IN_PROC_BROWSER_TEST_F(PausedPopupDevToolsProtocolTest,
++                       InjectBeforeWindowOpenReturns) {
++  ASSERT_TRUE(embedded_test_server()->Start());
++  ASSERT_TRUE(
++      NavigateToURL(shell(), embedded_test_server()->GetURL("/title1.html")));
++  const std::string opener_target =
++      DevToolsAgentHost::GetOrCreateFor(shell()->web_contents())->GetId();
++  AttachToBrowserTarget();
++
++  base::DictValue attach;
++  attach.Set("targetId", opener_target);
++  attach.Set("flatten", true);
++  const auto* attached =
++      SendCommandSync("Target.attachToTarget", std::move(attach));
++  ASSERT_TRUE(attached);
++  const auto* opener_session_ptr = attached->FindString("sessionId");
++  ASSERT_TRUE(opener_session_ptr);
++  const std::string opener_session = *opener_session_ptr;
++  ASSERT_TRUE(SendSessionCommand("Page.enable", base::DictValue(),
++                                 opener_session, true));
++  ASSERT_TRUE(SendSessionCommand("Runtime.enable", base::DictValue(),
++                                 opener_session, true));
++  ASSERT_TRUE(SendSessionCommand("Runtime.runIfWaitingForDebugger",
++                                 base::DictValue(), opener_session, true));
++
++  base::ListValue filter;
++  filter.Append(base::DictValue().Set("type", "browser").Set("exclude", true));
++  filter.Append(base::DictValue().Set("type", "tab").Set("exclude", true));
++  filter.Append(base::DictValue());
++  base::DictValue auto_attach;
++  auto_attach.Set("autoAttach", true);
++  auto_attach.Set("waitForDebuggerOnStart", true);
++  auto_attach.Set("flatten", true);
++  auto_attach.Set("filter", std::move(filter));
++  ASSERT_TRUE(SendCommandSync("Target.setAutoAttach", std::move(auto_attach)));
++
++  SetProtocolCommandId(100);
++  base::DictValue evaluate;
++  evaluate.Set("expression",
++               "(() => { const win = window.open('about:blank'); "
++               "return win.injected ?? null; })()");
++  evaluate.Set("returnByValue", true);
++  evaluate.Set("userGesture", true);
++  SendSessionCommand("Runtime.evaluate", std::move(evaluate), opener_session,
++                     false);
++
++  auto popup = WaitForMatchingNotification(
++      "Target.attachedToTarget",
++      base::BindLambdaForTesting([&](const base::DictValue& params) {
++        const auto* opener =
++            params.FindStringByDottedPath("targetInfo.openerId");
++        return opener && *opener == opener_target;
++      }));
++  EXPECT_EQ(true, popup.FindBool("waitingForDebugger"));
++  const auto* popup_session = popup.FindString("sessionId");
++  const auto* popup_target =
++      popup.FindStringByDottedPath("targetInfo.targetId");
++  ASSERT_TRUE(popup_session);
++  ASSERT_TRUE(popup_target);
++  EXPECT_NE(opener_session, *popup_session);
++  EXPECT_NE(opener_target, *popup_target);
++
++  SendSessionCommand("Page.enable", base::DictValue(), *popup_session, false);
++  SendSessionCommand("Page.getFrameTree", base::DictValue(), *popup_session,
++                     false);
++  SendSessionCommand("Runtime.enable", base::DictValue(), *popup_session,
++                     false);
++  base::DictValue script;
++  script.Set("source", "window.injected = 123;");
++  script.Set("runImmediately", true);
++  SendSessionCommand("Page.addScriptToEvaluateOnNewDocument", std::move(script),
++                     *popup_session, false);
++  SendSessionCommand("Runtime.runIfWaitingForDebugger", base::DictValue(),
++                     *popup_session, false);
++
++  ASSERT_TRUE(base::test::RunUntil([&] { return replies_.size() == 6; }));
++  for (int id = 100; id <= 105; ++id) {
++    const auto* reply = replies_.FindDict(base::NumberToString(id));
++    ASSERT_TRUE(reply);
++    EXPECT_FALSE(reply->Find("error"));
++    const auto* reply_session = reply->FindString("sessionId");
++    ASSERT_TRUE(reply_session);
++    EXPECT_EQ(id == 100 ? opener_session : *popup_session, *reply_session);
++  }
++  EXPECT_EQ(123, replies_.FindIntByDottedPath("100.result.result.value"));
++  EXPECT_FALSE(replies_.FindByDottedPath("100.result.exceptionDetails"));
++  const auto* frame_id =
++      replies_.FindStringByDottedPath("102.result.frameTree.frame.id");
++  ASSERT_TRUE(frame_id);
++  EXPECT_EQ(*popup_target, *frame_id);
++
++  auto popup_host = DevToolsAgentHost::GetForId(*popup_target);
++  ASSERT_TRUE(popup_host);
++  ASSERT_TRUE(popup_host->Close());
++  base::DictValue disable;
++  disable.Set("autoAttach", false);
++  disable.Set("waitForDebuggerOnStart", false);
++  disable.Set("flatten", true);
++  ASSERT_TRUE(SendCommandSync("Target.setAutoAttach", std::move(disable)));
++
++  base::DictValue ordinary_popup;
++  ordinary_popup.Set("expression", "window.open('about:blank').closed");
++  ordinary_popup.Set("returnByValue", true);
++  ordinary_popup.Set("userGesture", true);
++  const auto* ordinary = SendSessionCommand(
++      "Runtime.evaluate", std::move(ordinary_popup), opener_session, true);
++  ASSERT_TRUE(ordinary);
++  EXPECT_EQ(false, ordinary->FindBoolByDottedPath("result.value"));
++}
++
+ IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, PageGetSubApps) {
+   NavigateToURLBlockUntilNavigationsComplete(shell(), GURL("about:blank"), 1);
+   Attach();
+diff --git content/browser/devtools/render_frame_devtools_agent_host.cc content/browser/devtools/render_frame_devtools_agent_host.cc
+index a8d9743..413ad75 100644
+--- content/browser/devtools/render_frame_devtools_agent_host.cc
++++ content/browser/devtools/render_frame_devtools_agent_host.cc
+@@ -655,6 +655,16 @@ void RenderFrameDevToolsAgentHost::DidStartNavigation(
+   navigation_requests_.insert(request);
+ }
+
++void RenderFrameDevToolsAgentHost::RenderFrameCreated(
++    RenderFrameHost* render_frame_host) {
++  if (render_frame_host == frame_host_ && !render_frame_alive_) {
++    // A renderer-created popup can be auto-attached before its frame is live.
++    // Bind the renderer channel now so that the paused popup can receive
++    // Runtime.runIfWaitingForDebugger without waiting for a navigation.
++    UpdateFrameAlive();
++  }
++}
++
+ void RenderFrameDevToolsAgentHost::RenderFrameHostChanged(
+     RenderFrameHost* old_host,
+     RenderFrameHost* new_host) {
+diff --git content/browser/devtools/render_frame_devtools_agent_host.h content/browser/devtools/render_frame_devtools_agent_host.h
+index 56c3e75..62fc239 100644
+--- content/browser/devtools/render_frame_devtools_agent_host.h
++++ content/browser/devtools/render_frame_devtools_agent_host.h
+@@ -156,6 +156,7 @@ class CONTENT_EXPORT RenderFrameDevToolsAgentHost
+   void DidStartNavigation(NavigationHandle* navigation_handle) override;
+   void ReadyToCommitNavigation(NavigationHandle* navigation_handle) override;
+   void DidFinishNavigation(NavigationHandle* navigation_handle) override;
++  void RenderFrameCreated(RenderFrameHost* render_frame_host) override;
+   void RenderFrameHostChanged(RenderFrameHost* old_host,
+                               RenderFrameHost* new_host) override;
+   void FrameDeleted(FrameTreeNodeId frame_tree_node_id) override;
