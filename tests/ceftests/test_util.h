@@ -16,6 +16,7 @@
 #include "include/cef_values.h"
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_window.h"
+#include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_suite.h"
 
 CefTime CefTimeFrom(CefBaseTime value);
@@ -159,6 +160,16 @@ using RCInitCallback = base::OnceCallback<void(CefRefPtr<CefRequestContext>)>;
 void CreateTestRequestContext(TestRequestContextMode mode,
                               const std::string& cache_path,
                               RCInitCallback init_callback);
+
+// Equivalent opt-in creation retaining the context identity for browser reuse.
+// Disk cases use a shared path when enabled, otherwise |cache_path|.
+// Global modes return a default handle; use GetGlobalContext when an explicit
+// context is needed. Context and browser lifecycle tests must use ordinary
+// creation. Clean up registrations and pending work before releasing a browser.
+void CreateReusableTestRequestContext(
+    TestRequestContextMode mode,
+    const std::string& cache_path,
+    base::OnceCallback<void(TestHandler::ReusableRequestContext)> callback);
 
 // Run a single test without additional test modes.
 #define RC_TEST_SINGLE(test_case_name, test_name, test_class, rc_mode,   \

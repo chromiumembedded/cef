@@ -2719,7 +2719,7 @@ class RequestTestHandler : public TestHandler {
       // Initialize a fresh or shared context before setting up the backend.
       if (share_context_) {
         CreateReusableRequestContext(
-            settings,
+            settings, /*is_global=*/false,
             base::BindOnce(&RequestTestHandler::OnReusableContextInitialized,
                            this));
       } else {

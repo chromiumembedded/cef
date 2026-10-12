@@ -89,8 +89,12 @@ class TestHandler : public CefClient,
   // before CEF shutdown. Callers must clear relevant cache, authentication,
   // cookies, and storage between uses. Do not use for context initialization,
   // destruction, or isolation tests.
+  // |is_global| uses the shared-global creation overload with a handler,
+  // rather than creating an independent context from |settings|. This choice
+  // is part of the creation key; pass default settings for that mode.
   static void CreateReusableRequestContext(
       const CefRequestContextSettings& settings,
+      bool is_global,
       base::OnceCallback<void(ReusableRequestContext)> callback);
   struct ReusableBrowserOptions {
     bool enabled = false;
@@ -345,11 +349,21 @@ class TestHandler : public CefClient,
   // Record the seed so failures can be reproduced. Compare representative
   // cases with reuse disabled; configuration-equivalence tests can cover
   // equivalent modes without repeating the full suite in each mode.
+  //
+  // Non-null handlers from |client| override the fixture's handlers in both
+  // shared and isolated modes. The harness retains its lifecycle/navigation
+  // routing. The client is automatically cleared when its lease ends; idle
+  // browsers and subsequent leases do not retain its handlers. Quiesce pending
+  // work before DestroyTest; a previously returned handler can still receive
+  // late callbacks and must safely detach any fixture references.
+  // Custom lifespan callbacks describe actual creation/closure while the
+  // client is attached; releasing a lease does not manufacture these callbacks.
   void CreateReusableBrowser(
       const CefWindowInfo& window_info,
       const CefString& url,
       const CefBrowserSettings& settings,
-      ReusableRequestContext request_context = ReusableRequestContext());
+      ReusableRequestContext request_context = ReusableRequestContext(),
+      CefRefPtr<CefClient> client = nullptr);
   // Windowed equivalent using the fixture's Views/native hosting and Alloy/
   // Chrome style settings. Window dimensions are part of the capability key.
   // Do not use for window lifecycle, activation, initial focus, or resize
@@ -360,7 +374,8 @@ class TestHandler : public CefClient,
       const CefString& url,
       const CefSize& window_size = CefSize(800, 600),
       const CefBrowserSettings& settings = CefBrowserSettings(),
-      ReusableRequestContext request_context = ReusableRequestContext());
+      ReusableRequestContext request_context = ReusableRequestContext(),
+      CefRefPtr<CefClient> client = nullptr);
   virtual void OnReusableBrowserAttached(CefRefPtr<CefBrowser> browser);
   virtual void OnReusableBrowserReleased(CefRefPtr<CefBrowser> browser);
   // Indicate that test setup is complete. Only used in combination with a
@@ -383,7 +398,8 @@ class TestHandler : public CefClient,
       const CefBrowserSettings& settings,
       CefRefPtr<CefRequestContext> request_context = nullptr,
       CefRefPtr<CefDictionaryValue> extra_info = nullptr,
-      const CefSize& window_size = CefSize(800, 600));
+      const CefSize& window_size = CefSize(800, 600),
+      CefRefPtr<CefClient> client = nullptr);
 
   static void CloseBrowser(CefRefPtr<CefBrowser> browser, bool force_close);
 
@@ -448,7 +464,8 @@ class TestHandler : public CefClient,
                                  const CefBrowserSettings& settings,
                                  bool use_views,
                                  cef_runtime_style_t window_style,
-                                 ReusableRequestContext request_context);
+                                 ReusableRequestContext request_context,
+                                 CefRefPtr<CefClient> client);
   friend class ReusableBrowserClient;
   CefRefPtr<class ReusableBrowserClient> reusable_client_;
   bool reusable_creation_pending_ = false;

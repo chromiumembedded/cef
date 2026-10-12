@@ -140,10 +140,128 @@ BrowserReuseKey MakeBrowserReuseKey(const CefWindowInfo& info,
 
 void ReusableBrowserClosed(class ReusableBrowserClient* client);
 
+// Compose suite-specific handlers with ordinary fixture handlers. Reusable
+// browsers override GetDefaultClient to select their current lease.
+class TestHandlerClient : public CefClient, public CefLifeSpanHandler {
+ public:
+  TestHandlerClient(CefRefPtr<CefClient> delegate = nullptr,
+                    CefRefPtr<CefClient> custom = nullptr)
+      : delegate_(delegate) {
+    SetCustomClient(custom);
+  }
+#define FORWARD_HANDLER(name)                                      \
+  CefRefPtr<Cef##name##Handler> Get##name##Handler() override {    \
+    return GetHandler(&CefClient::Get##name##Handler, true, true); \
+  }
+  FORWARD_HANDLER(Audio)
+  FORWARD_HANDLER(Command)
+  FORWARD_HANDLER(ContextMenu)
+  FORWARD_HANDLER(Dialog)
+  FORWARD_HANDLER(Display)
+  FORWARD_HANDLER(Download)
+  FORWARD_HANDLER(Drag)
+  FORWARD_HANDLER(Find)
+  FORWARD_HANDLER(Focus)
+  FORWARD_HANDLER(Frame)
+  FORWARD_HANDLER(Permission)
+  FORWARD_HANDLER(JSDialog)
+  FORWARD_HANDLER(Keyboard)
+  FORWARD_HANDLER(Load)
+  FORWARD_HANDLER(Print)
+  FORWARD_HANDLER(Render)
+  FORWARD_HANDLER(Request)
+#if CEF_API_ADDED(CEF_NEXT)
+  FORWARD_HANDLER(Input)
+#endif
+#undef FORWARD_HANDLER
+  CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
+    if (auto delegate = GetDefaultClient()) {
+      if (auto handler = delegate->GetLifeSpanHandler()) {
+        handler->OnAfterCreated(browser);
+      }
+    }
+    NotifyCustomCreated(browser);
+  }
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
+    NotifyCustomClosed(browser);
+    SetCustomClient(nullptr);
+    if (auto delegate = GetDefaultClient()) {
+      if (auto handler = delegate->GetLifeSpanHandler()) {
+        handler->OnBeforeClose(browser);
+      }
+    }
+  }
+  bool DoClose(CefRefPtr<CefBrowser> browser) override {
+    auto handler = GetHandler(&CefClient::GetLifeSpanHandler);
+    return handler && handler->DoClose(browser);
+  }
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                CefProcessId source,
+                                CefRefPtr<CefProcessMessage> message) override {
+    auto custom = GetCustomClient();
+    if (custom &&
+        custom->OnProcessMessageReceived(browser, frame, source, message)) {
+      return true;
+    }
+    auto delegate = GetDefaultClient();
+    return delegate &&
+           delegate->OnProcessMessageReceived(browser, frame, source, message);
+  }
+
+ protected:
+  void NotifyCustomCreated(CefRefPtr<CefBrowser> browser) {
+    if (auto custom = GetCustomClient()) {
+      if (auto handler = custom->GetLifeSpanHandler()) {
+        handler->OnAfterCreated(browser);
+      }
+    }
+  }
+  void NotifyCustomClosed(CefRefPtr<CefBrowser> browser) {
+    if (auto custom = GetCustomClient()) {
+      if (auto handler = custom->GetLifeSpanHandler()) {
+        handler->OnBeforeClose(browser);
+      }
+    }
+  }
+  virtual CefRefPtr<CefClient> GetDefaultClient(bool committed_only = true) {
+    return delegate_;
+  }
+  void SetCustomClient(CefRefPtr<CefClient> client) {
+    std::lock_guard<std::mutex> guard(custom_lock_);
+    custom_.swap(client);
+  }
+  CefRefPtr<CefClient> GetCustomClient() {
+    std::lock_guard<std::mutex> guard(custom_lock_);
+    return custom_;
+  }
+  template <typename Handler>
+  CefRefPtr<Handler> GetHandler(CefRefPtr<Handler> (CefClient::*getter)(),
+                                bool committed_only = true,
+                                bool allow_idle = false) {
+    auto delegate = GetDefaultClient(committed_only);
+    if (!delegate && !allow_idle) {
+      return nullptr;
+    }
+    if (auto custom = GetCustomClient()) {
+      if (auto handler = (custom.get()->*getter)()) {
+        return handler;
+      }
+    }
+    return delegate ? (delegate.get()->*getter)() : nullptr;
+  }
+
+ private:
+  CefRefPtr<CefClient> delegate_;
+  std::mutex custom_lock_;
+  CefRefPtr<CefClient> custom_;
+  IMPLEMENT_REFCOUNTING(TestHandlerClient);
+};
+
 // The client stays with the browser; each lease gets a fresh TestHandler.
 // Interface getters may be called on the IO thread, so guard the delegate.
-class ReusableBrowserClient : public CefClient,
-                              public CefLifeSpanHandler,
+class ReusableBrowserClient : public TestHandlerClient,
                               public CefLoadHandler,
                               public CefRequestHandler,
                               public CefRenderHandler {
@@ -187,6 +305,7 @@ class ReusableBrowserClient : public CefClient,
   }
   void CancelAttach() {
     EXPECT_UI_THREAD();
+    SetCustomClient(nullptr);
     std::lock_guard<std::mutex> guard(lock_);
     delegate_ = nullptr;
   }
@@ -194,7 +313,8 @@ class ReusableBrowserClient : public CefClient,
               const CefString& url,
               const CefRect& rect,
               const CefScreenInfo& screen_info,
-              bool provides_screen_info) {
+              bool provides_screen_info,
+              CefRefPtr<CefClient> client) {
     EXPECT_UI_THREAD();
     CHECK(!GetDelegate());
     CHECK(!closing_);
@@ -206,6 +326,7 @@ class ReusableBrowserClient : public CefClient,
     awaiting_commit_ = true;
     active_frame_id_.clear();
     ++leases_;
+    SetCustomClient(client);
     {
       std::lock_guard<std::mutex> guard(lock_);
       delegate_ = handler;
@@ -267,35 +388,11 @@ class ReusableBrowserClient : public CefClient,
     }
   }
 
-#define FORWARD_HANDLER(name)                                   \
-  CefRefPtr<Cef##name##Handler> Get##name##Handler() override { \
-    auto handler = GetDelegate(true);                           \
-    return handler ? handler->Get##name##Handler() : nullptr;   \
-  }
-  FORWARD_HANDLER(Audio)
-  FORWARD_HANDLER(Command)
-  FORWARD_HANDLER(ContextMenu)
-  FORWARD_HANDLER(Dialog)
-  FORWARD_HANDLER(Display)
-  FORWARD_HANDLER(Download)
-  FORWARD_HANDLER(Drag)
-  FORWARD_HANDLER(Find)
-  FORWARD_HANDLER(Frame)
-  FORWARD_HANDLER(Permission)
-  FORWARD_HANDLER(JSDialog)
-  FORWARD_HANDLER(Keyboard)
-  FORWARD_HANDLER(Print)
-#if CEF_API_ADDED(CEF_NEXT)
-  FORWARD_HANDLER(Input)
-#endif
-#undef FORWARD_HANDLER
-
   CefRefPtr<CefFocusHandler> GetFocusHandler() override {
     // Navigation focus can precede the document's initial commit. It belongs
     // to the new lease, just like its resource callbacks, and must be
     // forwarded.
-    auto handler = GetDelegate();
-    return handler ? handler->GetFocusHandler() : nullptr;
+    return GetHandler(&CefClient::GetFocusHandler, false);
   }
   CefRefPtr<CefRequestHandler> GetRequestHandler() override {
     // Keep intercepting while idle so requests from the retired document do
@@ -425,9 +522,8 @@ class ReusableBrowserClient : public CefClient,
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
   CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
   CefRefPtr<CefRenderHandler> GetRenderHandler() override {
-    auto handler = GetDelegate();
-    return handler ? handler->GetRenderHandler()
-                   : (windowless_ ? this : nullptr);
+    auto handler = GetHandler(&CefClient::GetRenderHandler, false);
+    return handler ? handler : (windowless_ ? this : nullptr);
   }
   void GetViewRect(CefRefPtr<CefBrowser>, CefRect& rect) override {
     rect = rect_;
@@ -449,9 +545,11 @@ class ReusableBrowserClient : public CefClient,
     TraceTiming("BrowserCreated");
     ++creations_;
     GetDelegate()->OnReusableBrowserAttached(browser);
+    NotifyCustomCreated(browser);
   }
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
     EXPECT_UI_THREAD();
+    NotifyCustomClosed(browser);
     browser_ = nullptr;
     if (!window_alive_) {
       ReusableBrowserClosed(this);
@@ -471,7 +569,7 @@ class ReusableBrowserClient : public CefClient,
       TraceTiming("LoadingStopped");
     }
     if (!resetting_) {
-      if (auto handler = GetDelegate(true)) {
+      if (auto handler = GetHandler(&CefClient::GetLoadHandler)) {
         handler->OnLoadingStateChange(browser, loading, back, forward);
       }
     }
@@ -498,7 +596,7 @@ class ReusableBrowserClient : public CefClient,
         TraceTiming("DocumentCommitted");
       }
       if (IsCurrentFrame(frame)) {
-        if (auto handler = GetDelegate(true)) {
+        if (auto handler = GetHandler(&CefClient::GetLoadHandler)) {
           handler->OnLoadStart(browser, frame, type);
         }
       }
@@ -518,7 +616,8 @@ class ReusableBrowserClient : public CefClient,
         frame->IsMain() &&
         frame->GetIdentifier() == browser->GetMainFrame()->GetIdentifier();
     if (IsCurrentFrame(frame) || failed_initial_load) {
-      if (auto handler = GetDelegate(!failed_initial_load)) {
+      if (auto handler =
+              GetHandler(&CefClient::GetLoadHandler, !failed_initial_load)) {
         handler->OnLoadEnd(browser, frame, status);
       }
     }
@@ -539,7 +638,7 @@ class ReusableBrowserClient : public CefClient,
         (awaiting_commit_ ? frame->IsMain() && navigation_started_ &&
                                url == target_url_
                           : IsCurrentFrame(frame))) {
-      if (auto handler = GetDelegate()) {
+      if (auto handler = GetHandler(&CefClient::GetLoadHandler, false)) {
         handler->OnLoadError(browser, frame, code, text, url);
       }
     }
@@ -549,18 +648,19 @@ class ReusableBrowserClient : public CefClient,
                                 CefProcessId source,
                                 CefRefPtr<CefProcessMessage> message) override {
     if (IsCurrentFrame(frame)) {
-      if (auto handler = GetDelegate(true)) {
-        return handler->OnProcessMessageReceived(browser, frame, source,
-                                                 message);
-      }
+      return TestHandlerClient::OnProcessMessageReceived(browser, frame, source,
+                                                         message);
     }
     return false;
   }
 
  private:
+  CefRefPtr<CefClient> GetDefaultClient(bool committed_only = true) override {
+    return GetDelegate(committed_only);
+  }
+
   CefRefPtr<CefRequestHandler> GetRequestDelegate(bool committed_only = false) {
-    auto handler = GetDelegate(committed_only);
-    return handler ? handler->GetRequestHandler() : nullptr;
+    return GetHandler(&CefClient::GetRequestHandler, committed_only);
   }
   bool SetWindowVisible(bool visible) {
     bool changed = false;
@@ -655,6 +755,7 @@ class ReusableBrowserClient : public CefClient,
     if (!handler) {
       return;
     }
+    SetCustomClient(nullptr);
     resetting_ = false;
     discarding_ = false;
     awaiting_commit_ = true;
@@ -779,14 +880,35 @@ auto RequestContextSettingsKey(const CefRequestContextSettings& settings) {
       settings.cookieable_schemes_exclude_defaults);
 }
 struct ReusableContextEntry {
+  void LogSummary(const char* reason) const {
+    LOG(INFO) << "Reusable context " << context.identity << ": " << uses
+              << " uses, 1 creation (" << reason << ")";
+  }
+  void TraceTiming(const char* stage,
+                   std::chrono::steady_clock::time_point start) const {
+    if (trace_timing) {
+      LOG(INFO) << "REUSE_CONTEXT_TIMING " << context.identity << " "
+                << std::chrono::duration_cast<std::chrono::milliseconds>(
+                       std::chrono::steady_clock::now() - start)
+                       .count()
+                << "ms " << stage;
+    }
+  }
   TestHandler::ReusableRequestContext context;
+  const std::chrono::steady_clock::time_point created =
+      std::chrono::steady_clock::now();
   std::chrono::steady_clock::time_point last_used;
+  size_t uses = 1;
   bool initialized = false;
+  const bool trace_timing = CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+      "reuse-test-browsers-timing");
   std::vector<base::OnceCallback<void(TestHandler::ReusableRequestContext)>>
       callbacks;
 };
 using ReusableContextMap =
-    std::map<decltype(RequestContextSettingsKey(CefRequestContextSettings())),
+    std::map<std::tuple<bool,
+                        decltype(RequestContextSettingsKey(
+                            CefRequestContextSettings()))>,
              std::shared_ptr<ReusableContextEntry>>;
 ReusableContextMap* reusable_contexts = nullptr;
 size_t next_context_identity = 0;
@@ -1435,21 +1557,27 @@ void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
 
 void TestHandler::CreateReusableRequestContext(
     const CefRequestContextSettings& settings,
+    bool is_global,
     base::OnceCallback<void(ReusableRequestContext)> callback) {
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI,
                 base::BindOnce(&TestHandler::CreateReusableRequestContext,
-                               settings, std::move(callback)));
+                               settings, is_global, std::move(callback)));
     return;
   }
   const auto options = CurrentReusableBrowserOptions();
   const bool cache = options.enabled && options.max_browsers > 0;
-  const auto key = RequestContextSettingsKey(settings);
+  const auto key =
+      std::make_tuple(is_global, RequestContextSettingsKey(settings));
   if (cache && reusable_contexts) {
     auto it = reusable_contexts->find(key);
     if (it != reusable_contexts->end()) {
       auto entry = it->second;
       entry->last_used = std::chrono::steady_clock::now();
+      ++entry->uses;
+      entry->TraceTiming(
+          entry->initialized ? "CacheHit" : "AwaitInitialization",
+          entry->last_used);
       if (entry->initialized) {
         std::move(callback).Run(entry->context);
       } else {
@@ -1461,6 +1589,7 @@ void TestHandler::CreateReusableRequestContext(
   auto entry = std::make_shared<ReusableContextEntry>();
   entry->context.identity = ++next_context_identity;
   entry->last_used = std::chrono::steady_clock::now();
+  entry->TraceTiming("Create", entry->created);
   entry->callbacks.push_back(std::move(callback));
   if (cache) {
     if (!reusable_contexts) {
@@ -1477,6 +1606,7 @@ void TestHandler::CreateReusableRequestContext(
         }
       }
       if (oldest != reusable_contexts->end()) {
+        oldest->second->LogSummary("evicted");
         reusable_contexts->erase(oldest);
       }
     }
@@ -1486,45 +1616,50 @@ void TestHandler::CreateReusableRequestContext(
       reusable_contexts->emplace(key, entry);
     }
   }
-  entry->context.context = CefRequestContext::CreateContext(
-      settings, new ReusableContextHandler(base::BindOnce(
-                    [](std::shared_ptr<ReusableContextEntry> entry,
-                       CefRefPtr<CefRequestContext> context) {
-                      entry->context.context = context;
-                      entry->initialized = true;
-                      auto callbacks = std::move(entry->callbacks);
-                      for (auto& callback : callbacks) {
-                        std::move(callback).Run(entry->context);
-                      }
-                    },
-                    entry)));
+  auto handler = new ReusableContextHandler(base::BindOnce(
+      [](std::shared_ptr<ReusableContextEntry> entry,
+         CefRefPtr<CefRequestContext> context) {
+        entry->context.context = context;
+        entry->initialized = true;
+        entry->TraceTiming("Initialized", entry->created);
+        auto callbacks = std::move(entry->callbacks);
+        for (auto& callback : callbacks) {
+          std::move(callback).Run(entry->context);
+        }
+      },
+      entry));
+  entry->context.context =
+      is_global ? CefRequestContext::CreateContext(
+                      CefRequestContext::GetGlobalContext(), handler)
+                : CefRequestContext::CreateContext(settings, handler);
 }
 
-void TestHandler::CreateReusableBrowser(
-    const CefWindowInfo& window_info,
-    const CefString& url,
-    const CefBrowserSettings& settings,
-    ReusableRequestContext request_context) {
+void TestHandler::CreateReusableBrowser(const CefWindowInfo& window_info,
+                                        const CefString& url,
+                                        const CefBrowserSettings& settings,
+                                        ReusableRequestContext request_context,
+                                        CefRefPtr<CefClient> client) {
   CHECK(window_info.windowless_rendering_enabled);
   CreateReusableBrowserImpl(window_info, url, settings, false,
-                            CEF_RUNTIME_STYLE_ALLOY, request_context);
+                            CEF_RUNTIME_STYLE_ALLOY, request_context, client);
 }
 
-void TestHandler::CreateReusableBrowser(
-    const CefString& url,
-    const CefSize& window_size,
-    const CefBrowserSettings& settings,
-    ReusableRequestContext request_context) {
+void TestHandler::CreateReusableBrowser(const CefString& url,
+                                        const CefSize& window_size,
+                                        const CefBrowserSettings& settings,
+                                        ReusableRequestContext request_context,
+                                        CefRefPtr<CefClient> client) {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(
-        TID_UI,
-        base::BindOnce(
-            [](CefRefPtr<TestHandler> handler, CefString url, CefSize size,
-               CefBrowserSettings settings, ReusableRequestContext context) {
-              handler->CreateReusableBrowser(url, size, settings, context);
-            },
-            CefRefPtr<TestHandler>(this), url, window_size, settings,
-            request_context));
+    CefPostTask(TID_UI, base::BindOnce(
+                            [](CefRefPtr<TestHandler> handler, CefString url,
+                               CefSize size, CefBrowserSettings settings,
+                               ReusableRequestContext context,
+                               CefRefPtr<CefClient> client) {
+                              handler->CreateReusableBrowser(
+                                  url, size, settings, context, client);
+                            },
+                            CefRefPtr<TestHandler>(this), url, window_size,
+                            settings, request_context, client));
     return;
   }
   CHECK_GT(window_size.width, 0);
@@ -1540,7 +1675,7 @@ void TestHandler::CreateReusableBrowser(
   CreateReusableBrowserImpl(info, url, settings, use_views_,
                             use_alloy_style_window_ ? CEF_RUNTIME_STYLE_ALLOY
                                                     : CEF_RUNTIME_STYLE_CHROME,
-                            request_context);
+                            request_context, client);
 }
 
 void TestHandler::CreateReusableBrowserImpl(
@@ -1549,12 +1684,13 @@ void TestHandler::CreateReusableBrowserImpl(
     const CefBrowserSettings& settings,
     bool use_views,
     cef_runtime_style_t window_style,
-    ReusableRequestContext request_context) {
+    ReusableRequestContext request_context,
+    CefRefPtr<CefClient> custom_client) {
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI,
                 base::BindOnce(&TestHandler::CreateReusableBrowserImpl, this,
                                window_info, url, settings, use_views,
-                               window_style, request_context));
+                               window_style, request_context, custom_client));
     return;
   }
   if (destroy_test_called_) {
@@ -1569,13 +1705,17 @@ void TestHandler::CreateReusableBrowserImpl(
                            ? request_context.context
                            : CefRequestContext::GetGlobalContext();
   const auto create_isolated = [&] {
+    CefRefPtr<CefClient> isolated_client =
+        custom_client ? new TestHandlerClient(this, custom_client)
+                      : static_cast<CefClient*>(this);
     if (use_views) {
       CreateBrowserWithSettings(
           url, settings, context, nullptr,
-          CefSize(window_info.bounds.width, window_info.bounds.height));
+          CefSize(window_info.bounds.width, window_info.bounds.height),
+          isolated_client);
     } else {
-      EXPECT_TRUE(CefBrowserHost::CreateBrowser(window_info, this, url,
-                                                settings, nullptr, context));
+      EXPECT_TRUE(CefBrowserHost::CreateBrowser(
+          window_info, isolated_client, url, settings, nullptr, context));
     }
   };
   if (!options.enabled) {
@@ -1589,7 +1729,10 @@ void TestHandler::CreateReusableBrowserImpl(
   CefScreenInfo screen_info;
   bool provides_screen_info = false;
   if (window_info.windowless_rendering_enabled) {
-    auto render = GetRenderHandler();
+    auto render = custom_client ? custom_client->GetRenderHandler() : nullptr;
+    if (!render) {
+      render = GetRenderHandler();
+    }
     CHECK(render);
     render->GetViewRect(nullptr, rect);
     provides_screen_info = render->GetScreenInfo(nullptr, screen_info);
@@ -1624,14 +1767,15 @@ void TestHandler::CreateReusableBrowserImpl(
       oldest->Close(base::BindOnce(
           [](CefRefPtr<TestHandler> handler, CefWindowInfo info, CefString url,
              CefBrowserSettings settings, bool use_views,
-             cef_runtime_style_t window_style, ReusableRequestContext context) {
+             cef_runtime_style_t window_style, ReusableRequestContext context,
+             CefRefPtr<CefClient> custom_client) {
             CefPostTask(TID_UI,
                         base::BindOnce(&TestHandler::CreateReusableBrowserImpl,
                                        handler, info, url, settings, use_views,
-                                       window_style, context));
+                                       window_style, context, custom_client));
           },
           CefRefPtr<TestHandler>(this), window_info, url, settings, use_views,
-          window_style, request_context));
+          window_style, request_context, custom_client));
       return;
     }
     // Every pool slot is leased or closing (or the configured limit is zero).
@@ -1647,7 +1791,8 @@ void TestHandler::CreateReusableBrowserImpl(
   }
   reusable_client_ = client;
   const bool create = !client->HasBrowser();
-  client->Attach(this, url, rect, screen_info, provides_screen_info);
+  client->Attach(this, url, rect, screen_info, provides_screen_info,
+                 custom_client);
   if (create) {
     bool created;
     if (use_views) {
@@ -1697,6 +1842,11 @@ void TestHandler::ShutdownReusableBrowsers() {
   CefPostTask(TID_UI,
               base::BindOnce(
                   [](CefRefPtr<CefWaitableEvent> done) {
+                    if (reusable_contexts) {
+                      for (const auto& [key, entry] : *reusable_contexts) {
+                        entry->LogSummary("shutdown");
+                      }
+                    }
                     delete reusable_contexts;
                     reusable_contexts = nullptr;
                     if (!reusable_browsers || reusable_browsers->empty()) {
@@ -1791,20 +1941,24 @@ void TestHandler::CreateBrowserWithSettings(
     const CefBrowserSettings& settings,
     CefRefPtr<CefRequestContext> request_context,
     CefRefPtr<CefDictionaryValue> extra_info,
-    const CefSize& window_size) {
+    const CefSize& window_size,
+    CefRefPtr<CefClient> client) {
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI, base::BindOnce(&TestHandler::CreateBrowserWithSettings,
                                        this, url, settings, request_context,
-                                       extra_info, window_size));
+                                       extra_info, window_size, client));
     return;
   }
 
   CefWindowInfo windowInfo;
+  if (!client) {
+    client = this;
+  }
 
   if (use_views_) {
     // Create the BrowserView.
     CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
-        this, url, settings, extra_info, request_context,
+        client, url, settings, extra_info, request_context,
         new TestBrowserViewDelegate(this, /*is_devtools_popup=*/false));
     EXPECT_EQ(GetExpectedRuntimeStyle(this, /*is_devtools_popup=*/false,
                                       /*is_window=*/false),
@@ -1823,7 +1977,7 @@ void TestHandler::CreateBrowserWithSettings(
     if (use_alloy_style_browser_) {
       windowInfo.runtime_style = CEF_RUNTIME_STYLE_ALLOY;
     }
-    CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, extra_info,
+    CefBrowserHost::CreateBrowser(windowInfo, client, url, settings, extra_info,
                                   request_context);
   }
 }

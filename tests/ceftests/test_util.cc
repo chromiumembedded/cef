@@ -9,12 +9,15 @@
 #include <cstdlib>
 
 #include "include/base/cef_callback.h"
+#include "include/base/cef_logging.h"
 #include "include/cef_base.h"
 #include "include/cef_command_line.h"
 #include "include/cef_request_context_handler.h"
 #include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
+#include "include/wrapper/cef_scoped_temp_dir.h"
+#include "tests/ceftests/test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/common/client_switches.h"
 #include "tests/shared/common/string_util.h"
@@ -590,6 +593,51 @@ void CreateTestRequestContext(TestRequestContextMode mode,
     CefRequestContext::CreateContext(CefRequestContext::GetGlobalContext(),
                                      rc_handler);
   }
+}
+
+void CreateReusableTestRequestContext(
+    TestRequestContextMode mode,
+    const std::string& cache_path,
+    base::OnceCallback<void(TestHandler::ReusableRequestContext)> callback) {
+  CHECK(!callback.is_null());
+  CHECK(cache_path.empty() || mode == TEST_RC_MODE_CUSTOM_WITH_HANDLER);
+  if (mode == TEST_RC_MODE_NONE || mode == TEST_RC_MODE_GLOBAL) {
+    CefPostTask(TID_UI, base::BindOnce(std::move(callback),
+                                       TestHandler::ReusableRequestContext()));
+    return;
+  }
+
+  const auto reuse = TestHandler::GetReusableBrowserStats();
+  CefPostTask(
+      TID_FILE_USER_VISIBLE,
+      base::BindOnce(
+          [](std::string cache_path, bool shared, bool is_global,
+             base::OnceCallback<void(TestHandler::ReusableRequestContext)>
+                 callback) {
+            CefRequestContextSettings settings;
+            if (!cache_path.empty()) {
+              if (shared) {
+                // RC modes use default settings. Keep one disk path for that
+                // configuration; isolated cases retain their unique paths.
+                static auto* shared_path = new CefString;
+                if (shared_path->empty()) {
+                  CefScopedTempDir directory;
+                  CHECK(directory.CreateUniqueTempDirUnderPath(
+                      CefTestSuite::GetInstance()->root_cache_path()));
+                  *shared_path = directory.Take();
+                  CefTestSuite::GetInstance()->RegisterTempDirectory(
+                      *shared_path);
+                }
+                CefString(&settings.cache_path) = *shared_path;
+              } else {
+                CefString(&settings.cache_path) = cache_path;
+              }
+            }
+            TestHandler::CreateReusableRequestContext(settings, is_global,
+                                                      std::move(callback));
+          },
+          cache_path, reuse.enabled && reuse.limit > 0,
+          mode == TEST_RC_MODE_GLOBAL_WITH_HANDLER, std::move(callback)));
 }
 
 CefTime CefTimeFrom(CefBaseTime value) {
