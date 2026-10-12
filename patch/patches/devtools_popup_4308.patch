@@ -1,8 +1,8 @@
 diff --git content/browser/devtools/protocol/devtools_protocol_browsertest.cc content/browser/devtools/protocol/devtools_protocol_browsertest.cc
-index 7a957bb..a5f3d30 100644
+index 7a957bb..ba30882 100644
 --- content/browser/devtools/protocol/devtools_protocol_browsertest.cc
 +++ content/browser/devtools/protocol/devtools_protocol_browsertest.cc
-@@ -6358,6 +6358,143 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, DetachWithCrashedHiddenTargets) {
+@@ -6358,6 +6358,138 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, DetachWithCrashedHiddenTargets) {
    Detach();
  }
 
@@ -10,11 +10,6 @@ index 7a957bb..a5f3d30 100644
 +// for each other, and the opener's window.open must complete after injection.
 +class PausedPopupDevToolsProtocolTest : public DevToolsProtocolTest {
 + protected:
-+  void SetUpCommandLine(base::CommandLine* command_line) override {
-+    DevToolsProtocolTest::SetUpCommandLine(command_line);
-+    command_line->AppendSwitch(switches::kDisablePopupBlocking);
-+  }
-+
 +  void DispatchProtocolMessage(DevToolsAgentHost* agent_host,
 +                               base::span<const uint8_t> message) override {
 +    auto parsed = base::JSONReader::Read(
