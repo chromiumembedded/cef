@@ -43,6 +43,7 @@ const char kV8HandlerCallOnReleasedContextChildUrl[] =
 const char kV8TestMsg[] = "V8Test.Test";
 const char kV8TestCmdKey[] = "v8-test";
 const char kV8RunTestMsg[] = "V8Test.RunTest";
+const char kV8TestPlaceholder[] = "$TEST$";
 
 enum V8TestMode {
   V8TEST_NONE = 0,
@@ -106,6 +107,45 @@ enum V8TestMode {
   V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS,
   V8TEST_HANDLER_CALL_ON_RELEASED_CONTEXT,
 };
+
+// Carry setup with the document so it also reaches newly created renderers.
+// Resource lookup ignores the query component. Each lease gets a unique ID to
+// distinguish late callbacks and messages from a previous use of the browser.
+std::string GetV8TestURL(const char* url,
+                         V8TestMode mode,
+                         const std::string& run_id) {
+  return std::string(url) + "?v8-test=" + std::to_string(mode) +
+         "&v8-run=" + run_id;
+}
+
+std::string GetV8BaseURL(const std::string& url) {
+  return url.substr(0, url.find('?'));
+}
+
+bool GetV8TestIdentity(const std::string& url,
+                       V8TestMode& mode,
+                       std::string& run_id) {
+  if (!url.starts_with("https://tests/V8Test.")) {
+    return false;
+  }
+  const auto query = url.find("?v8-test=");
+  const auto run = url.find("&v8-run=", query);
+  if (query == std::string::npos || run == std::string::npos) {
+    return false;
+  }
+  int value = 0;
+  std::istringstream input(url.substr(query + 9, run - query - 9));
+  if (!(input >> value) || !input.eof() || value <= V8TEST_NONE ||
+      value > V8TEST_HANDLER_CALL_ON_RELEASED_CONTEXT) {
+    return false;
+  }
+  run_id = url.substr(run + 8);
+  if (run_id.empty()) {
+    return false;
+  }
+  mode = static_cast<V8TestMode>(value);
+  return true;
+}
 
 // Renderer side.
 class V8RendererTest : public ClientAppRenderer::Delegate,
@@ -2914,18 +2954,20 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefDictionaryValue> extra_info) override {
-    if (extra_info && extra_info->HasKey(kV8TestCmdKey)) {
-      test_mode_ = static_cast<V8TestMode>(extra_info->GetInt(kV8TestCmdKey));
-    }
-    if (test_mode_ == V8TEST_CONTEXT_EVAL_CSP_BYPASS_UNSAFE_EVAL ||
-        test_mode_ == V8TEST_CONTEXT_EVAL_CSP_BYPASS_SANDBOX) {
-      browser_ = browser;
+    // DevTools may use a separate renderer with no test document URL.
+    if (extra_info && extra_info->HasKey(kV8TestCmdKey) &&
+        extra_info->GetInt(kV8TestCmdKey) ==
+            V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+      test_mode_ = V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS;
+      run_id_.clear();
     }
   }
 
   CefRefPtr<CefLoadHandler> GetLoadHandler(
       CefRefPtr<ClientAppRenderer> app) override {
-    if (test_mode_ == V8TEST_NONE) {
+    // Only the isolated DevTools test needs renderer load callbacks. Do not
+    // claim the load handler for unrelated suites sharing this renderer.
+    if (test_mode_ != V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       return nullptr;
     }
 
@@ -2945,12 +2987,13 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefFrame> frame,
                         CefRefPtr<CefV8Context> context) override {
-    if (test_mode_ == V8TEST_NONE) {
+    if (!frame->GetV8Context()->IsSame(context)) {
+      // Only interested in the MainWorld context.
       return;
     }
 
-    if (!frame->GetV8Context()->IsSame(context)) {
-      // Only interested in the MainWorld context.
+    if (test_mode_ != V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS &&
+        !ConfigureTest(app, browser, frame)) {
       return;
     }
 
@@ -2966,7 +3009,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     app_ = app;
     browser_ = browser;
 
-    std::string url = frame->GetURL();
+    const std::string url = GetV8BaseURL(frame->GetURL());
     if (url == kV8ContextChildTestUrl) {
       // For V8TEST_CONTEXT_ENTERED
       class Handler : public CefV8Handler {
@@ -3119,10 +3162,10 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
                        << " on line "
                        << stackTrace->GetFrame(i)->GetLineNumber() << "\n";
       }
-      const char* stackFormattedShouldBe =
-          "at test2() in https://tests/V8Test.OnUncaughtException on line 3\n"
-          "at test() in https://tests/V8Test.OnUncaughtException on line 2\n";
-      EXPECT_STREQ(stackFormattedShouldBe, stackFormatted.str().c_str());
+      const std::string url = frame->GetURL();
+      const std::string expected = "at test2() in " + url + " on line 3\n" +
+                                   "at test() in " + url + " on line 2\n";
+      EXPECT_EQ(expected, stackFormatted.str());
       DestroyTest();
     }
   }
@@ -3132,14 +3175,17 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
                                 CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
-    if (test_mode_ == V8TEST_NONE) {
-      return false;
-    }
-
     const std::string& message_name = message->GetName();
     if (message_name == kV8RunTestMsg) {
+      if (test_mode_ != V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS &&
+          (!ConfigureTest(app, browser, frame) ||
+           message->GetArgumentList()->GetString(0) != run_id_)) {
+        return true;
+      }
       // Run the test asynchronously.
-      CefPostTask(TID_RENDERER, base::BindOnce(&V8RendererTest::RunTest, this));
+      CefPostTask(TID_RENDERER,
+                  base::BindOnce(&V8RendererTest::RunTestForDocument, this,
+                                 frame, run_id_));
       return true;
     }
     return false;
@@ -3212,6 +3258,47 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
   }
 
  protected:
+  bool ConfigureTest(CefRefPtr<ClientAppRenderer> app,
+                     CefRefPtr<CefBrowser> browser,
+                     CefRefPtr<CefFrame> frame) {
+    V8TestMode mode;
+    std::string run_id;
+    if (!GetV8TestIdentity(frame->GetURL(), mode, run_id)) {
+      return false;
+    }
+    if (run_id != run_id_) {
+      // A child from the previous document must not replace the current run.
+      if (!frame->IsMain()) {
+        return false;
+      }
+      test_context_ = nullptr;
+      test_object_ = nullptr;
+      startup_test_success_.reset();
+      test_mode_ = mode;
+      run_id_ = run_id;
+      app_ = app;
+      browser_ = browser;
+    }
+    return browser_ && browser_->GetIdentifier() == browser->GetIdentifier() &&
+           test_mode_ == mode;
+  }
+
+  void RunTestForDocument(CefRefPtr<CefFrame> frame,
+                          const std::string& run_id) {
+    if (!browser_ || run_id != run_id_) {
+      return;
+    }
+    if (test_mode_ != V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+      V8TestMode mode;
+      std::string current_run;
+      if (!GetV8TestIdentity(frame->GetURL(), mode, current_run) ||
+          current_run != run_id || mode != test_mode_) {
+        return;
+      }
+    }
+    RunTest();
+  }
+
   // Return from the test.
   void DestroyTest() {
     EXPECT_TRUE(CefCurrentlyOn(TID_RENDERER));
@@ -3223,12 +3310,14 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefProcessMessage> return_msg =
         CefProcessMessage::Create(kV8TestMsg);
     EXPECT_TRUE(return_msg->GetArgumentList()->SetBool(0, result));
+    EXPECT_TRUE(return_msg->GetArgumentList()->SetString(1, run_id_));
     browser_->GetMainFrame()->SendProcessMessage(PID_BROWSER, return_msg);
 
     app_ = nullptr;
     browser_ = nullptr;
     test_context_ = nullptr;
     test_object_ = nullptr;
+    test_mode_ = V8TEST_NONE;
   }
 
   // Return the V8 context.
@@ -3241,6 +3330,8 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
   CefRefPtr<ClientAppRenderer> app_;
   CefRefPtr<CefBrowser> browser_;
   V8TestMode test_mode_ = V8TEST_NONE;
+  // Retain the completed identity so late messages cannot restart that run.
+  std::string run_id_;
 
   CefRefPtr<CefV8Context> test_context_;
   CefRefPtr<CefV8Value> test_object_;
@@ -3254,13 +3345,47 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 // Browser side.
 class V8TestHandler : public TestHandler {
  public:
-  V8TestHandler(V8TestMode test_mode, const char* test_url)
-      : test_mode_(test_mode), test_url_(test_url) {}
+  V8TestHandler(V8TestMode test_mode,
+                const char* test_url,
+                const char* test_name)
+      : test_mode_(test_mode), test_url_(test_url), test_name_(test_name) {
+    static uint64_t next_run = 0;
+    if (test_mode_ != V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+      run_id_ = std::to_string(++next_run);
+    }
+  }
+
+  std::string GetTestURL(const char* url) const {
+    return run_id_.empty() ? std::string(url)
+                           : GetV8TestURL(url, test_mode_, run_id_);
+  }
+
+  void CreateTestBrowser(const char* url) {
+    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+      // This test requires an actual DevTools window creation and closure.
+      auto extra_info = CefDictionaryValue::Create();
+      extra_info->SetInt(kV8TestCmdKey, test_mode_);
+      CreateBrowser(url, nullptr, extra_info);
+    } else {
+      CreateReusableBrowser(GetTestURL(url));
+    }
+  }
+
+  void AddResource(const std::string& url,
+                   std::string content,
+                   const std::string& mime_type,
+                   const ResourceContent::HeaderMap& headers = {}) {
+    // Keep script line numbers unchanged for the stack trace assertions.
+    const auto start = content.find(kV8TestPlaceholder);
+    EXPECT_NE(std::string::npos, start);
+    if (start != std::string::npos) {
+      content.replace(start, sizeof(kV8TestPlaceholder) - 1,
+                      "TEST: V8Test." + std::string(test_name_));
+    }
+    TestHandler::AddResource(url, content, mime_type, headers);
+  }
 
   void RunTest() override {
-    CefRefPtr<CefDictionaryValue> extra_info = CefDictionaryValue::Create();
-    extra_info->SetInt(kV8TestCmdKey, test_mode_);
-
     // Nested script tag forces creation of the V8 context.
     if (test_mode_ == V8TEST_CONTEXT_EVAL_CSP_BYPASS_UNSAFE_EVAL ||
         test_mode_ == V8TEST_CONTEXT_EVAL_CSP_BYPASS_SANDBOX) {
@@ -3278,46 +3403,46 @@ class V8TestHandler : public TestHandler {
         NOTREACHED();
       }
       AddResource(url,
-                  "<html><body>" + url +
+                  "<html><body>$TEST$<br>" + url +
                       "<p id='result' style='display:none'>CSP_BYPASSED</p>"
                       "</body></html>",
                   "text/html", headers);
-      CreateBrowser(test_url_, nullptr, extra_info);
+      CreateTestBrowser(test_url_);
     } else if (test_mode_ == V8TEST_CONTEXT_ENTERED) {
       AddResource(kV8ContextParentTestUrl,
-                  "<html><body>"
+                  "<html><body>$TEST$"
                   "<script>var i = 0;</script><iframe src=\"" +
-                      std::string(kV8ContextChildTestUrl) +
+                      GetTestURL(kV8ContextChildTestUrl) +
                       "\" id=\"f\"></iframe></body>"
                       "</html>",
                   "text/html");
       AddResource(kV8ContextChildTestUrl,
-                  "<html><body>"
+                  "<html><body>$TEST$<br>"
                   "<script>var i = 0;</script>CHILD</body></html>",
                   "text/html");
-      CreateBrowser(kV8ContextParentTestUrl, nullptr, extra_info);
+      CreateTestBrowser(kV8ContextParentTestUrl);
     } else if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION ||
                test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       AddResource(kV8OnUncaughtExceptionTestUrl,
                   "<html><body>"
-                  "<h1>OnUncaughtException</h1>"
+                  "<h1>$TEST$</h1>"
                   "<script>\n"
                   "function test(){ test2(); }\n"
                   "function test2(){ asd(); }\n"
                   "</script>\n"
                   "</body></html>\n",
                   "text/html");
-      CreateBrowser(kV8OnUncaughtExceptionTestUrl, nullptr, extra_info);
+      CreateTestBrowser(kV8OnUncaughtExceptionTestUrl);
     } else if (test_mode_ == V8TEST_HANDLER_CALL_ON_RELEASED_CONTEXT) {
       AddResource(kV8HandlerCallOnReleasedContextUrl,
                   "<html><body onload='createFrame()'>"
-                  "(main)"
+                  "$TEST$ (main)"
                   "<script>"
                   "function createFrame() {"
                   "  var el = document.createElement('iframe');"
                   "  el.id = 'child';"
                   "  el.src = '" +
-                      std::string(kV8HandlerCallOnReleasedContextChildUrl) +
+                      GetTestURL(kV8HandlerCallOnReleasedContextChildUrl) +
                       "';"
                       "  el.onload = function() {"
                       "    setTimeout(function() {"
@@ -3341,7 +3466,7 @@ class V8TestHandler : public TestHandler {
                   "text/html");
       AddResource(kV8HandlerCallOnReleasedContextChildUrl,
                   "<html><body>"
-                  "(child)"
+                  "$TEST$ (child)"
                   "<script>"
                   "try {"
                   "  if (!window.v8_context_is_alive()) {"
@@ -3359,14 +3484,14 @@ class V8TestHandler : public TestHandler {
                   "</script>"
                   "</body></html>",
                   "text/html");
-      CreateBrowser(kV8HandlerCallOnReleasedContextUrl, nullptr, extra_info);
+      CreateTestBrowser(kV8HandlerCallOnReleasedContextUrl);
     } else {
       EXPECT_TRUE(test_url_ != nullptr);
       AddResource(test_url_,
                   "<html><body>"
-                  "<script>var i = 0;</script>TEST</body></html>",
+                  "<script>var i = 0;</script>$TEST$</body></html>",
                   "text/html");
-      CreateBrowser(test_url_, nullptr, extra_info);
+      CreateTestBrowser(test_url_);
     }
 
     // Time out the test after a reasonable period of time.
@@ -3407,12 +3532,13 @@ class V8TestHandler : public TestHandler {
       return;
     }
 
-    const std::string& url = frame->GetURL();
+    const std::string url = GetV8BaseURL(frame->GetURL());
     if (url != kV8NavTestUrl && url != kV8ContextParentTestUrl &&
         url.find("https://tests/") != std::string::npos) {
       // Run the test.
       CefRefPtr<CefProcessMessage> return_msg =
           CefProcessMessage::Create(kV8RunTestMsg);
+      return_msg->GetArgumentList()->SetString(0, run_id_);
       frame->SendProcessMessage(PID_RENDERER, return_msg);
     }
   }
@@ -3429,6 +3555,12 @@ class V8TestHandler : public TestHandler {
     EXPECT_TRUE(message->IsReadOnly());
 
     const std::string& message_name = message->GetName();
+    if (message_name != kV8TestMsg) {
+      return false;
+    }
+    if (message->GetArgumentList()->GetString(1) != run_id_) {
+      return true;
+    }
     EXPECT_STREQ(kV8TestMsg, message_name.c_str());
 
     got_message_.yes();
@@ -3445,6 +3577,8 @@ class V8TestHandler : public TestHandler {
 
   V8TestMode test_mode_;
   const char* test_url_;
+  const char* test_name_;
+  std::string run_id_;
   TrackCallback got_message_;
   TrackCallback got_success_;
 
@@ -3460,13 +3594,14 @@ void CreateV8RendererTests(ClientAppRenderer::DelegateSet& delegates) {
 }
 
 // Helpers for defining V8 tests.
-#define V8_TEST_EX(name, test_mode, test_url)                                  \
-  TEST(V8Test, name) {                                                         \
-    CefRefPtr<V8TestHandler> handler = new V8TestHandler(test_mode, test_url); \
-    handler->ExecuteTest();                                                    \
-    EXPECT_TRUE(handler->got_message_);                                        \
-    EXPECT_TRUE(handler->got_success_);                                        \
-    ReleaseAndWaitForDestructor(handler);                                      \
+#define V8_TEST_EX(name, test_mode, test_url)          \
+  TEST(V8Test, name) {                                 \
+    CefRefPtr<V8TestHandler> handler =                 \
+        new V8TestHandler(test_mode, test_url, #name); \
+    handler->ExecuteTest();                            \
+    EXPECT_TRUE(handler->got_message_);                \
+    EXPECT_TRUE(handler->got_success_);                \
+    ReleaseAndWaitForDestructor(handler);              \
   }
 
 #define V8_TEST(name, test_mode) V8_TEST_EX(name, test_mode, kV8TestUrl)
