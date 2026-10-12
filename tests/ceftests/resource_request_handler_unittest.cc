@@ -504,8 +504,20 @@ class BasicResponseTest : public TestHandler {
   BasicResponseTest& operator=(const BasicResponseTest&) = delete;
 
   void RunTest() override {
-    CreateBrowser(GetStartupURL());
+    // Closure is part of the abort/incomplete-request assertions.
+    if (IsAborted() || IsIncomplete()) {
+      CreateBrowser(GetStartupURL());
+    } else {
+      CreateReusableBrowser(GetStartupURL());
+    }
     SetTestTimeout();
+  }
+
+  void OnReusableBrowserAttached(CefRefPtr<CefBrowser> browser) override {
+    // Chrome treats creation via AddTabAt as a user gesture, while navigating
+    // an existing browser with LoadURL is programmatic.
+    reused_navigation_ = !!browser->GetHost()->GetVisibleNavigationEntry();
+    TestHandler::OnReusableBrowserAttached(browser);
   }
 
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
@@ -542,7 +554,7 @@ class BasicResponseTest : public TestHandler {
     }
     EXPECT_TRUE(frame->IsMain());
 
-    if (!use_alloy_style_browser()) {
+    if (!use_alloy_style_browser() && !reused_navigation_) {
       // With Chrome style this is true on initial navigation via
       // chrome::AddTabAt() and also true for clicked links.
       EXPECT_TRUE(user_gesture);
@@ -1109,6 +1121,9 @@ class BasicResponseTest : public TestHandler {
                                             const CefString& mime_type,
                                             CefResponse::HeaderMap header_map,
                                             const std::string& body) {
+    // These tests require fresh resource callbacks, including when another
+    // lease already loaded this script into Blink's renderer-side cache.
+    header_map.insert({"Cache-Control", "no-store"});
     CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
         const_cast<char*>(body.c_str()), body.size());
 
@@ -1396,6 +1411,7 @@ class BasicResponseTest : public TestHandler {
   const bool custom_scheme_;
   const bool unhandled_;
 
+  bool reused_navigation_ = false;
   int browser_id_ = 0;
   uint64_t request_id_ = 0U;
 
@@ -1548,8 +1564,20 @@ class SubresourceResponseTest : public RoutingTestHandler {
   SubresourceResponseTest& operator=(const SubresourceResponseTest&) = delete;
 
   void RunTest() override {
-    CreateBrowser(GetMainURL());
+    // Incomplete requests intentionally rely on browser closure to cancel.
+    if (IsIncomplete()) {
+      CreateBrowser(GetMainURL());
+    } else {
+      CreateReusableBrowser(GetMainURL());
+    }
     SetTestTimeout();
+  }
+
+  void OnReusableBrowserAttached(CefRefPtr<CefBrowser> browser) override {
+    // Chrome treats creation via AddTabAt as a user gesture, while navigating
+    // an existing browser with LoadURL is programmatic.
+    reused_navigation_ = !!browser->GetHost()->GetVisibleNavigationEntry();
+    RoutingTestHandler::OnReusableBrowserAttached(browser);
   }
 
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
@@ -1576,7 +1604,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       EXPECT_FALSE(true);  // Not reached.
     }
 
-    if (!use_alloy_style_browser() && IsMainURL(url)) {
+    if (!use_alloy_style_browser() && !reused_navigation_ && IsMainURL(url)) {
       // With Chrome style this is true on initial navigation via
       // chrome::AddTabAt() and also true for clicked links.
       EXPECT_TRUE(user_gesture);
@@ -1617,17 +1645,11 @@ class SubresourceResponseTest : public RoutingTestHandler {
     }
 
     if (is_main_url || is_sub_url) {
-      // Track the frame ID that we'll expect for resource callbacks.
+      // Track the child frame ID that we'll expect for resource callbacks.
       // Do this here instead of OnBeforeBrowse because OnBeforeBrowse may
       // return -4 (kInvalidFrameId) for the initial navigation.
-      if (frame_id_.empty()) {
-        if (subframe_) {
-          if (is_sub_url) {
-            frame_id_ = frame->GetIdentifier();
-          }
-        } else {
-          frame_id_ = frame->GetIdentifier();
-        }
+      if (subframe_ && is_sub_url && frame_id_.empty()) {
+        frame_id_ = frame->GetIdentifier();
       }
       return this;
     }
@@ -2307,6 +2329,9 @@ class SubresourceResponseTest : public RoutingTestHandler {
                                             const CefString& mime_type,
                                             CefResponse::HeaderMap header_map,
                                             const std::string& body) {
+    // These tests require fresh resource callbacks, including when another
+    // lease already loaded this script into Blink's renderer-side cache.
+    header_map.insert({"Cache-Control", "no-store"});
     CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
         const_cast<char*>(body.c_str()), body.size());
 
@@ -2426,8 +2451,17 @@ class SubresourceResponseTest : public RoutingTestHandler {
     EXPECT_TRUE(frame);
 
     EXPECT_NE(subframe_, frame->IsMain()) << callback;
-    EXPECT_STREQ(frame_id_.c_str(), frame->GetIdentifier().ToString().c_str())
-        << callback;
+    if (subframe_) {
+      EXPECT_STREQ(frame_id_.c_str(), frame->GetIdentifier().ToString().c_str())
+          << callback;
+    } else {
+      // Parser requests can begin before a reused browser commits its new main
+      // frame. The resource request wrapper rebinds them to the current main
+      // frame after commit; verify that identity at every callback.
+      EXPECT_EQ(GetBrowser()->GetMainFrame()->GetIdentifier(),
+                frame->GetIdentifier())
+          << callback;
+    }
   }
 
   void VerifyState(Callback callback,
@@ -2605,6 +2639,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
   const bool unhandled_;
   const bool subframe_;
 
+  bool reused_navigation_ = false;
   int browser_id_ = 0;
   std::string frame_id_;
   uint64_t request_id_ = 0U;
@@ -2731,7 +2766,11 @@ class RedirectResponseTest : public TestHandler {
           request_context, request_context_handler);
     }
 
-    CreateBrowser(kResourceTestHtml, request_context);
+    if (via_request_context_handler_) {
+      CreateBrowser(kResourceTestHtml, request_context);
+    } else {
+      CreateReusableBrowser(kResourceTestHtml);
+    }
     SetTestTimeout();
   }
 
@@ -3320,7 +3359,7 @@ class BeforeResourceLoadTest : public TestHandler {
                 "text/html");
     AddResource(kResourceTestHtml2, "<html><body>Test2</body></html>",
                 "text/html");
-    CreateBrowser(kResourceTestHtml);
+    CreateReusableBrowser(kResourceTestHtml);
     SetTestTimeout();
   }
 
@@ -3876,7 +3915,7 @@ class ResponseFilterTestHandler : public TestHandler {
     AddResource(kResponseFilterTestUrl, resource, "text/html");
 
     // Create the browser.
-    CreateBrowser(kResponseFilterTestUrl);
+    CreateReusableBrowser(kResponseFilterTestUrl);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -4049,7 +4088,7 @@ class WorkerFetchTestHandler : public RoutingTestHandler {
                 "text/javascript");
     AddResource(kFetchURL, R"({"result":"worker fetch handled"})",
                 "application/json");
-    CreateBrowser(kPageURL);
+    CreateReusableBrowser(kPageURL);
     SetTestTimeout();
   }
 

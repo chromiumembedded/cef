@@ -950,6 +950,11 @@ class MultiQuerySingleFrameTestHandler : public SingleLoadTestHandler,
 
   std::string GetMainHTML() override { return manager_.GetHTML(true, true); }
 
+  bool CanReuseBrowser() const override {
+    // These assertions require browser destruction to cancel the queries.
+    return cancel_type_ != CANCEL_BY_CLOSING_BROWSER;
+  }
+
   void OnNotify(CefRefPtr<CefBrowser> browser,
                 CefRefPtr<CefFrame> frame,
                 const std::string& message) override {
@@ -2092,7 +2097,11 @@ class MultiQueryMultiNavigateTestHandler
     Finalize();
 
     // 1. Load the 1st url.
-    CreateBrowser(url1_, nullptr);
+    // Navigation cancels browser-side auto queries, but BFCache can retain
+    // their renderer-side queries until the cached contexts are released.
+    // Use a fresh browser so pending-count assertions cannot include queries
+    // from a previous test's navigation history.
+    CreateBrowser(url1_);
   }
 
  private:

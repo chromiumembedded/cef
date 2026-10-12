@@ -141,6 +141,7 @@ void ReusableBrowserClosed(class ReusableBrowserClient* client);
 class ReusableBrowserClient : public CefClient,
                               public CefLifeSpanHandler,
                               public CefLoadHandler,
+                              public CefRequestHandler,
                               public CefRenderHandler {
  public:
   explicit ReusableBrowserClient(bool windowless) : windowless_(windowless) {}
@@ -196,6 +197,8 @@ class ReusableBrowserClient : public CefClient,
     timing_start_ = std::chrono::steady_clock::now();
     TraceTiming("Attach");
     target_url_ = url;
+    navigation_started_ = false;
+    initial_load_failed_ = false;
     awaiting_commit_ = true;
     active_frame_id_.clear();
     ++leases_;
@@ -291,9 +294,128 @@ class ReusableBrowserClient : public CefClient,
     return handler ? handler->GetFocusHandler() : nullptr;
   }
   CefRefPtr<CefRequestHandler> GetRequestHandler() override {
-    // The new handler must serve resources while its document is loading.
-    auto handler = GetDelegate();
-    return handler ? handler->GetRequestHandler() : nullptr;
+    // Keep intercepting while idle so requests from the retired document do
+    // not fall through to ordinary network handling without its test handler.
+    return this;
+  }
+
+  bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                      CefRefPtr<CefFrame> frame,
+                      CefRefPtr<CefRequest> request,
+                      bool user_gesture,
+                      bool is_redirect) override {
+    EXPECT_UI_THREAD();
+    if (resetting_) {
+      return true;
+    }
+    if (frame->IsMain()) {
+      if (awaiting_commit_ && !navigation_started_ &&
+          request->GetURL() != target_url_) {
+        // Reject a navigation queued by the outgoing document before this
+        // lease's explicit LoadURL request reaches OnBeforeBrowse.
+        return true;
+      }
+      // Main-frame navigations initiated by this lease may redirect or replace
+      // an earlier request before its first commit.
+      target_url_ = request->GetURL();
+      navigation_started_ = true;
+    }
+    auto handler = GetRequestDelegate();
+    return handler && handler->OnBeforeBrowse(browser, frame, request,
+                                              user_gesture, is_redirect);
+  }
+  bool OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefFrame> frame,
+                        const CefString& url,
+                        CefRequestHandler::WindowOpenDisposition disposition,
+                        bool user_gesture) override {
+    auto handler = GetRequestDelegate(true);
+    return handler && handler->OnOpenURLFromTab(browser, frame, url,
+                                                disposition, user_gesture);
+  }
+  CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      bool is_navigation,
+      bool is_download,
+      const CefString& initiator,
+      bool& disable_default_handling) override {
+    // Requests queued by the outgoing document (notably favicon requests) can
+    // reach the IO thread after attachment, before the new OnBeforeBrowse.
+    // Once navigation starts, allow its parser's subresources too: they can
+    // arrive before the UI thread processes OnLoadStart.
+    if (!navigation_started_) {
+      disable_default_handling = true;
+      return nullptr;
+    }
+    auto handler = GetRequestDelegate();
+    return handler ? handler->GetResourceRequestHandler(
+                         browser, frame, request, is_navigation, is_download,
+                         initiator, disable_default_handling)
+                   : nullptr;
+  }
+  bool GetAuthCredentials(CefRefPtr<CefBrowser> browser,
+                          const CefString& origin,
+                          bool proxy,
+                          const CefString& host,
+                          int port,
+                          const CefString& realm,
+                          const CefString& scheme,
+                          CefRefPtr<CefAuthCallback> callback) override {
+    auto handler = GetRequestDelegate();
+    return handler &&
+           handler->GetAuthCredentials(browser, origin, proxy, host, port,
+                                       realm, scheme, callback);
+  }
+  bool OnCertificateError(CefRefPtr<CefBrowser> browser,
+                          cef_errorcode_t error,
+                          const CefString& url,
+                          CefRefPtr<CefSSLInfo> info,
+                          CefRefPtr<CefCallback> callback) override {
+    auto handler = GetRequestDelegate();
+    return handler &&
+           handler->OnCertificateError(browser, error, url, info, callback);
+  }
+  bool OnSelectClientCertificate(
+      CefRefPtr<CefBrowser> browser,
+      bool proxy,
+      const CefString& host,
+      int port,
+      const X509CertificateList& certificates,
+      CefRefPtr<CefSelectClientCertificateCallback> callback) override {
+    auto handler = GetRequestDelegate();
+    return handler && handler->OnSelectClientCertificate(
+                          browser, proxy, host, port, certificates, callback);
+  }
+  void OnRenderViewReady(CefRefPtr<CefBrowser> browser) override {
+    if (auto handler = GetRequestDelegate(true)) {
+      handler->OnRenderViewReady(browser);
+    }
+  }
+  bool OnRenderProcessUnresponsive(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefUnresponsiveProcessCallback> callback) override {
+    auto handler = GetRequestDelegate(true);
+    return handler && handler->OnRenderProcessUnresponsive(browser, callback);
+  }
+  void OnRenderProcessResponsive(CefRefPtr<CefBrowser> browser) override {
+    if (auto handler = GetRequestDelegate(true)) {
+      handler->OnRenderProcessResponsive(browser);
+    }
+  }
+  void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
+                                 TerminationStatus status,
+                                 int error,
+                                 const CefString& text) override {
+    if (auto handler = GetRequestDelegate(true)) {
+      handler->OnRenderProcessTerminated(browser, status, error, text);
+    }
+  }
+  void OnDocumentAvailableInMainFrame(CefRefPtr<CefBrowser> browser) override {
+    if (auto handler = GetRequestDelegate(true)) {
+      handler->OnDocumentAvailableInMainFrame(browser);
+    }
   }
 
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
@@ -354,10 +476,18 @@ class ReusableBrowserClient : public CefClient,
                    CefRefPtr<CefFrame> frame,
                    TransitionType type) override {
     if (!resetting_) {
-      // Require the requested document for the initial lease commit. Once
-      // committed, navigation belongs to this lease and may replace its RFH.
-      if (frame->IsMain() &&
-          (!awaiting_commit_ || frame->GetURL() == target_url_) &&
+      // Require the requested navigation for the initial lease commit, even
+      // when a redirect changes its final URL. The navigation entry retains
+      // the original URL; an old document cannot satisfy this check merely
+      // because its frame is still the browser's main frame.
+      bool lease_navigation =
+          !awaiting_commit_ || frame->GetURL() == target_url_;
+      if (frame->IsMain() && !lease_navigation) {
+        const auto entry = browser->GetHost()->GetVisibleNavigationEntry();
+        lease_navigation = entry && entry->GetOriginalURL() == target_url_ &&
+                           entry->GetURL() == frame->GetURL();
+      }
+      if (frame->IsMain() && lease_navigation &&
           frame->GetIdentifier() == browser->GetMainFrame()->GetIdentifier()) {
         active_frame_id_ = frame->GetIdentifier();
         awaiting_commit_ = false;
@@ -376,8 +506,15 @@ class ReusableBrowserClient : public CefClient,
     if (frame->IsMain()) {
       TraceTiming("LoadEnd " + frame->GetURL().ToString());
     }
-    if (IsCurrentFrame(frame)) {
-      if (auto handler = GetDelegate(true)) {
+    // A failed initial navigation may finish without committing a document
+    // (for example, an unhandled custom protocol). Forward its load completion
+    // without admitting DOM messages from the document that remains installed.
+    const bool failed_initial_load =
+        !resetting_ && awaiting_commit_ && initial_load_failed_ &&
+        frame->IsMain() &&
+        frame->GetIdentifier() == browser->GetMainFrame()->GetIdentifier();
+    if (IsCurrentFrame(frame) || failed_initial_load) {
+      if (auto handler = GetDelegate(!failed_initial_load)) {
         handler->OnLoadEnd(browser, frame, status);
       }
     }
@@ -387,8 +524,17 @@ class ReusableBrowserClient : public CefClient,
                    ErrorCode code,
                    const CefString& text,
                    const CefString& url) override {
-    if (!resetting_ && (awaiting_commit_ ? frame->IsMain() && url == target_url_
-                                         : IsCurrentFrame(frame))) {
+    if (!resetting_ && awaiting_commit_ && navigation_started_ &&
+        frame->IsMain() && url == target_url_) {
+      initial_load_failed_ = true;
+    }
+    // Before the new document commits, the outgoing document can still
+    // report an aborted load (including chrome-error://chromewebdata/).
+    // Only forward errors for the navigation started by this lease.
+    if (!resetting_ &&
+        (awaiting_commit_ ? frame->IsMain() && navigation_started_ &&
+                               url == target_url_
+                          : IsCurrentFrame(frame))) {
       if (auto handler = GetDelegate()) {
         handler->OnLoadError(browser, frame, code, text, url);
       }
@@ -408,6 +554,10 @@ class ReusableBrowserClient : public CefClient,
   }
 
  private:
+  CefRefPtr<CefRequestHandler> GetRequestDelegate(bool committed_only = false) {
+    auto handler = GetDelegate(committed_only);
+    return handler ? handler->GetRequestHandler() : nullptr;
+  }
   bool SetWindowVisible(bool visible) {
     bool changed = false;
     if (auto view = CefBrowserView::GetForBrowser(browser_)) {
@@ -504,6 +654,8 @@ class ReusableBrowserClient : public CefClient,
     resetting_ = false;
     discarding_ = false;
     awaiting_commit_ = true;
+    navigation_started_ = false;
+    initial_load_failed_ = false;
     active_frame_id_.clear();
     last_used_ = std::chrono::steady_clock::now();
     if (!windowless_ && !closing_) {
@@ -538,6 +690,8 @@ class ReusableBrowserClient : public CefClient,
   size_t window_shows_ = 0;
   std::chrono::steady_clock::time_point last_used_;
   std::atomic<bool> awaiting_commit_{true};
+  std::atomic<bool> navigation_started_{false};
+  bool initial_load_failed_ = false;
   CefString target_url_;
   CefString active_frame_id_;
   size_t leases_ = 0;

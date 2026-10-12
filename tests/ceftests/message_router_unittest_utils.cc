@@ -162,7 +162,31 @@ void MRTestHandler::RunTest() {
   SetTestTimeout(10000);
 }
 
+CefRefPtr<CefResourceRequestHandler> MRTestHandler::GetResourceRequestHandler(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    bool is_navigation,
+    bool is_download,
+    const CefString& request_initiator,
+    bool& disable_default_handling) {
+  if (request->GetResourceType() == RT_FAVICON) {
+    // Favicons are unrelated to message routing. Avoid network requests that
+    // retain this handler after a reused browser's lease has ended.
+    disable_default_handling = true;
+    return nullptr;
+  }
+  return TestHandler::GetResourceRequestHandler(
+      browser, frame, request, is_navigation, is_download, request_initiator,
+      disable_default_handling);
+}
+
 void MRTestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
+  InitializeRouter();
+  TestHandler::OnAfterCreated(browser);
+}
+
+void MRTestHandler::InitializeRouter() {
   if (!message_router_.get()) {
     // Create the browser-side router for query handling.
     CefMessageRouterConfig config;
@@ -175,7 +199,17 @@ void MRTestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     message_router_ = CefMessageRouterBrowserSide::Create(config);
     AddHandlers(message_router_);
   }
-  TestHandler::OnAfterCreated(browser);
+}
+
+void MRTestHandler::OnReusableBrowserAttached(CefRefPtr<CefBrowser> browser) {
+  InitializeRouter();
+  TestHandler::OnReusableBrowserAttached(browser);
+}
+
+void MRTestHandler::OnReusableBrowserReleased(CefRefPtr<CefBrowser> browser) {
+  // The renderer survives release, so notify it of any canceled queries.
+  message_router_->CancelPending(browser, nullptr);
+  TestHandler::OnReusableBrowserReleased(browser);
 }
 
 void MRTestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
@@ -247,7 +281,11 @@ void SingleLoadTestHandler::RunMRTest() {
   AddOtherResources();
   AddResource(main_url_, GetMainHTML(), "text/html");
 
-  CreateBrowser(main_url_, nullptr);
+  if (CanReuseBrowser()) {
+    CreateReusableBrowser(main_url_);
+  } else {
+    CreateBrowser(main_url_, nullptr);
+  }
 }
 
 void SingleLoadTestHandler::AddHandlers(

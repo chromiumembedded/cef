@@ -75,6 +75,14 @@ class MRTestHandler : public TestHandler {
   void RunTest() override;
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
+  CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      bool is_navigation,
+      bool is_download,
+      const CefString& request_initiator,
+      bool& disable_default_handling) override;
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                  TerminationStatus status,
                                  int error_code,
@@ -96,6 +104,8 @@ class MRTestHandler : public TestHandler {
   void SetMessageSizeThreshold(size_t message_size_treshold);
 
  protected:
+  void OnReusableBrowserAttached(CefRefPtr<CefBrowser> browser) override;
+  void OnReusableBrowserReleased(CefRefPtr<CefBrowser> browser) override;
   virtual void RunMRTest() = 0;
 
   virtual void AddHandlers(
@@ -111,6 +121,7 @@ class MRTestHandler : public TestHandler {
   void AssertMainBrowser(CefRefPtr<CefBrowser> browser);
 
  private:
+  void InitializeRouter();
   CefRefPtr<CefMessageRouterBrowserSide> message_router_;
   size_t message_size_threshold_ = 0;
 
@@ -129,6 +140,7 @@ class SingleLoadTestHandler : public MRTestHandler,
   void AddHandlers(
       CefRefPtr<CefMessageRouterBrowserSide> message_router) override;
   virtual void AddOtherResources() {}
+  virtual bool CanReuseBrowser() const { return true; }
   virtual std::string GetMainHTML() = 0;
   void AssertMainFrame(CefRefPtr<CefFrame> frame);
 

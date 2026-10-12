@@ -287,7 +287,11 @@ class TestHandler : public CefClient,
   // navigation-focus request. DestroyTest releases the handler; the document
   // is replaced when the next lease begins. Document callbacks are gated until
   // the new main-frame commit and restricted to its current frame tree.
-  // Subsequent navigations within the lease are supported. Reuse invokes
+  // Resource requests arriving while idle or before the lease's navigation
+  // starts are canceled instead of falling through to the real network.
+  // Subsequent navigations within the lease, initial redirects, and failed
+  // navigations are supported. A failure without a new document commit does
+  // not admit messages from the outgoing document. Reuse invokes
   // OnReusableBrowserAttached and OnReusableBrowserReleased instead of fixture
   // lifespan callbacks.
   //

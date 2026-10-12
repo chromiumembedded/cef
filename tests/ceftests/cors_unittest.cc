@@ -547,7 +547,7 @@ class CorsTestHandler : public RoutingTestHandler {
     setup_->Validate();
 
     main_url_ = setup_->GetMainURL();
-    CreateBrowser(main_url_);
+    CreateReusableBrowser(main_url_);
 
     if (shutting_down_) {
       StopServer();
