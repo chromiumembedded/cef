@@ -71,6 +71,27 @@ class TestHandler : public CefClient,
     size_t window_shows = 0;
   };
   static ReusableBrowserStats GetReusableBrowserStats();
+  // A default handle selects the global context. Obtain custom handles from
+  // CreateReusableRequestContext; their identities belong to individual
+  // creations and remain distinct after context-cache eviction.
+  struct ReusableRequestContext {
+    ReusableRequestContext() : identity(0) {}
+    ReusableRequestContext(CefRefPtr<CefRequestContext> context,
+                           size_t identity)
+        : context(context), identity(identity) {}
+    CefRefPtr<CefRequestContext> context;
+    size_t identity;
+  };
+  // Create an initialized context, with or without a browser, reusing an entry
+  // with matching settings when browser reuse is enabled. The UI-thread
+  // callback must not retain a fixture after it returns. Contexts have a
+  // separate LRU cache bounded by --reuse-test-browsers-max and are released
+  // before CEF shutdown. Callers must clear relevant cache, authentication,
+  // cookies, and storage between uses. Do not use for context initialization,
+  // destruction, or isolation tests.
+  static void CreateReusableRequestContext(
+      const CefRequestContextSettings& settings,
+      base::OnceCallback<void(ReusableRequestContext)> callback);
   struct ReusableBrowserOptions {
     bool enabled = false;
     size_t max_browsers = 4;
@@ -263,9 +284,10 @@ class TestHandler : public CefClient,
   bool use_alloy_style_window() const { return use_alloy_style_window_; }
 
  protected:
-  // Opt-in browser reuse for sequential, single-browser tests using the global
-  // request context. --reuse-test-browsers enables reuse; without it this
-  // creates an ordinary browser. Test selection is unchanged.
+  // Opt-in browser reuse for sequential, single-browser tests. Uses the global
+  // context by default, or a handle from CreateReusableRequestContext.
+  // --reuse-test-browsers enables reuse; without it this creates an ordinary
+  // browser. Test selection is unchanged.
   // --reuse-test-browsers-timing adds lease/navigation timing logs.
   // --reuse-test-browsers-max limits all pool-owned browsers (default 4; zero
   // forces isolated execution). Leased and closing browsers count toward the
@@ -300,13 +322,19 @@ class TestHandler : public CefClient,
   //   state, or browser destruction to cancel pending work.
   // - Create multiple browsers/popups or run concurrently through Collection.
   //   These are not supported by this trial.
-  // - Require a custom request context.
+  // - Require a fresh request context or its initialization/destruction.
   // - Leave outstanding requests, delayed tasks, or input callbacks that can
   //   reach the next test. Quiesce/cancel all such work before DestroyTest.
   // - Change browser-scoped state (zoom, DevTools overrides, preferences, etc.)
   //   without restoring it, or require an empty per-browser navigation history.
   //
-  // Cookies/storage follow normal global-context behavior; this helper does
+  // The context creation identity is part of the key. A default handle selects
+  // the global context. Recreated contexts never reuse browsers tied to older
+  // contexts.
+  // A cached browser retains its context until eviction or shutdown.
+  // Use CreateReusableRequestContext to select contexts by creation settings,
+  // then pass its handle here. No context-object comparisons are performed.
+  // Cookies/storage follow normal request-context behavior; this helper does
   // not introduce a profile-state reset. Use ordinary creation for ineligible
   // tests, rather than assigning them a separate capability key.
   // Use browser-assigned IDs (for example, DevTools message IDs); their
@@ -317,9 +345,11 @@ class TestHandler : public CefClient,
   // Record the seed so failures can be reproduced. Compare representative
   // cases with reuse disabled; configuration-equivalence tests can cover
   // equivalent modes without repeating the full suite in each mode.
-  void CreateReusableBrowser(const CefWindowInfo& window_info,
-                             const CefString& url,
-                             const CefBrowserSettings& settings);
+  void CreateReusableBrowser(
+      const CefWindowInfo& window_info,
+      const CefString& url,
+      const CefBrowserSettings& settings,
+      ReusableRequestContext request_context = ReusableRequestContext());
   // Windowed equivalent using the fixture's Views/native hosting and Alloy/
   // Chrome style settings. Window dimensions are part of the capability key.
   // Do not use for window lifecycle, activation, initial focus, or resize
@@ -329,7 +359,8 @@ class TestHandler : public CefClient,
   void CreateReusableBrowser(
       const CefString& url,
       const CefSize& window_size = CefSize(800, 600),
-      const CefBrowserSettings& settings = CefBrowserSettings());
+      const CefBrowserSettings& settings = CefBrowserSettings(),
+      ReusableRequestContext request_context = ReusableRequestContext());
   virtual void OnReusableBrowserAttached(CefRefPtr<CefBrowser> browser);
   virtual void OnReusableBrowserReleased(CefRefPtr<CefBrowser> browser);
   // Indicate that test setup is complete. Only used in combination with a
@@ -416,7 +447,8 @@ class TestHandler : public CefClient,
                                  const CefString& url,
                                  const CefBrowserSettings& settings,
                                  bool use_views,
-                                 cef_runtime_style_t window_style);
+                                 cef_runtime_style_t window_style,
+                                 ReusableRequestContext request_context);
   friend class ReusableBrowserClient;
   CefRefPtr<class ReusableBrowserClient> reusable_client_;
   bool reusable_creation_pending_ = false;

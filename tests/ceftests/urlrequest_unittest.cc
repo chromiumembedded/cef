@@ -2640,6 +2640,9 @@ class RequestTestHandler : public TestHandler {
                   "/URLRequestTest.Test") {}
 
   void RunTest() override {
+    const auto reuse = GetReusableBrowserStats();
+    share_context_ = CanReuseContext() && context_mode_ != CONTEXT_GLOBAL &&
+                     reuse.enabled && reuse.limit > 0;
     // Time out the test after a reasonable period of time.
     SetTestTimeout(5000);
 
@@ -2656,10 +2659,24 @@ class RequestTestHandler : public TestHandler {
     EXPECT_TRUE(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
 
     if (context_mode_ == CONTEXT_ONDISK) {
-      EXPECT_TRUE(context_tmpdir_.CreateUniqueTempDirUnderPath(
-          CefTestSuite::GetInstance()->root_cache_path()));
-      context_tmpdir_path_ = context_tmpdir_.GetPath();
-      EXPECT_FALSE(context_tmpdir_path_.empty());
+      // Fixed paths distinguish the custom-cookie configuration from the
+      // default server configuration. Fresh-context tests keep unique paths.
+      // Process-lifetime path metadata holds no CEF objects; the directories
+      // themselves are registered for cleanup after CEF shutdown.
+      static auto* shared_paths = new std::map<bool, CefString>;
+      if (share_context_ && shared_paths->contains(test_server_backend_)) {
+        context_tmpdir_path_ = shared_paths->at(test_server_backend_);
+      } else {
+        EXPECT_TRUE(context_tmpdir_.CreateUniqueTempDirUnderPath(
+            CefTestSuite::GetInstance()->root_cache_path()));
+        context_tmpdir_path_ = context_tmpdir_.GetPath();
+        EXPECT_FALSE(context_tmpdir_path_.empty());
+        if (share_context_) {
+          shared_paths->emplace(test_server_backend_, context_tmpdir_path_);
+          CefTestSuite::GetInstance()->RegisterTempDirectory(
+              context_tmpdir_.Take());
+        }
+      }
     }
 
     CefPostTask(TID_UI,
@@ -2674,17 +2691,9 @@ class RequestTestHandler : public TestHandler {
         base::BindOnce(&RequestTestHandler::OnIncompleteRequest, this));
     test_runner_->Initialize();
 
-    // Configure the number of times that SignalTestCompletion() will be called.
-    // We need to call it at least 1 time if we don't create a browser.
-    size_t completion_count = test_frame_method_ ? 0U : 1U;
-    if (context_mode_ != CONTEXT_GLOBAL) {
-      // Don't end the test until the temporary request context has been
-      // destroyed.
-      completion_count++;
-    }
-    if (completion_count > 0U) {
-      SetSignalTestCompletionCount(completion_count);
-    }
+    // Complete after explicit cleanup and, for frame requests, browser closure.
+    // Context destruction must not retain the fixture or signal completion.
+    SetSignalTestCompletionCount(1U);
 
     // Get or create the request context.
     if (context_mode_ == CONTEXT_GLOBAL) {
@@ -2698,7 +2707,7 @@ class RequestTestHandler : public TestHandler {
       CefRequestContextSettings settings;
 
       if (context_mode_ == CONTEXT_ONDISK) {
-        EXPECT_FALSE(context_tmpdir_.IsEmpty());
+        EXPECT_FALSE(context_tmpdir_path_.empty());
         CefString(&settings.cache_path) = context_tmpdir_path_;
       }
 
@@ -2707,17 +2716,31 @@ class RequestTestHandler : public TestHandler {
         CefString(&settings.cookieable_schemes_list) = GetRequestScheme(false);
       }
 
-      // Create a new temporary request context. Calls OnContextInitialized.
-      CefRequestContext::CreateContext(settings,
-                                       new RequestContextHandler(this));
+      // Initialize a fresh or shared context before setting up the backend.
+      if (share_context_) {
+        CreateReusableRequestContext(
+            settings,
+            base::BindOnce(&RequestTestHandler::OnReusableContextInitialized,
+                           this));
+      } else {
+        CefRequestContext::CreateContext(
+            settings, new RequestContextHandler(base::BindOnce(
+                          &RequestTestHandler::OnContextInitialized, this)));
+      }
     }
   }
 
-  void OnContextInitialized(CefRefPtr<CefRequestContext> request_context) {
+  virtual void OnContextInitialized(
+      CefRefPtr<CefRequestContext> request_context) {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
     EXPECT_TRUE(request_context.get());
     test_runner_->SetRequestContext(request_context);
     PreSetupComplete();
+  }
+
+  void OnReusableContextInitialized(ReusableRequestContext context) {
+    reusable_context_ = context;
+    OnContextInitialized(context.context);
   }
 
   void PreSetupComplete() {
@@ -2758,7 +2781,13 @@ class RequestTestHandler : public TestHandler {
 
       // Create the browser who's main frame will be the initiator for the
       // request.
-      CreateBrowser(test_url_, test_runner_->GetRequestContext());
+      if (CanReuseBrowser() &&
+          (context_mode_ == CONTEXT_GLOBAL || share_context_)) {
+        CreateReusableBrowser(test_url_, CefSize(800, 600),
+                              CefBrowserSettings(), reusable_context_);
+      } else {
+        CreateBrowser(test_url_, test_runner_->GetRequestContext());
+      }
     } else {
       // Run the test now.
       test_running_ = true;
@@ -2856,9 +2885,9 @@ class RequestTestHandler : public TestHandler {
 
   void MaybeClearAuthCredentials() {
     if (test_runner_->settings_.expect_authentication &&
-        context_mode_ == CONTEXT_GLOBAL) {
+        (context_mode_ == CONTEXT_GLOBAL || share_context_)) {
       // Clear the HTTP authentication cache to avoid leaking state between
-      // test runs when using the global request context.
+      // test runs when using a shared request context.
       test_runner_->GetRequestContext()->ClearHttpAuthCredentials(
           new TestCompletionCallback(
               base::BindOnce(&RequestTestHandler::MaybeClearCache, this)));
@@ -2869,9 +2898,9 @@ class RequestTestHandler : public TestHandler {
   }
 
   void MaybeClearCache() {
-    if (context_mode_ == CONTEXT_GLOBAL) {
+    if (context_mode_ == CONTEXT_GLOBAL || share_context_) {
       // Clear the HTTP cache to avoid leaking state between test runs when
-      // using the global request context.
+      // using a shared request context.
       test_runner_->GetRequestContext()->ClearHttpCache(
           new TestCompletionCallback(
               base::BindOnce(&RequestTestHandler::DestroyTest, this)));
@@ -2882,6 +2911,7 @@ class RequestTestHandler : public TestHandler {
   }
 
   void DestroyTest() override {
+    EXPECT_UI_THREAD();
     if (test_frame_method_) {
       // Expect at least 1 call to OnBeforeResourceLoad for every test.
       // Redirect tests may get multiple calls.
@@ -2897,48 +2927,43 @@ class RequestTestHandler : public TestHandler {
       EXPECT_EQ(0, auth_credentials_ct_);
     }
 
-    TestHandler::DestroyTest();
-
-    // Release references to the context and handler.
+    // Backend shutdown has completed. Release the runner's context reference
+    // before signaling cleanup, independently of the context's lifetime.
     test_runner_->Destroy();
-
-    // These tests don't create a browser that would signal implicitly.
-    if (!test_frame_method_) {
-      OnTestComplete();
-    }
-  }
-
-  void OnTestComplete() {
-    if (!CefCurrentlyOn(TID_UI)) {
-      CefPostTask(TID_UI,
-                  base::BindOnce(&RequestTestHandler::OnTestComplete, this));
-      return;
-    }
-
     if (!context_tmpdir_.IsEmpty()) {
       // Temp directory will be deleted on application shutdown.
       context_tmpdir_.Take();
     }
 
+    TestHandler::DestroyTest();
     SignalTestCompletion();
   }
 
+ protected:
+  virtual bool CanReuseContext() const {
+    return test_mode_ != REQTEST_INCOMPLETE_PROCESS_REQUEST &&
+           test_mode_ != REQTEST_INCOMPLETE_READ_RESPONSE;
+  }
+  virtual bool CanReuseBrowser() const {
+    return test_frame_method_ && CanReuseContext();
+  }
+
  private:
-  // Used with temporary request contexts to signal test completion once the
-  // temporary context has been destroyed.
+  // Retain the fixture only until initialization completes, so a context can
+  // outlive the test without retaining it or affecting completion.
   class RequestContextHandler : public CefRequestContextHandler {
    public:
-    explicit RequestContextHandler(CefRefPtr<RequestTestHandler> test_handler)
-        : test_handler_(test_handler) {}
-    ~RequestContextHandler() override { test_handler_->OnTestComplete(); }
+    explicit RequestContextHandler(
+        base::OnceCallback<void(CefRefPtr<CefRequestContext>)> callback)
+        : callback_(std::move(callback)) {}
 
     void OnRequestContextInitialized(
         CefRefPtr<CefRequestContext> request_context) override {
-      test_handler_->OnContextInitialized(request_context);
+      std::move(callback_).Run(request_context);
     }
 
    private:
-    CefRefPtr<RequestTestHandler> test_handler_;
+    base::OnceCallback<void(CefRefPtr<CefRequestContext>)> callback_;
 
     IMPLEMENT_REFCOUNTING(RequestContextHandler);
   };
@@ -2952,6 +2977,8 @@ class RequestTestHandler : public TestHandler {
   scoped_refptr<RequestTestRunner> test_runner_;
 
   bool test_running_ = false;
+  bool share_context_ = false;
+  ReusableRequestContext reusable_context_;
 
   CefRefPtr<CefFrame> test_frame_;
   int test_frame_resource_load_ct_ = 0;
@@ -2963,6 +2990,35 @@ class RequestTestHandler : public TestHandler {
   int auth_credentials_ct_ = 0;
 
   IMPLEMENT_REFCOUNTING(RequestTestHandler);
+};
+
+// Keep the context alive beyond fixture destruction to verify that test
+// completion and fixture ownership are independent of context destruction.
+class RetainedContextTestHandler : public RequestTestHandler {
+ public:
+  RetainedContextTestHandler(ContextTestMode context_mode,
+                             bool server_backend,
+                             bool frame_method,
+                             CefRefPtr<CefRequestContext>& retained_context)
+      : RequestTestHandler(REQTEST_GET,
+                           context_mode,
+                           server_backend,
+                           frame_method),
+        retained_context_(retained_context) {}
+
+  void OnContextInitialized(
+      CefRefPtr<CefRequestContext> request_context) override {
+    retained_context_ = request_context;
+    RequestTestHandler::OnContextInitialized(request_context);
+  }
+
+ protected:
+  bool CanReuseContext() const override { return false; }
+
+ private:
+  CefRefPtr<CefRequestContext>& retained_context_;
+
+  IMPLEMENT_REFCOUNTING(RetainedContextTestHandler);
 };
 
 }  // namespace
@@ -3103,6 +3159,25 @@ REQ_TEST_FRAME_SET()
 
 REQ_TEST_CACHE_SET(WithoutFrame, false)
 REQ_TEST_CACHE_SET(WithFrame, true)
+
+#define RETAINED_CONTEXT_TEST(name, context_mode, server_backend,       \
+                              frame_method)                             \
+  TEST(URLRequestTest, ContextOutlivesTest##name) {                     \
+    CefRefPtr<CefRequestContext> retained_context;                      \
+    CefRefPtr<RetainedContextTestHandler> handler =                     \
+        new RetainedContextTestHandler(context_mode, server_backend,    \
+                                       frame_method, retained_context); \
+    handler->ExecuteTest();                                             \
+    ReleaseAndWaitForDestructor(handler);                               \
+    EXPECT_TRUE(retained_context);                                      \
+  }
+
+RETAINED_CONTEXT_TEST(InMemoryWithoutFrame, CONTEXT_INMEMORY, false, false)
+RETAINED_CONTEXT_TEST(InMemoryWithFrame, CONTEXT_INMEMORY, true, true)
+RETAINED_CONTEXT_TEST(OnDiskWithoutFrame, CONTEXT_ONDISK, true, false)
+RETAINED_CONTEXT_TEST(OnDiskWithFrame, CONTEXT_ONDISK, false, true)
+
+#undef RETAINED_CONTEXT_TEST
 
 namespace {
 

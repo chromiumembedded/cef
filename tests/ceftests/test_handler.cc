@@ -17,6 +17,7 @@
 #include "include/base/cef_callback.h"
 #include "include/base/cef_logging.h"
 #include "include/cef_command_line.h"
+#include "include/cef_request_context_handler.h"
 #include "include/cef_stream.h"
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_window.h"
@@ -63,6 +64,7 @@ auto RectKey(const cef_rect_t& r) {
 }
 
 struct BrowserReuseKey {
+  size_t context_identity;
   decltype(BrowserSettingsKey(CefBrowserSettings())) settings;
   bool windowless;
   bool use_views;
@@ -81,11 +83,11 @@ struct BrowserReuseKey {
   decltype(RectKey(CefRect())) available_rect;
 
   auto Values() const {
-    return std::tie(settings, windowless, use_views, browser_style,
-                    window_style, shared_texture, external_begin_frame,
-                    view_rect, provides_screen_info, device_scale_factor, depth,
-                    depth_per_component, monochrome, screen_rect,
-                    available_rect);
+    return std::tie(context_identity, settings, windowless, use_views,
+                    browser_style, window_style, shared_texture,
+                    external_begin_frame, view_rect, provides_screen_info,
+                    device_scale_factor, depth, depth_per_component, monochrome,
+                    screen_rect, available_rect);
   }
   bool operator<(const BrowserReuseKey& other) const {
     if (parent != other.parent) {
@@ -101,7 +103,8 @@ BrowserReuseKey MakeBrowserReuseKey(const CefWindowInfo& info,
                                     const CefScreenInfo& screen,
                                     bool provides_screen_info,
                                     bool use_views,
-                                    cef_runtime_style_t window_style) {
+                                    cef_runtime_style_t window_style,
+                                    size_t context_identity) {
   // Normalize default runtime aliases. OSR always uses Alloy.
   CHECK(!provides_screen_info || screen.device_scale_factor > 0);
   CHECK(std::isfinite(screen.device_scale_factor));
@@ -110,7 +113,8 @@ BrowserReuseKey MakeBrowserReuseKey(const CefWindowInfo& info,
               info.runtime_style == CEF_RUNTIME_STYLE_ALLOY
           ? CEF_RUNTIME_STYLE_ALLOY
           : CEF_RUNTIME_STYLE_CHROME;
-  return {BrowserSettingsKey(settings),
+  return {context_identity,
+          BrowserSettingsKey(settings),
           !!info.windowless_rendering_enabled,
           use_views,
           browser_style,
@@ -766,6 +770,42 @@ using ReusableBrowserMap =
 ReusableBrowserMap* reusable_browsers = nullptr;
 std::optional<TestHandler::ReusableBrowserOptions> reusable_options_override;
 
+auto RequestContextSettingsKey(const CefRequestContextSettings& settings) {
+  return std::make_tuple(
+      CefString(&settings.cache_path).ToString16(),
+      settings.persist_session_cookies,
+      CefString(&settings.accept_language_list).ToString16(),
+      CefString(&settings.cookieable_schemes_list).ToString16(),
+      settings.cookieable_schemes_exclude_defaults);
+}
+struct ReusableContextEntry {
+  TestHandler::ReusableRequestContext context;
+  std::chrono::steady_clock::time_point last_used;
+  bool initialized = false;
+  std::vector<base::OnceCallback<void(TestHandler::ReusableRequestContext)>>
+      callbacks;
+};
+using ReusableContextMap =
+    std::map<decltype(RequestContextSettingsKey(CefRequestContextSettings())),
+             std::shared_ptr<ReusableContextEntry>>;
+ReusableContextMap* reusable_contexts = nullptr;
+size_t next_context_identity = 0;
+
+class ReusableContextHandler : public CefRequestContextHandler {
+ public:
+  explicit ReusableContextHandler(
+      base::OnceCallback<void(CefRefPtr<CefRequestContext>)> callback)
+      : callback_(std::move(callback)) {}
+  void OnRequestContextInitialized(
+      CefRefPtr<CefRequestContext> context) override {
+    std::move(callback_).Run(context);
+  }
+
+ private:
+  base::OnceCallback<void(CefRefPtr<CefRequestContext>)> callback_;
+  IMPLEMENT_REFCOUNTING(ReusableContextHandler);
+};
+
 TestHandler::ReusableBrowserOptions CurrentReusableBrowserOptions() {
   if (reusable_options_override) {
     return *reusable_options_override;
@@ -1393,25 +1433,98 @@ void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
   }
 }
 
-void TestHandler::CreateReusableBrowser(const CefWindowInfo& window_info,
-                                        const CefString& url,
-                                        const CefBrowserSettings& settings) {
-  CHECK(window_info.windowless_rendering_enabled);
-  CreateReusableBrowserImpl(window_info, url, settings, false,
-                            CEF_RUNTIME_STYLE_ALLOY);
-}
-
-void TestHandler::CreateReusableBrowser(const CefString& url,
-                                        const CefSize& window_size,
-                                        const CefBrowserSettings& settings) {
+void TestHandler::CreateReusableRequestContext(
+    const CefRequestContextSettings& settings,
+    base::OnceCallback<void(ReusableRequestContext)> callback) {
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI,
-                base::BindOnce(
-                    [](CefRefPtr<TestHandler> handler, CefString url,
-                       CefSize size, CefBrowserSettings settings) {
-                      handler->CreateReusableBrowser(url, size, settings);
+                base::BindOnce(&TestHandler::CreateReusableRequestContext,
+                               settings, std::move(callback)));
+    return;
+  }
+  const auto options = CurrentReusableBrowserOptions();
+  const bool cache = options.enabled && options.max_browsers > 0;
+  const auto key = RequestContextSettingsKey(settings);
+  if (cache && reusable_contexts) {
+    auto it = reusable_contexts->find(key);
+    if (it != reusable_contexts->end()) {
+      auto entry = it->second;
+      entry->last_used = std::chrono::steady_clock::now();
+      if (entry->initialized) {
+        std::move(callback).Run(entry->context);
+      } else {
+        entry->callbacks.push_back(std::move(callback));
+      }
+      return;
+    }
+  }
+  auto entry = std::make_shared<ReusableContextEntry>();
+  entry->context.identity = ++next_context_identity;
+  entry->last_used = std::chrono::steady_clock::now();
+  entry->callbacks.push_back(std::move(callback));
+  if (cache) {
+    if (!reusable_contexts) {
+      reusable_contexts = new ReusableContextMap;
+    }
+    if (reusable_contexts->size() >= options.max_browsers) {
+      auto oldest = reusable_contexts->end();
+      for (auto it = reusable_contexts->begin(); it != reusable_contexts->end();
+           ++it) {
+        if (it->second->initialized &&
+            (oldest == reusable_contexts->end() ||
+             it->second->last_used < oldest->second->last_used)) {
+          oldest = it;
+        }
+      }
+      if (oldest != reusable_contexts->end()) {
+        reusable_contexts->erase(oldest);
+      }
+    }
+    if (reusable_contexts->size() < options.max_browsers) {
+      // Reserve before initialization so matching pending requests do not
+      // create duplicate contexts. If every entry is pending, stay isolated.
+      reusable_contexts->emplace(key, entry);
+    }
+  }
+  entry->context.context = CefRequestContext::CreateContext(
+      settings, new ReusableContextHandler(base::BindOnce(
+                    [](std::shared_ptr<ReusableContextEntry> entry,
+                       CefRefPtr<CefRequestContext> context) {
+                      entry->context.context = context;
+                      entry->initialized = true;
+                      auto callbacks = std::move(entry->callbacks);
+                      for (auto& callback : callbacks) {
+                        std::move(callback).Run(entry->context);
+                      }
                     },
-                    CefRefPtr<TestHandler>(this), url, window_size, settings));
+                    entry)));
+}
+
+void TestHandler::CreateReusableBrowser(
+    const CefWindowInfo& window_info,
+    const CefString& url,
+    const CefBrowserSettings& settings,
+    ReusableRequestContext request_context) {
+  CHECK(window_info.windowless_rendering_enabled);
+  CreateReusableBrowserImpl(window_info, url, settings, false,
+                            CEF_RUNTIME_STYLE_ALLOY, request_context);
+}
+
+void TestHandler::CreateReusableBrowser(
+    const CefString& url,
+    const CefSize& window_size,
+    const CefBrowserSettings& settings,
+    ReusableRequestContext request_context) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(
+        TID_UI,
+        base::BindOnce(
+            [](CefRefPtr<TestHandler> handler, CefString url, CefSize size,
+               CefBrowserSettings settings, ReusableRequestContext context) {
+              handler->CreateReusableBrowser(url, size, settings, context);
+            },
+            CefRefPtr<TestHandler>(this), url, window_size, settings,
+            request_context));
     return;
   }
   CHECK_GT(window_size.width, 0);
@@ -1426,18 +1539,22 @@ void TestHandler::CreateReusableBrowser(const CefString& url,
                                                 : CEF_RUNTIME_STYLE_CHROME;
   CreateReusableBrowserImpl(info, url, settings, use_views_,
                             use_alloy_style_window_ ? CEF_RUNTIME_STYLE_ALLOY
-                                                    : CEF_RUNTIME_STYLE_CHROME);
+                                                    : CEF_RUNTIME_STYLE_CHROME,
+                            request_context);
 }
 
-void TestHandler::CreateReusableBrowserImpl(const CefWindowInfo& window_info,
-                                            const CefString& url,
-                                            const CefBrowserSettings& settings,
-                                            bool use_views,
-                                            cef_runtime_style_t window_style) {
+void TestHandler::CreateReusableBrowserImpl(
+    const CefWindowInfo& window_info,
+    const CefString& url,
+    const CefBrowserSettings& settings,
+    bool use_views,
+    cef_runtime_style_t window_style,
+    ReusableRequestContext request_context) {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::BindOnce(&TestHandler::CreateReusableBrowserImpl,
-                                       this, window_info, url, settings,
-                                       use_views, window_style));
+    CefPostTask(TID_UI,
+                base::BindOnce(&TestHandler::CreateReusableBrowserImpl, this,
+                               window_info, url, settings, use_views,
+                               window_style, request_context));
     return;
   }
   if (destroy_test_called_) {
@@ -1447,14 +1564,18 @@ void TestHandler::CreateReusableBrowserImpl(const CefWindowInfo& window_info,
   reusable_creation_pending_ = false;
   CHECK(url != "about:blank");
   const auto options = CurrentReusableBrowserOptions();
+  CHECK_EQ(!!request_context.context, request_context.identity != 0);
+  const auto context = request_context.context
+                           ? request_context.context
+                           : CefRequestContext::GetGlobalContext();
   const auto create_isolated = [&] {
     if (use_views) {
       CreateBrowserWithSettings(
-          url, settings, nullptr, nullptr,
+          url, settings, context, nullptr,
           CefSize(window_info.bounds.width, window_info.bounds.height));
     } else {
       EXPECT_TRUE(CefBrowserHost::CreateBrowser(window_info, this, url,
-                                                settings, nullptr, nullptr));
+                                                settings, nullptr, context));
     }
   };
   if (!options.enabled) {
@@ -1477,9 +1598,9 @@ void TestHandler::CreateReusableBrowserImpl(const CefWindowInfo& window_info,
     // Ignore output from a declined callback; CEF supplies monitor defaults.
     screen_info = CefScreenInfo();
   }
-  const auto key =
-      MakeBrowserReuseKey(window_info, settings, rect, screen_info,
-                          provides_screen_info, use_views, window_style);
+  const auto key = MakeBrowserReuseKey(window_info, settings, rect, screen_info,
+                                       provides_screen_info, use_views,
+                                       window_style, request_context.identity);
   CefRefPtr<ReusableBrowserClient> client;
   const auto [first, last] = reusable_browsers->equal_range(key);
   for (auto it = first; it != last; ++it) {
@@ -1503,14 +1624,14 @@ void TestHandler::CreateReusableBrowserImpl(const CefWindowInfo& window_info,
       oldest->Close(base::BindOnce(
           [](CefRefPtr<TestHandler> handler, CefWindowInfo info, CefString url,
              CefBrowserSettings settings, bool use_views,
-             cef_runtime_style_t window_style) {
-            CefPostTask(
-                TID_UI,
-                base::BindOnce(&TestHandler::CreateReusableBrowserImpl, handler,
-                               info, url, settings, use_views, window_style));
+             cef_runtime_style_t window_style, ReusableRequestContext context) {
+            CefPostTask(TID_UI,
+                        base::BindOnce(&TestHandler::CreateReusableBrowserImpl,
+                                       handler, info, url, settings, use_views,
+                                       window_style, context));
           },
           CefRefPtr<TestHandler>(this), window_info, url, settings, use_views,
-          window_style));
+          window_style, request_context));
       return;
     }
     // Every pool slot is leased or closing (or the configured limit is zero).
@@ -1531,7 +1652,7 @@ void TestHandler::CreateReusableBrowserImpl(const CefWindowInfo& window_info,
     bool created;
     if (use_views) {
       auto view = CefBrowserView::CreateBrowserView(
-          client, url, settings, nullptr, nullptr,
+          client, url, settings, nullptr, context,
           new ReusableBrowserViewDelegate(window_info.runtime_style));
       created = !!view;
       if (view) {
@@ -1540,7 +1661,7 @@ void TestHandler::CreateReusableBrowserImpl(const CefWindowInfo& window_info,
       }
     } else {
       created = CefBrowserHost::CreateBrowser(window_info, client, url,
-                                              settings, nullptr, nullptr);
+                                              settings, nullptr, context);
     }
     EXPECT_TRUE(created);
     if (!created) {
@@ -1576,6 +1697,8 @@ void TestHandler::ShutdownReusableBrowsers() {
   CefPostTask(TID_UI,
               base::BindOnce(
                   [](CefRefPtr<CefWaitableEvent> done) {
+                    delete reusable_contexts;
+                    reusable_contexts = nullptr;
                     if (!reusable_browsers || reusable_browsers->empty()) {
                       delete reusable_browsers;
                       reusable_browsers = nullptr;
