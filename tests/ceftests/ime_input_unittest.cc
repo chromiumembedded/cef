@@ -1904,9 +1904,54 @@ class ImeInputTestHandler : public RoutingTestHandler,
   IMPLEMENT_REFCOUNTING(ImeInputTestHandler);
 };
 
-void RunImeTestWithKeyboardApi(Scenario scenario, KeyboardApi keyboard_api) {
-  // Public Ime* methods currently support Alloy OSR only. Keep the windowed
-  // creation branch ready for additional support without running no-op APIs.
+struct ImeTestCase {
+  Scenario scenario;
+  Editor editor;
+  float scale;
+  KeyboardApi keyboard_api;
+  bool start_in_child;
+};
+
+class ImeInputTestCase : public testing::Test {
+ public:
+  explicit ImeInputTestCase(ImeTestCase test_case) : test_case_(test_case) {}
+
+ private:
+  void TestBody() override {
+    // Public Ime* methods currently support Alloy OSR only.
+    CefRefPtr<ImeInputTestHandler> handler = new ImeInputTestHandler(
+        test_case_.scenario, test_case_.editor, test_case_.scale, true,
+        test_case_.keyboard_api, test_case_.start_in_child);
+    handler->ExecuteTest();
+    ReleaseAndWaitForDestructor(handler);
+  }
+
+  const ImeTestCase test_case_;
+};
+
+bool RunAtHighDpi(Scenario scenario) {
+  // Retain representative DIP bounds, frame-coordinate transformations,
+  // rendering, and monitoring coverage at both scales. Text/event/lifecycle
+  // variations exercise the same behavior at 1x.
+  switch (scenario) {
+    case Scenario::CompositionUnicode:
+    case Scenario::MultipleUnderlines:
+    case Scenario::UnderlineStyles:
+    case Scenario::CompositionTextColor:
+    case Scenario::ScrollGeometry:
+    case Scenario::ResizeGeometry:
+    case Scenario::SameOriginIframe:
+    case Scenario::CrossOriginIframe:
+    case Scenario::PasswordUnicode:
+    case Scenario::SelectionExternalBeginFrame:
+    case Scenario::MonitoringRetargetAcrossFrames:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool RegisterImeTests(const char* name, Scenario scenario, int line) {
   for (auto editor :
        {Editor::Input, Editor::Textarea, Editor::ContentEditable}) {
     if ((scenario == Scenario::MaxLengthCommit ||
@@ -1920,51 +1965,57 @@ void RunImeTestWithKeyboardApi(Scenario scenario, KeyboardApi keyboard_api) {
          scenario == Scenario::PasswordUnicodeChromium ||
          scenario == Scenario::PasswordTypeChange ||
          scenario == Scenario::PasswordIframe ||
-         scenario == Scenario::PasswordCrossOriginIframe) &&
-        editor != Editor::Input) {
-      continue;
-    }
-    if ((scenario == Scenario::KeyboardCommitNavigation ||
+         scenario == Scenario::PasswordCrossOriginIframe ||
+         scenario == Scenario::KeyboardCommitNavigation ||
          scenario == Scenario::KeyboardFinishNavigation ||
          scenario == Scenario::CancelNavigation) &&
         editor != Editor::Input) {
       continue;
     }
     for (float scale : {1.0f, 2.0f}) {
-      SCOPED_TRACE(editor == Editor::Input      ? "input"
-                   : editor == Editor::Textarea ? "textarea"
-                                                : "contenteditable");
-      SCOPED_TRACE(scale);
-      for (bool start_in_child : {false, true}) {
-        if (start_in_child && !IsCrossFrameMonitoring(scenario)) {
-          continue;
+      if (scale == 2.0f && !RunAtHighDpi(scenario)) {
+        continue;
+      }
+      for (const auto keyboard_api : {
+               KeyboardApi::Legacy,
+#if CEF_API_ADDED(CEF_NEXT)
+               KeyboardApi::Portable,
+#endif
+           }) {
+        for (bool start_in_child : {false, true}) {
+          if (start_in_child && !IsCrossFrameMonitoring(scenario)) {
+            continue;
+          }
+          std::string case_name = name;
+          case_name += editor == Editor::Input      ? "Input"
+                       : editor == Editor::Textarea ? "Textarea"
+                                                    : "ContentEditable";
+          case_name += scale == 1.0f ? "1x" : "2x";
+          case_name += keyboard_api == KeyboardApi::Legacy
+                           ? "SendKeyEvent"
+                           : "SendKeyboardEvent";
+          if (IsCrossFrameMonitoring(scenario)) {
+            case_name += start_in_child ? "StartInChild" : "StartInRoot";
+          }
+          const ImeTestCase test_case{scenario, editor, scale, keyboard_api,
+                                      start_in_child};
+          // Register only supported combinations, preserving the suite name
+          // so existing ImeInputTest.* filters continue to work.
+          testing::RegisterTest("ImeInputTest", case_name.c_str(), nullptr,
+                                nullptr, __FILE__, line,
+                                [test_case]() -> testing::Test* {
+                                  return new ImeInputTestCase(test_case);
+                                });
         }
-        CefRefPtr<ImeInputTestHandler> handler = new ImeInputTestHandler(
-            scenario, editor, scale, true, keyboard_api, start_in_child);
-        handler->ExecuteTest();
-        ReleaseAndWaitForDestructor(handler);
       }
     }
   }
+  return true;
 }
 
-void RunImeTest(Scenario scenario) {
-  for (const auto keyboard_api : {
-           KeyboardApi::Legacy,
-#if CEF_API_ADDED(CEF_NEXT)
-           KeyboardApi::Portable,
-#endif
-       }) {
-    SCOPED_TRACE(keyboard_api == KeyboardApi::Legacy ? "SendKeyEvent"
-                                                     : "SendKeyboardEvent");
-    RunImeTestWithKeyboardApi(scenario, keyboard_api);
-  }
-}
-
-#define IME_TEST(name)          \
-  TEST(ImeInputTest, name) {    \
-    RunImeTest(Scenario::name); \
-  }
+#define IME_TEST(name)                             \
+  [[maybe_unused]] const bool kRegisterIme##name = \
+      RegisterImeTests(#name, Scenario::name, __LINE__);
 
 IME_TEST(Commit)
 IME_TEST(CommitUnicode)

@@ -930,9 +930,48 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   IMPLEMENT_REFCOUNTING(KeyboardInputTestHandler);
 };
 
-void RunKeyboardTest(Mode mode,
-                     Scenario scenario = Scenario::Unicode,
-                     float scale = 1.0f) {
+struct KeyboardTestCase {
+  Mode mode;
+  Scenario scenario;
+  bool osr = true;
+  float scale = 1.0f;
+#if CEF_API_ADDED(CEF_NEXT) && defined(OS_MAC)
+  MacTextClientInput mac_input = MacTextClientInput::Character;
+#endif
+};
+
+class KeyboardInputTestCase : public testing::Test {
+ public:
+  explicit KeyboardInputTestCase(KeyboardTestCase test_case)
+      : test_case_(test_case) {}
+
+ private:
+  void TestBody() override {
+#if CEF_API_ADDED(CEF_NEXT) && defined(CEF_TESTS_USE_GTK)
+    // X11 displays require CEF_TESTS_USE_X11 for Xkb modifier resolution.
+    if (test_case_.mode == Mode::Native && !IsNativeKeyboardInputSupported()) {
+      GTEST_SKIP() << "GTK keyboard adapter does not support this GDK backend";
+    }
+#endif
+    CefRefPtr<KeyboardInputTestHandler> handler = new KeyboardInputTestHandler(
+        test_case_.mode, test_case_.osr, test_case_.scenario, test_case_.scale);
+#if CEF_API_ADDED(CEF_NEXT) && defined(OS_MAC)
+    if (test_case_.mode == Mode::NativeTextClient) {
+      handler->SetMacTextClientInput(test_case_.mac_input);
+    }
+#endif
+    handler->ExecuteTest();
+    ReleaseAndWaitForDestructor(handler);
+  }
+
+  const KeyboardTestCase test_case_;
+};
+
+bool RegisterKeyboardTests(const char* name,
+                           KeyboardTestCase test_case,
+                           int line) {
+  const auto mode = test_case.mode;
+  const auto scenario = test_case.scenario;
   for (bool osr : {true, false}) {
     // Native-window legacy injection retains its separate view/IME entry path.
     // This comparison targets OSR, where both APIs share the same dispatcher.
@@ -948,107 +987,118 @@ void RunKeyboardTest(Mode mode,
         (mode == Mode::WindowHandled || mode == Mode::LegacyWindowHandled)) {
       continue;
     }
-    SCOPED_TRACE(osr ? "Alloy OSR" : "Native window (global runtime style)");
-    CefRefPtr<KeyboardInputTestHandler> handler =
-        new KeyboardInputTestHandler(mode, osr, scenario, scale);
-    handler->ExecuteTest();
-    ReleaseAndWaitForDestructor(handler);
+    for (float scale : {1.0f, 2.0f}) {
+      // Device scale is supplied by GetScreenInfo for OSR only. Keep one
+      // high-DPI typing scenario; windowed repeats do not change the scale.
+      if (scale == 2.0f && (!osr || scenario != Scenario::CharacterOnly)) {
+        continue;
+      }
+      std::string case_name = name;
+      case_name += osr ? "Osr" : "Windowed";
+      case_name += scale == 1.0f ? "1x" : "2x";
+      test_case.osr = osr;
+      test_case.scale = scale;
+      // Use the base fixture type to coexist with the standalone converter
+      // TEST(KeyboardInputTest, ...) cases registered by this and other files.
+      testing::RegisterTest("KeyboardInputTest", case_name.c_str(), nullptr,
+                            nullptr, __FILE__, line,
+                            [test_case]() -> testing::Test* {
+                              return new KeyboardInputTestCase(test_case);
+                            });
+    }
   }
+  return true;
 }
 
-TEST(KeyboardInputTest, LegacyTypingReachesDomAndCallbacks) {
-  RunKeyboardTest(Mode::LegacySend, Scenario::Alpha);
-}
+#define KEYBOARD_TEST(name, mode, scenario)             \
+  [[maybe_unused]] const bool kRegisterKeyboard##name = \
+      RegisterKeyboardTests(#name, {mode, scenario}, __LINE__);
 
-TEST(KeyboardInputTest, LegacyMultipleCharactersPreserveOrderAndCallbacks) {
-  RunKeyboardTest(Mode::LegacySend, Scenario::Sequence);
-}
+KEYBOARD_TEST(LegacyTypingReachesDomAndCallbacks,
+              Mode::LegacySend,
+              Scenario::Alpha)
 
-TEST(KeyboardInputTest, LegacyCharacterOnlyPreservesUnicodeAndCallbacks) {
-  for (float scale : {1.0f, 2.0f}) {
-    SCOPED_TRACE(scale);
-    RunKeyboardTest(Mode::LegacySend, Scenario::CharacterOnly, scale);
-  }
-}
+KEYBOARD_TEST(LegacyMultipleCharactersPreserveOrderAndCallbacks,
+              Mode::LegacySend,
+              Scenario::Sequence)
+
+KEYBOARD_TEST(LegacyCharacterOnlyPreservesUnicodeAndCallbacks,
+              Mode::LegacySend,
+              Scenario::CharacterOnly)
 
 #if !CEF_API_ADDED(CEF_NEXT)
-TEST(KeyboardInputTest, LegacyPreHandlerConsumesInput) {
-  RunKeyboardTest(Mode::LegacyPreHandled, Scenario::Alpha);
-}
+KEYBOARD_TEST(LegacyPreHandlerConsumesInput,
+              Mode::LegacyPreHandled,
+              Scenario::Alpha)
 
-TEST(KeyboardInputTest, LegacyShortcutSuppressesCharacter) {
-  RunKeyboardTest(Mode::LegacyShortcut, Scenario::Alpha);
-}
+KEYBOARD_TEST(LegacyShortcutSuppressesCharacter,
+              Mode::LegacyShortcut,
+              Scenario::Alpha)
 #endif
 
 #if CEF_API_ADDED(CEF_NEXT)
-TEST(KeyboardInputTest, CharacterOnlyPreservesUnicodeAndCallbacks) {
-  for (float scale : {1.0f, 2.0f}) {
-    SCOPED_TRACE(scale);
-    RunKeyboardTest(Mode::Portable, Scenario::CharacterOnly, scale);
-  }
-}
+KEYBOARD_TEST(CharacterOnlyPreservesUnicodeAndCallbacks,
+              Mode::Portable,
+              Scenario::CharacterOnly)
 
-TEST(KeyboardInputTest, PortableToWebAndCallbacks) {
-  RunKeyboardTest(Mode::Portable);
-}
+KEYBOARD_TEST(PortableToWebAndCallbacks, Mode::Portable, Scenario::Unicode)
 
-TEST(KeyboardInputTest, ViewsWindowHandlesUnifiedKeyboardInput) {
-  RunKeyboardTest(Mode::WindowHandled);
-}
+KEYBOARD_TEST(ViewsWindowHandlesUnifiedKeyboardInput,
+              Mode::WindowHandled,
+              Scenario::Unicode)
 
-TEST(KeyboardInputTest, ViewsWindowLegacyCallbackHandlesUnhandledInput) {
-  RunKeyboardTest(Mode::LegacyWindowHandled);
-}
+KEYBOARD_TEST(ViewsWindowLegacyCallbackHandlesUnhandledInput,
+              Mode::LegacyWindowHandled,
+              Scenario::Unicode)
 
 // Regression coverage for all four independently reported CEF #2597 failures.
-TEST(KeyboardInputTest, OrdinaryCharacterHasStandardLocation) {
-  RunKeyboardTest(Mode::Portable, Scenario::Alpha);
-}
+KEYBOARD_TEST(OrdinaryCharacterHasStandardLocation,
+              Mode::Portable,
+              Scenario::Alpha)
 
-TEST(KeyboardInputTest, MultipleCharactersPreserveOrderAndCallbacks) {
-  RunKeyboardTest(Mode::Portable, Scenario::Sequence);
-}
+KEYBOARD_TEST(MultipleCharactersPreserveOrderAndCallbacks,
+              Mode::Portable,
+              Scenario::Sequence)
 
-TEST(KeyboardInputTest, LegacySendReachesUnifiedAndLegacyCallbacks) {
-  RunKeyboardTest(Mode::LegacySend, Scenario::Alpha);
-}
+KEYBOARD_TEST(LegacySendReachesUnifiedAndLegacyCallbacks,
+              Mode::LegacySend,
+              Scenario::Alpha)
 
-TEST(KeyboardInputTest, UnifiedPreHandlerConsumesLegacySend) {
-  RunKeyboardTest(Mode::LegacySendPreHandled, Scenario::Alpha);
-}
+KEYBOARD_TEST(UnifiedPreHandlerConsumesLegacySend,
+              Mode::LegacySendPreHandled,
+              Scenario::Alpha)
 
-TEST(KeyboardInputTest, LeftShiftCodeAndLocationOnDownAndUp) {
-  RunKeyboardTest(Mode::Portable, Scenario::LeftShift);
-}
+KEYBOARD_TEST(LeftShiftCodeAndLocationOnDownAndUp,
+              Mode::Portable,
+              Scenario::LeftShift)
 
-TEST(KeyboardInputTest, RightShiftCodeAndLocationOnDownAndUp) {
-  RunKeyboardTest(Mode::Portable, Scenario::RightShift);
-}
+KEYBOARD_TEST(RightShiftCodeAndLocationOnDownAndUp,
+              Mode::Portable,
+              Scenario::RightShift)
 
-TEST(KeyboardInputTest, RepeatedKeydownAndNonRepeatingKeyup) {
-  RunKeyboardTest(Mode::Portable, Scenario::RepeatedShift);
-}
+KEYBOARD_TEST(RepeatedKeydownAndNonRepeatingKeyup,
+              Mode::Portable,
+              Scenario::RepeatedShift)
 
-TEST(KeyboardInputTest, TrueKeypadLocationOnAllKeyboardEvents) {
-  RunKeyboardTest(Mode::Portable, Scenario::Keypad);
-}
+KEYBOARD_TEST(TrueKeypadLocationOnAllKeyboardEvents,
+              Mode::Portable,
+              Scenario::Keypad)
 
-TEST(KeyboardInputTest, DeadKeyIdentityWithoutCharacterInsertion) {
-  RunKeyboardTest(Mode::Portable, Scenario::DeadKey);
-}
+KEYBOARD_TEST(DeadKeyIdentityWithoutCharacterInsertion,
+              Mode::Portable,
+              Scenario::DeadKey)
 
-TEST(KeyboardInputTest, UnknownPhysicalCodePreservesLogicalInput) {
-  RunKeyboardTest(Mode::Portable, Scenario::UnknownCode);
-}
+KEYBOARD_TEST(UnknownPhysicalCodePreservesLogicalInput,
+              Mode::Portable,
+              Scenario::UnknownCode)
 
-TEST(KeyboardInputTest, ModifierAndLockSnapshotReachesDom) {
-  RunKeyboardTest(Mode::Portable, Scenario::Modifiers);
-}
+KEYBOARD_TEST(ModifierAndLockSnapshotReachesDom,
+              Mode::Portable,
+              Scenario::Modifiers)
 
-TEST(KeyboardInputTest, AltGraphCharacterInsertionAndCallbacks) {
-  RunKeyboardTest(Mode::Portable, Scenario::AltGraph);
-}
+KEYBOARD_TEST(AltGraphCharacterInsertionAndCallbacks,
+              Mode::Portable,
+              Scenario::AltGraph)
 
 TEST(KeyboardInputTest, WindowsKeyCodesFromSharedDomMappings) {
   const struct {
@@ -1081,88 +1131,70 @@ TEST(KeyboardInputTest, WindowsKeyCodesFromSharedDomMappings) {
   }
 }
 
-TEST(KeyboardInputTest, PreHandledSuppressesRelatedEvents) {
-  RunKeyboardTest(Mode::PreHandled);
-}
+KEYBOARD_TEST(PreHandledSuppressesRelatedEvents,
+              Mode::PreHandled,
+              Scenario::Unicode)
 
-TEST(KeyboardInputTest, PageHandledHasNoFallbackCallback) {
-  RunKeyboardTest(Mode::PageHandled);
-}
+KEYBOARD_TEST(PageHandledHasNoFallbackCallback,
+              Mode::PageHandled,
+              Scenario::Unicode)
 
-TEST(KeyboardInputTest, ShortcutSuppressesCharacter) {
-  RunKeyboardTest(Mode::Shortcut);
-}
+KEYBOARD_TEST(ShortcutSuppressesCharacter, Mode::Shortcut, Scenario::Unicode)
 
-TEST(KeyboardInputTest, LegacyPreHandlerConsumesUnhandledInput) {
-  RunKeyboardTest(Mode::LegacyPreHandled);
-}
+KEYBOARD_TEST(LegacyPreHandlerConsumesUnhandledInput,
+              Mode::LegacyPreHandled,
+              Scenario::Unicode)
 
-TEST(KeyboardInputTest, LegacyPreHandlerClassifiesShortcut) {
-  RunKeyboardTest(Mode::LegacyShortcut);
-}
+KEYBOARD_TEST(LegacyPreHandlerClassifiesShortcut,
+              Mode::LegacyShortcut,
+              Scenario::Unicode)
 
-TEST(KeyboardInputTest, LegacyPostHandlerConsumesUnhandledInput) {
-  RunKeyboardTest(Mode::LegacyPostHandled);
-}
+KEYBOARD_TEST(LegacyPostHandlerConsumesUnhandledInput,
+              Mode::LegacyPostHandled,
+              Scenario::Unicode)
 
 #if defined(OS_WIN) || defined(OS_MAC) || defined(CEF_TESTS_USE_GTK)
-TEST(KeyboardInputTest, NativeToPortableToWebAndCallbacks) {
-#if defined(CEF_TESTS_USE_GTK)
-  // X11 displays require CEF_TESTS_USE_X11 for Xkb modifier resolution. See
-  // SKIP_IF_KEYBOARD_INPUT_UNSUPPORTED in keyboard_input_unittest_linux.cc.
-  if (!IsNativeKeyboardInputSupported()) {
-    GTEST_SKIP() << "GTK keyboard adapter does not support this GDK backend";
-  }
-#endif
-  RunKeyboardTest(Mode::Native);
-}
+KEYBOARD_TEST(NativeToPortableToWebAndCallbacks,
+              Mode::Native,
+              Scenario::Unicode)
+
 #endif
 
 #if defined(OS_MAC)
-void RunMacTextClientTest(MacTextClientInput input) {
-  for (bool osr : {true, false}) {
-    SCOPED_TRACE(osr ? "Alloy OSR" : "Native window (global runtime style)");
-    CefRefPtr<KeyboardInputTestHandler> handler = new KeyboardInputTestHandler(
-        Mode::NativeTextClient, osr, Scenario::Unicode);
-    handler->SetMacTextClientInput(input);
-    handler->ExecuteTest();
-    ReleaseAndWaitForDestructor(handler);
-  }
-}
+#define MAC_TEXT_CLIENT_TEST(name, input)                                      \
+  [[maybe_unused]] const bool kRegisterKeyboard##name = RegisterKeyboardTests( \
+      #name, {Mode::NativeTextClient, Scenario::Unicode, true, 1.0f, input},   \
+      __LINE__);
 
-TEST(KeyboardInputTest, CefclientTextClientToWebAndCallbacks) {
-  RunKeyboardTest(Mode::NativeTextClient);
-}
+KEYBOARD_TEST(CefclientTextClientToWebAndCallbacks,
+              Mode::NativeTextClient,
+              Scenario::Unicode)
 
-TEST(KeyboardInputTest, MacTextClientPreservesOptionUnmodifiedText) {
-  RunMacTextClientTest(MacTextClientInput::OptionCharacter);
-}
+MAC_TEXT_CLIENT_TEST(MacTextClientPreservesOptionUnmodifiedText,
+                     MacTextClientInput::OptionCharacter)
 
-TEST(KeyboardInputTest, MacTextClientReturnInsertsNewline) {
-  RunMacTextClientTest(MacTextClientInput::Return);
-}
+MAC_TEXT_CLIENT_TEST(MacTextClientReturnInsertsNewline,
+                     MacTextClientInput::Return)
 
-TEST(KeyboardInputTest, MacTextClientShiftReturnInsertsNewline) {
-  RunMacTextClientTest(MacTextClientInput::ShiftReturn);
-}
+MAC_TEXT_CLIENT_TEST(MacTextClientShiftReturnInsertsNewline,
+                     MacTextClientInput::ShiftReturn)
 
-TEST(KeyboardInputTest, MacTextClientControlCharacter) {
-  RunMacTextClientTest(MacTextClientInput::ControlCharacter);
-}
+MAC_TEXT_CLIENT_TEST(MacTextClientControlCharacter,
+                     MacTextClientInput::ControlCharacter)
 
-TEST(KeyboardInputTest, MacTextClientCommandCharacter) {
-  RunMacTextClientTest(MacTextClientInput::CommandCharacter);
-}
+MAC_TEXT_CLIENT_TEST(MacTextClientCommandCharacter,
+                     MacTextClientInput::CommandCharacter)
 
-TEST(KeyboardInputTest, MacTextClientNonInsertionCommandHasNoCharacter) {
-  RunMacTextClientTest(MacTextClientInput::NonInsertionCommand);
-}
+MAC_TEXT_CLIENT_TEST(MacTextClientNonInsertionCommandHasNoCharacter,
+                     MacTextClientInput::NonInsertionCommand)
 
-TEST(KeyboardInputTest, MacTextClientClearHasNoCharacter) {
-  RunMacTextClientTest(MacTextClientInput::Clear);
-}
+MAC_TEXT_CLIENT_TEST(MacTextClientClearHasNoCharacter,
+                     MacTextClientInput::Clear)
+#undef MAC_TEXT_CLIENT_TEST
 #endif
 
 #endif  // CEF_API_ADDED(CEF_NEXT)
+
+#undef KEYBOARD_TEST
 
 }  // namespace
