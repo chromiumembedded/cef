@@ -232,8 +232,8 @@ class CefRenderHandler : public virtual CefBaseRefCounted {
 
   ///
   /// Called when the IME composition range has changed. |selected_range| is the
-  /// range of characters that have been selected. |character_bounds| is the
-  /// bounds of each character in view coordinates.
+  /// range of the composition text in UTF-16 code units. |character_bounds|
+  /// contains the bounds of each UTF-16 code unit in view coordinates.
   ///
   /*--cef()--*/
   virtual void OnImeCompositionRangeChanged(CefRefPtr<CefBrowser> browser,
@@ -243,7 +243,13 @@ class CefRenderHandler : public virtual CefBaseRefCounted {
   ///
   /// Called when text selection has changed for the specified |browser|.
   /// |selected_text| is the currently selected text and |selected_range| is
-  /// the character range.
+  /// the range in UTF-16 code units.
+  ///
+  /// |selected_text| is empty for editable password fields, including fields
+  /// Chromium identifies as having previously contained password text. Password
+  /// selection ranges are accurate for ASCII input. Non-ASCII input can produce
+  /// ranges that differ from DOM selection offsets due to Chromium's password
+  /// masking.
   ///
   /*--cef(optional_param=selected_text,optional_param=selected_range)--*/
   virtual void OnTextSelectionChanged(CefRefPtr<CefBrowser> browser,

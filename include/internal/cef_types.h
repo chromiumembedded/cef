@@ -3355,9 +3355,7 @@ typedef enum {
 } cef_composition_underline_style_t;
 
 ///
-/// Structure representing IME composition underline information. This is a thin
-/// wrapper around Blink's WebCompositionUnderline class and should be kept in
-/// sync with that.
+/// Structure representing IME composition underline information.
 ///
 typedef struct _cef_composition_underline_t {
   ///
@@ -3366,12 +3364,14 @@ typedef struct _cef_composition_underline_t {
   size_t size;
 
   ///
-  /// Underline character range.
+  /// Range in UTF-16 code units relative to the beginning of the composition
+  /// text.
   ///
   cef_range_t range;
 
   ///
-  /// Text color.
+  /// Underline color. Also used as the text color when composition text
+  /// coloring is enabled.
   ///
   cef_color_t color;
 

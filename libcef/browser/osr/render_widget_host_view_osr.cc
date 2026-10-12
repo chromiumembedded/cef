@@ -49,6 +49,7 @@
 #include "content/public/common/content_switches.h"
 #include "media/base/video_frame.h"
 #include "media/capture/mojom/video_capture_buffer.mojom.h"
+#include "ui/base/ime/text_input_flags.h"
 #include "ui/compositor/compositor.h"
 #include "ui/events/blink/blink_event_util.h"
 #include "ui/events/gesture_detection/gesture_provider_config_helper.h"
@@ -869,7 +870,8 @@ void CefRenderWidgetHostViewOSR::ImeSetComposition(
     const CefRange& replacement_range,
     const CefRange& selection_range) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::ImeSetComposition");
-  if (!render_widget_host_) {
+  auto* widget = GetFocusedWidgetForIme();
+  if (!widget) {
     return;
   }
 
@@ -880,16 +882,17 @@ void CefRenderWidgetHostViewOSR::ImeSetComposition(
         ui::ImeTextSpan::Type::kComposition, line.range.from, line.range.to,
         line.thick ? ui::ImeTextSpan::Thickness::kThick
                    : ui::ImeTextSpan::Thickness::kThin,
-        GetImeUnderlineStyle(line.style), line.background_color, line.color,
-        std::vector<std::string>());
+        GetImeUnderlineStyle(line.style), line.background_color);
+    web_underlines.back().underline_color = line.color;
+    web_underlines.back().text_color = line.color;
   }
   gfx::Range range(replacement_range.from, replacement_range.to);
 
   // Start Monitoring for composition updates before we set.
   RequestImeCompositionUpdate(true);
 
-  render_widget_host_->ImeSetComposition(
-      text, web_underlines, range, selection_range.from, selection_range.to);
+  widget->ImeSetComposition(text, web_underlines, range, selection_range.from,
+                            selection_range.to);
 }
 
 void CefRenderWidgetHostViewOSR::ImeCommitText(
@@ -897,13 +900,14 @@ void CefRenderWidgetHostViewOSR::ImeCommitText(
     const CefRange& replacement_range,
     int relative_cursor_pos) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::ImeCommitText");
-  if (!render_widget_host_) {
+  auto* widget = GetFocusedWidgetForIme();
+  if (!widget) {
     return;
   }
 
   gfx::Range range(replacement_range.from, replacement_range.to);
-  render_widget_host_->ImeCommitText(text, std::vector<ui::ImeTextSpan>(),
-                                     range, relative_cursor_pos);
+  widget->ImeCommitText(text, std::vector<ui::ImeTextSpan>(), range,
+                        relative_cursor_pos);
 
   // Stop Monitoring for composition updates after we are done.
   RequestImeCompositionUpdate(false);
@@ -911,11 +915,12 @@ void CefRenderWidgetHostViewOSR::ImeCommitText(
 
 void CefRenderWidgetHostViewOSR::ImeFinishComposingText(bool keep_selection) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::ImeFinishComposingText");
-  if (!render_widget_host_) {
+  auto* widget = GetFocusedWidgetForIme();
+  if (!widget) {
     return;
   }
 
-  render_widget_host_->ImeFinishComposingText(keep_selection);
+  widget->ImeFinishComposingText(keep_selection);
 
   // Stop Monitoring for composition updates after we are done.
   RequestImeCompositionUpdate(false);
@@ -923,11 +928,12 @@ void CefRenderWidgetHostViewOSR::ImeFinishComposingText(bool keep_selection) {
 
 void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::ImeCancelComposition");
-  if (!render_widget_host_) {
+  auto* widget = GetFocusedWidgetForIme();
+  if (!widget) {
     return;
   }
 
-  render_widget_host_->ImeCancelComposition();
+  widget->ImeCancelComposition();
 
   // Stop Monitoring for composition updates after we are done.
   RequestImeCompositionUpdate(false);
@@ -938,11 +944,12 @@ void CefRenderWidgetHostViewOSR::SelectionChanged(const std::u16string& text,
                                                   const gfx::Range& range) {
   RenderWidgetHostViewBase::SelectionChanged(text, offset, range);
 
-  if (!browser_impl_.get()) {
+  if (!browser_impl_ || !render_widget_host_ ||
+      render_widget_host_ != GetFocusedWidgetForIme()) {
     return;
   }
 
-  CefString selected_text;
+  std::u16string selected_text;
   if (!range.is_empty() && !text.empty()) {
     size_t pos = range.GetMin() - offset;
     size_t n = range.length();
@@ -951,13 +958,38 @@ void CefRenderWidgetHostViewOSR::SelectionChanged(const std::u16string& text,
     }
   }
 
-  CefRefPtr<CefRenderHandler> handler =
-      browser_impl_->GetClient()->GetRenderHandler();
-  CHECK(handler);
+  NotifyTextSelectionChanged(render_widget_host_, selected_text, range);
+}
 
-  CefRange cef_range(range.start(), range.end());
-  handler->OnTextSelectionChanged(browser_impl_.get(), selected_text,
-                                  cef_range);
+void CefRenderWidgetHostViewOSR::NotifyTextSelectionChanged(
+    content::RenderWidgetHostImpl* widget,
+    const std::u16string& text,
+    const gfx::Range& range) {
+  auto* manager = GetTextInputManager();
+  const auto* state = manager && manager->GetActiveWidget() == widget
+                          ? manager->GetTextInputState()
+                          : nullptr;
+  const int node_id = state ? state->node_id : 0;
+  const bool redact_text =
+      state &&
+      (state->type == ui::TEXT_INPUT_TYPE_PASSWORD ||
+       (state->flags & (ui::TEXT_INPUT_FLAG_HAS_BEEN_PASSWORD |
+                        ui::TEXT_INPUT_FLAG_HAS_BEEN_CUSTOM_PASSWORD)));
+  const std::u16string selected_text = redact_text ? std::u16string() : text;
+  if (selection_widget_.get() == widget && selection_node_id_ == node_id &&
+      selected_text_ == selected_text && selected_range_ == range) {
+    return;
+  }
+
+  selection_widget_ = widget->GetWeakPtr();
+  selection_node_id_ = node_id;
+  selected_text_ = selected_text;
+  selected_range_ = range;
+
+  auto handler = browser_impl_->GetClient()->GetRenderHandler();
+  CHECK(handler);
+  handler->OnTextSelectionChanged(browser_impl_->GetBrowser(), selected_text,
+                                  CefRange(range.start(), range.end()));
 }
 
 const viz::LocalSurfaceId& CefRenderWidgetHostViewOSR::GetLocalSurfaceId()
@@ -1535,7 +1567,38 @@ void CefRenderWidgetHostViewOSR::OnUpdateTextInputStateCalled(
     content::TextInputManager* text_input_manager,
     content::RenderWidgetHostViewBase* updated_view,
     bool did_update_state) {
-  const auto state = text_input_manager->GetTextInputState();
+  if (!browser_impl_) {
+    return;
+  }
+
+  auto state = text_input_manager->GetTextInputState();
+  auto* widget = text_input_manager->GetActiveWidget();
+  if (!widget) {
+    selection_widget_.reset();
+    selection_node_id_ = 0;
+    selected_text_.clear();
+    selected_range_ = gfx::Range::InvalidRange();
+  } else if (widget == updated_view->host() &&
+             widget == GetFocusedWidgetForIme() && state) {
+    // Composition changes do not always produce SelectionChanged. Native
+    // Chromium text-input clients instead read the current editable selection
+    // from TextInputState. Neither did_update_state (input type/flags) nor
+    // show_ime_if_needed (virtual keyboard) indicates a selection change.
+    const auto& range = state->selection;
+    std::u16string text;
+    if (range.IsValid() && !range.is_empty() && state->value &&
+        range.GetMax() <= state->value->size()) {
+      text = state->value->substr(range.GetMin(), range.length());
+    }
+    auto weak_this = weak_ptr_factory_.GetWeakPtr();
+    NotifyTextSelectionChanged(widget, text, range);
+    // Client callbacks can close the browser or change the focused editor.
+    if (!weak_this || !browser_impl_) {
+      return;
+    }
+    state = text_input_manager->GetTextInputState();
+  }
+
   if (state && !state->show_ime_if_needed) {
     return;
   }
@@ -1925,13 +1988,73 @@ void CefRenderWidgetHostViewOSR::InvalidateInternal(
 
 void CefRenderWidgetHostViewOSR::RequestImeCompositionUpdate(
     bool start_monitoring) {
-  if (!render_widget_host_) {
+  auto* widget = start_monitoring ? GetFocusedWidgetForIme() : nullptr;
+  if (ime_monitoring_widget_.get() != widget) {
+    if (ime_monitoring_widget_) {
+      ime_monitoring_widget_->RequestCompositionUpdates(false, false);
+    }
+    ime_monitoring_widget_.reset();
+  }
+  if (widget) {
+    widget->RequestCompositionUpdates(false, true);
+    ime_monitoring_widget_ = widget->GetWeakPtr();
+  }
+}
+
+content::RenderWidgetHostImpl*
+CefRenderWidgetHostViewOSR::GetFocusedWidgetForIme() {
+  if (render_widget_host_ && render_widget_host_->delegate()) {
+    return render_widget_host_->delegate()->GetFocusedRenderWidgetHost(
+        render_widget_host_);
+  }
+  return render_widget_host_;
+}
+
+void CefRenderWidgetHostViewOSR::OnImeCompositionRangeChanged(
+    content::TextInputManager* text_input_manager,
+    RenderWidgetHostViewBase* updated_view,
+    bool character_bounds_changed) {
+  // This view receives its own widget's callbacks directly. Child widgets
+  // report via TextInputManager, which also transforms their bounds into root
+  // view coordinates.
+  if (updated_view == this ||
+      updated_view->host() != GetFocusedWidgetForIme()) {
     return;
   }
-  render_widget_host_->RequestCompositionUpdates(false, start_monitoring);
+  if (const auto* info = text_input_manager->GetCompositionRangeInfo()) {
+    NotifyImeCompositionRangeChanged(
+        info->range, character_bounds_changed
+                         ? std::make_optional(info->character_bounds)
+                         : std::nullopt);
+  }
+}
+
+void CefRenderWidgetHostViewOSR::OnTextSelectionChanged(
+    content::TextInputManager* text_input_manager,
+    RenderWidgetHostViewBase* updated_view) {
+  if (updated_view == this || !browser_impl_ ||
+      updated_view->host() != GetFocusedWidgetForIme()) {
+    return;
+  }
+  if (const auto* selection =
+          text_input_manager->GetTextSelection(updated_view)) {
+    NotifyTextSelectionChanged(updated_view->host(), selection->selected_text(),
+                               selection->range());
+  }
 }
 
 void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
+    const gfx::Range& range,
+    const std::optional<std::vector<gfx::Rect>>& character_bounds) {
+  // A root-widget update may already be queued when focus moves to a child.
+  // Child updates are filtered by the TextInputManager observer above.
+  if (!render_widget_host_ || render_widget_host_ != GetFocusedWidgetForIme()) {
+    return;
+  }
+  NotifyImeCompositionRangeChanged(range, character_bounds);
+}
+
+void CefRenderWidgetHostViewOSR::NotifyImeCompositionRangeChanged(
     const gfx::Range& range,
     const std::optional<std::vector<gfx::Rect>>& character_bounds) {
   if (browser_impl_.get()) {

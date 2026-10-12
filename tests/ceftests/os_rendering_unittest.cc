@@ -185,14 +185,6 @@ enum OSRTestType {
   OSR_TEST_DRAG_DROP_UPDATE_CURSOR,
   // dropping element inside drop region will move the element
   OSR_TEST_DRAG_DROP_DROP,
-  // IMESetComposition will update the composition range
-  OSR_TEST_IME_SET_COMPOSITION,
-  // IMECommitText inserts the specified text
-  OSR_TEST_IME_COMMIT_TEXT,
-  // IMEFinishComposition will commit the text present composition text
-  OSR_TEST_IME_FINISH_COMPOSITION,
-  // IMECancelComposition will update the composition range
-  OSR_TEST_IME_CANCEL_COMPOSITION,
   // text selection range changed
   OSR_TEST_TEXT_SELECTION_CHANGE,
   // clicking on text input will call OnVirtualKeyboardRequested
@@ -254,23 +246,6 @@ class OSRTestHandler : public RoutingTestHandler,
       case OSR_TEST_KEY_EVENTS: {
         const std::string& expected_url =
             std::string(kTestUrl) + "?k=" + kKeyTestWord;
-        EXPECT_STREQ(expected_url.c_str(), frame->GetURL().ToString().c_str());
-        DestroySucceededTestSoon();
-      } break;
-      case OSR_TEST_IME_COMMIT_TEXT: {
-        const std::string& expected_url =
-            std::string(kTestUrl) + "?k=osrimecommit";
-        EXPECT_STREQ(expected_url.c_str(), frame->GetURL().ToString().c_str());
-        DestroySucceededTestSoon();
-      } break;
-      case OSR_TEST_IME_FINISH_COMPOSITION: {
-        const std::string& expected_url =
-            std::string(kTestUrl) + "?k=" + kKeyTestWord;
-        EXPECT_STREQ(expected_url.c_str(), frame->GetURL().ToString().c_str());
-        DestroySucceededTestSoon();
-      } break;
-      case OSR_TEST_IME_CANCEL_COMPOSITION: {
-        const std::string& expected_url = std::string(kTestUrl) + "?k=";
         EXPECT_STREQ(expected_url.c_str(), frame->GetURL().ToString().c_str());
         DestroySucceededTestSoon();
       } break;
@@ -416,10 +391,6 @@ class OSRTestHandler : public RoutingTestHandler,
             "window.reportInput = true;", browser->GetMainFrame()->GetURL(), 0);
         [[fallthrough]];
       case OSR_TEST_KEY_EVENTS:
-      case OSR_TEST_IME_COMMIT_TEXT:
-      case OSR_TEST_IME_FINISH_COMPOSITION:
-      case OSR_TEST_IME_CANCEL_COMPOSITION:
-      case OSR_TEST_IME_SET_COMPOSITION:
         EXPECT_TRUE(StartTest());
         // Results in a call to OnQuery.
         FocusEditBox(browser);
@@ -598,41 +569,6 @@ class OSRTestHandler : public RoutingTestHandler,
               messageStr.substr(sizeof(kKeypressPrefix) - 1));
         } else if (messageStr.rfind(kValuePrefix, 0) == 0) {
           FinishCharEvents(messageStr.substr(sizeof(kValuePrefix) - 1));
-        }
-        break;
-      case OSR_TEST_IME_COMMIT_TEXT:
-        if (messageStr == "osrfocuseditbox") {
-          // Wait a bit after the focus change before continuing.
-          CefPostDelayedTask(
-              TID_UI, base::BindOnce(&OSRTestHandler::SendIMECommitText, this),
-              100);
-        }
-        break;
-      case OSR_TEST_IME_FINISH_COMPOSITION:
-        if (messageStr == "osrfocuseditbox") {
-          // Wait a bit after the focus change before continuing.
-          CefPostDelayedTask(
-              TID_UI,
-              base::BindOnce(&OSRTestHandler::SendIMEFinishComposition, this),
-              100);
-        }
-        break;
-      case OSR_TEST_IME_CANCEL_COMPOSITION:
-        if (messageStr == "osrfocuseditbox") {
-          // Wait a bit after the focus change before continuing.
-          CefPostDelayedTask(
-              TID_UI,
-              base::BindOnce(&OSRTestHandler::SendIMECancelComposition, this),
-              100);
-        }
-        break;
-      case OSR_TEST_IME_SET_COMPOSITION:
-        if (messageStr == "osrfocuseditbox") {
-          // Wait a bit after the focus change before continuing.
-          CefPostDelayedTask(
-              TID_UI,
-              base::BindOnce(&OSRTestHandler::SendIMESetComposition, this),
-              100);
         }
         break;
       case OSR_TEST_TOUCH_START:
@@ -1219,18 +1155,6 @@ class OSRTestHandler : public RoutingTestHandler,
     return true;
   }
 
-  void OnImeCompositionRangeChanged(
-      CefRefPtr<CefBrowser> browser,
-      const CefRange& range,
-      const CefRenderHandler::RectList& bounds) override {
-    if (test_type_ == OSR_TEST_IME_SET_COMPOSITION && started()) {
-      EXPECT_EQ(range.from, 0U);
-      EXPECT_EQ(range.to, 1U);
-      EXPECT_EQ(1U, bounds.size());
-      DestroySucceededTestSoon();
-    }
-  }
-
   bool StartDragging(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefDragData> drag_data,
                      CefRenderHandler::DragOperationsMask allowed_ops,
@@ -1759,98 +1683,6 @@ class OSRTestHandler : public RoutingTestHandler,
     DestroySucceededTestSoon();
   }
 
-  void SendIMECommitText() {
-    auto browser = GetBrowser();
-
-    size_t word_length = strlen(kKeyTestWord);
-    // Add some input keys to edit box
-    for (size_t i = 0; i < word_length; ++i) {
-#if defined(OS_WIN)
-      SendKeyEvent(browser, kKeyTestWord[i]);
-#elif defined(OS_MAC) || defined(OS_LINUX)
-      SendKeyEvent(browser, kNativeKeyTestCodes[i], kKeyTestCodes[i]);
-#else
-#error "Unsupported platform"
-#endif
-    }
-    // This text should be honored instead of 'ka' added via key events
-    CefString markedText("osrimecommit");
-
-    CefRange range(0, static_cast<uint32_t>(markedText.length()));
-    browser->GetHost()->ImeCommitText(markedText, range, 0);
-
-    ClickButtonToNavigate(browser);
-  }
-
-  void SendIMEFinishComposition() {
-    auto browser = GetBrowser();
-
-    size_t word_length = strlen(kKeyTestWord);
-    // Add some input keys to edit box
-    for (size_t i = 0; i < word_length; ++i) {
-#if defined(OS_WIN)
-      SendKeyEvent(browser, kKeyTestWord[i]);
-#elif defined(OS_MAC) || defined(OS_LINUX)
-      SendKeyEvent(browser, kNativeKeyTestCodes[i], kKeyTestCodes[i]);
-#else
-#error "Unsupported platform"
-#endif
-    }
-
-    // Finish Composition should set the existing composition
-    browser->GetHost()->ImeFinishComposingText(true);
-
-    ClickButtonToNavigate(browser);
-  }
-
-  void SendIMECancelComposition() {
-    auto browser = GetBrowser();
-
-    // Add some input keys to edit box
-    CefString markedText(L"\u304B");
-    std::vector<CefCompositionUnderline> underlines;
-
-    // Use a thin black underline by default.
-    CefRange range(0, static_cast<uint32_t>(markedText.length()));
-    cef_composition_underline_t line = {sizeof(cef_composition_underline_t),
-                                        range, 0xFF000000, 0, false};
-    underlines.push_back(line);
-
-    CefRange replacement_range(0, static_cast<uint32_t>(markedText.length()));
-    CefRange selection_range(0, static_cast<uint32_t>(markedText.length()));
-
-    // Composition should be updated
-    browser->GetHost()->ImeSetComposition(markedText, underlines,
-                                          replacement_range, selection_range);
-
-    // CancelComposition should clean up the edit text
-    browser->GetHost()->ImeCancelComposition();
-
-    ClickButtonToNavigate(browser);
-  }
-
-  void SendIMESetComposition() {
-    auto browser = GetBrowser();
-
-    // Now set some intermediate text composition
-    CefString markedText(L"\u304B");
-    std::vector<CefCompositionUnderline> underlines;
-
-    // Use a thin black underline by default.
-    CefRange range(0, static_cast<uint32_t>(markedText.length()));
-    cef_composition_underline_t line = {sizeof(cef_composition_underline_t),
-                                        range, 0xFF000000, 0, false};
-    underlines.push_back(line);
-
-    CefRange replacement_range(0, static_cast<uint32_t>(markedText.length()));
-    CefRange selection_range(0, static_cast<uint32_t>(markedText.length()));
-
-    // This should update composition range and
-    // trigger the compositionRangeChanged callback
-    browser->GetHost()->ImeSetComposition(markedText, underlines,
-                                          replacement_range, selection_range);
-  }
-
   void SendTouchEvents(CefRefPtr<CefBrowser> browser,
                        std::vector<CefTouchEvent> touch_events) {
     // Check for failures retrieving element bounds.
@@ -1973,11 +1805,8 @@ class OSRTestHandler : public RoutingTestHandler,
       // SetFocus is called by the system when we explicitly set the focus and
       // when popups are dismissed.
       EXPECT_TRUE(got_system_focus_event_);
-    } else if (test_type_ == OSR_TEST_KEY_EVENTS ||
-               test_type_ == OSR_TEST_IME_COMMIT_TEXT ||
-               test_type_ == OSR_TEST_IME_FINISH_COMPOSITION ||
-               test_type_ == OSR_TEST_IME_CANCEL_COMPOSITION) {
-      // These tests navigate with a focused editor. Chromium transfers focus
+    } else if (test_type_ == OSR_TEST_KEY_EVENTS) {
+      // This test navigates with a focused editor. Chromium transfers focus
       // to the new page view through the client callback.
       EXPECT_TRUE(got_system_focus_event_);
     } else if (test_type_ == OSR_TEST_TEXT_SELECTION_CHANGE) {
@@ -2315,14 +2144,6 @@ OSR_TEST(DragDropUpdateCursor, OSR_TEST_DRAG_DROP_UPDATE_CURSOR, 1.0f)
 OSR_TEST(DragDropUpdateCursor2x, OSR_TEST_DRAG_DROP_UPDATE_CURSOR, 2.0f)
 OSR_TEST(DragDropDropElement, OSR_TEST_DRAG_DROP_DROP, 1.0f)
 OSR_TEST(DragDropDropElement2x, OSR_TEST_DRAG_DROP_DROP, 2.0f)
-OSR_TEST(IMESetComposition, OSR_TEST_IME_SET_COMPOSITION, 1.0f)
-OSR_TEST(IMESetComposition2x, OSR_TEST_IME_SET_COMPOSITION, 2.0f)
-OSR_TEST(IMECommitText, OSR_TEST_IME_COMMIT_TEXT, 1.0f)
-OSR_TEST(IMECommitText2x, OSR_TEST_IME_COMMIT_TEXT, 2.0f)
-OSR_TEST(IMEFinishComposition, OSR_TEST_IME_FINISH_COMPOSITION, 1.0f)
-OSR_TEST(IMEFinishComposition2x, OSR_TEST_IME_FINISH_COMPOSITION, 2.0f)
-OSR_TEST(IMECancelComposition, OSR_TEST_IME_CANCEL_COMPOSITION, 1.0f)
-OSR_TEST(IMECancelComposition2x, OSR_TEST_IME_CANCEL_COMPOSITION, 2.0f)
 OSR_TEST(TextSelectionChanged, OSR_TEST_TEXT_SELECTION_CHANGE, 1.0f)
 OSR_TEST(TextSelectionChanged2x, OSR_TEST_TEXT_SELECTION_CHANGE, 2.0f)
 OSR_TEST(VirtualKeyboard, OSR_TEST_VIRTUAL_KEYBOARD, 1.0f)

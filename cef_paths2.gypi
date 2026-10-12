@@ -599,6 +599,7 @@
       'tests/ceftests/image_unittest.cc',
       'tests/ceftests/image_util.cc',
       'tests/ceftests/image_util.h',
+      'tests/ceftests/ime_input_unittest.cc',
       'tests/ceftests/jsdialog_unittest.cc',
       'tests/ceftests/keyboard_input_test_util.h',
       'tests/ceftests/keyboard_input_unittest.cc',

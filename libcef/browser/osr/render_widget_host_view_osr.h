@@ -9,6 +9,7 @@
 
 #include <map>
 #include <set>
+#include <string>
 #include <vector>
 
 #include "base/memory/raw_ptr.h"
@@ -234,6 +235,12 @@ class CefRenderWidgetHostViewOSR
       content::TextInputManager* text_input_manager,
       RenderWidgetHostViewBase* updated_view,
       bool did_update_state) override;
+  void OnImeCompositionRangeChanged(
+      content::TextInputManager* text_input_manager,
+      RenderWidgetHostViewBase* updated_view,
+      bool character_bounds_changed) override;
+  void OnTextSelectionChanged(content::TextInputManager* text_input_manager,
+                              RenderWidgetHostViewBase* updated_view) override;
 
   // ui::GestureProviderClient implementation.
   void ProcessAckedTouchEvent(
@@ -357,6 +364,28 @@ class CefRenderWidgetHostViewOSR
   void InvalidateInternal(const gfx::Rect& bounds_in_pixels);
 
   void RequestImeCompositionUpdate(bool start_monitoring);
+  content::RenderWidgetHostImpl* GetFocusedWidgetForIme();
+
+  // Monitoring belongs to the widget where composition started, which may
+  // differ from the focused widget when composition ends or is retargeted.
+  base::WeakPtr<content::RenderWidgetHostImpl> ime_monitoring_widget_;
+
+  void NotifyImeCompositionRangeChanged(
+      const gfx::Range& range,
+      const std::optional<std::vector<gfx::Rect>>& character_bounds);
+
+  void NotifyTextSelectionChanged(content::RenderWidgetHostImpl* widget,
+                                  const std::u16string& text,
+                                  const gfx::Range& range);
+
+  // Coordinate selection notifications from SelectionChanged and editable
+  // TextInputState updates. Widget/node identity distinguishes focused editors
+  // with otherwise identical selections; a weak pointer avoids retaining a
+  // destroyed widget.
+  base::WeakPtr<content::RenderWidgetHostImpl> selection_widget_;
+  int selection_node_id_ = 0;
+  std::u16string selected_text_;
+  gfx::Range selected_range_ = gfx::Range::InvalidRange();
 
   viz::FrameSinkId AllocateFrameSinkId();
 

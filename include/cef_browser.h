@@ -821,15 +821,18 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   virtual void SetWindowlessFrameRate(int frame_rate) = 0;
 
   ///
-  /// Begins a new composition or updates the existing composition. Blink has a
-  /// special node (a composition node) that allows the input method to change
-  /// text without affecting other DOM nodes. |text| is the optional text that
-  /// will be inserted into the composition node. |underlines| is an optional
-  /// set of ranges that will be underlined in the resulting text.
+  /// Begins a new composition or updates the existing composition. |text| is
+  /// the optional composition text to insert. |underlines| is an optional set
+  /// of styles for ranges relative to the beginning of the composition text.
   /// |replacement_range| is an optional range of the existing text that will be
-  /// replaced. |selection_range| is an optional range of the resulting text
-  /// that will be selected after insertion or replacement. The
-  /// |replacement_range| value is only used on OS X.
+  /// replaced. |selection_range| must be a valid range, relative to the
+  /// beginning of the composition text, that will be selected after insertion
+  /// or replacement. A collapsed range specifies the cursor position. Text
+  /// offsets and ranges are measured in UTF-16 code units. An empty |text|
+  /// cancels the composition, if any, and can delete the current selection.
+  ///
+  /// IME methods should be called with an editable element focused. Calls with
+  /// a non-editable target may dispatch DOM events without changing its text.
   ///
   /// This method may be called multiple times as the composition changes. When
   /// the client is done making changes the composition should either be
@@ -853,13 +856,15 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
       const CefRange& selection_range) = 0;
 
   ///
-  /// Completes the existing composition by optionally inserting the specified
-  /// |text| into the composition node. |replacement_range| is an optional range
-  /// of the existing text that will be replaced. |relative_cursor_pos| is where
-  /// the cursor will be positioned relative to the current cursor position. See
-  /// comments on ImeSetComposition for usage. The |replacement_range| and
-  /// |relative_cursor_pos| values are only used on OS X.
-  /// This method is only used when window rendering is disabled.
+  /// Inserts |text| and completes the existing composition, if any.
+  /// |replacement_range| is an optional range of the existing text that will be
+  /// replaced, preserving the current selection. When |replacement_range| is
+  /// not specified, |relative_cursor_pos| positions the cursor relative to the
+  /// end of the inserted text. Text offsets and ranges are measured in UTF-16
+  /// code units. An empty |text| can delete the current selection or
+  /// composition text. To apply the current composition text without replacing
+  /// it, call ImeFinishComposingText. See comments on ImeSetComposition for
+  /// usage. This method is only used when window rendering is disabled.
   ///
   /*--cef(optional_param=text)--*/
   virtual void ImeCommitText(const CefString& text,
@@ -868,18 +873,17 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
 
   ///
   /// Completes the existing composition by applying the current composition
-  /// node contents. If |keep_selection| is false the current selection, if any,
-  /// will be discarded. See comments on ImeSetComposition for usage. This
+  /// text. If |keep_selection| is false the cursor moves to the end of the
+  /// composition text. See comments on ImeSetComposition for usage. This
   /// method is only used when window rendering is disabled.
   ///
   /*--cef()--*/
   virtual void ImeFinishComposingText(bool keep_selection) = 0;
 
   ///
-  /// Cancels the existing composition and discards the composition node
-  /// contents without applying them. See comments on ImeSetComposition for
-  /// usage.
-  /// This method is only used when window rendering is disabled.
+  /// Cancels the existing composition and discards the composition text
+  /// without applying it. See comments on ImeSetComposition for usage. This
+  /// method is only used when window rendering is disabled.
   ///
   /*--cef()--*/
   virtual void ImeCancelComposition() = 0;

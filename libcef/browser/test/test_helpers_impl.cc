@@ -19,6 +19,7 @@
 #include "components/password_manager/core/browser/password_store/smart_bubble_stats_store.h"
 #include "net/base/features.h"
 #include "services/network/public/cpp/features.h"
+#include "third_party/blink/public/common/features.h"
 #include "ui/views/widget/widget.h"
 #include "url/gurl.h"
 #include "url/origin.h"
@@ -34,6 +35,7 @@ bool CefIsFeatureEnabledForTests(const CefString& feature_name) {
   const base::Feature* features[] = {
       &net::features::kIgnoreHSTSForLocalhost,
       &network::features::kReduceAcceptLanguage,
+      &blink::features::kCompositionForegroundMarkers,
   };
 
   const std::string& name = feature_name;
