@@ -53,9 +53,6 @@ const int kExpectedSelectRectWidthVariance = 0;
 #error "Unsupported platform"
 #endif  // defined(OS_WIN)
 
-// word to be written into edit box
-const char kKeyTestWord[] = "done";
-
 // Characters whose low byte is VK_ESCAPE (0x1B) or VK_BACK (0x08). Blink does
 // not treat those key codes as character keys, so a character event that loses
 // its high byte on the way is dropped rather than inserted (see issue #4282).
@@ -79,17 +76,8 @@ constexpr uint32_t kAllTouchHandleFlags =
 #if defined(OS_LINUX)
 
 // From ui/events/keycodes/keyboard_codes_posix.h
-#define VKEY_D 0x44
-#define VKEY_O 0x4F
-#define VKEY_N 0x4E
-#define VKEY_E 0x45
 #define VKEY_ESCAPE 0x1B
 #define VKEY_TAB 0x09
-
-// X11/XKB keysym values are shared by both backends. Keep these few test
-// constants local so OSR coverage needs no X11 or xkbcommon development
-// headers. XKB_KEY_d, XKB_KEY_o, XKB_KEY_n, XKB_KEY_e, respectively.
-const unsigned int kNativeKeyTestCodes[] = {'d', 'o', 'n', 'e'};
 
 const unsigned int kNativeKeyEscape = 0xff1b;  // XKB_KEY_Escape
 const unsigned int kNativeKeyTab = 0xff09;     // XKB_KEY_Tab
@@ -97,24 +85,11 @@ const unsigned int kNativeKeyTab = 0xff09;     // XKB_KEY_Tab
 #elif defined(OS_MAC)
 
 // See kKeyCodesMap in ui/events/keycodes/keyboard_code_conversion_mac.mm
-#define VKEY_D 'd'
-#define VKEY_O 'o'
-#define VKEY_N 'n'
-#define VKEY_E 'e'
 #define VKEY_ESCAPE kEscapeCharCode
 #define VKEY_TAB kTabCharCode
 
-const unsigned int kNativeKeyTestCodes[] = {kVK_ANSI_D, kVK_ANSI_O, kVK_ANSI_N,
-                                            kVK_ANSI_E};
-
 const unsigned int kNativeKeyEscape = kVK_Escape;
 const unsigned int kNativeKeyTab = kVK_Tab;
-
-#endif
-
-#if defined(OS_MAC) || defined(OS_LINUX)
-
-const unsigned int kKeyTestCodes[] = {VKEY_D, VKEY_O, VKEY_N, VKEY_E};
 
 #endif
 
@@ -148,8 +123,6 @@ enum OSRTestType {
   OSR_TEST_RESIZE,
   // Invalidate should trigger repaint synchronously
   OSR_TEST_INVALIDATE,
-  // write into editbox LI08, click to navigate on LI09
-  OSR_TEST_KEY_EVENTS,
   // write non-ASCII characters into editbox LI08 with character events only,
   // click on LI09 to report the keypresses and the value
   OSR_TEST_CHAR_EVENTS,
@@ -227,32 +200,6 @@ class OSRTestHandler : public RoutingTestHandler,
       DestroySucceededTestSoon();
     }
     RoutingTestHandler::OnAfterCreated(browser);
-  }
-
-  void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                   CefRefPtr<CefFrame> frame,
-                   TransitionType transition_type) override {
-#if VERBOSE_DEBUGGING
-    LOG(INFO) << "OnLoadStart started=" << started()
-              << " finished=" << finished();
-#endif
-
-    // Only interested in the 2nd+ load.
-    if (!started()) {
-      return;
-    }
-
-    switch (test_type_) {
-      case OSR_TEST_KEY_EVENTS: {
-        const std::string& expected_url =
-            std::string(kTestUrl) + "?k=" + kKeyTestWord;
-        EXPECT_STREQ(expected_url.c_str(), frame->GetURL().ToString().c_str());
-        DestroySucceededTestSoon();
-      } break;
-      default:
-        // Intentionally left blank
-        break;
-    }
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -389,8 +336,6 @@ class OSRTestHandler : public RoutingTestHandler,
         // place before any input.
         browser->GetMainFrame()->ExecuteJavaScript(
             "window.reportInput = true;", browser->GetMainFrame()->GetURL(), 0);
-        [[fallthrough]];
-      case OSR_TEST_KEY_EVENTS:
         EXPECT_TRUE(StartTest());
         // Results in a call to OnQuery.
         FocusEditBox(browser);
@@ -548,14 +493,6 @@ class OSRTestHandler : public RoutingTestHandler,
       case OSR_TEST_DRAG_DROP_DROP:
         if (messageStr == "osrdrop") {
           DestroySucceededTestSoon();
-        }
-        break;
-      case OSR_TEST_KEY_EVENTS:
-        if (messageStr == "osrfocuseditbox") {
-          // Wait a bit after the focus change before continuing.
-          CefPostDelayedTask(
-              TID_UI, base::BindOnce(&OSRTestHandler::SendKeyEvents, this),
-              100);
         }
         break;
       case OSR_TEST_CHAR_EVENTS:
@@ -1605,39 +1542,11 @@ class OSRTestHandler : public RoutingTestHandler,
         browser->GetMainFrame()->GetURL(), 0);
   }
 
-  static void ClickButtonToNavigate(CefRefPtr<CefBrowser> browser) {
-    browser->GetMainFrame()->ExecuteJavaScript(
-        "document.getElementById('btnnavigate').click()",
-        browser->GetMainFrame()->GetURL(), 0);
-  }
-
-  void SendKeyEvents() {
-    auto browser = GetBrowser();
-
-    // write "done" word
-    CefKeyEvent event;
-    event.is_system_key = false;
-    event.modifiers = 0;
-
-    size_t word_length = strlen(kKeyTestWord);
-    for (size_t i = 0; i < word_length; ++i) {
-#if defined(OS_WIN)
-      SendKeyEvent(browser, kKeyTestWord[i]);
-#elif defined(OS_MAC) || defined(OS_LINUX)
-      SendKeyEvent(browser, kNativeKeyTestCodes[i], kKeyTestCodes[i]);
-#else
-#error "Unsupported platform"
-#endif
-    }
-
-    ClickButtonToNavigate(browser);
-  }
-
   void SendCharEvents() {
     auto browser = GetBrowser();
 
-    // Character events only. The key down and key up around them take a
-    // different path, which OSR_TEST_KEY_EVENTS already covers.
+    // Character events only. Down/CHAR/up sequences are covered by the IME
+    // keyboard navigation tests and KeyEventUtil.LegacyMinimalTypingPayload.
     for (const char16_t* c = kCharTestWord; *c; ++c) {
       CefKeyEvent event;
       event.type = KEYEVENT_CHAR;
@@ -1804,10 +1713,6 @@ class OSRTestHandler : public RoutingTestHandler,
     if (test_type_ == OSR_TEST_FOCUS) {
       // SetFocus is called by the system when we explicitly set the focus and
       // when popups are dismissed.
-      EXPECT_TRUE(got_system_focus_event_);
-    } else if (test_type_ == OSR_TEST_KEY_EVENTS) {
-      // This test navigates with a focused editor. Chromium transfers focus
-      // to the new page view through the client callback.
       EXPECT_TRUE(got_system_focus_event_);
     } else if (test_type_ == OSR_TEST_TEXT_SELECTION_CHANGE) {
       EXPECT_TRUE(got_initial_text_selection_event_);
@@ -2108,8 +2013,6 @@ OSR_TEST(Resize, OSR_TEST_RESIZE, 1.0f)
 OSR_TEST(Resize2x, OSR_TEST_RESIZE, 2.0f)
 OSR_TEST(Invalidate, OSR_TEST_INVALIDATE, 1.0f)
 OSR_TEST(Invalidate2x, OSR_TEST_INVALIDATE, 2.0f)
-OSR_TEST(KeyEvents, OSR_TEST_KEY_EVENTS, 1.0f)
-OSR_TEST(KeyEvents2x, OSR_TEST_KEY_EVENTS, 2.0f)
 #if defined(OS_WIN) || defined(OS_LINUX)
 // macOS builds character events from a synthetic NSEvent instead.
 OSR_TEST(CharEvents, OSR_TEST_CHAR_EVENTS, 1.0f)

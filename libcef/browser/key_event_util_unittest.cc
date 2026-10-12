@@ -14,6 +14,10 @@
 #include "ui/events/keycodes/dom/dom_key.h"
 #include "ui/events/keycodes/dom/keycode_converter.h"
 
+#if BUILDFLAG(IS_WIN)
+#include <windows.h>
+#endif
+
 namespace {
 
 void ExpectExposedFields(const blink::WebKeyboardEvent& expected,
@@ -167,6 +171,80 @@ TEST(KeyEventUtil, LegacyCharacterUnitsAreNotNarrowed) {
     CefKeyEvent callback;
     ASSERT_TRUE(GetCefKeyEvent(web, callback));
     EXPECT_EQ(unit, callback.character);
+  }
+}
+
+TEST(KeyEventUtil, LegacyMinimalTypingPayload) {
+  // Preserve the platform-specific "done" payloads formerly exercised by
+  // OSRTest.KeyEvents. The IME navigation tests cover insertion/submission;
+  // this test covers conversion without redundant character/key-code fields.
+  const struct {
+    char character;
+    int mac_native_code;
+    ui::DomCode dom_code;
+  } keys[] = {{'d', 2, ui::DomCode::US_D},
+              {'o', 31, ui::DomCode::US_O},
+              {'n', 45, ui::DomCode::US_N},
+              {'e', 14, ui::DomCode::US_E}};
+  for (const auto& key : keys) {
+    SCOPED_TRACE(key.character);
+    for (const auto type :
+         {KEYEVENT_RAWKEYDOWN, KEYEVENT_CHAR, KEYEVENT_KEYUP}) {
+      SCOPED_TRACE(type);
+      CefKeyEvent minimal;
+      minimal.type = type;
+      const int virtual_key = key.character - 'a' + 'A';
+#if BUILDFLAG(IS_WIN)
+      // WM_CHAR carries the character in wParam; down/up carry the virtual
+      // key. No character fields are supplied by the legacy OSR sender.
+      const BYTE vk = LOBYTE(VkKeyScanA(key.character));
+      ASSERT_EQ(virtual_key, vk);
+      minimal.windows_key_code = type == KEYEVENT_CHAR ? key.character : vk;
+      minimal.native_key_code = (MapVirtualKey(vk, MAPVK_VK_TO_VSC) << 16) | 1;
+      if (type == KEYEVENT_KEYUP) {
+        minimal.native_key_code |= 0xC0000000;
+      }
+#elif BUILDFLAG(IS_MAC)
+      // macOS derives windows_key_code from the synthetic NSEvent.
+      minimal.native_key_code = key.mac_native_code;
+      minimal.character = minimal.unmodified_character = key.character;
+#else
+      minimal.native_key_code = key.character;  // Legacy X11/XKB keysym.
+      minimal.windows_key_code = virtual_key;
+      minimal.character = minimal.unmodified_character = key.character;
+#endif
+      const auto web = ConvertLegacy(minimal);
+      EXPECT_EQ(type == KEYEVENT_CHAR ? blink::WebInputEvent::Type::kChar
+                : type == KEYEVENT_KEYUP
+                    ? blink::WebInputEvent::Type::kKeyUp
+                    : blink::WebInputEvent::Type::kRawKeyDown,
+                web.GetType());
+      EXPECT_EQ(0, web.GetModifiers());
+      EXPECT_FALSE(web.is_system_key);
+#if BUILDFLAG(IS_MAC)
+      EXPECT_EQ(static_cast<int>(key.dom_code), web.dom_code);
+      EXPECT_EQ(virtual_key, web.windows_key_code);
+      EXPECT_EQ(key.character, web.text[0]);
+      EXPECT_EQ(key.character, web.unmodified_text[0]);
+#else
+      EXPECT_EQ(minimal.windows_key_code, web.windows_key_code);
+#endif
+      if (type == KEYEVENT_CHAR) {
+        EXPECT_EQ(key.character, web.text[0]);
+        CefKeyEvent callback;
+        ASSERT_TRUE(GetCefKeyEvent(web, callback));
+        EXPECT_EQ(KEYEVENT_CHAR, callback.type);
+        EXPECT_EQ(key.character, callback.character);
+      }
+
+      // Adding the redundant fields must not alter the converted event.
+      CefKeyEvent complete(minimal);
+      complete.character = complete.unmodified_character = key.character;
+#if BUILDFLAG(IS_MAC)
+      complete.windows_key_code = virtual_key;
+#endif
+      ExpectExposedFields(web, ConvertLegacy(complete));
+    }
   }
 }
 
