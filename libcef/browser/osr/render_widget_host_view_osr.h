@@ -19,6 +19,7 @@
 #include "cef/include/cef_base.h"
 #include "cef/include/cef_browser.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/osr/external_begin_frame_request_state.h"
 #include "cef/libcef/browser/osr/host_display_client_osr.h"
 #include "cef/libcef/browser/osr/motion_event_osr.h"
 #include "components/viz/common/frame_sinks/begin_frame_source.h"
@@ -439,7 +440,7 @@ class CefRenderWidgetHostViewOSR
   // Provides |source_id| for BeginFrameArgs that we create.
   viz::StubBeginFrameSource begin_frame_source_;
   uint64_t begin_frame_number_ = viz::BeginFrameArgs::kStartingFrameNumber;
-  bool begin_frame_pending_ = false;
+  CefExternalBeginFrameRequestState begin_frame_request_state_;
 
   bool use_shared_texture_ = false;
   bool sync_frame_rate_ = false;

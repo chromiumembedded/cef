@@ -419,6 +419,7 @@ source_set("libcef_static_unittested") {
     "libcef/browser/geometry_util.h",
     "libcef/browser/key_event_util.h",
     "libcef/browser/keyboard_input_event_util.cc",
+    "libcef/browser/osr/external_begin_frame_request_state.h",
   ]
 
   deps = [
@@ -457,6 +458,7 @@ test("libcef_static_unittests") {
     "libcef/browser/geometry_util_unittest.cc",
     "libcef/browser/key_event_util_unittest.cc",
     "libcef/browser/keyboard_input_event_util_unittest.cc",
+    "libcef/browser/osr/external_begin_frame_request_state_unittest.cc",
   ]
 
   deps = [

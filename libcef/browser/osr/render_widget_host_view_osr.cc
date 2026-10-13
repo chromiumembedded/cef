@@ -1081,10 +1081,12 @@ void CefRenderWidgetHostViewOSR::DidNavigate() {
 
 void CefRenderWidgetHostViewOSR::OnFrameComplete(
     const viz::BeginFrameAck& ack) {
-  DCHECK(begin_frame_pending_);
+  DCHECK(begin_frame_request_state_.pending());
   DCHECK_EQ(begin_frame_source_.source_id(), ack.frame_id.source_id);
   DCHECK_EQ(begin_frame_number_, ack.frame_id.sequence_number);
-  begin_frame_pending_ = false;
+  if (begin_frame_request_state_.Acknowledge()) {
+    SendExternalBeginFrame();
+  }
 }
 
 void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation(
@@ -1239,10 +1241,9 @@ void CefRenderWidgetHostViewOSR::Invalidate(
 void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
   DCHECK(external_begin_frame_enabled_);
 
-  if (begin_frame_pending_) {
+  if (!begin_frame_request_state_.Request()) {
     return;
   }
-  begin_frame_pending_ = true;
 
   base::TimeTicks frame_time = base::TimeTicks::Now();
   base::TimeTicks deadline = base::TimeTicks();
@@ -1265,7 +1266,7 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
         base::BindOnce(&CefRenderWidgetHostViewOSR::OnFrameComplete,
                        weak_ptr_factory_.GetWeakPtr()));
   } else {
-    begin_frame_pending_ = false;
+    begin_frame_request_state_.Cancel();
   }
 
   if (!IsPopupWidget() && popup_host_view_) {
