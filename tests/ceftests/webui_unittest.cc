@@ -31,8 +31,13 @@ class WebUITestHandler : public TestHandler {
   }
 
   void RunTest() override {
+    // about: URLs are rewritten before OnBeforeBrowse. Establish a document
+    // before testing their navigation so the lease's initial navigation guard
+    // can identify its own document.
+    setup_navigation_ = !expected_url_.empty();
     // Create the browser.
-    CreateBrowser(url_list_[0]);
+    CreateReusableBrowser(setup_navigation_ ? "chrome://version/"
+                                            : url_list_[0]);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout((int(url_list_.size() / 5U) + 1) * 5000);
@@ -54,6 +59,9 @@ class WebUITestHandler : public TestHandler {
   }
 
   void LoadURL(const std::string& url) {
+    navigation_pending_ = false;
+    got_loading_state_done_.reset();
+    got_load_error_.reset();
     GetBrowser()->GetMainFrame()->LoadURL(url);
   }
 
@@ -61,6 +69,13 @@ class WebUITestHandler : public TestHandler {
                             bool isLoading,
                             bool canGoBack,
                             bool canGoForward) override {
+    if (setup_navigation_) {
+      if (!isLoading) {
+        setup_navigation_ = false;
+        LoadURL(url_list_[0]);
+      }
+      return;
+    }
     if (!isLoading) {
       got_loading_state_done_.yes();
       NextNavIfDone(browser->GetMainFrame()->GetURL());
@@ -100,7 +115,8 @@ class WebUITestHandler : public TestHandler {
       done = true;
     }
 
-    if (done) {
+    if (done && !navigation_pending_) {
+      navigation_pending_ = true;
       // Verify that we navigated to the expected URL.
       std::string expected_url = expected_url_;
       if (expected_url.empty() && url_index_ < url_list_.size()) {
@@ -117,6 +133,8 @@ class WebUITestHandler : public TestHandler {
 
   std::string expected_url_;
   int expected_error_code_ = ERR_NONE;
+  bool navigation_pending_ = false;
+  bool setup_navigation_ = false;
 
   TrackCallback got_loading_state_done_;
   TrackCallback got_load_error_;

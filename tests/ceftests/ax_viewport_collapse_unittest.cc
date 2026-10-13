@@ -85,8 +85,97 @@ bool HasEmptyChildIds(CefRefPtr<CefDictionaryValue> node) {
   return node->GetList("childIds")->GetSize() == 0;
 }
 
+// Restore browser and DevTools state before releasing a lease.
+class ReusableAxTestHandler : public TestHandler {
+ protected:
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
+    TestHandler::OnAfterCreated(browser);
+    AttachObserver(browser);
+  }
+
+  void OnReusableBrowserAttached(CefRefPtr<CefBrowser> browser) override {
+    TestHandler::OnReusableBrowserAttached(browser);
+    AttachObserver(browser);
+  }
+
+  virtual void AttachObserver(CefRefPtr<CefBrowser> browser) = 0;
+  bool dom_enabled_ = false;
+
+  void CreateAxBrowser(const char* url, cef_state_t collapse_state) {
+    initial_collapse_enabled_ = collapse_state == STATE_ENABLED;
+    CefBrowserSettings settings;
+    settings.ax_viewport_collapse = collapse_state;
+    CreateReusableBrowser(url, CefSize(800, 600), settings);
+  }
+
+  void DestroyTest() override {
+    if (finishing_) {
+      return;
+    }
+    finishing_ = true;
+    auto browser = GetBrowser();
+    if (!browser) {
+      TestHandler::DestroyTest();
+      return;
+    }
+    browser->GetHost()->SetAxViewportCollapse(initial_collapse_enabled_);
+    cleanup_registration_ = browser->GetHost()->AddDevToolsMessageObserver(
+        new CleanupObserver(this));
+    // DOM.getDocument enables a persistent domain. Reset it only when enabled,
+    // and wait for reset responses before attaching the next observer.
+    dom_disabled_ = !dom_enabled_;
+    cleanup_id_ = browser->GetHost()->ExecuteDevToolsMethod(
+        0, dom_enabled_ ? "DOM.disable" : "Accessibility.disable", nullptr);
+    CHECK_GT(cleanup_id_, 0);
+  }
+
+  void OnTestTimeout(int timeout_ms, bool treat_as_error) override {
+    TestHandler::OnTestTimeout(timeout_ms, treat_as_error);
+    cleanup_registration_ = nullptr;
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  class CleanupObserver : public CefDevToolsMessageObserver {
+   public:
+    explicit CleanupObserver(ReusableAxTestHandler* handler)
+        : handler_(handler) {}
+
+    void OnDevToolsMethodResult(CefRefPtr<CefBrowser> browser,
+                                int message_id,
+                                bool success,
+                                const void* result,
+                                size_t result_size) override {
+      if (message_id != handler_->cleanup_id_) {
+        return;
+      }
+      EXPECT_TRUE(success) << std::string(static_cast<const char*>(result),
+                                          result_size);
+      if (!handler_->dom_disabled_) {
+        handler_->dom_disabled_ = true;
+        handler_->cleanup_id_ = browser->GetHost()->ExecuteDevToolsMethod(
+            0, "Accessibility.disable", nullptr);
+        CHECK_GT(handler_->cleanup_id_, 0);
+      } else {
+        handler_->cleanup_registration_ = nullptr;
+        handler_->TestHandler::DestroyTest();
+      }
+    }
+
+   private:
+    ReusableAxTestHandler* const handler_;
+    IMPLEMENT_REFCOUNTING(CleanupObserver);
+  };
+
+  bool initial_collapse_enabled_ = false;
+  bool finishing_ = false;
+  bool dom_disabled_ = false;
+  int cleanup_id_ = 0;
+  CefRefPtr<CefRegistration> cleanup_registration_;
+};
+
 // Base class for viewport collapse tests.
-class AxViewportCollapseTestHandler : public TestHandler {
+class AxViewportCollapseTestHandler : public ReusableAxTestHandler {
  public:
   AxViewportCollapseTestHandler(cef_state_t collapse_state,
                                 const char* url,
@@ -100,14 +189,11 @@ class AxViewportCollapseTestHandler : public TestHandler {
   void RunTest() override {
     AddResource(url_, html_, "text/html");
 
-    CefBrowserSettings settings;
-    settings.ax_viewport_collapse = collapse_state_;
-    CreateBrowserWithSettings(url_, settings);
+    CreateAxBrowser(url_, collapse_state_);
     SetTestTimeout();
   }
 
-  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
-    TestHandler::OnAfterCreated(browser);
+  void AttachObserver(CefRefPtr<CefBrowser> browser) override {
     registration_ =
         browser->GetHost()->AddDevToolsMessageObserver(new Observer(this));
   }
@@ -118,8 +204,8 @@ class AxViewportCollapseTestHandler : public TestHandler {
                             bool canGoForward) override {
     if (!isLoading) {
       // Page loaded. Fetch the full AX tree.
-      GetBrowser()->GetHost()->ExecuteDevToolsMethod(
-          ++next_message_id_, "Accessibility.getFullAXTree", nullptr);
+      message_id_ = GetBrowser()->GetHost()->ExecuteDevToolsMethod(
+          0, "Accessibility.getFullAXTree", nullptr);
     }
   }
 
@@ -129,7 +215,7 @@ class AxViewportCollapseTestHandler : public TestHandler {
   void DestroyTest() override {
     registration_ = nullptr;
     EXPECT_TRUE(got_result_);
-    TestHandler::DestroyTest();
+    ReusableAxTestHandler::DestroyTest();
   }
 
  protected:
@@ -146,6 +232,9 @@ class AxViewportCollapseTestHandler : public TestHandler {
                                 bool success,
                                 const void* result,
                                 size_t result_size) override {
+      if (message_id != handler_->message_id_) {
+        return;
+      }
       EXPECT_TRUE(success) << "CDP method failed: "
                            << std::string(static_cast<const char*>(result),
                                           result_size);
@@ -184,7 +273,7 @@ class AxViewportCollapseTestHandler : public TestHandler {
   cef_state_t collapse_state_;
   const char* url_;
   const char* html_;
-  int next_message_id_ = 0;
+  int message_id_ = 0;
   bool got_result_ = false;
   CefRefPtr<CefRegistration> registration_;
 
@@ -468,8 +557,8 @@ class RuntimeToggleHandler : public AxViewportCollapseTestHandler {
 
   void FetchTreeAgain() {
     got_result_ = false;
-    GetBrowser()->GetHost()->ExecuteDevToolsMethod(
-        ++next_message_id_, "Accessibility.getFullAXTree", nullptr);
+    message_id_ = GetBrowser()->GetHost()->ExecuteDevToolsMethod(
+        0, "Accessibility.getFullAXTree", nullptr);
   }
 
  private:
@@ -544,7 +633,7 @@ const char kZoomTestHtml[] = R"(
 
 // Test: Zooming in pushes a near-viewport-edge landmark off-screen.
 // Verifies coordinate spaces are correctly scaled.
-class ZoomedCollapseHandler : public TestHandler {
+class ZoomedCollapseHandler : public ReusableAxTestHandler {
  public:
   ZoomedCollapseHandler() = default;
   ZoomedCollapseHandler(const ZoomedCollapseHandler&) = delete;
@@ -553,14 +642,11 @@ class ZoomedCollapseHandler : public TestHandler {
   void RunTest() override {
     AddResource(kZoomTestUrl, kZoomTestHtml, "text/html");
 
-    CefBrowserSettings settings;
-    settings.ax_viewport_collapse = STATE_ENABLED;
-    CreateBrowserWithSettings(kZoomTestUrl, settings);
+    CreateAxBrowser(kZoomTestUrl, STATE_ENABLED);
     SetTestTimeout();
   }
 
-  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
-    TestHandler::OnAfterCreated(browser);
+  void AttachObserver(CefRefPtr<CefBrowser> browser) override {
     registration_ =
         browser->GetHost()->AddDevToolsMessageObserver(new Observer(this));
   }
@@ -571,8 +657,8 @@ class ZoomedCollapseHandler : public TestHandler {
                             bool canGoForward) override {
     if (!isLoading) {
       // Step 1: Fetch tree at default zoom. "Edge Nav" should be in viewport.
-      GetBrowser()->GetHost()->ExecuteDevToolsMethod(
-          ++next_message_id_, "Accessibility.getFullAXTree", nullptr);
+      message_id_ = GetBrowser()->GetHost()->ExecuteDevToolsMethod(
+          0, "Accessibility.getFullAXTree", nullptr);
     }
   }
 
@@ -585,7 +671,7 @@ class ZoomedCollapseHandler : public TestHandler {
     }
     registration_ = nullptr;
     EXPECT_EQ(2, tree_fetch_ct_);
-    TestHandler::DestroyTest();
+    ReusableAxTestHandler::DestroyTest();
   }
 
  private:
@@ -602,6 +688,9 @@ class ZoomedCollapseHandler : public TestHandler {
                                 bool success,
                                 const void* result,
                                 size_t result_size) override {
+      if (message_id != handler_->message_id_) {
+        return;
+      }
       EXPECT_TRUE(success) << "Step " << message_id << " failed: "
                            << std::string(static_cast<const char*>(result),
                                           result_size);
@@ -624,7 +713,7 @@ class ZoomedCollapseHandler : public TestHandler {
         return;
       }
 
-      switch (static_cast<Step>(message_id)) {
+      switch (handler_->step_) {
         case kDefaultZoom: {
           // At default zoom, "Edge Nav" at ~400px is within the ~550px
           // content area. Fully serialized with children.
@@ -639,6 +728,7 @@ class ZoomedCollapseHandler : public TestHandler {
 
           // Zoom in heavily (level 5.0 ≈ 300%). Viewport in CSS pixels
           // shrinks to ~183px tall, pushing "Edge Nav" at ~400px off-screen.
+          handler_->step_ = kZoomedIn;
           browser->GetHost()->SetZoomLevel(5.0);
           CefPostDelayedTask(
               TID_UI,
@@ -674,11 +764,12 @@ class ZoomedCollapseHandler : public TestHandler {
   };
 
   void FetchTreeAgain() {
-    GetBrowser()->GetHost()->ExecuteDevToolsMethod(
-        ++next_message_id_, "Accessibility.getFullAXTree", nullptr);
+    message_id_ = GetBrowser()->GetHost()->ExecuteDevToolsMethod(
+        0, "Accessibility.getFullAXTree", nullptr);
   }
 
-  int next_message_id_ = 0;
+  int message_id_ = 0;
+  Step step_ = kDefaultZoom;
   int tree_fetch_ct_ = 0;
   CefRefPtr<CefRegistration> registration_;
   IMPLEMENT_REFCOUNTING(ZoomedCollapseHandler);
@@ -686,7 +777,7 @@ class ZoomedCollapseHandler : public TestHandler {
 
 // Test: queryAXTree still returns off-screen nodes when collapse is enabled.
 // Agents use queryAXTree for scroll targeting — filtering would break that.
-class QueryAXTreeHandler : public TestHandler {
+class QueryAXTreeHandler : public ReusableAxTestHandler {
  public:
   QueryAXTreeHandler() = default;
   QueryAXTreeHandler(const QueryAXTreeHandler&) = delete;
@@ -695,14 +786,11 @@ class QueryAXTreeHandler : public TestHandler {
   void RunTest() override {
     AddResource(kTestUrl, kTestHtml, "text/html");
 
-    CefBrowserSettings settings;
-    settings.ax_viewport_collapse = STATE_ENABLED;
-    CreateBrowserWithSettings(kTestUrl, settings);
+    CreateAxBrowser(kTestUrl, STATE_ENABLED);
     SetTestTimeout();
   }
 
-  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
-    TestHandler::OnAfterCreated(browser);
+  void AttachObserver(CefRefPtr<CefBrowser> browser) override {
     registration_ =
         browser->GetHost()->AddDevToolsMessageObserver(new Observer(this));
   }
@@ -713,15 +801,16 @@ class QueryAXTreeHandler : public TestHandler {
                             bool canGoForward) override {
     if (!isLoading) {
       // Get the document root node (also enables the DOM domain).
-      GetBrowser()->GetHost()->ExecuteDevToolsMethod(
-          ++next_message_id_, "DOM.getDocument", nullptr);
+      dom_enabled_ = true;
+      message_id_ = GetBrowser()->GetHost()->ExecuteDevToolsMethod(
+          0, "DOM.getDocument", nullptr);
     }
   }
 
   void DestroyTest() override {
     registration_ = nullptr;
     EXPECT_TRUE(got_result_);
-    TestHandler::DestroyTest();
+    ReusableAxTestHandler::DestroyTest();
   }
 
  protected:
@@ -736,7 +825,10 @@ class QueryAXTreeHandler : public TestHandler {
                                 bool success,
                                 const void* result,
                                 size_t result_size) override {
-      if (message_id == 1) {
+      if (message_id != handler_->message_id_) {
+        return;
+      }
+      if (!handler_->queried_) {
         // DOM.getDocument succeeded. Extract root nodeId and query.
         EXPECT_TRUE(success)
             << "DOM.getDocument failed: "
@@ -757,8 +849,9 @@ class QueryAXTreeHandler : public TestHandler {
         CefRefPtr<CefDictionaryValue> params = CefDictionaryValue::Create();
         params->SetInt("nodeId", node_id);
         params->SetString("accessibleName", "Offscreen Button");
-        browser->GetHost()->ExecuteDevToolsMethod(
-            ++handler_->next_message_id_, "Accessibility.queryAXTree", params);
+        handler_->queried_ = true;
+        handler_->message_id_ = browser->GetHost()->ExecuteDevToolsMethod(
+            0, "Accessibility.queryAXTree", params);
         return;
       }
 
@@ -797,7 +890,8 @@ class QueryAXTreeHandler : public TestHandler {
     IMPLEMENT_REFCOUNTING(Observer);
   };
 
-  int next_message_id_ = 0;
+  int message_id_ = 0;
+  bool queried_ = false;
   bool got_result_ = false;
   CefRefPtr<CefRegistration> registration_;
   IMPLEMENT_REFCOUNTING(QueryAXTreeHandler);
@@ -805,7 +899,7 @@ class QueryAXTreeHandler : public TestHandler {
 
 // Test: Full agentic workflow — get collapsed tree, find off-screen landmark,
 // scroll to it, re-get tree and verify it's now fully serialized.
-class AgenticWorkflowHandler : public TestHandler {
+class AgenticWorkflowHandler : public ReusableAxTestHandler {
  public:
   AgenticWorkflowHandler() = default;
   AgenticWorkflowHandler(const AgenticWorkflowHandler&) = delete;
@@ -814,14 +908,11 @@ class AgenticWorkflowHandler : public TestHandler {
   void RunTest() override {
     AddResource(kTestUrl, kTestHtml, "text/html");
 
-    CefBrowserSettings settings;
-    settings.ax_viewport_collapse = STATE_ENABLED;
-    CreateBrowserWithSettings(kTestUrl, settings);
+    CreateAxBrowser(kTestUrl, STATE_ENABLED);
     SetTestTimeout();
   }
 
-  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
-    TestHandler::OnAfterCreated(browser);
+  void AttachObserver(CefRefPtr<CefBrowser> browser) override {
     registration_ =
         browser->GetHost()->AddDevToolsMessageObserver(new Observer(this));
   }
@@ -832,15 +923,15 @@ class AgenticWorkflowHandler : public TestHandler {
                             bool canGoForward) override {
     if (!isLoading) {
       // Step 1: Get the collapsed AX tree.
-      GetBrowser()->GetHost()->ExecuteDevToolsMethod(
-          ++next_message_id_, "Accessibility.getFullAXTree", nullptr);
+      message_id_ = GetBrowser()->GetHost()->ExecuteDevToolsMethod(
+          0, "Accessibility.getFullAXTree", nullptr);
     }
   }
 
   void DestroyTest() override {
     registration_ = nullptr;
     EXPECT_EQ(2, tree_fetch_ct_);
-    TestHandler::DestroyTest();
+    ReusableAxTestHandler::DestroyTest();
   }
 
  private:
@@ -861,6 +952,9 @@ class AgenticWorkflowHandler : public TestHandler {
                                 bool success,
                                 const void* result,
                                 size_t result_size) override {
+      if (message_id != handler_->message_id_) {
+        return;
+      }
       EXPECT_TRUE(success) << "Step " << message_id << " failed: "
                            << std::string(static_cast<const char*>(result),
                                           result_size);
@@ -875,7 +969,7 @@ class AgenticWorkflowHandler : public TestHandler {
         return;
       }
 
-      switch (static_cast<Step>(message_id)) {
+      switch (handler_->step_) {
         case kInitialTree: {
           auto nodes = dict->GetList("nodes");
           EXPECT_TRUE(nodes.get());
@@ -910,13 +1004,14 @@ class AgenticWorkflowHandler : public TestHandler {
           // Step 2: Scroll the off-screen landmark into view.
           CefRefPtr<CefDictionaryValue> params = CefDictionaryValue::Create();
           params->SetInt("backendNodeId", handler_->target_backend_node_id_);
-          browser->GetHost()->ExecuteDevToolsMethod(
-              ++handler_->next_message_id_, "DOM.scrollIntoViewIfNeeded",
-              params);
+          handler_->step_ = kScroll;
+          handler_->message_id_ = browser->GetHost()->ExecuteDevToolsMethod(
+              0, "DOM.scrollIntoViewIfNeeded", params);
           break;
         }
 
         case kScroll: {
+          handler_->step_ = kPostScrollTree;
           // Scroll succeeded. Wait for layout update, then re-fetch tree.
           CefPostDelayedTask(
               TID_UI,
@@ -966,11 +1061,12 @@ class AgenticWorkflowHandler : public TestHandler {
   };
 
   void FetchTreeAgain() {
-    GetBrowser()->GetHost()->ExecuteDevToolsMethod(
-        ++next_message_id_, "Accessibility.getFullAXTree", nullptr);
+    message_id_ = GetBrowser()->GetHost()->ExecuteDevToolsMethod(
+        0, "Accessibility.getFullAXTree", nullptr);
   }
 
-  int next_message_id_ = 0;
+  int message_id_ = 0;
+  Step step_ = kInitialTree;
   int tree_fetch_ct_ = 0;
   int target_backend_node_id_ = 0;
   CefRefPtr<CefRegistration> registration_;

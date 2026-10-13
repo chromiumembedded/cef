@@ -45,7 +45,7 @@ class TitleTestHandler : public TestHandler {
                 "text/html");
 
     // Create the browser.
-    CreateBrowser(kTitleUrl1);
+    CreateReusableBrowser(kTitleUrl1);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -284,7 +284,7 @@ class ConsoleTestHandler : public TestHandler {
         "text/html");
 
     // Create the browser.
-    CreateBrowser(config_.source);
+    CreateReusableBrowser(config_.source);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -483,7 +483,7 @@ class LoadingProgressTestHandler : public TestHandler {
                 "text/html");
 
     // Create the browser.
-    CreateBrowser(kLoadinProgressUrl);
+    CreateReusableBrowser(kLoadinProgressUrl);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();

@@ -66,7 +66,7 @@ class JSDialogTestHandler : public TestHandler {
     AddResource(kEndUrl, "<html><body>END</body></html>", "text/html");
 
     // Create the browser
-    CreateBrowser(kStartUrl);
+    CreateReusableBrowser(kStartUrl);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();

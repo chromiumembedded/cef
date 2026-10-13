@@ -78,7 +78,7 @@ class DialogTestHandler : public TestHandler {
     AddResource(kTestUrl, "<html><body>TEST</body></html>", "text/html");
 
     // Create the browser
-    CreateBrowser(kTestUrl);
+    CreateReusableBrowser(kTestUrl);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();

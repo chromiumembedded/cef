@@ -569,7 +569,10 @@ class ReusableBrowserClient : public TestHandlerClient,
       TraceTiming("LoadingStopped");
     }
     if (!resetting_) {
-      if (auto handler = GetHandler(&CefClient::GetLoadHandler)) {
+      // Failed initial navigations may never commit a document, but still
+      // report loading completion. Keep DOM callbacks gated until a commit.
+      if (auto handler =
+              GetHandler(&CefClient::GetLoadHandler, !initial_load_failed_)) {
         handler->OnLoadingStateChange(browser, loading, back, forward);
       }
     }
