@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -53,6 +54,53 @@ CefRefPtr<CefResourceHandler> CreateContentsResourceHandler(
 const char kDoneMsg[] = "ResourceManagerTestHandler.Done";
 const char kNotHandled[] = "NotHandled";
 
+// Preserve provider callbacks on repeated URLs, including iframe requests
+// that would otherwise be satisfied from the renderer's memory cache.
+class UncachedResourceHandler : public CefResourceHandler {
+ public:
+  explicit UncachedResourceHandler(CefRefPtr<CefResourceHandler> handler)
+      : handler_(handler) {}
+
+  bool Open(CefRefPtr<CefRequest> request,
+            bool& handle_request,
+            CefRefPtr<CefCallback> callback) override {
+    return handler_->Open(request, handle_request, callback);
+  }
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+                      CefRefPtr<CefCallback> callback) override {
+    return handler_->ProcessRequest(request, callback);
+  }
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64_t& response_length,
+                          CefString& redirect_url) override {
+    handler_->GetResponseHeaders(response, response_length, redirect_url);
+    response->SetHeaderByName("Cache-Control", "no-store", true);
+  }
+  bool Skip(int64_t bytes_to_skip,
+            int64_t& bytes_skipped,
+            CefRefPtr<CefResourceSkipCallback> callback) override {
+    return handler_->Skip(bytes_to_skip, bytes_skipped, callback);
+  }
+  bool Read(void* data_out,
+            int bytes_to_read,
+            int& bytes_read,
+            CefRefPtr<CefResourceReadCallback> callback) override {
+    return handler_->Read(data_out, bytes_to_read, bytes_read, callback);
+  }
+  bool ReadResponse(void* data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override {
+    return handler_->ReadResponse(data_out, bytes_to_read, bytes_read,
+                                  callback);
+  }
+  void Cancel() override { handler_->Cancel(); }
+
+ private:
+  CefRefPtr<CefResourceHandler> handler_;
+  IMPLEMENT_REFCOUNTING(UncachedResourceHandler);
+};
+
 // Browser side.
 class ResourceManagerTestHandler : public RoutingTestHandler {
  public:
@@ -70,6 +118,8 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
     // If non-zero the test will not complete until the expected number of
     // messages have been received.
     size_t expected_message_ct_ = 0;
+    bool reuse_browser_ = true;
+    base::RepeatingClosure on_query_;
   };
 
   explicit ResourceManagerTestHandler(State* state) : state_(state) {
@@ -81,10 +131,42 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
 
   void RunTest() override {
     // Create the browser.
-    CreateBrowser(GetNextURL());
+    if (state_->reuse_browser_) {
+      CreateReusableBrowser(GetNextURL());
+    } else {
+      CreateBrowser(GetNextURL());
+    }
 
     SetTestTimeout(5000);
   }
+
+  void DestroyTest() override {
+    if (!state_->reuse_browser_) {
+      TestHandler::DestroyTest();
+      return;
+    }
+    if (!CefCurrentlyOn(TID_UI)) {
+      CefPostTask(TID_UI, base::BindOnce(
+                              &ResourceManagerTestHandler::DestroyTest, this));
+      return;
+    }
+    if (finishing_) {
+      return;
+    }
+    finishing_ = true;
+    if (auto browser = GetBrowser()) {
+      browser->StopLoad();
+    }
+    CefPostTask(TID_IO, base::BindOnce(
+                            &ResourceManagerTestHandler::DrainRequests, this));
+  }
+
+  void DrainRequests() {
+    CefPostTask(TID_UI,
+                base::BindOnce(&ResourceManagerTestHandler::FinishTest, this));
+  }
+
+  void FinishTest() { TestHandler::DestroyTest(); }
 
   cef_return_value_t OnBeforeResourceLoad(
       CefRefPtr<CefBrowser> browser,
@@ -109,11 +191,12 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
       CefRefPtr<CefResourceHandler> handler =
           state_->manager_->GetResourceHandler(browser, frame, request);
       if (handler.get()) {
-        return handler;
+        return new UncachedResourceHandler(handler);
       }
     }
 
-    return CreateContentsResourceHandler(CreateMessage(kDoneMsg, kNotHandled));
+    return new UncachedResourceHandler(
+        CreateContentsResourceHandler(CreateMessage(kDoneMsg, kNotHandled)));
   }
 
   bool OnQuery(CefRefPtr<CefBrowser> browser,
@@ -124,6 +207,9 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
                CefRefPtr<Callback> callback) override {
     state_->messages_.push_back(request);
     callback->Success("");
+    if (state_->on_query_) {
+      state_->on_query_.Run();
+    }
 
     CefPostTask(TID_UI, base::BindOnce(&ResourceManagerTestHandler::Continue,
                                        this, browser));
@@ -162,6 +248,7 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
 
   State* state_;
   size_t current_url_ = 0;
+  bool finishing_ = false;
 
   IMPLEMENT_REFCOUNTING(ResourceManagerTestHandler);
 };
@@ -285,11 +372,15 @@ class ProviderDestructHelper {
 
 // Test that that the URL retrieved via Request::url() is parsed as expected.
 // Fragment or query components in any order should be removed.
-void TestUrlParsing(const char* kUrl) {
-  const char kRequestUrl[] = "https://test.com/ResourceManagerTest";
+void TestUrlParsing(const char* components) {
+  // A distinct path guarantees a document load, rather than a fragment-only
+  // navigation to the previous lease's document.
+  static size_t next_run = 0;
+  const std::string kRequestUrl =
+      "https://test.com/ResourceManagerTest/" + std::to_string(++next_run);
 
   ResourceManagerTestHandler::State state;
-  state.urls_.push_back(kUrl);
+  state.urls_.push_back(kRequestUrl + components);
 
   TestProvider::State provider_state;
 
@@ -316,33 +407,33 @@ void TestUrlParsing(const char* kUrl) {
   EXPECT_TRUE(provider_state.got_destruct_);
 
   // The expected URL is received.
-  EXPECT_STREQ(kRequestUrl, provider_state.request_url_.c_str());
+  EXPECT_EQ(kRequestUrl, provider_state.request_url_);
 
   // The request is not handled.
-  EXPECT_EQ(state.messages_.size(), 1U);
+  ASSERT_EQ(state.messages_.size(), 1U);
   EXPECT_EQ(CreateMessage(kDoneMsg, kNotHandled), state.messages_[0]);
 }
 
 }  // namespace
 
 TEST(ResourceManagerTest, UrlParsingNoQueryOrFragment) {
-  TestUrlParsing("https://test.com/ResourceManagerTest");
+  TestUrlParsing("");
 }
 
 TEST(ResourceManagerTest, UrlParsingWithQuery) {
-  TestUrlParsing("https://test.com/ResourceManagerTest?foo=bar&choo=too");
+  TestUrlParsing("?foo=bar&choo=too");
 }
 
 TEST(ResourceManagerTest, UrlParsingWithFragment) {
-  TestUrlParsing("https://test.com/ResourceManagerTest#some/fragment");
+  TestUrlParsing("#some/fragment");
 }
 
 TEST(ResourceManagerTest, UrlParsingWithQueryAndFragment) {
-  TestUrlParsing("https://test.com/ResourceManagerTest?foo=bar#some/fragment");
+  TestUrlParsing("?foo=bar#some/fragment");
 }
 
 TEST(ResourceManagerTest, UrlParsingWithFragmentAndQuery) {
-  TestUrlParsing("https://test.com/ResourceManagerTest#some/fragment?foo=bar");
+  TestUrlParsing("#some/fragment?foo=bar");
 }
 
 namespace {
@@ -736,6 +827,8 @@ TEST(ResourceManagerTest, ProviderDoNothing) {
   const char kUrl[] = "https://test.com/ResourceManagerTest";
 
   ResourceManagerTestHandler::State state;
+  // Pending provider requests are canceled after real browser closure.
+  state.reuse_browser_ = false;
   state.urls_.push_back(kUrl);
 
   TestProvider::State provider_state1;
@@ -1063,7 +1156,51 @@ namespace {
 // Content provider that returns the path component as the result.
 class EchoProvider : public CefResourceManager::Provider {
  public:
-  explicit EchoProvider(const std::string& base_url) : base_url_(base_url) {
+  class PendingRequests : public CefBaseRefCounted {
+   public:
+    explicit PendingRequests(size_t expected) : expected_(expected) {}
+
+    void Add(int index, scoped_refptr<CefResourceManager::Request> request) {
+      EXPECT_IO_THREAD();
+      EXPECT_TRUE(requests_.emplace(index, request).second);
+      ++received_;
+      if (received_ == expected_) {
+        // Exercise all requests pending simultaneously before completing any.
+        EXPECT_EQ(expected_, requests_.size());
+        ContinueNext();
+      }
+    }
+
+    void ContinueNext() {
+      if (!CefCurrentlyOn(TID_IO)) {
+        CefPostTask(TID_IO,
+                    base::BindOnce(&PendingRequests::ContinueNext, this));
+        return;
+      }
+      if (requests_.empty()) {
+        return;
+      }
+      EXPECT_EQ(expected_, received_);
+      auto it = requests_.begin();
+      auto request = it->second;
+      requests_.erase(it);
+      const auto content = CreateContents(request->url());
+      auto stream = CefStreamReader::CreateForData(
+          const_cast<char*>(content.data()), content.size());
+      request->Continue(new CefStreamResourceHandler("text/html", stream));
+    }
+
+    size_t received() const { return received_; }
+
+   private:
+    const size_t expected_;
+    size_t received_ = 0;
+    std::map<int, scoped_refptr<CefResourceManager::Request>> requests_;
+    IMPLEMENT_REFCOUNTING(PendingRequests);
+  };
+
+  EchoProvider(const std::string& base_url, CefRefPtr<PendingRequests> pending)
+      : base_url_(base_url), pending_(pending) {
     EXPECT_TRUE(!base_url_.empty());
   }
 
@@ -1079,28 +1216,16 @@ class EchoProvider : public CefResourceManager::Provider {
       return false;
     }
 
-    const std::string& content = CreateContents(url);
-
-    // Parse the URL to identify the delay.
-    int delay = atoi(url.substr(base_url_.size()).data());
-    EXPECT_GE(delay, 0);
-
-    CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
-        static_cast<void*>(const_cast<char*>(content.data())),
-        content.length());
-
-    CefRefPtr<CefStreamResourceHandler> handler(
-        new CefStreamResourceHandler("text/html", stream));
-    CefPostDelayedTask(TID_IO,
-                       base::BindOnce(&CefResourceManager::Request::Continue,
-                                      request, handler),
-                       delay);
+    const int index = atoi(url.substr(base_url_.size()).data());
+    EXPECT_GE(index, 0);
+    pending_->Add(index, request);
 
     return true;
   }
 
  private:
   std::string base_url_;
+  CefRefPtr<PendingRequests> pending_;
 };
 
 }  // namespace
@@ -1114,7 +1239,7 @@ TEST(ResourceManagerTest, ManyRequests) {
   ResourceManagerTestHandler::State state;
   state.urls_.push_back(kUrl);
 
-  state.expected_message_ct_ = 50U;
+  state.expected_message_ct_ = 20U;
 
   // Build a page with lots of iframes.
   std::stringstream ss;
@@ -1126,7 +1251,14 @@ TEST(ResourceManagerTest, ManyRequests) {
 
   state.manager_->AddContentProvider(kUrl, ss.str(), "text/html", 0,
                                      std::string());
-  state.manager_->AddProvider(new EchoProvider(kBaseUrl), 0, std::string());
+  CefRefPtr<EchoProvider::PendingRequests> pending =
+      new EchoProvider::PendingRequests(state.expected_message_ct_);
+  state.manager_->AddProvider(new EchoProvider(kBaseUrl, pending), 0,
+                              std::string());
+  // Advance only after the current iframe reports its result. Timer spacing
+  // cannot guarantee JavaScript execution order across independent documents.
+  state.on_query_ = base::BindRepeating(
+      &EchoProvider::PendingRequests::ContinueNext, pending);
 
   CefRefPtr<ResourceManagerTestHandler> handler =
       new ResourceManagerTestHandler(&state);
@@ -1140,8 +1272,9 @@ TEST(ResourceManagerTest, ManyRequests) {
   WaitForIOThread();
 
   EXPECT_EQ(state.messages_.size(), state.expected_message_ct_);
+  EXPECT_EQ(pending->received(), state.expected_message_ct_);
 
-  // Requests should complete in order due to the delay.
+  // Requests should complete in the explicitly controlled order.
   for (size_t i = 0; i < state.messages_.size(); ++i) {
     ss.str("");
     ss << kBaseUrl << (i * 10);
@@ -1741,10 +1874,12 @@ TEST(ResourceManagerTest, UrlFilterWithQuery) {
 // Test the URL filter capability with a fragment component.
 TEST(ResourceManagerTest, UrlFilterWithFragment) {
   // Fragment components will not be passed with the request.
-  const char kUrl[] = "https://test.com/ResourceManagerTest#fragment";
-  const char kExpectedUrl[] = "https://test.com/ResourceManagerTestRewrite";
-  const char kExpectedUrlAfterFilter[] =
-      "https://test.com/ResourceManagerTestRewrite#fragment";
+  static size_t next_run = 0;
+  const std::string base = "https://test.com/ResourceManagerFragmentTest/" +
+                           std::to_string(++next_run);
+  const std::string kUrl = base + "#fragment";
+  const std::string kExpectedUrl = base + "Rewrite";
+  const std::string kExpectedUrlAfterFilter = kExpectedUrl + "#fragment";
 
   ResourceManagerTestHandler::State state;
   state.urls_.push_back(kUrl);

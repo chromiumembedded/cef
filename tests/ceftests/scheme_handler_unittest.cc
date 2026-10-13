@@ -12,6 +12,7 @@
 #include "include/cef_request_context.h"
 #include "include/cef_request_context_handler.h"
 #include "include/cef_scheme.h"
+#include "include/cef_waitable_event.h"
 #include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
@@ -21,12 +22,18 @@
 
 namespace {
 
+class TestSchemeHandler;
+
 class TestResults {
  public:
   TestResults() = default;
 
   // Used for running tests in a custom request context.
   CefRefPtr<CefRequestContext> request_context;
+  TestHandler::ReusableRequestContext reusable_context;
+  TestSchemeHandler* handler = nullptr;
+  // Registration deliberately changes factories between three browser uses.
+  bool preserve_factories = false;
 
   std::string url;
   std::string html;
@@ -65,19 +72,16 @@ class TestResults {
       git_exit_success, got_exit_request;
 };
 
-// Current scheme handler object. Used when destroying the test from
-// ClientSchemeHandler::ProcessRequest().
-class TestSchemeHandler;
-TestSchemeHandler* g_current_handler = nullptr;
-
 class TestSchemeHandler : public TestHandler {
  public:
-  explicit TestSchemeHandler(TestResults* tr) : test_results_(tr) {
-    g_current_handler = this;
-  }
+  explicit TestSchemeHandler(TestResults* tr) : test_results_(tr) {}
 
   void RunTest() override {
-    CreateBrowser(test_results_->url, test_results_->request_context);
+    cleanup_pending_ = false;
+    test_results_->handler = this;
+    CreateReusableBrowser(test_results_->url, CefSize(800, 600),
+                          CefBrowserSettings(),
+                          test_results_->reusable_context);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -86,11 +90,55 @@ class TestSchemeHandler : public TestHandler {
   // Necessary to make the method public in order to destroy the test from
   // ClientSchemeHandler::ProcessRequest().
   void DestroyTest() override {
+    if (!CefCurrentlyOn(TID_UI)) {
+      CefPostTask(TID_UI,
+                  base::BindOnce(&TestSchemeHandler::DestroyTest, this));
+      return;
+    }
+    if (cleanup_pending_) {
+      return;
+    }
+    cleanup_pending_ = true;
     EXPECT_TRUE(test_results_->console_messages.empty())
         << "Did not receive expected console message: "
         << test_results_->console_messages.front();
 
+    if (auto browser = GetBrowser()) {
+      browser->StopLoad();
+    }
+    // Context APIs route through UI before posting factory removal to IO.
+    if (!test_results_->preserve_factories) {
+      if (test_results_->request_context) {
+        EXPECT_TRUE(
+            test_results_->request_context->ClearSchemeHandlerFactories());
+      } else {
+        EXPECT_TRUE(CefClearSchemeHandlerFactories());
+      }
+    }
+    CefPostTask(TID_IO,
+                base::BindOnce(&TestSchemeHandler::CleanupFactories, this));
+  }
+
+  void ResourceCreated() {
+    EXPECT_IO_THREAD();
+    ++resource_count_;
+  }
+
+  void OnTestTimeout(int timeout_ms, bool treat_as_error) override {
+    TestHandler::OnTestTimeout(timeout_ms, treat_as_error);
+    // Do not let a stuck resource drain retain the browser after a timeout.
     TestHandler::DestroyTest();
+  }
+
+  void ResourceDestroyed() {
+    if (!CefCurrentlyOn(TID_IO)) {
+      CefPostTask(TID_IO,
+                  base::BindOnce(&TestSchemeHandler::ResourceDestroyed, this));
+      return;
+    }
+    EXPECT_GT(resource_count_, 0U);
+    --resource_count_;
+    FinishIfQuiescent();
   }
 
   void DestroyTestIfDone() {
@@ -226,14 +274,39 @@ class TestSchemeHandler : public TestHandler {
   }
 
  protected:
+  void CleanupFactories() {
+    EXPECT_IO_THREAD();
+    finishing_ = true;
+    FinishIfQuiescent();
+  }
+
+  void FinishIfQuiescent() {
+    EXPECT_IO_THREAD();
+    if (finishing_ && resource_count_ == 0) {
+      finishing_ = false;
+      test_results_->handler = nullptr;
+      CefPostTask(TID_UI, base::BindOnce(&TestSchemeHandler::FinishTest, this));
+    }
+  }
+
+  void FinishTest() { TestHandler::DestroyTest(); }
+
   TestResults* const test_results_;
+  bool cleanup_pending_ = false;  // UI thread.
+  size_t resource_count_ = 0;     // IO thread.
+  bool finishing_ = false;        // IO thread.
 
   IMPLEMENT_REFCOUNTING(TestSchemeHandler);
 };
 
 class ClientSchemeHandlerOld : public CefResourceHandler {
  public:
-  explicit ClientSchemeHandlerOld(TestResults* tr) : test_results_(tr) {}
+  explicit ClientSchemeHandlerOld(TestResults* tr)
+      : test_results_(tr), handler_(tr->handler) {
+    handler_->ResourceCreated();
+  }
+
+  ~ClientSchemeHandlerOld() override { handler_->ResourceDestroyed(); }
 
   ClientSchemeHandlerOld(const ClientSchemeHandlerOld&) = delete;
   ClientSchemeHandlerOld& operator=(const ClientSchemeHandlerOld&) = delete;
@@ -303,16 +376,14 @@ class ClientSchemeHandlerOld : public CefResourceHandler {
     }
 
     // Response was canceled.
-    if (g_current_handler) {
-      g_current_handler->DestroyTest();
-    }
+    handler_->DestroyTest();
     return false;
   }
 
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
                           int64_t& response_length,
                           CefString& redirectUrl) override {
-    CefResponse::HeaderMap headers;
+    CefResponse::HeaderMap headers{{"Cache-Control", "no-store"}};
 
     if (is_sub_) {
       response->SetStatus(test_results_->sub_status_code);
@@ -408,6 +479,7 @@ class ClientSchemeHandlerOld : public CefResourceHandler {
   }
 
   TestResults* const test_results_;
+  CefRefPtr<TestSchemeHandler> handler_;
   size_t offset_ = 0;
   bool is_sub_ = false;
   bool has_delayed_ = false;
@@ -417,7 +489,12 @@ class ClientSchemeHandlerOld : public CefResourceHandler {
 
 class ClientSchemeHandler : public CefResourceHandler {
  public:
-  explicit ClientSchemeHandler(TestResults* tr) : test_results_(tr) {}
+  explicit ClientSchemeHandler(TestResults* tr)
+      : test_results_(tr), handler_(tr->handler) {
+    handler_->ResourceCreated();
+  }
+
+  ~ClientSchemeHandler() override { handler_->ResourceDestroyed(); }
 
   ClientSchemeHandler(const ClientSchemeHandler&) = delete;
   ClientSchemeHandler& operator=(const ClientSchemeHandler&) = delete;
@@ -500,9 +577,7 @@ class ClientSchemeHandler : public CefResourceHandler {
     }
 
     // Response was canceled.
-    if (g_current_handler) {
-      g_current_handler->DestroyTest();
-    }
+    handler_->DestroyTest();
     return false;
   }
 
@@ -520,7 +595,7 @@ class ClientSchemeHandler : public CefResourceHandler {
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
                           int64_t& response_length,
                           CefString& redirectUrl) override {
-    CefResponse::HeaderMap headers;
+    CefResponse::HeaderMap headers{{"Cache-Control", "no-store"}};
 
     if (is_sub_) {
       response->SetStatus(test_results_->sub_status_code);
@@ -637,6 +712,7 @@ class ClientSchemeHandler : public CefResourceHandler {
   }
 
   TestResults* const test_results_;
+  CefRefPtr<TestSchemeHandler> handler_;
   size_t offset_ = 0;
   bool is_sub_ = false;
   bool has_delayed_ = false;
@@ -885,6 +961,7 @@ void SetUpXSS(TestResults* test_results,
 // Test that scheme registration/unregistration works as expected.
 TEST(SchemeHandlerTest, Registration) {
   TestResults test_results;
+  test_results.preserve_factories = true;
   RegisterTestScheme(&test_results, "customstd", "test");
   test_results.url = "customstd://test/run.html";
   test_results.html =
@@ -2661,8 +2738,18 @@ TEST(SchemeHandlerTest, AcceptLanguage) {
   // Create an in-memory request context with custom settings.
   CefRequestContextSettings settings;
   CefString(&settings.accept_language_list) = test_results.accept_language;
-  test_results.request_context =
-      CefRequestContext::CreateContext(settings, nullptr);
+  auto initialized = CefWaitableEvent::CreateWaitableEvent(true, false);
+  TestHandler::CreateReusableRequestContext(
+      settings, /*is_global=*/false,
+      base::BindOnce(
+          [](TestResults* results, CefRefPtr<CefWaitableEvent> event,
+             TestHandler::ReusableRequestContext context) {
+            results->request_context = context.context;
+            results->reusable_context = context;
+            event->Signal();
+          },
+          &test_results, initialized));
+  initialized->Wait();
 
   RegisterTestScheme(&test_results, "customstd", "test");
   test_results.url = "customstd://test/run.html";
@@ -2734,7 +2821,7 @@ class FrameUrlTestSchemeHandlerFactory : public CefSchemeHandlerFactory {
       // This is the main page request.
       got_factory_create_for_main_->yes();
       return new CefStreamResourceHandler(
-          200, "OK", "text/html", CefResponse::HeaderMap(),
+          200, "OK", "text/html", {{"Cache-Control", "no-store"}},
           CefStreamReader::CreateForData(
               static_cast<void*>(const_cast<char*>(main_html_.data())),
               main_html_.size()));
@@ -2753,7 +2840,7 @@ class FrameUrlTestSchemeHandlerFactory : public CefSchemeHandlerFactory {
 
       // Return a simple response for the sub-resource.
       return new CefStreamResourceHandler(
-          200, "OK", "text/html", CefResponse::HeaderMap(),
+          200, "OK", "text/html", {{"Cache-Control", "no-store"}},
           CefStreamReader::CreateForData(
               static_cast<void*>(const_cast<char*>(sub_html_.data())),
               sub_html_.size()));
@@ -2823,7 +2910,7 @@ class FrameUrlTestHandler : public TestHandler {
     WaitForIOThread();
 
     // Create browser to load the main page.
-    CreateBrowser(main_url_);
+    CreateReusableBrowser(main_url_);
 
     SetTestTimeout();
   }
@@ -2848,14 +2935,34 @@ class FrameUrlTestHandler : public TestHandler {
   }
 
   void DestroyTest() override {
+    if (!CefCurrentlyOn(TID_UI)) {
+      CefPostTask(TID_UI,
+                  base::BindOnce(&FrameUrlTestHandler::DestroyTest, this));
+      return;
+    }
+    if (finishing_) {
+      return;
+    }
+    finishing_ = true;
     // Verify all expected callbacks were triggered.
     EXPECT_TRUE(got_factory_create_for_main_);
     EXPECT_TRUE(got_factory_create_for_sub_);
     EXPECT_TRUE(got_correct_frame_url_for_sub_);
     EXPECT_TRUE(got_exit_success_);
 
-    TestHandler::DestroyTest();
+    if (auto browser = GetBrowser()) {
+      browser->StopLoad();
+    }
+    EXPECT_TRUE(CefRegisterSchemeHandlerFactory("customstd", "test", nullptr));
+    CefPostTask(TID_IO,
+                base::BindOnce(&FrameUrlTestHandler::CleanupFactory, this));
   }
+
+  void CleanupFactory() {
+    CefPostTask(TID_UI, base::BindOnce(&FrameUrlTestHandler::FinishTest, this));
+  }
+
+  void FinishTest() { TestHandler::DestroyTest(); }
 
   void ClearSchemeFactory() {
     // Unregister the scheme handler factory.
@@ -2864,6 +2971,7 @@ class FrameUrlTestHandler : public TestHandler {
   }
 
  private:
+  bool finishing_ = false;
   std::string main_url_;
   std::string sub_url_;
   std::string main_html_;

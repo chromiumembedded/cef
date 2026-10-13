@@ -608,15 +608,19 @@ class CookieTestJSHandler : public TestHandler {
 
     // Create the request context that will use an in-memory cache.
     CefRequestContextSettings settings;
-    CefRefPtr<CefRequestContext> request_context =
-        CefRequestContext::CreateContext(settings, nullptr);
-    manager_ = request_context->GetCookieManager(nullptr);
-
-    // Create the browser.
-    CreateBrowser(kCookieJSUrl1, request_context);
+    CreateReusableRequestContext(
+        settings, /*is_global=*/false,
+        base::BindOnce(&CookieTestJSHandler::OnReusableContextInitialized,
+                       this));
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
+  }
+
+  void OnReusableContextInitialized(ReusableRequestContext context) {
+    manager_ = context.context->GetCookieManager(nullptr);
+    CreateReusableBrowser(kCookieJSUrl1, CefSize(800, 600),
+                          CefBrowserSettings(), context);
   }
 
   // Go to the next URL.
@@ -803,12 +807,11 @@ class CookieTestSchemeHandler : public TestHandler {
       response->SetStatus(200);
       response->SetMimeType("text/html");
 
+      CefResponse::HeaderMap headerMap{{"Cache-Control", "no-store"}};
       if (!cookie_.empty()) {
-        CefResponse::HeaderMap headerMap;
-        response->GetHeaderMap(headerMap);
         headerMap.insert(std::make_pair("Set-Cookie", cookie_));
-        response->SetHeaderMap(headerMap);
       }
+      response->SetHeaderMap(headerMap);
     }
 
     bool Read(void* data_out,
@@ -837,7 +840,7 @@ class CookieTestSchemeHandler : public TestHandler {
     void Cancel() override {}
 
    private:
-    CookieTestSchemeHandler* handler_;
+    CefRefPtr<CookieTestSchemeHandler> handler_;
     std::string content_;
     size_t offset_ = 0;
     std::string cookie_;
@@ -917,8 +920,10 @@ class CookieTestSchemeHandler : public TestHandler {
                 &CookieTestSchemeHandler::OnContextInitialized, this));
         request_context_ = CefRequestContext::CreateContext(settings, handler);
       } else {
-        request_context_ = CefRequestContext::CreateContext(settings, nullptr);
-        RunTestContinue();
+        CreateReusableRequestContext(
+            settings, /*is_global=*/false,
+            base::BindOnce(
+                &CookieTestSchemeHandler::OnReusableContextInitialized, this));
       }
     }
 
@@ -932,6 +937,12 @@ class CookieTestSchemeHandler : public TestHandler {
     RunTestContinue();
   }
 
+  void OnReusableContextInitialized(ReusableRequestContext context) {
+    reusable_context_ = context;
+    request_context_ = context.context;
+    RunTestContinue();
+  }
+
   void RunTestContinue() {
     // Register the scheme handler.
     request_context_->RegisterSchemeHandlerFactory(
@@ -940,7 +951,13 @@ class CookieTestSchemeHandler : public TestHandler {
     manager_ = request_context_->GetCookieManager(nullptr);
 
     // Create the browser.
-    CreateBrowser(url1_, request_context_);
+    if (cache_path_.empty()) {
+      CreateReusableBrowser(url1_, CefSize(800, 600), CefBrowserSettings(),
+                            reusable_context_);
+    } else {
+      // This regression specifically exercises disk context initialization.
+      CreateBrowser(url1_, request_context_);
+    }
   }
 
   // Go to the next URL.
@@ -960,10 +977,6 @@ class CookieTestSchemeHandler : public TestHandler {
                                          this, browser));
       return;
     }
-
-    // Unregister the scheme handler.
-    browser->GetHost()->GetRequestContext()->RegisterSchemeHandlerFactory(
-        scheme_, "cookie-tests", nullptr);
 
     DestroyTest();
   }
@@ -991,6 +1004,15 @@ class CookieTestSchemeHandler : public TestHandler {
   }
 
   void DestroyTest() override {
+    if (!CefCurrentlyOn(TID_UI)) {
+      CefPostTask(TID_UI,
+                  base::BindOnce(&CookieTestSchemeHandler::DestroyTest, this));
+      return;
+    }
+    if (finishing_) {
+      return;
+    }
+    finishing_ = true;
     EXPECT_TRUE(got_process_request1_);
     EXPECT_TRUE(got_process_request2_);
     EXPECT_TRUE(got_process_request3_);
@@ -1012,10 +1034,24 @@ class CookieTestSchemeHandler : public TestHandler {
       EXPECT_TRUE(got_cookie3_);
     }
 
-    // Unregister the scheme handler.
+    if (auto browser = GetBrowser()) {
+      browser->StopLoad();
+    }
     request_context_->RegisterSchemeHandlerFactory(scheme_, "cookie-tests",
                                                    nullptr);
+    CefPostTask(TID_IO,
+                base::BindOnce(&CookieTestSchemeHandler::CleanupFactory, this));
+  }
+
+  void CleanupFactory() {
+    // Unregister and drain IO callbacks before the browser can be leased again.
+    CefPostTask(TID_UI,
+                base::BindOnce(&CookieTestSchemeHandler::FinishTest, this));
+  }
+
+  void FinishTest() {
     request_context_ = nullptr;
+    reusable_context_ = ReusableRequestContext();
 
     TestHandler::DestroyTest();
   }
@@ -1058,6 +1094,8 @@ class CookieTestSchemeHandler : public TestHandler {
   std::string url3_;
 
   CefRefPtr<CefRequestContext> request_context_;
+  ReusableRequestContext reusable_context_;
+  bool finishing_ = false;
   CefRefPtr<CefCookieManager> manager_;
 
   CookieVector cookies_;
@@ -1213,7 +1251,8 @@ std::string GetHeaderValue(const CefServer::HeaderMap& header_map,
 // Serves request responses.
 class CookieAccessSchemeHandler : public CefResourceHandler {
  public:
-  explicit CookieAccessSchemeHandler(CookieAccessData* data) : data_(data) {}
+  CookieAccessSchemeHandler(CookieAccessData* data, TestHandler* owner)
+      : data_(data), owner_(owner) {}
 
   CookieAccessSchemeHandler(const CookieAccessSchemeHandler&) = delete;
   CookieAccessSchemeHandler& operator=(const CookieAccessSchemeHandler&) =
@@ -1294,6 +1333,8 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
 
   // |data_| is not owned by this object.
   CookieAccessData* data_;
+  // Keep fixture-owned response data alive through the last read/cancel.
+  CefRefPtr<TestHandler> owner_;
 
   size_t offset_ = 0;
 
@@ -1303,7 +1344,8 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
 class CookieAccessSchemeHandlerFactory : public CefSchemeHandlerFactory,
                                          public CookieAccessResponseHandler {
  public:
-  CookieAccessSchemeHandlerFactory() = default;
+  explicit CookieAccessSchemeHandlerFactory(TestHandler* owner)
+      : owner_(owner) {}
 
   CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefFrame> frame,
@@ -1315,7 +1357,7 @@ class CookieAccessSchemeHandlerFactory : public CefSchemeHandlerFactory,
     if (it != data_map_.end()) {
       it->second->request_ct_++;
 
-      return new CookieAccessSchemeHandler(it->second);
+      return new CookieAccessSchemeHandler(it->second, owner_);
     }
 
     // Unknown test.
@@ -1326,6 +1368,7 @@ class CookieAccessSchemeHandlerFactory : public CefSchemeHandlerFactory,
   }
 
   void AddResponse(const std::string& url, CookieAccessData* data) override {
+    data->response->SetHeaderByName("Cache-Control", "no-store", true);
     data_map_.insert(std::make_pair(url, data));
   }
 
@@ -1338,6 +1381,7 @@ class CookieAccessSchemeHandlerFactory : public CefSchemeHandlerFactory,
   // Map of URL to Data.
   typedef std::map<std::string, CookieAccessData*> ResponseDataMap;
   ResponseDataMap data_map_;
+  TestHandler* const owner_;
 
   IMPLEMENT_REFCOUNTING(CookieAccessSchemeHandlerFactory);
 };
@@ -1356,6 +1400,7 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
 
   // Must be called before CreateServer().
   void AddResponse(const std::string& url, CookieAccessData* data) override {
+    data->response->SetHeaderByName("Cache-Control", "no-store", true);
     data_map_.insert(std::make_pair(url, data));
   }
 
@@ -1530,8 +1575,10 @@ class CookieAccessTestHandler : public RoutingTestHandler,
   CookieAccessTestHandler& operator=(const CookieAccessTestHandler&) = delete;
 
   void RunTest() override {
+    SetTestTimeout();
     if (use_global_) {
       context_ = CefRequestContext::GetGlobalContext();
+      OnContextReady();
     } else {
       // Create the request context that will use an in-memory cache.
       CefRequestContextSettings settings;
@@ -1545,11 +1592,20 @@ class CookieAccessTestHandler : public RoutingTestHandler,
         }
       }
 
-      context_ = CefRequestContext::CreateContext(settings, nullptr);
+      CreateReusableRequestContext(
+          settings, /*is_global=*/false,
+          base::BindOnce(&CookieAccessTestHandler::OnReusableContextInitialized,
+                         this));
     }
+  }
 
-    SetTestTimeout();
+  void OnReusableContextInitialized(ReusableRequestContext context) {
+    reusable_context_ = context;
+    context_ = context.context;
+    OnContextReady();
+  }
 
+  void OnContextReady() {
     cookie_manager_ = context_->GetCookieManager(nullptr);
     RunTestSetupContinue();
   }
@@ -1659,6 +1715,12 @@ class CookieAccessTestHandler : public RoutingTestHandler,
       bool is_download,
       const CefString& request_initiator,
       bool& disable_default_handling) override {
+    if (request->GetResourceType() == RT_FAVICON) {
+      // These requests are unrelated to cookie access and can retain this
+      // fixture after its browser lease ends if they fall through to network.
+      disable_default_handling = true;
+      return nullptr;
+    }
     if (test_mode_ == ALLOW_NO_HANDLER) {
       return nullptr;
     }
@@ -1807,7 +1869,7 @@ class CookieAccessTestHandler : public RoutingTestHandler,
 
   void StartSchemeHandler(base::OnceClosure complete_callback) {
     // Add the factory registration.
-    scheme_factory_ = new CookieAccessSchemeHandlerFactory();
+    scheme_factory_ = new CookieAccessSchemeHandlerFactory(this);
     if (test_backend_ == SCHEME_HANDLER) {
       context_->RegisterSchemeHandlerFactory(scheme_, kCookieAccessDomain,
                                              scheme_factory_.get());
@@ -1832,8 +1894,9 @@ class CookieAccessTestHandler : public RoutingTestHandler,
       AddResponses(scheme_factory_.get());
     }
 
-    CreateBrowser(GetCookieAccessUrl1(scheme_, test_backend_ == SERVER),
-                  context_);
+    CreateReusableBrowser(GetCookieAccessUrl1(scheme_, test_backend_ == SERVER),
+                          CefSize(800, 600), CefBrowserSettings(),
+                          reusable_context_);
   }
 
   void FinishTest() {
@@ -1895,6 +1958,10 @@ class CookieAccessTestHandler : public RoutingTestHandler,
 
   void ShutdownSchemeHandler(base::OnceClosure complete_callback) {
     if (!CefCurrentlyOn(TID_IO)) {
+      if (test_backend_ == SCHEME_HANDLER) {
+        context_->RegisterSchemeHandlerFactory(scheme_, kCookieAccessDomain,
+                                               nullptr);
+      }
       CefPostTask(TID_IO, base::BindOnce(
                               &CookieAccessTestHandler::ShutdownSchemeHandler,
                               this, std::move(complete_callback)));
@@ -1903,10 +1970,6 @@ class CookieAccessTestHandler : public RoutingTestHandler,
 
     EXPECT_TRUE(scheme_factory_);
 
-    if (test_backend_ == SCHEME_HANDLER) {
-      context_->RegisterSchemeHandlerFactory(scheme_, kCookieAccessDomain,
-                                             nullptr);
-    }
     scheme_factory_->Shutdown(std::move(complete_callback));
     scheme_factory_ = nullptr;
   }
@@ -1916,6 +1979,7 @@ class CookieAccessTestHandler : public RoutingTestHandler,
   const std::string scheme_;
   const bool use_global_;
   CefRefPtr<CefRequestContext> context_;
+  ReusableRequestContext reusable_context_;
   CefRefPtr<CefCookieManager> cookie_manager_;
 
   CookieAccessServerHandler* server_handler_ = nullptr;
@@ -2017,17 +2081,28 @@ class CookieRestartTestHandler : public RoutingTestHandler,
   CookieRestartTestHandler& operator=(const CookieRestartTestHandler&) = delete;
 
   void RunTest() override {
+    SetTestTimeout();
     if (use_global_) {
       context_ = CefRequestContext::GetGlobalContext();
+      OnContextReady();
     } else {
       // Create the request context that will use an in-memory cache.
       CefRequestContextSettings settings;
-      context_ = CefRequestContext::CreateContext(settings, nullptr);
+      CreateReusableRequestContext(
+          settings, /*is_global=*/false,
+          base::BindOnce(
+              &CookieRestartTestHandler::OnReusableContextInitialized, this));
     }
+  }
 
+  void OnReusableContextInitialized(ReusableRequestContext context) {
+    reusable_context_ = context;
+    context_ = context.context;
+    OnContextReady();
+  }
+
+  void OnContextReady() {
     cookie_manager_ = context_->GetCookieManager(nullptr);
-
-    SetTestTimeout();
     RunTestSetupContinue();
   }
 
@@ -2311,7 +2386,8 @@ class CookieRestartTestHandler : public RoutingTestHandler,
     // 2 requests for each URL.
     server_handler_->SetExpectedRequestCount(4);
 
-    CreateBrowser(GetCookieAccessUrl1(scheme_, true), context_);
+    CreateReusableBrowser(GetCookieAccessUrl1(scheme_, true), CefSize(800, 600),
+                          CefBrowserSettings(), reusable_context_);
   }
 
   void FinishTest() {
@@ -2366,6 +2442,7 @@ class CookieRestartTestHandler : public RoutingTestHandler,
   const std::string scheme_;
   const bool use_global_;
   CefRefPtr<CefRequestContext> context_;
+  ReusableRequestContext reusable_context_;
   CefRefPtr<CefCookieManager> cookie_manager_;
 
   CookieAccessServerHandler* server_handler_ = nullptr;
