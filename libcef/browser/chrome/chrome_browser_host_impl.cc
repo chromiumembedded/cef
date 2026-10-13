@@ -249,6 +249,10 @@ void ChromeBrowserHostImpl::SendExternalBeginFrame() {
   NOTIMPLEMENTED();
 }
 
+void ChromeBrowserHostImpl::SendExternalBeginFrame(int64_t tick_age_us) {
+  NOTIMPLEMENTED();
+}
+
 void ChromeBrowserHostImpl::SendTouchEvent(const CefTouchEvent& event) {
   NOTIMPLEMENTED();
 }

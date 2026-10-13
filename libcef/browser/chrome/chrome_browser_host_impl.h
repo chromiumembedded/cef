@@ -83,6 +83,7 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   void WasHidden(bool hidden) override;
   void Invalidate(PaintElementType type) override;
   void SendExternalBeginFrame() override;
+  void SendExternalBeginFrame(int64_t tick_age_us) override;
   void SendTouchEvent(const CefTouchEvent& event) override;
   void SendCaptureLostEvent() override;
   int GetWindowlessFrameRate() override;

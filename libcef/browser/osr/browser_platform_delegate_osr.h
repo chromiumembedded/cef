@@ -59,6 +59,7 @@ class CefBrowserPlatformDelegateOsr
   void NotifyScreenInfoChanged() override;
   void Invalidate(cef_paint_element_type_t type) override;
   void SendExternalBeginFrame() override;
+  void SendExternalBeginFrame(base::TimeTicks frame_time) override;
   void SetWindowlessFrameRate(int frame_rate) override;
   void ImeSetComposition(const CefString& text,
                          const std::vector<CefCompositionUnderline>& underlines,

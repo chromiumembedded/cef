@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "base/synchronization/lock.h"
+#include "base/time/time.h"
 #include "cef/include/cef_browser.h"
 #include "cef/include/cef_client.h"
 #include "cef/include/cef_frame.h"
@@ -20,8 +21,8 @@
 #include "cef/libcef/browser/frame_host_impl.h"
 #include "cef/libcef/browser/menu_manager.h"
 #include "cef/libcef/browser/request_context_impl.h"
-#include "content/public/browser/web_contents.h"
 #include "content/public/browser/global_routing_id.h"
+#include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
 
@@ -88,6 +89,8 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   void WasHidden(bool hidden) override;
   void Invalidate(PaintElementType type) override;
   void SendExternalBeginFrame() override;
+  void SendExternalBeginFrame(int64_t tick_age_us) override;
+  void SendExternalBeginFrameOnUIThread(base::TimeTicks frame_time);
   void SendTouchEvent(const CefTouchEvent& event) override;
   void SendCaptureLostEvent() override;
   int GetWindowlessFrameRate() override;

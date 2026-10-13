@@ -404,6 +404,11 @@ void CefBrowserPlatformDelegate::SendExternalBeginFrame() {
   DCHECK(false);
 }
 
+void CefBrowserPlatformDelegate::SendExternalBeginFrame(
+    base::TimeTicks frame_time) {
+  DCHECK(false);
+}
+
 void CefBrowserPlatformDelegate::SetWindowlessFrameRate(int frame_rate) {
   DCHECK(false);
 }
