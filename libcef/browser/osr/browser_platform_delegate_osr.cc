@@ -457,6 +457,8 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragLeave() {
   }
 
   drag_data_ = nullptr;
+  // Do not retain the old view identity across later navigations.
+  current_rvh_for_drag_ = nullptr;
 }
 
 void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
@@ -525,6 +527,8 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
   }
 
   drag_data_ = nullptr;
+  current_rwh_for_drag_.reset();
+  current_rvh_for_drag_ = nullptr;
 }
 
 void CefBrowserPlatformDelegateOsr::StartDragging(

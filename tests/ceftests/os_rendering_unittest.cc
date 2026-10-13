@@ -31,6 +31,7 @@ HINSTANCE hInst = client::GetCodeModuleHandle();
 namespace {
 
 const char kTestUrl[] = "https://tests/osrtest";
+const char kDragNavigationUrl[] = "https://other-tests/drag_target_navigation";
 
 // Must be both large enough for the drag/drop region to be visible and small
 // enough for a little vertical offset with scrollbar.
@@ -139,6 +140,9 @@ enum OSRTestType {
   OSR_TEST_DRAG_DROP_UPDATE_CURSOR,
   // dropping element inside drop region will move the element
   OSR_TEST_DRAG_DROP_DROP,
+  // leaving or dropping a drag target, then navigating, releases the old view
+  OSR_TEST_DRAG_TARGET_LEAVE_THEN_NAVIGATE,
+  OSR_TEST_DRAG_TARGET_DROP_THEN_NAVIGATE,
   // text selection range changed
   OSR_TEST_TEXT_SELECTION_CHANGE,
   // clicking on text input will call OnVirtualKeyboardRequested
@@ -169,6 +173,10 @@ class OSRTestHandler : public RoutingTestHandler,
 
   // TestHandler methods
   void RunTest() override {
+    if (IsDragTargetNavigationTest()) {
+      AddResource(kDragNavigationUrl, "<html style='background:blue'></html>",
+                  "text/html");
+    }
     CreateOSRBrowser(kTestUrl);
 
     // Time out the test after a reasonable period of time.
@@ -186,6 +194,21 @@ class OSRTestHandler : public RoutingTestHandler,
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
+    if (IsDragTargetNavigationTest()) {
+      if (frame->IsMain()) {
+        EXPECT_EQ(200, httpStatusCode);
+        if (!drag_document_posted_) {
+          // A POST document cannot enter BFCache. Cross-site navigation after
+          // the drag ends must destroy its RenderViewHost before browser close.
+          drag_document_posted_ = true;
+          auto request = CefRequest::Create();
+          request->SetURL(kTestUrl);
+          request->SetMethod("POST");
+          frame->LoadRequest(request);
+        }
+      }
+      return;
+    }
 #if VERBOSE_DEBUGGING
     LOG(INFO) << "OnLoadEnd started=" << started()
               << " finished=" << finished();
@@ -410,6 +433,25 @@ class OSRTestHandler : public RoutingTestHandler,
                CefRefPtr<Callback> callback) override {
     EXPECT_TRUE(browser.get());
 
+    if (IsDragTargetNavigationTest()) {
+      callback->Success("");
+      if (request == "entered") {
+        EXPECT_TRUE(started());
+        if (test_type_ == OSR_TEST_DRAG_TARGET_LEAVE_THEN_NAVIGATE) {
+          browser->GetHost()->DragTargetDragLeave();
+        }
+      } else {
+        EXPECT_EQ(test_type_ == OSR_TEST_DRAG_TARGET_DROP_THEN_NAVIGATE
+                      ? "dropped"
+                      : "left",
+                  request.ToString());
+        EXPECT_FALSE(drag_target_ended_);
+        drag_target_ended_ = true;
+        browser->GetMainFrame()->LoadURL(kDragNavigationUrl);
+      }
+      return true;
+    }
+
     const std::string& messageStr = request;
     if (messageStr.length() > 0 && messageStr[0] == '{') {
       // Paint-only tests do not use element bounds.
@@ -597,6 +639,26 @@ class OSRTestHandler : public RoutingTestHandler,
       CefRefPtr<CefRequest> request) override {
     std::string url = request->GetURL();
 
+    if (IsDragTargetNavigationTest()) {
+      if (url == kTestUrl) {
+        const char kHtml[] = R"HTML(
+          <html style='background:red'><body style='margin:0;height:100vh'
+            ondragenter="window.testQuery({request:'entered'});event.preventDefault()"
+            ondragover="event.preventDefault()"
+            ondragleave="window.testQuery({request:'left'})"
+            ondrop="event.preventDefault();window.testQuery({request:'dropped'})">
+          </body></html>)HTML";
+        const char kInitialHtml[] = "<html></html>";
+        const bool posted = request->GetMethod() == "POST";
+        return new CefStreamResourceHandler(
+            "text/html",
+            CefStreamReader::CreateForData(
+                const_cast<char*>(posted ? kHtml : kInitialHtml),
+                posted ? sizeof(kHtml) - 1 : sizeof(kInitialHtml) - 1));
+      }
+      return RoutingTestHandler::GetResourceHandler(browser, frame, request);
+    }
+
     if (url.find(kTestUrl) == 0) {
       // Show the osr test contents
       CefRefPtr<CefStreamReader> stream =
@@ -743,6 +805,29 @@ class OSRTestHandler : public RoutingTestHandler,
     }
 
     EXPECT_TRUE(browser->GetHost()->IsWindowRenderingDisabled());
+
+    if (IsDragTargetNavigationTest()) {
+      if (type == PET_VIEW && !finished()) {
+        ASSERT_NE(nullptr, buffer);
+        const auto color = static_cast<const uint32_t*>(buffer)[0];
+        if (color == 0xffff0000U && drag_document_posted_ && !started()) {
+          EXPECT_TRUE(StartTest());
+          CefMouseEvent event;
+          event.x = 80;
+          event.y = 60;
+          auto data = CefDragData::Create();
+          data->SetFragmentText("drag target navigation");
+          browser->GetHost()->DragTargetDragEnter(data, event,
+                                                  DRAG_OPERATION_COPY);
+          if (test_type_ == OSR_TEST_DRAG_TARGET_DROP_THEN_NAVIGATE) {
+            browser->GetHost()->DragTargetDragOver(event, DRAG_OPERATION_COPY);
+          }
+        } else if (color == 0xff0000ffU && drag_target_ended_) {
+          DestroySucceededTestSoon();
+        }
+      }
+      return;
+    }
 
     // start test only when painting something else then background
     const bool contentful = !IsBackgroundInBuffer(
@@ -1108,6 +1193,17 @@ class OSRTestHandler : public RoutingTestHandler,
 
   void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
                         DragOperation operation) override {
+    if (IsDragTargetNavigationTest()) {
+      if (test_type_ == OSR_TEST_DRAG_TARGET_DROP_THEN_NAVIGATE &&
+          operation == DRAG_OPERATION_COPY && !got_update_cursor_) {
+        got_update_cursor_.yes();
+        CefMouseEvent event;
+        event.x = 80;
+        event.y = 60;
+        browser->GetHost()->DragTargetDrop(event);
+      }
+      return;
+    }
     if (operation == DRAG_OPERATION_NONE) {
       return;
     }
@@ -1612,13 +1708,21 @@ class OSRTestHandler : public RoutingTestHandler,
     // Always get the OnSetFocus call for the initial navigation.
     EXPECT_TRUE(got_navigation_focus_event_);
 
+    if (IsDragTargetNavigationTest()) {
+      EXPECT_TRUE(drag_document_posted_);
+      EXPECT_TRUE(started());
+      EXPECT_TRUE(drag_target_ended_);
+      EXPECT_TRUE(finished());
+    }
+
     if (test_type_ == OSR_TEST_FOCUS) {
       // SetFocus is called by the system when we explicitly set the focus and
       // when popups are dismissed.
       EXPECT_TRUE(got_system_focus_event_);
     } else if (test_type_ == OSR_TEST_TEXT_SELECTION_CHANGE) {
       EXPECT_TRUE(got_initial_text_selection_event_);
-    } else {
+    } else if (!IsDragTargetNavigationTest()) {
+      // Cross-site navigation may restore focus to the new view.
       EXPECT_FALSE(got_system_focus_event_);
     }
 
@@ -1720,11 +1824,18 @@ class OSRTestHandler : public RoutingTestHandler,
   bool StartedButNotFinished() const { return started() && !finished(); }
 
  private:
+  bool IsDragTargetNavigationTest() const {
+    return test_type_ == OSR_TEST_DRAG_TARGET_LEAVE_THEN_NAVIGATE ||
+           test_type_ == OSR_TEST_DRAG_TARGET_DROP_THEN_NAVIGATE;
+  }
+
   const OSRTestType test_type_;
   const float scale_factor_;
 
   bool started_ = false;
   bool finished_ = false;
+  bool drag_document_posted_ = false;
+  bool drag_target_ended_ = false;
   cef_touch_event_type_t touch_state_ = CEF_TET_CANCELLED;
 
   TrackCallback got_bounds_query_;
@@ -1942,6 +2053,12 @@ OSR_TEST(DragDropUpdateCursor, OSR_TEST_DRAG_DROP_UPDATE_CURSOR, 1.0f)
 OSR_TEST(DragDropUpdateCursor2x, OSR_TEST_DRAG_DROP_UPDATE_CURSOR, 2.0f)
 OSR_TEST(DragDropDropElement, OSR_TEST_DRAG_DROP_DROP, 1.0f)
 OSR_TEST(DragDropDropElement2x, OSR_TEST_DRAG_DROP_DROP, 2.0f)
+OSR_TEST(DragTargetLeaveThenNavigate,
+         OSR_TEST_DRAG_TARGET_LEAVE_THEN_NAVIGATE,
+         1.0f)
+OSR_TEST(DragTargetDropThenNavigate,
+         OSR_TEST_DRAG_TARGET_DROP_THEN_NAVIGATE,
+         1.0f)
 OSR_TEST(TextSelectionChanged, OSR_TEST_TEXT_SELECTION_CHANGE, 1.0f)
 OSR_TEST(TextSelectionChanged2x, OSR_TEST_TEXT_SELECTION_CHANGE, 2.0f)
 OSR_TEST(VirtualKeyboard, OSR_TEST_VIRTUAL_KEYBOARD, 1.0f)
