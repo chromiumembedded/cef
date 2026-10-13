@@ -97,7 +97,8 @@ class PermissionPromptTestHandler : public TestHandler,
         test_setup_->got_js_timeout.yes();
       }
 
-      DestroyTest();
+      CefPostTask(TID_UI, base::BindOnce(
+                              &PermissionPromptTestHandler::DestroyTest, this));
       return RV_CANCEL;
     }
 
@@ -155,20 +156,12 @@ class PermissionPromptTestHandler : public TestHandler,
 
     page += "</body></html>";
 
-    // Create the request context that will use an in-memory cache.
-    CefRequestContextSettings settings;
-    CefRefPtr<CefRequestContext> request_context =
-        CefRequestContext::CreateContext(settings, nullptr);
-
     AddResource(kPromptUrl, page, "text/html");
+    AddResource(kPromptNavUrl, "<html><body>Navigated</body></html>",
+                "text/html");
 
-    if (test_setup_->deny_with_navigation) {
-      AddResource(kPromptNavUrl, "<html><body>Navigated</body></html>",
-                  "text/html");
-    }
-
-    // Create the browser.
-    CreateBrowser(kPromptUrl, request_context);
+    CefPostTask(TID_UI, base::BindOnce(
+                            &PermissionPromptTestHandler::StartBrowser, this));
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -181,6 +174,16 @@ class PermissionPromptTestHandler : public TestHandler,
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
+    if (!frame->IsMain()) {
+      return;
+    }
+    if (finishing_) {
+      if (frame->GetURL() == kPromptNavUrl) {
+        cleanup_loaded_ = true;
+        MaybeFinishTest();
+      }
+      return;
+    }
     if (test_setup_->deny_no_gesture) {
       return;
     }
@@ -243,9 +246,15 @@ class PermissionPromptTestHandler : public TestHandler,
     EXPECT_EQ(result_, result);
     EXPECT_FALSE(test_setup_->got_dismiss);
     test_setup_->got_dismiss.yes();
+    MaybeFinishTest();
   }
 
   void DestroyTest() override {
+    EXPECT_UI_THREAD();
+    if (finishing_) {
+      return;
+    }
+    finishing_ = true;
     const size_t js_outcome_ct = test_setup_->got_js_success +
                                  test_setup_->got_js_error +
                                  test_setup_->got_js_timeout;
@@ -257,10 +266,54 @@ class PermissionPromptTestHandler : public TestHandler,
       EXPECT_EQ(1U, js_outcome_ct);
     }
 
-    TestHandler::DestroyTest();
+    if (auto browser = GetBrowser()) {
+      if (test_setup_->deny_with_navigation &&
+          browser->GetMainFrame()->GetURL() == kPromptNavUrl) {
+        cleanup_loaded_ = true;
+        MaybeFinishTest();
+        return;
+      }
+      // Navigation retires the document and dismisses default Chrome prompts
+      // that do not produce OnDismissPermissionPrompt callbacks.
+      browser->GetMainFrame()->LoadURL(kPromptNavUrl);
+    } else {
+      TestHandler::DestroyTest();
+    }
   }
 
  private:
+  void ResetPermissions() {
+    EXPECT_UI_THREAD();
+    auto context = CefRequestContext::GetGlobalContext();
+    context->SetContentSetting(kPromptOrigin, kPromptOrigin,
+                               CEF_CONTENT_SETTING_TYPE_WINDOW_MANAGEMENT,
+                               CEF_CONTENT_SETTING_VALUE_DEFAULT);
+    context->SetWebsiteSetting(
+        kPromptOrigin, CefString(),
+        CEF_CONTENT_SETTING_TYPE_PERMISSION_AUTOBLOCKER_DATA, nullptr);
+  }
+
+  void StartBrowser() {
+    ResetPermissions();
+    CreateReusableBrowser(kPromptUrl);
+  }
+
+  void MaybeFinishTest() {
+    if (!cleanup_loaded_ ||
+        (test_setup_->got_prompt && !test_setup_->deny_implicitly &&
+         !test_setup_->got_dismiss)) {
+      return;
+    }
+    ResetPermissions();
+    TestHandler::DestroyTest();
+  }
+
+  void OnTestTimeout(int timeout_ms, bool treat_as_error) override {
+    TestHandler::OnTestTimeout(timeout_ms, treat_as_error);
+    ResetPermissions();
+    TestHandler::DestroyTest();
+  }
+
   void SendClick(CefRefPtr<CefBrowser> browser) {
     CefMouseEvent mouse_event;
     mouse_event.x = 20;
@@ -285,6 +338,8 @@ class PermissionPromptTestHandler : public TestHandler,
   const uint32_t request_;
   const cef_permission_request_result_t result_;
   uint64_t prompt_id_ = 0U;
+  bool finishing_ = false;
+  bool cleanup_loaded_ = false;
 
   IMPLEMENT_REFCOUNTING(PermissionPromptTestHandler);
 };

@@ -119,7 +119,8 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
         EXPECT_FALSE(test_setup_->got_js_timeout);
         test_setup_->got_js_timeout.yes();
       }
-      MaybeDestroyTest();
+      CefPostTask(TID_UI, base::BindOnce(
+                              &MediaAccessTestHandler::MaybeDestroyTest, this));
       return RV_CANCEL;
     }
 
@@ -182,20 +183,12 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
 
     page += "MEDIA ACCESS TEST</body></html>";
 
-    // Create the request context that will use an in-memory cache.
-    CefRequestContextSettings settings;
-    CefRefPtr<CefRequestContext> request_context =
-        CefRequestContext::CreateContext(settings, nullptr);
-
     AddResource(kMediaUrl, page, "text/html");
+    AddResource(kMediaNavUrl, "<html><body>Navigated</body></html>",
+                "text/html");
 
-    if (test_setup_->deny_with_navigation) {
-      AddResource(kMediaNavUrl, "<html><body>Navigated</body></html>",
-                  "text/html");
-    }
-
-    // Create the browser.
-    CreateBrowser(kMediaUrl, request_context);
+    CefPostTask(TID_UI,
+                base::BindOnce(&MediaAccessTestHandler::StartBrowser, this));
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -208,6 +201,16 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
+    if (!frame->IsMain()) {
+      return;
+    }
+    if (finishing_) {
+      if (frame->GetURL() == kMediaNavUrl) {
+        cleanup_loaded_ = true;
+        MaybeFinishTest();
+      }
+      return;
+    }
     if (test_setup_->deny_with_navigation) {
       if (frame->GetURL().ToString() == kMediaNavUrl) {
         DestroyTest();
@@ -262,8 +265,9 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
                            bool has_video_access,
                            bool has_audio_access) override {
     EXPECT_UI_THREAD();
+    media_active_ = has_video_access || has_audio_access;
     if (!has_video_access && !has_audio_access) {
-      // Skip no-op calls.
+      MaybeFinishTest();
       return;
     }
 
@@ -288,6 +292,11 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
   }
 
   void DestroyTest() override {
+    EXPECT_UI_THREAD();
+    if (finishing_) {
+      return;
+    }
+    finishing_ = true;
     callback_ = nullptr;
 
     const size_t js_outcome_ct = test_setup_->got_js_success +
@@ -315,10 +324,54 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
       EXPECT_EQ(test_setup_->got_change_ct, 0U);
     }
 
-    TestHandler::DestroyTest();
+    if (auto browser = GetBrowser()) {
+      if (test_setup_->deny_with_navigation &&
+          browser->GetMainFrame()->GetURL() == kMediaNavUrl) {
+        cleanup_loaded_ = true;
+        MaybeFinishTest();
+        return;
+      }
+      // Retire the document, capture tracks, and default Chrome prompts
+      // before resetting permissions and releasing the browser.
+      browser->GetMainFrame()->LoadURL(kMediaNavUrl);
+    } else {
+      TestHandler::DestroyTest();
+    }
   }
 
  private:
+  void ResetPermissions() {
+    EXPECT_UI_THREAD();
+    auto context = CefRequestContext::GetGlobalContext();
+    for (const auto type : {CEF_CONTENT_SETTING_TYPE_MEDIASTREAM_MIC,
+                            CEF_CONTENT_SETTING_TYPE_MEDIASTREAM_CAMERA}) {
+      context->SetContentSetting(kMediaOrigin, kMediaOrigin, type,
+                                 CEF_CONTENT_SETTING_VALUE_DEFAULT);
+    }
+    context->SetWebsiteSetting(
+        kMediaOrigin, CefString(),
+        CEF_CONTENT_SETTING_TYPE_PERMISSION_AUTOBLOCKER_DATA, nullptr);
+  }
+
+  void StartBrowser() {
+    ResetPermissions();
+    CreateReusableBrowser(kMediaUrl);
+  }
+
+  void MaybeFinishTest() {
+    if (!cleanup_loaded_ || media_active_) {
+      return;
+    }
+    ResetPermissions();
+    TestHandler::DestroyTest();
+  }
+
+  void OnTestTimeout(int timeout_ms, bool treat_as_error) override {
+    TestHandler::OnTestTimeout(timeout_ms, treat_as_error);
+    ResetPermissions();
+    TestHandler::DestroyTest();
+  }
+
   bool want_audio_device() const {
     return request_ & CEF_MEDIA_PERMISSION_DEVICE_AUDIO_CAPTURE;
   }
@@ -368,6 +421,9 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
   const uint32_t response_;
 
   CefRefPtr<CefMediaAccessCallback> callback_;
+  bool finishing_ = false;
+  bool cleanup_loaded_ = false;
+  bool media_active_ = false;
 
   IMPLEMENT_REFCOUNTING(MediaAccessTestHandler);
 };
