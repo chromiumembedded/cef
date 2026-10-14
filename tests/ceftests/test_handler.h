@@ -546,14 +546,12 @@ void ReleaseAndWaitForDestructor(CefRefPtr<T>& handler, int delay_ms = 2000) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
   handler->SetDestroyEvent(event);
-  T* _handler_ptr = handler.get();
   handler = nullptr;
   bool handler_destructed = event->TimedWait(delay_ms);
   EXPECT_TRUE(handler_destructed);
-  if (!handler_destructed) {
-    // |event| is a stack variable so clear the reference before returning.
-    _handler_ptr->SetDestroyEvent(nullptr);
-  }
+  // The handler retains the ref-counted event if destruction is delayed.
+  // Do not access it after dropping our reference: it may be destroyed just
+  // as the wait times out.
 }
 
 // Returns true if the currently running test has failed.
