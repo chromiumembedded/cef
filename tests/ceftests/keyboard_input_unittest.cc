@@ -166,6 +166,17 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
         window.testQuery({request:'ready:' + Number(document.hasFocus()) +
           ':' + Number(document.activeElement === i)});
       }
+      let inputReady = false;
+      // Retried setup clicks must not move the caret after input starts.
+      document.addEventListener('mousedown', e => e.preventDefault());
+      i.addEventListener('click', e => {
+        e.preventDefault();
+        if (!inputReady) {
+          inputReady = true;
+          i.focus();
+          notifyInputReady();
+        }
+      });
       finish.addEventListener('click', report);
       for (const type of ['keydown', 'keypress', 'keyup']) {
         document.addEventListener(type, e => {
@@ -255,6 +266,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
       return true;
     }
     if (request.ToString().rfind("ready:", 0) == 0) {
+      waiting_for_input_ = false;
       EXPECT_EQ("ready:1:1", request.ToString());
       EXPECT_EQ(use_alloy_style_browser() ? CEF_RUNTIME_STYLE_ALLOY
                                           : CEF_RUNTIME_STYLE_CHROME,
@@ -517,6 +529,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   }
 
   void OnTestTimeout(int timeout_ms, bool treat_as_error) override {
+    waiting_for_input_ = false;
     ADD_FAILURE() << "reported=" << reported_ << ", pre=" << pre_
                   << ", post=" << post_;
     RoutingTestHandler::OnTestTimeout(timeout_ms, treat_as_error);
@@ -524,10 +537,24 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
 
  private:
   void FocusInput(CefRefPtr<CefBrowser> browser) {
-    // OSRTest covers mouse targeting. Character-only reporting retains its
-    // queued click so the report cannot overtake keyboard input.
-    browser->GetMainFrame()->ExecuteJavaScript("i.focus();notifyInputReady()",
-                                               kUrl, 0);
+    if (!waiting_for_input_) {
+      return;
+    }
+    // DOM focus (and, for OSR, OnPaint) can precede input activation while
+    // navigation paint holding is active. A DOM click proves the renderer
+    // accepts input; browser-side keyboard acknowledgements alone do not.
+    CefMouseEvent mouse;
+    mouse.x = 10;
+    mouse.y = 10;
+    // Avoid the shared helper's independently delayed down/up tasks so
+    // retries cannot leave unmatched clicks after readiness is reported.
+    auto host = browser->GetHost();
+    host->SendMouseClickEvent(mouse, MBT_LEFT, false, 1);
+    host->SendMouseClickEvent(mouse, MBT_LEFT, true, 1);
+    CefPostDelayedTask(
+        TID_UI,
+        base::BindOnce(&KeyboardInputTestHandler::FocusInput, this, browser),
+        50);
   }
 
   void BuildEvents() {
@@ -937,6 +964,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   bool suppress_character_dom_ = false;
   bool renderer_handles_keydown_ = false;
   bool waiting_for_paint_ = false;
+  bool waiting_for_input_ = true;
   size_t pre_ = 0, post_ = 0, legacy_pre_ = 0, legacy_post_ = 0;
   size_t pre_unhandled_ = 0, post_unhandled_ = 0;
   size_t post_cursor_ = 0;

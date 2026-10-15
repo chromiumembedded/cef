@@ -411,7 +411,18 @@ class ImeInputTestHandler : public RoutingTestHandler,
         window.testQuery({request:'editorReady:' + Number(document.hasFocus()) +
           ':' + Number(document.activeElement === editor)});
       }
-      editor.addEventListener('click', notifyEditorReady, {once:true});
+      let editorReady = false;
+      // Setup clicks may be retried while the compositor's input routing is
+      // becoming ready. Pending clicks must not move an initialized caret.
+      document.addEventListener('mousedown', e => e.preventDefault());
+      editor.addEventListener('click', e => {
+        e.preventDefault();
+        if (!editorReady) {
+          editorReady = true;
+          editor.focus();
+          notifyEditorReady();
+        }
+      });
       function initialize(value, from, to) {
         setEditorText(value, from, to);
         window.testQuery({request:'initialized'});
@@ -587,6 +598,7 @@ class ImeInputTestHandler : public RoutingTestHandler,
         FocusEditor(browser);
       }
     } else if (request.ToString().rfind("editorReady:", 0) == 0) {
+      waiting_for_editor_ = false;
       EXPECT_EQ("editorReady:1:1", request.ToString());
       Execute(browser, "initialize(" + JsonString(initial_) + "," +
                            std::to_string(initial_selection_.from) + "," +
@@ -730,6 +742,7 @@ class ImeInputTestHandler : public RoutingTestHandler,
   }
 
   void OnTestTimeout(int timeout_ms, bool treat_as_error) override {
+    waiting_for_editor_ = false;
     SCOPED_TRACE(Context());
     ADD_FAILURE() << "IME step=" << step_ << ", reported=" << reported_
                   << ", got_bounds=" << got_bounds_ << ", last range=["
@@ -1465,22 +1478,32 @@ class ImeInputTestHandler : public RoutingTestHandler,
   }
 
   void FocusEditor(CefRefPtr<CefBrowser> browser) {
-    if (IsIframe() || IsCrossFrameMonitoring()) {
-      // Retain routed mouse setup: DOM focus can reach the child editor before
-      // root-relative composition bounds are ready.
+    if (!waiting_for_editor_) {
+      return;
+    }
+    if (osr_) {
+      // A paint or scripted focus does not guarantee that input is enabled or
+      // that child-frame hit-test data is installed. Require a DOM click before
+      // dispatching test input, retrying only this non-mutating setup probe.
       CefMouseEvent event;
       event.x = 50;
       event.y = 50;
       if (IsCrossFrameMonitoring()) {
         event.x = origin_x_ + 10;
         event.y = origin_y_ + 10;
-      } else {
+      } else if (IsIframe()) {
         event.x += 30;
         event.y += 20;
       }
-      SendMouseClickEvent(browser, event);
+      // Keep each probe's down/up together. The shared click helper delays
+      // them independently, which would interleave successive retry pairs.
+      auto host = browser->GetHost();
+      host->SendMouseClickEvent(event, MBT_LEFT, false, 1);
+      host->SendMouseClickEvent(event, MBT_LEFT, true, 1);
+      CefPostDelayedTask(
+          TID_UI,
+          base::BindOnce(&ImeInputTestHandler::FocusEditor, this, browser), 50);
     } else {
-      // Root-editor cases exercise IME behavior after focus, not targeting.
       Execute(browser, "editor.focus();notifyEditorReady()");
     }
   }
@@ -1912,6 +1935,7 @@ class ImeInputTestHandler : public RoutingTestHandler,
   std::vector<Step> steps_;
   size_t step_ = 0;
   bool waiting_for_paint_ = false;
+  bool waiting_for_editor_ = true;
   bool waiting_for_initial_selection_ = false;
   bool sent_ = false;
   bool reported_ = false;

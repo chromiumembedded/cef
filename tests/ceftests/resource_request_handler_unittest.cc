@@ -516,7 +516,8 @@ class BasicResponseTest : public TestHandler {
   void OnReusableBrowserAttached(CefRefPtr<CefBrowser> browser) override {
     // Chrome treats creation via AddTabAt as a user gesture, while navigating
     // an existing browser with LoadURL is programmatic.
-    reused_navigation_ = !!browser->GetHost()->GetVisibleNavigationEntry();
+    // Pending navigation entries can already exist on a newly created browser.
+    reused_navigation_ = IsReusedBrowser();
     TestHandler::OnReusableBrowserAttached(browser);
   }
 
@@ -1576,7 +1577,9 @@ class SubresourceResponseTest : public RoutingTestHandler {
   void OnReusableBrowserAttached(CefRefPtr<CefBrowser> browser) override {
     // Chrome treats creation via AddTabAt as a user gesture, while navigating
     // an existing browser with LoadURL is programmatic.
-    reused_navigation_ = !!browser->GetHost()->GetVisibleNavigationEntry();
+    // Pending navigation entries can already exist on a newly created browser.
+    reused_navigation_ = IsReusedBrowser();
+    previous_main_frame_id_ = browser->GetMainFrame()->GetIdentifier();
     RoutingTestHandler::OnReusableBrowserAttached(browser);
   }
 
@@ -1654,7 +1657,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       return this;
     }
 
-    VerifyFrame(kGetResourceRequestHandler, frame);
+    VerifyFrame(kGetResourceRequestHandler, browser, frame);
 
     if (request_id_ == 0U) {
       // This is the first callback that provides a request ID.
@@ -1705,7 +1708,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       return nullptr;
     }
 
-    VerifyFrame(kGetCookieAccessFilter, frame);
+    VerifyFrame(kGetCookieAccessFilter, browser, frame);
 
     VerifyState(kGetCookieAccessFilter, request, nullptr);
 
@@ -1737,7 +1740,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       return RV_CONTINUE;
     }
 
-    VerifyFrame(kOnBeforeResourceLoad, frame);
+    VerifyFrame(kOnBeforeResourceLoad, browser, frame);
 
     VerifyState(kOnBeforeResourceLoad, request, nullptr);
 
@@ -1780,7 +1783,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       return GetSubResource();
     }
 
-    VerifyFrame(kGetResourceHandler, frame);
+    VerifyFrame(kGetResourceHandler, browser, frame);
 
     VerifyState(kGetResourceHandler, request, nullptr);
 
@@ -1854,7 +1857,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       return;
     }
 
-    VerifyFrame(kOnResourceRedirect, frame);
+    VerifyFrame(kOnResourceRedirect, browser, frame);
 
     VerifyState(kOnResourceRedirect, request, response);
 
@@ -1892,7 +1895,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       return false;
     }
 
-    VerifyFrame(kOnResourceResponse, frame);
+    VerifyFrame(kOnResourceResponse, browser, frame);
 
     VerifyState(kOnResourceResponse, request, response);
 
@@ -1930,7 +1933,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       return nullptr;
     }
 
-    VerifyFrame(kGetResourceResponseFilter, frame);
+    VerifyFrame(kGetResourceResponseFilter, browser, frame);
 
     VerifyState(kGetResourceResponseFilter, request, response);
 
@@ -1969,7 +1972,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       return;
     }
 
-    VerifyFrame(kOnResourceLoadComplete, frame);
+    VerifyFrame(kOnResourceLoadComplete, browser, frame);
 
     VerifyState(kOnResourceLoadComplete, request, response);
 
@@ -2001,7 +2004,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       return;
     }
 
-    VerifyFrame(kOnProtocolExecution, frame);
+    VerifyFrame(kOnProtocolExecution, browser, frame);
 
     EXPECT_TRUE(custom_scheme_);
     EXPECT_TRUE(unhandled_);
@@ -2038,7 +2041,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
 
     EXPECT_STREQ(kSubresourceProcessMsg, request.ToString().c_str());
 
-    VerifyFrame(kOnQuery, frame);
+    VerifyFrame(kOnQuery, browser, frame);
 
     callback->Success("");
 
@@ -2447,19 +2450,41 @@ class SubresourceResponseTest : public RoutingTestHandler {
     return callback == kOnBeforeResourceLoad || callback == kOnResourceResponse;
   }
 
-  void VerifyFrame(Callback callback, CefRefPtr<CefFrame> frame) const {
-    EXPECT_TRUE(frame);
+  void VerifyFrame(Callback callback,
+                   CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame) {
+    ASSERT_TRUE(frame) << callback;
 
     EXPECT_NE(subframe_, frame->IsMain()) << callback;
-    if (subframe_) {
+    if (!subframe_ && IsIncomplete() &&
+        callback == kGetResourceRequestHandler) {
+      // Incomplete requests finish after browser closure. Capture their main
+      // frame ID on IO before CloseBrowserAsync can initiate destruction.
+      EXPECT_TRUE(frame_id_.empty());
+      frame_id_ = frame->GetIdentifier();
+    }
+    if (subframe_ || IsIncomplete()) {
       EXPECT_STREQ(frame_id_.c_str(), frame->GetIdentifier().ToString().c_str())
           << callback;
     } else {
-      // Parser requests can begin before a reused browser commits its new main
-      // frame. The resource request wrapper rebinds them to the current main
-      // frame after commit; verify that identity at every callback.
-      EXPECT_EQ(GetBrowser()->GetMainFrame()->GetIdentifier(),
-                frame->GetIdentifier())
+      // GetFrame() in the resource request wrapper snapshots the current main
+      // frame on IO. UI can commit this lease's navigation before the callback
+      // gets here, detaching the previous lease's frame in the meantime.
+      // Accept only that known, detached frame for IO callbacks. OnQuery runs
+      // on UI after commit and must always identify the new main frame.
+      if (reused_navigation_ && callback != kOnQuery &&
+          frame->GetIdentifier() == previous_main_frame_id_ &&
+          !frame->IsValid()) {
+        EXPECT_IO_THREAD();
+        return;
+      }
+      // Use the callback's browser, not TestHandler's UI-owned reference that
+      // OnBeforeClose clears. GetMainFrame may also be null during destruction;
+      // report an unexpected closure as a test failure instead of crashing.
+      ASSERT_TRUE(browser) << callback;
+      const auto main_frame = browser->GetMainFrame();
+      ASSERT_TRUE(main_frame) << callback;
+      EXPECT_EQ(main_frame->GetIdentifier(), frame->GetIdentifier())
           << callback;
     }
   }
@@ -2642,6 +2667,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
   bool reused_navigation_ = false;
   int browser_id_ = 0;
   std::string frame_id_;
+  std::string previous_main_frame_id_;
   uint64_t request_id_ = 0U;
 
   int resource_handler_created_ct_ = 0;

@@ -8,6 +8,7 @@
 #include "include/cef_file_util.h"
 #include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
+#include "tests/ceftests/test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/gtest/teamcity/include/teamcity_gtest.h"
 #include "tests/shared/browser/resource_util.h"
@@ -16,6 +17,11 @@
 namespace {
 
 CefTestSuite* g_test_suite = nullptr;
+
+class ReusableBrowserEnvironment : public testing::Environment {
+ public:
+  void TearDown() override { TestHandler::ShutdownReusableBrowsers(); }
+};
 
 #if defined(OS_WIN)
 
@@ -127,6 +133,10 @@ void CefTestSuite::InitMainProcess() {
 
   // This will modify |argc_| and |argv_|.
   testing::InitGoogleTest(&argc_, argv_.array());
+  // Keep final pool cleanup inside RUN_ALL_TESTS so shutdown failures affect
+  // both the test report and the suite's return value, including on Windows
+  // with the multi-threaded message loop enabled.
+  testing::AddGlobalTestEnvironment(new ReusableBrowserEnvironment);
 
   if (jetbrains::teamcity::underTeamcity()) {
     auto& listeners = ::testing::UnitTest::GetInstance()->listeners();

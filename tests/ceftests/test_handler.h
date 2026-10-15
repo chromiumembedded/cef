@@ -15,6 +15,7 @@
 #include <utility>
 
 #include "include/base/cef_callback.h"
+#include "include/base/cef_logging.h"
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
 #include "include/cef_frame.h"
@@ -55,8 +56,16 @@ class TestHandler : public CefClient,
                     public CefRequestHandler,
                     public CefResourceRequestHandler {
  public:
-  // Close pooled browsers on the test thread before shutting down CEF.
+  // Close pooled browsers on the test thread before shutting down CEF. Browser
+  // closure timeouts fail the test non-fatally; a blocked UI task remains
+  // fatal.
   static void ShutdownReusableBrowsers();
+
+  // Opt-in diagnostics for selected tests. Enable before setup/creation and
+  // disable after teardown. Each browser retains its creation-time setting so
+  // late destruction callbacks can still be traced. Disabled by default.
+  static void SetReusableBrowserLoggingForTesting(bool enabled);
+
   // Snapshot for harness diagnostics and focused reuse tests. May be called on
   // the UI or test thread. Closing entries remain included in total.
   struct ReusableBrowserStats {
@@ -70,7 +79,9 @@ class TestHandler : public CefClient,
     size_t window_hides = 0;
     size_t window_shows = 0;
   };
+
   static ReusableBrowserStats GetReusableBrowserStats();
+
   // A default handle selects the global context. Obtain custom handles from
   // CreateReusableRequestContext; their identities belong to individual
   // creations and remain distinct after context-cache eviction.
@@ -82,6 +93,7 @@ class TestHandler : public CefClient,
     CefRefPtr<CefRequestContext> context;
     size_t identity;
   };
+
   // Create an initialized context, with or without a browser, reusing an entry
   // with matching settings when browser reuse is enabled. The UI-thread
   // callback must not retain a fixture after it returns. Contexts have a
@@ -96,15 +108,18 @@ class TestHandler : public CefClient,
       const CefRequestContextSettings& settings,
       bool is_global,
       base::OnceCallback<void(ReusableRequestContext)> callback);
+
   struct ReusableBrowserOptions {
     bool enabled = false;
     size_t max_browsers = 4;
   };
+
   // Override command-line configuration for targeted harness tests. The cache
   // must be empty. Pass nullopt to restore command-line behavior. UI/test
   // thread.
   static void SetReusableBrowserOptionsForTesting(
       std::optional<ReusableBrowserOptions> options);
+
   // Tracks the completion state of related test runs.
   class CompletionState {
    public:
@@ -277,6 +292,7 @@ class TestHandler : public CefClient,
     return false;
   }
 #endif  // CEF_API_ADDED(CEF_NEXT)
+
   // DEPRECATED: Use OnWindowKeyboardEvent(); retained for legacy route tests.
   virtual bool OnWindowKeyEvent(int browser_id, const CefKeyEvent& event) {
     return false;
@@ -368,6 +384,7 @@ class TestHandler : public CefClient,
       const CefBrowserSettings& settings,
       ReusableRequestContext request_context = ReusableRequestContext(),
       CefRefPtr<CefClient> client = nullptr);
+
   // Windowed equivalent using the fixture's Views/native hosting and Alloy/
   // Chrome style settings. Window dimensions are part of the capability key.
   // Do not use for window lifecycle, activation, initial focus, or resize
@@ -380,8 +397,14 @@ class TestHandler : public CefClient,
       const CefBrowserSettings& settings = CefBrowserSettings(),
       ReusableRequestContext request_context = ReusableRequestContext(),
       CefRefPtr<CefClient> client = nullptr);
+
+  // True while attached to a browser that has served a previous lease. UI
+  // thread only; available from OnReusableBrowserAttached onward.
+  bool IsReusedBrowser() const;
+
   virtual void OnReusableBrowserAttached(CefRefPtr<CefBrowser> browser);
   virtual void OnReusableBrowserReleased(CefRefPtr<CefBrowser> browser);
+
   // Indicate that test setup is complete. Only used in combination with a
   // Collection.
   virtual void SetupComplete();
@@ -483,6 +506,7 @@ class TestHandler : public CefClient,
     NT_BROWSER,
     NT_WINDOW,
   };
+
   void OnCreated(int browser_id, NotifyType type, bool views_hosted);
   void OnClosed(int browser_id, NotifyType type);
 
@@ -547,12 +571,14 @@ class TestHandler : public CefClient,
 // all Handler references have been released on test completion.
 template <typename T>
 void ReleaseAndWaitForDestructor(CefRefPtr<T>& handler, int delay_ms = 2000) {
+  CHECK(!CefCurrentlyOn(TID_UI));
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
   handler->SetDestroyEvent(event);
   handler = nullptr;
   bool handler_destructed = event->TimedWait(delay_ms);
   EXPECT_TRUE(handler_destructed);
+
   // The handler retains the ref-counted event if destruction is delayed.
   // Do not access it after dropping our reference: it may be destroyed just
   // as the wait times out.

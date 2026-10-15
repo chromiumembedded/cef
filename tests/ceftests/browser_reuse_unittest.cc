@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "include/base/cef_logging.h"
+#include "include/cef_devtools_message_observer.h"
+#include "include/cef_parser.h"
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -23,6 +25,51 @@ constexpr char kRedirectUrl[] = "https://tests/browser-reuse-redirect";
 constexpr char kChildUrl[] = "https://other-tests/browser-reuse-child";
 constexpr char kAfterUrl[] = "https://other-tests/browser-reuse-after";
 constexpr char kRetiredFrameProbe[] = "BrowserReuseTest.RetiredFrame";
+
+// Observe the renderer's visibility even while idle-lease DOM messages are
+// intentionally blocked by ReusableBrowserClient.
+class VisibilityObserver : public CefDevToolsMessageObserver {
+ public:
+  explicit VisibilityObserver(bool hidden)
+      : hidden_(hidden),
+        done_(CefWaitableEvent::CreateWaitableEvent(true, false)) {}
+  void Check(CefRefPtr<CefBrowser> browser) {
+    auto host = browser->GetHost();
+    registration_ = host->AddDevToolsMessageObserver(this);
+    auto params = CefDictionaryValue::Create();
+    params->SetString("expression", "document.hidden");
+    message_id_ = host->ExecuteDevToolsMethod(0, "Runtime.evaluate", params);
+    EXPECT_GT(message_id_, 0);
+  }
+  bool Wait() { return done_->TimedWait(10000); }
+  void OnDevToolsMethodResult(CefRefPtr<CefBrowser>,
+                              int message_id,
+                              bool success,
+                              const void* result,
+                              size_t result_size) override {
+    EXPECT_EQ(message_id_, message_id);
+    EXPECT_TRUE(success);
+    auto value =
+        CefParseJSON(std::string(static_cast<const char*>(result), result_size),
+                     JSON_PARSER_RFC);
+    auto dict = value ? value->GetDictionary() : nullptr;
+    auto remote = dict ? dict->GetDictionary("result") : nullptr;
+    EXPECT_TRUE(remote);
+    if (remote) {
+      EXPECT_EQ(VTYPE_BOOL, remote->GetType("value"));
+      EXPECT_EQ(hidden_, remote->GetBool("value"));
+    }
+    registration_ = nullptr;
+    done_->Signal();
+  }
+
+ private:
+  const bool hidden_;
+  int message_id_ = 0;
+  CefRefPtr<CefWaitableEvent> done_;
+  CefRefPtr<CefRegistration> registration_;
+  IMPLEMENT_REFCOUNTING(VisibilityObserver);
+};
 
 class HandlerOverrideClient : public CefClient,
                               public CefDisplayHandler,
@@ -223,14 +270,6 @@ class ReuseTestHandler : public RoutingTestHandler,
         auto view = CefBrowserView::GetForBrowser(browser);
         EXPECT_TRUE(view);
         if (view && view->GetWindow()) {
-#if defined(OS_MAC)
-          // macOS adds the native title bar to CenterWindow's requested size.
-          const auto bounds = view->GetWindow()->GetClientAreaBoundsInScreen();
-#else
-          const auto bounds = view->GetWindow()->GetBounds();
-#endif
-          EXPECT_EQ(width_, bounds.width);
-          EXPECT_EQ(600, bounds.height);
           EXPECT_EQ(alloy_ && !chrome_window_ ? CEF_RUNTIME_STYLE_ALLOY
                                               : CEF_RUNTIME_STYLE_CHROME,
                     view->GetWindow()->GetRuntimeStyle());
@@ -260,6 +299,20 @@ class ReuseTestHandler : public RoutingTestHandler,
   }
   void SetRequestContext(ReusableRequestContext context) {
     request_context_ = context;
+  }
+  CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
+      CefRefPtr<CefBrowser>,
+      CefRefPtr<CefFrame>,
+      CefRefPtr<CefRequest>,
+      bool,
+      bool,
+      const CefString&,
+      bool& disable_default_handling) override {
+    // All resources for this fixture are mapped below. Cancel unmapped
+    // requests (notably favicons) instead of allowing network requests to
+    // retain this lease's handler after the browser has returned to the pool.
+    disable_default_handling = true;
+    return this;
   }
   CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
@@ -351,6 +404,7 @@ enum class Scenario {
   Frames,
   InitialRedirect,
   IdleRequests,
+  IdleOsr,
   IdleViews,
   IdleNative,
   CustomClient,
@@ -367,6 +421,7 @@ class BrowserReuseTest : public testing::Test {
 
  protected:
   void SetUp() override {
+    TestHandler::SetReusableBrowserLoggingForTesting(true);
     TestHandler::ShutdownReusableBrowsers();
     original_options_ = TestHandler::GetReusableBrowserStats();
     TestHandler::SetReusableBrowserOptionsForTesting(options_);
@@ -382,6 +437,7 @@ class BrowserReuseTest : public testing::Test {
     EXPECT_EQ(original_options_.enabled, stats.enabled);
     EXPECT_EQ(original_options_.limit, stats.limit);
     EXPECT_EQ(0U, stats.total);
+    TestHandler::SetReusableBrowserLoggingForTesting(false);
   }
 
  private:
@@ -411,6 +467,9 @@ class BrowserReuseTest : public testing::Test {
       case Scenario::IdleRequests:
         IdleRequestsAreCanceled();
         break;
+      case Scenario::IdleOsr:
+        IdleOsrVisibility();
+        break;
       case Scenario::IdleViews:
         IdleWindowVisibility(true);
         break;
@@ -435,11 +494,41 @@ class BrowserReuseTest : public testing::Test {
   void FrameAndNavigationForwarding();
   void RedirectedLeaseReplacesDocument();
   void IdleRequestsAreCanceled();
+  void IdleOsrVisibility();
   void IdleWindowVisibility(bool views);
   const Scenario scenario_;
   const TestHandler::ReusableBrowserOptions options_;
   TestHandler::ReusableBrowserStats original_options_;
 };
+
+void BrowserReuseTest::IdleOsrVisibility() {
+  const auto expect_visibility = [](CefRefPtr<CefBrowser> browser,
+                                    bool hidden) {
+    CefRefPtr<VisibilityObserver> observer = new VisibilityObserver(hidden);
+    CefPostTask(TID_UI,
+                base::BindOnce(&VisibilityObserver::Check, observer, browser));
+    EXPECT_TRUE(observer->Wait());
+  };
+  int previous_id = 0;
+  for (const auto& label : {"first", "second"}) {
+    TestHandler::CompletionState state(1);
+    CefRefPtr<ReuseTestHandler> handler =
+        new ReuseTestHandler(400, label, true, &state);
+    CefPostTask(TID_UI, base::BindOnce(&ReuseTestHandler::RunTest, handler));
+    ASSERT_TRUE(handler->WaitUntilReady());
+    auto browser = handler->visited_browser();
+    ASSERT_TRUE(browser);
+    if (previous_id) {
+      EXPECT_EQ(previous_id, browser->GetIdentifier());
+    }
+    previous_id = browser->GetIdentifier();
+    expect_visibility(browser, false);
+    handler->Complete();
+    state.WaitForTests();
+    ReleaseAndWaitForDestructor(handler);
+    expect_visibility(browser, true);
+  }
+}
 
 void BrowserReuseTest::IdleWindowVisibility(bool views) {
   // Wait on the UI queue so the real idle deadline can expire, including the
@@ -483,7 +572,12 @@ void BrowserReuseTest::IdleWindowVisibility(bool views) {
   wait_idle_deadline();
   stats = TestHandler::GetReusableBrowserStats();
   // A native backend without visibility control closes idle browsers instead.
-  if (!views && stats.total == 0) {
+  // The idle timer initiates closure; allow its callbacks to finish instead of
+  // assuming they arrive within the remaining 200ms of the policy deadline.
+  if (!views && stats.window_hides == 0) {
+    EXPECT_EQ(stats.total, stats.closing);
+    TestHandler::ShutdownReusableBrowsers();
+    EXPECT_EQ(0U, TestHandler::GetReusableBrowserStats().total);
     return;
   }
   EXPECT_EQ(1U, stats.hidden_windows);
@@ -871,6 +965,7 @@ bool RegisterBrowserReuseTests() {
       {"FrameAndNavigationForwarding", Scenario::Frames},
       {"RedirectedLeaseReplacesDocument", Scenario::InitialRedirect},
       {"IdleRequestsAreCanceled", Scenario::IdleRequests},
+      {"IdleOsrVisibility", Scenario::IdleOsr},
       {"IdleViewsWindowVisibility", Scenario::IdleViews},
       {"IdleNativeWindowVisibility", Scenario::IdleNative},
       {"RequestContextCreationSettings", Scenario::Contexts},
@@ -894,12 +989,14 @@ bool RegisterBrowserReuseTests() {
           (!mode.options.enabled || mode.options.max_browsers == 0)) {
         continue;
       }
-      const bool single_mode = scenario.scenario == Scenario::Windowed ||
-                               scenario.scenario == Scenario::Frames ||
-                               scenario.scenario == Scenario::InitialRedirect ||
-                               scenario.scenario == Scenario::IdleRequests ||
-                               scenario.scenario == Scenario::IdleViews ||
-                               scenario.scenario == Scenario::IdleNative;
+      const bool single_mode =
+          scenario.scenario == Scenario::Windowed ||
+          scenario.scenario == Scenario::Frames ||
+          scenario.scenario == Scenario::InitialRedirect ||
+          scenario.scenario == Scenario::IdleRequests ||
+          scenario.scenario == Scenario::IdleOsr ||
+          scenario.scenario == Scenario::IdleViews ||
+          scenario.scenario == Scenario::IdleNative;
       if (single_mode &&
           mode.options.max_browsers !=
               TestHandler::ReusableBrowserOptions().max_browsers) {

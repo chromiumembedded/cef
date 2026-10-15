@@ -78,8 +78,6 @@ void RunTestsOnTestThread() {
   // Run the test suite.
   CefTestSuite::GetInstance()->Run();
 
-  TestHandler::ShutdownReusableBrowsers();
-
   // Wait for all TestHandlers to be destroyed.
   size_t loop_count = 0;
   while (true) {

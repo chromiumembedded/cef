@@ -31,11 +31,40 @@
 
 namespace {
 
+// Diagnostic configuration only; pool state remains confined to the UI thread.
+std::atomic<bool> reusable_browser_logging{false};
+
+// Copied into shutdown tasks without retaining any browser or window objects.
+class ReusableBrowserShutdownLogging {
+ public:
+  ReusableBrowserShutdownLogging(bool enabled, const void* shutdown)
+      : enabled_(enabled), shutdown_(shutdown) {}
+
+  bool IsEnabled() const { return enabled_; }
+
+  template <typename... Args>
+  void Log(const char* event, const Args&... details) const {
+    if (!enabled_) {
+      return;
+    }
+    std::ostringstream message;
+    message << "REUSE_SHUTDOWN event=" << event << " shutdown=" << shutdown_;
+    ((message << details), ...);
+    LOG(WARNING) << message.str();
+  }
+
+ private:
+  const bool enabled_;
+  const void* const shutdown_;
+};
+
 // Bound synchronous harness operations on the calling thread, independently
 // of the UI-thread SetTestTimeout task. Do not return after timeout: pending
 // callbacks can still reference caller-owned completion state or output.
 void WaitForHarnessEvent(CefRefPtr<CefWaitableEvent> event,
                          const char* operation) {
+  CHECK(!CefCurrentlyOn(TID_UI))
+      << operation << " must not wait on the UI thread";
   const auto timeout = GetConfiguredTestTimeout(60000);
   if (!timeout) {
     event->Wait();
@@ -104,6 +133,7 @@ struct BrowserReuseKey {
                     device_scale_factor, depth, depth_per_component, monochrome,
                     screen_rect, available_rect);
   }
+
   bool operator<(const BrowserReuseKey& other) const {
     if (parent != other.parent) {
       return std::less<cef_window_handle_t>()(parent, other.parent);
@@ -164,10 +194,12 @@ class TestHandlerClient : public CefClient, public CefLifeSpanHandler {
       : delegate_(delegate) {
     SetCustomClient(custom);
   }
+
 #define FORWARD_HANDLER(name)                                      \
   CefRefPtr<Cef##name##Handler> Get##name##Handler() override {    \
     return GetHandler(&CefClient::Get##name##Handler, true, true); \
   }
+
   FORWARD_HANDLER(Audio)
   FORWARD_HANDLER(Command)
   FORWARD_HANDLER(ContextMenu)
@@ -190,6 +222,7 @@ class TestHandlerClient : public CefClient, public CefLifeSpanHandler {
 #endif
 #undef FORWARD_HANDLER
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
+
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
     if (auto delegate = GetDefaultClient()) {
       if (auto handler = delegate->GetLifeSpanHandler()) {
@@ -198,6 +231,7 @@ class TestHandlerClient : public CefClient, public CefLifeSpanHandler {
     }
     NotifyCustomCreated(browser);
   }
+
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
     NotifyCustomClosed(browser);
     SetCustomClient(nullptr);
@@ -207,10 +241,12 @@ class TestHandlerClient : public CefClient, public CefLifeSpanHandler {
       }
     }
   }
+
   bool DoClose(CefRefPtr<CefBrowser> browser) override {
     auto handler = GetHandler(&CefClient::GetLifeSpanHandler);
     return handler && handler->DoClose(browser);
   }
+
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefProcessId source,
@@ -233,6 +269,7 @@ class TestHandlerClient : public CefClient, public CefLifeSpanHandler {
       }
     }
   }
+
   void NotifyCustomClosed(CefRefPtr<CefBrowser> browser) {
     if (auto custom = GetCustomClient()) {
       if (auto handler = custom->GetLifeSpanHandler()) {
@@ -240,17 +277,21 @@ class TestHandlerClient : public CefClient, public CefLifeSpanHandler {
       }
     }
   }
+
   virtual CefRefPtr<CefClient> GetDefaultClient(bool committed_only = true) {
     return delegate_;
   }
+
   void SetCustomClient(CefRefPtr<CefClient> client) {
     std::lock_guard<std::mutex> guard(custom_lock_);
     custom_.swap(client);
   }
+
   CefRefPtr<CefClient> GetCustomClient() {
     std::lock_guard<std::mutex> guard(custom_lock_);
     return custom_;
   }
+
   template <typename Handler>
   CefRefPtr<Handler> GetHandler(CefRefPtr<Handler> (CefClient::*getter)(),
                                 bool committed_only = true,
@@ -281,7 +322,13 @@ class ReusableBrowserClient : public TestHandlerClient,
                               public CefRequestHandler,
                               public CefRenderHandler {
  public:
-  explicit ReusableBrowserClient(bool windowless) : windowless_(windowless) {}
+  ReusableBrowserClient(const BrowserReuseKey& key, bool log_lifecycle)
+      : windowless_(key.windowless) {
+    if (log_lifecycle) {
+      lifecycle_logging_.emplace(key);
+    }
+  }
+
 #if CEF_API_ADDED(CEF_NEXT)
   bool WindowKeyboardEvent(const CefKeyboardInputEvent& event) {
     EXPECT_UI_THREAD();
@@ -290,40 +337,103 @@ class ReusableBrowserClient : public TestHandlerClient,
            handler->OnWindowKeyboardEvent(browser_->GetIdentifier(), event);
   }
 #endif
+
   bool WindowKeyEvent(const CefKeyEvent& event) {
     EXPECT_UI_THREAD();
     auto handler = resetting_ ? nullptr : GetDelegate(true);
     return handler && browser_ &&
            handler->OnWindowKeyEvent(browser_->GetIdentifier(), event);
   }
-  void WindowCreated() { window_alive_ = true; }
+
+  void WindowCreated(CefRefPtr<CefWindow> window) {
+    window_ = window;
+    LogLifecycle("WindowCreated");
+  }
+
   void WindowDestroyed() {
-    window_alive_ = false;
+    window_ = nullptr;
+    LogLifecycle("WindowDestroyed");
     if (!browser_) {
       ReusableBrowserClosed(this);
       RunCloseCallbacks();
     }
   }
+
   bool HasBrowser() const { return !!browser_; }
+
+  bool HasPreviousLease() const { return leases_ > 1; }
+
+  bool IsLifecycleLoggingEnabled() const {
+    return lifecycle_logging_.has_value();
+  }
+
   bool IsWindowHidden() const { return idle_hidden_; }
+
   size_t WindowHides() const { return window_hides_; }
+
   size_t WindowShows() const { return window_shows_; }
+
   bool IsClosing() const { return closing_; }
+
   bool IsIdle() {
     EXPECT_UI_THREAD();
     return !closing_ && !GetDelegate();
   }
+
   auto LastUsed() const { return last_used_; }
+
   void AfterClose(base::OnceClosure done) {
     EXPECT_UI_THREAD();
     close_callbacks_.push_back(std::move(done));
   }
+
+  // UI-thread diagnostics only: use cached values, never query a closing
+  // browser/window or retain additional CEF objects for logging.
+  void LogLifecycle(const char* event, const void* shutdown = nullptr) const {
+    if (!lifecycle_logging_) {
+      return;
+    }
+    const auto& logging = *lifecycle_logging_;
+    LOG(WARNING) << "REUSE_LIFECYCLE event=" << event << " client=" << this
+                 << " browser_id=" << logging.browser_id
+                 << " shutdown=" << shutdown
+                 << " age_ms="
+                 << std::chrono::duration_cast<std::chrono::milliseconds>(
+                        std::chrono::steady_clock::now() - logging.created_at)
+                        .count()
+                 << " views=" << logging.use_views
+                 << " windowless=" << windowless_
+                 << " browser_style=" << logging.browser_style
+                 << " window_style=" << logging.window_style
+                 << " context=" << logging.context_identity
+                 << " size=" << rect_.width
+                 << "x" << rect_.height << " leases=" << leases_
+                 << " browser_alive=" << !!browser_
+                 << " window_alive=" << !!window_ << " closing=" << closing_
+                 << " resetting=" << resetting_
+                 << " idle_hidden=" << idle_hidden_
+                 << " close_callbacks=" << close_callbacks_.size();
+  }
+
+  void LogPendingClose() {
+    EXPECT_UI_THREAD();
+    if (browser_ || window_) {
+      LogLifecycle("ShutdownPending");
+    }
+  }
+
   void CancelAttach() {
     EXPECT_UI_THREAD();
     SetCustomClient(nullptr);
-    std::lock_guard<std::mutex> guard(lock_);
-    delegate_ = nullptr;
+    CefRefPtr<TestHandler> handler;
+    {
+      std::lock_guard<std::mutex> guard(lock_);
+      handler.swap(delegate_);
+    }
+    // Fixture destruction may re-enter client code. Release outside the lock,
+    // just like FinishRelease and SetCustomClient.
   }
+
   void Attach(CefRefPtr<TestHandler> handler,
               const CefString& url,
               const CefRect& rect,
@@ -351,6 +461,9 @@ class ReusableBrowserClient : public TestHandlerClient,
     provides_screen_info_ = provides_screen_info;
     if (browser_) {
       handler->OnReusableBrowserAttached(browser_);
+      if (windowless_) {
+        browser_->GetHost()->WasHidden(false);
+      }
       if (idle_hidden_) {
         CHECK(SetWindowVisible(true));
         idle_hidden_ = false;
@@ -370,7 +483,8 @@ class ReusableBrowserClient : public TestHandlerClient,
     browser_->GetHost()->SetFocus(false);
     if (discard) {
       closing_ = true;
-      browser_->GetHost()->CloseBrowser(true);
+      LogLifecycle("DiscardCloseRequested");
+      CloseBrowserOrWindow();
     } else {
       // Detach the handler outside the current callback. The next lease
       // replaces this document before enabling callbacks for its new handler.
@@ -383,21 +497,20 @@ class ReusableBrowserClient : public TestHandlerClient,
     EXPECT_UI_THREAD();
     CHECK(!GetDelegate());
     AfterClose(std::move(done));
+    LogLifecycle("CloseRequested");
     if (closing_) {
       return;
     }
     closing_ = true;
     LOG(INFO) << "Reusable browser: " << leases_ << " leases, " << creations_
               << " creations";
-    if (browser_) {
-      // CloseBrowser may synchronously invoke OnBeforeClose. Leave the cache
+    if (browser_ || window_) {
+      // Closure may synchronously invoke destruction callbacks. Leave the cache
       // acquisition callback first, retaining this closing slot in the interim.
-      CefPostTask(TID_UI, base::BindOnce(
-                              [](CefRefPtr<CefBrowser> browser) {
-                                browser->GetHost()->CloseBrowser(true);
-                              },
-                              browser_));
-    } else if (!window_alive_) {
+      CefPostTask(
+          TID_UI,
+          base::BindOnce(&ReusableBrowserClient::CloseBrowserOrWindow, this));
+    } else {
       ReusableBrowserClosed(this);
       RunCloseCallbacks();
     }
@@ -409,6 +522,7 @@ class ReusableBrowserClient : public TestHandlerClient,
     // forwarded.
     return GetHandler(&CefClient::GetFocusHandler, false);
   }
+
   CefRefPtr<CefRequestHandler> GetRequestHandler() override {
     // Keep intercepting while idle so requests from the retired document do
     // not fall through to ordinary network handling without its test handler.
@@ -440,6 +554,7 @@ class ReusableBrowserClient : public TestHandlerClient,
     return handler && handler->OnBeforeBrowse(browser, frame, request,
                                               user_gesture, is_redirect);
   }
+
   bool OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefFrame> frame,
                         const CefString& url,
@@ -449,6 +564,7 @@ class ReusableBrowserClient : public TestHandlerClient,
     return handler && handler->OnOpenURLFromTab(browser, frame, url,
                                                 disposition, user_gesture);
   }
+
   CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
@@ -471,6 +587,7 @@ class ReusableBrowserClient : public TestHandlerClient,
                          initiator, disable_default_handling)
                    : nullptr;
   }
+
   bool GetAuthCredentials(CefRefPtr<CefBrowser> browser,
                           const CefString& origin,
                           bool proxy,
@@ -484,6 +601,7 @@ class ReusableBrowserClient : public TestHandlerClient,
            handler->GetAuthCredentials(browser, origin, proxy, host, port,
                                        realm, scheme, callback);
   }
+
   bool OnCertificateError(CefRefPtr<CefBrowser> browser,
                           cef_errorcode_t error,
                           const CefString& url,
@@ -493,6 +611,7 @@ class ReusableBrowserClient : public TestHandlerClient,
     return handler &&
            handler->OnCertificateError(browser, error, url, info, callback);
   }
+
   bool OnSelectClientCertificate(
       CefRefPtr<CefBrowser> browser,
       bool proxy,
@@ -504,22 +623,26 @@ class ReusableBrowserClient : public TestHandlerClient,
     return handler && handler->OnSelectClientCertificate(
                           browser, proxy, host, port, certificates, callback);
   }
+
   void OnRenderViewReady(CefRefPtr<CefBrowser> browser) override {
     if (auto handler = GetRequestDelegate(true)) {
       handler->OnRenderViewReady(browser);
     }
   }
+
   bool OnRenderProcessUnresponsive(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefUnresponsiveProcessCallback> callback) override {
     auto handler = GetRequestDelegate(true);
     return handler && handler->OnRenderProcessUnresponsive(browser, callback);
   }
+
   void OnRenderProcessResponsive(CefRefPtr<CefBrowser> browser) override {
     if (auto handler = GetRequestDelegate(true)) {
       handler->OnRenderProcessResponsive(browser);
     }
   }
+
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                  TerminationStatus status,
                                  int error,
@@ -528,6 +651,7 @@ class ReusableBrowserClient : public TestHandlerClient,
       handler->OnRenderProcessTerminated(browser, status, error, text);
     }
   }
+
   void OnDocumentAvailableInMainFrame(CefRefPtr<CefBrowser> browser) override {
     if (auto handler = GetRequestDelegate(true)) {
       handler->OnDocumentAvailableInMainFrame(browser);
@@ -535,18 +659,23 @@ class ReusableBrowserClient : public TestHandlerClient,
   }
 
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
+
   CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
+
   CefRefPtr<CefRenderHandler> GetRenderHandler() override {
     auto handler = GetHandler(&CefClient::GetRenderHandler, false);
     return handler ? handler : (windowless_ ? this : nullptr);
   }
+
   void GetViewRect(CefRefPtr<CefBrowser>, CefRect& rect) override {
     rect = rect_;
   }
+
   bool GetScreenInfo(CefRefPtr<CefBrowser>, CefScreenInfo& info) override {
     info = screen_info_;
     return provides_screen_info_;
   }
+
   void OnPaint(CefRefPtr<CefBrowser>,
                PaintElementType,
                const RectList&,
@@ -557,25 +686,43 @@ class ReusableBrowserClient : public TestHandlerClient,
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
     EXPECT_UI_THREAD();
     browser_ = browser;
+    if (lifecycle_logging_) {
+      lifecycle_logging_->browser_id = browser->GetIdentifier();
+    }
+    LogLifecycle("BrowserCreated");
     TraceTiming("BrowserCreated");
     ++creations_;
     GetDelegate()->OnReusableBrowserAttached(browser);
     NotifyCustomCreated(browser);
   }
+
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
     EXPECT_UI_THREAD();
+    LogLifecycle("OnBeforeCloseEnter");
     NotifyCustomClosed(browser);
+    LogLifecycle("OnBeforeCloseCustomNotified");
     browser_ = nullptr;
-    if (!window_alive_) {
+    LogLifecycle("BrowserCleared");
+    if (window_) {
+      // Normally OnBrowserDestroyed closes the containing window, matching
+      // TestBrowserViewDelegate. If the view was already detached, retry via
+      // the independently retained window after browser teardown unwinds.
+      // Recheck window_ in the task: OnWindowDestroyed may run first, after
+      // which the window must no longer be accessed.
+      CefPostTask(
+          TID_UI,
+          base::BindOnce(&ReusableBrowserClient::CloseWindowIfAlive, this));
+    } else {
       ReusableBrowserClosed(this);
     }
     if (GetDelegate()) {
       FinishRelease(browser);
     }
-    if (!window_alive_) {
+    if (!window_) {
       RunCloseCallbacks();
     }
   }
+
   void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                             bool loading,
                             bool back,
@@ -592,6 +739,7 @@ class ReusableBrowserClient : public TestHandlerClient,
       }
     }
   }
+
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
                    CefRefPtr<CefFrame> frame,
                    TransitionType type) override {
@@ -620,6 +768,7 @@ class ReusableBrowserClient : public TestHandlerClient,
       }
     }
   }
+
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int status) override {
@@ -640,6 +789,7 @@ class ReusableBrowserClient : public TestHandlerClient,
       }
     }
   }
+
   void OnLoadError(CefRefPtr<CefBrowser> browser,
                    CefRefPtr<CefFrame> frame,
                    ErrorCode code,
@@ -653,14 +803,15 @@ class ReusableBrowserClient : public TestHandlerClient,
     // report an aborted load (including chrome-error://chromewebdata/).
     // Only forward errors for the navigation started by this lease.
     if (!resetting_ &&
-        (awaiting_commit_ ? frame->IsMain() && navigation_started_ &&
-                               url == target_url_
-                          : IsCurrentFrame(frame))) {
+        (awaiting_commit_
+             ? frame->IsMain() && navigation_started_ && url == target_url_
+             : IsCurrentFrame(frame))) {
       if (auto handler = GetHandler(&CefClient::GetLoadHandler, false)) {
         handler->OnLoadError(browser, frame, code, text, url);
       }
     }
   }
+
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefProcessId source,
@@ -680,6 +831,29 @@ class ReusableBrowserClient : public TestHandlerClient,
   CefRefPtr<CefRequestHandler> GetRequestDelegate(bool committed_only = false) {
     return GetHandler(&CefClient::GetRequestHandler, committed_only);
   }
+
+  void CloseBrowserOrWindow() {
+    EXPECT_UI_THREAD();
+    if (window_) {
+      // Let the owning window initiate browser closure through CanClose and
+      // TryCloseBrowser instead of forcing browser closure independently.
+      CloseWindowIfAlive();
+    } else if (browser_) {
+      LogLifecycle("CloseBrowserEnter");
+      browser_->GetHost()->CloseBrowser(false);
+      LogLifecycle("CloseBrowserReturned");
+    }
+  }
+
+  void CloseWindowIfAlive() {
+    EXPECT_UI_THREAD();
+    if (window_) {
+      LogLifecycle("CloseWindowEnter");
+      window_->Close();
+      LogLifecycle("CloseWindowReturned");
+    }
+  }
+
   bool SetWindowVisible(bool visible) {
     bool changed = false;
     if (auto view = CefBrowserView::GetForBrowser(browser_)) {
@@ -705,6 +879,7 @@ class ReusableBrowserClient : public TestHandlerClient,
     }
     return changed;
   }
+
   void HideIfStillIdle(size_t lease) {
     EXPECT_UI_THREAD();
     if (!browser_ || !IsIdle() || leases_ != lease) {
@@ -717,6 +892,7 @@ class ReusableBrowserClient : public TestHandlerClient,
       Close(base::BindOnce([] {}));
     }
   }
+
   bool IsCurrentFrame(CefRefPtr<CefFrame> frame) {
     EXPECT_UI_THREAD();
     if (resetting_ || awaiting_commit_ || !browser_ || !frame->IsValid() ||
@@ -739,6 +915,7 @@ class ReusableBrowserClient : public TestHandlerClient,
     }
     return frame->IsMain() && frame->GetIdentifier() == active_frame_id_;
   }
+
   void TraceTiming(const std::string& stage) {
     if (!trace_timing_) {
       return;
@@ -750,6 +927,7 @@ class ReusableBrowserClient : public TestHandlerClient,
                      .count()
               << "ms " << stage;
   }
+
   std::chrono::steady_clock::time_point timing_start_;
   const bool trace_timing_ = CefCommandLine::GetGlobalCommandLine()->HasSwitch(
       "reuse-test-browsers-timing");
@@ -757,6 +935,7 @@ class ReusableBrowserClient : public TestHandlerClient,
     std::lock_guard<std::mutex> guard(lock_);
     return committed_only && awaiting_commit_ ? nullptr : delegate_;
   }
+
   void FinishRelease(CefRefPtr<CefBrowser> browser) {
     TraceTiming("FinishRelease");
     EXPECT_UI_THREAD();
@@ -774,6 +953,11 @@ class ReusableBrowserClient : public TestHandlerClient,
       return;
     }
     SetCustomClient(nullptr);
+    if (browser_ && windowless_ && !closing_) {
+      // Idle OSR browsers have no native window whose visibility can suspend
+      // rendering. Stop their compositor capture until the next lease.
+      browser_->GetHost()->WasHidden(true);
+    }
     resetting_ = false;
     discarding_ = false;
     awaiting_commit_ = true;
@@ -791,12 +975,15 @@ class ReusableBrowserClient : public TestHandlerClient,
     }
     handler->OnReusableBrowserReleased(browser);
   }
+
   void RunCloseCallbacks() {
+    LogLifecycle("RunCloseCallbacks");
     auto callbacks = std::move(close_callbacks_);
     for (auto& callback : callbacks) {
       std::move(callback).Run();
     }
   }
+
   std::mutex lock_;
   CefRefPtr<TestHandler> delegate_;
   CefRefPtr<CefBrowser> browser_;
@@ -807,7 +994,29 @@ class ReusableBrowserClient : public TestHandlerClient,
   bool discarding_ = false;
   bool closing_ = false;
   const bool windowless_;
-  bool window_alive_ = false;
+
+  struct LifecycleLogging {
+    explicit LifecycleLogging(const BrowserReuseKey& key)
+        : use_views(key.use_views),
+          browser_style(key.browser_style),
+          window_style(key.window_style),
+          context_identity(key.context_identity) {}
+
+    const bool use_views;
+    const cef_runtime_style_t browser_style;
+    const cef_runtime_style_t window_style;
+    const size_t context_identity;
+    const std::chrono::steady_clock::time_point created_at =
+        std::chrono::steady_clock::now();
+
+    // Preserve identity after OnBeforeClose clears browser_.
+    int browser_id = 0;
+  };
+
+  std::optional<LifecycleLogging> lifecycle_logging_;
+  // Retain the hosting window independently of the BrowserView's hierarchy.
+  // OnWindowDestroyed breaks the window/delegate/client ownership cycle.
+  CefRefPtr<CefWindow> window_;
   bool idle_hidden_ = false;
   size_t window_hides_ = 0;
   size_t window_shows_ = 0;
@@ -832,30 +1041,41 @@ class ReusableWindowDelegate : public CefWindowDelegate {
                          CefSize size,
                          cef_runtime_style_t style)
       : client_(client), view_(view), size_(size), style_(style) {}
+
   void OnWindowCreated(CefRefPtr<CefWindow> window) override {
-    client_->WindowCreated();
+    client_->WindowCreated(window);
     window->CenterWindow(size_);
     window->SetTitle(ComputeViewsWindowTitle(window, view_));
     window->AddChildView(view_);
     window->Show();
+    client_->LogLifecycle("OnWindowCreatedComplete");
   }
+
   void OnWindowDestroyed(CefRefPtr<CefWindow>) override {
+    client_->LogLifecycle("OnWindowDestroyedEnter");
     view_ = nullptr;
     client_->WindowDestroyed();
   }
+
   bool CanClose(CefRefPtr<CefWindow>) override {
+    client_->LogLifecycle("CanCloseEnter");
     auto browser = view_->GetBrowser();
-    return !browser || browser->GetHost()->TryCloseBrowser();
+    const bool allowed = !browser || browser->GetHost()->TryCloseBrowser();
+    client_->LogLifecycle(allowed ? "CanCloseAllowed" : "CanCloseDenied");
+    return allowed;
   }
+
 #if CEF_API_ADDED(CEF_NEXT)
   bool OnKeyboardEvent(CefRefPtr<CefWindow>,
                        const CefKeyboardInputEvent& event) override {
     return client_->WindowKeyboardEvent(event);
   }
 #endif
+
   bool OnKeyEvent(CefRefPtr<CefWindow>, const CefKeyEvent& event) override {
     return client_->WindowKeyEvent(event);
   }
+
   cef_runtime_style_t GetWindowRuntimeStyle() override { return style_; }
 
  private:
@@ -870,9 +1090,16 @@ class ReusableBrowserViewDelegate : public CefBrowserViewDelegate {
  public:
   explicit ReusableBrowserViewDelegate(cef_runtime_style_t style)
       : style_(style) {}
+
   cef_runtime_style_t GetBrowserRuntimeStyle() override { return style_; }
+
   void OnBrowserDestroyed(CefRefPtr<CefBrowserView> view,
-                          CefRefPtr<CefBrowser>) override {
+                          CefRefPtr<CefBrowser> browser) override {
+    // This delegate is only installed on browsers owned by this client type.
+    // The callback precedes OnBeforeClose, so the browser still owns its client.
+    auto client = browser->GetHost()->GetClient();
+    static_cast<ReusableBrowserClient*>(client.get())
+        ->LogLifecycle("OnBrowserDestroyed");
     if (auto window = view->GetWindow()) {
       window->Close();
     }
@@ -902,6 +1129,7 @@ struct ReusableContextEntry {
     LOG(INFO) << "Reusable context " << context.identity << ": " << uses
               << " uses, 1 creation (" << reason << ")";
   }
+
   void TraceTiming(const char* stage,
                    std::chrono::steady_clock::time_point start) const {
     if (trace_timing) {
@@ -912,6 +1140,7 @@ struct ReusableContextEntry {
                 << "ms " << stage;
     }
   }
+
   TestHandler::ReusableRequestContext context;
   const std::chrono::steady_clock::time_point created =
       std::chrono::steady_clock::now();
@@ -936,6 +1165,7 @@ class ReusableContextHandler : public CefRequestContextHandler {
   explicit ReusableContextHandler(
       base::OnceCallback<void(CefRefPtr<CefRequestContext>)> callback)
       : callback_(std::move(callback)) {}
+
   void OnRequestContextInitialized(
       CefRefPtr<CefRequestContext> context) override {
     std::move(callback_).Run(context);
@@ -1719,6 +1949,7 @@ void TestHandler::CreateReusableBrowserImpl(
   CHECK(url != "about:blank");
   const auto options = CurrentReusableBrowserOptions();
   CHECK_EQ(!!request_context.context, request_context.identity != 0);
+  const bool log_lifecycle = reusable_browser_logging.load();
   const auto context = request_context.context
                            ? request_context.context
                            : CefRequestContext::GetGlobalContext();
@@ -1803,8 +2034,7 @@ void TestHandler::CreateReusableBrowserImpl(
   }
   if (!client) {
     CHECK_LT(reusable_browsers->size(), options.max_browsers);
-    client =
-        new ReusableBrowserClient(window_info.windowless_rendering_enabled);
+    client = new ReusableBrowserClient(key, log_lifecycle);
     reusable_browsers->emplace(key, client);
   }
   reusable_client_ = client;
@@ -1837,6 +2067,11 @@ void TestHandler::CreateReusableBrowserImpl(
   }
 }
 
+bool TestHandler::IsReusedBrowser() const {
+  EXPECT_UI_THREAD();
+  return reusable_client_ && reusable_client_->HasPreviousLease();
+}
+
 void TestHandler::OnReusableBrowserAttached(CefRefPtr<CefBrowser> browser) {
   // Register ownership without manufacturing a lifespan callback.
   TestHandler::OnAfterCreated(browser);
@@ -1854,43 +2089,100 @@ void TestHandler::OnReusableBrowserReleased(CefRefPtr<CefBrowser> browser) {
   MaybeTestComplete();
 }
 
+void TestHandler::SetReusableBrowserLoggingForTesting(bool enabled) {
+  reusable_browser_logging.store(enabled);
+}
+
 void TestHandler::ShutdownReusableBrowsers() {
   CHECK(!CefCurrentlyOn(TID_UI));
+  auto started = CefWaitableEvent::CreateWaitableEvent(true, false);
   auto done = CefWaitableEvent::CreateWaitableEvent(true, false);
-  CefPostTask(TID_UI,
-              base::BindOnce(
-                  [](CefRefPtr<CefWaitableEvent> done) {
-                    if (reusable_contexts) {
-                      for (const auto& [key, entry] : *reusable_contexts) {
-                        entry->LogSummary("shutdown");
-                      }
-                    }
-                    delete reusable_contexts;
-                    reusable_contexts = nullptr;
-                    if (!reusable_browsers || reusable_browsers->empty()) {
-                      delete reusable_browsers;
-                      reusable_browsers = nullptr;
+  const ReusableBrowserShutdownLogging logging(reusable_browser_logging.load(),
+                                              done.get());
+  const auto* test = logging.IsEnabled()
+                         ? testing::UnitTest::GetInstance()->current_test_info()
+                         : nullptr;
+  logging.Log("PostRequested", " test=",
+              test ? test->test_suite_name() : "GlobalTeardown", ".",
+              test ? test->name() : "");
+  const bool posted = CefPostTask(
+      TID_UI,
+      base::BindOnce(
+          [](CefRefPtr<CefWaitableEvent> started,
+             CefRefPtr<CefWaitableEvent> done,
+             ReusableBrowserShutdownLogging logging) {
+            logging.Log("UIEntered", " contexts=",
+                        reusable_contexts ? reusable_contexts->size() : 0,
+                        " browsers=",
+                        reusable_browsers ? reusable_browsers->size() : 0);
+            if (reusable_contexts) {
+              for (const auto& [key, entry] : *reusable_contexts) {
+                entry->LogSummary("shutdown");
+              }
+            }
+            delete reusable_contexts;
+            reusable_contexts = nullptr;
+            logging.Log("ContextsReleased");
+            if (!reusable_browsers || reusable_browsers->empty()) {
+              delete reusable_browsers;
+              reusable_browsers = nullptr;
+              logging.Log("EmptyPool");
+              started->Signal();
+              done->Signal();
+              return;
+            }
+            auto remaining =
+                std::make_shared<size_t>(reusable_browsers->size());
+            auto browsers = std::move(*reusable_browsers);
+            delete reusable_browsers;
+            reusable_browsers = nullptr;
+            // Retiring clients must be detached before another test
+            // can create a new pool. Only their closure may time out
+            // non-fatally; a UI task that never runs is not recoverable.
+            logging.Log("PoolDetached", " count=", *remaining);
+            started->Signal();
+            for (auto& [key, client] : browsers) {
+              client->LogLifecycle("ShutdownClose", done.get());
+              client->Close(base::BindOnce(
+                  [](std::shared_ptr<size_t> remaining,
+                     CefRefPtr<CefWaitableEvent> done,
+                     ReusableBrowserShutdownLogging logging) {
+                    if (--*remaining == 0) {
+                      logging.Log("AllClosed");
                       done->Signal();
-                      return;
-                    }
-                    auto remaining =
-                        std::make_shared<size_t>(reusable_browsers->size());
-                    auto browsers = std::move(*reusable_browsers);
-                    delete reusable_browsers;
-                    reusable_browsers = nullptr;
-                    for (auto& [key, client] : browsers) {
-                      client->Close(base::BindOnce(
-                          [](std::shared_ptr<size_t> remaining,
-                             CefRefPtr<CefWaitableEvent> done) {
-                            if (--*remaining == 0) {
-                              done->Signal();
-                            }
-                          },
-                          remaining, done));
                     }
                   },
-                  done));
-  WaitForHarnessEvent(done, "ShutdownReusableBrowsers");
+                  remaining, done, logging));
+              if (client->IsLifecycleLoggingEnabled()) {
+                // Report missing browser/window destruction callbacks before
+                // the closure deadline.
+                CefPostDelayedTask(
+                    TID_UI,
+                    base::BindOnce(&ReusableBrowserClient::LogPendingClose,
+                                   client),
+                    10000);
+              }
+            }
+            logging.Log("CloseRequestsIssued");
+          },
+          started, done, logging));
+  logging.Log("Posted", " success=", posted);
+  WaitForHarnessEvent(started, "ShutdownReusableBrowsers UI task");
+  logging.Log("DispatchAcknowledged");
+  const auto timeout = GetConfiguredTestTimeout(60000);
+  if (!timeout) {
+    done->Wait();
+    logging.Log("WaitFinished", " completed=1 timeout_disabled=1");
+    return;
+  }
+  // Unlike the other harness waits, all closure callbacks own their state.
+  // They may finish after this test fails without accessing the caller's stack
+  // or returning a retiring browser to the next test's pool.
+  const bool completed = done->TimedWait(*timeout);
+  logging.Log("WaitFinished", " completed=", completed, " timeout_ms=", *timeout);
+  EXPECT_TRUE(completed)
+      << "ShutdownReusableBrowsers timed out after " << *timeout
+      << "ms; retiring browsers remain outside the reusable pool";
 }
 
 TestHandler::ReusableBrowserStats TestHandler::GetReusableBrowserStats() {

@@ -24,9 +24,6 @@
 
 #if defined(OS_LINUX)
 #include "tests/shared/browser/util_linux.h"
-#if defined(CEF_TESTS_USE_X11)
-#include <X11/Xlib.h>
-#endif
 #endif
 
 #if !defined(OS_MAC)
@@ -35,26 +32,14 @@ bool SetNativeTestBrowserVisible(CefRefPtr<CefBrowser> browser, bool visible) {
 #if defined(OS_WIN)
   const auto window =
       GetAncestor(browser->GetHost()->GetWindowHandle(), GA_ROOT);
-  if (!window) {
-    return false;
+  if (window) {
+    ShowWindow(window, visible ? SW_SHOW : SW_HIDE);
+    return true;
   }
-  ShowWindow(window, visible ? SW_SHOW : SW_HIDE);
-  return true;
-#elif defined(OS_LINUX) && defined(CEF_TESTS_USE_X11)
-  if (!IsRunningOnWayland()) {
-    auto* display = XOpenDisplay(nullptr);
-    if (display) {
-      const auto window = browser->GetHost()->GetWindowHandle();
-      if (visible) {
-        XMapWindow(display, window);
-      } else {
-        XUnmapWindow(display, window);
-      }
-      XFlush(display);
-      XCloseDisplay(display);
-      return true;
-    }
-  }
+#elif defined(OS_LINUX)
+  // XOpenDisplay/XCloseDisplay perform synchronous server round trips. Native
+  // Linux windows have no CEF visibility API, so use the pool's asynchronous
+  // idle-close fallback instead. Immediate sequential reuse remains available.
 #endif
   return false;
 }
