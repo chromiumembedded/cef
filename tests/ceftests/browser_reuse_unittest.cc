@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "include/base/cef_logging.h"
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -84,6 +85,9 @@ class ReuseTestHandler : public RoutingTestHandler,
         chrome_window_(chrome_window) {}
 
   void RunTest() override {
+    // Arm the UI timeout before browser creation, which can synchronously
+    // create Views windows or wait for an eviction victim to close.
+    SetTestTimeout(10000);
     std::string html = "<body>" + label_ + "</body>";
     if (frame_flow_) {
       html += "<iframe src='" + std::string(kChildUrl) + "'></iframe>";
@@ -99,7 +103,6 @@ class ReuseTestHandler : public RoutingTestHandler,
       CreateReusableBrowser(start_url, CefSize(width_, 600),
                             CefBrowserSettings(), request_context_,
                             custom_client_);
-      SetTestTimeout(10000);
       return;
     }
     CefWindowInfo info;
@@ -107,7 +110,6 @@ class ReuseTestHandler : public RoutingTestHandler,
     info.runtime_style = CEF_RUNTIME_STYLE_ALLOY;
     CreateReusableBrowser(info, start_url, CefBrowserSettings(),
                           request_context_, custom_client_);
-    SetTestTimeout(10000);
   }
   CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
   CefRefPtr<CefFocusHandler> GetFocusHandler() override { return this; }
@@ -637,6 +639,14 @@ void BrowserReuseTest::WindowedCapabilities() {
     for (int width : {400, 600}) {
       int previous_id = 0;
       for (int lease = 0; lease < 2; ++lease) {
+        const std::string label =
+            "views=" + std::to_string(config.views) +
+            " alloy=" + std::to_string(config.alloy) +
+            " chrome_window=" + std::to_string(config.chrome_window) +
+            " width=" + std::to_string(width) +
+            " lease=" + std::to_string(lease);
+        SCOPED_TRACE(label);
+        LOG(INFO) << "WindowedCapabilities starting " << label;
         CefRefPtr<ReuseTestHandler> handler = new ReuseTestHandler(
             width, "windowed" + std::to_string(lease), false, nullptr, true,
             config.views, config.alloy, config.chrome_window);
@@ -651,6 +661,7 @@ void BrowserReuseTest::WindowedCapabilities() {
         }
         previous_id = id;
         ReleaseAndWaitForDestructor(handler);
+        LOG(INFO) << "WindowedCapabilities completed " << label;
       }
     }
   }

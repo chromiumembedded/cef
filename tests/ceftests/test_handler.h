@@ -116,7 +116,11 @@ class TestHandler : public CefClient,
     void TestComplete();
 
     // This method blocks until TestComplete() has been called the required
-    // number of times.
+    // number of times. The wait has a 60-second base timeout, scaled by
+    // --test-timeout-multiplier and disabled by --disable-test-timeout.
+    // Timeout terminates the process because pending callbacks can still
+    // reference this object. The same deadline applies to synchronous pool
+    // shutdown, statistics queries, and option changes on the test thread.
     void WaitForTests();
 
     int total() const { return total_; }

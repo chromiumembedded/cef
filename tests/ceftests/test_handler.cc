@@ -31,6 +31,21 @@
 
 namespace {
 
+// Bound synchronous harness operations on the calling thread, independently
+// of the UI-thread SetTestTimeout task. Do not return after timeout: pending
+// callbacks can still reference caller-owned completion state or output.
+void WaitForHarnessEvent(CefRefPtr<CefWaitableEvent> event,
+                         const char* operation) {
+  const auto timeout = GetConfiguredTestTimeout(60000);
+  if (!timeout) {
+    event->Wait();
+    return;
+  }
+  CHECK(event->TimedWait(*timeout))
+      << operation << " timed out after " << *timeout
+      << "ms; UI work or browser closure did not complete";
+}
+
 auto BrowserSettingsKey(const CefBrowserSettings& s) {
   // Compare values, not struct padding or cef_string_t buffer addresses.
   return std::make_tuple(
@@ -1166,7 +1181,7 @@ void TestHandler::CompletionState::TestComplete() {
 
 void TestHandler::CompletionState::WaitForTests() {
   // Wait for the test to complete
-  event_->Wait();
+  WaitForHarnessEvent(event_, "CompletionState::WaitForTests");
 
   // Reset the event so the same test can be executed again.
   event_->Reset();
@@ -1875,7 +1890,7 @@ void TestHandler::ShutdownReusableBrowsers() {
                     }
                   },
                   done));
-  done->Wait();
+  WaitForHarnessEvent(done, "ShutdownReusableBrowsers");
 }
 
 TestHandler::ReusableBrowserStats TestHandler::GetReusableBrowserStats() {
@@ -1889,7 +1904,7 @@ TestHandler::ReusableBrowserStats TestHandler::GetReusableBrowserStats() {
                               done->Signal();
                             },
                             &result, done));
-    done->Wait();
+    WaitForHarnessEvent(done, "GetReusableBrowserStats");
     return result;
   }
   ReusableBrowserStats result;
@@ -1925,7 +1940,7 @@ void TestHandler::SetReusableBrowserOptionsForTesting(
                               done->Signal();
                             },
                             options, done));
-    done->Wait();
+    WaitForHarnessEvent(done, "SetReusableBrowserOptionsForTesting");
     return;
   }
   CHECK(!reusable_browsers || reusable_browsers->empty());
