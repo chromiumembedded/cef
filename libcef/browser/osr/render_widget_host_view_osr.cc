@@ -254,6 +254,12 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       context_factory->AllocateFrameSinkId(), context_factory,
       base::SingleThreadTaskRunner::GetCurrentDefault(),
       false /* enable_pixel_canvas */, use_external_begin_frame);
+  if (use_external_begin_frame) {
+    // Before the frame sink of the compositor exists: configures the client
+    // factory and wait_for_all_frame_sinks of its root frame sink.
+    external_begin_frame_source_ =
+        std::make_unique<CefExternalBeginFrameSourceOSR>(compositor_.get());
+  }
   compositor_->SetAcceleratedWidget(gfx::kNullAcceleratedWidget);
 
   compositor_->SetDelegate(this);
@@ -325,6 +331,7 @@ void CefRenderWidgetHostViewOSR::ReleaseCompositor() {
 
   host_display_client_ = nullptr;
 
+  external_begin_frame_source_.reset();
   compositor_.reset(nullptr);
 }
 
@@ -1047,14 +1054,6 @@ void CefRenderWidgetHostViewOSR::DidNavigate() {
   is_first_navigation_ = false;
 }
 
-void CefRenderWidgetHostViewOSR::OnFrameComplete(
-    const viz::BeginFrameAck& ack) {
-  DCHECK(begin_frame_pending_);
-  DCHECK_EQ(begin_frame_source_.source_id(), ack.frame_id.source_id);
-  DCHECK_EQ(begin_frame_number_, ack.frame_id.sequence_number);
-  begin_frame_pending_ = false;
-}
-
 void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation(
     base::TimeTicks activation_time) {
   auto metadata =
@@ -1205,39 +1204,48 @@ void CefRenderWidgetHostViewOSR::Invalidate(
 }
 
 void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
+  SendExternalBeginFrameInternal(base::TimeTicks::Now(), false);
+}
+
+void CefRenderWidgetHostViewOSR::SendExternalBeginFrame(
+    base::TimeTicks frame_time) {
+  SendExternalBeginFrameInternal(frame_time, true);
+}
+
+void CefRenderWidgetHostViewOSR::SendExternalBeginFrameInternal(
+    base::TimeTicks frame_time,
+    bool client_dated) {
   DCHECK(external_begin_frame_enabled_);
 
-  if (begin_frame_pending_) {
-    return;
-  }
-  begin_frame_pending_ = true;
-
-  base::TimeTicks frame_time = base::TimeTicks::Now();
-  base::TimeTicks deadline = base::TimeTicks();
-  base::TimeDelta interval = viz::BeginFrameArgs::DefaultInterval();
-
-  viz::BeginFrameArgs begin_frame_args = viz::BeginFrameArgs::Create(
-      BEGINFRAME_FROM_HERE, begin_frame_source_.source_id(),
-      ++begin_frame_number_, frame_time, deadline, interval,
-      viz::BeginFrameArgs::NORMAL);
-
-  DCHECK(begin_frame_args.IsValid());
+  // The interval of the windowless frame rate: the interval of a frame dated
+  // at the time of the call, and the reference of a client-dated tick when it
+  // has no previous tick or when the measured interval is not plausible.
+  const base::TimeDelta nominal_interval =
+      frame_rate_threshold_us_ > 0
+          ? base::Microseconds(frame_rate_threshold_us_)
+          : viz::BeginFrameArgs::DefaultInterval();
 
   if (render_widget_host_) {
     render_widget_host_->ProgressFlingIfNeeded(frame_time);
   }
 
-  if (compositor_) {
-    compositor_->IssueExternalBeginFrame(
-        begin_frame_args,
-        base::BindOnce(&CefRenderWidgetHostViewOSR::OnFrameComplete,
-                       weak_ptr_factory_.GetWeakPtr()));
-  } else {
-    begin_frame_pending_ = false;
+  base::TimeDelta interval = nominal_interval;
+  if (external_begin_frame_source_) {
+    interval = external_begin_frame_source_->Tick(frame_time, nominal_interval,
+                                                  client_dated);
+  }
+
+  if (video_consumer_ && interval != external_capture_interval_) {
+    // The capturer that produces OnAcceleratedPaint samples the Display frames
+    // with a minimum period. Equal to the tick interval, that period refuses a
+    // frame whenever the tick dates accumulate a small deficit against it;
+    // keep it below the interval so that every tick-paced frame is captured.
+    external_capture_interval_ = interval;
+    video_consumer_->SetFrameRate(interval - interval / 20);
   }
 
   if (!IsPopupWidget() && popup_host_view_) {
-    popup_host_view_->SendExternalBeginFrame();
+    popup_host_view_->SendExternalBeginFrameInternal(frame_time, client_dated);
   }
 }
 
@@ -1594,6 +1602,7 @@ void CefRenderWidgetHostViewOSR::OnGestureEvent(
 
 void CefRenderWidgetHostViewOSR::UpdateFrameRate() {
   frame_rate_threshold_us_ = 0;
+  external_capture_interval_ = base::TimeDelta();
   SetFrameRate();
 
   if (video_consumer_) {
