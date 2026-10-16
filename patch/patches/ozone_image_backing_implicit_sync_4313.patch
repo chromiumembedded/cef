@@ -1,0 +1,58 @@
+diff --git gpu/command_buffer/service/shared_image/ozone_image_backing.cc gpu/command_buffer/service/shared_image/ozone_image_backing.cc
+index 6855b869a598589406e026f5f444578294547c32..ea8bc5ff9a019e4d2b66bc2028fdfc51bfbbb2d1 100644
+--- gpu/command_buffer/service/shared_image/ozone_image_backing.cc
++++ gpu/command_buffer/service/shared_image/ozone_image_backing.cc
+@@ -62,6 +62,14 @@
+ #include "third_party/skia/include/gpu/graphite/Recorder.h"
+ #endif  // BUILDFLAG(USE_DAWN)
+ 
++#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
++#include <errno.h>
++#include <sys/ioctl.h>
++
++#include "base/posix/eintr_wrapper.h"
++#include "ui/gfx/linux/dmabuf_uapi.h"
++#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
++
+ namespace gpu {
+ namespace {
+ 
+@@ -77,6 +85,26 @@ bool IsExoTexture(std::string_view label) {
+   return label.starts_with(gpu::kExoTextureLabelPrefix);
+ }
+ 
++#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
++// Adds `fence` to the implicit fences of the pixmap's dma-bufs, so consumers
++// outside of the GPU process that rely on implicit synchronization wait for the
++// write to finish. Kernels older than 6.0 don't support the ioctl and fail with
++// ENOTTY.
++void AddWriteFenceToDmaBufs(const gfx::NativePixmap& pixmap,
++                            const gfx::GpuFenceHandle& fence) {
++  for (size_t plane = 0; plane < pixmap.GetNumberOfPlanes(); ++plane) {
++    dma_buf_import_sync_file request = {.flags = DMA_BUF_SYNC_WRITE,
++                                        .fd = fence.Peek()};
++    if (HANDLE_EINTR(ioctl(pixmap.GetDmaBufFd(plane),
++                           DMA_BUF_IOCTL_IMPORT_SYNC_FILE, &request)) < 0) {
++      DPLOG_IF(ERROR, errno != ENOTTY)
++          << "DMA_BUF_IOCTL_IMPORT_SYNC_FILE failed";
++      return;
++    }
++  }
++}
++#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
++
+ }  // namespace
+ 
+ class OzoneImageBacking::OverlayOzoneImageRepresentation
+@@ -895,6 +923,11 @@ void OzoneImageBacking::EndAccess(bool readonly,
+     }
+   } else {
+     DCHECK(!read_fences_.contains(access_stream));
++#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
++    if (!fence.is_null()) {
++      AddWriteFenceToDmaBufs(*pixmap_, fence);
++    }
++#endif
+     write_fence_ = std::move(fence);
+     last_write_stream_ = access_stream;
+   }
