@@ -2,6 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <set>
+
 #include "include/base/cef_callback.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/routing_test_handler.h"
@@ -172,6 +174,131 @@ class DisplayTestHandler : public RoutingTestHandler, public CefRenderHandler {
 // Test that browser visibility is not changed due to navigation.
 TEST(OSRTest, NavigateWhileHidden) {
   CefRefPtr<DisplayTestHandler> handler = new DisplayTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+namespace {
+
+const char kEvictionUrl[] = "https://tests/osr-eviction.html";
+
+// Chromium saves the frames of a limited number of views, visible or hidden,
+// and evicts the least recently used hidden frame past that limit (see
+// viz::FrameEvictionManager). The limit is at most 5, or up to 10 with the
+// ScalableFrameEviction feature. With this many browsers visible, hiding one
+// evicts its frame.
+const size_t kEvictionBrowserCount = 11;
+
+class OsrShowAfterEvictionTestHandler : public TestHandler,
+                                        public CefRenderHandler {
+ public:
+  CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
+
+  void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override {
+    rect = CefRect(0, 0, kOsrWidth, kOsrHeight);
+  }
+
+  bool GetScreenInfo(CefRefPtr<CefBrowser> browser,
+                     CefScreenInfo& screen_info) override {
+    screen_info.device_scale_factor = 1.0f;
+    screen_info.rect = CefRect(0, 0, kOsrWidth, kOsrHeight);
+    screen_info.available_rect = screen_info.rect;
+    return true;
+  }
+
+  void RunTest() override {
+    // The page is red until it becomes visible again after being hidden, and
+    // green after that.
+    AddResource(kEvictionUrl,
+                "<!doctype html><html style='background:#ff0000'><script>"
+                "document.addEventListener('visibilitychange',()=>{"
+                "if(document.visibilityState==='visible'){"
+                "document.documentElement.style.background='#00ff00';}});"
+                "</script></html>",
+                "text/html");
+    for (size_t i = 0; i < kEvictionBrowserCount; ++i) {
+      CefWindowInfo window_info;
+      window_info.SetAsWindowless(kNullWindowHandle);
+      CefBrowserHost::CreateBrowser(window_info, this, kEvictionUrl,
+                                    CefBrowserSettings(), nullptr, nullptr);
+    }
+    SetTestTimeout(10000);
+  }
+
+  void OnPaint(CefRefPtr<CefBrowser> browser,
+               PaintElementType type,
+               const RectList& dirty_rects,
+               const void* buffer,
+               int width,
+               int height) override {
+    if (type != PET_VIEW || width != kOsrWidth || height != kOsrHeight ||
+        step_ == kHide || step_ == kDone) {
+      return;
+    }
+    // The BGRA pixel at the center of the view.
+    const auto* pixel = static_cast<const unsigned char*>(buffer) +
+                        ((height / 2) * width + width / 2) * 4;
+    if (step_ == kLoad) {
+      if (pixel[0] == 0 && pixel[1] == 0 && pixel[2] == 255) {
+        painted_.insert(browser->GetIdentifier());
+        if (painted_.size() == kEvictionBrowserCount) {
+          step_ = kHide;
+          hidden_browser_ = browser;
+          GetUIThreadHelper()->PostTask(base::BindOnce(
+              &OsrShowAfterEvictionTestHandler::Hide, base::Unretained(this)));
+        }
+      }
+    } else if (browser->IsSame(hidden_browser_) && pixel[0] == 0 &&
+               pixel[1] == 255 && pixel[2] == 0) {
+      got_paint_after_show_.yes();
+      step_ = kDone;
+      GetUIThreadHelper()->PostTask(
+          base::BindOnce(&OsrShowAfterEvictionTestHandler::DestroyTest,
+                         base::Unretained(this)));
+    }
+  }
+
+  void DestroyTest() override {
+    EXPECT_EQ(kEvictionBrowserCount, painted_.size());
+    EXPECT_TRUE(got_paint_after_show_);
+    step_ = kDone;
+    hidden_browser_ = nullptr;
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  void Hide() {
+    // The other browsers are visible and fill the saved frame limit, so hiding
+    // this one evicts its frame.
+    hidden_browser_->GetHost()->WasHidden(true);
+    GetUIThreadHelper()->PostDelayedTask(
+        base::BindOnce(&OsrShowAfterEvictionTestHandler::Show,
+                       base::Unretained(this)),
+        100);
+  }
+
+  void Show() {
+    step_ = kShow;
+    hidden_browser_->GetHost()->WasHidden(false);
+  }
+
+  enum Step { kLoad, kHide, kShow, kDone };
+  Step step_ = kLoad;
+  std::set<int> painted_;
+  CefRefPtr<CefBrowser> hidden_browser_;
+  TrackCallback got_paint_after_show_;
+
+  IMPLEMENT_REFCOUNTING(OsrShowAfterEvictionTestHandler);
+};
+
+}  // namespace
+
+// Test that a browser whose frame was evicted while hidden paints again when
+// shown while other visible browsers fill the saved frame limit. See
+// https://github.com/chromiumembedded/cef/issues/3427.
+TEST(OSRTest, ShowAfterFrameEviction) {
+  CefRefPtr<OsrShowAfterEvictionTestHandler> handler =
+      new OsrShowAfterEvictionTestHandler;
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
