@@ -10,6 +10,7 @@
 #include "base/functional/bind.h"
 #include "base/logging.h"
 #include "base/trace_event/trace_event.h"
+#include "mojo/public/cpp/bindings/callback_helpers.h"
 
 // static
 uint64_t CefExternalBeginFrameSourceOSR::AllocateSourceId() {
@@ -97,6 +98,16 @@ base::TimeDelta CefExternalBeginFrameSourceOSR::Tick(
   if (in_flight_) {
     // One tick in flight at a time (viz reports a bad message otherwise).
     // Keep this one, with its own time stamps, for the acknowledgement.
+    if (!stall_warned_ &&
+        base::TimeTicks::Now() - issued_at_ > base::Seconds(1)) {
+      // The gate only reopens on the acknowledgement or when the reply is
+      // dropped; a reply that never comes keeps it closed for good. Say so.
+      stall_warned_ = true;
+      LOG(WARNING) << "External BeginFrame issued "
+                   << (base::TimeTicks::Now() - issued_at_).InMilliseconds()
+                   << " ms ago has not been acknowledged; ticks are queued "
+                      "or dropped until it is";
+    }
     if (queued_) {
       ++ticks_dropped_;
     }
@@ -116,6 +127,8 @@ base::TimeDelta CefExternalBeginFrameSourceOSR::Tick(
 
 void CefExternalBeginFrameSourceOSR::Issue(const PendingTick& tick) {
   in_flight_ = true;
+  issued_at_ = base::TimeTicks::Now();
+  stall_warned_ = false;
   last_frame_time_ = tick.frame_time;
   ++ticks_issued_;
 
@@ -129,15 +142,35 @@ void CefExternalBeginFrameSourceOSR::Issue(const PendingTick& tick) {
                args.frame_id.sequence_number);
   DCHECK(args.IsValid());
 
+  // The reply is the gate: it reopens when the reply runs, or when the reply
+  // is destroyed without running (GPU process loss, or a tick kept pending by
+  // the compositor until its frame sink exists and then replaced).
   compositor_->IssueExternalBeginFrame(
-      args, base::BindOnce(&CefExternalBeginFrameSourceOSR::OnBeginFrameAck,
-                           weak_factory_.GetWeakPtr()));
+      args, mojo::WrapCallbackWithDropHandler(
+                base::BindOnce(&CefExternalBeginFrameSourceOSR::OnBeginFrameAck,
+                               weak_factory_.GetWeakPtr()),
+                base::BindOnce(
+                    &CefExternalBeginFrameSourceOSR::OnBeginFrameAckDropped,
+                    weak_factory_.GetWeakPtr())));
 }
 
 void CefExternalBeginFrameSourceOSR::OnBeginFrameAck(
     const viz::BeginFrameAck& ack) {
   DCHECK(in_flight_);
   in_flight_ = false;
+  IssueQueuedOrDrop();
+}
+
+void CefExternalBeginFrameSourceOSR::OnBeginFrameAckDropped() {
+  if (!in_flight_) {
+    return;
+  }
+  in_flight_ = false;
+  ++ticks_dropped_;
+  IssueQueuedOrDrop();
+}
+
+void CefExternalBeginFrameSourceOSR::IssueQueuedOrDrop() {
   if (!queued_) {
     return;
   }
@@ -159,15 +192,16 @@ mojo::PendingAssociatedRemote<viz::mojom::ExternalBeginFrameControllerClient>
 CefExternalBeginFrameSourceOSR::CreateExternalBeginFrameControllerClient() {
   TRACE_EVENT0("ui", "CefExternalBeginFrameSourceOSR::CreateClient");
   // A new root frame sink (first creation, or re-creation after a GPU process
-  // crash): nothing is in flight anymore, and the sequence restarts.
+  // crash). The gate is left as it is: a reply still alive keeps it closed
+  // (the compositor issues the tick it kept pending right after this call),
+  // and a reply dropped with the GPU process has already reopened it. The
+  // sequence numbers go on: the new Display has no history to match. Only
+  // the timing state and the vsync parameters restart.
   receivers_.Clear();
-  in_flight_ = false;
-  queued_.reset();
   last_frame_time_ = base::TimeTicks();
   vsync_interval_set_ = base::TimeDelta();
   gaps_n_ = 0;
   gaps_i_ = 0;
-  args_generator_ = viz::BeginFrameSource::BeginFrameArgsGenerator();
 
   mojo::PendingAssociatedRemote<viz::mojom::ExternalBeginFrameControllerClient>
       remote;

@@ -43,7 +43,13 @@
 //   with its own time stamps and issued when the acknowledgement comes back,
 //   provided its interval is not half over; otherwise it is dropped like a
 //   missed vsync. viz accepts a single IssueExternalBeginFrame in flight per
-//   controller (mojo bad message otherwise), hence the gate.
+//   controller (mojo bad message otherwise), hence the gate. The gate is
+//   closed exactly while a reply callback is alive: it reopens on the
+//   acknowledgement, or when the reply is destroyed without running (the
+//   GPU process went away, or the tick that the compositor keeps pending
+//   until its frame sink exists was replaced). It is not reset when the
+//   controller client is recreated: the compositor issues its pending tick
+//   right after that, and its reply is still alive.
 //
 // All methods are called on the UI thread.
 class CefExternalBeginFrameSourceOSR
@@ -104,6 +110,11 @@ class CefExternalBeginFrameSourceOSR
 
   void Issue(const PendingTick& tick);
   void OnBeginFrameAck(const viz::BeginFrameAck& ack);
+  // The reply of the tick in flight was destroyed without running.
+  void OnBeginFrameAckDropped();
+  // The tick in flight is over: issue the kept tick if its interval is not
+  // half over, drop it otherwise.
+  void IssueQueuedOrDrop();
 
   static uint64_t AllocateSourceId();
 
@@ -125,6 +136,8 @@ class CefExternalBeginFrameSourceOSR
   int gaps_i_ = 0;
   base::TimeTicks last_frame_time_;
   bool in_flight_ = false;
+  base::TimeTicks issued_at_;  // of the tick in flight
+  bool stall_warned_ = false;  // a warning was logged for the tick in flight
   std::optional<PendingTick> queued_;
   bool needs_begin_frames_ = false;
 
