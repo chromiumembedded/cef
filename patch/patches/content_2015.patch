@@ -12,10 +12,10 @@ index fbfe1abebb19119387d55a1296aba5fd1ca7d99b..ea7f1ed74250198d4be2a16474e167b7
      version.Set("V8-Version", V8_VERSION_STRING);
      std::string host = info.GetHeaderValue("host");
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 6bdc776bdb347d5d717555e4ed306f978d6fde51..e1e56754d0c32f3828bcf7445fed77b9a851f504 100644
+index f5f4707e9e9c43303a56a0e78c5bf3d04ef71144..335c3b6fc0d39ea42a7ddcf6ac177bd6135fe1a5 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -1304,7 +1304,7 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
+@@ -1305,7 +1305,7 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
    mojo::PendingRemote<network::mojom::URLLoaderFactory>
        terminal_external_protocol;
    bool handled = GetContentClient()->browser()->HandleExternalProtocol(
@@ -24,7 +24,7 @@ index 6bdc776bdb347d5d717555e4ed306f978d6fde51..e1e56754d0c32f3828bcf7445fed77b9
        frame_tree_node->frame_tree_node_id(), navigation_ui_data,
        request_info.is_primary_main_frame,
        frame_tree_node->IsInFencedFrameTree(), request_info.sandbox_flags,
-@@ -1316,6 +1316,21 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
+@@ -1317,6 +1317,21 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
                  *request_info.initiator_document_token)
            : nullptr,
        request_info.isolation_info, &terminal_external_protocol);
