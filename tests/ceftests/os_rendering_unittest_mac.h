@@ -11,6 +11,19 @@ namespace osr_unittests {
 
 CefWindowHandle GetFakeView();
 
+// Prevent App Nap from coalescing the windowless timing test's timers.
+class ScopedTimingActivity {
+ public:
+  ScopedTimingActivity();
+  ~ScopedTimingActivity();
+
+  ScopedTimingActivity(const ScopedTimingActivity&) = delete;
+  ScopedTimingActivity& operator=(const ScopedTimingActivity&) = delete;
+
+ private:
+  void* activity_;
+};
+
 }  // namespace osr_unittests
 
 #endif  // CEF_TESTS_CEFTESTS_OS_RENDERING_UNITTEST_MAC_H_

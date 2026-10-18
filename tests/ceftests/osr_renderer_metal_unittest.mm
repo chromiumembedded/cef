@@ -10,6 +10,7 @@
 #include <memory>
 #include <vector>
 
+#include "tests/ceftests/osr_renderer_test_util_mac.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -52,36 +53,10 @@ class OsrRendererMetalTest : public testing::Test {
       [render waitUntilCompleted];
       EXPECT_EQ(MTLCommandBufferStatusCompleted, render.status);
 
-      const size_t row_bytes = (width * 4 + 255) & ~size_t(255);
-      id<MTLBuffer> readback =
-          [device newBufferWithLength:row_bytes * height
-                              options:MTLResourceStorageModeShared];
-      id<MTLCommandQueue> queue = [device newCommandQueue];
-      id<MTLCommandBuffer> copy = [queue commandBuffer];
-      id<MTLBlitCommandEncoder> encoder = [copy blitCommandEncoder];
-      [encoder copyFromTexture:target
-                       sourceSlice:0
-                       sourceLevel:0
-                      sourceOrigin:MTLOriginMake(0, 0, 0)
-                        sourceSize:MTLSizeMake(width, height, 1)
-                          toBuffer:readback
-                 destinationOffset:0
-            destinationBytesPerRow:row_bytes
-          destinationBytesPerImage:row_bytes * height];
-      [encoder endEncoding];
-      [copy commit];
-      [copy waitUntilCompleted];
-      EXPECT_EQ(MTLCommandBufferStatusCompleted, copy.status);
-      std::vector<uint32_t> pixels(width * height);
-      for (int y = 0; y < height; ++y) {
-        const auto* row = reinterpret_cast<const uint32_t*>(
-            static_cast<const uint8_t*>(readback.contents) + y * row_bytes);
-        std::copy_n(row, width, pixels.begin() + y * width);
-      }
+      std::vector<uint32_t> pixels;
+      EXPECT_TRUE(osr_unittests::ReadMetalTexture(target, &pixels));
 #if !__has_feature(objc_arc)
       [target release];
-      [readback release];
-      [queue release];
 #endif
       return pixels;
     }

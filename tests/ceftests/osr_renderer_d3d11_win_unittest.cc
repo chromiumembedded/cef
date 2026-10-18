@@ -12,6 +12,7 @@
 #include <memory>
 #include <vector>
 
+#include "tests/ceftests/osr_renderer_test_util_win.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -89,30 +90,8 @@ class OsrRendererD3D11Test : public testing::TestWithParam<bool> {
       ADD_FAILURE() << "Could not render to readback target";
       return {};
     }
-    D3D11_TEXTURE2D_DESC desc = {};
-    target->GetDesc(&desc);
-    desc.Usage = D3D11_USAGE_STAGING;
-    desc.BindFlags = 0;
-    desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-    ComPtr<ID3D11Texture2D> readback;
-    if (FAILED(
-            renderer_->device()->CreateTexture2D(&desc, nullptr, &readback))) {
-      ADD_FAILURE() << "Could not create readback texture";
-      return {};
-    }
-    context_->CopyResource(readback.Get(), target.Get());
-    D3D11_MAPPED_SUBRESOURCE mapped = {};
-    if (FAILED(context_->Map(readback.Get(), 0, D3D11_MAP_READ, 0, &mapped))) {
-      ADD_FAILURE() << "Could not read rendered pixels";
-      return {};
-    }
-    std::vector<uint32_t> pixels(width * height);
-    for (int y = 0; y < height; ++y) {
-      const auto* row = reinterpret_cast<const uint32_t*>(
-          static_cast<const uint8_t*>(mapped.pData) + y * mapped.RowPitch);
-      std::copy_n(row, width, pixels.begin() + y * width);
-    }
-    context_->Unmap(readback.Get(), 0);
+    std::vector<uint32_t> pixels;
+    EXPECT_TRUE(osr_unittests::ReadD3D11Texture(target.Get(), &pixels));
     return pixels;
   }
 

@@ -3004,7 +3004,10 @@ if (is_mac) {
                  gypi_paths2.ceftests_sources_win +
                  gypi_paths2.ceftests_sources_resources_win_rc
 
-      libs = [ "d3d11.lib" ]
+      libs = [
+        "d3d11.lib",
+        "winmm.lib",
+      ]
 
       # Delay-load as many DLLs as possible for sandbox and startup perf
       # improvements.
@@ -3051,7 +3054,10 @@ if (is_mac) {
 
       output_name = "ceftests"
 
-      libs = [ "d3d11.lib" ]
+      libs = [
+        "d3d11.lib",
+        "winmm.lib",
+      ]
 
       sources = includes_common +
                 gypi_paths2.includes_wrapper +

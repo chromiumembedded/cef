@@ -615,6 +615,7 @@
       'tests/ceftests/message_router_unittest_utils.h',
       'tests/ceftests/navigation_unittest.cc',
       'tests/ceftests/os_rendering_unittest.cc',
+      'tests/ceftests/os_rendering_unittest_shared_texture.h',
       'tests/ceftests/osr_accessibility_unittest.cc',
       'tests/ceftests/osr_display_unittest.cc',
       'tests/ceftests/owned_widget_shutdown_unittest.cc',
@@ -691,6 +692,8 @@
     ],
     'ceftests_sources_win': [
       'tests/ceftests/keyboard_input_unittest_win.cc',
+      'tests/ceftests/os_rendering_unittest_win.cc',
+      'tests/ceftests/osr_renderer_test_util_win.h',
       'tests/ceftests/osr_renderer_d3d11_win_unittest.cc',
       'tests/ceftests/resource_util_win_dir.cc',
       'tests/ceftests/resource_util_win_idmap.cc',
@@ -710,6 +713,7 @@
       'tests/ceftests/osr_renderer_metal_unittest.mm',
       'tests/ceftests/os_rendering_unittest_mac.h',
       'tests/ceftests/os_rendering_unittest_mac.mm',
+      'tests/ceftests/osr_renderer_test_util_mac.h',
       'tests/ceftests/run_all_unittests_mac.mm',
       'tests/ceftests/test_util_mac.mm',
     ],
@@ -787,6 +791,8 @@
       'tests/ceftests/mac/Info.plist.in',
     ],
     'ceftests_sources_linux': [
+      'tests/ceftests/os_rendering_unittest_linux.cc',
+      'tests/ceftests/osr_renderer_test_util_linux.h',
       'tests/ceftests/keyboard_input_unittest_linux.cc',
       'tests/ceftests/osr_renderer_gl_linux_unittest.cc',
       'tests/ceftests/resource_util_linux.cc',

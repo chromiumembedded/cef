@@ -1245,9 +1245,11 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
     return;
   }
 
-  base::TimeTicks frame_time = base::TimeTicks::Now();
-  base::TimeTicks deadline = base::TimeTicks();
-  base::TimeDelta interval = viz::BeginFrameArgs::DefaultInterval();
+  SetFrameRate();
+  const base::TimeTicks frame_time = base::TimeTicks::Now();
+  // Match the compositor and capture interval, including frame-rate updates.
+  const base::TimeDelta interval = base::Microseconds(frame_rate_threshold_us_);
+  const base::TimeTicks deadline = frame_time + interval;
 
   viz::BeginFrameArgs begin_frame_args = viz::BeginFrameArgs::Create(
       BEGINFRAME_FROM_HERE, begin_frame_source_.source_id(),

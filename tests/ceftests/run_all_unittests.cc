@@ -41,6 +41,8 @@
 #endif
 
 #if defined(OS_WIN)
+#include <mmsystem.h>
+
 #include "include/cef_sandbox_win.h"
 #include "tests/shared/browser/util_win.h"
 #endif
@@ -127,8 +129,30 @@ class ScopedPlatformSetup final {
 };
 #endif  // defined(OS_MAC)
 
+#if defined(OS_WIN)
+class ScopedTestTimerResolution {
+ public:
+  ScopedTestTimerResolution()
+      : acquired_(timeBeginPeriod(1) == TIMERR_NOERROR) {}
+  ~ScopedTestTimerResolution() {
+    if (acquired_) {
+      timeEndPeriod(1);
+    }
+  }
+
+ private:
+  const bool acquired_;
+};
+#endif
+
 int RunMain(int argc, char* argv[], void* sandbox_info) {
   int exit_code;
+
+#if defined(OS_WIN)
+  // Windows timer-resolution requests are per process. Keep renderer and GPU
+  // deadlines precise as well as the browser's request clock in timing tests.
+  ScopedTestTimerResolution scoped_timer_resolution;
+#endif
 
 #if CEF_API_VERSION != CEF_EXPERIMENTAL
   printf("Running with configured CEF API version %d\n", CEF_API_VERSION);

@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 
+#include "tests/ceftests/osr_renderer_test_util_linux.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/browser/osr_gl_linux.h"
 
@@ -373,36 +374,6 @@ class DmaBuf {
   uint32_t offsets_[4] = {};
 };
 
-// Returns an initialized display that does not require a window system.
-gl::EGLDisplay CreateHeadlessDisplay(const gl::Api* api) {
-  if (gl::HasExtension(gl::kNoDisplay, "EGL_MESA_platform_surfaceless")) {
-    gl::EGLDisplay display = api->eglGetPlatformDisplay(
-        gl::kEglPlatformSurfacelessMesa, nullptr, nullptr);
-    if (display && api->eglInitialize(display, nullptr, nullptr)) {
-      return display;
-    }
-  }
-  // Supported by Mesa and NVIDIA.
-  if (gl::HasExtension(gl::kNoDisplay, "EGL_EXT_platform_device") &&
-      gl::HasExtension(gl::kNoDisplay, "EGL_EXT_device_enumeration")) {
-    auto* query_devices =
-        reinterpret_cast<gl::EGLBoolean (*)(gl::EGLint, void**, gl::EGLint*)>(
-            api->eglGetProcAddress("eglQueryDevicesEXT"));
-    void* devices[16] = {};
-    gl::EGLint count = 0;
-    if (query_devices && query_devices(16, devices, &count)) {
-      for (gl::EGLint i = 0; i < count; ++i) {
-        gl::EGLDisplay display = api->eglGetPlatformDisplay(
-            gl::kEglPlatformDevice, devices[i], nullptr);
-        if (display && api->eglInitialize(display, nullptr, nullptr)) {
-          return display;
-        }
-      }
-    }
-  }
-  return gl::kNoDisplay;
-}
-
 class OsrRendererGlTest : public testing::Test {
  public:
   void SetUp() override {
@@ -410,7 +381,7 @@ class OsrRendererGlTest : public testing::Test {
     if (!api_) {
       GTEST_SKIP() << "EGL is unavailable";
     }
-    display_ = CreateHeadlessDisplay(api_);
+    display_ = osr_unittests::CreateHeadlessDisplay(api_);
     if (!display_ ||
         !gl::HasExtension(display_, "EGL_KHR_surfaceless_context") ||
         !gl::HasExtension(display_, "EGL_KHR_no_config_context")) {
@@ -456,36 +427,9 @@ class OsrRendererGlTest : public testing::Test {
   // Read pixels with a top-left origin from the production render path,
   // including texture uploads, DMA-BUF copies, sampling and blending.
   std::vector<uint32_t> Render(int width, int height) {
-    gl::GLuint texture = 0;
-    gl::GLuint framebuffer = 0;
-    api_->glGenTextures(1, &texture);
-    api_->glBindTexture(gl::kGlTexture2D, texture);
-    api_->glTexImage2D(gl::kGlTexture2D, 0, gl::kGlRgba8, width, height, 0,
-                       gl::kGlBgra, gl::kGlUnsignedInt8888Rev, nullptr);
-    api_->glBindTexture(gl::kGlTexture2D, 0);
-    api_->glGenFramebuffers(1, &framebuffer);
-    api_->glBindFramebuffer(gl::kGlFramebuffer, framebuffer);
-    api_->glFramebufferTexture2D(gl::kGlFramebuffer, gl::kGlColorAttachment0,
-                                 gl::kGlTexture2D, texture, 0);
-    EXPECT_EQ(gl::kGlFramebufferComplete,
-              api_->glCheckFramebufferStatus(gl::kGlFramebuffer));
-    EXPECT_TRUE(renderer_->Render(framebuffer, width, height));
-
-    std::vector<uint32_t> bottom_up(width * height);
-    api_->glBindFramebuffer(gl::kGlFramebuffer, framebuffer);
-    api_->glPixelStorei(gl::kGlPackAlignment, 4);
-    api_->glReadPixels(0, 0, width, height, gl::kGlBgra,
-                       gl::kGlUnsignedInt8888Rev, bottom_up.data());
-    api_->glBindFramebuffer(gl::kGlFramebuffer, 0);
-    api_->glDeleteFramebuffers(1, &framebuffer);
-    api_->glDeleteTextures(1, &texture);
-    EXPECT_EQ(gl::kGlNoError, api_->glGetError());
-
-    std::vector<uint32_t> pixels(width * height);
-    for (int y = 0; y < height; ++y) {
-      std::copy_n(bottom_up.begin() + (height - 1 - y) * width, width,
-                  pixels.begin() + y * width);
-    }
+    std::vector<uint32_t> pixels;
+    EXPECT_TRUE(
+        osr_unittests::RenderGlPixels(renderer_.get(), width, height, &pixels));
     return pixels;
   }
 
