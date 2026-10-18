@@ -429,8 +429,8 @@ void SetTestCookie(CefRefPtr<CefRequestContext> request_context,
 using GetTestCookieCallback =
     base::OnceCallback<void(bool /* cookie exists */)>;
 
-// Tests if the save cookie has been set. If set, it will be deleted at the same
-// time.
+// Tests if the save cookie has been set and deletes both cookies owned by the
+// test, including the send cookie created during setup.
 void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
                    bool server_backend,
                    GetTestCookieCallback callback) {
@@ -450,7 +450,8 @@ void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
       if (cookie_name == kRequestSaveCookieName) {
         cookie_exists_ = true;
         deleteCookie = true;
-        return false;
+      } else if (cookie_name == kRequestSendCookieName) {
+        deleteCookie = true;
       }
       return true;
     }
