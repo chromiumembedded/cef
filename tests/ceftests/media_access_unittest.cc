@@ -181,7 +181,7 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
       page += "<script>runTest();</script>";
     }
 
-    page += "MEDIA ACCESS TEST</body></html>";
+    page += GetCurrentTestName() + "</body></html>";
 
     AddResource(kMediaUrl, page, "text/html");
     AddResource(kMediaNavUrl, "<html><body>Navigated</body></html>",

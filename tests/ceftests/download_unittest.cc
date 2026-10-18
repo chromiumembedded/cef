@@ -543,7 +543,8 @@ class DownloadTestHandler : public TestHandler {
                   "text/html");
     } else {
       download_url_ = kTestStartUrl;
-      AddResource(kTestStartUrl, "<html><body>Download Test</body></html>",
+      AddResource(kTestStartUrl,
+                  "<html><body>" + GetCurrentTestName() + "</body></html>",
                   "text/html");
     }
 

@@ -396,8 +396,7 @@ class ReusableBrowserClient : public TestHandlerClient,
     const auto& logging = *lifecycle_logging_;
     LOG(WARNING) << "REUSE_LIFECYCLE event=" << event << " client=" << this
                  << " browser_id=" << logging.browser_id
-                 << " shutdown=" << shutdown
-                 << " age_ms="
+                 << " shutdown=" << shutdown << " age_ms="
                  << std::chrono::duration_cast<std::chrono::milliseconds>(
                         std::chrono::steady_clock::now() - logging.created_at)
                         .count()
@@ -406,9 +405,8 @@ class ReusableBrowserClient : public TestHandlerClient,
                  << " browser_style=" << logging.browser_style
                  << " window_style=" << logging.window_style
                  << " context=" << logging.context_identity
-                 << " size=" << rect_.width
-                 << "x" << rect_.height << " leases=" << leases_
-                 << " browser_alive=" << !!browser_
+                 << " size=" << rect_.width << "x" << rect_.height
+                 << " leases=" << leases_ << " browser_alive=" << !!browser_
                  << " window_alive=" << !!window_ << " closing=" << closing_
                  << " resetting=" << resetting_
                  << " idle_hidden=" << idle_hidden_
@@ -1096,7 +1094,8 @@ class ReusableBrowserViewDelegate : public CefBrowserViewDelegate {
   void OnBrowserDestroyed(CefRefPtr<CefBrowserView> view,
                           CefRefPtr<CefBrowser> browser) override {
     // This delegate is only installed on browsers owned by this client type.
-    // The callback precedes OnBeforeClose, so the browser still owns its client.
+    // The callback precedes OnBeforeClose, so the browser still owns its
+    // client.
     auto client = browser->GetHost()->GetClient();
     static_cast<ReusableBrowserClient*>(client.get())
         ->LogLifecycle("OnBrowserDestroyed");
@@ -2098,13 +2097,12 @@ void TestHandler::ShutdownReusableBrowsers() {
   auto started = CefWaitableEvent::CreateWaitableEvent(true, false);
   auto done = CefWaitableEvent::CreateWaitableEvent(true, false);
   const ReusableBrowserShutdownLogging logging(reusable_browser_logging.load(),
-                                              done.get());
-  const auto* test = logging.IsEnabled()
-                         ? testing::UnitTest::GetInstance()->current_test_info()
-                         : nullptr;
-  logging.Log("PostRequested", " test=",
-              test ? test->test_suite_name() : "GlobalTeardown", ".",
-              test ? test->name() : "");
+                                               done.get());
+  if (logging.IsEnabled()) {
+    const auto test_name = GetCurrentTestName();
+    logging.Log("PostRequested",
+                " test=", test_name.empty() ? "GlobalTeardown" : test_name);
+  }
   const bool posted = CefPostTask(
       TID_UI,
       base::BindOnce(
@@ -2179,7 +2177,8 @@ void TestHandler::ShutdownReusableBrowsers() {
   // They may finish after this test fails without accessing the caller's stack
   // or returning a retiring browser to the next test's pool.
   const bool completed = done->TimedWait(*timeout);
-  logging.Log("WaitFinished", " completed=", completed, " timeout_ms=", *timeout);
+  logging.Log("WaitFinished", " completed=", completed,
+              " timeout_ms=", *timeout);
   EXPECT_TRUE(completed)
       << "ShutdownReusableBrowsers timed out after " << *timeout
       << "ms; retiring browsers remain outside the reusable pool";

@@ -3381,10 +3381,13 @@ class BeforeResourceLoadTest : public TestHandler {
   explicit BeforeResourceLoadTest(TestMode mode) : test_mode_(mode) {}
 
   void RunTest() override {
-    AddResource(kResourceTestHtml, "<html><body>Test</body></html>",
+    AddResource(kResourceTestHtml,
+                "<html><body>" + GetCurrentTestName() + "</body></html>",
                 "text/html");
-    AddResource(kResourceTestHtml2, "<html><body>Test2</body></html>",
-                "text/html");
+    AddResource(
+        kResourceTestHtml2,
+        "<html><body>" + GetCurrentTestName() + " (page 2)</body></html>",
+        "text/html");
     CreateReusableBrowser(kResourceTestHtml);
     SetTestTimeout();
   }

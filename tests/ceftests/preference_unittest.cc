@@ -97,12 +97,10 @@ class PreferenceBrowserTest : public client::ClientAppBrowser::Delegate {
 #if CEF_API_ADDED(15600)
     const bool added_override =
         registrar->AddPreference(kPrefTestOverride, CreateBoolValue(true));
-    const auto* test_info =
-        testing::UnitTest::GetInstance()->current_test_info();
     const bool run_registration_tests =
-        type == CEF_PREFERENCES_TYPE_REQUEST_CONTEXT && test_info &&
-        std::string(test_info->test_suite_name()) == "PreferenceTest" &&
-        std::string(test_info->name()) == "OverriddenRequestContextDefault";
+        type == CEF_PREFERENCES_TYPE_REQUEST_CONTEXT &&
+        GetCurrentTestName() ==
+            "PreferenceTest.OverriddenRequestContextDefault";
     if (!run_registration_tests) {
       // Establish test defaults without running registration assertions during
       // startup or while unrelated tests create request contexts.

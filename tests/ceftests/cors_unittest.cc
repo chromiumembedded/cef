@@ -48,12 +48,15 @@ constexpr bool kUseHttpsServerScheme = false;
 const char kMimeTypeHtml[] = "text/html";
 const char kMimeTypeText[] = "text/plain";
 
-const char kDefaultHtml[] = "<html><body>TEST</body></html>";
 const char kDefaultText[] = "TEST";
 const char kDefaultCookie[] = "testCookie=testVal";
 
 const char kSuccessMsg[] = "CorsTestHandler.Success";
 const char kFailureMsg[] = "CorsTestHandler.Failure";
+
+std::string GetDefaultHtml() {
+  return "<html><body>" + GetCurrentTestName() + "</body></html>";
+}
 
 // Source that will handle the request.
 enum class HandlerType {
@@ -168,7 +171,7 @@ struct Resource {
   Resource(HandlerType request_handler,
            const std::string& request_path,
            const std::string& mime_type = kMimeTypeHtml,
-           const std::string& data = kDefaultHtml,
+           const std::string& data = GetDefaultHtml(),
            int status = 200) {
     Init(request_handler, request_path, mime_type, data, status);
   }
@@ -177,7 +180,7 @@ struct Resource {
   void Init(HandlerType request_handler,
             const std::string& request_path,
             const std::string& mime_type = kMimeTypeHtml,
-            const std::string& data = kDefaultHtml,
+            const std::string& data = GetDefaultHtml(),
             int status = 200) {
     handler = request_handler;
     path = request_path;
@@ -668,8 +671,8 @@ std::string GetFailureMsgJS() {
 }
 
 std::string GetDefaultSuccessMsgHtml() {
-  return "<html><body>TEST<script>" + GetSuccessMsgJS() +
-         "</script></body></html>";
+  return "<html><body>" + GetCurrentTestName() + "<script>" +
+         GetSuccessMsgJS() + "</script></body></html>";
 }
 
 }  // namespace
@@ -817,13 +820,14 @@ void SetupCookieExpectations(CookieTestSetup* setup,
 
 std::string GetIframeMainHtml(const std::string& iframe_url,
                               const std::string& sandbox_attribs) {
-  return "<html><body>TEST<iframe src=\"" + iframe_url + "\" sandbox=\"" +
-         sandbox_attribs + "\"></iframe></body></html>";
+  return "<html><body>" + GetCurrentTestName() + "<iframe src=\"" + iframe_url +
+         "\" sandbox=\"" + sandbox_attribs + "\"></iframe></body></html>";
 }
 
 std::string GetIframeSubHtml() {
   // Try to script the parent frame, then send the SuccessMsg.
-  return "<html><body>TEST<script>try { parent.document.body; } catch "
+  return "<html><body>" + GetCurrentTestName() +
+         "<script>try { parent.document.body; } catch "
          "(exception) { console.log(exception.toString()); }" +
          GetSuccessMsgJS() + "</script></body></html>";
 }

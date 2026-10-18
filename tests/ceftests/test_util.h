@@ -102,6 +102,9 @@ bool UseAlloyStyleBrowserGlobal();
 // Only used in combination with Views.
 bool UseAlloyStyleWindowGlobal();
 
+// Returns the current GoogleTest name as Suite.Test, or empty outside a test.
+std::string GetCurrentTestName();
+
 // Determine the Views window title based on the style of |window| and
 // optionally |browser_view|.
 std::string ComputeViewsWindowTitle(CefRefPtr<CefWindow> window,

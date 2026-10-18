@@ -2776,7 +2776,8 @@ class RequestTestHandler : public TestHandler {
       AddResource(test_url_,
                   "<html><head><link rel=\"icon\" href=\"data:image/gif;base64,"
                   "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                  "\"></head><body>TEST</body></html>",
+                  "\"></head><body>" +
+                      GetCurrentTestName() + "</body></html>",
                   "text/html");
 
       // Create the browser who's main frame will be the initiator for the

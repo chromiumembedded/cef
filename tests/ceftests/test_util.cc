@@ -354,6 +354,12 @@ bool IsRunningOnWayland() {
 #endif
 }
 
+std::string GetCurrentTestName() {
+  const auto* test = testing::UnitTest::GetInstance()->current_test_info();
+  return test ? std::string(test->test_suite_name()) + "." + test->name()
+              : std::string();
+}
+
 std::string ComputeViewsWindowTitle(CefRefPtr<CefWindow> window,
                                     CefRefPtr<CefBrowserView> browser_view) {
   std::string title = "CefTest - Views - ";

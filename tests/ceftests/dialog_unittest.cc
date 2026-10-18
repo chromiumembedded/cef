@@ -75,7 +75,9 @@ class DialogTestHandler : public TestHandler {
   explicit DialogTestHandler(const TestConfig& config) : config_(config) {}
 
   void RunTest() override {
-    AddResource(kTestUrl, "<html><body>TEST</body></html>", "text/html");
+    AddResource(kTestUrl,
+                "<html><body>" + GetCurrentTestName() + "</body></html>",
+                "text/html");
 
     // Create the browser
     CreateReusableBrowser(kTestUrl);

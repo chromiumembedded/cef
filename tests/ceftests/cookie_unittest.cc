@@ -1819,7 +1819,8 @@ class CookieAccessTestHandler : public RoutingTestHandler,
           "document.cookie='name_js=value_js';"
           "window.testQuery({request:document.cookie});"
           "</script>"
-          "</head><body>COOKIE ACCESS TEST 1</body></html>";
+          "</head><body>" +
+          GetCurrentTestName() + " (page 1)</body></html>";
 
       handler->AddResponse(
           GetCookieAccessUrl1(scheme_, test_backend_ == SERVER), &data1_);
@@ -1837,7 +1838,8 @@ class CookieAccessTestHandler : public RoutingTestHandler,
           "<script>"
           "window.testQuery({request:document.cookie});"
           "</script>"
-          "</head><body>COOKIE ACCESS TEST 2</body></html>";
+          "</head><body>" +
+          GetCurrentTestName() + " (page 2)</body></html>";
 
       handler->AddResponse(
           GetCookieAccessUrl2(scheme_, test_backend_ == SERVER), &data2_);
