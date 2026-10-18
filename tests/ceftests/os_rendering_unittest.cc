@@ -2064,14 +2064,8 @@ class ExternalBeginFrameTimingTestHandler : public RoutingTestHandler,
     if (accelerated_) {
       // Chromium delivers OnPaint when GPU compositing is unavailable, for
       // example after the GPU process fails to initialize.
-      if (!shared_texture_unavailable_) {
-        shared_texture_unavailable_ = true;
-        // Closing the browser from within OnPaint is unsafe.
-        CefPostTask(
-            TID_UI,
-            base::BindOnce(&ExternalBeginFrameTimingTestHandler::DestroyTest,
-                           this));
-      }
+      shared_texture_unavailable_ = true;
+      DestroyTest();
       return;
     }
     const auto* pixels = static_cast<const uint32_t*>(buffer);

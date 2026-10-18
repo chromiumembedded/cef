@@ -1727,8 +1727,14 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
   rcList.emplace_back(rect_in_pixels.x(), rect_in_pixels.y(),
                       rect_in_pixels.width(), rect_in_pixels.height());
 
+  // The client may close the browser and destroy this object from within the
+  // callback.
+  auto weak_this = weak_ptr_factory_.GetWeakPtr();
   handler->OnPaint(browser_impl_.get(), IsPopupWidget() ? PET_POPUP : PET_VIEW,
                    rcList, pixels, pixel_size.width(), pixel_size.height());
+  if (!weak_this) {
+    return;
+  }
 
   // Release the resize hold when we reach the desired size.
   if (hold_resize_) {
@@ -1763,9 +1769,15 @@ void CefRenderWidgetHostViewOSR::OnAcceleratedPaint(
   rcList.emplace_back(rect_in_pixels.x(), rect_in_pixels.y(),
                       rect_in_pixels.width(), rect_in_pixels.height());
 
+  // The client may close the browser and destroy this object from within the
+  // callback.
+  auto weak_this = weak_ptr_factory_.GetWeakPtr();
   handler->OnAcceleratedPaint(browser_impl_.get(),
                               IsPopupWidget() ? PET_POPUP : PET_VIEW, rcList,
                               info);
+  if (!weak_this) {
+    return;
+  }
 
   // Release the resize hold when we reach the desired size.
   if (hold_resize_) {
