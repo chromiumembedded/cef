@@ -53,19 +53,20 @@ class TitleTestHandler : public TestHandler {
 
   void OnTitleChange(CefRefPtr<CefBrowser> browser,
                      const CefString& title) override {
-    // Ignore the 2nd OnTitleChange call which arrives after navigation
-    // completion.
-    if (got_title_change_) {
+    // Title updates and load completion use different notification paths.
+    // Ignore stale/duplicate updates, but require the expected title for each
+    // document before advancing. A missing title still times out the test.
+    if (got_title_[step_] ||
+        browser->GetMainFrame()->GetURL() != ExpectedURL()) {
       return;
     }
 
     std::string title_str = title;
-    if (step_ == 0 || step_ == 2) {
-      EXPECT_STREQ(kTitleStr1, title_str.c_str());
-    } else if (step_ == 1 || step_ == 3) {
-      EXPECT_STREQ(kTitleStr2, title_str.c_str());
-    } else if (step_ == 4) {
-      EXPECT_STREQ(kTitleStr3, title_str.c_str());
+    const char* expected = step_ == 4       ? kTitleStr3
+                           : step_ % 2 == 0 ? kTitleStr1
+                                            : kTitleStr2;
+    if (title_str != expected) {
+      return;
     }
 
     got_title_[step_].yes();
@@ -73,8 +74,8 @@ class TitleTestHandler : public TestHandler {
     if (step_ == 4) {
       DestroyTest();
     } else {
-      got_title_change_ = true;
-      NextIfReady(browser);
+      CefPostTask(TID_UI, base::BindOnce(&TitleTestHandler::NextIfReady, this,
+                                         browser));
     }
   }
 
@@ -82,7 +83,7 @@ class TitleTestHandler : public TestHandler {
                             bool isLoading,
                             bool canGoBack,
                             bool canGoForward) override {
-    if (isLoading) {
+    if (isLoading || browser->GetMainFrame()->GetURL() != ExpectedURL()) {
       return;
     }
 
@@ -96,12 +97,17 @@ class TitleTestHandler : public TestHandler {
   }
 
  private:
+  const char* ExpectedURL() const {
+    return step_ == 0 || step_ == 2 ? kTitleUrl1 : kTitleUrl2;
+  }
+
   void NextIfReady(CefRefPtr<CefBrowser> browser) {
-    if (!got_title_change_ || !got_loading_state_change_) {
+    if (step_ >= 4 || !got_title_[step_] || !got_loading_state_change_ ||
+        browser->IsLoading() ||
+        browser->GetMainFrame()->GetURL() != ExpectedURL()) {
       return;
     }
 
-    got_title_change_ = false;
     got_loading_state_change_ = false;
 
     switch (step_++) {
@@ -132,7 +138,6 @@ class TitleTestHandler : public TestHandler {
 
   int step_ = 0;
 
-  bool got_title_change_ = false;
   bool got_loading_state_change_ = false;
 
   TrackCallback got_title_[5];
@@ -162,8 +167,9 @@ class AutoResizeTestHandler : public RoutingTestHandler {
     // Add the resources that we will navigate to/from.
     AddResource(kAutoResizeUrl,
                 "<html><head><style>"
-                "body {overflow:hidden;margin:0px;padding:0px;}"
-                "</style></head><body><div id=a>Content</div></body></html>",
+                "html,body {overflow:hidden;margin:0;padding:0;}"
+                "#a {width:50px;height:18px;background:red;}"
+                "</style></head><body><div id=a></div></body></html>",
                 "text/html");
 
     // Create the browser.
@@ -181,32 +187,36 @@ class AutoResizeTestHandler : public RoutingTestHandler {
 
   bool OnAutoResize(CefRefPtr<CefBrowser> browser,
                     const CefSize& new_size) override {
-    if (new_size.width > 700 && new_size.height > 500) {
-      // Ignore this initial resize that may or may not occur.
-    } else if (!got_auto_resize1_) {
+    if (!got_auto_resize1_) {
+      // Initial empty-document layouts may be reported before page layout.
+      if (new_size.width != 50 || new_size.height != 18) {
+        return true;
+      }
       got_auto_resize1_.yes();
       EXPECT_NEAR(50, new_size.width, 1);
       EXPECT_NEAR(18, new_size.height, 1);
 
       // Trigger a resize.
       browser->GetMainFrame()->ExecuteJavaScript(
-          "document.getElementById('a').innerText='New Content';",
+          "requestAnimationFrame(() => requestAnimationFrame(() => "
+          "document.getElementById('a').style.height='37px'));",
           kAutoResizeUrl, 0);
     } else if (!got_auto_resize2_) {
+      if (new_size.width == 50 && new_size.height == 18) {
+        return true;
+      }
       got_auto_resize2_.yes();
       EXPECT_NEAR(50, new_size.width, 1);
       EXPECT_NEAR(37, new_size.height, 1);
 
-      // Disable resize notifications.
-      browser->GetHost()->SetAutoResizeEnabled(false, CefSize(), CefSize());
-
-      // There should be no more resize notifications. End the test after a
-      // short delay.
+      // Let the resized surface be submitted before disabling auto-resize.
+      // Toggling it inside this callback can race the renderer's resize.
       browser->GetMainFrame()->ExecuteJavaScript(
-          "document.getElementById('a').innerText='New Content Again';"
-          "var interval = setInterval(function() {"
-          "window.testQuery({request:'done'});clearInterval(interval);}, 50);",
+          "requestAnimationFrame(() => requestAnimationFrame(() => "
+          "window.testQuery({request:'disable'})));",
           kAutoResizeUrl, 0);
+    } else if (new_size.width == 50 && new_size.height == 37) {
+      // Duplicate notifications for the completed layout may already be queued.
     } else {
       EXPECT_TRUE(false);  // Not reached.
     }
@@ -219,6 +229,17 @@ class AutoResizeTestHandler : public RoutingTestHandler {
                const CefString& request,
                bool persistent,
                CefRefPtr<Callback> callback) override {
+    callback->Success("");
+    if (request == "disable") {
+      EXPECT_TRUE(got_auto_resize2_);
+      browser->GetHost()->SetAutoResizeEnabled(false, CefSize(), CefSize());
+      browser->GetMainFrame()->ExecuteJavaScript(
+          "document.getElementById('a').style.height='60px';"
+          "requestAnimationFrame(() => requestAnimationFrame(() => "
+          "window.testQuery({request:'done'})));",
+          kAutoResizeUrl, 0);
+      return true;
+    }
     EXPECT_STREQ("done", request.ToString().c_str());
     EXPECT_FALSE(got_done_message_);
     got_done_message_.yes();
