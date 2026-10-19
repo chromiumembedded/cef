@@ -844,6 +844,7 @@ void CefBrowserHostBase::SetAutoResizeEnabled(bool enabled,
   }
 
   if (enabled) {
+    auto_resize_size_ = gfx::Size();
     auto_resize_ =
         AutoResizeConstraints{gfx::Size(min_size.width, min_size.height),
                               gfx::Size(max_size.width, max_size.height)};
@@ -869,7 +870,16 @@ void CefBrowserHostBase::ConfigureAutoResize() {
   if (auto_resize_) {
     view->EnableAutoResize(auto_resize_->min, auto_resize_->max);
   } else {
-    view->DisableAutoResize(gfx::Size());
+    // Keep the last auto-sized dimensions, as Chromium's GuestViewBase does.
+    view->DisableAutoResize(auto_resize_size_);
+    auto_resize_size_ = gfx::Size();
+  }
+}
+
+void CefBrowserHostBase::SetAutoResizeSize(const gfx::Size& size) {
+  CEF_REQUIRE_UIT();
+  if (auto_resize_) {
+    auto_resize_size_ = size;
   }
 }
 

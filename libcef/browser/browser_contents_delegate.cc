@@ -737,6 +737,9 @@ void CefBrowserContentsDelegate::UpdatePreferredSize(
 void CefBrowserContentsDelegate::ResizeDueToAutoResize(
     content::WebContents* source,
     const gfx::Size& new_size) {
+  if (auto browser_host = browser_info_->browser()) {
+    browser_host->SetAutoResizeSize(new_size);
+  }
   if (auto c = client()) {
     if (auto handler = c->GetDisplayHandler()) {
       if (handler->OnAutoResize(browser(),

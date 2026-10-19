@@ -357,6 +357,9 @@ class CefBrowserHostBase : public CefBrowserHost,
   // CefBrowserContentsDelegate::RenderViewReady.
   void ConfigureAutoResize();
 
+  // Called from CefBrowserContentsDelegate::ResizeDueToAutoResize.
+  void SetAutoResizeSize(const gfx::Size& size);
+
   // Called from CefBrowserContentsDelegate::FindReply.
   bool HandleFindReply(int request_id,
                        int number_of_matches,
@@ -522,6 +525,8 @@ class CefBrowserHostBase : public CefBrowserHost,
     gfx::Size max;
   };
   std::optional<AutoResizeConstraints> auto_resize_;
+  // Last reported size, used when disabling auto-resize.
+  gfx::Size auto_resize_size_;
 
   // Runtime override for CDP accessibility tree viewport collapse.
   std::optional<bool> ax_viewport_collapse_;

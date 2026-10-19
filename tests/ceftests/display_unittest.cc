@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <cmath>
 #include <list>
 
 #include "include/base/cef_callback.h"
@@ -154,7 +155,6 @@ TEST(DisplayTest, Title) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-#if !defined(OS_LINUX)
 namespace {
 
 const char kAutoResizeUrl[] = "https://tests-display/auto-resize.html";
@@ -172,7 +172,8 @@ class AutoResizeTestHandler : public RoutingTestHandler {
                 "</style></head><body><div id=a></div></body></html>",
                 "text/html");
 
-    // Create the browser.
+    // Disabling auto-resize changes render-widget bounds; use a dedicated
+    // browser.
     CreateBrowser(kAutoResizeUrl);
 
     // Time out the test after a reasonable period of time.
@@ -189,7 +190,7 @@ class AutoResizeTestHandler : public RoutingTestHandler {
                     const CefSize& new_size) override {
     if (!got_auto_resize1_) {
       // Initial empty-document layouts may be reported before page layout.
-      if (new_size.width != 50 || new_size.height != 18) {
+      if (!MatchesSize(new_size, 18)) {
         return true;
       }
       got_auto_resize1_.yes();
@@ -202,7 +203,7 @@ class AutoResizeTestHandler : public RoutingTestHandler {
           "document.getElementById('a').style.height='37px'));",
           kAutoResizeUrl, 0);
     } else if (!got_auto_resize2_) {
-      if (new_size.width == 50 && new_size.height == 18) {
+      if (MatchesSize(new_size, 18)) {
         return true;
       }
       got_auto_resize2_.yes();
@@ -215,7 +216,7 @@ class AutoResizeTestHandler : public RoutingTestHandler {
           "requestAnimationFrame(() => requestAnimationFrame(() => "
           "window.testQuery({request:'disable'})));",
           kAutoResizeUrl, 0);
-    } else if (new_size.width == 50 && new_size.height == 37) {
+    } else if (MatchesSize(new_size, 37)) {
       // Duplicate notifications for the completed layout may already be queued.
     } else {
       EXPECT_TRUE(false);  // Not reached.
@@ -255,6 +256,12 @@ class AutoResizeTestHandler : public RoutingTestHandler {
   }
 
  private:
+  static bool MatchesSize(const CefSize& size, int height) {
+    // Converting physical pixels back to DIP can round up by one pixel.
+    return std::abs(size.width - 50) <= 1 &&
+           std::abs(size.height - height) <= 1;
+  }
+
   TrackCallback got_auto_resize1_;
   TrackCallback got_auto_resize2_;
   TrackCallback got_done_message_;
@@ -265,14 +272,11 @@ class AutoResizeTestHandler : public RoutingTestHandler {
 }  // namespace
 
 // Test OnAutoResize notification.
-// Disabled on Linux because it causes DCHECK failures in the renderer process.
-// See issue #4038.
 TEST(DisplayTest, AutoResize) {
   CefRefPtr<AutoResizeTestHandler> handler = new AutoResizeTestHandler();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
-#endif  // !defined(OS_LINUX)
 
 namespace {
 
