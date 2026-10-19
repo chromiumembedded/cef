@@ -12,6 +12,7 @@
 #include "include/cef_scheme.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
+#include "tests/ceftests/routing_test_handler.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -55,13 +56,6 @@ const char* NavActionString(NavAction action) {
   return "INVALID";
 }
 #endif  // VERBOSE_DEBUGGING
-
-bool ExpectResourceLoadEvents(NavAction action) {
-  if (IsSameSiteBFCacheEnabled()) {
-    return action == NA_LOAD;
-  }
-  return true;
-}
 
 typedef struct {
   NavAction action;     // What to do
@@ -108,7 +102,7 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
                             bool isLoading,
                             bool canGoBack,
                             bool canGoForward) override {
-    const NavListItem& item = kHNavList[nav_];
+    const NavListItem& item = GetExpectedItem(browser);
 #if VERBOSE_DEBUGGING
     LOG(INFO) << "render nav=" << nav_ << " " << NavActionString(item.action)
               << " OnLoadingStateChange isLoading=" << isLoading;
@@ -139,7 +133,7 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
                    CefRefPtr<CefFrame> frame,
                    TransitionType transition_type) override {
-    const NavListItem& item = kHNavList[nav_];
+    const NavListItem& item = GetExpectedItem(browser);
 #if VERBOSE_DEBUGGING
     LOG(INFO) << "render nav=" << nav_ << " " << NavActionString(item.action)
               << " OnLoadStart";
@@ -160,7 +154,7 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
-    const NavListItem& item = kHNavList[nav_];
+    const NavListItem& item = GetExpectedItem(browser);
 #if VERBOSE_DEBUGGING
     LOG(INFO) << "render nav=" << nav_ << " " << NavActionString(item.action)
               << " OnLoadEnd";
@@ -179,6 +173,22 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
   }
 
  protected:
+  const NavListItem& GetExpectedItem(CefRefPtr<CefBrowser> browser) {
+    // A restored or recreated renderer need not share the browser process's
+    // navigation counter. Validate observable URL/history state instead.
+    const auto url = browser->GetMainFrame()->GetURL().ToString();
+    const auto* end = kHNavList + NAV_LIST_SIZE();
+    const auto* item =
+        std::find_if(static_cast<const NavListItem*>(kHNavList), end,
+                     [&](const auto& entry) {
+                       return url == entry.target &&
+                              browser->CanGoBack() == entry.can_go_back &&
+                              browser->CanGoForward() == entry.can_go_forward;
+                     });
+    EXPECT_NE(end, item) << url;
+    return item != end ? *item : kHNavList[0];
+  }
+
   void SendTestResultsIfDone(CefRefPtr<CefBrowser> browser,
                              CefRefPtr<CefFrame> frame) {
     if (got_load_end_ && got_loading_state_end_) {
@@ -190,7 +200,7 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
   void SendTestResults(CefRefPtr<CefBrowser> browser,
                        CefRefPtr<CefFrame> frame) {
 #if VERBOSE_DEBUGGING
-    const NavListItem& item = kHNavList[nav_];
+    const NavListItem& item = GetExpectedItem(browser);
     LOG(INFO) << "render nav=" << nav_ << " " << NavActionString(item.action)
               << " SendTestResults";
 #endif
@@ -208,8 +218,10 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
         CefProcessMessage::Create(kHistoryNavMsg);
     CefRefPtr<CefListValue> args = return_msg->GetArgumentList();
     EXPECT_TRUE(args.get());
-    EXPECT_TRUE(args->SetInt(0, nav_));
+    EXPECT_TRUE(args->SetString(0, frame->GetURL()));
     EXPECT_TRUE(args->SetBool(1, result));
+    args->SetBool(2, browser->CanGoBack());
+    args->SetBool(3, browser->CanGoForward());
     frame->SendProcessMessage(PID_BROWSER, return_msg);
 
     // Reset the test results for the next navigation.
@@ -316,7 +328,7 @@ class NavigationEntryVisitor : public CefNavigationEntryVisitor {
 };
 
 // Browser side.
-class HistoryNavTestHandler : public TestHandler {
+class HistoryNavTestHandler : public TestHandler, public CefFrameHandler {
  public:
   HistoryNavTestHandler() = default;
 
@@ -369,6 +381,9 @@ class HistoryNavTestHandler : public TestHandler {
   }
 
   void RunNextNavIfReady(CefRefPtr<CefBrowser> browser) {
+    if (nav_ >= static_cast<int>(NAV_LIST_SIZE())) {
+      return;
+    }
 #if VERBOSE_DEBUGGING
     LOG(INFO) << "browser nav=" << nav_
               << " load_end_confirmation_=" << load_end_confirmation_
@@ -378,13 +393,24 @@ class HistoryNavTestHandler : public TestHandler {
 #endif
 
     if (load_end_confirmation_ && load_state_change_loaded_confirmation_ &&
-        renderer_confirmation_) {
-      load_end_confirmation_ = false;
-      load_state_change_loaded_confirmation_ = false;
-      renderer_confirmation_ = false;
-      nav_++;
-      RunNav(browser);
+        renderer_confirmation_ && got_title_[nav_] && !advance_pending_) {
+      advance_pending_ = true;
+      CefPostTask(TID_UI, base::BindOnce(&HistoryNavTestHandler::CompleteNav,
+                                         this, browser));
     }
+  }
+
+  void CompleteNav(CefRefPtr<CefBrowser> browser) {
+    CefRefPtr<NavigationEntryVisitor> visitor =
+        new NavigationEntryVisitor(nav_, &got_correct_history_[nav_]);
+    browser->GetHost()->GetNavigationEntries(visitor, false);
+    visitor = nullptr;
+    advance_pending_ = false;
+    load_end_confirmation_ = false;
+    load_state_change_loaded_confirmation_ = false;
+    renderer_confirmation_ = false;
+    nav_++;
+    RunNav(browser);
   }
 
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
@@ -545,12 +571,6 @@ class HistoryNavTestHandler : public TestHandler {
     EXPECT_FALSE(got_load_end_[nav_]);
     got_load_end_[nav_].yes();
 
-    // Test that navigation entries are correct.
-    CefRefPtr<NavigationEntryVisitor> visitor =
-        new NavigationEntryVisitor(nav_, &got_correct_history_[nav_]);
-    browser->GetHost()->GetNavigationEntries(visitor.get(), false);
-    visitor = nullptr;
-
     std::string url1 = browser->GetMainFrame()->GetURL();
     std::string url2 = frame->GetURL();
     if (url1 == item.target && url2 == item.target) {
@@ -572,7 +592,9 @@ class HistoryNavTestHandler : public TestHandler {
       // Test that the renderer side succeeded.
       CefRefPtr<CefListValue> args = message->GetArgumentList();
       EXPECT_TRUE(args.get());
-      EXPECT_EQ(nav_, args->GetInt(0));
+      EXPECT_EQ(kHNavList[nav_].target, args->GetString(0).ToString());
+      EXPECT_EQ(kHNavList[nav_].can_go_back, args->GetBool(2));
+      EXPECT_EQ(kHNavList[nav_].can_go_forward, args->GetBool(3));
       EXPECT_TRUE(args->GetBool(1));
 
       renderer_confirmation_ = true;
@@ -584,7 +606,36 @@ class HistoryNavTestHandler : public TestHandler {
     return false;
   }
 
+  CefRefPtr<CefFrameHandler> GetFrameHandler() override { return this; }
+
+  void OnFrameAttached(CefRefPtr<CefBrowser>,
+                       CefRefPtr<CefFrame> frame,
+                       bool reattached) override {
+    if (frame->IsMain() && reattached &&
+        nav_ < static_cast<int>(NAV_LIST_SIZE())) {
+      restored_[nav_] = true;
+    }
+  }
+
+  void OnTitleChange(CefRefPtr<CefBrowser> browser,
+                     const CefString& title) override {
+    if (nav_ >= static_cast<int>(NAV_LIST_SIZE()) ||
+        browser->GetMainFrame()->GetURL() != kHNavList[nav_].target) {
+      return;
+    }
+    const auto* expected = kHNavList[nav_].target == kHNav1   ? "Nav1"
+                           : kHNavList[nav_].target == kHNav2 ? "Nav2"
+                                                              : "Nav3";
+    if (title == expected) {
+      got_title_[nav_].yes();
+      RunNextNavIfReady(browser);
+    }
+  }
+
   int nav_ = 0;
+  bool advance_pending_ = false;
+  bool restored_[NAV_LIST_SIZE()] = {};
+  TrackCallback got_title_[NAV_LIST_SIZE()];
   bool load_end_confirmation_ = false;
   bool load_state_change_loaded_confirmation_ = false;
   bool renderer_confirmation_ = false;
@@ -614,7 +665,7 @@ TEST(NavigationTest, History) {
   handler->ExecuteTest();
 
   for (size_t i = 0; i < NAV_LIST_SIZE(); ++i) {
-    if (ExpectResourceLoadEvents(kHNavList[i].action)) {
+    if (!handler->restored_[i]) {
       EXPECT_TRUE(handler->got_before_browse_[i]) << "i = " << i;
       EXPECT_TRUE(handler->got_before_resource_load_[i]) << "i = " << i;
       EXPECT_TRUE(handler->got_correct_target_[i]) << "i = " << i;
@@ -1797,7 +1848,7 @@ class LoadNavRendererTest : public ClientAppRenderer::Delegate,
 };
 
 // Browser side.
-class LoadNavTestHandler : public TestHandler {
+class LoadNavTestHandler : public RoutingTestHandler {
  public:
   enum TestMode {
     LOAD,
@@ -1850,6 +1901,20 @@ class LoadNavTestHandler : public TestHandler {
     }
 
     if (IsInitialUrl(browser->GetMainFrame()->GetURL())) {
+      if (mode_ != LOAD && !input_ready_) {
+        if (!probe_requested_) {
+          probe_requested_ = true;
+          browser->GetMainFrame()->ExecuteJavaScript(
+              "function ready(e) { if (e.target.closest('a')) {"
+              "document.removeEventListener('mousemove', ready);"
+              "window.testQuery({request:'input-ready'}); }}"
+              "document.addEventListener('mousemove', ready);"
+              "requestAnimationFrame(() => requestAnimationFrame(() => "
+              "window.testQuery({request:'probe-ready'})));",
+              browser->GetMainFrame()->GetURL(), 0);
+        }
+        return;
+      }
       // Verify the behavior of the previous load.
       EXPECT_TRUE(got_before_browse_);
       EXPECT_TRUE(got_before_resource_load_);
@@ -1894,13 +1959,6 @@ class LoadNavTestHandler : public TestHandler {
         }
       }
 
-      if (cancel_in_open_url_) {
-        // The next navigation should not occur. Therefore call DestroyTest()
-        // after a reasonable timeout.
-        CefPostDelayedTask(
-            TID_UI, base::BindOnce(&LoadNavTestHandler::DestroyTest, this),
-            500);
-      }
     } else {
       // Done with the test.
       DestroyTest();
@@ -1908,7 +1966,7 @@ class LoadNavTestHandler : public TestHandler {
   }
 
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
-    TestHandler::OnAfterCreated(browser);
+    RoutingTestHandler::OnAfterCreated(browser);
 
     EXPECT_EQ(browser_id_current_, 0);
     browser_id_current_ = browser->GetIdentifier();
@@ -1955,7 +2013,8 @@ class LoadNavTestHandler : public TestHandler {
 
     got_before_browse_.yes();
 
-    return false;
+    return RoutingTestHandler::OnBeforeBrowse(browser, frame, request,
+                                              user_gesture, is_redirect);
   }
 
   bool OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
@@ -1992,6 +2051,11 @@ class LoadNavTestHandler : public TestHandler {
       return true;
     }
 
+    if (cancel_in_open_url_) {
+      // The cancellation callback is the acknowledgment; no arbitrary delay.
+      CefPostTask(TID_UI,
+                  base::BindOnce(&LoadNavTestHandler::DestroyTest, this));
+    }
     return cancel_in_open_url_;
   }
 
@@ -2075,8 +2139,8 @@ class LoadNavTestHandler : public TestHandler {
       return true;
     }
 
-    // Message not handled.
-    return false;
+    return RoutingTestHandler::OnProcessMessageReceived(
+        browser, frame, source_process, message);
   }
 
   void DestroyTest() override {
@@ -2120,10 +2184,44 @@ class LoadNavTestHandler : public TestHandler {
       EXPECT_FALSE(got_open_url_from_tab_);
     }
 
-    TestHandler::DestroyTest();
+    RoutingTestHandler::DestroyTest();
+  }
+
+  void ProbeLink(CefRefPtr<CefBrowser> browser) {
+    if (input_ready_) {
+      return;
+    }
+    CefMouseEvent event;
+    event.x = 20 + (++probe_count_ % 2);
+    event.y = 20;
+    browser->GetHost()->SendMouseMoveEvent(event, false);
+    GetUIThreadHelper()->PostDelayedTask(
+        base::BindOnce(&LoadNavTestHandler::ProbeLink, base::Unretained(this),
+                       browser),
+        50);
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    callback->Success("");
+    if (request == "probe-ready") {
+      ProbeLink(browser);
+    } else {
+      EXPECT_EQ("input-ready", request.ToString());
+      input_ready_ = true;
+      ContinueIfReady(browser);
+    }
+    return true;
   }
 
  protected:
+  bool probe_requested_ = false;
+  bool input_ready_ = false;
+  int probe_count_ = 0;
   const TestMode mode_;
   const bool same_origin_;
   const bool cancel_in_open_url_;
