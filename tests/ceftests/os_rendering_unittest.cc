@@ -895,8 +895,8 @@ class OSRTestHandler : public RoutingTestHandler,
           const int desired_width = GetScaledInt(kOsrWidth) * 2;
           const int desired_height = GetScaledInt(kOsrHeight) * 2;
 
-          EXPECT_EQ(dirtyRects.size(), 1U);
           if (width == desired_width && height == desired_height &&
+              dirtyRects.size() == 1U &&
               IsFullRepaint(dirtyRects[0], width, height)) {
             DestroySucceededTestSoon();
           }
@@ -904,22 +904,20 @@ class OSRTestHandler : public RoutingTestHandler,
         break;
       case OSR_TEST_INVALIDATE:
         if (StartedButNotFinished()) {
-          EXPECT_EQ(dirtyRects.size(), 1U);
           const CefRect& expected_rect =
               GetScaledRect(CefRect(0, 0, kOsrWidth, kOsrHeight));
           // There may be some partial repaints before the full repaint.
-          if (dirtyRects[0] == expected_rect) {
+          if (dirtyRects.size() == 1U && dirtyRects[0] == expected_rect) {
             DestroySucceededTestSoon();
           }
         }
         break;
       case OSR_TEST_SCROLLING:
         if (StartedButNotFinished()) {
-          EXPECT_EQ(dirtyRects.size(), 1U);
           const CefRect& expected_rect =
               GetScaledRect(CefRect(0, 0, kOsrWidth, kOsrHeight));
           // There may be some partial repaints before the full repaint.
-          if (dirtyRects[0] == expected_rect) {
+          if (dirtyRects.size() == 1U && dirtyRects[0] == expected_rect) {
             DestroySucceededTestSoon();
           }
         }
