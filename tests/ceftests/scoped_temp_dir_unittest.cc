@@ -42,18 +42,17 @@ TEST(ScopedTempDir, FullPath) {
 }
 
 TEST(ScopedTempDir, TempDir) {
-  // In this case, just verify that a directory was created and that it's a
-  // child of TempDir.
+  // Verify creation and scoped deletion. On Windows the secure temporary
+  // directory used for creation can differ from CefGetTempDirectory(),
+  // depending on the process token. Explicit parent containment is covered by
+  // UniqueTempDirUnderPath below.
   CefString test_path;
   {
     CefScopedTempDir dir;
     EXPECT_TRUE(dir.CreateUniqueTempDir());
     test_path = dir.GetPath();
     EXPECT_TRUE(CefDirectoryExists(test_path));
-    CefString tmp_dir;
-    EXPECT_TRUE(CefGetTempDirectory(tmp_dir));
-    EXPECT_TRUE(test_path.ToString().find(tmp_dir.ToString()) !=
-                std::string::npos);
+    EXPECT_TRUE(dir.IsValid());
   }
   EXPECT_FALSE(CefDirectoryExists(test_path));
 }
