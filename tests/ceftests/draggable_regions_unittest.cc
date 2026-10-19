@@ -4,7 +4,7 @@
 
 #include "include/base/cef_callback.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "tests/ceftests/test_handler.h"
+#include "tests/ceftests/routing_test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
 // Set to 1 to enable verbose debugging info logging.
@@ -38,17 +38,10 @@ const char kTestHTMLWithChangingRegions[] =
     "background-color: blue; -webkit-app-region: no-drag;\">"
     "      </div>"
     "    </div>"
-    "    <script>"
-    "      window.setTimeout(function() {"
-    "        var layer = document.getElementById('layer');"
-    "        layer.style.top = '0px';"
-    "        layer.style.left = '0px';"
-    "      }, 500);"
-    "    </script>"
     "  </body>"
     "</html>";
 
-class DraggableRegionsTestHandler : public TestHandler,
+class DraggableRegionsTestHandler : public RoutingTestHandler,
                                     public CefDragHandler,
                                     public CefFrameHandler {
  public:
@@ -92,6 +85,34 @@ class DraggableRegionsTestHandler : public TestHandler,
 
   CefRefPtr<CefDragHandler> GetDragHandler() override { return this; }
   CefRefPtr<CefFrameHandler> GetFrameHandler() override { return this; }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int http_status_code) override {
+    if (frame->IsMain() &&
+        frame->GetURL() == GetURL(kStepWithChangingRegions) &&
+        !restored_changing_document_) {
+      // Flush initial layout before requesting the mutation. An elapsed timer
+      // does not establish that the original regions have been delivered.
+      frame->ExecuteJavaScript(
+          "requestAnimationFrame(() => requestAnimationFrame(() => "
+          "window.testQuery({request:'layout-ready'})));",
+          frame->GetURL(), 0);
+    }
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    EXPECT_EQ("layout-ready", request.ToString());
+    callback->Success("");
+    layout_ready_ = true;
+    MaybeMoveRegion(browser);
+    return true;
+  }
 
   void OnDraggableRegionsChanged(
       CefRefPtr<CefBrowser> browser,
@@ -172,6 +193,7 @@ class DraggableRegionsTestHandler : public TestHandler,
       // kTestHTMLWithChangingRegions, draggable regions will already be in the
       // final position because the page content is not reloaded.
       if (step_ == kStepWithChangingRegions2) {
+        restored_changing_document_ = true;
         step_ = kStepWithChangingRegions3;
         expected_draggable_regions_changed_ct_--;
       }
@@ -182,16 +204,30 @@ class DraggableRegionsTestHandler : public TestHandler,
     EXPECT_EQ(expected_draggable_regions_changed_ct_,
               draggable_regions_changed_ct_);
 
-    TestHandler::DestroyTest();
+    RoutingTestHandler::DestroyTest();
   }
 
  private:
+  void MaybeMoveRegion(CefRefPtr<CefBrowser> browser) {
+    if (!layout_ready_ || mutation_requested_ || restored_changing_document_ ||
+        (step_ != kStepWithChangingRegions &&
+         step_ != kStepWithChangingRegions3)) {
+      return;
+    }
+    mutation_requested_ = true;
+    browser->GetMainFrame()->ExecuteJavaScript(
+        "var layer = document.getElementById('layer');"
+        "layer.style.top = '0px';layer.style.left = '0px';",
+        browser->GetMainFrame()->GetURL(), 0);
+  }
+
   void NextTest(CefRefPtr<CefBrowser> browser) {
     CefRefPtr<CefFrame> frame(browser->GetMainFrame());
 
     switch (step_) {
       case kStepWithRegions:
         step_ = kStepWithChangingRegions;
+        layout_ready_ = mutation_requested_ = false;
         frame->LoadURL(GetURL(kStepWithChangingRegions));
         break;
       case kStepWithChangingRegions:
@@ -200,11 +236,13 @@ class DraggableRegionsTestHandler : public TestHandler,
         break;
       case kStepWithoutRegions: {
         step_ = kStepWithChangingRegions2;
+        layout_ready_ = mutation_requested_ = false;
         browser->GoBack();
         break;
       }
       case kStepWithChangingRegions2: {
         step_ = kStepWithChangingRegions3;
+        MaybeMoveRegion(browser);
         break;
       }
       case kStepWithChangingRegions3: {
@@ -244,6 +282,9 @@ class DraggableRegionsTestHandler : public TestHandler,
   Step step_ = kStepWithRegions;
   int draggable_regions_changed_ct_ = 0;
   int expected_draggable_regions_changed_ct_ = kStepMax;
+  bool layout_ready_ = false;
+  bool mutation_requested_ = false;
+  bool restored_changing_document_ = false;
 
   IMPLEMENT_REFCOUNTING(DraggableRegionsTestHandler);
 };
