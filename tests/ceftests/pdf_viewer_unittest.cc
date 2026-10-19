@@ -2,11 +2,13 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <set>
+
 #include "include/base/cef_callback.h"
 #include "include/cef_request_context_handler.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
-#include "tests/ceftests/test_handler.h"
+#include "tests/ceftests/routing_test_handler.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/browser/client_app_browser.h"
@@ -17,15 +19,9 @@ namespace {
 const char kPdfHtmlUrl[] = "https://tests/pdf.html";
 const char kPdfDirectUrl[] = "https://tests/pdf.pdf";
 
-// Delay waiting for iframe tests to load the PDF file.
-#if defined(OS_LINUX)
-const int64_t kPdfLoadDelayMs = 7000;
-#else
-const int64_t kPdfLoadDelayMs = 5000;
-#endif
-
 // Browser-side test handler.
-class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
+class PdfViewerTestHandler : public RoutingTestHandler,
+                             public CefContextMenuHandler {
  public:
   enum Mode {
     // No specified context or handler (implicitly uses the global context).
@@ -65,7 +61,7 @@ class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
     CreateBrowser(url_, request_context);
 
     // Time out the test after a reasonable period of time.
-    SetTestTimeout(5000 + kPdfLoadDelayMs);
+    SetTestTimeout(15000);
   }
 
   CefRefPtr<CefResourceHandler> GetResourceHandler(
@@ -89,9 +85,26 @@ class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
-    bool is_pdf1 = false;
     const std::string& url = frame->GetURL();
-    if (url == "about:blank" || url.starts_with("chrome-extension://")) {
+    if (url.starts_with("chrome-extension://")) {
+      // This is the PDF viewer UI, not the document's network load. Wait for
+      // the viewer's own completion state and a subsequent rendered frame.
+      frame->ExecuteJavaScript(R"(
+        function waitForPdf() {
+          const viewer = document.querySelector('pdf-viewer');
+          if (!viewer || !viewer.getLoadSucceededForTesting()) {
+            requestAnimationFrame(waitForPdf);
+            return;
+          }
+          requestAnimationFrame(() => requestAnimationFrame(() =>
+            window.testQuery({request:'pdf-ready'})));
+        }
+        waitForPdf();
+      )",
+                               url, 0);
+      return;
+    }
+    if (url == "about:blank") {
       return;
     }
 
@@ -104,7 +117,6 @@ class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
     } else if (url == kPdfDirectUrl) {
       if (!got_on_load_end_pdf1_) {
         got_on_load_end_pdf1_.yes();
-        is_pdf1 = true;
       } else if (!got_on_load_end_pdf2_) {
         got_on_load_end_pdf2_.yes();
       } else {
@@ -114,22 +126,33 @@ class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
       NOTREACHED() << "url=" << url;
     }
 
-    if (is_pdf1) {
-      // The first PDF document has loaded.
-      if (got_context_menu_dismissed_) {
-        // After context menu display. Destroy the test.
-        CefPostDelayedTask(
-            TID_UI, base::BindOnce(&PdfViewerTestHandler::DestroyTest, this),
-            kPdfLoadDelayMs);
-      } else {
-        // Trigger the context menu.
-        CefPostDelayedTask(
-            TID_UI,
-            base::BindOnce(&PdfViewerTestHandler::TriggerContextMenu, this,
-                           frame->GetBrowser()),
-            kPdfLoadDelayMs);
-      }
+    MaybeTriggerContextMenu();
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    EXPECT_EQ("pdf-ready", request.ToString());
+    callback->Success("");
+    ready_viewers_.insert(frame->GetIdentifier());
+    MaybeTriggerContextMenu();
+    return true;
+  }
+
+  void MaybeTriggerContextMenu() {
+    if (context_menu_requested_ || !got_on_load_end_pdf1_ ||
+        (!HasDirectPdfLoad() &&
+         (!got_on_load_end_html_ || !got_on_load_end_pdf2_)) ||
+        ready_viewers_.size() < (HasDirectPdfLoad() ? 1U : 2U)) {
+      return;
     }
+    context_menu_requested_ = true;
+    CefPostTask(TID_UI,
+                base::BindOnce(&PdfViewerTestHandler::TriggerContextMenu, this,
+                               GetBrowser()));
   }
 
   void TriggerContextMenu(CefRefPtr<CefBrowser> browser) {
@@ -190,9 +213,11 @@ class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
       NOTREACHED();
     }
 
-    TestHandler::DestroyTest();
+    RoutingTestHandler::DestroyTest();
   }
 
+  std::set<CefString> ready_viewers_;
+  bool context_menu_requested_ = false;
   const Mode mode_;
   const std::string url_;
 
