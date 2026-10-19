@@ -2,6 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <atomic>
+
 #include "include/base/cef_callback.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
@@ -801,7 +803,7 @@ namespace {
 const int kToggleCount = 2;
 const int kNumChannels = 2;
 const int kSampleRate = 44100;
-const int kFramesPerBuffer = 882;  // 10ms
+const int kFramesPerBuffer = 882;  // 20ms
 const CefAudioHandler::ChannelLayout kChannelLayout = CEF_CHANNEL_LAYOUT_STEREO;
 
 const char kAudioOutputTestUrl[] = "https://tests/audiooutputtest";
@@ -809,60 +811,15 @@ const char kAudioCloseBrowserTestUrl[] = "https://tests/audioclosebrowsertest";
 const char kAudioTogglePlaybackTestUrl[] =
     "https://tests/audiotoggleplaybacktest";
 
-const char kTestHtml[] =
-    "<!DOCTYPE html><html><head><meta "
-    "charset=\"utf-8\"/></head><body><p>TEST</p><audio "
-    "id=\"audio_output_frame\" src=\"" AUDIO_DATA
-    "\" autoplay "
-    "style=\"display:none\"></audio></body></html>";
-
-// Timeouts must exceed kCheckMissingCallbacksIntervalSeconds (5) from
-// media/audio/audio_input_device.cc.
-const char kToggleTestHtml[] =
-    "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/>"
-    "<script type=\"text/javascript\">"
-    "var timeouts = [150, 5050, 5050, 5050];"
-    "var count = 0;"
-    "function togglePlayback(el, playing, count) {"
-    "  if (playing) {"
-#if VERBOSE_LOGGING
-    "    console.log('togglePlayback pause (' + count + ')');"
-#endif
-    "    el.pause();"
-    "  } else {"
-#if VERBOSE_LOGGING
-    "    console.log('togglePlayback play (' + count + ')');"
-#endif
-    "    el.play();"
-    "  }"
-    "}"
-    "function loadHandler() {"
-    "  var el = document.getElementById(\"audio_output_frame\");"
-    "  el.onplay = (event) => {"
-    "    if (count < timeouts.length) {"
-    "      var timeout = timeouts[count];"
-#if VERBOSE_LOGGING
-    "      console.log('loadHandler onplay (' + count + ') wait ' + timeout);"
-#endif
-    "      setTimeout(togglePlayback, timeout, el, true, count);"
-    "      count++;"
-    "    }"
-    "  };"
-    "  el.onpause = (event) => {"
-    "    if (count < timeouts.length) {"
-    "      var timeout = timeouts[count];"
-#if VERBOSE_LOGGING
-    "      console.log('loadHandler onpause (' + count + ') wait ' + timeout);"
-#endif
-    "      setTimeout(togglePlayback, timeout, el, false, count);"
-    "      count++;"
-    "    }"
-    "  };"
-    "}"
-    "</script></head>"
-    "<body onload=\"loadHandler()\"><p>TEST</p>"
-    "<audio id=\"audio_output_frame\" src=\"" AUDIO_DATA
-    "\" autoplay style=\"display:none\"></audio></body></html>";
+std::string GetTestHtml() {
+  return "<!DOCTYPE html><html><head><meta "
+         "charset=\"utf-8\"/></head><body><p>" +
+         GetCurrentTestName() +
+         "</p><audio "
+         "id=\"audio_output_frame\" src=\"" AUDIO_DATA
+         "\" autoplay "
+         "style=\"display:none\"></audio></body></html>";
+}
 
 class AudioOutputTest : public ClientAppBrowser::Delegate {
  public:
@@ -886,7 +843,7 @@ class AudioTestHandler : public TestHandler, public CefAudioHandler {
 
   void SetupAudioTest(const std::string& testUrl) {
     // Add the resource.
-    AddResource(testUrl, kTestHtml, "text/html");
+    AddResource(testUrl, GetTestHtml(), "text/html");
 
     // Create the browser.
     CreateBrowser(testUrl);
@@ -1028,26 +985,15 @@ class AudioCloseBrowserTest : public AudioTestHandler {
   IMPLEMENT_REFCOUNTING(AudioCloseBrowserTest);
 };
 
-// kToggleCount represents the times the OnAudioStreamStarted and
-// OnAudioStreamStopped should have been called.
-// Both get called on playback start and end respectively. As well as when there
-// is a period of silence for more than 2 seconds (see
-// CefBrowserHostImpl::OnAudioStateChangedand and
-// CefBrowserHostImpl::OnRecentlyAudibleTimerFired). The timeouts in kTestHtml
-// represent play and pause timeouts. So for example it should play for 150ms
-// and then pause for 1950ms. In this example OnAudioStreamStopped must not be
-// called because it is below the 2 seconds threshold. So in this 10 timeouts
-// there are exactly 3 which should trigger OnAudioStreamStarted and
-// OnAudioStreamStopped together with the initial stream start and the final
-// stream stop. And due to the need to test the toggle bounderies it results in
-// this nearly 15 seconds test run.
+// Exercise stream restart after silence, using observed stop/start callbacks
+// rather than scheduling playback around the audio service's silence timers.
 class AudioTogglePlaybackTest : public AudioTestHandler {
  public:
   AudioTogglePlaybackTest() = default;
 
   void RunTest() override {
     // Add the resource.
-    AddResource(kAudioTogglePlaybackTestUrl, kToggleTestHtml, "text/html");
+    AddResource(kAudioTogglePlaybackTestUrl, GetTestHtml(), "text/html");
 
     // Create the browser.
     CreateBrowser(kAudioTogglePlaybackTestUrl);
@@ -1060,7 +1006,7 @@ class AudioTogglePlaybackTest : public AudioTestHandler {
                             const CefAudioParameters& params,
                             int channels) override {
 #if VERBOSE_LOGGING
-    LOG(INFO) << "OnAudioStreamStarted count=" << start_count_;
+    LOG(INFO) << "OnAudioStreamStarted count=" << start_count_.load();
 #endif
 
     EXPECT_TRUE(browser_->IsSame(browser));
@@ -1069,7 +1015,7 @@ class AudioTogglePlaybackTest : public AudioTestHandler {
     EXPECT_EQ(params.sample_rate, kSampleRate);
     EXPECT_EQ(params.frames_per_buffer, kFramesPerBuffer);
     got_on_audio_stream_started_.yes();
-    start_count_++;
+    ++start_count_;
   }
 
   void OnAudioStreamStopped(CefRefPtr<CefBrowser> browser) override {
@@ -1077,14 +1023,45 @@ class AudioTogglePlaybackTest : public AudioTestHandler {
     LOG(INFO) << "OnAudioStreamStopped count=" << stop_count_;
 #endif
 
-    EXPECT_EQ(start_count_, ++stop_count_);
+    EXPECT_EQ(start_count_.load(), ++stop_count_);
+    const auto phase = phase_.load();
+    EXPECT_TRUE(phase == 1 || phase == 3);
     if (stop_count_ == kToggleCount) {
+      EXPECT_EQ(3, phase);
       AudioTestHandler::OnAudioStreamStopped(browser);
+    } else {
+      EXPECT_EQ(1, phase);
+      phase_ = 2;
+      browser->GetMainFrame()->ExecuteJavaScript(
+          "document.getElementById('audio_output_frame').play();", "", 0);
+    }
+  }
+
+  void OnAudioStreamPacket(CefRefPtr<CefBrowser> browser,
+                           const float** data,
+                           int frames,
+                           int64_t pts) override {
+    AudioTestHandler::OnAudioStreamPacket(browser, data, frames, pts);
+    int phase = phase_.load();
+    if ((phase == 0 || phase == 2) &&
+        phase_.compare_exchange_strong(phase, phase + 1)) {
+      // A real packet proves playback resumed. Pause on the UI thread, then
+      // wait for OnAudioStreamStopped before beginning the next phase.
+      CefPostTask(
+          TID_UI,
+          base::BindOnce(
+              [](CefRefPtr<CefBrowser> browser) {
+                browser->GetMainFrame()->ExecuteJavaScript(
+                    "document.getElementById('audio_output_frame').pause();",
+                    "", 0);
+              },
+              browser));
     }
   }
 
  protected:
-  int start_count_ = 0;
+  std::atomic<int> start_count_{0};
+  std::atomic<int> phase_{0};
   int stop_count_ = 0;
   IMPLEMENT_REFCOUNTING(AudioTogglePlaybackTest);
 };
