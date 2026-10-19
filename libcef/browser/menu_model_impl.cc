@@ -12,11 +12,13 @@
 #include "base/logging.h"
 #include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
+#include "cef/libcef/browser/browser_event_util.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/common/task_runner_impl.h"
 #include "third_party/blink/public/mojom/context_menu/context_menu.mojom.h"
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/base/models/image_model.h"
+#include "ui/events/blink/blink_event_util.h"
 #include "ui/gfx/geometry/point.h"
 #include "ui/gfx/image/image.h"
 
@@ -134,7 +136,9 @@ class CefSimpleMenuModel : public ui::MenuModel {
   void ActivatedAt(size_t index) override { ActivatedAt(index, 0); }
 
   void ActivatedAt(size_t index, int event_flags) override {
-    impl_->ActivatedAt(index, static_cast<cef_event_flags_t>(event_flags));
+    impl_->ActivatedAt(index,
+                       static_cast<cef_event_flags_t>(GetCefEventModifiers(
+                           ui::EventFlagsToWebEventModifiers(event_flags))));
   }
 
   MenuModel* GetSubmenuModelAt(size_t index) const override {

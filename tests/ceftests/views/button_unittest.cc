@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/base/cef_callback.h"
+#include "include/test/cef_test_helpers.h"
 #include "include/views/cef_button.h"
 #include "include/views/cef_button_delegate.h"
 #include "include/views/cef_label_button.h"
@@ -165,6 +166,10 @@ BUTTON_TEST_ASYNC(MenuButtonStyle)
 namespace {
 
 // Mouse click delay in MS.
+#if CEF_API_ADDED(CEF_NEXT)
+// Targeted dispatch only needs to leave the window creation/menu callback.
+const int kClickDelayMS = 0;
+#else
 const int kClickDelayMS = 100;
 
 // Longer delay for popup menu clicks. On Linux/Wayland, popup windows may
@@ -174,6 +179,7 @@ const int kPopupClickDelayMS = 300;
 #else
 const int kPopupClickDelayMS = kClickDelayMS;
 #endif
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
 const int kButtonID = 1;
 
@@ -196,7 +202,7 @@ class TestButtonDelegate : public CefButtonDelegate {
   IMPLEMENT_REFCOUNTING(TestButtonDelegate);
 };
 
-void ClickButton(CefRefPtr<CefWindow> window, int button_id) {
+void ClickButtonNative(CefRefPtr<CefWindow> window, int button_id) {
   CefRefPtr<CefView> button = window->GetViewForID(button_id);
   EXPECT_TRUE(button->AsButton());
 
@@ -215,6 +221,14 @@ void ClickButton(CefRefPtr<CefWindow> window, int button_id) {
   window->SendMouseEvents(MBT_LEFT, true, true);
 }
 
+void ClickButton(CefRefPtr<CefWindow> window, int button_id) {
+#if CEF_API_ADDED(CEF_NEXT)
+  EXPECT_TRUE(CefSendMouseClickForTesting(window, button_id, false, 0));
+#else
+  ClickButtonNative(window, button_id);
+#endif
+}
+
 void AddImage(CefRefPtr<CefLabelButton> button) {
   CefRefPtr<CefImage> image = CreateIconImage();
   button->SetImage(CEF_BUTTON_STATE_NORMAL, image);
@@ -222,6 +236,7 @@ void AddImage(CefRefPtr<CefLabelButton> button) {
 
 void RunLabelButtonClick(bool with_text,
                          bool with_image,
+                         bool use_native_events,
                          CefRefPtr<CefWindow> window) {
   CefRefPtr<CefLabelButton> button = CefLabelButton::CreateLabelButton(
       new TestButtonDelegate(), with_text ? kButtonText : "");
@@ -255,8 +270,11 @@ void RunLabelButtonClick(bool with_text,
   window->Show();
 
   // Wait a bit before trying to click the button.
-  CefPostDelayedTask(TID_UI, base::BindOnce(ClickButton, window, kButtonID),
-                     kClickDelayMS);
+  CefPostDelayedTask(
+      TID_UI,
+      base::BindOnce(use_native_events ? ClickButtonNative : ClickButton,
+                     window, kButtonID),
+      use_native_events ? 100 : kClickDelayMS);
 }
 
 void LabelButtonClick(CefRefPtr<CefWaitableEvent> event,
@@ -264,8 +282,8 @@ void LabelButtonClick(CefRefPtr<CefWaitableEvent> event,
                       bool with_button_text,
                       bool with_button_image) {
   auto config = std::make_unique<TestWindowDelegate::Config>();
-  config->on_window_created =
-      base::BindOnce(RunLabelButtonClick, with_button_text, with_button_image);
+  config->on_window_created = base::BindOnce(
+      RunLabelButtonClick, with_button_text, with_button_image, false);
   config->frameless = false;
   config->close_window = false;
   TestWindowDelegate::RunTest(event, std::move(config));
@@ -311,6 +329,27 @@ void LabelButtonClickFramelessNoTextNoImageFramelessWindowImpl(
   LabelButtonClick(event, false, false, false);
 }
 
+// Keep coverage of CefWindow's native event APIs for a target inside the owner
+// window. Separate popup hosts require targeted dispatch.
+void LabelButtonNativeMouseClick(CefRefPtr<CefWaitableEvent> event,
+                                 bool frameless) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created =
+      base::BindOnce(RunLabelButtonClick, true, false, true);
+  config->frameless = frameless;
+  config->close_window = false;
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+
+void LabelButtonNativeMouseClickFramedImpl(CefRefPtr<CefWaitableEvent> event) {
+  LabelButtonNativeMouseClick(event, false);
+}
+
+void LabelButtonNativeMouseClickFramelessImpl(
+    CefRefPtr<CefWaitableEvent> event) {
+  LabelButtonNativeMouseClick(event, true);
+}
+
 }  // namespace
 
 // Test LabelButton functionality. This is primarily to exercise exposed CEF
@@ -325,11 +364,15 @@ BUTTON_TEST_ASYNC(LabelButtonClickFramelessWithTextNoImageFramelessWindow)
 BUTTON_TEST_ASYNC(LabelButtonClickFramelessNoTextWithImageFramelessWindow)
 BUTTON_TEST_ASYNC(LabelButtonClickFramelessNoTextNoImageFramelessWindow)
 
+BUTTON_TEST_ASYNC(LabelButtonNativeMouseClickFramed)
+BUTTON_TEST_ASYNC(LabelButtonNativeMouseClickFrameless)
+
 namespace {
 
 const int kMenuItemID = 2;
 const char kMenuItemLabel[] = "My Menu Item";
 
+#if !CEF_API_ADDED(CEF_NEXT)
 void ClickMenuItem(CefRefPtr<CefMenuButton> menu_button) {
   // Determine the lower-right corner of the menu button, then offset a bit to
   // hit the first menu item.
@@ -348,11 +391,17 @@ void ClickMenuItem(CefRefPtr<CefMenuButton> menu_button) {
   window->SendMouseMove(click_point.x, click_point.y);
   window->SendMouseEvents(MBT_LEFT, true, true);
 }
+#endif  // !CEF_API_ADDED(CEF_NEXT)
 
 class TestMenuButtonDelegate : public CefMenuButtonDelegate,
                                public CefMenuModelDelegate {
  public:
   TestMenuButtonDelegate() = default;
+#if CEF_API_ADDED(CEF_NEXT)
+  explicit TestMenuButtonDelegate(uint32_t modifiers,
+                                  bool test_failures = false)
+      : modifiers_(modifiers), test_failures_(test_failures) {}
+#endif
 
   TestMenuButtonDelegate(const TestMenuButtonDelegate&) = delete;
   TestMenuButtonDelegate& operator=(const TestMenuButtonDelegate&) = delete;
@@ -443,7 +492,19 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
     EXPECT_FALSE(model->SetFontListAt(4, font));
     EXPECT_FALSE(model->SetFontList(4, font));
 
-#if defined(OS_LINUX)
+#if CEF_API_ADDED(CEF_NEXT)
+    CefPostTask(TID_UI, base::BindOnce(
+                            [](CefRefPtr<CefWindow> window, uint32_t modifiers,
+                               bool test_failures) {
+                              if (test_failures) {
+                                EXPECT_FALSE(CefSendMouseClickForTesting(
+                                    window, kMenuItemID + 100, true, 0));
+                              }
+                              EXPECT_TRUE(CefSendMouseClickForTesting(
+                                  window, kMenuItemID, true, modifiers));
+                            },
+                            window_, modifiers_, test_failures_));
+#elif defined(OS_LINUX)
     // The Chromium implementation of SendMouseEvents for Aura/Linux does not
     // support coordinates outside of the Window. We therefore can't click the
     // menu item like we do on other platforms. See issue #3330.
@@ -471,6 +532,12 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
 
     EXPECT_TRUE(menu_model.get());
     EXPECT_EQ(command_id, kMenuItemID);
+#if CEF_API_ADDED(CEF_NEXT)
+    constexpr uint32_t kModifiers = EVENTFLAG_SHIFT_DOWN |
+                                    EVENTFLAG_CONTROL_DOWN |
+                                    EVENTFLAG_ALT_DOWN | EVENTFLAG_COMMAND_DOWN;
+    EXPECT_EQ(modifiers_, event_flags & kModifiers);
+#endif
 
     // Complete the test by closing the window.
     window_->GetWindow()->Close();
@@ -479,9 +546,46 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
 
  private:
   CefRefPtr<CefWindow> window_;
+#if CEF_API_ADDED(CEF_NEXT)
+  uint32_t modifiers_ = 0;
+  bool test_failures_ = false;
+#endif
 
   IMPLEMENT_REFCOUNTING(TestMenuButtonDelegate);
 };
+
+#if CEF_API_ADDED(CEF_NEXT)
+void RunMouseClickFailures(CefRefPtr<CefWindow> window) {
+  auto button = CefMenuButton::CreateMenuButton(
+      new TestMenuButtonDelegate(0, true), kButtonText);
+  button->SetID(kButtonID);
+  window->AddChildView(button);
+  window->Layout();
+  window->Show();
+
+  EXPECT_FALSE(CefSendMouseClickForTesting(window, kButtonID + 100, false, 0));
+  EXPECT_FALSE(CefSendMouseClickForTesting(window, kButtonID, true, 0));
+  EXPECT_FALSE(CefSendMouseClickForTesting(window, kButtonID, false,
+                                           EVENTFLAG_LEFT_MOUSE_BUTTON));
+  button->SetEnabled(false);
+  EXPECT_FALSE(CefSendMouseClickForTesting(window, kButtonID, false, 0));
+  button->SetEnabled(true);
+  button->SetVisible(false);
+  EXPECT_FALSE(CefSendMouseClickForTesting(window, kButtonID, false, 0));
+  button->SetVisible(true);
+
+  // Also check an invalid command ID while the menu is open. A valid click
+  // then completes the test by closing the window.
+  CefPostTask(TID_UI, base::BindOnce(ClickButton, window, kButtonID));
+}
+
+void MouseClickFailuresImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunMouseClickFailures);
+  config->close_window = false;
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
 void RunMenuButtonClick(bool with_text,
                         bool with_image,
@@ -589,6 +693,34 @@ BUTTON_TEST_ASYNC(MenuButtonClickFramelessWithTextNoImageFramelessWindow)
 BUTTON_TEST_ASYNC(MenuButtonClickFramelessNoTextWithImageFramelessWindow)
 BUTTON_TEST_ASYNC(MenuButtonClickFramelessNoTextNoImageFramelessWindow)
 
+#if CEF_API_ADDED(CEF_NEXT)
+BUTTON_TEST_ASYNC(MouseClickFailures)
+
+namespace {
+void MenuItemClickWithModifiersImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->close_window = false;
+  config->on_window_created = base::BindOnce([](CefRefPtr<CefWindow> window) {
+    auto button = CefMenuButton::CreateMenuButton(
+        new TestMenuButtonDelegate(EVENTFLAG_SHIFT_DOWN | EVENTFLAG_ALT_DOWN |
+                                   EVENTFLAG_COMMAND_DOWN
+#if !defined(OS_MAC)
+                                   | EVENTFLAG_CONTROL_DOWN
+#endif
+                                   ),
+        "Modifiers");
+    button->SetID(kButtonID);
+    window->AddChildView(button);
+    window->Layout();
+    window->Show();
+    CefPostTask(TID_UI, base::BindOnce(ClickButton, window, kButtonID));
+  });
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+}  // namespace
+BUTTON_TEST_ASYNC(MenuItemClickWithModifiers)
+#endif  // CEF_API_ADDED(CEF_NEXT)
+
 namespace {
 
 class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
@@ -616,12 +748,22 @@ class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
     popup_window_->SetBounds(CefRect(screen_point.x, screen_point.y, 100, 100));
 
     popup_button_ = CefLabelButton::CreateLabelButton(this, "Button");
+    popup_button_->SetID(kMenuItemID);
     popup_button_->SetFocusable(can_activate_);
     popup_window_->AddChildView(popup_button_);
+    popup_window_->Layout();
 
     popup_window_->Show();
 
     // Wait a bit before trying to click the popup button.
+#if CEF_API_ADDED(CEF_NEXT)
+    CefPostTask(TID_UI, base::BindOnce(
+                            [](CefRefPtr<CefWindow> popup_window) {
+                              EXPECT_TRUE(CefSendMouseClickForTesting(
+                                  popup_window, kMenuItemID, false, 0));
+                            },
+                            popup_window_));
+#else
     if (IsRunningOnWayland()) {
       // On Wayland, EventGenerator doesn't work with nested run loops (popup
       // menus), so simulate the button press directly.
@@ -634,6 +776,7 @@ class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
       CefPostDelayedTask(TID_UI, base::BindOnce(ClickMenuItem, menu_button),
                          kPopupClickDelayMS);
     }
+#endif
   }
 
   void SimulatePopupClick() {

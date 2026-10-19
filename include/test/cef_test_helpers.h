@@ -51,6 +51,7 @@
 #include "include/cef_browser.h"
 #include "include/cef_callback.h"
 #include "include/cef_frame.h"
+#include "include/views/cef_window.h"
 
 ///
 /// Execute JavaScript with a user gesture to trigger functionality like
@@ -76,6 +77,26 @@ void CefSetDataDirectoryForTests(const CefString& dir);
 ///
 /*--cef()--*/
 bool CefIsFeatureEnabledForTests(const CefString& feature_name);
+
+#if CEF_API_ADDED(CEF_NEXT)
+///
+/// Send a left mouse click to the center of the identified target. If |is_menu|
+/// is true, |target_id| is a command ID in the open Views menu owned by
+/// |owner|. Otherwise, |target_id| is a view ID in |owner|. The target must be
+/// drawn, enabled and have visible bounds. Hidden submenus and native platform
+/// menus are not supported. |modifiers| may contain EVENTFLAG_SHIFT_DOWN,
+/// EVENTFLAG_CONTROL_DOWN, EVENTFLAG_ALT_DOWN and EVENTFLAG_COMMAND_DOWN.
+/// Returns false if the target is unavailable, |modifiers| is unsupported or
+/// another call to this function is already dispatching input. Returns true
+/// after dispatching input; test callbacks must verify its effect. Does not
+/// activate the target window. Must be called on the browser process UI thread.
+///
+/*--cef(added=next)--*/
+bool CefSendMouseClickForTesting(CefRefPtr<CefWindow> owner,
+                                 int target_id,
+                                 bool is_menu,
+                                 uint32_t modifiers);
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
 #if CEF_API_ADDED(CEF_EXPERIMENTAL)
 ///
