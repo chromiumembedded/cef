@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <algorithm>
 #include <memory>
 
 #include "include/base/cef_callback.h"
@@ -127,7 +128,14 @@ void RunWindowShow(cef_show_state_t initial_show_state,
 
 void WindowCreateWithOriginImpl(CefRefPtr<CefWaitableEvent> event) {
   auto config = std::make_unique<TestWindowDelegate::Config>();
-  config->window_origin = {100, 200};
+  // Leave room for the native frame and a non-default origin even on small
+  // CI desktops. Otherwise Windows may constrain the requested bounds.
+  const auto work_area = CefDisplay::GetPrimaryDisplay()->GetWorkArea();
+  config->window_size = std::min(
+      {TestWindowDelegate::kWSize, work_area.width / 2, work_area.height / 2});
+  config->window_origin = {
+      work_area.x + (work_area.width - config->window_size) / 4,
+      work_area.y + (work_area.height - config->window_size) / 4};
   config->on_window_created =
       base::BindOnce(RunWindowShow, config->initial_show_state);
   TestWindowDelegate::RunTest(event, std::move(config));
