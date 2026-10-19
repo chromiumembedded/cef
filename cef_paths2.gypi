@@ -707,6 +707,7 @@
       'tests/ceftests/win/ceftests.rc',
     ],
     'ceftests_sources_mac': [
+      'tests/ceftests/browser_window_unittest_mac.mm',
       'tests/ceftests/keyboard_input_unittest_mac.mm',
       'tests/ceftests/osr_accessibility_unittest_mac.mm',
       'tests/ceftests/osr_begin_frame_unittest_mac.mm',

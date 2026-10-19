@@ -64,6 +64,7 @@
   NSWindow* __strong window_;
 }
 - (id)initWithWindow:(NSWindow*)window andBrowser:(CefBrowserHostBase*)browser;
+- (void)browserDestroyed;
 @end
 
 @implementation CefWindowDelegate
@@ -80,29 +81,48 @@
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+- (void)browserDestroyed {
+  browser_ = nullptr;
+}
+
 - (BOOL)windowShouldClose:(id)window {
   if (browser_ && !browser_->TryCloseBrowser()) {
     // Cancel the close.
     return NO;
   }
 
-  // For an NSWindow object, the default is to be released on |close|. We
-  // instead want it to remain valid until all strong references are released
-  // via |cleanup:| and |BrowserDestroyed|.
-  ((NSWindow*)window).releasedWhenClosed = NO;
-
-  // Clean ourselves up after clearing the stack of anything that might have the
-  // window on it.
-  [self performSelectorOnMainThread:@selector(cleanup:)
-                         withObject:window
-                      waitUntilDone:NO];
-
   // Allow the close.
   return YES;
 }
 
+- (void)windowWillClose:(NSNotification*)notification {
+  // For an NSWindow object, the default is to be released on |close|. We
+  // instead want it to remain valid until all strong references are released
+  // via |cleanup:| and |BrowserDestroyed|.
+  window_.releasedWhenClosed = NO;
+
+  // Clean ourselves up after clearing the stack of anything that might have the
+  // window on it.
+  [self performSelectorOnMainThread:@selector(cleanup:)
+                         withObject:notification.object
+                      waitUntilDone:NO];
+}
+
 - (void)cleanup:(id)window {
   [window_ setDelegate:nil];
+  if (browser_) {
+    CefRefPtr<AlloyBrowserHostImpl> browser =
+        AlloyBrowserHostImpl::FromBaseChecked(browser_);
+    CefBrowserHostView* browser_view =
+        (CefBrowserHostView*)CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(
+            browser->GetWindowHandle());
+    // AppKit or the embedder may retain the view after the window closes.
+    // Destroy the browser now instead of waiting for the view to deallocate,
+    // and prevent the view from notifying the destroyed browser again later.
+    browser_view.browser = nullptr;
+    browser_ = nullptr;
+    browser->WindowDestroyed();
+  }
   window_ = nil;
 }
 
@@ -226,6 +246,7 @@ void CefBrowserPlatformDelegateNativeMac::BrowserDestroyed(
   if (host_window_created_) {
     // Release the references added in CreateHostWindow().
     browser->Release();
+    [window_delegate_ browserDestroyed];
     window_delegate_ = nil;
   }
 }
