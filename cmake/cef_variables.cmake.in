@@ -335,6 +335,9 @@ if(OS_MAC)
   list(APPEND CEF_LINKER_FLAGS_RELEASE
     -Wl,-dead_strip                 # Strip dead code
     )
+  list(APPEND CEF_COMPILER_DEFINES_RELEASE
+    NDEBUG                          # Not a debug build
+    )
 
   include(CheckCXXCompilerFlag)
 
