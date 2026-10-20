@@ -220,32 +220,19 @@ On Windows:
 
 ```
 :: Disabled tests:
-:: - AudioOutputTest.*: Flaky
-:: - DisplayTest.AutoResize: Flaky
-:: - DisplayTest.Title: Flaky
-:: - DraggableRegionsTest.*: Flaky
-:: - NavigationTest.History: Flaky
-:: - NavigationTest.Load*CtrlLeftClick*: Flaky
-:: - NavigationTest.Load*MiddleClick*: Flaky
-:: - PdfViewerTest.*: Flaky
-:: - ScopedTempDir.TempDir: Flaky
-:: - ViewsButtonTest.*Click*: Flaky
-:: - ViewsButtonTest.MenuButtonCustomPopup*: Flaky
+:: - AudioOutputTest.AudioOutputTest, AudioCloseBrowserTest: Flaky
 :: - ViewsTextfieldTest.TextfieldKeyEvent: Flaky
-:: - ViewsWindowTest.WindowCreateWithOrigin: Flaky
 ceftests --use-views [--use-alloy-style] ^
-  --gtest_filter=-AudioOutputTest.*:DisplayTest.AutoResize:DisplayTest.Title:DraggableRegionsTest.*:NavigationTest.History:NavigationTest.Load*CtrlLeftClick*:NavigationTest.Load*MiddleClick*:PdfViewerTest.*:ScopedTempDir.TempDir:ViewsButtonTest.*Click*:ViewsButtonTest.MenuButtonCustomPopup*:ViewsTextfieldTest.TextfieldKeyEvent:ViewsWindowTest.WindowCreateWithOrigin
+  --gtest_filter=-AudioOutputTest.AudioOutputTest:AudioOutputTest.AudioCloseBrowserTest:ViewsTextfieldTest.TextfieldKeyEvent
 ```
 
 On macOS:
 
 ```sh
 # Disabled tests:
-# - DisplayTest.AutoResize: Flaky
-# - ViewsButtonTest.MenuButtonCustomPopupActivate: Flaky
 # - ViewsWindowTest.Window*Fullscreen*: Fails/crashes on headless agents
 ./ceftests.app/Contents/MacOS/ceftests --use-views [--use-alloy-style] \
-  --gtest_filter=-DisplayTest.AutoResize:ViewsButtonTest.MenuButtonCustomPopupActivate:ViewsWindowTest.Window\*Fullscreen\*
+  --gtest_filter=-ViewsWindowTest.Window\*Fullscreen\*
 ```
 
 On Linux:
@@ -262,10 +249,11 @@ xvfb-run -a ceftests --use-views [--use-alloy-style] \
   --disable-dev-shm-usage \
 
 # Disabled tests:
-# - OSRTest.*: Flaky
+# - OSRTest input, focus and popup tests: Need Linux CI investigation
+#   Windowless and paint/resize/invalidate/scrolling tests are enabled.
 # - ViewsWindowTest.WindowMaximize*: Flaky
 # - ViewsWindowTest.WindowMinimize*: Flaky
-  --gtest_filter=-OSRTest.*:ViewsWindowTest.WindowMaximize*:ViewsWindowTest.WindowMinimize*
+  --gtest_filter=-OSRTest.Focus*:OSRTest.TakeFocus*:OSRTest.GotFocus*:OSRTest.Cursor*:OSRTest.Mouse*:OSRTest.ScreenPoint*:OSRTest.Tooltip*:OSRTest.ContextMenu*:OSRTest.QuickMenu*:OSRTest.Popup*:OSRTest.Drag*:OSRTest.TextSelection*:OSRTest.VirtualKeyboard*:OSRTest.Touch*:OSRTest.PenEvent*:ViewsWindowTest.WindowMaximize*:ViewsWindowTest.WindowMinimize*
 ```
 
 If automated test runs are slow (tests timing out) you can additionally add `--test-timeout-multiplier=3` for e.g. 3x longer test timeouts.
