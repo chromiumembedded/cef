@@ -26,6 +26,10 @@ CefBaseTime CefBaseTimeFrom(const CefTime& value);
 // Returns false when native visibility control is unavailable.
 bool SetNativeTestBrowserVisible(CefRefPtr<CefBrowser> browser, bool visible);
 
+// Returns the native window's resize capability, or nullopt on platforms where
+// this query is unavailable. Call on the UI thread with a visible browser.
+std::optional<bool> IsNativeTestBrowserResizable(CefRefPtr<CefBrowser> browser);
+
 // Test that CefRequest::HeaderMap objects are equal. Multiple values with the
 // same key are allowed, but not duplicate entries with the same key/value. If
 // |allowExtras| is true then additional header fields will be allowed in

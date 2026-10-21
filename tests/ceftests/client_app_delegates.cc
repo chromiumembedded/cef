@@ -27,6 +27,11 @@ void CreateBrowserDelegates(ClientAppBrowser::DelegateSet& delegates) {
                                             delegates);
   CreateMediaAccessBrowserTests(delegates);
 
+  // Bring in Document Picture-in-Picture tests.
+  extern void CreateDocumentPictureInPictureBrowserTests(
+      ClientAppBrowser::DelegateSet & delegates);
+  CreateDocumentPictureInPictureBrowserTests(delegates);
+
   // Bring in URLRequest tests.
   extern void CreateURLRequestBrowserTests(ClientAppBrowser::DelegateSet &
                                            delegates);

@@ -27,6 +27,18 @@
 #endif
 
 #if !defined(OS_MAC)
+std::optional<bool> IsNativeTestBrowserResizable(CefRefPtr<CefBrowser> browser) {
+  CEF_REQUIRE_UI_THREAD();
+#if defined(OS_WIN)
+  const auto window =
+      GetAncestor(browser->GetHost()->GetWindowHandle(), GA_ROOT);
+  if (window) {
+    return (GetWindowLongPtr(window, GWL_STYLE) & WS_THICKFRAME) != 0;
+  }
+#endif
+  return std::nullopt;
+}
+
 bool SetNativeTestBrowserVisible(CefRefPtr<CefBrowser> browser, bool visible) {
   CEF_REQUIRE_UI_THREAD();
 #if defined(OS_WIN)
