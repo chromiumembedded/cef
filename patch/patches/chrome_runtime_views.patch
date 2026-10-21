@@ -257,6 +257,30 @@ index 7fd1446d69240e26e347487b69998da389b33d7b..59ee3acdf8870bddf7b1c6981fcc6185
   private:
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
+diff --git chrome/browser/ui/views/frame/browser_desktop_window_tree_host_linux.cc chrome/browser/ui/views/frame/browser_desktop_window_tree_host_linux.cc
+index 32e5c1a27f7b00bff7f9259713708da237d337b0..5bc81d6ad264d4290e0136bcb6aae2882317677a 100644
+--- chrome/browser/ui/views/frame/browser_desktop_window_tree_host_linux.cc
++++ chrome/browser/ui/views/frame/browser_desktop_window_tree_host_linux.cc
+@@ -9,6 +9,7 @@
+ 
+ #include "base/no_destructor.h"
+ #include "build/build_config.h"
++#include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
+ #include "chrome/browser/ui/browser_init_state.h"
+ #include "chrome/browser/ui/tabs/tab_strip_model.h"
+ #include "chrome/browser/ui/views/frame/browser_frame_view_linux.h"
+@@ -181,7 +182,10 @@ void BrowserDesktopWindowTreeHostLinux::UpdateFrameHints() {
+   if (ui::OzonePlatform::GetInstance()->IsWindowCompositingSupported()) {
+     // Set the opaque region.
+     std::vector<gfx::Rect> opaque_region;
+-    if (IsShowingFrame(native_widget_->UseCustomFrame(), window_state)) {
++    if (PictureInPictureWindowManager::IsTransparentDocumentPictureInPicture(
++            browser_view_->GetDocumentPictureInPictureOptions())) {
++      // Leave the opaque region empty so the compositor blends page alpha.
++    } else if (IsShowingFrame(native_widget_->UseCustomFrame(), window_state)) {
+       opaque_region =
+           views::GetRestoredOpaqueRegion(view->GetRestoredClipRegion(), scale,
+                                          view->GetTranslucentTopAreaHeight());
 diff --git chrome/browser/ui/views/frame/browser_desktop_window_tree_host_win.cc chrome/browser/ui/views/frame/browser_desktop_window_tree_host_win.cc
 index 6de34be12716efefd10d38ce36f4ca7b4e9e3af3..cf8c0b99cde4f163b590d0f8d56672b51ab2ba8d 100644
 --- chrome/browser/ui/views/frame/browser_desktop_window_tree_host_win.cc
@@ -834,7 +858,7 @@ index d384a2c99a1c1d8f160de20ea8518a6a4cc5ab71..39937dca7434763b3baa82600c7c9e73
    // regenerated.
    bool RegenerateFrameOnThemeChange(BrowserThemeChangeType theme_change_type);
 diff --git chrome/browser/ui/views/frame/contents_web_view.cc chrome/browser/ui/views/frame/contents_web_view.cc
-index 8f29bb4291546ddec1643d46e52c21b8c3b31128..faf535670d121842456dc7cf3d8e8bf3b873ef13 100644
+index 8f29bb4291546ddec1643d46e52c21b8c3b31128..5b360537b4583ff75388280d35646c407cd4bc69 100644
 --- chrome/browser/ui/views/frame/contents_web_view.cc
 +++ chrome/browser/ui/views/frame/contents_web_view.cc
 @@ -6,7 +6,9 @@
@@ -866,7 +890,7 @@ index 8f29bb4291546ddec1643d46e52c21b8c3b31128..faf535670d121842456dc7cf3d8e8bf3
  #endif
  
  void ContentsWebView::UpdateBackgroundColor() {
-+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
++#if !BUILDFLAG(IS_CHROMEOS)
 +  auto* browser_view = GetWidget() ? BrowserView::GetBrowserViewForNativeWindow(
 +                                         GetWidget()->GetNativeWindow())
 +                                   : nullptr;
@@ -1177,6 +1201,84 @@ index 59bdfa1e118091ea37ba235fb47b05797fdb16ed..69a4e327752488204cf046ac62b25b84
  }
  
  gfx::Size PictureInPictureBrowserFrameView::GetNonClientViewAreaSize() const {
+diff --git chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view_linux.cc chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view_linux.cc
+index af6377db88d9b915b74c6ad9c8562d0a42a5af96..34951f618df1bf0e2392d068a9ab82f02ea78575 100644
+--- chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view_linux.cc
++++ chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view_linux.cc
+@@ -4,6 +4,7 @@
+ 
+ #include "chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view_linux.h"
+ 
++#include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
+ #include "chrome/browser/themes/theme_service.h"
+ #include "chrome/browser/themes/theme_service_factory.h"
+ #include "chrome/browser/ui/color/chrome_color_id.h"
+@@ -130,6 +131,17 @@ gfx::Rect PictureInPictureBrowserFrameViewLinux::GetHitRegion() const {
+ // views::View implementations:
+ 
+ void PictureInPictureBrowserFrameViewLinux::OnPaint(gfx::Canvas* canvas) {
++  if (IsTransparent()) {
++    // Paint only the top bar, if visible, and leave the rest transparent.
++    if (top_bar_container_view()->GetVisible()) {
++      canvas->FillRect(
++          gfx::Rect(0, 0, width(), GetTopAreaHeight()),
++          GetColorProvider()->GetColor(kColorPipWindowTopBarBackground));
++    }
++    BrowserFrameView::OnPaint(canvas);
++    return;
++  }
++
+   // Draw the PiP window frame borders and shadows, including the top bar
+   // background.
+   if (window_frame_provider_) {
+@@ -160,6 +172,9 @@ void PictureInPictureBrowserFrameViewLinux::OnPaint(gfx::Canvas* canvas) {
+ }
+ 
+ bool PictureInPictureBrowserFrameViewLinux::ShouldDrawFrameShadow() const {
++  if (IsTransparent()) {
++    return false;
++  }
+   return static_cast<BrowserNativeWidgetAuraLinux*>(
+              browser_widget()->browser_native_widget())
+       ->ShouldDrawRestoredFrameShadow();
+@@ -168,11 +183,23 @@ bool PictureInPictureBrowserFrameViewLinux::ShouldDrawFrameShadow() const {
+ ///////////////////////////////////////////////////////////////////////////////
+ // PictureInPictureBrowserFrameView: implementations:
+ 
++bool PictureInPictureBrowserFrameViewLinux::IsTransparent() const {
++  return PictureInPictureWindowManager::IsTransparentDocumentPictureInPicture(
++      GetBrowserView()->GetDocumentPictureInPictureOptions());
++}
++
+ gfx::Insets PictureInPictureBrowserFrameViewLinux::ResizeBorderInsets() const {
++  if (IsTransparent()) {
++    // No frame is drawn, so resize from inside the content like Mac/Windows.
++    return PictureInPictureBrowserFrameView::ResizeBorderInsets();
++  }
+   return FrameBorderInsets();
+ }
+ 
+ gfx::Insets PictureInPictureBrowserFrameViewLinux::FrameBorderInsets() const {
++  if (IsTransparent()) {
++    return gfx::Insets();
++  }
+   if (window_frame_provider_) {
+     const auto insets = window_frame_provider_->GetFrameThicknessDip();
+     const bool tiled = browser_widget()->tiled();
+diff --git chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view_linux.h chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view_linux.h
+index b694cb70ba68adc15d37c4e6cd0bb7e048a0846d..edc3c8c06d79e6daccac0bbe4d158943751f27f6 100644
+--- chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view_linux.h
++++ chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view_linux.h
+@@ -49,6 +49,9 @@ class PictureInPictureBrowserFrameViewLinux
+   // Returns whether a client-side shadow should be drawn for the window.
+   bool ShouldDrawFrameShadow() const;
+ 
++  // True for transparent document PiP, which draws no frame or shadow.
++  bool IsTransparent() const;
++
+  protected:
+   // PictureInPictureBrowserFrameView:
+   gfx::Insets ResizeBorderInsets() const override;
 diff --git chrome/browser/ui/views/location_bar/location_bar_view.cc chrome/browser/ui/views/location_bar/location_bar_view.cc
 index bac174d0b227aa593d369b6e2e7f7b58179f2c16..cbc4b2936dddd2745b236f44a86c84b23f09ae44 100644
 --- chrome/browser/ui/views/location_bar/location_bar_view.cc

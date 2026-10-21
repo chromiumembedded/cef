@@ -4,10 +4,12 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -31,6 +33,11 @@ namespace {
 
 constexpr char kUrl[] = "https://tests/pip-options.html";
 constexpr char kFeature[] = "DocumentPictureInPictureCefOptions";
+
+// How long and how often to retry edge captures while the window becomes
+// fully opaque.
+constexpr auto kEdgeCaptureTimeout = std::chrono::seconds(1);
+constexpr int kEdgeCaptureRetryDelayMs = 16;
 
 class PipBrowserTest : public client::ClientAppBrowser::Delegate {
  public:
@@ -93,7 +100,9 @@ class PipTestHandler : public TestHandler {
         capture_dir_ = directory.ToString();
         remove_capture_dir_ = true;
       } else {
-        ASSERT_TRUE(std::filesystem::create_directories(capture_dir_));
+        std::error_code error;
+        std::filesystem::create_directories(capture_dir_, error);
+        ASSERT_TRUE(std::filesystem::is_directory(capture_dir_)) << error;
       }
     }
     AddResource(kUrl, "<!doctype html><title>PiP options</title>", "text/html");
@@ -459,8 +468,9 @@ class PipTestHandler : public TestHandler {
   void CheckPosition(CefRefPtr<CefDictionaryValue> result) {
     auto bounds = result->GetDictionary("bounds");
     ASSERT_TRUE(bounds);
-    EXPECT_EQ(requested_position_.x, bounds->GetInt("left"));
-    EXPECT_EQ(requested_position_.y, bounds->GetInt("top"));
+    // Allow for DIP/pixel rounding with fractional device scale factors.
+    EXPECT_NEAR(requested_position_.x, bounds->GetInt("left"), 1);
+    EXPECT_NEAR(requested_position_.y, bounds->GetInt("top"), 1);
     DestroyTest();
   }
 
@@ -611,6 +621,7 @@ class PipTestHandler : public TestHandler {
     ASSERT_EQ(bytes.size(), data->GetData(bytes.data(), bytes.size(), 0));
     std::ofstream(capture_dir_ + "/page.png", std::ios::binary)
         .write(bytes.data(), bytes.size());
+    edge_deadline_ = std::chrono::steady_clock::now() + kEdgeCaptureTimeout;
     CaptureEdgeWindow(false);
   }
 
@@ -642,12 +653,33 @@ class PipTestHandler : public TestHandler {
     constexpr int kEdgeWidth = 8;
     ASSERT_GT(width, kEdgeWidth * 2);
     ASSERT_GT(height, kEdgeWidth * 2);
+#if defined(OS_WIN)
+    // PrintWindow can omit Chromium content and does not preserve alpha.
+    // Verify pixels through the compositor capture. Keep the native snapshot
+    // for visual comparison when captures are saved.
+    const bool check_pixels = !native;
+#else
+    const bool check_pixels = true;
+#endif
     std::array<uint8_t, 4> pixel{};
-    ASSERT_EQ(pixel.size(),
-              bitmap->GetData(
-                  pixel.data(), pixel.size(),
-                  (static_cast<size_t>(height / 2) * width + width / 2) * 4));
-    EXPECT_EQ((std::array<uint8_t, 4>{0, 0, 0, 255}), pixel);
+    if (check_pixels) {
+      ASSERT_EQ(pixel.size(),
+                bitmap->GetData(
+                    pixel.data(), pixel.size(),
+                    (static_cast<size_t>(height / 2) * width + width / 2) * 4));
+      // The window may still be animating to full opacity after it is shown.
+      // Native presentation may lag the compositor capture. Retry either
+      // capture until its marker is opaque, sharing the same deadline.
+      if (pixel != std::array<uint8_t, 4>{0, 0, 0, 255} &&
+          std::chrono::steady_clock::now() < edge_deadline_) {
+        GetUIThreadHelper()->PostDelayedTask(
+            base::BindOnce(&PipTestHandler::CaptureEdgeWindow, this, native),
+            kEdgeCaptureRetryDelayMs);
+        return;
+      }
+      EXPECT_EQ((std::array<uint8_t, 4>{0, 0, 0, 255}), pixel)
+          << "capture=" << path;
+    }
     struct Edge {
       const char* name;
       CefRect bounds;
@@ -660,6 +692,9 @@ class PipTestHandler : public TestHandler {
     };
     int nontransparent = 0;
     for (const auto& edge : edges) {
+      if (!check_pixels) {
+        break;
+      }
       SCOPED_TRACE(edge.name);
       int edge_nontransparent = 0;
       int max_alpha = 0;
@@ -734,9 +769,6 @@ class PipTestHandler : public TestHandler {
     }
     bool transparent = settings_.mode == TestMode::kTransparentTrue ||
                        (settings_.mode == TestMode::kReopen && round_ != 1);
-#if !defined(OS_MAC) && !defined(OS_WIN)
-    transparent = false;
-#endif
     // Check a region, not a single pixel, away from text, borders and marker.
     for (int y = height / 2; y < 3 * height / 4; ++y) {
       for (int x = width / 2; x < 3 * width / 4; ++x) {
@@ -772,6 +804,7 @@ class PipTestHandler : public TestHandler {
   ResultCallback pending_;
   std::string pending_method_;
   std::string capture_dir_;
+  std::chrono::steady_clock::time_point edge_deadline_;
   base::OnceClosure after_close_;
   CefPoint requested_position_;
   CefWindowHandle pip_handle_ = kNullWindowHandle;
@@ -812,22 +845,25 @@ TEST_F(DocumentPictureInPictureTest, InitialPosition) {
 TEST_F(DocumentPictureInPictureTest, ResizableDefault) {
 #if !defined(OS_MAC) && !defined(OS_WIN)
   GTEST_SKIP() << "Native resize capability query requires macOS or Windows";
-#endif
+#else
   Run({TestMode::kResizableDefault});
+#endif
 }
 
 TEST_F(DocumentPictureInPictureTest, ResizableTrue) {
 #if !defined(OS_MAC) && !defined(OS_WIN)
   GTEST_SKIP() << "Native resize capability query requires macOS or Windows";
-#endif
+#else
   Run({TestMode::kResizableTrue});
+#endif
 }
 
 TEST_F(DocumentPictureInPictureTest, ResizableFalse) {
 #if !defined(OS_MAC) && !defined(OS_WIN)
   GTEST_SKIP() << "Native resize capability query requires macOS or Windows";
-#endif
+#else
   Run({TestMode::kResizableFalse});
+#endif
 }
 
 TEST_F(DocumentPictureInPictureTest, MoveAndResizeAllowedWithoutActivation) {
@@ -874,14 +910,20 @@ TEST_F(DocumentPictureInPictureTest, TransparencyReopenIsolation) {
   Run({TestMode::kReopen, true});
 }
 
-#if defined(OS_MAC) && CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(CEF_NEXT)
 TEST_F(DocumentPictureInPictureTest, TransparentFramelessMoveAndResize) {
+  if (IsRunningOnWayland()) {
+    GTEST_SKIP()
+        << "Wayland does not support client-controlled window positions";
+  }
   Run({TestMode::kTransparentMoveAllowed, true, true});
 }
 
+#if defined(OS_MAC) || defined(OS_WIN)
 TEST_F(DocumentPictureInPictureTest, TransparentFramelessNotResizable) {
   Run({TestMode::kTransparentResizableFalse, true});
 }
+#endif
 
 // Specify --pip-capture-dir to retain the three diagnostic captures.
 TEST_F(DocumentPictureInPictureTest, TransparencyNativeEdges) {

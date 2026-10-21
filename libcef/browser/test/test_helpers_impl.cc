@@ -31,6 +31,7 @@
 #include "ui/compositor/compositor.h"
 #include "ui/compositor/layer.h"
 #include "ui/events/test/event_generator.h"
+#include "ui/gfx/geometry/rect_conversions.h"
 #include "ui/gfx/image/image.h"
 #include "ui/gfx/image/image_skia.h"
 #include "ui/snapshot/snapshot.h"
@@ -38,6 +39,7 @@
 #include "ui/views/controls/menu/menu_item_view.h"
 #include "ui/views/view_tracker.h"
 #include "ui/views/widget/widget.h"
+#include "ui/views/window/non_client_view.h"
 #include "url/gurl.h"
 #include "url/origin.h"
 
@@ -141,6 +143,12 @@ void CefCaptureBrowserWindowForTests(
             std::move(done).Run(image);
           },
           std::move(done), scale));
+  // Exclude any frame that Views draws into the compositor (e.g. on Linux).
+  if (auto* non_client_view = widget->non_client_view();
+      non_client_view && non_client_view->frame_view()) {
+    request->set_area(gfx::ScaleToEnclosingRect(
+        non_client_view->frame_view()->GetBoundsForClientView(), scale));
+  }
   widget->GetCompositor()->root_layer()->RequestCopyOfOutput(
       std::move(request));
   widget->GetCompositor()->ScheduleFullRedraw();

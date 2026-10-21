@@ -33,7 +33,18 @@ std::optional<bool> IsNativeTestBrowserResizable(CefRefPtr<CefBrowser> browser) 
   const auto window =
       GetAncestor(browser->GetHost()->GetWindowHandle(), GA_ROOT);
   if (window) {
-    return (GetWindowLongPtr(window, GWL_STYLE) & WS_THICKFRAME) != 0;
+    if (GetWindowLongPtr(window, GWL_STYLE) & WS_THICKFRAME) {
+      return true;
+    }
+    // Translucent windows omit WS_THICKFRAME and resize through custom frame
+    // hit-testing. Query the middle of the bottom border, avoiding corners.
+    RECT bounds;
+    if (GetWindowRect(window, &bounds)) {
+      return SendMessage(
+                 window, WM_NCHITTEST, 0,
+                 MAKELPARAM(bounds.left + (bounds.right - bounds.left) / 2,
+                            bounds.bottom - 1)) == HTBOTTOM;
+    }
   }
 #endif
   return std::nullopt;

@@ -1,5 +1,5 @@
 diff --git chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
-index b02065efac3316f6493776df979752dd9d749a14..934967fac0c9ff7fce02c8b309dd9fbf308301e1 100644
+index b02065efac3316f6493776df979752dd9d749a14..a47c2269b582c80628ab16bb45824211f532b074 100644
 --- chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
 +++ chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
 @@ -140,12 +140,22 @@ PictureInPictureWindowManager* PictureInPictureWindowManager::GetInstance() {
@@ -8,7 +8,7 @@ index b02065efac3316f6493776df979752dd9d749a14..934967fac0c9ff7fce02c8b309dd9fbf
  
 +bool PictureInPictureWindowManager::IsTransparentDocumentPictureInPicture(
 +    const std::optional<blink::mojom::PictureInPictureWindowOptions>& options) {
-+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
++#if !BUILDFLAG(IS_CHROMEOS)
 +  return options && options->transparent;
 +#else
 +  return false;
