@@ -2,8 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
+#include <filesystem>
+#include <fstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -11,8 +14,10 @@
 #include "include/base/cef_callback.h"
 #include "include/cef_command_line.h"
 #include "include/cef_devtools_message_observer.h"
+#include "include/cef_file_util.h"
 #include "include/cef_image.h"
 #include "include/cef_parser.h"
+#include "include/test/cef_test_helpers.h"
 #include "include/views/cef_browser_view_delegate.h"
 #include "include/views/cef_display.h"
 #include "include/views/cef_window_delegate.h"
@@ -60,6 +65,9 @@ enum class TestMode {
   kTransparentFalse,
   kTransparentTrue,
   kReopen,
+  kCaptureEdges,
+  kTransparentMoveAllowed,
+  kTransparentResizableFalse,
 };
 
 struct Settings {
@@ -75,6 +83,19 @@ class PipTestHandler : public TestHandler {
       : settings_(settings), frameless_(settings.frameless) {}
 
   void RunTest() override {
+    if (settings_.mode == TestMode::kCaptureEdges) {
+      capture_dir_ = CefCommandLine::GetGlobalCommandLine()
+                         ->GetSwitchValue("pip-capture-dir")
+                         .ToString();
+      if (capture_dir_.empty()) {
+        CefString directory;
+        ASSERT_TRUE(CefCreateNewTempDirectory("cef-pip-edges", directory));
+        capture_dir_ = directory.ToString();
+        remove_capture_dir_ = true;
+      } else {
+        ASSERT_TRUE(std::filesystem::create_directories(capture_dir_));
+      }
+    }
     AddResource(kUrl, "<!doctype html><title>PiP options</title>", "text/html");
     CefPostTask(TID_UI, base::BindOnce(&PipTestHandler::CreateOpener, this));
     SetTestTimeout(15000);
@@ -153,6 +174,21 @@ class PipTestHandler : public TestHandler {
     PipTestHandler* const handler_;
     IMPLEMENT_REFCOUNTING(Observer);
   };
+
+#if CEF_API_ADDED(CEF_NEXT)
+  class CaptureComplete : public CefCaptureBrowserWindowCallback {
+   public:
+    explicit CaptureComplete(base::OnceCallback<void(CefRefPtr<CefImage>)> done)
+        : done_(std::move(done)) {}
+    void OnCaptureComplete(CefRefPtr<CefImage> image) override {
+      std::move(done_).Run(image);
+    }
+
+   private:
+    base::OnceCallback<void(CefRefPtr<CefImage>)> done_;
+    IMPLEMENT_REFCOUNTING(CaptureComplete);
+  };
+#endif  // CEF_API_ADDED(CEF_NEXT)
 
   class ViewDelegate : public CefBrowserViewDelegate {
    public:
@@ -332,10 +368,15 @@ class PipTestHandler : public TestHandler {
       case TestMode::kResizableFalse:
         options = "{resizable:false}";
         break;
+      case TestMode::kTransparentResizableFalse:
+        options = "{transparent:true,resizable:false}";
+        break;
       case TestMode::kTransparentFalse:
         options = "{transparent:false}";
         break;
       case TestMode::kTransparentTrue:
+      case TestMode::kCaptureEdges:
+      case TestMode::kTransparentMoveAllowed:
       case TestMode::kReopen:
         options = "{transparent:true}";
         break;
@@ -379,6 +420,14 @@ class PipTestHandler : public TestHandler {
 
   void OnPipReady(CefRefPtr<CefDictionaryValue> result) {
     switch (settings_.mode) {
+      case TestMode::kCaptureEdges:
+        CheckResizable(true);
+        PrepareEdgeCapture();
+        break;
+      case TestMode::kTransparentResizableFalse:
+        CheckResizable(false);
+        DestroyTest();
+        break;
       case TestMode::kPosition:
         Execute(pip_, "Browser.getWindowForTarget", nullptr,
                 base::BindOnce(&PipTestHandler::CheckPosition, this));
@@ -391,6 +440,7 @@ class PipTestHandler : public TestHandler {
         break;
       case TestMode::kMoveAllowed:
       case TestMode::kMoveDenied:
+      case TestMode::kTransparentMoveAllowed:
         CheckMovement();
         break;
       case TestMode::kFramed:
@@ -530,6 +580,113 @@ class PipTestHandler : public TestHandler {
          base::BindOnce(&PipTestHandler::TakeScreenshot, this));
   }
 
+  void PrepareEdgeCapture() {
+    Eval(pip_, R"JS((async () => {
+      document.documentElement.style.cssText = 'background:transparent';
+      document.body.style.cssText = 'margin:0;background:transparent';
+      document.body.innerHTML = '<div style="position:fixed;left:45%;top:45%;width:10%;height:10%;background:black"></div>';
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      return {innerWidth,innerHeight,outerWidth,outerHeight,devicePixelRatio,
+              screenX,screenY};
+    })())JS",
+         base::BindOnce(&PipTestHandler::CaptureEdges, this));
+  }
+
+  void CaptureEdges(CefRefPtr<CefDictionaryValue> result) {
+    auto value = CefValue::Create();
+    value->SetDictionary(result);
+    std::ofstream(capture_dir_ + "/geometry.json")
+        << CefWriteJSON(value, JSON_WRITER_PRETTY_PRINT).ToString();
+    auto params = CefDictionaryValue::Create();
+    params->SetString("format", "png");
+    params->SetBool("fromSurface", true);
+    Execute(pip_, "Page.captureScreenshot", params,
+            base::BindOnce(&PipTestHandler::SaveEdgePage, this));
+  }
+
+  void SaveEdgePage(CefRefPtr<CefDictionaryValue> result) {
+    auto data = CefBase64Decode(result->GetString("data"));
+    ASSERT_TRUE(data);
+    std::vector<char> bytes(data->GetSize());
+    ASSERT_EQ(bytes.size(), data->GetData(bytes.data(), bytes.size(), 0));
+    std::ofstream(capture_dir_ + "/page.png", std::ios::binary)
+        .write(bytes.data(), bytes.size());
+    CaptureEdgeWindow(false);
+  }
+
+  void CaptureEdgeWindow(bool native) {
+#if CEF_API_ADDED(CEF_NEXT)
+    CefCaptureBrowserWindowForTests(
+        pip_, native,
+        new CaptureComplete(
+            base::BindOnce(&PipTestHandler::EdgeWindowSaved, this, native)));
+#endif  // CEF_API_ADDED(CEF_NEXT)
+  }
+
+  void EdgeWindowSaved(bool native, CefRefPtr<CefImage> image) {
+    const auto path =
+        capture_dir_ + (native ? "/native.png" : "/compositor.png");
+    ASSERT_TRUE(image);
+    float scale = 0;
+    int width = 0, height = 0;
+    ASSERT_TRUE(image->GetRepresentationInfo(1, scale, width, height));
+    auto png = image->GetAsPNG(scale, true, width, height);
+    ASSERT_TRUE(png);
+    std::vector<char> bytes(png->GetSize());
+    ASSERT_EQ(bytes.size(), png->GetData(bytes.data(), bytes.size(), 0));
+    std::ofstream(path, std::ios::binary).write(bytes.data(), bytes.size());
+    auto bitmap =
+        image->GetAsBitmap(scale, CEF_COLOR_TYPE_RGBA_8888,
+                           CEF_ALPHA_TYPE_PREMULTIPLIED, width, height);
+    ASSERT_TRUE(bitmap);
+    constexpr int kEdgeWidth = 8;
+    ASSERT_GT(width, kEdgeWidth * 2);
+    ASSERT_GT(height, kEdgeWidth * 2);
+    std::array<uint8_t, 4> pixel{};
+    ASSERT_EQ(pixel.size(),
+              bitmap->GetData(
+                  pixel.data(), pixel.size(),
+                  (static_cast<size_t>(height / 2) * width + width / 2) * 4));
+    EXPECT_EQ((std::array<uint8_t, 4>{0, 0, 0, 255}), pixel);
+    struct Edge {
+      const char* name;
+      CefRect bounds;
+    };
+    const Edge edges[] = {
+        {"top", {0, 0, width, kEdgeWidth}},
+        {"bottom", {0, height - kEdgeWidth, width, kEdgeWidth}},
+        {"left", {0, 0, kEdgeWidth, height}},
+        {"right", {width - kEdgeWidth, 0, kEdgeWidth, height}},
+    };
+    int nontransparent = 0;
+    for (const auto& edge : edges) {
+      SCOPED_TRACE(edge.name);
+      int edge_nontransparent = 0;
+      int max_alpha = 0;
+      for (int y = edge.bounds.y; y < edge.bounds.y + edge.bounds.height; ++y) {
+        for (int x = edge.bounds.x; x < edge.bounds.x + edge.bounds.width;
+             ++x) {
+          ASSERT_EQ(pixel.size(),
+                    bitmap->GetData(pixel.data(), pixel.size(),
+                                    (static_cast<size_t>(y) * width + x) * 4));
+          edge_nontransparent += pixel[3] != 0;
+          max_alpha = std::max(max_alpha, static_cast<int>(pixel[3]));
+        }
+      }
+      EXPECT_EQ(0, edge_nontransparent)
+          << "edge max alpha=" << max_alpha << " capture=" << path;
+      nontransparent += edge_nontransparent;
+    }
+    if (native) {
+      if (remove_capture_dir_ && nontransparent == 0) {
+        std::filesystem::remove_all(capture_dir_);
+      }
+      DestroyTest();
+    } else {
+      CaptureEdgeWindow(true);
+    }
+  }
+
   void TakeScreenshot(CefRefPtr<CefDictionaryValue> result) {
     auto params = CefDictionaryValue::Create();
     params->SetString("format", "png");
@@ -614,6 +771,7 @@ class PipTestHandler : public TestHandler {
   std::vector<std::pair<int, CefRefPtr<CefRegistration>>> registrations_;
   ResultCallback pending_;
   std::string pending_method_;
+  std::string capture_dir_;
   base::OnceClosure after_close_;
   CefPoint requested_position_;
   CefWindowHandle pip_handle_ = kNullWindowHandle;
@@ -629,6 +787,7 @@ class PipTestHandler : public TestHandler {
   bool frameless_;
   bool started_ = false;
   bool stopping_ = false;
+  bool remove_capture_dir_ = false;
 
   IMPLEMENT_REFCOUNTING(PipTestHandler);
 };
@@ -714,6 +873,21 @@ TEST_F(DocumentPictureInPictureTest, TransparencyTrue) {
 TEST_F(DocumentPictureInPictureTest, TransparencyReopenIsolation) {
   Run({TestMode::kReopen, true});
 }
+
+#if defined(OS_MAC) && CEF_API_ADDED(CEF_NEXT)
+TEST_F(DocumentPictureInPictureTest, TransparentFramelessMoveAndResize) {
+  Run({TestMode::kTransparentMoveAllowed, true, true});
+}
+
+TEST_F(DocumentPictureInPictureTest, TransparentFramelessNotResizable) {
+  Run({TestMode::kTransparentResizableFalse, true});
+}
+
+// Specify --pip-capture-dir to retain the three diagnostic captures.
+TEST_F(DocumentPictureInPictureTest, TransparencyNativeEdges) {
+  Run({TestMode::kCaptureEdges, true});
+}
+#endif
 
 }  // namespace
 

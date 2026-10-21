@@ -31,7 +31,7 @@ index 2d84f6ff903e9d13ec3c1be83e3e110a12e243ef..279f38dd7f92c604a985fee79f77e9d5
    ~BrowserNativeWidgetMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_native_widget_mac.mm chrome/browser/ui/views/frame/browser_native_widget_mac.mm
-index 818924fc76681c38faad1c2082b686cbf67f3cdd..d431cc582aa35b4afecc119d4f58a168262a812a 100644
+index 818924fc76681c38faad1c2082b686cbf67f3cdd..b3525fab97c427258067ef3d256a95193535d646 100644
 --- chrome/browser/ui/views/frame/browser_native_widget_mac.mm
 +++ chrome/browser/ui/views/frame/browser_native_widget_mac.mm
 @@ -20,6 +20,7 @@
@@ -42,7 +42,15 @@ index 818924fc76681c38faad1c2082b686cbf67f3cdd..d431cc582aa35b4afecc119d4f58a168
  #include "chrome/browser/ui/actions/chrome_action_id.h"
  #include "chrome/browser/ui/actions/chrome_action_properties.h"
  #include "chrome/browser/ui/browser_actions.h"
-@@ -401,8 +402,15 @@ void BrowserNativeWidgetMac::OnWidgetDestroyed(views::Widget* widget) {
+@@ -46,6 +47,7 @@
+ #include "chrome/browser/ui/views/frame/vertical_tab_strip_region_view.h"
+ #include "chrome/browser/ui/views/web_apps/frame_toolbar/web_app_frame_toolbar_utils.h"
+ #include "chrome/browser/ui/web_applications/app_browser_controller.h"
++#include "chrome/browser/ui/window_feature_controller/window_feature_controller.h"
+ #include "chrome/common/pref_names.h"
+ #include "chrome/grit/generated_resources.h"
+ #include "components/bookmarks/common/bookmark_pref_names.h"
+@@ -401,8 +403,15 @@ void BrowserNativeWidgetMac::OnWidgetDestroyed(views::Widget* widget) {
  void BrowserNativeWidgetMac::ValidateUserInterfaceItem(
      int32_t tag,
      remote_cocoa::mojom::ValidateUserInterfaceItemResult* result) {
@@ -60,7 +68,7 @@ index 818924fc76681c38faad1c2082b686cbf67f3cdd..d431cc582aa35b4afecc119d4f58a168
    if (!browser || !chrome::SupportsCommand(browser, tag)) {
      result->enable = false;
      return;
-@@ -613,9 +621,16 @@ bool BrowserNativeWidgetMac::WillExecuteCommand(
+@@ -613,9 +622,16 @@ bool BrowserNativeWidgetMac::WillExecuteCommand(
    if (!browser_view_) {
      return false;
    }
@@ -79,7 +87,7 @@ index 818924fc76681c38faad1c2082b686cbf67f3cdd..d431cc582aa35b4afecc119d4f58a168
    if (is_before_first_responder) {
      // The specification for this private extensions API is incredibly vague.
      // For now, we avoid triggering chrome commands prior to giving the
-@@ -647,12 +662,23 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
+@@ -647,12 +663,23 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {
@@ -106,7 +114,7 @@ index 818924fc76681c38faad1c2082b686cbf67f3cdd..d431cc582aa35b4afecc119d4f58a168
  
    if (command == IDC_TOGGLE_VERTICAL_TABS) {
      if (auto* controller =
-@@ -699,10 +725,13 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
+@@ -699,10 +726,13 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
        return true;
      }
    } else if (command == IDC_CLEAR_BROWSING_DATA) {
@@ -124,7 +132,26 @@ index 818924fc76681c38faad1c2082b686cbf67f3cdd..d431cc582aa35b4afecc119d4f58a168
    }
  
    chrome::ExecuteCommandWithDisposition(browser, command,
-@@ -988,6 +1017,18 @@ void BrowserNativeWidgetMac::UpdateGlassEligibility(bool is_glass_eligible) {
+@@ -725,6 +755,18 @@ void BrowserNativeWidgetMac::PopulateCreateWindowParams(
+     params->style_mask = NSWindowStyleMaskFullSizeContentView |
+                          NSWindowStyleMaskTitled | NSWindowStyleMaskResizable;
+     params->window_title_hidden = true;
++    if (PictureInPictureWindowManager::IsTransparentDocumentPictureInPicture(
++            browser_view_->GetDocumentPictureInPictureOptions()) &&
++        !WindowFeatureController::From(browser_view_->browser())
++             ->SupportsWindowFeature(
++                 WindowFeatureController::WindowFeature::kFeatureTitleBar)) {
++      // AppKit's titled frame draws a one-pixel highlight even with a zero
++      // titlebar height. Transparent, frameless PiP needs a borderless native
++      // frame as well as the hidden Views frame. Retain native resizing.
++      params->window_class = remote_cocoa::mojom::WindowClass::kDefault;
++      params->style_mask =
++          NSWindowStyleMaskBorderless | NSWindowStyleMaskResizable;
++    }
+   } else if (browser_view_->GetIsNormalType() ||
+              browser_view_->GetIsWebAppType()) {
+     params->window_class = remote_cocoa::mojom::WindowClass::kBrowser;
+@@ -988,6 +1030,18 @@ void BrowserNativeWidgetMac::UpdateGlassEligibility(bool is_glass_eligible) {
      return;
    }
  
