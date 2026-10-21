@@ -580,6 +580,7 @@
       'tests/ceftests/base/weak_ptr_unittest.cc',
       'tests/ceftests/browser_info_map_unittest.cc',
       'tests/ceftests/browser_reuse_unittest.cc',
+      'tests/ceftests/browser_window_capture_unittest.cc',
       'tests/ceftests/browser_settings_unittest.cc',
       'tests/ceftests/certificate_error_unittest.cc',
       'tests/ceftests/chrome_child_window_unittest.cc',

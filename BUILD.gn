@@ -522,6 +522,7 @@ source_set("libcef_test_support") {
   deps = [
     ":libcef_static",
     "//net:test_support",
+    "//ui/snapshot",
 
     # Support for UI input events.
     "//ui/views:test_support",

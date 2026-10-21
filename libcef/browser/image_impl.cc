@@ -170,7 +170,17 @@ bool CefImageImpl::RemoveRepresentation(float scale_factor) {
   base::AutoLock lock_scope(lock_);
   gfx::ImageSkia image_skia = image_.AsImageSkia();
   if (image_skia.HasRepresentation(scale_factor)) {
+    const bool thread_safe = image_skia.IsThreadSafe();
+    if (thread_safe) {
+      // Snapshots can have read-only storage shared across threads. Copy it
+      // before editing, then preserve thread safety on the replacement.
+      image_skia = image_skia.DeepCopy();
+    }
     image_skia.RemoveRepresentation(scale_factor);
+    if (thread_safe) {
+      image_skia.MakeThreadSafe();
+      image_ = gfx::Image(image_skia);
+    }
     return true;
   }
   return false;
@@ -339,7 +349,18 @@ bool CefImageImpl::AddBitmap(float scale_factor, const SkBitmap& bitmap) {
   if (image_.IsEmpty()) {
     image_ = gfx::Image(gfx::ImageSkia(skia_rep));
   } else {
-    image_.AsImageSkia().AddRepresentation(skia_rep);
+    auto image_skia = image_.AsImageSkia();
+    const bool thread_safe = image_skia.IsThreadSafe();
+    if (thread_safe) {
+      // Keep read-only snapshot backing immutable while allowing CefImage
+      // edits.
+      image_skia = image_skia.DeepCopy();
+    }
+    image_skia.AddRepresentation(skia_rep);
+    if (thread_safe) {
+      image_skia.MakeThreadSafe();
+      image_ = gfx::Image(image_skia);
+    }
   }
   return true;
 }

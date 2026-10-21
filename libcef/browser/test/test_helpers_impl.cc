@@ -10,9 +10,11 @@
 #include "base/functional/bind.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/task/bind_post_task.h"
 #include "cef/include/test/cef_test_helpers.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/chrome/chrome_browser_host_impl.h"
+#include "cef/libcef/browser/image_impl.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/browser/views/view_util.h"
 #include "cef/libcef/common/api_version_util.h"
@@ -21,10 +23,17 @@
 #include "chrome/browser/ui/views/frame/browser_view.h"
 #include "components/password_manager/core/browser/password_store/password_store_interface.h"
 #include "components/password_manager/core/browser/password_store/smart_bubble_stats_store.h"
+#include "components/viz/common/frame_sinks/copy_output_request.h"
+#include "components/viz/common/frame_sinks/copy_output_result.h"
 #include "net/base/features.h"
 #include "services/network/public/cpp/features.h"
 #include "third_party/blink/public/common/features.h"
+#include "ui/compositor/compositor.h"
+#include "ui/compositor/layer.h"
 #include "ui/events/test/event_generator.h"
+#include "ui/gfx/image/image.h"
+#include "ui/gfx/image/image_skia.h"
+#include "ui/snapshot/snapshot.h"
 #include "ui/views/controls/menu/menu_controller.h"
 #include "ui/views/controls/menu/menu_item_view.h"
 #include "ui/views/view_tracker.h"
@@ -61,6 +70,81 @@ class CefEventGeneratorDelegateAura
 
 }  // namespace
 #endif  // !BUILDFLAG(IS_MAC)
+
+void CefCaptureBrowserWindowForTests(
+    CefRefPtr<CefBrowser> browser,
+    bool native,
+    CefRefPtr<CefCaptureBrowserWindowCallback> callback) {
+  CEF_API_REQUIRE_ADDED(CEF_NEXT);
+  CEF_REQUIRE_UIT_RETURN_VOID();
+  if (!callback) {
+    return;
+  }
+  auto done = base::BindPostTask(
+      content::GetUIThreadTaskRunner({}),
+      base::BindOnce(
+          [](CefRefPtr<CefCaptureBrowserWindowCallback> callback,
+             CefRefPtr<CefImage> image) { callback->OnCaptureComplete(image); },
+          callback));
+  auto host = CefBrowserHostBase::FromBrowser(browser);
+  views::Widget* widget = nullptr;
+  if (host && host->GetWebContents() && !host->IsWindowless()) {
+    if (host->is_views_hosted()) {
+      widget = host->GetWindowWidget();
+    } else if (!host->IsAlloyStyle()) {
+      auto* view = BrowserView::GetBrowserViewForBrowser(
+          ChromeBrowserHostImpl::FromBaseChecked(host)->browser());
+      widget = view ? view->GetWidget() : nullptr;
+    }
+  }
+  if (!widget || widget->IsClosed() || !widget->IsVisible() ||
+      !widget->GetCompositor() || !widget->GetCompositor()->root_layer()) {
+    std::move(done).Run(nullptr);
+    return;
+  }
+  const float scale = widget->GetCompositor()->device_scale_factor();
+  if (native) {
+    ui::GrabWindowSnapshot(
+        widget->GetNativeWindow(),
+        gfx::Rect(widget->GetWindowBoundsInScreen().size()),
+        base::BindOnce(
+            [](base::OnceCallback<void(CefRefPtr<CefImage>)> done, float scale,
+               gfx::Image snapshot) {
+              CefRefPtr<CefImage> image;
+              if (!snapshot.IsEmpty()) {
+                auto image_skia = gfx::ImageSkia::CreateFromBitmap(
+                    *snapshot.ToSkBitmap(), scale);
+                image_skia.MakeThreadSafe();
+                image = new CefImageImpl(image_skia);
+              }
+              std::move(done).Run(image);
+            },
+            std::move(done), scale));
+    return;
+  }
+  auto request = std::make_unique<viz::CopyOutputRequest>(
+      viz::CopyOutputResult::Format::RGBA,
+      viz::CopyOutputResult::Destination::kSystemMemory,
+      base::BindOnce(
+          [](base::OnceCallback<void(CefRefPtr<CefImage>)> done, float scale,
+             std::unique_ptr<viz::CopyOutputResult> result) {
+            CefRefPtr<CefImage> image;
+            if (!result->IsEmpty()) {
+              auto bitmap = result->ScopedAccessSkBitmap();
+              if (!bitmap.bitmap().drawsNothing()) {
+                auto image_skia = gfx::ImageSkia::CreateFromBitmap(
+                    bitmap.GetOutScopedBitmap(), scale);
+                image_skia.MakeThreadSafe();
+                image = new CefImageImpl(image_skia);
+              }
+            }
+            std::move(done).Run(image);
+          },
+          std::move(done), scale));
+  widget->GetCompositor()->root_layer()->RequestCopyOfOutput(
+      std::move(request));
+  widget->GetCompositor()->ScheduleFullRedraw();
+}
 
 bool CefSendMouseClickForTesting(CefRefPtr<CefWindow> owner,
                                  int target_id,
