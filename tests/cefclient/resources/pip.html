@@ -97,6 +97,9 @@
     <label for="resizable" style="margin-left: 10px;">
       <input type="checkbox" id="resizable" checked> Resizable
     </label>
+    <label for="transparent">
+      <input type="checkbox" id="transparent"> Transparency-capable (macOS/Windows)
+    </label>
     <div class="position-controls">
       <div class="input-group">
         <label for="posX">X:</label>
@@ -130,7 +133,8 @@
         width: 400,
         height: 300,
         cefOptions: {
-          resizable: document.getElementById('resizable').checked
+          resizable: document.getElementById('resizable').checked,
+          transparent: document.getElementById('transparent').checked
         }
       };
 
@@ -170,6 +174,7 @@
           h1 {
             color: #333;
             margin-bottom: 20px;
+            -webkit-app-region: drag;
           }
           button {
             padding: 10px 20px;
@@ -192,6 +197,9 @@
           <h1>PiP Window</h1>
           <p>Test Content</p>
           <button onclick="window.close()">Close</button>
+          <button onclick="document.body.style.backgroundColor = 'transparent'">Transparent</button>
+          <button onclick="document.body.style.backgroundColor = '#f0f0f0'">Opaque</button>
+          <p>Window instance: ${Date.now()}</p>
         `;
         pipDoc.body.appendChild(contentEl);
 

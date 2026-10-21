@@ -11,6 +11,7 @@
 #include "cef/libcef/browser/native/cursor_util.h"
 #include "cef/libcef/common/api_version_util.h"
 #include "cef/libcef/common/frame_util.h"
+#include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
 #include "chrome/common/chrome_result_codes.h"
 #include "components/input/native_web_keyboard_event.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
@@ -338,6 +339,10 @@ void CefBrowserContentsDelegate::RenderFrameCreated(
   if (render_frame_host->GetParent() == nullptr) {
     auto render_view_host = render_frame_host->GetRenderViewHost();
     auto base_background_color = platform_delegate()->GetBackgroundColor();
+    if (PictureInPictureWindowManager::IsTransparentDocumentPictureInPicture(
+            web_contents()->GetPictureInPictureOptions())) {
+      base_background_color = SK_ColorTRANSPARENT;
+    }
     if (browser_info_ && browser_info_->is_popup()) {
       // force reset page base background color because popup window won't get
       // the page base background from web_contents at the creation time
