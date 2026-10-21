@@ -38,6 +38,11 @@ class DialogTestHandler : public TestHandler {
     std::vector<CefString> accept_filters;
     std::vector<CefString> accept_extensions;
 
+    // If non-empty, the expected extensions for each accept filter after
+    // MIME type expansion (the 2nd OnFileDialog call). Each entry must appear
+    // in the corresponding value and no other entry may appear in it.
+    std::vector<std::string> expanded_extensions;
+
     bool skip_first_callback = false;
 
     // True if the callback should execute asynchronously.
@@ -136,6 +141,23 @@ class DialogTestHandler : public TestHandler {
 
       if (config_.skip_first_callback) {
         return false;
+      }
+    } else if (got_onfiledialog_ct_ == 2U &&
+               !config_.expanded_extensions.empty()) {
+      // Each filter should receive only its own extensions, and not the
+      // combined "Custom Files" extensions or description.
+      EXPECT_EQ(config_.expanded_extensions.size(), accept_filters.size());
+      for (size_t i = 0;
+           i < accept_filters.size() && i < config_.expanded_extensions.size();
+           ++i) {
+        const std::string ext = accept_extensions[i];
+        for (size_t j = 0; j < config_.expanded_extensions.size(); ++j) {
+          const bool found =
+              ext.find(config_.expanded_extensions[j]) != std::string::npos;
+          EXPECT_EQ(i == j, found) << "filter " << accept_filters[i].ToString()
+                                   << " has extensions " << ext;
+        }
+        EXPECT_TRUE(accept_descriptions[i].empty());
       }
     } else if (got_onfiledialog_ct_ == 2U) {
       // All MIME types should be resolved to file extensions.
@@ -310,6 +332,26 @@ TEST(DialogTest, FileOpen) {
 
 TEST(DialogTest, FileOpenSkipFirstCallback) {
   DialogTestHandler::TestConfig config(FILE_DIALOG_OPEN);
+  config.callback_async = false;
+  config.callback_cancel = false;
+  config.callback_paths.push_back("/path/to/file1.txt");
+  config.skip_first_callback = true;
+
+  CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Test that the "Custom Files" filter for multiple MIME types is excluded from
+// the expanded extensions (see issue #4132).
+TEST(DialogTest, FileOpenSkipFirstCallbackMultipleMimeTypes) {
+  DialogTestHandler::TestConfig config(FILE_DIALOG_OPEN);
+  config.accept_filters = {
+      "text/csv",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"};
+  // We're handling the dialog before MIME type expansion.
+  config.accept_extensions = config.accept_filters;
+  config.expanded_extensions = {".csv", ".xlsx"};
   config.callback_async = false;
   config.callback_cancel = false;
   config.callback_paths.push_back("/path/to/file1.txt");

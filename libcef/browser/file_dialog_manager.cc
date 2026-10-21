@@ -112,11 +112,15 @@ std::u16string FilePathTypeToString16(const base::FilePath::StringType& str) {
   return result;
 }
 
+// |extensions| and |descriptions| will be populated with the values that
+// correspond to each entry in the returned |accept_types|.
 FileChooserParams SelectFileToFileChooserParams(
     ui::SelectFileDialog::Type type,
     const std::u16string& title,
     const base::FilePath& default_path,
-    const ui::SelectFileDialog::FileTypeInfo* file_types) {
+    const ui::SelectFileDialog::FileTypeInfo* file_types,
+    std::vector<std::vector<base::FilePath::StringType>>* extensions,
+    std::vector<std::u16string>* descriptions) {
   FileChooserParams params;
 
   std::optional<FileChooserParams::Mode> mode;
@@ -143,7 +147,9 @@ FileChooserParams SelectFileToFileChooserParams(
   params.default_file_name = default_path;
 
   if (file_types) {
-    // |file_types| comes from FileSelectHelper::GetFileTypesFromAcceptType.
+    // |file_types| usually comes from
+    // FileSelectHelper::GetFileTypesFromAcceptType, but may also come from
+    // other callers like Save Page As.
     // |extensions| is a list of allowed extensions. For example, it might be
     //   { { "htm", "html" }, { "txt" } }
     for (size_t i = 0; i < file_types->extensions.size(); ++i) {
@@ -152,11 +158,19 @@ FileChooserParams SelectFileToFileChooserParams(
         // Use the original mime type.
         params.accept_types.push_back(file_types->extension_mimetypes[i]);
       } else if (file_types->extensions[i].size() == 1) {
-        // Use the single file extension. We ignore the "Custom Files" filter
-        // which is the only instance of multiple file extensions.
+        // Use the single file extension. Filters with multiple file extensions
+        // and no mime type (like "Custom Files") are ignored.
         params.accept_types.push_back(FilePathTypeToString16(
             FILE_PATH_LITERAL(".") + file_types->extensions[i][0]));
+      } else {
+        continue;
       }
+
+      extensions->push_back(file_types->extensions[i]);
+      descriptions->push_back(
+          file_types->extension_description_overrides.size() > i
+              ? file_types->extension_description_overrides[i]
+              : std::u16string());
     }
   }
 
@@ -379,13 +393,14 @@ void CefFileDialogManager::RunSelectFile(
 
   active_listeners_.insert(listener);
 
-  auto chooser_params =
-      SelectFileToFileChooserParams(type, title, default_path, file_types);
+  Extensions extensions;
+  Descriptions descriptions;
+  auto chooser_params = SelectFileToFileChooserParams(
+      type, title, default_path, file_types, &extensions, &descriptions);
   auto callback = base::BindOnce(
       &CefFileDialogManager::SelectFileDoneByDelegateCallback,
       weak_ptr_factory_.GetWeakPtr(), base::UnsafeDangling(listener));
-  callback = MaybeRunDelegate(chooser_params, file_types->extensions,
-                              file_types->extension_description_overrides,
+  callback = MaybeRunDelegate(chooser_params, extensions, descriptions,
                               std::move(callback));
   if (callback.is_null()) {
     // The delegate kept the callback.
@@ -462,11 +477,11 @@ CefFileDialogManager::MaybeRunDelegate(
     const Extensions& extensions,
     const Descriptions& descriptions,
     RunFileChooserCallback callback) {
-  // |extensions| and |descriptions| may be empty, or may contain 1 additional
-  // entry for the "Custom Files" filter.
-  DCHECK(extensions.empty() || extensions.size() >= params.accept_types.size());
+  // |extensions| and |descriptions| may be empty, or will contain 1 entry for
+  // each value in |params.accept_types|.
+  DCHECK(extensions.empty() || extensions.size() == params.accept_types.size());
   DCHECK(descriptions.empty() ||
-         descriptions.size() >= params.accept_types.size());
+         descriptions.size() == params.accept_types.size());
 
   if (auto client = browser_->client()) {
     if (auto handler = browser_->client()->GetDialogHandler()) {
@@ -506,8 +521,6 @@ CefFileDialogManager::MaybeRunDelegate(
         // Empty descriptions.
         accept_descriptions.resize(params.accept_types.size());
       } else {
-        // There may be 1 additional entry in |extensions| and |descriptions|
-        // that we want to ignore (for the "Custom Files" filter).
         for (size_t i = 0; i < params.accept_types.size(); ++i) {
           const auto& extension_list = extensions[i];
           std::u16string ext_str;
