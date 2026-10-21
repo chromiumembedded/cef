@@ -257,11 +257,42 @@ index 7fd1446d69240e26e347487b69998da389b33d7b..59ee3acdf8870bddf7b1c6981fcc6185
   private:
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
+diff --git chrome/browser/ui/views/frame/browser_desktop_window_tree_host_win.cc chrome/browser/ui/views/frame/browser_desktop_window_tree_host_win.cc
+index 6de34be12716efefd10d38ce36f4ca7b4e9e3af3..cf8c0b99cde4f163b590d0f8d56672b51ab2ba8d 100644
+--- chrome/browser/ui/views/frame/browser_desktop_window_tree_host_win.cc
++++ chrome/browser/ui/views/frame/browser_desktop_window_tree_host_win.cc
+@@ -20,6 +20,7 @@
+ #include "base/win/windows_version.h"
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/lifetime/application_lifetime_desktop.h"
++#include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
+ #include "chrome/browser/profiles/profile_avatar_icon_util.h"
+ #include "chrome/browser/profiles/profile_manager.h"
+ #include "chrome/browser/themes/theme_service.h"
+@@ -538,6 +539,10 @@ bool BrowserDesktopWindowTreeHostWin::ShouldUseNativeFrame() const {
+ bool BrowserDesktopWindowTreeHostWin::ShouldWindowContentsBeTransparent()
+     const {
+   CHECK(browser_view_);
++  if (PictureInPictureWindowManager::IsTransparentDocumentPictureInPicture(
++          browser_view_->GetDocumentPictureInPictureOptions())) {
++    return true;
++  }
+   return false;
+ }
+ 
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a588995b4c0 100644
+index b68f089aebf83b82499611404433d430e9971f14..b1d0ad885ad1657933424dfe7b4e208af7b83c94 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
-@@ -419,6 +419,10 @@
+@@ -54,6 +54,7 @@
+ #include "chrome/browser/feature_engagement/tracker_factory.h"
+ #include "chrome/browser/glic/public/features.h"
+ #include "chrome/browser/headless/headless_mode_util.h"
++#include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
+ #include "chrome/browser/platform_util.h"
+ #include "chrome/browser/profiles/profile.h"
+ #include "chrome/browser/profiles/profile_attributes_entry.h"
+@@ -419,6 +420,10 @@
  #undef LoadAccelerators
  #endif
  
@@ -272,7 +303,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
  using base::UserMetricsAction;
  using content::WebContents;
  using input::NativeWebKeyboardEvent;
-@@ -890,11 +894,21 @@ class BrowserView::PipExclusionObserverImpl
+@@ -890,11 +895,21 @@ class BrowserView::PipExclusionObserverImpl
  ///////////////////////////////////////////////////////////////////////////////
  // BrowserView, public:
  
@@ -296,7 +327,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
    if (auto* manager = InitialWebUIWindowMetricsManager::From(browser_.get())) {
      manager->OnBrowserWindowCreated();
    }
-@@ -921,7 +935,8 @@ BrowserView::BrowserView(BrowserWindowInterface* browser)
+@@ -921,7 +936,8 @@ BrowserView::BrowserView(BrowserWindowInterface* browser)
      SetCanMinimize(false);
      SetCanMaximize(false);
      SetCanFullscreen(false);
@@ -306,7 +337,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
    } else {
      SetCanResize(
          BrowserInitState::From(&*browser_)->create_params().can_resize);
-@@ -945,8 +960,16 @@ BrowserView::BrowserView(BrowserWindowInterface* browser)
+@@ -945,8 +961,16 @@ BrowserView::BrowserView(BrowserWindowInterface* browser)
    top_container_ = AddChildView(std::make_unique<TopContainerView>(this));
    top_container_insertion_index_ = GetIndexOf(top_container_.get());
  
@@ -325,7 +356,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
  
    top_container_separator_ = top_container_->AddChildView(
        ContentsSeparator::CreateContentsSeparator());
-@@ -1108,6 +1131,10 @@ BrowserView::BrowserView(BrowserWindowInterface* browser)
+@@ -1108,6 +1132,10 @@ BrowserView::BrowserView(BrowserWindowInterface* browser)
  }
  
  BrowserView::~BrowserView() {
@@ -336,7 +367,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
    // Remove the layout manager to avoid dangling. This needs to be earlier than
    // other cleanups that destroy views referenced in the layout manager.
    SetLayoutManager(nullptr);
-@@ -1122,7 +1149,9 @@ BrowserView::~BrowserView() {
+@@ -1122,7 +1150,9 @@ BrowserView::~BrowserView() {
  
    // All the tabs should have been destroyed already. If we were closed by the
    // OS with some tabs than the BrowserNativeWidget should have destroyed them.
@@ -347,7 +378,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
  
    // Stop the animation timer explicitly here to avoid running it in a nested
    // message loop, which may run by Browser destructor.
-@@ -1221,7 +1250,7 @@ void BrowserView::SetDisableRevealerDelayForTesting(bool disable) {
+@@ -1221,7 +1251,7 @@ void BrowserView::SetDisableRevealerDelayForTesting(bool disable) {
    g_disable_revealer_delay_for_testing = disable;
  }
  
@@ -356,7 +387,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
    gfx::Rect contents_bounds = multi_contents_view_->ConvertRectToWidget(
        multi_contents_view_->GetLocalBounds());
  
-@@ -1243,6 +1272,16 @@ gfx::Rect BrowserView::GetFindBarBoundingBox() const {
+@@ -1243,6 +1273,16 @@ gfx::Rect BrowserView::GetFindBarBoundingBox() const {
    return multi_contents_view_->GetMirroredRect(contents_bounds);
  }
  
@@ -373,7 +404,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
  ClientFrameElementInfo BrowserView::GetFrameElementInfo() const {
    // We want to return tabstrip_->height(), but we might be called in the midst
    // of layout, when that hasn't yet been updated to reflect the current state.
-@@ -1967,6 +2006,27 @@ gfx::Point BrowserView::GetThemeOffsetFromBrowserView() const {
+@@ -1967,6 +2007,27 @@ gfx::Point BrowserView::GetThemeOffsetFromBrowserView() const {
        ThemeProperties::kFrameHeightAboveTabs - browser_view_origin.y());
  }
  
@@ -401,7 +432,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
  bool BrowserView::IsLoadingAnimationRunning() const {
    return !loading_animation_start_.is_null();
  }
-@@ -3174,6 +3234,9 @@ ShowTranslateBubbleResult BrowserView::ShowTranslateBubble(
+@@ -3174,6 +3235,9 @@ ShowTranslateBubbleResult BrowserView::ShowTranslateBubble(
  
  DownloadBubbleUIController* BrowserView::GetDownloadBubbleUIController() {
  #if !BUILDFLAG(IS_CHROMEOS)
@@ -411,7 +442,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
    if (auto* download_controller =
            DownloadToolbarUIController::From(browser_.get())) {
      return download_controller->bubble_controller();
-@@ -4095,7 +4158,10 @@ bool BrowserView::GetSavedWindowPlacement(
+@@ -4095,7 +4159,10 @@ bool BrowserView::GetSavedWindowPlacement(
  }
  
  views::View* BrowserView::GetContentsView() {
@@ -423,7 +454,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
  }
  
  views::ClientView* BrowserView::CreateClientView(views::Widget* widget) {
-@@ -4272,9 +4338,22 @@ void BrowserView::DeleteBrowserWindow() {
+@@ -4272,9 +4339,22 @@ void BrowserView::DeleteBrowserWindow() {
    // before the frame is destroyed to mitigate UAF risk.
    browser_widget_->SaveWindowPlacementIfNeeded();
  
@@ -449,7 +480,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
  }
  
  void BrowserView::SetForceShowBookmarkBarFlag(
-@@ -4532,12 +4611,39 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+@@ -4532,12 +4612,39 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
  bool BrowserView::ShouldDescendIntoChildForEventHandling(
      gfx::NativeView child,
      const gfx::Point& location) {
@@ -491,7 +522,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
      gfx::Point point_in_browser_view_coords(location);
      views::View::ConvertPointToTarget(GetWidget()->GetRootView(), this,
                                        &point_in_browser_view_coords);
-@@ -4550,9 +4656,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+@@ -4550,9 +4657,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
  
      // Draggable regions should be ignored for clicks into any browser view's
      // owned widgets, for example alerts, permission prompts or find bar.
@@ -503,7 +534,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
             WidgetOwnedByAnchorContainsPoint(point_in_browser_view_coords);
    }
  
-@@ -4888,7 +4993,9 @@ void BrowserView::Layout(PassKey) {
+@@ -4888,7 +4994,9 @@ void BrowserView::Layout(PassKey) {
    LayoutSuperclass<views::View>(this);
  
    // TODO(jamescook): Why was this in the middle of layout code?
@@ -514,7 +545,7 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
    GetFrameView()->UpdateMinimumSize();
  
    if (omnibox::IsWebUIOmniboxInBrowserViewEnabled()) {
-@@ -5176,6 +5283,16 @@ void BrowserView::AddedToWidget() {
+@@ -5176,6 +5284,16 @@ void BrowserView::AddedToWidget() {
    fallback_popup_anchor_ = std::make_unique<views::ViewSubregionAnchor>(
        kFallbackPopupAnchorElementId, *this);
  
@@ -529,6 +560,20 @@ index b68f089aebf83b82499611404433d430e9971f14..6123e7fe79ad94eac0b7c248d4907a58
 +  }
 +
    initialized_ = true;
+ }
+ 
+@@ -6108,6 +6226,13 @@ void BrowserView::FrameColorsChanged() {
+     web_app_window_title_->SetBackgroundColor(frame_color);
+     web_app_window_title_->SetEnabledColor(caption_color);
+   }
++#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
++  if (PictureInPictureWindowManager::IsTransparentDocumentPictureInPicture(
++          GetDocumentPictureInPictureOptions())) {
++    GetWidget()->SetBackgroundColor(SK_ColorTRANSPARENT);
++    return;
++  }
++#endif
+   GetWidget()->SetBackgroundColor(kColorToolbar);
  }
  
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
@@ -579,10 +624,18 @@ index 6c4807bbaaf0a8e12e1a2df8545b4b55f491c297..9cc40ae854a363a98f1c8f3b7be44d0a
    base::CallbackListSubscription chip_visibility_subscription_;
  
 diff --git chrome/browser/ui/views/frame/browser_widget.cc chrome/browser/ui/views/frame/browser_widget.cc
-index 6a221594b09f0b8fa10e4b8bbca05a0e52e52a58..e1037567bb95ec02defe4c08890439a22a1fbcda 100644
+index 6a221594b09f0b8fa10e4b8bbca05a0e52e52a58..50b6247e4f19cf111d7f841c1967d8cd87f23d49 100644
 --- chrome/browser/ui/views/frame/browser_widget.cc
 +++ chrome/browser/ui/views/frame/browser_widget.cc
-@@ -100,16 +100,29 @@ bool IsUsingLinuxSystemTheme(Profile* profile) {
+@@ -12,6 +12,7 @@
+ #include "base/metrics/user_metrics.h"
+ #include "build/build_config.h"
+ #include "chrome/browser/app_mode/app_mode_utils.h"
++#include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
+ #include "chrome/browser/profiles/profile.h"
+ #include "chrome/browser/themes/custom_theme_supplier.h"
+ #include "chrome/browser/themes/theme_service.h"
+@@ -100,16 +101,29 @@ bool IsUsingLinuxSystemTheme(Profile* profile) {
  ////////////////////////////////////////////////////////////////////////////////
  // BrowserWidget, public:
  
@@ -613,7 +666,7 @@ index 6a221594b09f0b8fa10e4b8bbca05a0e52e52a58..e1037567bb95ec02defe4c08890439a2
  BrowserWidget::~BrowserWidget() {
    set_widget_closed();
  
-@@ -128,7 +141,11 @@ BrowserWidget::~BrowserWidget() {
+@@ -128,7 +142,11 @@ BrowserWidget::~BrowserWidget() {
    // Do this here and not in ~BrowserView() as BrowserWindowFeatures may attempt
    // to read state on the BrowserWidget as they undergo destruction, and
    // BrowserWidget state is destroyed at the end of this scope.
@@ -626,7 +679,28 @@ index 6a221594b09f0b8fa10e4b8bbca05a0e52e52a58..e1037567bb95ec02defe4c08890439a2
  }
  
  void BrowserWidget::InitBrowserWidget() {
-@@ -253,6 +270,8 @@ void BrowserWidget::GetWindowPlacement(
+@@ -217,6 +235,20 @@ void BrowserWidget::InitBrowserWidget() {
+     }
+   }
+ 
++#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
++  // Local CEF experiment: preserve per-pixel alpha without recreating PiP.
++  if (PictureInPictureWindowManager::IsTransparentDocumentPictureInPicture(
++          BrowserInitState::From(browser)->create_params().pip_options)) {
++    params.opacity = views::Widget::InitParams::WindowOpacity::kTranslucent;
++    params.shadow_type = views::Widget::InitParams::ShadowType::kNone;
++#if BUILDFLAG(IS_WIN)
++    // Keep TYPE_WINDOW so Chromium still creates the browser's frame view.
++    // Only the native HWND frame should be removed for alpha blending.
++    params.remove_standard_frame = true;
++#endif
++  }
++#endif
++
+   Init(std::move(params));
+ 
+   if (auto* const glass_frame_service = GlassFrameService::GetInstance()) {
+@@ -253,6 +285,8 @@ void BrowserWidget::GetWindowPlacement(
      ui::mojom::WindowShowState* show_state) const {
    if (browser_native_widget_) {
      browser_native_widget_->GetWindowPlacement(bounds, show_state);
@@ -635,7 +709,7 @@ index 6a221594b09f0b8fa10e4b8bbca05a0e52e52a58..e1037567bb95ec02defe4c08890439a2
    }
  }
  
-@@ -385,6 +404,9 @@ ui::ColorProviderKey::ThemeInitializerSupplier* BrowserWidget::GetCustomTheme()
+@@ -385,6 +419,9 @@ ui::ColorProviderKey::ThemeInitializerSupplier* BrowserWidget::GetCustomTheme()
  }
  
  void BrowserWidget::OnNativeWidgetWorkspaceChanged() {
@@ -645,7 +719,7 @@ index 6a221594b09f0b8fa10e4b8bbca05a0e52e52a58..e1037567bb95ec02defe4c08890439a2
    chrome::SaveWindowWorkspace(browser_view_->browser(), GetWorkspace());
    chrome::SaveWindowVisibleOnAllWorkspaces(browser_view_->browser(),
                                             IsVisibleOnAllWorkspaces());
-@@ -553,6 +575,13 @@ void BrowserWidget::SelectNativeTheme() {
+@@ -553,6 +590,13 @@ void BrowserWidget::SelectNativeTheme() {
      return;
    }
  
@@ -659,7 +733,7 @@ index 6a221594b09f0b8fa10e4b8bbca05a0e52e52a58..e1037567bb95ec02defe4c08890439a2
    // Ignore the system theme for web apps with window-controls-overlay as the
    // display_override so the web contents can blend with the overlay by using
    // the developer-provided theme color for a better experience. Context:
-@@ -567,17 +596,23 @@ void BrowserWidget::SelectNativeTheme() {
+@@ -567,17 +611,23 @@ void BrowserWidget::SelectNativeTheme() {
  }
  
  void BrowserWidget::OnTouchUiChanged() {
@@ -694,7 +768,7 @@ index 6a221594b09f0b8fa10e4b8bbca05a0e52e52a58..e1037567bb95ec02defe4c08890439a2
    }
    GetRootView()->InvalidateLayout();
  }
-@@ -616,6 +651,9 @@ bool BrowserWidget::RegenerateFrameOnThemeChange(
+@@ -616,6 +666,9 @@ bool BrowserWidget::RegenerateFrameOnThemeChange(
  }
  
  bool BrowserWidget::IsIncognitoBrowser() const {
@@ -759,6 +833,55 @@ index d384a2c99a1c1d8f160de20ea8518a6a4cc5ab71..39937dca7434763b3baa82600c7c9e73
    // Regenerate the frame on theme change if necessary. Returns true if
    // regenerated.
    bool RegenerateFrameOnThemeChange(BrowserThemeChangeType theme_change_type);
+diff --git chrome/browser/ui/views/frame/contents_web_view.cc chrome/browser/ui/views/frame/contents_web_view.cc
+index 8f29bb4291546ddec1643d46e52c21b8c3b31128..faf535670d121842456dc7cf3d8e8bf3b873ef13 100644
+--- chrome/browser/ui/views/frame/contents_web_view.cc
++++ chrome/browser/ui/views/frame/contents_web_view.cc
+@@ -6,7 +6,9 @@
+ 
+ #include "base/debug/dump_without_crashing.h"
+ #include "build/build_config.h"
++#include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
+ #include "chrome/browser/ui/color/chrome_color_id.h"
++#include "chrome/browser/ui/views/frame/browser_view.h"
+ #include "chrome/browser/ui/views/frame/safe_invoke/safe_invoke.h"
+ #include "chrome/browser/ui/views/frame/web_contents_close_handler.h"
+ #include "chrome/browser/ui/views/status_bubble_views.h"
+@@ -157,6 +159,14 @@ void ContentsWebView::SetWebContents(content::WebContents* web_contents) {
+ 
+   UpdateIsBlockedByModal();
+ 
++#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
++  if (GetWidget() &&
++      PictureInPictureWindowManager::IsTransparentDocumentPictureInPicture(
++          web_contents->GetPictureInPictureOptions())) {
++    UpdateBackgroundColor();
++  }
++#endif
++
+   if (!status_bubble_) {
+     status_bubble_ = std::make_unique<StatusBubbleViews>(this);
+     status_bubble_->Reposition();
+@@ -186,6 +196,19 @@ void ContentsWebView::DidGetUserInteraction(const blink::WebInputEvent& event) {
+ #endif
+ 
+ void ContentsWebView::UpdateBackgroundColor() {
++#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
++  auto* browser_view = GetWidget() ? BrowserView::GetBrowserViewForNativeWindow(
++                                         GetWidget()->GetNativeWindow())
++                                   : nullptr;
++  if (browser_view &&
++      PictureInPictureWindowManager::IsTransparentDocumentPictureInPicture(
++          browser_view->GetDocumentPictureInPictureOptions())) {
++    background_visible_ = false;
++    if (web_contents()) {
++      web_contents()->SetPageBaseBackgroundColor(SK_ColorTRANSPARENT);
++    }
++  }
++#endif
+   const SkColor color = GetColorProvider()->GetColor(
+       is_letterboxing() ? kColorWebContentsBackgroundLetterboxing
+                         : kColorWebContentsBackground);
 diff --git chrome/browser/ui/views/frame/layout/browser_view_layout.cc chrome/browser/ui/views/frame/layout/browser_view_layout.cc
 index 778997a0f1aec1982a2421bb18faf5918347af51..9f7f99605e186c11220b9f6d6787e1818b173379 100644
 --- chrome/browser/ui/views/frame/layout/browser_view_layout.cc

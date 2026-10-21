@@ -30,6 +30,7 @@
 #include "cef/libcef/common/command_line_impl.h"
 #include "chrome/browser/chrome_browser_main.h"
 #include "chrome/browser/net/system_network_context_manager.h"
+#include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -471,6 +472,10 @@ void ChromeContentBrowserClientCef::OverrideWebPreferences(
         CefContext::Get()->GetBackgroundColor(nullptr, STATE_DEFAULT);
   }
 
+  if (PictureInPictureWindowManager::IsTransparentDocumentPictureInPicture(
+          web_contents->GetPictureInPictureOptions())) {
+    base_background_color = SK_ColorTRANSPARENT;
+  }
   web_contents->SetPageBaseBackgroundColor(base_background_color);
 }
 

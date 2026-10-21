@@ -1,8 +1,32 @@
 diff --git chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
-index b02065efac3316f6493776df979752dd9d749a14..b7928ba95fe36b2e7b6cb3480f57af8d0066a643 100644
+index b02065efac3316f6493776df979752dd9d749a14..934967fac0c9ff7fce02c8b309dd9fbf308301e1 100644
 --- chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
 +++ chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
-@@ -446,7 +446,8 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
+@@ -140,12 +140,22 @@ PictureInPictureWindowManager* PictureInPictureWindowManager::GetInstance() {
+   return base::Singleton<PictureInPictureWindowManager>::get();
+ }
+ 
++bool PictureInPictureWindowManager::IsTransparentDocumentPictureInPicture(
++    const std::optional<blink::mojom::PictureInPictureWindowOptions>& options) {
++#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
++  return options && options->transparent;
++#else
++  return false;
++#endif
++}
++
+ void PictureInPictureWindowManager::EnterPictureInPictureWithController(
+     content::PictureInPictureWindowController* pip_window_controller) {
+   // If there was already a controller, close the existing window before
+   // creating the next one.
+-  if (pip_window_controller_)
++  if (pip_window_controller_) {
+     CloseWindowInternal();
++  }
+ 
+   pip_window_controller_ = pip_window_controller;
+ 
+@@ -446,7 +456,8 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
      // Ignore the result if we're asked to do so.  Note that we still have to
      // ask the cache, so that it's set up to accept position updates later for
      // this request.
@@ -12,7 +36,7 @@ index b02065efac3316f6493776df979752dd9d749a14..b7928ba95fe36b2e7b6cb3480f57af8d
        // Cache hit!  Just return it as the window bounds.
        return *cached_window_bounds;
      }
-@@ -500,6 +501,11 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
+@@ -500,6 +511,11 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
    }
  #endif
    // Position the window.
@@ -24,21 +48,39 @@ index b02065efac3316f6493776df979752dd9d749a14..b7928ba95fe36b2e7b6cb3480f57af8d
    int window_diff_width = work_area.right() - window_bounds.width();
    int window_diff_height = work_area.bottom() - window_bounds.height();
  
+diff --git chrome/browser/picture_in_picture/picture_in_picture_window_manager.h chrome/browser/picture_in_picture/picture_in_picture_window_manager.h
+index 063a8f738309cbfac2b2b2e42a22170922a316fa..f9d063d64a6feeee918d5b12a0ac6f0f4f8adb33 100644
+--- chrome/browser/picture_in_picture/picture_in_picture_window_manager.h
++++ chrome/browser/picture_in_picture/picture_in_picture_window_manager.h
+@@ -66,6 +66,12 @@ class PictureInPictureWindowManager {
+   // Returns the singleton instance.
+   static PictureInPictureWindowManager* GetInstance();
+ 
++  // Whether creation options enable the experimental macOS/Windows alpha surface.
++  // This capability does not change when the page changes its CSS background.
++  static bool IsTransparentDocumentPictureInPicture(
++      const std::optional<blink::mojom::PictureInPictureWindowOptions>&
++          options);
++
+   PictureInPictureWindowManager(const PictureInPictureWindowManager&) = delete;
+   PictureInPictureWindowManager& operator=(
+       const PictureInPictureWindowManager&) = delete;
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 8d7c579bafe1b0a9dfd9a7496246228c8bbf8730..2a32db9838922d4678259fe2070e573dadfaf71b 100644
+index 8d7c579bafe1b0a9dfd9a7496246228c8bbf8730..82868d50df0d6aaae2ef79b7ea9c37d34559fcb8 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -7134,6 +7134,8 @@ WebView* RenderFrameImpl::CreateNewWindow(
+@@ -7134,6 +7134,9 @@ WebView* RenderFrameImpl::CreateNewWindow(
          pip_options->disallow_return_to_opener;
      pip_mojom_opts->prefer_initial_window_placement =
          pip_options->prefer_initial_window_placement;
 +    pip_mojom_opts->initial_position = pip_options->initial_position;
 +    pip_mojom_opts->resizable = pip_options->resizable;
++    pip_mojom_opts->transparent = pip_options->transparent;
      params->pip_options = std::move(pip_mojom_opts);
    }
  
 diff --git third_party/blink/public/mojom/picture_in_picture_window_options/picture_in_picture_window_options.mojom third_party/blink/public/mojom/picture_in_picture_window_options/picture_in_picture_window_options.mojom
-index 0a10dd95413ad7fc333eec91c866d73339dd8c11..72495326c304f46d91de3e7f911a2e2a2467e8e1 100644
+index 0a10dd95413ad7fc333eec91c866d73339dd8c11..d1567ca02fe5583176669409f4c78b3684a0e29d 100644
 --- third_party/blink/public/mojom/picture_in_picture_window_options/picture_in_picture_window_options.mojom
 +++ third_party/blink/public/mojom/picture_in_picture_window_options/picture_in_picture_window_options.mojom
 @@ -4,6 +4,8 @@
@@ -50,7 +92,7 @@ index 0a10dd95413ad7fc333eec91c866d73339dd8c11..72495326c304f46d91de3e7f911a2e2a
  struct PictureInPictureWindowOptions {
    // The requested width for the picture-in-picture window to be initially sized
    // to.
-@@ -21,4 +23,8 @@ struct PictureInPictureWindowOptions {
+@@ -21,4 +23,9 @@ struct PictureInPictureWindowOptions {
    // When true, don't try to re-use the previous window bounds from the
    // bounds cache.  Instead, just use the default position and size.
    bool prefer_initial_window_placement;
@@ -58,9 +100,10 @@ index 0a10dd95413ad7fc333eec91c866d73339dd8c11..72495326c304f46d91de3e7f911a2e2a
 +  // CEF extension
 +  gfx.mojom.Point? initial_position;
 +  bool resizable = true;
++  bool transparent = false;
  };
 diff --git third_party/blink/public/web/web_picture_in_picture_window_options.h third_party/blink/public/web/web_picture_in_picture_window_options.h
-index f3a5b90b3bb119558da1d9c56a73675c9f32cefd..53c5c690bcf2b6af49d44945e93df58bf3b9f5b4 100644
+index f3a5b90b3bb119558da1d9c56a73675c9f32cefd..c573bb21ee01a211351ef7f7760aceeb2df1c1e6 100644
 --- third_party/blink/public/web/web_picture_in_picture_window_options.h
 +++ third_party/blink/public/web/web_picture_in_picture_window_options.h
 @@ -6,6 +6,9 @@
@@ -73,13 +116,14 @@ index f3a5b90b3bb119558da1d9c56a73675c9f32cefd..53c5c690bcf2b6af49d44945e93df58b
  
  namespace blink {
  
-@@ -14,6 +17,9 @@ struct WebPictureInPictureWindowOptions {
+@@ -14,6 +17,10 @@ struct WebPictureInPictureWindowOptions {
    uint64_t height = 0;
    bool disallow_return_to_opener = false;
    bool prefer_initial_window_placement = false;
 +  // CEF extension
 +  std::optional<gfx::Point> initial_position;
 +  bool resizable = true;
++  bool transparent = false;
  };
  
  }  // namespace blink
@@ -251,10 +295,10 @@ index ee2c080f61b630a0b80efbe54b0ede3df7c4d657..759d768cebb15b0e202a465a776812e6
    net::StorageAccessApiStatus storage_access_api_status_ =
        net::StorageAccessApiStatus::kNone;
 diff --git third_party/blink/renderer/modules/document_picture_in_picture/document_picture_in_picture_options.idl third_party/blink/renderer/modules/document_picture_in_picture/document_picture_in_picture_options.idl
-index de4f0294a2f7ea20517c71cad3d17fb0f1975211..8fa3befaf1d90d20ffe819ed09667511be1b8cf9 100644
+index de4f0294a2f7ea20517c71cad3d17fb0f1975211..4fc8dd75a59ed3120b1392472b771a87f8a83e8f 100644
 --- third_party/blink/renderer/modules/document_picture_in_picture/document_picture_in_picture_options.idl
 +++ third_party/blink/renderer/modules/document_picture_in_picture/document_picture_in_picture_options.idl
-@@ -4,9 +4,20 @@
+@@ -4,9 +4,22 @@
  
  // https://wicg.github.io/document-picture-in-picture/#dictdef-documentpictureinpictureoptions
  
@@ -266,6 +310,8 @@ index de4f0294a2f7ea20517c71cad3d17fb0f1975211..8fa3befaf1d90d20ffe819ed09667511
 +dictionary DocumentPictureInPictureCefOptions {
 +  DocumentPictureInPicturePosition position;
 +  boolean resizable = true;
++  // Creation-time macOS/Windows transparency; page backgrounds remain CSS-controlled.
++  boolean transparent = false;
 +};
 +
  dictionary DocumentPictureInPictureOptions {
@@ -276,7 +322,7 @@ index de4f0294a2f7ea20517c71cad3d17fb0f1975211..8fa3befaf1d90d20ffe819ed09667511
 +  [RuntimeEnabled=DocumentPictureInPictureCefOptions] DocumentPictureInPictureCefOptions cefOptions;
  };
 diff --git third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
-index 235575b37bc33ed8eec3b7870ae21e92eeb5bdd8..b980804449a2a2198c0aaa4c49b1d02d0fd6df35 100644
+index 235575b37bc33ed8eec3b7870ae21e92eeb5bdd8..c6a600dbf9287ed9107868eadb15e4c325610943 100644
 --- third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
 +++ third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
 @@ -15,16 +15,20 @@
@@ -322,7 +368,7 @@ index 235575b37bc33ed8eec3b7870ae21e92eeb5bdd8..b980804449a2a2198c0aaa4c49b1d02d
      resolver->RejectWithDOMException(DOMExceptionCode::kNotAllowedError,
                                       "Document PiP requires user activation");
      return;
-@@ -442,6 +452,17 @@ void PictureInPictureControllerImpl::CreateDocumentPictureInPictureWindow(
+@@ -442,6 +452,20 @@ void PictureInPictureControllerImpl::CreateDocumentPictureInPictureWindow(
    web_options.prefer_initial_window_placement =
        options->preferInitialWindowPlacement();
  
@@ -334,6 +380,9 @@ index 235575b37bc33ed8eec3b7870ae21e92eeb5bdd8..b980804449a2a2198c0aaa4c49b1d02d
 +    }
 +    if (cef_options->hasResizable()) {
 +      web_options.resizable = cef_options->resizable();
++    }
++    if (cef_options->hasTransparent()) {
++      web_options.transparent = cef_options->transparent();
 +    }
 +  }
 +
