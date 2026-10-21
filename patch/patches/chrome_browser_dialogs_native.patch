@@ -1,5 +1,5 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index 227ace408690fc9586b39692234902336a22cd1a..1087d42e8c07b610e8ea4a47b280a657ca8baeaf 100644
+index 227ace408690fc9586b39692234902336a22cd1a..5c502df2a23f72d51bfca690c2741bf323350482 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
 @@ -264,6 +264,12 @@ void FileSelectHelper::OnListDone(int error) {
@@ -71,7 +71,7 @@ index 227ace408690fc9586b39692234902336a22cd1a..1087d42e8c07b610e8ea4a47b280a657
      if (extensions->size() > old_extension_size)
        valid_type_count++;
    }
-@@ -566,13 +592,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -566,13 +592,29 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    //    "ehtml,shtml,htm,html" for "text/html". On Windows, the select file
    //    dialog uses the first extension in the list to form the description,
    //    like "EHTML Files". This is not what we want.
@@ -93,19 +93,20 @@ index 227ace408690fc9586b39692234902336a22cd1a..1087d42e8c07b610e8ea4a47b280a657
 -    file_type->extension_description_overrides.push_back(
 -        l10n_util::GetStringUTF16(description_id));
 +  if (all_extensions.size() > 1) {
-+    // Insert filters for the specific accept types at the beginning.
-+    file_type->extensions.insert(file_type->extensions.begin(),
++    // Add filters for the specific accept types after the combined filter so
++    // that the combined filter is selected by default.
++    file_type->extensions.insert(file_type->extensions.end(),
 +                                 all_extensions.begin(), all_extensions.end());
 +    file_type->extension_description_overrides.insert(
-+        file_type->extension_description_overrides.begin(),
-+        all_overrides.begin(), all_overrides.end());
-+    file_type->extension_mimetypes.insert(
-+        file_type->extension_mimetypes.begin(), all_mimetypes.begin(),
-+        all_mimetypes.end());
++        file_type->extension_description_overrides.end(), all_overrides.begin(),
++        all_overrides.end());
++    file_type->extension_mimetypes.insert(file_type->extension_mimetypes.end(),
++                                          all_mimetypes.begin(),
++                                          all_mimetypes.end());
    }
  
    return file_type;
-@@ -582,7 +623,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -582,7 +624,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
  void FileSelectHelper::RunFileChooser(
      content::RenderFrameHost* render_frame_host,
      scoped_refptr<content::FileSelectListener> listener,
@@ -115,7 +116,7 @@ index 227ace408690fc9586b39692234902336a22cd1a..1087d42e8c07b610e8ea4a47b280a657
    Profile* profile = Profile::FromBrowserContext(
        render_frame_host->GetProcess()->GetBrowserContext());
  
-@@ -590,6 +632,7 @@ void FileSelectHelper::RunFileChooser(
+@@ -590,6 +633,7 @@ void FileSelectHelper::RunFileChooser(
    // message.
    scoped_refptr<FileSelectHelper> file_select_helper(
        new FileSelectHelper(profile));
@@ -123,7 +124,7 @@ index 227ace408690fc9586b39692234902336a22cd1a..1087d42e8c07b610e8ea4a47b280a657
    file_select_helper->RunFileChooser(render_frame_host, std::move(listener),
                                       params.Clone());
  }
-@@ -728,8 +771,11 @@ void FileSelectHelper::RunFileChooserOnUIThread(
+@@ -728,8 +772,11 @@ void FileSelectHelper::RunFileChooserOnUIThread(
        NOTREACHED();
    }
  
