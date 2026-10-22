@@ -61,10 +61,10 @@ index 1d658e04f1ba3743330672d785f1998c84cd6c87..b1cdfae8fe05e2399735787183b5f20b
      case ui::mojom::WindowShowState::kMaximized:
        return kSerializedShowStateMaximized;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index 3c8f08f0424fa244bbae1f0dadf6a7fc86aa25db..c523bcbdea32295d781cf164c6f62a508d841843 100644
+index 0e173defd6266a884ce6704b8f1bdfbd3c1183bd..8e538f62aae56f23efd87c04eb02c28e3b96a3e1 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
-@@ -706,6 +706,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
+@@ -707,6 +707,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
    return scale_override_for_capture_;
  }
  
@@ -80,7 +80,7 @@ index 3c8f08f0424fa244bbae1f0dadf6a7fc86aa25db..c523bcbdea32295d781cf164c6f62a50
    if (!GetMouseWheelPhaseHandler())
      return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 2ee39b7cdf55f94c8d3c061eba9ca7286543d3a3..61e054579b75ac4bf6dc6f1a7cbd919dec11b3cd 100644
+index 108a13c7893ce6bb0cf46bb0aefeef451a351ca3..83d398c0740d9ebc91dd53eaa3f1b5a4e1d1221d 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -90,6 +90,7 @@ namespace content {
@@ -125,7 +125,7 @@ index 2ee39b7cdf55f94c8d3c061eba9ca7286543d3a3..61e054579b75ac4bf6dc6f1a7cbd919d
    // Indicates whether the page has finished loading.
    virtual void SetIsLoading(bool is_loading) = 0;
  
-@@ -743,6 +757,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -746,6 +760,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // to all displays.
    gfx::Size system_cursor_size_;
  
@@ -136,7 +136,7 @@ index 2ee39b7cdf55f94c8d3c061eba9ca7286543d3a3..61e054579b75ac4bf6dc6f1a7cbd919d
   private:
    FRIEND_TEST_ALL_PREFIXES(
        BrowserSideFlingBrowserTest,
-@@ -764,10 +782,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -767,10 +785,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
  
    void SynchronizeVisualProperties();
  

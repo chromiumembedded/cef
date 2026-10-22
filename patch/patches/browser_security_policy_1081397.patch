@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 2d9befa5eb11c3d9cba54005486761ec2e3eeff3..4c700d497478eabd7ddae203bd3d5368fedc0c91 100644
+index 6baf465bd2106a85fbc045e2489746e69efc2d5f..24ec311d669db0af5e5b2a9c5ec624962acb8aa7 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
 @@ -397,8 +397,13 @@ void AddAdditionalRequestHeaders(
@@ -18,7 +18,7 @@ index 2d9befa5eb11c3d9cba54005486761ec2e3eeff3..4c700d497478eabd7ddae203bd3d5368
  
    bool is_reload = NavigationTypeUtils::IsReload(navigation_type);
    bool is_history = NavigationTypeUtils::IsHistory(navigation_type);
-@@ -9943,7 +9948,8 @@ std::optional<url::Origin> NavigationRequest::GetOriginToCommit() {
+@@ -9950,7 +9955,8 @@ std::optional<url::Origin> NavigationRequest::GetOriginToCommit() {
  }
  
  url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
@@ -28,7 +28,7 @@ index 2d9befa5eb11c3d9cba54005486761ec2e3eeff3..4c700d497478eabd7ddae203bd3d5368
    // Calculate an approximation of the origin. The sandbox/csp are ignored.
    url::Origin origin = GetOriginForURLLoaderFactoryUnchecked();
  
-@@ -9960,6 +9966,19 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
+@@ -9967,6 +9973,19 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
    bool use_opaque_origin =
        (sandbox_flags & network::mojom::WebSandboxFlags::kOrigin) ==
        network::mojom::WebSandboxFlags::kOrigin;
@@ -48,7 +48,7 @@ index 2d9befa5eb11c3d9cba54005486761ec2e3eeff3..4c700d497478eabd7ddae203bd3d5368
    if (use_opaque_origin) {
      origin = origin.DeriveNewOpaqueOrigin();
    }
-@@ -10020,8 +10039,9 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
+@@ -10027,8 +10046,9 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
      return GetRenderFrameHost()->GetLastCommittedOrigin();
    }
  
@@ -60,7 +60,7 @@ index 2d9befa5eb11c3d9cba54005486761ec2e3eeff3..4c700d497478eabd7ddae203bd3d5368
  
    SCOPED_CRASH_KEY_BOOL("Bug1454273", "is_in_main_frame", IsInMainFrame());
    SCOPED_CRASH_KEY_STRING256(
-@@ -10056,10 +10076,17 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
+@@ -10063,10 +10083,17 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
        DetermineInitiatorRelationship(initiator_rfh,
                                       frame_tree_node_->current_frame_host()));
  
