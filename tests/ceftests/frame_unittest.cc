@@ -2484,6 +2484,126 @@ TEST(FrameTest, SrcdocNestedDataOriginSandbox) {
   RunSrcdocOriginTest(SrcdocParent::kNestedData, true);
 }
 
+namespace {
+
+constexpr char kHiddenBFCacheUrl1[] =
+    "https://tests-hidden-bfcache-1/index.html";
+constexpr char kHiddenBFCacheUrl2[] =
+    "https://tests-hidden-bfcache-2/index.html";
+
+class HiddenBFCacheTestHandler : public RoutingTestHandler,
+                                 public CefFrameHandler {
+ public:
+  void RunTest() override {
+    SetUseViews(true);
+    AddResource(kHiddenBFCacheUrl1, "<title>First</title>", "text/html");
+    AddResource(kHiddenBFCacheUrl2, "<title>Second</title>", "text/html");
+    CreateBrowser(kHiddenBFCacheUrl1);
+    SetTestTimeout();
+  }
+
+  CefRefPtr<CefFrameHandler> GetFrameHandler() override { return this; }
+
+  void OnFrameAttached(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefFrame> frame,
+                       bool reattached) override {
+    if (reattached && frame->IsMain() &&
+        frame->GetURL() == kHiddenBFCacheUrl1) {
+      got_reattached_ = true;
+    }
+  }
+
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool isLoading,
+                            bool canGoBack,
+                            bool canGoForward) override {
+    if (isLoading) {
+      return;
+    }
+    const auto frame = browser->GetMainFrame();
+    const auto url = frame->GetURL();
+    if (step_ == 0 && url == kHiddenBFCacheUrl1) {
+      step_ = 1;
+      CefPostTask(TID_UI, base::BindOnce(
+                              [](CefRefPtr<CefFrame> frame) {
+                                frame->LoadURL(kHiddenBFCacheUrl2);
+                              },
+                              frame));
+    } else if (step_ == 1 && url == kHiddenBFCacheUrl2) {
+      step_ = 2;
+      auto window = CefBrowserView::GetForBrowser(browser)->GetWindow();
+      window->Hide();
+      EXPECT_FALSE(window->IsVisible());
+      CefPostTask(TID_UI, base::BindOnce(&CefBrowser::GoBack, browser));
+    } else if (step_ == 2 && url == kHiddenBFCacheUrl1) {
+      step_ = 3;
+      // Both this browser-to-renderer command and the reply must work while
+      // the restored page remains hidden, without waiting for WasShown().
+      frame->ExecuteJavaScript(
+          "document.title='Restored';window.testQuery({request:'restored'});",
+          kHiddenBFCacheUrl1, 0);
+    }
+  }
+
+  void OnTitleChange(CefRefPtr<CefBrowser> browser,
+                     const CefString& title) override {
+    if (title == "Restored") {
+      got_title_ = true;
+      MaybeDone(browser);
+    }
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    EXPECT_TRUE(frame->IsMain());
+    EXPECT_EQ(kHiddenBFCacheUrl1, frame->GetURL().ToString());
+    EXPECT_EQ("restored", request.ToString());
+    got_query_ = true;
+    callback->Success("");
+    MaybeDone(browser);
+    return true;
+  }
+
+  void DestroyTest() override {
+    EXPECT_EQ(3, step_);
+    EXPECT_TRUE(got_reattached_);
+    EXPECT_TRUE(got_title_);
+    EXPECT_TRUE(got_query_);
+    RoutingTestHandler::DestroyTest();
+  }
+
+ private:
+  void MaybeDone(CefRefPtr<CefBrowser> browser) {
+    EXPECT_FALSE(
+        CefBrowserView::GetForBrowser(browser)->GetWindow()->IsVisible());
+    if (got_title_ && got_query_) {
+      DestroyTest();
+    }
+  }
+
+  int step_ = 0;
+  bool got_reattached_ = false;
+  bool got_title_ = false;
+  bool got_query_ = false;
+
+  IMPLEMENT_REFCOUNTING(HiddenBFCacheTestHandler);
+};
+
+}  // namespace
+
+TEST(FrameTest, BackForwardCacheHidden) {
+  if (!IsBFCacheEnabled()) {
+    GTEST_SKIP() << "BackForwardCache is disabled";
+  }
+  CefRefPtr<HiddenBFCacheTestHandler> handler = new HiddenBFCacheTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
 // Entry point for creating frame renderer test objects.
 // Called from client_app_delegates.cc.
 void CreateFrameRendererTests(ClientAppRenderer::DelegateSet& delegates) {

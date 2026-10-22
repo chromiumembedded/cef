@@ -20,6 +20,8 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
 
   // RenderFrameObserver methods:
   void WasShown() override;
+  void DidSetPageLifecycleState(
+      blink::BFCacheStateChange bfcache_change) override;
   void DidCommitProvisionalLoad(ui::PageTransition transition) override;
   void DidFailProvisionalLoad() override;
   void DidFinishLoad() override;

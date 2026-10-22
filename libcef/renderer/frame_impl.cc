@@ -316,12 +316,12 @@ void CefFrameImpl::SendProcessMessage(CefProcessId target_process,
   }
 }
 
-void CefFrameImpl::OnWasShown() {
+void CefFrameImpl::MaybeReconnect() {
   if (browser_connection_state_ == ConnectionState::DISCONNECTED &&
       did_commit_provisional_load_) {
     // Reconnect a frame that has exited the bfcache. We ignore temporary
     // frames that have never called DidCommitProvisionalLoad.
-    ConnectBrowserFrame(ConnectReason::WAS_SHOWN);
+    ConnectBrowserFrame(ConnectReason::BFCACHE_RESTORE);
   }
 }
 
@@ -478,8 +478,8 @@ void CefFrameImpl::ConnectBrowserFrame(ConnectReason reason) {
       case ConnectReason::DID_COMMIT:
         reason_str = "DID_COMMIT";
         break;
-      case ConnectReason::WAS_SHOWN:
-        reason_str = "WAS_SHOWN";
+      case ConnectReason::BFCACHE_RESTORE:
+        reason_str = "BFCACHE_RESTORE";
         break;
       case ConnectReason::RETRY:
         reason_str = base::StringPrintf(
@@ -494,7 +494,7 @@ void CefFrameImpl::ConnectBrowserFrame(ConnectReason reason) {
 
   // Don't attempt to connect an invalid or bfcache'd frame. If a bfcache'd
   // frame returns to active status a reconnect will be triggered via
-  // OnWasShown().
+  // MaybeReconnect().
   if (!frame_ || attach_denied_ || blink_glue::IsInBackForwardCache(frame_)) {
     browser_connection_state_ = ConnectionState::DISCONNECTED;
     DVLOG(1) << __func__ << ": " << frame_debug_str_
@@ -513,7 +513,7 @@ void CefFrameImpl::ConnectBrowserFrame(ConnectReason reason) {
   // True if this connection is a retry or if the frame just exited the
   // BackForwardCache.
   const bool reattached =
-      browser_connect_retry_ct_ > 0 || reason == ConnectReason::WAS_SHOWN;
+      browser_connect_retry_ct_ > 0 || reason == ConnectReason::BFCACHE_RESTORE;
 
   // If the channel is working we should get a call to FrameAttachedAck().
   // Otherwise, OnDisconnect() should be called to retry the

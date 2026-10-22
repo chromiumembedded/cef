@@ -81,7 +81,7 @@ class CefFrameImpl
                           CefRefPtr<CefProcessMessage> message) override;
 
   // Forwarded from CefRenderFrameObserver.
-  void OnWasShown();
+  void MaybeReconnect();
   void OnDidCommitProvisionalLoad();
   void OnDidFinishLoad();
   void OnContextCreated(v8::Local<v8::Context> context);
@@ -105,7 +105,7 @@ class CefFrameImpl
 
   enum class ConnectReason {
     DID_COMMIT,
-    WAS_SHOWN,
+    BFCACHE_RESTORE,
     RETRY,
   };
 
