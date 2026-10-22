@@ -97,7 +97,7 @@ index aa43742055b04c70bcb60bd21f61897b3c6b79a6..e84f21ab963ccf6e54afcb659f5ceccd
    // it will get the locale that should be used potentially from other sources,
    // depending on the platform (e.g. the OS locale on Mac).
 diff --git ui/base/l10n/l10n_util.cc ui/base/l10n/l10n_util.cc
-index 10598ec0b5813fd08e5c9046cdc4154bb6e9e875..3a54b37b6340157fc846167dfdf88a72720a3998 100644
+index 49b8a67af83eadeef69711f49f8d48e4cb822425..27741e88258ab7a16c0e7b18b81b065a987f3932 100644
 --- ui/base/l10n/l10n_util.cc
 +++ ui/base/l10n/l10n_util.cc
 @@ -131,7 +131,6 @@ std::u16string GetDisplayNameForLocaleInternal(
@@ -151,7 +151,7 @@ index 10598ec0b5813fd08e5c9046cdc4154bb6e9e875..3a54b37b6340157fc846167dfdf88a72
    // The `preferred_tag` is separated from the other candidates.
    std::optional<LanguageTag> preferred_tag = GetPreferredTag(pref_locale);
    // If `preferred_tag`, it attempts to get a match for it, even if it is not
-@@ -268,15 +245,6 @@ std::string GetApplicationLocaleInternalNonMac(std::string_view pref_locale) {
+@@ -259,15 +236,6 @@ std::string GetApplicationLocaleInternalNonMac(std::string_view pref_locale) {
    // Fallback to "en-US"
    return IsResourceBundleLocale(GetKnownLanguageTag("en-US")) ? "en-US" : "";
  }

@@ -34,7 +34,7 @@ index e875b597230e0626c036797971fd06b3b6dc8061..567580698f9ce55f094ff1967ef6df14
  #endif
  
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index 8599fed2dfbbc43a1f222c45143133020bf7e337..5a4fcd344a8488584419583a2a5a3673267fb0d7 100644
+index 2a631eb9fc793cbe52e820e86d6434a73caa6fae..bd5ca463750334a5359289cb3206df31e0976941 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
 @@ -2661,31 +2661,31 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {

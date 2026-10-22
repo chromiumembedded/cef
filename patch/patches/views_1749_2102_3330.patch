@@ -271,7 +271,7 @@ index b1ccc704de42f1acb2ad3cdcf8102f44a5fcc547..1d0dc681104c339a48da896b580b94b3
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 2c6b09e05901a08965dc692c3b823c2efa256512..7cc28d273d0610585b482e4d11512a2d7aeaa9b0 100644
+index 4f2d6c0dcece57ba983f932bb81a3816a9e3a102..2f15f3a23007071f872625d2363d6cec6e2631aa 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -698,7 +698,8 @@ void MenuController::Run(Widget* parent,
@@ -292,7 +292,7 @@ index 2c6b09e05901a08965dc692c3b823c2efa256512..7cc28d273d0610585b482e4d11512a2d
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2767,6 +2769,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2770,6 +2772,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -300,7 +300,7 @@ index 2c6b09e05901a08965dc692c3b823c2efa256512..7cc28d273d0610585b482e4d11512a2d
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3529,7 +3532,12 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -3532,7 +3535,12 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
        item = button_submenu;
      }
    }
@@ -314,7 +314,7 @@ index 2c6b09e05901a08965dc692c3b823c2efa256512..7cc28d273d0610585b482e4d11512a2d
      return;
    }
  
-@@ -3560,6 +3568,7 @@ void MenuController::CloseSubmenu() {
+@@ -3563,6 +3571,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
@@ -421,10 +421,10 @@ index 1b0dd04e1d2693c8b35e5e57306a27b09b72daab..5e1fdfb5ea832f2d67c6a2a0168adbe5
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 89ffaf3d3776d270795360f37c5869ae94587242..e84158a222e7ad7e7d55d9171aa015af2ee4d49f 100644
+index 6b4595a80ef88fd97129335deb2828fc8b709bc0..29ff21c0f17db3ac9e4ee160fc3b7c96eae3e7d7 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1357,6 +1357,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1361,6 +1361,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      SkRRect rounded_rect;
      rounded_rect.setRectRadii(gfx::RectFToSkRect(highlight_bounds), radii);
      canvas->sk_canvas()->drawRRect(rounded_rect, flags);
@@ -440,7 +440,7 @@ index 89ffaf3d3776d270795360f37c5869ae94587242..e84158a222e7ad7e7d55d9171aa015af
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (menu_item_background_.has_value()) {
-@@ -1450,6 +1459,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1454,6 +1463,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
