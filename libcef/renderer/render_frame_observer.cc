@@ -26,6 +26,7 @@
 #include "third_party/blink/public/web/web_document.h"
 #include "third_party/blink/public/web/web_element.h"
 #include "third_party/blink/public/web/web_local_frame.h"
+#include "third_party/blink/public/web/web_local_frame_client.h"
 #include "third_party/blink/public/web/web_node.h"
 
 CefRenderFrameObserver::CefRenderFrameObserver(
@@ -53,7 +54,16 @@ void CefRenderFrameObserver::DidCommitProvisionalLoad(
 
 void CefRenderFrameObserver::WasShown() {
   if (frame_) {
-    frame_->OnWasShown();
+    frame_->MaybeReconnect();
+  }
+}
+
+void CefRenderFrameObserver::DidSetPageLifecycleState(
+    blink::BFCacheStateChange bfcache_change) {
+  if (frame_ &&
+      bfcache_change == blink::BFCacheStateChange::kRestoredFromBFCache) {
+    // Hidden/occluded pages can be restored without receiving WasShown().
+    frame_->MaybeReconnect();
   }
 }
 
