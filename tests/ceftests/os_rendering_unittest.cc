@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <map>
+#include <string>
 #include <vector>
 
 #include "include/base/cef_callback.h"
@@ -2080,10 +2082,10 @@ class ExternalBeginFrameTimingTestHandler : public RoutingTestHandler,
     const auto now = Clock::now();
     const auto wall_ms = WallMilliseconds();
     ASSERT_TRUE(accelerated_);
-    uint32_t marker = 0;
-    uint32_t pixel = 0;
-    ASSERT_TRUE(pixel_reader_->Read(info, &marker, &pixel));
-    RecordFrame(now, wall_ms, marker, pixel);
+    std::vector<uint32_t> pixels;
+    ASSERT_TRUE(pixel_reader_->Read(info, &pixels));
+    RecordFrame(now, wall_ms, pixels[0],
+                pixels[info.extra.visible_rect.width / 2]);
   }
 
   void DestroyTest() override {
@@ -2245,6 +2247,589 @@ class ExternalBeginFrameTimingTestHandler : public RoutingTestHandler,
   IMPLEMENT_REFCOUNTING(ExternalBeginFrameTimingTestHandler);
 };
 
+// Frame delivery for media, measured from the textures CEF delivers. The page
+// plays a clip whose frames carry their own index as 16 black/white blocks
+// and writes its rAF counter into a solid block above it. OnAcceleratedPaint
+// decodes both values, and the page log of rAF and video frame callbacks is
+// joined with the paints by that counter.
+struct ExternalBeginFrameVideoStats {
+  // BeginFrames sent and textures decoded during the measured window.
+  int ticks = 0;
+  int paints = 0;
+  // Distinct advancing page counters delivered in the measured window.
+  // Callback count alone can hide missing updates behind duplicate paints.
+  int fresh_paints = 0;
+  int out_of_order_paints = 0;
+  // How far the clip frame and the page counter advanced from one decoded
+  // texture to the next, as {advance: count}.
+  std::map<int, int> clip_steps;
+  std::map<int, int> page_steps;
+  // Clip frames skipped beyond what the rate ratio requires: each advance
+  // larger than ceil(clip_fps / frame_rate) adds the excess.
+  int skipped_frames = 0;
+  // Intervals between paint callbacks, rounded to whole milliseconds, as
+  // {milliseconds: count}.
+  std::map<int, int> delivery_intervals;
+  // Largest deviation of the interval between paint callbacks from the
+  // BeginFrame interval.
+  double max_delivery_jitter_ms = 0;
+  // Largest delay of a tick past its scheduled time, i.e. of the BeginFrame
+  // request itself.
+  double max_tick_lateness_ms = 0;
+  // Page log: rAF ticks, video frame callbacks, and the median of
+  // expectedDisplayTime - now reported to the callbacks.
+  int raf_ticks = 0;
+  int frame_callbacks = 0;
+  double callback_display_delay_ms = 0;
+  // Paints joined with the page log by page counter.
+  int joined_paints = 0;
+  // Joined paints that carry no new clip frame, and those of them in which no
+  // video frame callback ran.
+  int repeated_paints = 0;
+  int repeated_paints_without_callback = 0;
+  // Joined paints that carry a new clip frame without a video frame callback.
+  int new_frames_without_callback = 0;
+  // Callbacks whose mediaTime is not the clip frame in the texture they were
+  // drawn into.
+  int callbacks_checked = 0;
+  int media_time_mismatches = 0;
+};
+
+// Content-progression bounds for these workloads, rather than API timing
+// guarantees. Selected from repeated Windows runs and checked on macOS. Paints
+// with an advance other than floor or ceil of the rate ratio: at 50 Hz none
+// were measured; at 25 Hz up to 28%, against 95% without the fix.
+constexpr int kVisibleVideoUnevenPercentAt50Hz = 2;
+constexpr int kVisibleVideoUnevenPercentAt25Hz = 40;
+constexpr int kVisibleVideoRepeatedPercent = 1;
+// Repeated clip frames with rVFC at the matched rate: up to 9.4% measured,
+// against 25% or more without the fix.
+constexpr int kFrameCallbackRepeatedPercent = 15;
+constexpr int kFrameCallbackMismatchPercent = 1;
+// Paints missing from the measured window. A renderer or GPU stall of
+// 140-200 ms while the ticks stay on time dropped up to 8 of 300 paints, with
+// or without the fix; a 200 ms stall at 50 Hz is 10 paints.
+constexpr int kMissingFreshPaintsPercent = 4;
+
+// JSON numbers without a fraction parse as integers.
+double GetNumber(CefRefPtr<CefListValue> list, size_t index) {
+  return list->GetType(index) == VTYPE_INT ? list->GetInt(index)
+                                           : list->GetDouble(index);
+}
+
+std::string FormatSteps(const std::map<int, int>& steps) {
+  std::string result = "{";
+  for (const auto& [step, count] : steps) {
+    if (result.size() > 1) {
+      result += ", ";
+    }
+    result += std::to_string(step) + ": " + std::to_string(count);
+  }
+  return result + "}";
+}
+
+class ExternalBeginFrameVideoTestHandler : public RoutingTestHandler,
+                                           public CefRenderHandler {
+ public:
+  enum class Mode {
+    // The clip is a visible <video> element.
+    kVideo,
+    // The <video> element is hidden, and each clip frame is drawn into a
+    // canvas from requestVideoFrameCallback.
+    kFrameCallback,
+  };
+
+  ExternalBeginFrameVideoTestHandler(Mode mode, int clip_fps, int frame_rate)
+      : mode_(mode), clip_fps_(clip_fps), frame_rate_(frame_rate) {}
+
+  const ExternalBeginFrameVideoStats& stats() const { return stats_; }
+  bool readback_unavailable() const { return readback_unavailable_; }
+  bool shared_texture_unavailable() const {
+    return shared_texture_unavailable_;
+  }
+  bool completed() const { return completed_; }
+
+  void RunTest() override {
+    SetTestTimeout(20000);
+    pixel_reader_ = osr_unittests::CreateSharedTexturePixelReader();
+    if (!pixel_reader_->Initialize()) {
+      readback_unavailable_ = true;
+      DestroyTest();
+      return;
+    }
+    const std::string url =
+        std::string(kUrl) + "?fps=" + std::to_string(clip_fps_) +
+        (mode_ == Mode::kVideo ? "&mode=video" : "&mode=rvfc");
+    AddResource(url, kPage, "text/html");
+    const std::string clip =
+        "frame_id_" + std::to_string(clip_fps_) + "fps.webm";
+    std::string clip_data;
+    if (!client::LoadBinaryResource(clip.c_str(), clip_data)) {
+      ADD_FAILURE() << "Failed to load " << clip;
+      DestroyTest();
+      return;
+    }
+    AddResource("https://tests/" + clip, clip_data, "video/webm");
+    CefWindowInfo window_info;
+    window_info.SetAsWindowless(kNullWindowHandle);
+    window_info.external_begin_frame_enabled = true;
+    window_info.shared_texture_enabled = true;
+    CefBrowserSettings settings;
+    settings.windowless_frame_rate = frame_rate_;
+    CefBrowserHost::CreateBrowser(window_info, this, url, settings, nullptr,
+                                  nullptr);
+  }
+
+  CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
+
+  void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override {
+    rect = CefRect(0, 0, kViewWidth, kViewHeight);
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int http_status_code) override {
+    if (!frame->IsMain() || started_) {
+      return;
+    }
+    EXPECT_EQ(200, http_status_code);
+    started_ = true;
+    // The page needs BeginFrames to run rAF and to start playback.
+    Tick();
+  }
+
+  void OnPaint(CefRefPtr<CefBrowser> browser,
+               PaintElementType type,
+               const RectList& dirty_rects,
+               const void* buffer,
+               int width,
+               int height) override {
+    if (type != PET_VIEW || !started_ || finished_) {
+      return;
+    }
+    // Startup without shared-texture support may skip. Losing it after a
+    // successful shared-texture paint is a failure, not an unavailable setup.
+    if (received_shared_texture_) {
+      ADD_FAILURE() << "Shared texture painting stopped during the test";
+    } else {
+      shared_texture_unavailable_ = true;
+    }
+    DestroyTest();
+  }
+
+  void OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
+                          PaintElementType type,
+                          const RectList& dirty_rects,
+                          const CefAcceleratedPaintInfo& info) override {
+    if (type != PET_VIEW || finished_) {
+      return;
+    }
+    received_shared_texture_ = true;
+    if (!measuring_) {
+      return;
+    }
+    // Take the arrival time before the readback.
+    const auto now = Clock::now();
+    std::vector<uint32_t> pixels;
+    ASSERT_TRUE(pixel_reader_->Read(info, &pixels));
+    const int width = info.extra.visible_rect.width;
+    ASSERT_GE(width, kViewWidth);
+    ASSERT_GE(static_cast<int>(pixels.size()), width * kViewHeight);
+    Paint paint;
+    paint.time = now;
+    paint.page = pixels[4 * width + kViewWidth / 2] & 0xffffff;
+    for (int bit = 0; bit < 16; ++bit) {
+      const int x = (bit % 8) * 16 + 8;
+      const int y = kClipTop + (bit / 8) * 16 + 8;
+      if (((pixels[y * width + x] >> 8) & 0xff) > 128) {
+        paint.frame |= 1 << bit;
+      }
+    }
+    paints_.push_back(paint);
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    const std::string message = request;
+    callback->Success("");
+    if (message == "ready") {
+      ready_tick_ = ticks_;
+    } else if (message.rfind("log:", 0) == 0) {
+      Analyze(message.substr(4));
+      completed_ = true;
+      DestroyTest();
+    } else {
+      ADD_FAILURE() << "Page reported: " << message;
+      DestroyTest();
+    }
+    return true;
+  }
+
+  void DestroyTest() override {
+    finished_ = true;
+    measuring_ = false;
+    if (pixel_reader_) {
+      pixel_reader_->Cleanup();
+      pixel_reader_.reset();
+    }
+    RoutingTestHandler::DestroyTest();
+  }
+
+ private:
+  using Clock = std::chrono::steady_clock;
+  using Milliseconds = std::chrono::duration<double, std::milli>;
+
+  static constexpr char kUrl[] = "https://tests/external_begin_frame_video";
+  static constexpr int kViewWidth = 128;
+  static constexpr int kViewHeight = 48;
+  static constexpr int kClipTop = 16;
+  // Sample six seconds' worth of requests at the configured rate after one
+  // second's worth of warmup requests. Late requests extend the wall time.
+  static constexpr int kWarmupSeconds = 1;
+  static constexpr int kMeasureSeconds = 6;
+
+  struct Paint {
+    Clock::time_point time;
+    int page = 0;
+    int frame = 0;
+  };
+
+  void Tick() {
+    if (finished_) {
+      return;
+    }
+    ++ticks_;
+    if (ready_tick_ > 0) {
+      const int since_ready = ticks_ - ready_tick_;
+      if (since_ready == kWarmupSeconds * frame_rate_) {
+        measuring_ = true;
+        GetBrowser()->GetMainFrame()->ExecuteJavaScript(
+            "startLog();", GetBrowser()->GetMainFrame()->GetURL(), 0);
+      } else if (since_ready ==
+                 (kWarmupSeconds + kMeasureSeconds) * frame_rate_) {
+        measuring_ = false;
+        stats_.ticks = kMeasureSeconds * frame_rate_;
+        GetBrowser()->GetMainFrame()->ExecuteJavaScript(
+            "sendLog();", GetBrowser()->GetMainFrame()->GetURL(), 0);
+      }
+    }
+    // A late wake-up must not produce a burst of catch-up frames.
+    const auto now = Clock::now();
+    if (measuring_) {
+      stats_.max_tick_lateness_ms = std::max(
+          stats_.max_tick_lateness_ms, Milliseconds(now - next_tick_).count());
+    }
+    next_tick_ = now + std::chrono::microseconds(1000000 / frame_rate_);
+    GetBrowser()->GetHost()->SendExternalBeginFrame();
+    const auto delay =
+        std::chrono::ceil<std::chrono::milliseconds>(next_tick_ - Clock::now());
+    CefPostDelayedTask(
+        TID_UI, base::BindOnce(&ExternalBeginFrameVideoTestHandler::Tick, this),
+        std::max<int64_t>(0, delay.count()));
+  }
+
+  void Analyze(const std::string& json) {
+    stats_.paints = static_cast<int>(paints_.size());
+    int newest_page = 0;
+    for (const auto& paint : paints_) {
+      if (paint.page > newest_page) {
+        ++stats_.fresh_paints;
+        newest_page = paint.page;
+      } else if (paint.page < newest_page) {
+        ++stats_.out_of_order_paints;
+      }
+    }
+    const double interval_ms = 1000.0 / frame_rate_;
+    const int max_step = (clip_fps_ + frame_rate_ - 1) / frame_rate_;
+    for (size_t i = 1; i < paints_.size(); ++i) {
+      const int step = paints_[i].frame - paints_[i - 1].frame;
+      ++stats_.clip_steps[step];
+      stats_.skipped_frames += std::max(0, step - max_step);
+      ++stats_.page_steps[paints_[i].page - paints_[i - 1].page];
+      const double elapsed_ms =
+          Milliseconds(paints_[i].time - paints_[i - 1].time).count();
+      ++stats_.delivery_intervals[static_cast<int>(std::lround(elapsed_ms))];
+      stats_.max_delivery_jitter_ms = std::max(
+          stats_.max_delivery_jitter_ms, std::abs(elapsed_ms - interval_ms));
+    }
+
+    CefRefPtr<CefValue> value =
+        CefParseJSON(json.data(), json.size(), JSON_PARSER_RFC);
+    ASSERT_TRUE(value && value->GetType() == VTYPE_DICTIONARY);
+    CefRefPtr<CefListValue> raf = value->GetDictionary()->GetList("raf");
+    CefRefPtr<CefListValue> callbacks = value->GetDictionary()->GetList("rvfc");
+    ASSERT_TRUE(raf && callbacks);
+    stats_.raf_ticks = static_cast<int>(raf->GetSize());
+    stats_.frame_callbacks = static_cast<int>(callbacks->GetSize());
+    if (stats_.raf_ticks == 0) {
+      return;
+    }
+    const int first_page = raf->GetList(0)->GetInt(0);
+    const int last_page = raf->GetList(raf->GetSize() - 1)->GetInt(0);
+
+    // Page counter -> clip frame named by the callback's mediaTime.
+    std::map<int, int> callback_frames;
+    std::vector<double> display_delays;
+    for (size_t i = 0; i < callbacks->GetSize(); ++i) {
+      CefRefPtr<CefListValue> entry = callbacks->GetList(i);
+      callback_frames[entry->GetInt(0)] =
+          static_cast<int>(std::lround(GetNumber(entry, 2) * clip_fps_));
+      display_delays.push_back(GetNumber(entry, 4) - GetNumber(entry, 1));
+    }
+    if (!display_delays.empty()) {
+      std::nth_element(display_delays.begin(),
+                       display_delays.begin() + display_delays.size() / 2,
+                       display_delays.end());
+      stats_.callback_display_delay_ms =
+          display_delays[display_delays.size() / 2];
+    }
+
+    for (size_t i = 1; i < paints_.size(); ++i) {
+      const Paint& paint = paints_[i];
+      if (paint.page < first_page || paint.page > last_page) {
+        continue;
+      }
+      ++stats_.joined_paints;
+      const auto callback = callback_frames.find(paint.page);
+      const bool repeated = paint.frame == paints_[i - 1].frame;
+      if (repeated) {
+        ++stats_.repeated_paints;
+      }
+      if (callback == callback_frames.end()) {
+        if (repeated) {
+          ++stats_.repeated_paints_without_callback;
+        } else {
+          ++stats_.new_frames_without_callback;
+        }
+        continue;
+      }
+      ++stats_.callbacks_checked;
+      if (callback->second != paint.frame) {
+        ++stats_.media_time_mismatches;
+        if (stats_.media_time_mismatches <= 10) {
+          LOG(INFO) << "mediaTime mismatch: page=" << paint.page
+                    << ", texture frame=" << paint.frame
+                    << ", mediaTime frame=" << callback->second
+                    << ", previous texture frame=" << paints_[i - 1].frame;
+        }
+      }
+    }
+  }
+
+  // tests/shared/resources/frame_id_<fps>fps.webm were generated with:
+  //   bit='floor(X/16)+8*floor(Y/16)'
+  //   lum="if(bitand(floor(N/pow(2\\,$bit))\\,1)\\,235\\,16)"
+  //   for fps in 25 50 60; do
+  //     ffmpeg -f lavfi -i "color=c=black:s=128x32:r=$fps:d=12" \
+  //       -vf "geq=lum='$lum':cb=128:cr=128" -c:v libvpx-vp9 -crf 10 \
+  //       -b:v 0 -g $fps -pix_fmt yuv420p -an frame_id_${fps}fps.webm
+  //   done
+  static constexpr char kPage[] = R"html(
+<html><body style="margin:0;background:#000">
+<div id="counter"
+     style="position:absolute;left:0;top:0;width:128px;height:8px"></div>
+<video id="video" style="position:absolute;left:0;top:16px"
+       muted playsinline></video>
+<canvas id="canvas" width="128" height="32"
+        style="position:absolute;left:0;top:16px"></canvas>
+<script>
+// Clip frame |i| (frame_id_<fps>fps.webm) shows the 16 bits of |i| as 16x16 white blocks, two rows of eight, low bit first.
+// The page writes its rAF counter into #counter as an RGB color. Each
+// delivered texture therefore carries both values.
+const params = new URLSearchParams(location.search);
+const fps = Number(params.get('fps'));
+const mode = params.get('mode');
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const counterDiv = document.getElementById('counter');
+let counter = 0;
+let ready = false;
+let logging = false;
+const rafLog = [];
+const rvfcLog = [];
+
+function send(request) {
+  window.testQuery({request: request, onSuccess() {}, onFailure() {}});
+}
+
+function onFrame(now) {
+  ++counter;
+  counterDiv.style.backgroundColor = 'rgb(' + ((counter >> 16) & 255) + ',' +
+      ((counter >> 8) & 255) + ',' + (counter & 255) + ')';
+  if (logging) {
+    rafLog.push([counter, now, video.currentTime]);
+  }
+  if (!ready && video.currentTime > 0.5) {
+    ready = true;
+    send('ready');
+  }
+  requestAnimationFrame(onFrame);
+}
+
+function onVideoFrame(now, metadata) {
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  // Video frame callbacks run before rAF callbacks in the same rendering
+  // update, so this drawing is delivered with the next counter value.
+  if (logging) {
+    rvfcLog.push([counter + 1, now, metadata.mediaTime,
+                  metadata.presentedFrames, metadata.expectedDisplayTime]);
+  }
+  video.requestVideoFrameCallback(onVideoFrame);
+}
+
+function startLog() {
+  logging = true;
+}
+
+function sendLog() {
+  logging = false;
+  send('log:' + JSON.stringify({raf: rafLog, rvfc: rvfcLog}));
+}
+
+requestAnimationFrame(onFrame);
+if (mode === 'rvfc') {
+  video.style.display = 'none';
+  video.requestVideoFrameCallback(onVideoFrame);
+} else {
+  canvas.style.display = 'none';
+}
+video.src = 'frame_id_' + fps + 'fps.webm';
+video.play().catch(e => send('error:' + e.message));
+</script></body></html>)html";
+
+  const Mode mode_;
+  const int clip_fps_;
+  const int frame_rate_;
+  std::unique_ptr<osr_unittests::SharedTexturePixelReader> pixel_reader_;
+  bool readback_unavailable_ = false;
+  bool shared_texture_unavailable_ = false;
+  bool started_ = false;
+  bool finished_ = false;
+  bool measuring_ = false;
+  bool completed_ = false;
+  int ticks_ = 0;
+  int ready_tick_ = 0;
+  Clock::time_point next_tick_;
+  std::vector<Paint> paints_;
+  ExternalBeginFrameVideoStats stats_;
+  bool received_shared_texture_ = false;
+
+#if defined(OS_MAC)
+  osr_unittests::ScopedTimingActivity timing_activity_;
+#endif
+
+  IMPLEMENT_REFCOUNTING(ExternalBeginFrameVideoTestHandler);
+};
+
+// Returns false and sets |skip_reason| if the test cannot run here.
+bool RunExternalBeginFrameVideoTest(
+    ExternalBeginFrameVideoTestHandler::Mode mode,
+    int clip_fps,
+    int frame_rate,
+    ExternalBeginFrameVideoStats* stats,
+    std::string* skip_reason) {
+  if (CefCommandLine::GetGlobalCommandLine()->HasSwitch("disable-gpu")) {
+    *skip_reason = "GPU is disabled";
+    return false;
+  }
+  CefRefPtr<ExternalBeginFrameVideoTestHandler> handler =
+      new ExternalBeginFrameVideoTestHandler(mode, clip_fps, frame_rate);
+  handler->ExecuteTest();
+  *stats = handler->stats();
+  const bool readback_unavailable = handler->readback_unavailable();
+  const bool shared_texture_unavailable = handler->shared_texture_unavailable();
+  const bool completed = handler->completed();
+  ReleaseAndWaitForDestructor(handler);
+  if (readback_unavailable) {
+    *skip_reason = "Shared texture readback is unavailable";
+    return false;
+  }
+  if (shared_texture_unavailable) {
+    *skip_reason = "Shared texture painting is unavailable";
+    return false;
+  }
+  EXPECT_TRUE(completed) << "The page did not report its log";
+
+  LOG(INFO) << "External BeginFrame video: "
+            << (mode == ExternalBeginFrameVideoTestHandler::Mode::kVideo
+                    ? "visible <video>"
+                    : "requestVideoFrameCallback -> canvas")
+            << ", clip " << clip_fps << " fps at " << frame_rate
+            << " Hz: ticks=" << stats->ticks << ", paints=" << stats->paints
+            << ", fresh paints=" << stats->fresh_paints
+            << ", out-of-order paints=" << stats->out_of_order_paints
+            << ", clip steps=" << FormatSteps(stats->clip_steps)
+            << ", skipped clip frames=" << stats->skipped_frames
+            << ", page steps=" << FormatSteps(stats->page_steps)
+            << ", delivery intervals ms="
+            << FormatSteps(stats->delivery_intervals)
+            << ", max delivery jitter=" << stats->max_delivery_jitter_ms
+            << "ms, max tick lateness=" << stats->max_tick_lateness_ms
+            << "ms, rAF ticks=" << stats->raf_ticks
+            << ", frame callbacks=" << stats->frame_callbacks
+            << ", callback expectedDisplayTime-now="
+            << stats->callback_display_delay_ms
+            << "ms, joined paints=" << stats->joined_paints
+            << ", repeated=" << stats->repeated_paints << " (without callback "
+            << stats->repeated_paints_without_callback
+            << "), new frames without callback="
+            << stats->new_frames_without_callback
+            << ", mediaTime mismatches=" << stats->media_time_mismatches
+            << " of " << stats->callbacks_checked;
+  if (!completed) {
+    return true;
+  }
+  // Bound missing fresh updates over the sampling window. This does not
+  // establish an exact correspondence between individual requests and paints.
+  EXPECT_EQ(0, stats->out_of_order_paints);
+  EXPECT_GE(stats->fresh_paints,
+            stats->ticks - stats->ticks * kMissingFreshPaintsPercent / 100);
+  return true;
+}
+
+// Clip frame advances other than floor or ceil of clip_fps / frame_rate.
+int UnevenClipSteps(const ExternalBeginFrameVideoStats& stats,
+                    int clip_fps,
+                    int frame_rate) {
+  const int low = clip_fps / frame_rate;
+  const int high = (clip_fps + frame_rate - 1) / frame_rate;
+  int uneven = 0;
+  for (const auto& [step, count] : stats.clip_steps) {
+    if (step < low || step > high) {
+      uneven += count;
+    }
+  }
+  return uneven;
+}
+
+// A visible <video> faster than the BeginFrame rate advances by floor or ceil
+// of the rate ratio on almost every paint and does not repeat frames.
+void ExpectVisibleVideoCadence(const ExternalBeginFrameVideoStats& stats,
+                               int clip_fps,
+                               int frame_rate,
+                               int uneven_percent) {
+  const auto repeated = stats.clip_steps.find(0);
+  EXPECT_LE(repeated == stats.clip_steps.end() ? 0 : repeated->second,
+            stats.paints * kVisibleVideoRepeatedPercent / 100);
+  EXPECT_LE(UnevenClipSteps(stats, clip_fps, frame_rate),
+            stats.paints * uneven_percent / 100);
+}
+
+// With the clip at the BeginFrame rate, each paint carries the next clip frame
+// and each callback's mediaTime names the frame drawn in that paint.
+void ExpectFrameCallbackCadence(const ExternalBeginFrameVideoStats& stats) {
+  EXPECT_GT(stats.joined_paints, 0);
+  EXPECT_LE(stats.repeated_paints,
+            stats.joined_paints * kFrameCallbackRepeatedPercent / 100);
+  EXPECT_GT(stats.callbacks_checked, 0);
+  EXPECT_LE(stats.media_time_mismatches,
+            stats.callbacks_checked * kFrameCallbackMismatchPercent / 100);
+}
+
 }  // namespace
 
 TEST(OSRTest, SingleFramePaint) {
@@ -2372,3 +2957,72 @@ OSR_TEST(TouchEnd2x, OSR_TEST_TOUCH_END, 2.0f)
 OSR_TEST(TouchCancel, OSR_TEST_TOUCH_CANCEL, 1.0f)
 OSR_TEST(TouchCancel2x, OSR_TEST_TOUCH_CANCEL, 2.0f)
 OSR_TEST(PenEvent, OSR_TEST_PEN, 1.0f)
+
+TEST(OSRTest, ExternalBeginFrameVideo60FpsAt50Hz) {
+  ExternalBeginFrameVideoStats stats;
+  std::string skip_reason;
+  if (!RunExternalBeginFrameVideoTest(
+          ExternalBeginFrameVideoTestHandler::Mode::kVideo, 60, 50, &stats,
+          &skip_reason)) {
+    GTEST_SKIP() << skip_reason;
+  }
+  ExpectVisibleVideoCadence(stats, 60, 50, kVisibleVideoUnevenPercentAt50Hz);
+}
+
+TEST(OSRTest, ExternalBeginFrameVideo60FpsAt25Hz) {
+  ExternalBeginFrameVideoStats stats;
+  std::string skip_reason;
+  if (!RunExternalBeginFrameVideoTest(
+          ExternalBeginFrameVideoTestHandler::Mode::kVideo, 60, 25, &stats,
+          &skip_reason)) {
+    GTEST_SKIP() << skip_reason;
+  }
+  ExpectVisibleVideoCadence(stats, 60, 25, kVisibleVideoUnevenPercentAt25Hz);
+}
+
+TEST(OSRTest, ExternalBeginFrameVideoFrameCallback50FpsAt50Hz) {
+  ExternalBeginFrameVideoStats stats;
+  std::string skip_reason;
+  if (!RunExternalBeginFrameVideoTest(
+          ExternalBeginFrameVideoTestHandler::Mode::kFrameCallback, 50, 50,
+          &stats, &skip_reason)) {
+    GTEST_SKIP() << skip_reason;
+  }
+  ExpectFrameCallbackCadence(stats);
+}
+
+TEST(OSRTest, ExternalBeginFrameVideoFrameCallback25FpsAt25Hz) {
+  ExternalBeginFrameVideoStats stats;
+  std::string skip_reason;
+  if (!RunExternalBeginFrameVideoTest(
+          ExternalBeginFrameVideoTestHandler::Mode::kFrameCallback, 25, 25,
+          &stats, &skip_reason)) {
+    GTEST_SKIP() << skip_reason;
+  }
+  ExpectFrameCallbackCadence(stats);
+}
+
+// Diagnostic only. Blink runs the next video frame callback in the same
+// rendering step only when the clip frame duration is close to the BeginFrame
+// interval, so a 60 fps clip at 50 or 25 Hz may skip callbacks
+// (video_frame_callback_requester_impl.cc). The results are logged and only
+// frame delivery is checked.
+TEST(OSRTest, ExternalBeginFrameVideoFrameCallback60FpsAt50Hz) {
+  ExternalBeginFrameVideoStats stats;
+  std::string skip_reason;
+  if (!RunExternalBeginFrameVideoTest(
+          ExternalBeginFrameVideoTestHandler::Mode::kFrameCallback, 60, 50,
+          &stats, &skip_reason)) {
+    GTEST_SKIP() << skip_reason;
+  }
+}
+
+TEST(OSRTest, ExternalBeginFrameVideoFrameCallback60FpsAt25Hz) {
+  ExternalBeginFrameVideoStats stats;
+  std::string skip_reason;
+  if (!RunExternalBeginFrameVideoTest(
+          ExternalBeginFrameVideoTestHandler::Mode::kFrameCallback, 60, 25,
+          &stats, &skip_reason)) {
+    GTEST_SKIP() << skip_reason;
+  }
+}
