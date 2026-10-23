@@ -394,8 +394,6 @@ void CefRenderWidgetHostViewOSR::ShowWithVisibility(
     return;
   }
 
-  is_showing_ = true;
-
   // If the viz::LocalSurfaceId is invalid, we may have been evicted,
   // and no other visual properties have since been changed. Allocate a new id.
   const bool needs_surface_id = !GetLocalSurfaceId().is_valid();
@@ -412,6 +410,13 @@ void CefRenderWidgetHostViewOSR::ShowWithVisibility(
     SynchronizeVisualProperties(cc::DeadlinePolicy::UseDefaultDeadline(),
                                 GetLocalSurfaceId());
   }
+
+  // Set this only after the refresh above. While it is false the
+  // DelegatedFrameHost defers embedding the surface until WasShown() below,
+  // which first locks the saved frame. Embedding it earlier registers it as a
+  // hidden frame, and if visible views already fill the saved frame limit
+  // viz::FrameEvictionManager evicts it at once, so the view stops painting.
+  is_showing_ = true;
 
   if (render_widget_host_) {
     render_widget_host_->WasShown(
