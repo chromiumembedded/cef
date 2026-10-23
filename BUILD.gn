@@ -690,6 +690,8 @@ source_set("libcef_static") {
     "libcef/browser/origin_whitelist_impl.h",
     "libcef/browser/osr/browser_platform_delegate_osr.cc",
     "libcef/browser/osr/browser_platform_delegate_osr.h",
+    "libcef/browser/osr/external_begin_frame_source_osr.cc",
+    "libcef/browser/osr/external_begin_frame_source_osr.h",
     "libcef/browser/osr/host_display_client_osr.cc",
     "libcef/browser/osr/host_display_client_osr.h",
     "libcef/browser/osr/motion_event_osr.cc",

@@ -398,14 +398,49 @@ void AlloyBrowserHostImpl::SendExternalBeginFrame() {
   }
 
   if (!CEF_CURRENTLY_ON_UIT()) {
+    // The method is overloaded since the dated form exists: name the one
+    // without argument.
     CEF_POST_TASK(
         CEF_UIT,
-        base::BindOnce(&AlloyBrowserHostImpl::SendExternalBeginFrame, this));
+        base::BindOnce(static_cast<void (AlloyBrowserHostImpl::*)()>(
+                           &AlloyBrowserHostImpl::SendExternalBeginFrame),
+                       this));
     return;
   }
 
   if (platform_delegate_) {
     platform_delegate_->SendExternalBeginFrame();
+  }
+}
+
+void AlloyBrowserHostImpl::SendExternalBeginFrame(int64_t tick_age_us) {
+  if (!IsWindowless()) {
+    DCHECK(false) << "Window rendering is not disabled";
+    return;
+  }
+
+  // The frame time is resolved on the calling thread, before any thread hop,
+  // so that the age stays relative to the instant of the call. An age beyond
+  // a second is not a tick of a display or of a video card: treated as now.
+  base::TimeDelta age = base::Microseconds(tick_age_us);
+  if (age.is_negative() || age > base::Seconds(1)) {
+    age = base::TimeDelta();
+  }
+  SendExternalBeginFrameOnUIThread(base::TimeTicks::Now() - age);
+}
+
+void AlloyBrowserHostImpl::SendExternalBeginFrameOnUIThread(
+    base::TimeTicks frame_time) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::BindOnce(&AlloyBrowserHostImpl::SendExternalBeginFrameOnUIThread,
+                       this, frame_time));
+    return;
+  }
+
+  if (platform_delegate_) {
+    platform_delegate_->SendExternalBeginFrame(frame_time);
   }
 }
 

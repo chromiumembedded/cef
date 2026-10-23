@@ -744,6 +744,36 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /*--cef()--*/
   virtual void SendExternalBeginFrame() = 0;
 
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+  ///
+  /// Issue a BeginFrame request to Chromium for an external clock tick that
+  /// occurred |tick_age_us| microseconds before this call. Only valid when
+  /// CefWindowInfo::external_begin_frame_enabled is set to true.
+  ///
+  /// Use this form when the call is made in response to a clock that the
+  /// client observes: the vertical blank of a display, the frame completion
+  /// of a video output card. Pass the age of that tick at the time of the
+  /// call (what the hardware or the OS reports, or the time elapsed since
+  /// the client thread was woken up), and Chromium dates the frame on the
+  /// tick itself instead of on the wake-up time of the thread that observed
+  /// it. The frame interval is derived from the successive tick times (the
+  /// median of the last few, so that the jitter of the calls does not enter
+  /// it; the interval of CefBrowserSettings.windowless_frame_rate for the
+  /// first tick) and the frame deadline is one interval after the tick, as
+  /// with Chromium's own BeginFrame sources. A clock whose rate varies (a
+  /// variable refresh rate display) is therefore followed within a few ticks.
+  /// Passing 0 dates the frame at the time of the call; negative values are
+  /// treated as 0.
+  ///
+  /// The form without argument dates the frame at the time of the call with
+  /// the interval of CefBrowserSettings.windowless_frame_rate: set that rate
+  /// to the rate of your clock, or the frame selection window of a <video>
+  /// will not match the tick.
+  ///
+  /*--cef(added=experimental,capi_name=send_external_begin_frame2)--*/
+  virtual void SendExternalBeginFrame(int64_t tick_age_us) = 0;
+#endif
+
   ///
   /// Send a key event to the browser.
   ///

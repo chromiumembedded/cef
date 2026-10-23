@@ -265,6 +265,14 @@ void CefBrowserPlatformDelegateOsr::SendExternalBeginFrame() {
   }
 }
 
+void CefBrowserPlatformDelegateOsr::SendExternalBeginFrame(
+    base::TimeTicks frame_time) {
+  CefRenderWidgetHostViewOSR* view = GetOSRHostView();
+  if (view) {
+    view->SendExternalBeginFrame(frame_time);
+  }
+}
+
 void CefBrowserPlatformDelegateOsr::SetWindowlessFrameRate(int frame_rate) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
   if (view) {
