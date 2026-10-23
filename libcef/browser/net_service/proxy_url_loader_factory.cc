@@ -673,7 +673,10 @@ void InterceptedRequest::OnReceiveResponse(
   // is not called.
   if (current_request_uses_header_client_ && current_headers_) {
     // Use the headers we got from OnHeadersReceived as that'll contain
-    // Set-Cookie if it existed.
+    // Set-Cookie if it existed. Any override applied in OnHeadersReceived was
+    // already processed by the network loader, which derived the MIME type and
+    // charset (including sniffing) for the final headers, so don't re-derive
+    // them here.
     current_response_->headers = current_headers_;
     current_headers_ = nullptr;
     ContinueToResponseStarted(net::OK);
@@ -701,7 +704,8 @@ void InterceptedRequest::OnReceiveRedirect(
   // OnHeadersReceived is not called.
   if (current_request_uses_header_client_ && current_headers_) {
     // Use the headers we got from OnHeadersReceived as that'll contain
-    // Set-Cookie if it existed.
+    // Set-Cookie if it existed. See OnReceiveResponse for why the MIME type and
+    // charset are not re-derived here.
     current_response_->headers = current_headers_;
     current_headers_ = nullptr;
   }
@@ -973,10 +977,19 @@ void InterceptedRequest::ContinueResponseOrRedirect(
 
   override_headers_ = override_headers;
   if (override_headers_) {
-    // Make sure to update current_response_, since when OnReceiveResponse
-    // is called we will not use its headers as it might be missing the
-    // Set-Cookie line (which gets stripped by the IPC layer).
-    current_response_->headers = override_headers_;
+    if (current_response_) {
+      // The response has already been received (e.g. a cached response where
+      // OnHeadersReceived is not called), so apply the override here and
+      // re-derive the MIME type and charset from the final headers.
+      current_response_->headers = override_headers_;
+      net_service::UpdateResponseHeadMimeType(current_response_.get());
+    } else {
+      // Called from OnHeadersReceived. The override is passed back to the
+      // network loader by ContinueToHandleOverrideHeaders, and the loader
+      // derives the MIME type and charset for the final headers. Keep a copy
+      // for OnReceiveResponse, which uses it to preserve Set-Cookie.
+      current_headers_ = override_headers_;
+    }
   }
   redirect_url_ = redirect_url;
 

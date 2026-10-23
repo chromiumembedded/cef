@@ -43,7 +43,8 @@ class CefResponseImpl : public CefResponse {
   CefString GetURL() override;
   void SetURL(const CefString& url) override;
 
-  scoped_refptr<net::HttpResponseHeaders> GetResponseHeaders();
+  scoped_refptr<net::HttpResponseHeaders> GetResponseHeaders(
+      bool default_mime_type = true);
   void SetResponseHeaders(const net::HttpResponseHeaders& headers);
 
   void Set(const blink::WebURLResponse& response);
