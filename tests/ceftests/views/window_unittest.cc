@@ -585,6 +585,35 @@ void WindowAcceleratorImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, std::move(config));
 }
 
+// Minimum frame border per edge. Matches the value from
+// views::FrameViewLayoutLinux::kResizeBorder.
+const int kResizeBorder = 10;
+
+void RunWindowFramelessClientBounds(CefRefPtr<CefWindow> window) {
+  window->Show();
+
+  // The frameless client area is inset by at least the resize border on each
+  // edge. The border requires a compositor, which Wayland always provides and
+  // X11 provides only when a compositing window manager is running.
+  if (IsRunningOnWayland() || IsRunningOnX11WithCompositor()) {
+    CefRect outer = window->GetBoundsInScreen();
+    CefRect client = window->GetClientAreaBoundsInScreen();
+    EXPECT_GE(client.x - outer.x, kResizeBorder);
+    EXPECT_GE(client.y - outer.y, kResizeBorder);
+    EXPECT_GE((outer.x + outer.width) - (client.x + client.width),
+              kResizeBorder);
+    EXPECT_GE((outer.y + outer.height) - (client.y + client.height),
+              kResizeBorder);
+  }
+}
+
+void WindowFramelessClientBoundsImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowFramelessClientBounds);
+  config->frameless = true;
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+
 }  // namespace
 
 // Test window functionality. This is primarily to exercise exposed CEF APIs
@@ -606,6 +635,7 @@ WINDOW_TEST_ASYNC(WindowMinimize)
 WINDOW_TEST_ASYNC(WindowMinimizeFrameless)
 WINDOW_TEST_ASYNC(WindowFullscreen)
 WINDOW_TEST_ASYNC(WindowFullscreenFrameless)
+WINDOW_TEST_ASYNC(WindowFramelessClientBounds)
 WINDOW_TEST_ASYNC(WindowIcon)
 WINDOW_TEST_ASYNC(WindowIconFrameless)
 WINDOW_TEST_ASYNC(WindowAccelerator)
