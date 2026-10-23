@@ -1,0 +1,2726 @@
+diff --git ui/ozone/platform/wayland/BUILD.gn ui/ozone/platform/wayland/BUILD.gn
+index 8e2d3051633ac3560071bfe7beba6007851d8c92..87e5875688734b65267d8470bd0658c7a704556a 100644
+--- ui/ozone/platform/wayland/BUILD.gn
++++ ui/ozone/platform/wayland/BUILD.gn
+@@ -121,6 +121,8 @@ source_set("wayland") {
+     "host/wayland_data_source.h",
+     "host/wayland_drm.cc",
+     "host/wayland_drm.h",
++    "host/wayland_embedded_window.cc",
++    "host/wayland_embedded_window.h",
+     "host/wayland_event_source.cc",
+     "host/wayland_event_source.h",
+     "host/wayland_exchange_data_provider.cc",
+@@ -224,6 +226,8 @@ source_set("wayland") {
+     "host/zwp_text_input_v3.h",
+     "ozone_platform_wayland.cc",
+     "ozone_platform_wayland.h",
++    "wayland_embedder.cc",
++    "wayland_embedder.h",
+     "wayland_utils.cc",
+     "wayland_utils.h",
+   ]
+@@ -533,6 +537,7 @@ source_set("wayland_unittests") {
+     "host/wayland_connection_unittest.cc",
+     "host/wayland_cursor_factory_unittest.cc",
+     "host/wayland_data_drag_controller_unittest.cc",
++    "host/wayland_embedded_window_unittest.cc",
+     "host/wayland_event_source_unittest.cc",
+     "host/wayland_event_watcher_unittest.cc",
+     "host/wayland_exchange_data_provider_unittest.cc",
+diff --git ui/ozone/platform/wayland/common/wayland_util.cc ui/ozone/platform/wayland/common/wayland_util.cc
+index 193888cefc1846d2b3a22fbab9d76c5907c3a24b..b05a8f5202db77979f2dc91643fb323a6f0a3b9b 100644
+--- ui/ozone/platform/wayland/common/wayland_util.cc
++++ ui/ozone/platform/wayland/common/wayland_util.cc
+@@ -21,9 +21,11 @@
+ #include "ui/events/event.h"
+ #include "ui/gfx/geometry/skia_conversions.h"
+ #include "ui/ozone/platform/wayland/host/wayland_connection.h"
++#include "ui/ozone/platform/wayland/host/wayland_embedded_window.h"
+ #include "ui/ozone/platform/wayland/host/wayland_shm_buffer.h"
+ #include "ui/ozone/platform/wayland/host/wayland_surface.h"
+ #include "ui/ozone/platform/wayland/host/wayland_window.h"
++#include "ui/ozone/platform/wayland/wayland_embedder.h"
+ 
+ namespace wl {
+ 
+@@ -273,11 +275,33 @@ gfx::SizeF ApplyWaylandTransform(const gfx::SizeF& size,
+ ui::WaylandWindow* RootWindowFromWlSurface(wl_surface* surface) {
+   if (!surface)
+     return nullptr;
+-  auto* wayland_surface = static_cast<ui::WaylandSurface*>(
+-      wl_proxy_get_user_data(reinterpret_cast<wl_proxy*>(surface)));
+-  if (!wayland_surface)
+-    return nullptr;
+-  return wayland_surface->root_window();
++  // Resolve through Chromium's own registry rather than the surface's user
++  // data. On a connection shared with an embedding application the compositor
++  // hands back that application's surfaces too -- a toolkit drawing its own
++  // decorations has one per border -- and their user data belongs to it.
++  // Casting that to WaylandSurface dereferences a foreign pointer.
++  if (auto* wayland_surface = ui::ChromiumSurfaceFor(surface))
++    return wayland_surface->root_window();
++
++  // Not ours, and deliberately not resolved any further. Pointer, touch, tablet
++  // and drag events on an embedding application's surface are that
++  // application's business: they arrive in its surface coordinate space and
++  // usually land on its own decorations. Only the keyboard has to cross over,
++  // through KeyboardWindowFromWlSurface() below.
++  return nullptr;
++}
++
++ui::WaylandWindow* KeyboardWindowFromWlSurface(wl_surface* surface) {
++  if (auto* window = RootWindowFromWlSurface(surface)) {
++    return window;
++  }
++
++  // A wl_subsurface never receives wl_keyboard.enter; the event goes to the
++  // embedder's toplevel. Without this an embedded browser could not be typed
++  // into at all, which makes the keyboard -- and the text input that follows
++  // it -- the one class of event that crosses from a foreign surface into the
++  // window embedded in it.
++  return ui::EmbeddedWindowForForeignSurface(surface);
+ }
+ 
+ gfx::Rect TranslateWindowBoundsToParentDIP(ui::WaylandWindow* window,
+@@ -288,6 +312,28 @@ gfx::Rect TranslateWindowBoundsToParentDIP(ui::WaylandWindow* window,
+       window->GetBoundsInDIP(), parent_window->GetBoundsInDIP());
+ }
+ 
++gfx::Rect TranslateWindowBoundsToXdgParentDIP(
++    ui::WaylandWindow* window,
++    ui::WaylandWindow* xdg_parent_window) {
++  DCHECK(window);
++  DCHECK(xdg_parent_window);
++  // An embedded window borrows the embedding application's xdg_surface, and a
++  // popup anchored on it is measured in that application's surface coordinates
++  // -- the same space the embedded window's own bounds are already in.
++  // Subtracting its origin would displace every menu by the offset of the
++  // browser within the host window.
++  //
++  // Only for xdg_popups. A bubble is a wl_subsurface of the embedded window
++  // itself, so its position is relative to that window and the ordinary
++  // translation above is the correct one.
++  if (xdg_parent_window->AsWaylandEmbeddedWindow()) {
++    return wl::TranslateBoundsToParentCoordinates(
++        window->GetBoundsInDIP(),
++        gfx::Rect(xdg_parent_window->GetBoundsInDIP().size()));
++  }
++  return TranslateWindowBoundsToParentDIP(window, xdg_parent_window);
++}
++
+ std::vector<gfx::Rect> CreateRectsFromSkPath(const SkPath& path) {
+   SkRegion clip_region;
+   clip_region.setRect(path.getBounds().round());
+diff --git ui/ozone/platform/wayland/common/wayland_util.h ui/ozone/platform/wayland/common/wayland_util.h
+index a91aa52f38f7349f034210c16e0a2997da2827e1..cf39804882bad5c993cbaee14b17f9606ff1e1af 100644
+--- ui/ozone/platform/wayland/common/wayland_util.h
++++ ui/ozone/platform/wayland/common/wayland_util.h
+@@ -94,9 +94,16 @@ gfx::RectF ApplyWaylandTransform(const gfx::RectF& rect,
+ gfx::SizeF ApplyWaylandTransform(const gfx::SizeF& size,
+                                  wl_output_transform transform);
+ 
+-// Returns the root WaylandWindow for the given wl_surface.
++// Returns the root WaylandWindow for the given wl_surface, or null if the
++// surface is not Chromium's -- which it may not be when the connection is
++// shared with an embedding application.
+ ui::WaylandWindow* RootWindowFromWlSurface(wl_surface* surface);
+ 
++// As above, but also resolves an embedding application's surface to the window
++// embedded inside it. Only for wl_keyboard and text input, which are delivered
++// to the embedder's toplevel because a wl_subsurface cannot receive them.
++ui::WaylandWindow* KeyboardWindowFromWlSurface(wl_surface* surface);
++
+ // Returns bounds of the given window, adjusted to its subsurface. We need to
+ // adjust bounds because WaylandWindow::GetBounds() returns absolute bounds in
+ // pixels, but wl_subsurface works with bounds relative to the parent surface
+@@ -104,6 +111,15 @@ ui::WaylandWindow* RootWindowFromWlSurface(wl_surface* surface);
+ gfx::Rect TranslateWindowBoundsToParentDIP(ui::WaylandWindow* window,
+                                            ui::WaylandWindow* parent_window);
+ 
++// As above, for a window whose parent is the one supplying the xdg_surface it
++// anchors on rather than the surface it is a subsurface of. The two differ only
++// when that xdg parent is an embedded window, which borrows the embedding
++// application's xdg_surface and is therefore already measured in the same
++// coordinate space the popup will be.
++gfx::Rect TranslateWindowBoundsToXdgParentDIP(
++    ui::WaylandWindow* window,
++    ui::WaylandWindow* xdg_parent_window);
++
+ // Returns rectangles dictated by SkPath.
+ std::vector<gfx::Rect> CreateRectsFromSkPath(const SkPath& path);
+ 
+diff --git ui/ozone/platform/wayland/host/wayland_connection.cc ui/ozone/platform/wayland/host/wayland_connection.cc
+index 4c44eaeebe091906a1676da106faa9072819b67e..e2373c251bdd50c3a18732c3c967710bbcc08382 100644
+--- ui/ozone/platform/wayland/host/wayland_connection.cc
++++ ui/ozone/platform/wayland/host/wayland_connection.cc
+@@ -9,6 +9,8 @@
+ #include <presentation-time-client-protocol.h>
+ #include <xdg-shell-client-protocol.h>
+ 
++#include <tuple>
++
+ #include <cstdint>
+ 
+ #include "base/command_line.h"
+@@ -69,6 +71,7 @@
+ #include "ui/ozone/platform/wayland/host/zwp_primary_selection_device_manager.h"
+ #include "ui/ozone/platform/wayland/host/zwp_text_input_v1.h"
+ #include "ui/ozone/platform/wayland/host/zwp_text_input_v3.h"
++#include "ui/ozone/platform/wayland/wayland_embedder.h"
+ #include "ui/ozone/public/ozone_switches.h"
+ #include "ui/platform_window/common/platform_window_defaults.h"
+ 
+@@ -138,9 +141,28 @@ bool MinSupportedKernelForLinuxDrmSyncobj() {
+ WaylandConnection::WaylandConnection() = default;
+ 
+ WaylandConnection::~WaylandConnection() {
++  SetWaylandConnectionForEmbedders(nullptr, nullptr);
++
++  // Destroying the seat makes WaylandPointer report a final focus change, which
++  // dispatches an event into whichever window still holds the pointer, and that
++  // window asks the screen for its scale factor. The seat therefore has to go
++  // before the ResetConnection() below, and that is the whole point of doing it
++  // explicitly: the destructor body runs ahead of member destruction, so member
++  // order cannot express it. (Declaration order does already destroy |seat_|
++  // before |window_manager_|; the ordering that needed forcing is against the
++  // screen, not against them.)
++  seat_.reset();
++
+   if (wayland_output_manager() && wayland_output_manager()->wayland_screen()) {
+     wayland_output_manager()->wayland_screen()->ResetConnection();
+   }
++
++  // Everything below holds proxies created on |display_|, so they must be gone
++  // before the display goes away. For an adopted display we additionally must
++  // not disconnect: the embedding application still needs it.
++  if (!owns_display_) {
++    std::ignore = display_.release();
++  }
+ }
+ 
+ bool WaylandConnection::Initialize(bool use_threaded_polling) {
+@@ -197,10 +219,18 @@ bool WaylandConnection::Initialize(bool use_threaded_polling) {
+   RegisterGlobalObjectFactory(ZwpPrimarySelectionDeviceManager::kInterfaceName,
+                               &ZwpPrimarySelectionDeviceManager::Instantiate);
+ 
+-  display_.reset(wl_display_connect(nullptr));
+-  if (!display_) {
+-    PLOG(ERROR) << "Failed to connect to Wayland display";
+-    return false;
++  if (wl_display* external_display = GetExternalWaylandDisplay()) {
++    // Adopted from an embedding application. Ownership stays with them, so
++    // release before destruction rather than calling wl_display_disconnect().
++    owns_display_ = false;
++    display_.reset(external_display);
++    VLOG(1) << "Using Wayland display provided by the embedding application";
++  } else {
++    display_.reset(wl_display_connect(nullptr));
++    if (!display_) {
++      PLOG(ERROR) << "Failed to connect to Wayland display";
++      return false;
++    }
+   }
+ 
+   wrapped_display_.reset(
+@@ -210,6 +240,8 @@ bool WaylandConnection::Initialize(bool use_threaded_polling) {
+   event_queue_.reset(wl_display_create_queue(display()));
+   wl_proxy_set_queue(wrapped_display_.get(), event_queue_.get());
+ 
++  SetWaylandConnectionForEmbedders(this, display());
++
+   registry_.reset(GetRegistry());
+   if (!registry_) {
+     LOG(ERROR) << "Failed to get Wayland registry";
+diff --git ui/ozone/platform/wayland/host/wayland_connection.h ui/ozone/platform/wayland/host/wayland_connection.h
+index 241a1e5ae9c5c176d8424b08d6f691f2e9fa94b3..0337e88611589a300248d2c476087b2c137f2c38 100644
+--- ui/ozone/platform/wayland/host/wayland_connection.h
++++ ui/ozone/platform/wayland/host/wayland_connection.h
+@@ -78,8 +78,21 @@ class WaylandConnection {
+   WaylandConnection& operator=(const WaylandConnection&) = delete;
+   ~WaylandConnection();
+ 
++  // If an embedding application called SetExternalWaylandDisplay(), this joins
++  // that wl_display instead of calling wl_display_connect(). Embedding a
++  // browser surface into a surface owned by another client requires it: a
++  // wl_surface is scoped to its connection and
++  // wl_subcompositor_get_subsurface() rejects surfaces from a different one.
++  //
++  // Chromium already routes its own protocol traffic through a dedicated
++  // wl_event_queue, so it coexists with the embedder's event loop on the
++  // default queue. An adopted display is never disconnected here; the embedder
++  // owns it and must outlive this connection.
+   bool Initialize(bool use_threaded_polling = false);
+ 
++  // True if this connection was adopted from an embedding application.
++  bool owns_display() const { return owns_display_; }
++
+   // Immediately flushes the Wayland display.
+   void Flush();
+ 
+@@ -396,6 +409,9 @@ class WaylandConnection {
+ 
+   uint32_t compositor_version_ = 0;
+   wl::Object<wl_display> display_;
++  // False when |display_| was adopted from an embedding application, in which
++  // case it must not be disconnected.
++  bool owns_display_ = true;
+   // `event_queue_` must be declared before `wrapped_display_`, so that the
+   // latter is destroyed first. This prevents libwayland warnings about the
+   // queue being destroyed while the proxy is still attached.
+diff --git ui/ozone/platform/wayland/host/wayland_embedded_window.cc ui/ozone/platform/wayland/host/wayland_embedded_window.cc
+new file mode 100644
+index 0000000000000000000000000000000000000000..1d33f0137aa88b00d746b8c6089e97c4a1eeea1f
+--- /dev/null
++++ ui/ozone/platform/wayland/host/wayland_embedded_window.cc
+@@ -0,0 +1,468 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "ui/ozone/platform/wayland/host/wayland_embedded_window.h"
++
++#include "base/logging.h"
++#include "ui/events/event.h"
++#include "ui/events/types/event_type.h"
++#include "ui/gfx/geometry/rect.h"
++#include "ui/gfx/geometry/rect_conversions.h"
++#include "ui/ozone/platform/wayland/host/wayland_connection.h"
++#include "ui/ozone/platform/wayland/host/wayland_output_manager.h"
++#include "ui/ozone/platform/wayland/host/wayland_screen.h"
++#include "ui/ozone/platform/wayland/host/wayland_surface.h"
++#include "ui/ozone/platform/wayland/host/wayland_window_manager.h"
++#include "ui/platform_window/platform_window_init_properties.h"
++
++namespace ui {
++
++WaylandEmbeddedWindow::WaylandEmbeddedWindow(PlatformWindowDelegate* delegate,
++                                             WaylandConnection* connection,
++                                             wl_surface* parent_surface,
++                                             xdg_surface* parent_xdg_surface)
++    : WaylandWindow(delegate, connection),
++      parent_surface_(parent_surface),
++      parent_xdg_surface_(parent_xdg_surface) {
++  CHECK(parent_surface_);
++  // Claim focus routing for this surface now; a sibling that is activated later
++  // takes it over. Without an initial claim a host that never calls SetFocus()
++  // would have no window to route keyboard input to at all.
++  connection->window_manager()->SetEmbeddedWindowForForeignSurface(
++      parent_surface_, this);
++  LOG_IF(WARNING, !parent_xdg_surface_)
++      << "No xdg_surface was provided for the embedded window; menus, tooltips "
++         "and <select> dropdowns will fall back to a wl_subsurface, which "
++         "cannot extend past the host window or be dismissed by clicking "
++         "outside it";
++}
++
++WaylandEmbeddedWindow* WaylandEmbeddedWindow::AsWaylandEmbeddedWindow() {
++  return this;
++}
++
++WaylandEmbeddedWindow::~WaylandEmbeddedWindow() {
++  connection()->window_manager()->RemoveEmbeddedWindowForForeignSurface(
++      parent_surface_, this);
++}
++
++void WaylandEmbeddedWindow::Show(bool inactive) {
++  if (subsurface_) {
++    return;
++  }
++
++  AttachToParentSurface();
++  WaylandWindow::Show(inactive);
++}
++
++void WaylandEmbeddedWindow::Hide() {
++  if (!subsurface_) {
++    return;
++  }
++
++  WaylandWindow::Hide();
++  // Deactivating reaches the views delegate, which may close the widget from
++  // there and destroy this window before the teardown below runs. Unlike
++  // Activate(), this one is not deferred: it is not reached from
++  // Widget::Show(), and a hidden window has to stop being active immediately.
++  auto weak_this = AsWeakPtr();
++  Deactivate();
++  if (!weak_this) {
++    return;
++  }
++  subsurface_.reset();
++  connection()->Flush();
++}
++
++bool WaylandEmbeddedWindow::IsVisible() const {
++  return !!subsurface_;
++}
++
++void WaylandEmbeddedWindow::SetBoundsInDIP(const gfx::Rect& bounds_dip) {
++  const auto old_bounds_dip = GetBoundsInDIP();
++  auto weak_this = AsWeakPtr();
++  WaylandWindow::SetBoundsInDIP(bounds_dip);
++  if (!weak_this) {
++    return;
++  }
++
++  if (subsurface_ && old_bounds_dip != bounds_dip) {
++    SetSubsurfacePosition();
++  }
++}
++
++void WaylandEmbeddedWindow::UpdateActivationState() {
++  // The same rule WaylandToplevelWindow applies to itself: activation has to
++  // describe where input actually goes, and the seat is the only authority on
++  // that. Called by the window manager on both sides of every focus
++  // transition, so wl_keyboard.enter and .leave drive it as well.
++  bool active = active_;
++  auto* manager = connection()->window_manager();
++  if (connection()->IsKeyboardAvailable()) {
++    active = manager->GetCurrentKeyboardFocusedWindow() == this;
++  } else if (connection()->SupportsTextInputFocus()) {
++    // With no physical keyboard an input method is the only way text arrives,
++    // so its focus is the signal.
++    active = manager->GetCurrentTextInputFocusedWindow() == this;
++  } else {
++    // Neither exists. A toplevel falls back to xdg_toplevel.activated here; an
++    // embedded window has no xdg_toplevel, so the embedder's own request is the
++    // only remaining source -- and it is a real one, since the embedder is the
++    // party that decides which of its panels is focused.
++    active = embedder_requested_active_;
++  }
++  if (active_ == active) {
++    return;
++  }
++  active_ = active;
++
++  // Routed the way WaylandToplevelWindow routes it. With an active bubble the
++  // transition belongs to the bubble: it is what holds the keyboard
++  // (WaylandWindow::DispatchEvent redirects there) and what has to be dismissed
++  // when this window stops being active. Notifying our own delegate instead
++  // would leave the bubble active with no one telling it otherwise.
++  if (active_bubble()) {
++    ActivateBubble(active ? active_bubble() : nullptr);
++    return;
++  }
++  std::ignore = NotifyActivationChanged(active);
++}
++
++bool WaylandEmbeddedWindow::NotifyActivationChanged(bool active) {
++  active_ = active;
++
++  // Views keeps its own notion of which widget is active and it is fed only
++  // from here. WaylandWindow::Activate() does not do it; WaylandToplevelWindow
++  // calls the delegate explicitly for the same reason.
++  //
++  // Inline, not deferred: one dispatch of the Wayland queue drains every
++  // pending event, so a key sitting behind wl_keyboard.enter would otherwise
++  // reach views before views had been told the window was active.
++  //
++  // Returns false if the delegate destroyed this window from here.
++  auto alive = weak_ptr_factory_.GetWeakPtr();
++  delegate()->OnActivationChanged(active);
++  return !!alive;
++}
++
++void WaylandEmbeddedWindow::Activate() {
++  embedder_requested_active_ = true;
++  // Keyboard events arrive on the embedder's surface, so the map has to say
++  // which of the windows sharing it should receive them. Recorded immediately;
++  // only the focus move below is deferred.
++  connection()->window_manager()->SetEmbeddedWindowForForeignSurface(
++      parent_surface_, this);
++
++  // Dismisses an active bubble, notifying its delegate and then ours -- either
++  // of which may destroy this window.
++  auto weak_this = AsWeakPtr();
++  WaylandWindow::Activate();
++  if (!weak_this) {
++    return;
++  }
++
++  // See TakeFocusIfAvailable() for why this does not resolve here.
++  if (activation_request_pending_) {
++    return;
++  }
++  activation_request_pending_ = true;
++  base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
++      FROM_HERE, base::BindOnce(&WaylandEmbeddedWindow::TakeFocusIfAvailable,
++                                weak_ptr_factory_.GetWeakPtr()));
++}
++
++void WaylandEmbeddedWindow::TakeFocusIfAvailable() {
++  activation_request_pending_ = false;
++
++  // The request can be withdrawn between posting and running: a host that
++  // deactivates or hides the browser in the same turn of the loop, or a
++  // Show() immediately followed by Hide(). Without this the task would undo
++  // the Deactivate() it was overtaken by and hand focus back to a window the
++  // embedder has already dismissed.
++  if (!embedder_requested_active_) {
++    return;
++  }
++
++  auto* manager = connection()->window_manager();
++
++  // Everything below decides whether the keyboard actually moves here, and the
++  // delegate is told only if it does: Widget::Show() calls Activate() on every
++  // browser it shows, so claiming activation on request alone would leave views
++  // believing several browsers are focused at once. The map is not enough
++  // either, since wl_keyboard.enter fires once and is never repeated while
++  // focus stays inside the embedder's window, so the stored focus is taken
++  // over below rather than only recorded.
++  //
++  // Gated on IsKeyboardAvailable() because keyboard_focused_foreign_surface_ is
++  // written from wl_keyboard.enter and nowhere else: on a touch-only or
++  // virtual-keyboard system it is never set, and gating on it unconditionally
++  // would make every Activate() return early.
++  if (connection()->IsKeyboardAvailable() &&
++      manager->keyboard_focused_foreign_surface() != parent_surface_) {
++    return;
++  }
++
++  // Only from a sibling sharing this embedder surface, or from nothing at all.
++  // A Chromium toplevel of its own -- a Views window opened by the same
++  // process -- holds the focus legitimately, and the recorded foreign surface
++  // may be left over from an earlier enter.
++  //
++  // Both kinds of focus have to be consulted, not just the keyboard. Where
++  // there is no keyboard the seat still routes text through
++  // zwp_text_input_v3, and a toplevel holding that focus is exactly as
++  // legitimate an owner; checking only the keyboard would let this window take
++  // the input method away from it while the compositor kept delivering there.
++  auto* holder = manager->GetCurrentKeyboardFocusedWindow();
++  if (!holder) {
++    holder = manager->GetCurrentTextInputFocusedWindow();
++  }
++  auto* sibling = holder ? holder->AsWaylandEmbeddedWindow() : nullptr;
++  if (holder && holder != this &&
++      !(sibling && sibling->parent_surface() == parent_surface_)) {
++    return;
++  }
++
++  // Exclusivity and the delegate notification both come out of this call:
++  // WaylandWindowManager updates the activation state of every window on both
++  // sides of the transition, which is how a toplevel learns it too. Doing it
++  // here rather than by hand also covers the case where the keyboard was
++  // already on this window -- focus set by wl_keyboard.enter rather than by the
++  // embedder -- and no notification had been sent yet.
++  // Only where a keyboard exists. Synthesising a keyboard focus on a seat that
++  // has none leaves a value nothing will ever clear, and the check above would
++  // then read it back as this window legitimately holding focus -- letting a
++  // later Activate() overwrite a text-input focus the compositor had since
++  // given to a toplevel.
++  auto weak_this = AsWeakPtr();
++  if (connection()->IsKeyboardAvailable()) {
++    manager->SetKeyboardFocusedWindow(this);
++    if (!weak_this) {
++      return;
++    }
++  }
++
++  // Text input focus has to move with it: zwp_text_input_v3 enter/leave are
++  // delivered for the embedder's toplevel and are not repeated when the host
++  // moves between two browsers inside it.
++  //
++  // Moved, never invented. text-input-v3 defines enable against the surface a
++  // previous zwp_text_input_v3.enter named, not a wl_keyboard.enter, which is a
++  // different focus with a different event that some compositors send while
++  // never sending the text-input one. The evidence is therefore the recorded
++  // text-input surface, or a sibling already holding a focus that came from
++  // one.
++  auto* text_holder = manager->GetCurrentTextInputFocusedWindow();
++  auto* text_sibling =
++      text_holder ? text_holder->AsWaylandEmbeddedWindow() : nullptr;
++  const bool text_focus_is_on_this_embedder =
++      (text_sibling && text_sibling->parent_surface() == parent_surface_) ||
++      manager->text_input_focused_foreign_surface() == parent_surface_;
++  if (text_holder != this && text_focus_is_on_this_embedder) {
++    manager->SetTextInputFocusedWindow(this);
++    if (!weak_this) {
++      return;
++    }
++  }
++
++  // Usually a no-op: SetKeyboardFocusedWindow() above already ran this through
++  // the manager. It is repeated for the cases that produce no focus transition
++  // at all -- no keyboard on the seat, or the focus already here -- where the
++  // manager is never reached.
++  UpdateActivationState();
++}
++
++uint32_t WaylandEmbeddedWindow::DispatchEvent(
++    const PlatformEvent& native_event) {
++  // Compositors hand keyboard focus to whatever toplevel the user clicks. An
++  // embedded window is invisible to that policy: it has no toplevel of its own
++  // and never receives wl_keyboard.enter, so clicking one would leave the keys
++  // going wherever they went before. Reproduce click-to-focus here, otherwise
++  // every host would have to call SetFocus() from its own click handler just
++  // to make typing follow the pointer.
++  const auto type = static_cast<Event*>(native_event)->type();
++  if (type == EventType::kMousePressed || type == EventType::kTouchPressed) {
++    // Resolved here rather than through Activate(), which defers. One dispatch
++    // of the Wayland queue drains every pending event, so a key queued behind
++    // this click would otherwise be delivered to whichever browser held focus
++    // before it -- WaylandEventSource reads the stored focus, and the posted
++    // task would not have run yet. Deferring exists to keep a destructive
++    // delegate callback out of Widget::Show(); this path is not Show().
++    embedder_requested_active_ = true;
++    connection()->window_manager()->SetEmbeddedWindowForForeignSurface(
++        parent_surface_, this);
++    auto weak_this = AsWeakPtr();
++    // Same order Activate() uses: dismiss any active bubble first, then take
++    // the focus. Skipping the base call would leave a bubble holding the
++    // keyboard while this window believed it had it.
++    WaylandWindow::Activate();
++    if (!weak_this) {
++      return POST_DISPATCH_STOP_PROPAGATION;
++    }
++    TakeFocusIfAvailable();
++    if (!weak_this) {
++      return POST_DISPATCH_STOP_PROPAGATION;
++    }
++  }
++  return WaylandWindow::DispatchEvent(native_event);
++}
++
++void WaylandEmbeddedWindow::Deactivate() {
++  embedder_requested_active_ = false;
++  auto* manager = connection()->window_manager();
++
++  // Taken before the first call that can reach a delegate. Both Set* below run
++  // the manager's activation update, which since the notification became inline
++  // ends in OnActivationChanged(false) -- documented as free to close the
++  // widget and destroy this window from there.
++  auto weak_this = AsWeakPtr();
++
++  // Give up the routing entry, not just the current focus. Clearing only the
++  // focus would hand the keyboard straight back on the next wl_keyboard.enter
++  // -- the user moving the pointer out of the host window and in again -- to a
++  // browser the embedder has since deactivated or hidden.
++  manager->RemoveEmbeddedWindowForForeignSurface(parent_surface_, this);
++
++  if (manager->GetCurrentKeyboardFocusedWindow() == this) {
++    manager->SetKeyboardFocusedWindow(nullptr);
++    if (!weak_this) {
++      return;
++    }
++  }
++  if (manager->GetCurrentTextInputFocusedWindow() == this) {
++    manager->SetTextInputFocusedWindow(nullptr);
++    if (!weak_this) {
++      return;
++    }
++  }
++
++  // As in Activate(): the manager notifies on the focus transition. This covers
++  // the case where the embedder deactivates a browser that never held the
++  // keyboard, which produces no transition at all.
++  UpdateActivationState();
++  if (!weak_this) {
++    return;
++  }
++  WaylandWindow::Deactivate();
++}
++
++void WaylandEmbeddedWindow::OnSequencePoint(int64_t seq) {
++  if (!subsurface_) {
++    return;
++  }
++
++  ProcessSequencePoint(seq);
++  MaybeApplyLatestStateRequest(/*force=*/false);
++}
++
++base::WeakPtr<WaylandWindow> WaylandEmbeddedWindow::AsWeakPtr() {
++  return weak_ptr_factory_.GetWeakPtr();
++}
++
++bool WaylandEmbeddedWindow::IsActive() const {
++  // A wl_subsurface never holds the seat's keyboard focus, so there is no
++  // protocol event to derive this from. The embedder drives it through
++  // Activate()/Deactivate().
++  return active_;
++}
++
++void WaylandEmbeddedWindow::AttachToParentSurface() {
++  subsurface_ =
++      root_surface()->CreateSubsurfaceForForeignParent(parent_surface_.get());
++  if (!subsurface_) {
++    LOG(ERROR) << "Failed to create wl_subsurface for embedded window; is the "
++                  "parent surface from the same wl_display?";
++    return;
++  }
++
++  SetSubsurfacePosition();
++
++  // This window has its own ui::Compositor and receives BeginFrames
++  // independently of the embedder, so its frames must not wait for a commit on
++  // the parent surface.
++  wl_subsurface_set_desync(subsurface_.get());
++
++  // Subsurfaces never receive configure events. As soon as the wl_subsurface
++  // exists it is considered configured, otherwise frame_manager_ would never
++  // start processing frames.
++  OnSurfaceConfigureEvent();
++  connection()->window_manager()->NotifyWindowConfigured(this);
++
++  connection()->Flush();
++}
++
++void WaylandEmbeddedWindow::SetSubsurfacePosition() {
++  // Unlike WaylandBubble, there is no parent WaylandWindow whose geometry the
++  // bounds could be translated against: the embedder specifies bounds directly
++  // in the parent surface's coordinate space, so there is no origin to
++  // subtract. The scale still has to be undone -- GetBoundsInDIP() is in the
++  // UI coordinate space that the upper layers work in, and set_position takes
++  // Wayland DIP -- which is the same reverse transform WaylandPopup applies
++  // before issuing an xdg_positioner request.
++  const auto bounds_in_parent = gfx::ScaleToEnclosingRectIgnoringError(
++      GetBoundsInDIP(), applied_state().ui_scale);
++  wl_subsurface_set_position(subsurface_.get(), bounds_in_parent.x(),
++                             bounds_in_parent.y());
++
++  // wl_subsurface.set_position is part of the parent surface's double-buffered
++  // state, so it only takes effect on the parent's next commit. We deliberately
++  // do not commit the parent here: it belongs to the embedder, and committing
++  // it behind their back would publish whatever partial state they had pending.
++  // The move lands when the embedder next commits, which it does whenever it
++  // repaints after moving us.
++  connection()->Flush();
++}
++
++bool WaylandEmbeddedWindow::OnInitialize(
++    PlatformWindowInitProperties properties,
++    PlatformWindowDelegate::State* state) {
++  state->window_state = PlatformWindowState::kNormal;
++
++  // There is no parent WaylandWindow to inherit scale from, and
++  // WaylandWindow::Initialize() takes state->window_scale as final -- it does
++  // not call UpdateWindowScale() afterwards -- so whatever is chosen here is
++  // what the opening frames render at.
++  //
++  // A sibling already embedded in the same surface is the best answer: it is on
++  // the same output by construction and the compositor has already told it the
++  // scale. WaylandSurface seeds preferred_scale_factor_ from that sibling for
++  // exactly this purpose, and it has to be read back here -- left in the
++  // surface's cache alone it changes nothing, and a browser added while the
++  // host sits on a fractional output renders at the primary display's scale and
++  // stays blurry until dragged to another output and back.
++  float scale = 0.f;
++  if (auto inherited = GetPreferredScaleFactor()) {
++    scale = *inherited;
++  }
++
++  // No sibling to ask. The primary display is the only hint left, since the
++  // output the embedder's surface sits on cannot be queried; wl_surface.enter
++  // and wp_fractional_scale_v1.preferred_scale refine it afterwards.
++  if (scale <= 0.f) {
++    if (auto* output_manager = connection()->wayland_output_manager()) {
++      if (auto* screen = output_manager->wayland_screen()) {
++        const float primary = screen->GetPrimaryDisplay().device_scale_factor();
++        if (primary > 0.f) {
++          scale = primary;
++        }
++      }
++    }
++  }
++  state->window_scale = scale > 0.f ? scale : 1.0f;
++
++  return true;
++}
++
++bool WaylandEmbeddedWindow::IsSurfaceConfigured() {
++  // The server raises unconfigured_buffer if a buffer is attached to an
++  // unconfigured toplevel or popup, but a subsurface counts as configured for
++  // as long as it has a wl_subsurface handle.
++  return !!subsurface_;
++}
++
++void WaylandEmbeddedWindow::UpdateWindowMask() {
++  // The embedder owns the window shape; we occupy the rectangle it gave us.
++  root_surface()->set_opaque_region(std::nullopt);
++}
++
++}  // namespace ui
+diff --git ui/ozone/platform/wayland/host/wayland_embedded_window.h ui/ozone/platform/wayland/host/wayland_embedded_window.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..ee2375d840569e52b4706348b4f3d09bd7835a2b
+--- /dev/null
++++ ui/ozone/platform/wayland/host/wayland_embedded_window.h
+@@ -0,0 +1,141 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef UI_OZONE_PLATFORM_WAYLAND_HOST_WAYLAND_EMBEDDED_WINDOW_H_
++#define UI_OZONE_PLATFORM_WAYLAND_HOST_WAYLAND_EMBEDDED_WINDOW_H_
++
++#include "base/memory/raw_ptr.h"
++#include "base/memory/weak_ptr.h"
++#include "ui/ozone/platform/wayland/host/wayland_window.h"
++#include "ui/platform_window/platform_window_init_properties.h"
++
++struct wl_surface;
++struct xdg_surface;
++
++namespace ui {
++
++// A WaylandWindow attached as a wl_subsurface of a wl_surface that belongs to
++// the embedding application rather than to Chromium.
++//
++// This is what makes it possible to host web content inside a window owned by a
++// third-party Wayland client, the way CefWindowX11 does on X11. It differs from
++// WaylandBubble, which is also subsurface-based, in that the parent is a bare
++// wl_surface with no corresponding WaylandWindow: Chromium knows nothing about
++// it beyond the proxy pointer, and cannot query its size, position, scale or
++// activation state.
++//
++// The parent surface must belong to the same wl_display as this window. A
++// wl_surface is scoped to its connection and wl_subcompositor_get_subsurface()
++// rejects surfaces from different connections, which is why the embedder has to
++// hand its wl_display to WaylandConnection at startup.
++//
++// Consequences of having no parent WaylandWindow:
++//   * Bounds are taken at face value, relative to the parent surface origin.
++//     There is no parent geometry to translate against.
++//   * wl_subsurface.set_position is double-buffered on the *parent* surface, so
++//     a move only takes effect when the embedder next commits. This class does
++//     not commit the parent surface, because doing so would race with the
++//     embedder's own rendering.
++//   * Keyboard focus is never delivered here; wl_keyboard.enter goes to the
++//     embedder's toplevel. Activation is driven explicitly instead.
++class WaylandEmbeddedWindow final : public WaylandWindow {
++ public:
++  // |parent_xdg_surface| is the embedding application's xdg_surface, or null.
++  // A wl_subsurface has no xdg_surface role of its own and
++  // xdg_surface.get_popup requires one, so without it the browser cannot open
++  // menus, tooltips or <select> dropdowns. See
++  // WaylandEmbeddedWindow::foreign_xdg_surface().
++  WaylandEmbeddedWindow(PlatformWindowDelegate* delegate,
++                        WaylandConnection* connection,
++                        wl_surface* parent_surface,
++                        xdg_surface* parent_xdg_surface);
++  WaylandEmbeddedWindow(const WaylandEmbeddedWindow&) = delete;
++  WaylandEmbeddedWindow& operator=(const WaylandEmbeddedWindow&) = delete;
++  ~WaylandEmbeddedWindow() override;
++
++  // PlatformWindow overrides:
++  void Show(bool inactive) override;
++  void Hide() override;
++  bool IsVisible() const override;
++  void SetBoundsInDIP(const gfx::Rect& bounds) override;
++  void Activate() override;
++  void Deactivate() override;
++
++  // PlatformEventDispatcher overrides:
++  uint32_t DispatchEvent(const PlatformEvent& event) override;
++
++  // WaylandWindow overrides:
++  void OnSequencePoint(int64_t seq) override;
++  void AckConfigure(uint32_t serial) override {}
++  base::WeakPtr<WaylandWindow> AsWeakPtr() override;
++  bool IsActive() const override;
++
++  // Recomputes activation from the seat and tells the delegate if it changed.
++  // Called by WaylandWindowManager on both sides of every focus transition,
++  // the same way WaylandToplevelWindow is driven.
++  void UpdateActivationState();
++  WaylandEmbeddedWindow* AsWaylandEmbeddedWindow() override;
++
++  // The embedder's xdg_surface, used as the parent of any xdg_popup this window
++  // spawns. Popups are anchored on the embedder's window geometry, so their
++  // anchor rectangles are expressed in that surface's coordinate space rather
++  // than relative to this window. Null if the embedder did not provide one, in
++  // which case popups cannot be created at all.
++  xdg_surface* foreign_xdg_surface() const { return parent_xdg_surface_; }
++
++  // The embedding application's surface this window is attached to.
++  wl_surface* parent_surface() const { return parent_surface_; }
++
++ private:
++  // WaylandWindow overrides:
++  bool OnInitialize(PlatformWindowInitProperties properties,
++                    PlatformWindowDelegate::State* state) override;
++  bool IsSurfaceConfigured() override;
++  void UpdateWindowMask() override;
++
++  void AttachToParentSurface();
++  void SetSubsurfacePosition();
++
++  // Records the new activation state and tells the delegate, inline. Returns
++  // false if the delegate destroyed this window in response, which views
++  // documents it may do. Inline on purpose: WaylandToplevelWindow notifies the
++  // same way from the same manager path, and one dispatch of the Wayland queue
++  // drains every pending event, so deferring would let a key queued behind
++  // wl_keyboard.enter reach views before views knew the window was active.
++  [[nodiscard]] bool NotifyActivationChanged(bool active);
++
++  // The deferred half of Activate(). A toplevel's Activate() only asks the
++  // compositor and learns the answer from a later event, so views never sees a
++  // delegate callback from inside Widget::Show(). An embedded window has no
++  // compositor to ask and would otherwise resolve activation during that call,
++  // putting a possibly destructive callback in the middle of
++  // DesktopWindowTreeHostPlatform::Show(), which goes on using
++  // native_widget_delegate_ without rechecking its own WeakPtr.
++  void TakeFocusIfAvailable();
++
++  // Owned by the embedding application, not by us.
++  const raw_ptr<wl_surface> parent_surface_;
++  const raw_ptr<xdg_surface> parent_xdg_surface_;
++
++  wl::Object<wl_subsurface> subsurface_;
++
++  // Derived state: where input actually goes, per UpdateActivationState().
++  bool active_ = false;
++
++  // What the embedder last asked for through Activate()/Deactivate(). Used only
++  // when neither a keyboard nor an input method exists to derive from, which is
++  // the embedded equivalent of the xdg_toplevel.activated fallback a toplevel
++  // has and this window does not.
++  bool embedder_requested_active_ = false;
++
++  // Set while a TakeFocusIfAvailable() task is queued, so repeated Activate()
++  // calls collapse into one.
++  bool activation_request_pending_ = false;
++
++  base::WeakPtrFactory<WaylandEmbeddedWindow> weak_ptr_factory_{this};
++};
++
++}  // namespace ui
++
++#endif  // UI_OZONE_PLATFORM_WAYLAND_HOST_WAYLAND_EMBEDDED_WINDOW_H_
+diff --git ui/ozone/platform/wayland/host/wayland_embedded_window_unittest.cc ui/ozone/platform/wayland/host/wayland_embedded_window_unittest.cc
+new file mode 100644
+index 0000000000000000000000000000000000000000..01b68d4c1aae40a91535ab55577efac84090289f
+--- /dev/null
++++ ui/ozone/platform/wayland/host/wayland_embedded_window_unittest.cc
+@@ -0,0 +1,876 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "ui/ozone/platform/wayland/host/wayland_embedded_window.h"
++
++#include <text-input-unstable-v3-server-protocol.h>
++#include <xdg-shell-client-protocol.h>
++
++#include "base/memory/raw_ptr.h"
++#include "testing/gtest/include/gtest/gtest.h"
++#include "ui/events/event.h"
++#include "ui/events/event_constants.h"
++#include "ui/events/types/event_type.h"
++#include "ui/ozone/platform/wayland/common/wayland_util.h"
++#include "ui/ozone/platform/wayland/host/wayland_seat.h"
++#include "ui/ozone/platform/wayland/host/wayland_window_manager.h"
++#include "ui/ozone/platform/wayland/test/mock_surface.h"
++#include "ui/ozone/platform/wayland/test/mock_wayland_platform_window_delegate.h"
++#include "ui/ozone/platform/wayland/test/mock_zwp_text_input.h"
++#include "ui/ozone/platform/wayland/test/test_zwp_text_input_manager.h"
++#include "ui/ozone/platform/wayland/test/wayland_test.h"
++#include "ui/ozone/platform/wayland/wayland_embedder.h"
++
++namespace ui {
++
++using ::testing::Values;
++
++namespace {
++
++constexpr gfx::Rect kPanelBounds(10, 20, 200, 100);
++
++}  // namespace
++
++// Covers hosting a browser inside a surface owned by another application: the
++// window that stands in for it, and the input routing that has to reach it even
++// though the compositor addresses everything to the embedder's toplevel.
++//
++// The embedder's surface is created here on the same connection, without going
++// through WaylandSurface, which is exactly what makes it foreign: Chromium
++// knows nothing about it beyond the proxy pointer.
++class WaylandEmbeddedWindowTest : public WaylandTest {
++ public:
++  WaylandEmbeddedWindowTest() = default;
++  WaylandEmbeddedWindowTest(const WaylandEmbeddedWindowTest&) = delete;
++  WaylandEmbeddedWindowTest& operator=(const WaylandEmbeddedWindowTest&) =
++      delete;
++  ~WaylandEmbeddedWindowTest() override = default;
++
++  void SetUp() override {
++    WaylandTest::SetUp();
++    manager_ = connection_->window_manager();
++    ASSERT_TRUE(manager_);
++
++    foreign_surface_ = wl_compositor_create_surface(connection_->compositor());
++    ASSERT_TRUE(foreign_surface_);
++  }
++
++  void TearDown() override {
++    if (foreign_widget_ != gfx::kNullAcceleratedWidget) {
++      UnregisterForeignWaylandSurface(foreign_widget_);
++      foreign_widget_ = gfx::kNullAcceleratedWidget;
++    }
++    if (foreign_xdg_surface_) {
++      xdg_surface_destroy(foreign_xdg_surface_.get());
++      foreign_xdg_surface_ = nullptr;
++    }
++    if (foreign_surface_) {
++      wl_surface_destroy(foreign_surface_);
++      foreign_surface_ = nullptr;
++    }
++    WaylandTest::TearDown();
++  }
++
++ protected:
++  // |with_xdg_surface| mirrors an embedder whose toolkit exposes its
++  // xdg_surface; passing false is the winit case, where popups cannot be
++  // anchored at all.
++  //
++  // A real xdg_surface rather than a stand-in pointer: XdgPopup::Initialize()
++  // passes it straight to xdg_surface.get_popup, so anything else segfaults in
++  // libwayland the first time a popup is opened.
++  gfx::AcceleratedWidget RegisterForeignParent(bool with_xdg_surface = true) {
++    if (with_xdg_surface) {
++      foreign_xdg_surface_ =
++          xdg_wm_base_get_xdg_surface(connection_->shell(), foreign_surface_);
++    }
++    foreign_widget_ = RegisterForeignWaylandSurface(foreign_surface_,
++                                                    foreign_xdg_surface_.get());
++    return foreign_widget_;
++  }
++
++  // Drives a real zwp_text_input_v3.enter from the test compositor for the
++  // embedder's surface, rather than writing the manager state by hand. This is
++  // the path the protocol actually takes: OnEnter has to record the foreign
++  // surface even when it resolves to no window yet.
++  void SendTextInputEnterForForeignSurface() {
++    ASSERT_TRUE(connection_->EnsureTextInputV3());
++    connection_->RoundTripQueue();
++    const uint32_t surface_id = wl_proxy_get_id(
++        reinterpret_cast<wl_proxy*>(foreign_surface_.get()));
++    PostToServerAndWait([surface_id](wl::TestWaylandServerThread* server) {
++      auto* text_input = server->text_input_manager_v3()->text_input();
++      ASSERT_TRUE(text_input);
++      auto* surface = server->GetObject<wl::MockSurface>(surface_id);
++      ASSERT_TRUE(surface);
++      zwp_text_input_v3_send_enter(text_input->resource(), surface->resource());
++    });
++  }
++
++  // Activation is derived from the seat, so the tests that exercise it need a
++  // keyboard to exist at all; without one UpdateActivationState() falls through
++  // to the embedder-request tier and the protocol path is never taken.
++  void PlugKeyboard() {
++    PostToServerAndWait([](wl::TestWaylandServerThread* server) {
++      wl_seat_send_capabilities(server->seat()->resource(),
++                                WL_SEAT_CAPABILITY_KEYBOARD);
++    });
++    ASSERT_TRUE(connection_->seat() && connection_->seat()->keyboard());
++  }
++
++  std::unique_ptr<WaylandWindow> CreateEmbedded(
++      MockWaylandPlatformWindowDelegate* delegate,
++      gfx::AcceleratedWidget parent) {
++    // kPopup on purpose: views maps Widget::InitParams::TYPE_CONTROL, which is
++    // what an embedded browser uses, onto it. The factory has to decide from
++    // the parent widget rather than the type.
++    return CreateWaylandWindowWithParams(PlatformWindowType::kPopup,
++                                         kPanelBounds, delegate, parent);
++  }
++
++  raw_ptr<WaylandWindowManager> manager_ = nullptr;
++  raw_ptr<wl_surface> foreign_surface_ = nullptr;
++  raw_ptr<struct xdg_surface> foreign_xdg_surface_ = nullptr;
++  gfx::AcceleratedWidget foreign_widget_ = gfx::kNullAcceleratedWidget;
++};
++
++// A parent widget naming a foreign surface produces an embedded window,
++// whatever PlatformWindowType views asked for.
++TEST_P(WaylandEmbeddedWindowTest, ForeignParentProducesAnEmbeddedWindow) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  ASSERT_NE(parent, gfx::kNullAcceleratedWidget);
++
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++
++  auto* embedded = window->AsWaylandEmbeddedWindow();
++  ASSERT_TRUE(embedded);
++  EXPECT_EQ(embedded->parent_surface(), foreign_surface_);
++  // Corrected away from the kPopup views could not express.
++  EXPECT_EQ(window->type(), PlatformWindowType::kWindow);
++  // An embedded window has no parent WaylandWindow at all.
++  EXPECT_EQ(window->parent_window(), nullptr);
++}
++
++// Registration is what lets a foreign surface travel through
++// views::Widget::InitParams::parent_widget, and unregistration has to undo it.
++TEST_P(WaylandEmbeddedWindowTest, ForeignSurfaceRegistrationRoundTrips) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  ASSERT_NE(parent, gfx::kNullAcceleratedWidget);
++  EXPECT_EQ(manager_->GetForeignSurface(parent), foreign_surface_);
++  EXPECT_NE(manager_->GetForeignXdgSurface(parent), nullptr);
++
++  UnregisterForeignWaylandSurface(parent);
++  foreign_widget_ = gfx::kNullAcceleratedWidget;
++
++  EXPECT_EQ(manager_->GetForeignSurface(parent), nullptr);
++  EXPECT_EQ(manager_->GetForeignXdgSurface(parent), nullptr);
++
++  // And the factory no longer treats that widget as an embedder: the type
++  // views asked for decides again, so this is an ordinary popup rather than an
++  // embedded window.
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  if (window) {
++    EXPECT_EQ(window->AsWaylandEmbeddedWindow(), nullptr);
++  }
++  EXPECT_EQ(wl::KeyboardWindowFromWlSurface(foreign_surface_), nullptr);
++}
++
++// The distinction M1 turns on: pointer, touch and drag events arriving on the
++// embedder's surface belong to the embedder and must not resolve into the
++// browser, while the keyboard has to cross over or an embedded browser could
++// never be typed into.
++TEST_P(WaylandEmbeddedWindowTest, OnlyTheKeyboardCrossesFromAForeignSurface) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++
++  EXPECT_EQ(wl::RootWindowFromWlSurface(foreign_surface_), nullptr);
++  EXPECT_EQ(wl::KeyboardWindowFromWlSurface(foreign_surface_), window.get());
++
++  // Chromium's own surfaces keep resolving through the ordinary path.
++  ASSERT_TRUE(window->root_surface());
++  EXPECT_EQ(wl::RootWindowFromWlSurface(window->root_surface()->surface()),
++            window.get());
++}
++
++// wl_keyboard.enter fires once for the embedder's toplevel and is not repeated
++// while focus stays inside it, so activating a sibling has to take the stored
++// focus over. Without this only the browser that happened to own the routing
++// map at enter time ever receives keys.
++TEST_P(WaylandEmbeddedWindowTest, ActivateMovesKeyboardFocusBetweenSiblings) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  PlugKeyboard();
++  MockWaylandPlatformWindowDelegate delegate_a(connection_.get());
++  MockWaylandPlatformWindowDelegate delegate_b(connection_.get());
++  auto first = CreateEmbedded(&delegate_a, parent);
++  auto second = CreateEmbedded(&delegate_b, parent);
++  ASSERT_TRUE(first);
++  ASSERT_TRUE(second);
++
++  // What the two enter events would have left behind: the seat's keyboard and
++  // its text input are both on the embedder's surface, and each resolved to
++  // whichever window owned the map at the time. Text input is recorded
++  // separately on purpose -- a keyboard enter is not evidence of a text-input
++  // one, and without this the activation below would refuse to move it.
++  manager_->SetKeyboardFocusedForeignSurface(foreign_surface_);
++  manager_->SetTextInputFocusedForeignSurface(foreign_surface_);
++  manager_->SetKeyboardFocusedWindow(first.get());
++  ASSERT_EQ(manager_->GetCurrentKeyboardFocusedWindow(), first.get());
++
++  second->Activate();
++  task_environment_.RunUntilIdle();
++  EXPECT_EQ(manager_->GetCurrentKeyboardFocusedWindow(), second.get());
++  // Text input has to follow, or composition keeps landing on the old one.
++  EXPECT_EQ(manager_->GetCurrentTextInputFocusedWindow(), second.get());
++
++  first->Activate();
++  task_environment_.RunUntilIdle();
++  EXPECT_EQ(manager_->GetCurrentKeyboardFocusedWindow(), first.get());
++}
++
++// Taking focus is only legitimate from a sibling sharing the same embedder
++// surface. A Chromium toplevel of its own holds the keyboard on its own
++// account, and the recorded foreign surface may simply be stale.
++TEST_P(WaylandEmbeddedWindowTest, ActivateDoesNotStealFromAToplevel) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto embedded = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(embedded);
++
++  // window_ is the fixture's ordinary toplevel.
++  manager_->SetKeyboardFocusedForeignSurface(foreign_surface_);
++  manager_->SetKeyboardFocusedWindow(window_.get());
++
++  embedded->Activate();
++  task_environment_.RunUntilIdle();
++  EXPECT_EQ(manager_->GetCurrentKeyboardFocusedWindow(), window_.get());
++}
++
++// With the keyboard somewhere else entirely there is nothing to take over,
++// and activating must not pull it in. Requires a keyboard to exist: without
++// one the gate does not apply at all, which the next test covers.
++TEST_P(WaylandEmbeddedWindowTest, ActivateIgnoresAnUnrelatedForeignSurface) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  PlugKeyboard();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto embedded = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(embedded);
++
++  manager_->SetKeyboardFocusedForeignSurface(nullptr);
++  manager_->SetKeyboardFocusedWindow(nullptr);
++
++  embedded->Activate();
++  task_environment_.RunUntilIdle();
++  EXPECT_EQ(manager_->GetCurrentKeyboardFocusedWindow(), nullptr);
++}
++
++// Deactivating gives up the routing entry too. Clearing only the focus would
++// hand the keyboard straight back on the next enter -- the user moving the
++// pointer out of the host window and in again -- to a browser the embedder has
++// since deactivated or hidden.
++TEST_P(WaylandEmbeddedWindowTest, DeactivateReleasesTheRoutingEntry) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto embedded = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(embedded);
++
++  embedded->Activate();
++  task_environment_.RunUntilIdle();
++  ASSERT_EQ(wl::KeyboardWindowFromWlSurface(foreign_surface_), embedded.get());
++
++  manager_->SetKeyboardFocusedForeignSurface(foreign_surface_);
++  manager_->SetKeyboardFocusedWindow(embedded.get());
++
++  embedded->Deactivate();
++  EXPECT_EQ(manager_->GetCurrentKeyboardFocusedWindow(), nullptr);
++  EXPECT_EQ(manager_->GetCurrentTextInputFocusedWindow(), nullptr);
++  // The next enter has nothing to resolve to.
++  EXPECT_EQ(wl::KeyboardWindowFromWlSurface(foreign_surface_), nullptr);
++}
++
++// A panel being torn down must not take routing away from a sibling that has
++// since claimed it.
++TEST_P(WaylandEmbeddedWindowTest, DestroyingASiblingKeepsTheOwnersEntry) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  MockWaylandPlatformWindowDelegate delegate_a(connection_.get());
++  MockWaylandPlatformWindowDelegate delegate_b(connection_.get());
++  auto first = CreateEmbedded(&delegate_a, parent);
++  auto second = CreateEmbedded(&delegate_b, parent);
++  ASSERT_TRUE(first);
++  ASSERT_TRUE(second);
++
++  second->Activate();
++  task_environment_.RunUntilIdle();
++  ASSERT_EQ(wl::KeyboardWindowFromWlSurface(foreign_surface_), second.get());
++
++  first.reset();
++  EXPECT_EQ(wl::KeyboardWindowFromWlSurface(foreign_surface_), second.get());
++}
++
++// An embedder whose toolkit does not expose its xdg_surface still gets a
++// working browser. Popups are not lost -- they fall back to a subsurface, which
++// the next test covers -- but this used to abort the host process on the first
++// <select>, because XdgPopup::Initialize() CHECKs.
++TEST_P(WaylandEmbeddedWindowTest, NoXdgSurfaceLeavesTheWindowUsable) {
++  const gfx::AcceleratedWidget parent =
++      RegisterForeignParent(/*with_xdg_surface=*/false);
++  ASSERT_NE(parent, gfx::kNullAcceleratedWidget);
++
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++
++  auto* embedded = window->AsWaylandEmbeddedWindow();
++  ASSERT_TRUE(embedded);
++  EXPECT_EQ(embedded->foreign_xdg_surface(), nullptr);
++
++  // Still a usable window: it takes bounds and reports itself normally.
++  EXPECT_EQ(window->GetBoundsInDIP(), kPanelBounds);
++  EXPECT_EQ(wl::KeyboardWindowFromWlSurface(foreign_surface_), window.get());
++}
++
++// Without an xdg_surface a menu cannot be an xdg_popup, and it must not fail
++// either: views destroys the widget inside Widget::Show() when window creation
++// returns null, and HandleWidgetDestroyed() CHECKs on that. It falls back to a
++// subsurface instead.
++TEST_P(WaylandEmbeddedWindowTest,
++       MenuWithoutAnXdgSurfaceFallsBackToASubsurface) {
++  const gfx::AcceleratedWidget parent =
++      RegisterForeignParent(/*with_xdg_surface=*/false);
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++
++  MockWaylandPlatformWindowDelegate menu_delegate(connection_.get());
++  auto menu = CreateWaylandWindowWithParams(
++      PlatformWindowType::kMenu, gfx::Rect(0, 0, 80, 90), &menu_delegate,
++      window->GetWidget());
++
++  // The point is that this exists at all.
++  ASSERT_TRUE(menu);
++  EXPECT_TRUE(menu->AsWaylandBubble());
++  EXPECT_EQ(menu->AsWaylandPopup(), nullptr);
++}
++
++// With one, the ordinary xdg_popup path is still taken.
++TEST_P(WaylandEmbeddedWindowTest, MenuWithAnXdgSurfaceIsStillAnXdgPopup) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++
++  MockWaylandPlatformWindowDelegate menu_delegate(connection_.get());
++  auto menu = CreateWaylandWindowWithParams(
++      PlatformWindowType::kMenu, gfx::Rect(0, 0, 80, 90), &menu_delegate,
++      window->GetWidget());
++  ASSERT_TRUE(menu);
++  EXPECT_TRUE(menu->AsWaylandPopup());
++  EXPECT_EQ(menu->AsWaylandBubble(), nullptr);
++}
++
++// The two coordinate spaces an embedded window has children in, which are not
++// the same and were conflated once.
++//
++// An xdg_popup hangs off the *embedding application's* xdg_surface, so it is
++// measured in that surface's space -- the same space the embedded window's own
++// bounds are already in, so its origin must not be subtracted. A bubble is a
++// wl_subsurface of the embedded window itself, so its position is relative to
++// that window and the origin must be subtracted as usual.
++//
++// Getting this wrong in either direction displaces the menu by the offset of
++// the browser within the host window.
++TEST_P(WaylandEmbeddedWindowTest, PopupAndBubbleUseDifferentCoordinateSpaces) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++  ASSERT_EQ(window->GetBoundsInDIP().origin(), kPanelBounds.origin());
++  ASSERT_NE(kPanelBounds.origin(), gfx::Point());
++
++  // Parented at the embedded window rather than at the embedder's surface, so
++  // this really is a child of the browser and not a second embedded window.
++  constexpr gfx::Rect kMenuBounds(40, 60, 80, 90);
++  MockWaylandPlatformWindowDelegate menu_delegate(connection_.get());
++  auto menu =
++      CreateWaylandWindowWithParams(PlatformWindowType::kMenu, kMenuBounds,
++                                    &menu_delegate, window->GetWidget());
++  ASSERT_TRUE(menu);
++  ASSERT_TRUE(menu->AsWaylandPopup());
++
++  // Anchored on the embedder's xdg_surface: unchanged.
++  EXPECT_EQ(wl::TranslateWindowBoundsToXdgParentDIP(menu.get(), window.get()),
++            kMenuBounds);
++
++  // A subsurface of the embedded window would be relative to it.
++  EXPECT_EQ(
++      wl::TranslateWindowBoundsToParentDIP(menu.get(), window.get()),
++      gfx::Rect(kMenuBounds.origin() - kPanelBounds.origin().OffsetFromOrigin(),
++                kMenuBounds.size()));
++}
++
++// A browser added to a host that is already on a fractional-scale output has
++// nothing to inherit its scale from: an embedded window has no parent
++// WaylandWindow, and there is no way to ask which output the embedding
++// application's surface is on. WaylandWindow::Initialize() then resolves the
++// unset scale to 1.0, and the new browser renders at 1x and is upscaled --
++// blurry until the window is dragged to another output and back, because only
++// a real change produces a preferred_scale event.
++//
++// A sibling already embedded in the same surface is on the same output by
++// construction, so it is the seed.
++TEST_P(WaylandEmbeddedWindowTest, ANewSiblingInheritsTheScaleOfTheExistingOne) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  MockWaylandPlatformWindowDelegate delegate_a(connection_.get());
++  auto first = CreateEmbedded(&delegate_a, parent);
++  ASSERT_TRUE(first);
++  ASSERT_TRUE(first->root_surface());
++
++  // Stand in for wp_fractional_scale_v1.preferred_scale having arrived for the
++  // window that was already there.
++  constexpr float kFractional = 1.25f;
++  first->root_surface()->set_preferred_scale_factor_for_testing(kFractional);
++  ASSERT_EQ(first->GetPreferredScaleFactor(), kFractional);
++
++  MockWaylandPlatformWindowDelegate delegate_b(connection_.get());
++  auto second = CreateEmbedded(&delegate_b, parent);
++  ASSERT_TRUE(second);
++
++  EXPECT_EQ(second->GetPreferredScaleFactor(), kFractional);
++
++  // And the seed has to reach the window, not just sit in the surface's cache.
++  // WaylandWindow::Initialize() takes state->window_scale as final, so
++  // OnInitialize() reads the inherited value back; without that the new browser
++  // renders at the primary display's scale no matter what the sibling knows.
++  EXPECT_EQ(second->applied_state().window_scale, kFractional);
++
++  // And a window embedded in some other surface must not inherit it.
++  auto* other_surface = wl_compositor_create_surface(connection_->compositor());
++  ASSERT_TRUE(other_surface);
++  const gfx::AcceleratedWidget other_parent =
++      RegisterForeignWaylandSurface(other_surface, nullptr);
++  MockWaylandPlatformWindowDelegate delegate_c(connection_.get());
++  auto unrelated = CreateEmbedded(&delegate_c, other_parent);
++  ASSERT_TRUE(unrelated);
++  EXPECT_EQ(unrelated->GetPreferredScaleFactor(), std::nullopt);
++
++  unrelated.reset();
++  UnregisterForeignWaylandSurface(other_parent);
++  wl_surface_destroy(other_surface);
++}
++
++// The seat is the authority on activation, not the embedder's request. A
++// browser created while the host has no focus is inactive; when
++// wl_keyboard.enter later names the embedder's surface, the manager moves the
++// keyboard here and activation has to follow -- otherwise the browser takes
++// keys while views believes it inactive, and the input method never gets
++// OnFocus.
++TEST_P(WaylandEmbeddedWindowTest, KeyboardEnterActivatesWithoutAnyRequest) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  PlugKeyboard();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++  ASSERT_FALSE(window->IsActive());
++
++  // What WaylandKeyboard::OnEnter leads to for the embedder's surface.
++  manager_->SetKeyboardFocusedForeignSurface(foreign_surface_);
++  EXPECT_CALL(delegate, OnActivationChanged(true)).Times(1);
++  manager_->SetKeyboardFocusedWindow(window.get());
++  task_environment_.RunUntilIdle();
++  ::testing::Mock::VerifyAndClearExpectations(&delegate);
++  EXPECT_TRUE(window->IsActive());
++}
++
++// And wl_keyboard.leave has to deactivate it, or the browser stays active in
++// views after the whole application lost focus.
++TEST_P(WaylandEmbeddedWindowTest, KeyboardLeaveDeactivates) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  PlugKeyboard();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++
++  manager_->SetKeyboardFocusedForeignSurface(foreign_surface_);
++  manager_->SetKeyboardFocusedWindow(window.get());
++  task_environment_.RunUntilIdle();
++  ASSERT_TRUE(window->IsActive());
++
++  EXPECT_CALL(delegate, OnActivationChanged(false)).Times(1);
++  manager_->SetKeyboardFocusedForeignSurface(nullptr);
++  manager_->SetKeyboardFocusedWindow(nullptr);
++  task_environment_.RunUntilIdle();
++  ::testing::Mock::VerifyAndClearExpectations(&delegate);
++  EXPECT_FALSE(window->IsActive());
++}
++
++// A browser that already holds the keyboard because enter put it there, and is
++// then activated by the embedder, must not be left unreported. This was the
++// gap: Activate() saw the focus already in place and returned without telling
++// views anything.
++TEST_P(WaylandEmbeddedWindowTest, ActivatingAnAlreadyFocusedWindowReports) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  PlugKeyboard();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++
++  // Focus arrives without any activation notification, the way it would if the
++  // manager had no embedded-window handling at all.
++  manager_->SetKeyboardFocusedForeignSurface(foreign_surface_);
++  window->AsWaylandEmbeddedWindow()->Deactivate();
++  manager_->SetKeyboardFocusedWindow(nullptr);
++  manager_->SetEmbeddedWindowForForeignSurface(foreign_surface_, window.get());
++  ASSERT_FALSE(window->IsActive());
++
++  EXPECT_CALL(delegate, OnActivationChanged(true)).Times(1);
++  window->Activate();
++  task_environment_.RunUntilIdle();
++  EXPECT_TRUE(window->IsActive());
++}
++
++// On a seat with no keyboard -- touch only, or a virtual keyboard behind an
++// input method -- wl_keyboard.enter never arrives, so the recorded foreign
++// surface stays null forever. Gating on it would make every Activate() return
++// early and leave the browser permanently inactive. The embedder's request is
++// the authority in that case, and it is the only one there is.
++TEST_P(WaylandEmbeddedWindowTest, ActivationWorksWithNoKeyboardOnTheSeat) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  // Deliberately no PlugKeyboard().
++  ASSERT_FALSE(connection_->IsKeyboardAvailable());
++
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++  ASSERT_FALSE(window->IsActive());
++
++  EXPECT_CALL(delegate, OnActivationChanged(true)).Times(1);
++  window->Activate();
++  task_environment_.RunUntilIdle();
++  ::testing::Mock::VerifyAndClearExpectations(&delegate);
++  EXPECT_TRUE(window->IsActive());
++
++  EXPECT_CALL(delegate, OnActivationChanged(false)).Times(1);
++  window->Deactivate();
++  task_environment_.RunUntilIdle();
++  EXPECT_FALSE(window->IsActive());
++}
++
++// With no keyboard on the seat, zwp_text_input_v3 is what routes text, and a
++// toplevel holding that focus owns it exactly as legitimately as a keyboard
++// holder would. Checking only the keyboard -- which is null here by definition
++// -- would let an embedded window take the input method away from it while the
++// compositor kept delivering there.
++TEST_P(WaylandEmbeddedWindowTest,
++       NoKeyboardDoesNotStealTextInputFromAToplevel) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  ASSERT_FALSE(connection_->IsKeyboardAvailable());
++
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto embedded = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(embedded);
++
++  // window_ is the fixture's ordinary toplevel, focused by the compositor.
++  manager_->SetTextInputFocusedWindow(window_.get());
++  ASSERT_EQ(manager_->GetCurrentTextInputFocusedWindow(), window_.get());
++
++  EXPECT_CALL(delegate, OnActivationChanged(::testing::_)).Times(0);
++  embedded->Activate();
++  task_environment_.RunUntilIdle();
++
++  EXPECT_EQ(manager_->GetCurrentTextInputFocusedWindow(), window_.get());
++  EXPECT_FALSE(embedded->IsActive());
++}
++
++// Without a keyboard the window must not record a keyboard focus of its own.
++// Nothing on such a seat ever clears one, and the ownership check reads it back
++// as this window legitimately holding focus -- so a later Activate() would
++// overwrite a text-input focus the compositor had since handed to a toplevel.
++TEST_P(WaylandEmbeddedWindowTest, NoKeyboardLeavesNoStaleFocusBehind) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  ASSERT_FALSE(connection_->IsKeyboardAvailable());
++
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto embedded = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(embedded);
++
++  embedded->Activate();
++  task_environment_.RunUntilIdle();
++  ASSERT_TRUE(embedded->IsActive());
++  // No keyboard exists, so no keyboard focus may have been synthesised.
++  EXPECT_EQ(manager_->GetCurrentKeyboardFocusedWindow(), nullptr);
++
++  // The compositor now gives text input to a toplevel of this process.
++  manager_->SetTextInputFocusedWindow(window_.get());
++
++  embedded->Activate();
++  task_environment_.RunUntilIdle();
++  EXPECT_EQ(manager_->GetCurrentTextInputFocusedWindow(), window_.get());
++}
++
++// A request withdrawn before the posted task runs must not be carried out. A
++// host that deactivates or hides in the same turn of the loop would otherwise
++// see the browser hand focus back to itself a moment later.
++TEST_P(WaylandEmbeddedWindowTest, DeactivatingBeforeTheTaskRunsWins) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  PlugKeyboard();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++  manager_->SetKeyboardFocusedForeignSurface(foreign_surface_);
++
++  // No RunUntilIdle() between the two: that is the whole point.
++  window->Activate();
++  window->Deactivate();
++
++  EXPECT_CALL(delegate, OnActivationChanged(true)).Times(0);
++  task_environment_.RunUntilIdle();
++
++  EXPECT_FALSE(window->IsActive());
++  EXPECT_EQ(manager_->GetCurrentKeyboardFocusedWindow(), nullptr);
++}
++
++// The same for Hide(), which deactivates on the way down.
++TEST_P(WaylandEmbeddedWindowTest, HidingBeforeTheTaskRunsWins) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  PlugKeyboard();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++  manager_->SetKeyboardFocusedForeignSurface(foreign_surface_);
++  window->Show(/*inactive=*/false);
++
++  window->Activate();
++  window->Hide();
++
++  EXPECT_CALL(delegate, OnActivationChanged(true)).Times(0);
++  task_environment_.RunUntilIdle();
++  EXPECT_FALSE(window->IsActive());
++}
++
++// A click has to move the focus before the events queued behind it are
++// dispatched, so it cannot go through the deferred path.
++TEST_P(WaylandEmbeddedWindowTest, ClickMovesFocusWithoutWaitingForATask) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  PlugKeyboard();
++  MockWaylandPlatformWindowDelegate delegate_a(connection_.get());
++  MockWaylandPlatformWindowDelegate delegate_b(connection_.get());
++  auto first = CreateEmbedded(&delegate_a, parent);
++  auto second = CreateEmbedded(&delegate_b, parent);
++  ASSERT_TRUE(first);
++  ASSERT_TRUE(second);
++
++  manager_->SetKeyboardFocusedForeignSurface(foreign_surface_);
++  manager_->SetKeyboardFocusedWindow(first.get());
++  ASSERT_EQ(manager_->GetCurrentKeyboardFocusedWindow(), first.get());
++
++  MouseEvent press(EventType::kMousePressed, gfx::Point(1, 1), gfx::Point(1, 1),
++                   base::TimeTicks::Now(), EF_LEFT_MOUSE_BUTTON,
++                   EF_LEFT_MOUSE_BUTTON);
++  second->DispatchEvent(&press);
++
++  // No RunUntilIdle(): a key in the same batch would be dispatched here.
++  EXPECT_EQ(manager_->GetCurrentKeyboardFocusedWindow(), second.get());
++}
++
++// A zwp_text_input_v3.enter naming the embedder's surface is what lets a
++// browser created afterwards claim the input method. The compositor does not
++// repeat that event, so without recording the surface the focus would be lost
++// for good -- the same problem the keyboard side already solved.
++TEST_P(WaylandEmbeddedWindowTest, TextInputEnterBeforeTheBrowserExistsIsKept) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  ASSERT_FALSE(connection_->IsKeyboardAvailable());
++
++  // The enter arrives while nothing is embedded yet, so it resolves to no
++  // window at all -- only the surface survives.
++  manager_->SetTextInputFocusedForeignSurface(foreign_surface_);
++  ASSERT_EQ(manager_->GetCurrentTextInputFocusedWindow(), nullptr);
++
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++
++  window->Activate();
++  task_environment_.RunUntilIdle();
++  EXPECT_EQ(manager_->GetCurrentTextInputFocusedWindow(), window.get());
++}
++
++// And with no such event, the focus is not invented: text-input-v3 defines
++// enable against the surface an enter named, and a wl_keyboard.enter is a
++// different focus from a different event.
++TEST_P(WaylandEmbeddedWindowTest, KeyboardEnterIsNotEvidenceOfTextInputFocus) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  PlugKeyboard();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++
++  // Keyboard focus only. No text-input enter has ever named this surface.
++  manager_->SetKeyboardFocusedForeignSurface(foreign_surface_);
++
++  window->Activate();
++  task_environment_.RunUntilIdle();
++
++  EXPECT_EQ(manager_->GetCurrentKeyboardFocusedWindow(), window.get());
++  EXPECT_EQ(manager_->GetCurrentTextInputFocusedWindow(), nullptr);
++}
++
++// Ozone-level routing is only half of activation: views keeps its own notion of
++// which widget is active, fed only by the delegate. Without this call
++// Widget::IsActive() stays wrong, the FocusController is never driven, and
++// InputMethod::OnFocus/OnBlur never arrive -- the last of which is what an IME
++// depends on.
++TEST_P(WaylandEmbeddedWindowTest, ActivationReachesTheDelegate) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  PlugKeyboard();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++  ASSERT_FALSE(window->IsActive());
++  manager_->SetKeyboardFocusedForeignSurface(foreign_surface_);
++
++  EXPECT_CALL(delegate, OnActivationChanged(true)).Times(1);
++  window->Activate();
++  task_environment_.RunUntilIdle();
++  ::testing::Mock::VerifyAndClearExpectations(&delegate);
++  EXPECT_TRUE(window->IsActive());
++
++  EXPECT_CALL(delegate, OnActivationChanged(false)).Times(1);
++  window->Deactivate();
++  task_environment_.RunUntilIdle();
++  ::testing::Mock::VerifyAndClearExpectations(&delegate);
++  EXPECT_FALSE(window->IsActive());
++}
++
++// Redundant calls must not produce spurious notifications: views treats each
++// one as a real activation change and restores focus on the back of it.
++TEST_P(WaylandEmbeddedWindowTest, RepeatedActivationIsNotReported) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  PlugKeyboard();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++  manager_->SetKeyboardFocusedForeignSurface(foreign_surface_);
++
++  EXPECT_CALL(delegate, OnActivationChanged(true)).Times(1);
++  window->Activate();
++  task_environment_.RunUntilIdle();
++  window->Activate();
++  task_environment_.RunUntilIdle();
++  window->Activate();
++  task_environment_.RunUntilIdle();
++  ::testing::Mock::VerifyAndClearExpectations(&delegate);
++}
++
++// Activating a sibling has to deactivate the other by itself. The click path
++// only calls Activate() on the window that was clicked; nothing calls
++// Deactivate() on the one losing focus, and SetKeyboardFocusedWindow() delivers
++// OnKeyboardFocusChanged() without touching activation. Calling Deactivate()
++// here first would test the embedder's manners rather than the code.
++TEST_P(WaylandEmbeddedWindowTest, ActivatingASiblingDeactivatesTheOther) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  PlugKeyboard();
++  MockWaylandPlatformWindowDelegate delegate_a(connection_.get());
++  MockWaylandPlatformWindowDelegate delegate_b(connection_.get());
++  auto first = CreateEmbedded(&delegate_a, parent);
++  auto second = CreateEmbedded(&delegate_b, parent);
++  ASSERT_TRUE(first);
++  ASSERT_TRUE(second);
++
++  manager_->SetKeyboardFocusedForeignSurface(foreign_surface_);
++  first->Activate();
++  task_environment_.RunUntilIdle();
++  ASSERT_TRUE(first->IsActive());
++
++  EXPECT_CALL(delegate_a, OnActivationChanged(false)).Times(1);
++  EXPECT_CALL(delegate_b, OnActivationChanged(true)).Times(1);
++  second->Activate();
++  task_environment_.RunUntilIdle();
++
++  EXPECT_FALSE(first->IsActive());
++  EXPECT_TRUE(second->IsActive());
++  EXPECT_EQ(manager_->GetCurrentKeyboardFocusedWindow(), second.get());
++}
++
++// Widget::Show() calls Activate() on every browser it shows. When the
++// embedder's surface does not hold the seat's keyboard focus, that request
++// cannot be honoured, and reporting it as activation would tell views that a
++// browser is focused while the keys are going to another application.
++TEST_P(WaylandEmbeddedWindowTest, ActivationIsNotClaimedWithoutKeyboardFocus) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  PlugKeyboard();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++
++  // No wl_keyboard.enter has named the embedder's surface.
++  manager_->SetKeyboardFocusedForeignSurface(nullptr);
++
++  EXPECT_CALL(delegate, OnActivationChanged(::testing::_)).Times(0);
++  window->Activate();
++  task_environment_.RunUntilIdle();
++  EXPECT_FALSE(window->IsActive());
++}
++
++// Nor when the keyboard is legitimately on a Chromium toplevel of this
++// process: refusing to take the focus and reporting activation anyway is the
++// same inconsistency seen from the other side.
++TEST_P(WaylandEmbeddedWindowTest, RefusingToStealDoesNotReportActivation) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  PlugKeyboard();
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto embedded = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(embedded);
++
++  manager_->SetKeyboardFocusedForeignSurface(foreign_surface_);
++  manager_->SetKeyboardFocusedWindow(window_.get());
++
++  EXPECT_CALL(delegate, OnActivationChanged(::testing::_)).Times(0);
++  embedded->Activate();
++  task_environment_.RunUntilIdle();
++
++  EXPECT_FALSE(embedded->IsActive());
++  EXPECT_EQ(manager_->GetCurrentKeyboardFocusedWindow(), window_.get());
++}
++
++// A separate fixture because advertising text-input-v3 changes what
++// UpdateActivationState() derives from: with it available, the keyboardless
++// tests above would take the text-input tier instead of the embedder-request
++// one, and would stop testing what they were written for.
++class WaylandEmbeddedWindowTextInputTest : public WaylandEmbeddedWindowTest {};
++
++// The same thing again, but driven through the protocol instead of by writing
++// the manager state directly: the compositor sends zwp_text_input_v3.enter for
++// the embedder's surface while nothing is embedded in it yet.
++TEST_P(WaylandEmbeddedWindowTextInputTest, TextInputEnterArrivesThroughTheProtocol) {
++  const gfx::AcceleratedWidget parent = RegisterForeignParent();
++  SendTextInputEnterForForeignSurface();
++
++  // It resolved to no window -- there was none -- but the surface was kept.
++  EXPECT_EQ(manager_->GetCurrentTextInputFocusedWindow(), nullptr);
++  ASSERT_EQ(manager_->text_input_focused_foreign_surface(),
++            foreign_surface_.get());
++
++  MockWaylandPlatformWindowDelegate delegate(connection_.get());
++  auto window = CreateEmbedded(&delegate, parent);
++  ASSERT_TRUE(window);
++
++  window->Activate();
++  task_environment_.RunUntilIdle();
++  EXPECT_EQ(manager_->GetCurrentTextInputFocusedWindow(), window.get());
++}
++
++INSTANTIATE_TEST_SUITE_P(XdgVersionStableTest,
++                         WaylandEmbeddedWindowTest,
++                         Values(wl::ServerConfig{}));
++
++INSTANTIATE_TEST_SUITE_P(
++    TextInputV3Test,
++    WaylandEmbeddedWindowTextInputTest,
++    Values(wl::ServerConfig{.text_input_type = wl::ZwpTextInputType::kV3}));
++
++}  // namespace ui
+diff --git ui/ozone/platform/wayland/host/wayland_keyboard.cc ui/ozone/platform/wayland/host/wayland_keyboard.cc
+index e091a743368dbc797c1b0ead7879384397cc49bd..f763909594266204191135b5ba3caf25a3ee7ff5 100644
+--- ui/ozone/platform/wayland/host/wayland_keyboard.cc
++++ ui/ozone/platform/wayland/host/wayland_keyboard.cc
+@@ -34,6 +34,8 @@
+ #include "ui/ozone/platform/wayland/host/wayland_seat.h"
+ #include "ui/ozone/platform/wayland/host/wayland_serial_tracker.h"
+ #include "ui/ozone/platform/wayland/host/wayland_window.h"
++#include "ui/ozone/platform/wayland/host/wayland_window_manager.h"
++#include "ui/ozone/platform/wayland/wayland_embedder.h"
+ #include "ui/ozone/public/platform_keyboard_hook.h"
+ 
+ #if BUILDFLAG(USE_XKBCOMMON)
+@@ -273,9 +275,20 @@ void WaylandKeyboard::OnEnter(void* data,
+                               uint32_t serial,
+                               wl_surface* surface,
+                               wl_array* keys) {
++  auto* self = static_cast<WaylandKeyboard*>(data);
++
++  // Record the surface itself, not just the window it resolves to. When the
++  // surface belongs to an embedding application this is the only event that
++  // names it, and an embedded window created or activated later has no other
++  // way to tell that the keys are addressed to its embedder. See
++  // WaylandWindowManager::SetKeyboardFocusedForeignSurface().
++  if (surface && !ui::ChromiumSurfaceFor(surface)) {
++    self->connection_->window_manager()->SetKeyboardFocusedForeignSurface(
++        surface);
++  }
++
+   // wl_surface might have been destroyed by this time.
+-  if (auto* window = wl::RootWindowFromWlSurface(surface)) {
+-    auto* self = static_cast<WaylandKeyboard*>(data);
++  if (auto* window = wl::KeyboardWindowFromWlSurface(surface)) {
+     self->delegate_->OnKeyboardFocusChanged(window, /*focused=*/true);
+   }
+ }
+@@ -287,7 +300,13 @@ void WaylandKeyboard::OnLeave(void* data,
+                               wl_surface* surface) {
+   // wl_surface might have been destroyed by this time.
+   auto* self = static_cast<WaylandKeyboard*>(data);
+-  if (auto* window = wl::RootWindowFromWlSurface(surface))
++  if (surface &&
++      self->connection_->window_manager()
++              ->keyboard_focused_foreign_surface() == surface) {
++    self->connection_->window_manager()->SetKeyboardFocusedForeignSurface(
++        nullptr);
++  }
++  if (auto* window = wl::KeyboardWindowFromWlSurface(surface))
+     self->delegate_->OnKeyboardFocusChanged(window, /*focused=*/false);
+ 
+   // Upon window focus lose, reset modifier state.
+diff --git ui/ozone/platform/wayland/host/wayland_popup.cc ui/ozone/platform/wayland/host/wayland_popup.cc
+index 8b5b03e7579b43b496909f1fc0a909ab9f614f60..568dcc54b8eb3a7eeb4231a594dc422280406b17 100644
+--- ui/ozone/platform/wayland/host/wayland_popup.cc
++++ ui/ozone/platform/wayland/host/wayland_popup.cc
+@@ -34,8 +34,12 @@ WaylandPopup::WaylandPopup(PlatformWindowDelegate* delegate,
+   // TODO(crbug.com/330384470): Whether the popup appear depends on whether
+   // anchor point is outside of the parent xdg_surface. On Mutter the popup will
+   // not show when outside.
+-  LOG_IF(WARNING,
+-         !parent->AsWaylandToplevelWindow() && !parent->AsWaylandPopup())
++  // An embedded window is not a bubble: it anchors popups on the embedding
++  // application's xdg_surface, which is a legitimate xdg parent, so it does not
++  // carry the uncertainty this warns about.
++  LOG_IF(WARNING, !parent->AsWaylandToplevelWindow() &&
++                      !parent->AsWaylandPopup() &&
++                      !parent->AsWaylandEmbeddedWindow())
+       << "Popup's parent is a bubble. Wayland shell popup is not guaranteed to "
+          "show up.";
+ }
+@@ -61,7 +65,7 @@ bool WaylandPopup::CreateShellPopup() {
+   }
+ 
+   auto bounds_dip =
+-      wl::TranslateWindowBoundsToParentDIP(this, xdg_parent_window);
++      wl::TranslateWindowBoundsToXdgParentDIP(this, xdg_parent_window);
+   bounds_dip.Inset(delegate()->CalculateInsetsInDIP(GetPlatformWindowState()));
+ 
+   // At this point, both `bounds` and `anchor_rect` parameters here are in
+@@ -77,9 +81,21 @@ bool WaylandPopup::CreateShellPopup() {
+   if (params.anchor.has_value()) {
+     // The anchor rectangle must be relative to the window geometry, rather
+     // than the root surface origin. See https://crbug.com/1292486.
++    //
++    // An embedded window is the exception, for the same reason it is one in
++    // TranslateWindowBoundsToXdgParentDIP(): the popup hangs off the embedding
++    // application's xdg_surface, so it is already measured in that surface's
++    // space. Subtracting the embedded window's own origin would shift the
++    // anchor by the offset of the browser within the host window, and only for
++    // the popups that carry an anchor rectangle -- menus would land in a
++    // different place than <select> dropdowns.
++    const gfx::Rect parent_bounds_dip =
++        xdg_parent_window->AsWaylandEmbeddedWindow()
++            ? gfx::Rect(xdg_parent_window->GetBoundsInDIP().size())
++            : xdg_parent_window->GetBoundsInDIP();
+     gfx::Rect anchor_rect(
+-        wl::TranslateBoundsToParentCoordinates(
+-            params.anchor->anchor_rect, xdg_parent_window->GetBoundsInDIP()) -
++        wl::TranslateBoundsToParentCoordinates(params.anchor->anchor_rect,
++                                               parent_bounds_dip) -
+         xdg_parent_window->GetWindowGeometryOffsetInDIP());
+ 
+     // Convert `anchor_rect` to Wayland coordinates space.
+@@ -190,7 +206,7 @@ void WaylandPopup::SetBoundsInDIP(const gfx::Rect& bounds_dip) {
+   // the initialization. See WaylandPopup::CreateShellPopup.
+   if (xdg_popup_ && old_bounds_dip != bounds_dip) {
+     auto bounds_dip_in_parent =
+-        wl::TranslateWindowBoundsToParentDIP(this, xdg_parent_window);
++        wl::TranslateWindowBoundsToXdgParentDIP(this, xdg_parent_window);
+     bounds_dip_in_parent.Inset(
+         delegate()->CalculateInsetsInDIP(GetPlatformWindowState()));
+ 
+diff --git ui/ozone/platform/wayland/host/wayland_surface.cc ui/ozone/platform/wayland/host/wayland_surface.cc
+index 0efd9ed7520c8e11f1c002b7bb087dfbc4db5ab6..6fd4e00749c95f4ae16d0b05f2f81a3288fce770 100644
+--- ui/ozone/platform/wayland/host/wayland_surface.cc
++++ ui/ozone/platform/wayland/host/wayland_surface.cc
+@@ -37,13 +37,16 @@
+ #include "ui/ozone/platform/wayland/host/wayland_buffer_handle.h"
+ #include "ui/ozone/platform/wayland/host/wayland_buffer_manager_host.h"
+ #include "ui/ozone/platform/wayland/host/wayland_connection.h"
++#include "ui/ozone/platform/wayland/host/wayland_embedded_window.h"
+ #include "ui/ozone/platform/wayland/host/wayland_output.h"
+ #include "ui/ozone/platform/wayland/host/wayland_output_manager.h"
+ #include "ui/ozone/platform/wayland/host/wayland_subsurface.h"
+ #include "ui/ozone/platform/wayland/host/wayland_syncobj_timeline.h"
+ #include "ui/ozone/platform/wayland/host/wayland_window.h"
++#include "ui/ozone/platform/wayland/host/wayland_window_manager.h"
+ #include "ui/ozone/platform/wayland/host/wayland_wp_color_management_surface.h"
+ #include "ui/ozone/platform/wayland/host/wayland_wp_color_manager.h"
++#include "ui/ozone/platform/wayland/wayland_embedder.h"
+ 
+ namespace ui {
+ 
+@@ -100,10 +103,31 @@ WaylandSurface::WaylandSurface(WaylandConnection* connection,
+   if (root_window_ && root_window_->parent_window()) {
+     preferred_scale_factor_ =
+         root_window_->parent_window()->GetPreferredScaleFactor();
++  } else if (root_window_ && root_window_->AsWaylandEmbeddedWindow()) {
++    // An embedded window has no parent WaylandWindow to inherit from, and no
++    // way to ask which output the embedding application's surface is on. A
++    // sibling already attached to that same surface is the best guess
++    // available: it has already been told a scale by the compositor, and it is
++    // almost always on the same output. Not necessarily -- a wl_surface may
++    // span zero or more outputs, so a host straddling two monitors can have
++    // subsurfaces on different ones -- which is why this is a seed and not an
++    // answer. preferred_scale corrects it as soon as the compositor sends one.
++    //
++    // Without this the scale stays unset, WaylandWindow::Initialize() resolves
++    // that to 1.0, and a browser added while the host sits on a fractional
++    // output renders at 1x and is upscaled -- blurry until the window is
++    // dragged to another output and back, since only an actual change produces
++    // a wp_fractional_scale_v1.preferred_scale event.
++    preferred_scale_factor_ =
++        connection_->window_manager()->GetPreferredScaleForForeignSurface(
++            root_window_->AsWaylandEmbeddedWindow()->parent_surface(),
++            root_window_);
+   }
+ }
+ 
+-WaylandSurface::~WaylandSurface() = default;
++WaylandSurface::~WaylandSurface() {
++  UnregisterChromiumSurface(surface_.get());
++}
+ 
+ void WaylandSurface::RequestExplicitRelease(ExplicitReleaseCallback callback) {
+   DCHECK(!next_explicit_release_request_);
+@@ -128,6 +152,10 @@ bool WaylandSurface::Initialize() {
+   // WaylandDataDragController.
+   if (!root_window() || root_window()->root_surface() == this) {
+     wl_surface_add_listener(surface_.get(), &kSurfaceListener, this);
++    // Registered under exactly the same condition that used to set the user
++    // data this replaces, so that RootWindowFromWlSurface() keeps resolving the
++    // same set of surfaces and no others.
++    RegisterChromiumSurface(surface_.get(), this);
+   }
+ 
+   if (connection_->fractional_scale_manager_v1()) {
+@@ -501,6 +529,17 @@ wl::Object<wl_subsurface> WaylandSurface::CreateSubsurface(
+   return subsurface;
+ }
+ 
++wl::Object<wl_subsurface> WaylandSurface::CreateSubsurfaceForForeignParent(
++    wl_surface* parent) {
++  CHECK(parent);
++  wl_subcompositor* subcompositor = connection_->subcompositor();
++  if (!subcompositor) {
++    return {};
++  }
++  return wl::Object<wl_subsurface>(
++      wl_subcompositor_get_subsurface(subcompositor, surface_.get(), parent));
++}
++
+ std::optional<bool> WaylandSurface::ApplyPendingState() {
+   DCHECK(!apply_state_immediately_);
+   bool needs_commit = false;
+diff --git ui/ozone/platform/wayland/host/wayland_surface.h ui/ozone/platform/wayland/host/wayland_surface.h
+index 3c49265ef24a01d03eb2dce4a9505e3c97a69c94..3db8e8349a82d23feea93cfcb9b7c4e32bcd42cc 100644
+--- ui/ozone/platform/wayland/host/wayland_surface.h
++++ ui/ozone/platform/wayland/host/wayland_surface.h
+@@ -189,6 +189,14 @@ class WaylandSurface {
+   // |parent|. Callers take ownership of the wl_subsurface.
+   wl::Object<wl_subsurface> CreateSubsurface(WaylandSurface* parent);
+ 
++  // Same, but parented to a wl_surface that belongs to an embedding
++  // application rather than to Chromium. |parent| must come from the same
++  // wl_display as this surface; wl_subcompositor_get_subsurface() rejects
++  // surfaces from a different connection. Returns null if the subcompositor is
++  // unavailable. See WaylandEmbeddedWindow.
++  wl::Object<wl_subsurface> CreateSubsurfaceForForeignParent(
++      wl_surface* parent);
++
+   // When display is removed, the WaylandOutput from `entered_outputs_` should
+   // be removed.
+   void RemoveEnteredOutput(uint32_t id);
+@@ -221,6 +229,12 @@ class WaylandSurface {
+     return preferred_scale_factor_;
+   }
+ 
++  // Stands in for wp_fractional_scale_v1.preferred_scale, which a test server
++  // does not send.
++  void set_preferred_scale_factor_for_testing(float scale) {
++    preferred_scale_factor_ = scale;
++  }
++
+   // Some states do not take effect if the surface commit has no buffer.
+   // E.g. `xdg_surface.set_window_geometry`
+   bool has_buffer() const { return state_.buffer_id; }
+diff --git ui/ozone/platform/wayland/host/wayland_window.cc ui/ozone/platform/wayland/host/wayland_window.cc
+index dcd3ff3545689f7566b3e2ff950865cf799bf939..b2d95ae602910df542339917ea088f0c4e2efd9c 100644
+--- ui/ozone/platform/wayland/host/wayland_window.cc
++++ ui/ozone/platform/wayland/host/wayland_window.cc
+@@ -1068,8 +1068,14 @@ WaylandWindow* WaylandWindow::GetTopMostChildWindow() {
+ 
+ WaylandWindow* WaylandWindow::GetXdgParentWindow() {
+   auto* xdg_parent_window = parent_window();
++  // An embedded window has no xdg_surface of its own, but it borrows the
++  // embedding application's, so it can stand in as an xdg parent. Without this
++  // the walk runs off the end -- an embedded window has no parent WaylandWindow
++  // at all -- and every menu, tooltip and <select> dropdown silently fails to
++  // open.
+   while (xdg_parent_window && !xdg_parent_window->AsWaylandToplevelWindow() &&
+-         !xdg_parent_window->AsWaylandPopup()) {
++         !xdg_parent_window->AsWaylandPopup() &&
++         !xdg_parent_window->AsWaylandEmbeddedWindow()) {
+     xdg_parent_window = xdg_parent_window->parent_window();
+   }
+   return xdg_parent_window;
+@@ -1088,6 +1094,10 @@ bool WaylandWindow::IsSuspended() const {
+   return false;
+ }
+ 
++WaylandEmbeddedWindow* WaylandWindow::AsWaylandEmbeddedWindow() {
++  return nullptr;
++}
++
+ WaylandBubble* WaylandWindow::AsWaylandBubble() {
+   return nullptr;
+ }
+diff --git ui/ozone/platform/wayland/host/wayland_window.h ui/ozone/platform/wayland/host/wayland_window.h
+index 7d82e02ad1b7ab23b006e1a25a0283a49b425159..4bd8e4032be5baf4cc98e437be3e54b9853b20f1 100644
+--- ui/ozone/platform/wayland/host/wayland_window.h
++++ ui/ozone/platform/wayland/host/wayland_window.h
+@@ -53,6 +53,7 @@ class BitmapCursor;
+ class OSExchangeData;
+ class WaylandAsyncCursor;
+ class WaylandBubble;
++class WaylandEmbeddedWindow;
+ class WaylandConnection;
+ class WaylandSubsurface;
+ class WaylandDataDragController;
+@@ -378,6 +379,7 @@ class WaylandWindow : public PlatformWindow,
+   // WaylandBubble, WaylandPopup or WaylandToplevelWindow, if |this| is
+   // of that type.
+   virtual WaylandBubble* AsWaylandBubble();
++  virtual WaylandEmbeddedWindow* AsWaylandEmbeddedWindow();
+   virtual WaylandPopup* AsWaylandPopup();
+   virtual WaylandToplevelWindow* AsWaylandToplevelWindow();
+ 
+diff --git ui/ozone/platform/wayland/host/wayland_window_factory.cc ui/ozone/platform/wayland/host/wayland_window_factory.cc
+index 333b59ff323502c3f5823398c2ac6a871c017d53..836ffda7781d8f021ad9ed5c97207b0c0f38345b 100644
+--- ui/ozone/platform/wayland/host/wayland_window_factory.cc
++++ ui/ozone/platform/wayland/host/wayland_window_factory.cc
+@@ -7,19 +7,62 @@
+ #include "base/logging.h"
+ #include "ui/ozone/platform/wayland/host/wayland_bubble.h"
+ #include "ui/ozone/platform/wayland/host/wayland_connection.h"
++#include "ui/ozone/platform/wayland/host/wayland_embedded_window.h"
+ #include "ui/ozone/platform/wayland/host/wayland_popup.h"
+ #include "ui/ozone/platform/wayland/host/wayland_toplevel_window.h"
+ #include "ui/ozone/platform/wayland/host/wayland_window.h"
++#include "ui/ozone/platform/wayland/host/wayland_window_manager.h"
+ #include "ui/platform_window/platform_window_init_properties.h"
+ 
+ namespace ui {
+ 
++namespace {
++
++// True when a menu or tooltip parented at |parent| would find no xdg_surface to
++// anchor on: the chain reaches a window embedded in an application that did not
++// hand its own over. Walks the same way GetXdgParentWindow() does, but starting
++// at |parent| itself, which is where an embedded window sits.
++bool XdgParentIsUnavailable(WaylandWindow* parent) {
++  for (auto* window = parent; window; window = window->parent_window()) {
++    if (auto* embedded = window->AsWaylandEmbeddedWindow()) {
++      return !embedded->foreign_xdg_surface();
++    }
++    if (window->AsWaylandToplevelWindow() || window->AsWaylandPopup()) {
++      return false;
++    }
++  }
++  return false;
++}
++
++}  // namespace
++
+ // static
+ std::unique_ptr<WaylandWindow> WaylandWindow::Create(
+     PlatformWindowDelegate* delegate,
+     WaylandConnection* connection,
+     PlatformWindowInitProperties properties) {
+   std::unique_ptr<WaylandWindow> window;
++
++  // A parent widget naming a surface owned by an embedding application means
++  // the caller wants this window hosted inside that application's window,
++  // whatever PlatformWindowType views chose. views maps every Widget type it
++  // does not recognise to kPopup -- Widget::InitParams::TYPE_CONTROL, which is
++  // what an embedded browser uses, lands there -- so this cannot be decided
++  // from the type alone.
++  if (auto* foreign_surface = connection->window_manager()->GetForeignSurface(
++          properties.parent_widget)) {
++    auto embedded = std::make_unique<WaylandEmbeddedWindow>(
++        delegate, connection, foreign_surface,
++        connection->window_manager()->GetForeignXdgSurface(
++            properties.parent_widget));
++    // Correct the type views could not express. Left at kPopup, type() would
++    // lie to everything downstream that branches on it, for a window that is
++    // hosted content rather than a popup of anything.
++    properties.type = PlatformWindowType::kWindow;
++    return embedded->Initialize(std::move(properties)) ? std::move(embedded)
++                                                       : nullptr;
++  }
++
+   switch (properties.type) {
+     case PlatformWindowType::kPopup:
+     case PlatformWindowType::kBubble:
+@@ -40,7 +83,21 @@ std::unique_ptr<WaylandWindow> WaylandWindow::Create(
+     case PlatformWindowType::kMenu:
+       if (auto* parent = connection->window_manager()->GetWindow(
+               properties.parent_widget)) {
+-        window = std::make_unique<WaylandPopup>(delegate, connection, parent);
++        if (XdgParentIsUnavailable(parent)) {
++          // No xdg_surface anywhere up the chain, so xdg_surface.get_popup is
++          // not an option. Failing instead is not one either: views does not
++          // expect a widget to be destroyed inside Widget::Show(), and
++          // HandleWidgetDestroyed() CHECKs when it is.
++          //
++          // A wl_subsurface is what is left. It cannot extend past the host
++          // window or hold a grab, so a dropdown near the bottom edge is
++          // clipped and clicking outside does not dismiss it, but it renders
++          // where it is put -- which is the same trade WaylandBubble already
++          // makes.
++          window = std::make_unique<WaylandBubble>(delegate, connection, parent);
++        } else {
++          window = std::make_unique<WaylandPopup>(delegate, connection, parent);
++        }
+       } else {
+         DLOG(WARNING) << "Failed to determine parent for menu/tooltip window.";
+         window = std::make_unique<WaylandToplevelWindow>(delegate, connection);
+diff --git ui/ozone/platform/wayland/host/wayland_window_manager.cc ui/ozone/platform/wayland/host/wayland_window_manager.cc
+index 50db3bd8e6060d2e7326b33e1fb51cabbdf6abec..1f0a3832670b7083596411167d122c2a46c4c3a8 100644
+--- ui/ozone/platform/wayland/host/wayland_window_manager.cc
++++ ui/ozone/platform/wayland/host/wayland_window_manager.cc
+@@ -11,6 +11,7 @@
+ #include "ui/base/dragdrop/mojom/drag_drop_types.mojom.h"
+ #include "ui/display/display.h"
+ #include "ui/ozone/platform/wayland/host/wayland_connection.h"
++#include "ui/ozone/platform/wayland/host/wayland_embedded_window.h"
+ #include "ui/ozone/platform/wayland/host/wayland_window.h"
+ #include "ui/ozone/platform/wayland/host/wayland_window_drag_controller.h"
+ #include "ui/ozone/platform/wayland/host/wayland_window_observer.h"
+@@ -21,6 +22,16 @@ namespace {
+ 
+ void UpdateToplevelActivation(WaylandWindow* old_focused_window,
+                               WaylandWindow* new_focused_window) {
++  // Taken before anything is notified. Every UpdateActivationState() below ends
++  // in PlatformWindowDelegate::OnActivationChanged(), which views documents may
++  // close the widget and destroy the platform window synchronously -- so
++  // deactivating a toplevel can invalidate the raw pointers this function was
++  // called with before the embedded windows below are reached.
++  auto weak_old =
++      old_focused_window ? old_focused_window->AsWeakPtr() : nullptr;
++  auto weak_new =
++      new_focused_window ? new_focused_window->AsWeakPtr() : nullptr;
++
+   auto* old_focused_toplevel_window =
+       old_focused_window
+           ? old_focused_window->GetRootParentWindow()->AsWaylandToplevelWindow()
+@@ -37,6 +48,19 @@ void UpdateToplevelActivation(WaylandWindow* old_focused_window,
+       focused_toplevel_window->UpdateActivationState();
+     }
+   }
++
++  // An embedded window is its own root and is not a toplevel, so the walk above
++  // skips it entirely. Its activation follows the same rule and has to be
++  // refreshed on both sides of the transition -- this is what makes
++  // wl_keyboard.enter and .leave drive it, rather than only an explicit
++  // Activate() from the embedder.
++  for (const auto& weak_window : {weak_old, weak_new}) {
++    if (weak_window) {
++      if (auto* embedded = weak_window->AsWaylandEmbeddedWindow()) {
++        embedded->UpdateActivationState();
++      }
++    }
++  }
+ }
+ 
+ void UpdateParentToplevelAcivationOnRemoval(WaylandWindow* window) {
+@@ -317,6 +341,104 @@ gfx::AcceleratedWidget WaylandWindowManager::AllocateAcceleratedWidget() {
+   return ++last_accelerated_widget_;
+ }
+ 
++gfx::AcceleratedWidget WaylandWindowManager::RegisterForeignSurface(
++    wl_surface* surface,
++    xdg_surface* xdg_surface) {
++  CHECK(surface);
++  const gfx::AcceleratedWidget widget = AllocateAcceleratedWidget();
++  foreign_surface_map_.emplace(widget, ForeignSurface{surface, xdg_surface});
++  return widget;
++}
++
++void WaylandWindowManager::UnregisterForeignSurface(
++    gfx::AcceleratedWidget widget) {
++  foreign_surface_map_.erase(widget);
++}
++
++wl_surface* WaylandWindowManager::GetForeignSurface(
++    gfx::AcceleratedWidget widget) const {
++  auto it = foreign_surface_map_.find(widget);
++  return it == foreign_surface_map_.end() ? nullptr : it->second.surface.get();
++}
++
++xdg_surface* WaylandWindowManager::GetForeignXdgSurface(
++    gfx::AcceleratedWidget widget) const {
++  auto it = foreign_surface_map_.find(widget);
++  return it == foreign_surface_map_.end() ? nullptr
++                                          : it->second.xdg_surface.get();
++}
++
++WaylandWindow* WaylandWindowManager::GetEmbeddedWindowForForeignSurface(
++    wl_surface* surface) const {
++  auto it = embedded_window_map_.find(surface);
++  return it == embedded_window_map_.end() ? nullptr : it->second.get();
++}
++
++void WaylandWindowManager::SetEmbeddedWindowForForeignSurface(
++    wl_surface* surface,
++    WaylandWindow* window) {
++  if (surface && window) {
++    embedded_window_map_[surface] = window;
++  }
++}
++
++void WaylandWindowManager::RemoveEmbeddedWindowForForeignSurface(
++    wl_surface* surface,
++    WaylandWindow* window) {
++  if (!surface) {
++    return;
++  }
++  // Only clear the entry if this window still owns it. Otherwise a panel being
++  // torn down would take focus routing away from a sibling that had since
++  // claimed it.
++  auto it = embedded_window_map_.find(surface);
++  if (it != embedded_window_map_.end() && it->second.get() == window) {
++    embedded_window_map_.erase(it);
++  }
++}
++
++std::optional<float> WaylandWindowManager::GetPreferredScaleForForeignSurface(
++    wl_surface* surface,
++    const WaylandWindow* except) const {
++  if (!surface) {
++    return std::nullopt;
++  }
++  // Siblings are usually but not necessarily on the same output: a wl_surface
++  // may span several, so a host straddling two monitors can have panels at
++  // different scales. Inherit only when every sibling agrees; otherwise there
++  // is no answer here worth preferring over the primary display.
++  std::optional<float> agreed;
++  for (const auto& entry : window_map_) {
++    WaylandWindow* window = entry.second;
++    if (window == except) {
++      continue;
++    }
++    auto* embedded = window->AsWaylandEmbeddedWindow();
++    if (!embedded || embedded->parent_surface() != surface) {
++      continue;
++    }
++    auto scale = window->GetPreferredScaleFactor();
++    if (!scale) {
++      continue;
++    }
++    if (agreed && *agreed != *scale) {
++      return std::nullopt;
++    }
++    agreed = scale;
++  }
++  return agreed;
++}
++
++void WaylandWindowManager::SetKeyboardFocusedForeignSurface(
++    wl_surface* surface) {
++  keyboard_focused_foreign_surface_ = surface;
++}
++
++void WaylandWindowManager::SetTextInputFocusedForeignSurface(
++    wl_surface* surface) {
++  text_input_focused_foreign_surface_ = surface;
++}
++
+ void WaylandWindowManager::DumpState(std::ostream& out) const {
+   int i = 0;
+   out << "WaylandWindowManager:" << std::endl;
+diff --git ui/ozone/platform/wayland/host/wayland_window_manager.h ui/ozone/platform/wayland/host/wayland_window_manager.h
+index 7735975074d667ab2b8ff13dc385bc0ec3432272..1cc81ff3563f845075f1ae65772beed8b9628ad1 100644
+--- ui/ozone/platform/wayland/host/wayland_window_manager.h
++++ ui/ozone/platform/wayland/host/wayland_window_manager.h
+@@ -130,6 +130,81 @@ class WaylandWindowManager {
+   // Creates a new unique gfx::AcceleratedWidget.
+   gfx::AcceleratedWidget AllocateAcceleratedWidget();
+ 
++  // Registers a wl_surface owned by an embedding application so that it can be
++  // named by a gfx::AcceleratedWidget and used as PlatformWindowInitProperties
++  // ::parent_widget. This lets an embedder reach the Wayland parenting code
++  // through the ordinary views plumbing, which only speaks AcceleratedWidget.
++  //
++  // The surface is not owned here and no WaylandWindow is created for it;
++  // GetWindow() keeps returning null for the returned widget. Chromium cannot
++  // query such a surface for size, scale or activation state.
++  // |xdg_surface| is the embedder's xdg_surface, needed as the parent of any
++  // xdg_popup the embedded window spawns; may be null, in which case popups
++  // cannot be created.
++  gfx::AcceleratedWidget RegisterForeignSurface(wl_surface* surface,
++                                                xdg_surface* xdg_surface);
++  void UnregisterForeignSurface(gfx::AcceleratedWidget widget);
++
++  // Returns the surface registered for |widget|, or null.
++  wl_surface* GetForeignSurface(gfx::AcceleratedWidget widget) const;
++  struct xdg_surface* GetForeignXdgSurface(gfx::AcceleratedWidget widget) const;
++
++  // The embedded window attached to |surface|, or null. Input delivered to an
++  // embedder's surface -- wl_keyboard.enter always is, because a wl_subsurface
++  // never holds keyboard focus -- belongs to the window embedded inside it.
++  //
++  // This runs for every event on a surface Chromium does not own, which
++  // includes each pointer motion over the embedder's own decorations, so it is
++  // a map lookup rather than a scan over the windows.
++  WaylandWindow* GetEmbeddedWindowForForeignSurface(wl_surface* surface) const;
++
++  // Several embedded windows can share one embedder surface -- a host with two
++  // browser panels in the same window -- but only one of them can hold keyboard
++  // focus, and the embedder decides which. Maintained by WaylandEmbeddedWindow
++  // through Activate()/Deactivate() and its own lifetime.
++  void SetEmbeddedWindowForForeignSurface(wl_surface* surface,
++                                          WaylandWindow* window);
++  void RemoveEmbeddedWindowForForeignSurface(wl_surface* surface,
++                                             WaylandWindow* window);
++
++  // The embedder surface the seat's keyboard focus is on, or null. Recorded
++  // from wl_keyboard.enter, which is the only place the protocol names it: a
++  // wl_subsurface never receives that event, so an embedded window cannot
++  // learn it from its own state.
++  //
++  // Needed because enter fires once and is not repeated while focus stays in
++  // the embedder's window. An embedded window activated after that point has
++  // to take |keyboard_focused_window_| over from its sibling, and this is how
++  // it knows the keys are addressed to its embedder at all.
++  // The scale a window already embedded in |surface| is rendering at, ignoring
++  // |except|. Used to seed a newly embedded window, which has no parent
++  // WaylandWindow to inherit from and cannot ask which output the embedding
++  // application's surface is on.
++  //
++  // A seed, not an answer: siblings sharing an embedder surface are usually but
++  // not necessarily on the same output, since a wl_surface may span several.
++  // wp_fractional_scale_v1.preferred_scale corrects it.
++  std::optional<float> GetPreferredScaleForForeignSurface(
++      wl_surface* surface,
++      const WaylandWindow* except) const;
++
++  void SetKeyboardFocusedForeignSurface(wl_surface* surface);
++  wl_surface* keyboard_focused_foreign_surface() const {
++    return keyboard_focused_foreign_surface_;
++  }
++
++  // The same for zwp_text_input_v3, which is a separate focus with a separate
++  // enter event. A keyboard enter is not evidence of a text-input one: the
++  // protocol defines enable against the surface a text-input enter named, and
++  // some compositors do not send that event at all unless an input method is
++  // running. Recorded so that a browser created after the enter can still
++  // recognise the focus as belonging to its embedder, which is otherwise lost
++  // -- the compositor does not repeat it.
++  void SetTextInputFocusedForeignSurface(wl_surface* surface);
++  wl_surface* text_input_focused_foreign_surface() const {
++    return text_input_focused_foreign_surface_;
++  }
++
+   // Returns the current value that to be used as windows' UI scale. If UI
+   // scaling feature is disabled or unavailable (eg: per-surface scaling
+   // unsupported), 1 is returned. If present, the value passed in through the
+@@ -156,6 +231,22 @@ class WaylandWindowManager {
+                  raw_ptr<WaylandWindow, CtnExperimental>>
+       window_map_;
+ 
++  // Surfaces owned by an embedding application. Deliberately separate from
++  // |window_map_|: these have no WaylandWindow behind them.
++  struct ForeignSurface {
++    raw_ptr<wl_surface, CtnExperimental> surface = nullptr;
++    raw_ptr<struct xdg_surface, CtnExperimental> xdg_surface = nullptr;
++  };
++  base::flat_map<gfx::AcceleratedWidget, ForeignSurface> foreign_surface_map_;
++
++  base::flat_map<wl_surface*, raw_ptr<WaylandWindow, CtnExperimental>>
++      embedded_window_map_;
++
++  raw_ptr<wl_surface, CtnExperimental> keyboard_focused_foreign_surface_ =
++      nullptr;
++  raw_ptr<wl_surface, CtnExperimental> text_input_focused_foreign_surface_ =
++      nullptr;
++
+   // The cache of |primary_subsurface_| of the last closed WaylandWindow. This
+   // will be destroyed lazily to make sure the window closing animation works
+   // well. See crbug.com/1324548.
+diff --git ui/ozone/platform/wayland/host/xdg_popup.cc ui/ozone/platform/wayland/host/xdg_popup.cc
+index 94987c9695e51058698060f25947bdb6dcd80e6d..72813f3cf40a5ccb98d6cd79dd2102cd1af69fe1 100644
+--- ui/ozone/platform/wayland/host/xdg_popup.cc
++++ ui/ozone/platform/wayland/host/xdg_popup.cc
+@@ -17,6 +17,7 @@
+ #include "ui/gfx/geometry/rect.h"
+ #include "ui/ozone/platform/wayland/common/wayland_util.h"
+ #include "ui/ozone/platform/wayland/host/wayland_connection.h"
++#include "ui/ozone/platform/wayland/host/wayland_embedded_window.h"
+ #include "ui/ozone/platform/wayland/host/wayland_popup.h"
+ #include "ui/ozone/platform/wayland/host/wayland_seat.h"
+ #include "ui/ozone/platform/wayland/host/wayland_serial_tracker.h"
+@@ -140,6 +141,23 @@ bool XdgPopup::Initialize(const InitParams& params) {
+     parent_xdg_surface = parent_popup->xdg_popup()->xdg_surface();
+   } else if (auto* parent_toplevel = xdg_parent->AsWaylandToplevelWindow()) {
+     parent_xdg_surface = parent_toplevel->xdg_toplevel()->xdg_surface();
++  } else if (auto* parent_embedded = xdg_parent->AsWaylandEmbeddedWindow()) {
++    // An embedded window has no xdg_surface, so its popups hang off the
++    // embedding application's. There is no protocol that lets a popup anchor to
++    // a wl_subsurface: xdg_surface.get_popup takes an xdg_surface, and the only
++    // way to name a foreign one, xdg_foreign, rejects anything that is not "an
++    // xdg_toplevel equivalent". Borrowing the embedder's is what is left.
++    parent_xdg_surface = parent_embedded->foreign_xdg_surface();
++    if (!parent_xdg_surface) {
++      // Unlike the cases above, this one depends on what an embedding
++      // application passed in, so it is a runtime failure rather than a broken
++      // invariant. Returning false leaves the browser usable without popups;
++      // falling through to the CHECK below would abort the host process the
++      // first time the user opened a <select>.
++      LOG(ERROR) << "The embedding application provided no xdg_surface; menus, "
++                    "tooltips and <select> dropdowns cannot be opened";
++      return false;
++    }
+   }
+ 
+   CHECK(xdg_surface_ && parent_xdg_surface);
+diff --git ui/ozone/platform/wayland/host/zwp_text_input_v3.cc ui/ozone/platform/wayland/host/zwp_text_input_v3.cc
+index c39d9cf5a0076da324f30881688215312aac00de..592da3ec0852f00887fcbb373aea6b0283f94170 100644
+--- ui/ozone/platform/wayland/host/zwp_text_input_v3.cc
++++ ui/ozone/platform/wayland/host/zwp_text_input_v3.cc
+@@ -18,6 +18,8 @@
+ #include "ui/ozone/platform/wayland/host/wayland_connection.h"
+ #include "ui/ozone/platform/wayland/host/wayland_seat.h"
+ #include "ui/ozone/platform/wayland/host/wayland_window.h"
++#include "ui/ozone/platform/wayland/host/wayland_window_manager.h"
++#include "ui/ozone/platform/wayland/wayland_embedder.h"
+ 
+ namespace ui {
+ 
+@@ -363,7 +365,18 @@ void ZwpTextInputV3Impl::OnEnter(void* data,
+                                  struct zwp_text_input_v3* text_input,
+                                  struct wl_surface* surface) {
+   auto* self = static_cast<ZwpTextInputV3Impl*>(data);
+-  if (auto* window = wl::RootWindowFromWlSurface(surface)) {
++
++  // Record the surface itself, as WaylandKeyboard::OnEnter does. When it
++  // belongs to an embedding application this is the only event that names it,
++  // and it is not repeated: a browser created afterwards would otherwise have
++  // no way to know the input method is pointed at its embedder, and on a seat
++  // with no keyboard there is no other signal to fall back on.
++  if (surface && !ui::ChromiumSurfaceFor(surface)) {
++    self->connection_->window_manager()->SetTextInputFocusedForeignSurface(
++        surface);
++  }
++
++  if (auto* window = wl::KeyboardWindowFromWlSurface(surface)) {
+     self->connection_->window_manager()->SetTextInputFocusedWindow(window);
+   }
+ }
+@@ -372,7 +385,11 @@ void ZwpTextInputV3Impl::OnLeave(void* data,
+                                  struct zwp_text_input_v3* text_input,
+                                  struct wl_surface* surface) {
+   auto* self = static_cast<ZwpTextInputV3Impl*>(data);
+-  self->connection_->window_manager()->SetTextInputFocusedWindow(nullptr);
++  auto* manager = self->connection_->window_manager();
++  if (surface && manager->text_input_focused_foreign_surface() == surface) {
++    manager->SetTextInputFocusedForeignSurface(nullptr);
++  }
++  manager->SetTextInputFocusedWindow(nullptr);
+ }
+ 
+ void ZwpTextInputV3Impl::OnPreeditString(void* data,
+diff --git ui/ozone/platform/wayland/wayland_embedder.cc ui/ozone/platform/wayland/wayland_embedder.cc
+new file mode 100644
+index 0000000000000000000000000000000000000000..9353482eedd1c4c5cfd867c14abeb6ee82618ab5
+--- /dev/null
++++ ui/ozone/platform/wayland/wayland_embedder.cc
+@@ -0,0 +1,122 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "ui/ozone/platform/wayland/wayland_embedder.h"
++
++#include <atomic>
++
++#include "base/containers/flat_map.h"
++#include "base/no_destructor.h"
++#include "base/sequence_checker.h"
++#include "ui/ozone/platform/wayland/host/wayland_connection.h"
++#include "ui/ozone/platform/wayland/host/wayland_surface.h"
++#include "ui/ozone/platform/wayland/host/wayland_window.h"
++#include "ui/ozone/platform/wayland/host/wayland_window_manager.h"
++
++namespace ui {
++
++namespace {
++
++// Written on the embedder's own thread before CefInitialize() and read later on
++// whichever thread Ozone starts on. Those are the same thread only when the
++// host drives the message loop itself; with a multi-threaded message loop the
++// browser UI thread is a different one, which is why this is not guarded by the
++// sequence checker below and is not a plain pointer.
++std::atomic<wl_display*> g_external_display{nullptr};
++
++WaylandConnection* g_connection = nullptr;
++wl_display* g_display = nullptr;
++
++// Guards the two globals above and the maps below, which carry no locking of
++// their own. Everything it guards is reached only from the thread Ozone runs
++// on, so the checker binds on first use rather than at construction.
++SEQUENCE_CHECKER(g_sequence_checker);
++
++base::flat_map<wl_surface*, WaylandSurface*>& ChromiumSurfaces() {
++  static base::NoDestructor<base::flat_map<wl_surface*, WaylandSurface*>> map;
++  return *map;
++}
++
++}  // namespace
++
++void SetExternalWaylandDisplay(wl_display* display) {
++  g_external_display.store(display, std::memory_order_release);
++}
++
++wl_display* GetExternalWaylandDisplay() {
++  return g_external_display.load(std::memory_order_acquire);
++}
++
++gfx::AcceleratedWidget RegisterForeignWaylandSurface(wl_surface* surface,
++                                                     xdg_surface* xdg_surface) {
++  DCHECK_CALLED_ON_VALID_SEQUENCE(g_sequence_checker);
++  if (!g_connection || !surface) {
++    return gfx::kNullAcceleratedWidget;
++  }
++  return g_connection->window_manager()->RegisterForeignSurface(surface,
++                                                                xdg_surface);
++}
++
++void UnregisterForeignWaylandSurface(gfx::AcceleratedWidget widget) {
++  DCHECK_CALLED_ON_VALID_SEQUENCE(g_sequence_checker);
++  if (g_connection) {
++    g_connection->window_manager()->UnregisterForeignSurface(widget);
++  }
++}
++
++wl_surface* GetWaylandSurfaceForWidget(gfx::AcceleratedWidget widget) {
++  DCHECK_CALLED_ON_VALID_SEQUENCE(g_sequence_checker);
++  if (!g_connection) {
++    return nullptr;
++  }
++  WaylandWindow* window = g_connection->window_manager()->GetWindow(widget);
++  if (!window || !window->root_surface()) {
++    return nullptr;
++  }
++  return window->root_surface()->surface();
++}
++
++void RegisterChromiumSurface(wl_surface* surface, WaylandSurface* owner) {
++  DCHECK_CALLED_ON_VALID_SEQUENCE(g_sequence_checker);
++  if (surface) {
++    ChromiumSurfaces()[surface] = owner;
++  }
++}
++
++void UnregisterChromiumSurface(wl_surface* surface) {
++  DCHECK_CALLED_ON_VALID_SEQUENCE(g_sequence_checker);
++  if (surface) {
++    ChromiumSurfaces().erase(surface);
++  }
++}
++
++WaylandSurface* ChromiumSurfaceFor(wl_surface* surface) {
++  DCHECK_CALLED_ON_VALID_SEQUENCE(g_sequence_checker);
++  auto& map = ChromiumSurfaces();
++  auto it = map.find(surface);
++  return it == map.end() ? nullptr : it->second;
++}
++
++WaylandWindow* EmbeddedWindowForForeignSurface(wl_surface* surface) {
++  DCHECK_CALLED_ON_VALID_SEQUENCE(g_sequence_checker);
++  if (!g_connection) {
++    return nullptr;
++  }
++  return g_connection->window_manager()->GetEmbeddedWindowForForeignSurface(
++      surface);
++}
++
++void SetWaylandConnectionForEmbedders(WaylandConnection* connection,
++                                      wl_display* display) {
++  DCHECK_CALLED_ON_VALID_SEQUENCE(g_sequence_checker);
++  g_connection = connection;
++  g_display = display;
++}
++
++wl_display* GetWaylandDisplay() {
++  DCHECK_CALLED_ON_VALID_SEQUENCE(g_sequence_checker);
++  return g_display;
++}
++
++}  // namespace ui
+diff --git ui/ozone/platform/wayland/wayland_embedder.h ui/ozone/platform/wayland/wayland_embedder.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..90954ea981932fdb3489e8b0c683c6bf4c50ea3b
+--- /dev/null
++++ ui/ozone/platform/wayland/wayland_embedder.h
+@@ -0,0 +1,106 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef UI_OZONE_PLATFORM_WAYLAND_WAYLAND_EMBEDDER_H_
++#define UI_OZONE_PLATFORM_WAYLAND_WAYLAND_EMBEDDER_H_
++
++#include "base/component_export.h"
++#include "ui/gfx/native_ui_types.h"
++
++struct wl_display;
++struct wl_surface;
++struct xdg_surface;
++
++namespace ui {
++
++class WaylandConnection;
++class WaylandSurface;
++class WaylandWindow;
++
++// Everything in this file is confined to the UI thread, which is where Ozone
++// creates and destroys its Wayland objects and where the embedder's calls
++// arrive. The state behind it is plain globals with no locking, so calling any
++// of it from another thread is a data race; the implementation DCHECKs.
++//
++// SetExternalWaylandDisplay() and GetExternalWaylandDisplay() are the two
++// exceptions, and have to be: the display is handed over before Ozone starts,
++// on whatever thread the embedder called CefInitialize() from, and read back
++// later on the UI thread. Those are different threads whenever the host runs a
++// multi-threaded message loop, so that one value is atomic and unchecked.
++
++// Entry points for an application that wants to host Chromium web content
++// inside a window it owns, rather than letting Chromium create its own
++// toplevel. See WaylandEmbeddedWindow.
++
++// Hands Ozone a wl_display owned by the embedding application, so that
++// WaylandConnection joins it instead of calling wl_display_connect(). A
++// wl_surface is a protocol object scoped to its connection and
++// wl_subcompositor_get_subsurface() rejects surfaces from a different one, so
++// there is no way to parent a Chromium surface to the embedder's surface
++// without sharing the connection.
++//
++// Must be called before OzonePlatform::InitializeUI(); the connection is made
++// during Ozone startup. Ownership stays with the caller, which must keep the
++// display alive for as long as Ozone is running. Ignored when the selected
++// Ozone platform is not Wayland.
++COMPONENT_EXPORT(OZONE) void SetExternalWaylandDisplay(wl_display* display);
++COMPONENT_EXPORT(OZONE) wl_display* GetExternalWaylandDisplay();
++
++// The connection Chromium is actually using, whether it opened one or adopted
++// the embedder's. Null before Ozone starts or when the platform is not Wayland.
++COMPONENT_EXPORT(OZONE) wl_display* GetWaylandDisplay();
++
++// Names a wl_surface owned by the embedding application with a
++// gfx::AcceleratedWidget, so that it can be passed as
++// views::Widget::InitParams::parent_widget. Creating a window with that parent
++// produces a WaylandEmbeddedWindow attached to |surface| as a wl_subsurface.
++//
++// views has no vocabulary for a native parent other than AcceleratedWidget, and
++// DesktopWindowTreeHostLinux already forwards it into
++// PlatformWindowInitProperties, so naming the surface this way avoids touching
++// views at all.
++//
++// |surface| must belong to the display passed to SetExternalWaylandDisplay().
++// Returns gfx::kNullAcceleratedWidget if Wayland is not the active platform or
++// Ozone has not started yet. Release with UnregisterForeignWaylandSurface()
++// once the embedded window is gone.
++COMPONENT_EXPORT(OZONE)
++gfx::AcceleratedWidget RegisterForeignWaylandSurface(wl_surface* surface,
++                                                     xdg_surface* xdg_surface);
++COMPONENT_EXPORT(OZONE)
++void UnregisterForeignWaylandSurface(gfx::AcceleratedWidget widget);
++
++// Returns the wl_surface backing |widget|, or null if there is no Wayland
++// window for it. Lets an embedder learn the surface Chromium created for an
++// embedded window, which is otherwise not observable from outside Ozone.
++COMPONENT_EXPORT(OZONE)
++wl_surface* GetWaylandSurfaceForWidget(gfx::AcceleratedWidget widget);
++
++// Chromium's own wl_surface objects, tracked so that a wl_surface arriving from
++// the compositor can be resolved without reading its user data.
++//
++// When Chromium shares a connection with an embedding application, that
++// application's surfaces travel over the same connection and are handed back in
++// events like wl_pointer.enter. Their user data belongs to the embedder's
++// toolkit -- a winit client, for instance, has one per client-side decoration
++// -- so casting it to WaylandSurface is undefined. Registering our own is the
++// only way to tell them apart; there is no protocol-level ownership query.
++COMPONENT_EXPORT(OZONE)
++void RegisterChromiumSurface(wl_surface* surface, WaylandSurface* owner);
++COMPONENT_EXPORT(OZONE) void UnregisterChromiumSurface(wl_surface* surface);
++COMPONENT_EXPORT(OZONE)
++WaylandSurface* ChromiumSurfaceFor(wl_surface* surface);
++
++// The window embedded inside |surface|, or null.
++COMPONENT_EXPORT(OZONE)
++WaylandWindow* EmbeddedWindowForForeignSurface(wl_surface* surface);
++
++// Internal. WaylandConnection publishes itself here so that the functions above
++// can reach the window manager without exposing the platform's internals.
++void SetWaylandConnectionForEmbedders(WaylandConnection* connection,
++                                      wl_display* display);
++
++}  // namespace ui
++
++#endif  // UI_OZONE_PLATFORM_WAYLAND_WAYLAND_EMBEDDER_H_

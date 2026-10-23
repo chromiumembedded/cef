@@ -38,6 +38,10 @@
 #define CefCursorHandle cef_cursor_handle_t
 #define CefEventHandle cef_event_handle_t
 #define CefWindowHandle cef_window_handle_t
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+#define CefWaylandDisplayHandle cef_wayland_display_handle_t
+#define CefXdgSurfaceHandle cef_xdg_surface_handle_t
+#endif
 
 ///
 /// Class representing CefExecuteProcess arguments.
@@ -71,6 +75,21 @@ struct CefWindowInfoTraits {
     target->external_begin_frame_enabled = src->external_begin_frame_enabled;
     target->window = src->window;
     target->runtime_style = src->runtime_style;
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+    // |src| comes from the client and may have been compiled against an older,
+    // smaller struct. Reading the member without this check is a read past the
+    // end of that allocation.
+    //
+    // The else matters as much as the check. CefStructBase::Set() calls
+    // Clear() first to "clear newer members that won't be set", but clear()
+    // only frees string members; a stale pointer here would otherwise survive
+    // being assigned over from an older client's struct.
+    if (CEF_MEMBER_EXISTS(src, parent_xdg_surface)) {
+      target->parent_xdg_surface = src->parent_xdg_surface;
+    } else {
+      target->parent_xdg_surface = nullptr;
+    }
+#endif
   }
 };
 
@@ -90,6 +109,36 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
     parent_window = parent;
     this->bounds = bounds;
   }
+
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+  ///
+  /// Create the browser as a child window, additionally naming the client's
+  /// xdg_surface when the active Ozone platform is Wayland.
+  ///
+  /// |parent| is the same opaque native parent handle the two-argument
+  /// overload takes: an X11 Window under Ozone/X11, a struct wl_surface* cast
+  /// to CefWindowHandle under Ozone/Wayland. A Wayland surface must belong to
+  /// the connection previously passed to cef_set_wayland_display(), which must
+  /// be called before CefInitialize, because wl_surface objects cannot be
+  /// shared across connections. See
+  /// https://github.com/chromiumembedded/cef/issues/2804.
+  ///
+  /// |parent_xdg| is the xdg_surface that |parent| belongs to. It is what the
+  /// browser's menus, <select> dropdowns and tooltips are anchored on, since a
+  /// wl_subsurface cannot be an xdg_popup parent. Passing NULL still leaves the
+  /// browser able to render and take input, with popups falling back to a
+  /// degraded wl_subsurface form; see cef_window_info_t::parent_xdg_surface.
+  /// It is ignored under X11, where the two-argument overload is all that is
+  /// needed.
+  ///
+  void SetAsChild(CefWindowHandle parent,
+                  CefXdgSurfaceHandle parent_xdg,
+                  const CefRect& bounds) {
+    parent_window = parent;
+    parent_xdg_surface = parent_xdg;
+    this->bounds = bounds;
+  }
+#endif
 
   ///
   /// Create the browser using windowless (off-screen) rendering. No window

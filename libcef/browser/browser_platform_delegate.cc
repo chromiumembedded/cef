@@ -331,6 +331,8 @@ void CefBrowserPlatformDelegate::SendCaptureLostEvent() {
 void CefBrowserPlatformDelegate::NotifyMoveOrResizeStarted() {}
 
 void CefBrowserPlatformDelegate::SizeTo(int width, int height) {}
+
+void CefBrowserPlatformDelegate::SetHostBounds(const gfx::Rect& bounds) {}
 #endif
 
 gfx::Point CefBrowserPlatformDelegate::GetScreenPoint(
