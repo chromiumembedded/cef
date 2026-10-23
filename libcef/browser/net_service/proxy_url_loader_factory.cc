@@ -26,6 +26,7 @@
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/referrer.h"
+#include "extensions/common/constants.h"
 #include "mojo/public/cpp/base/big_buffer.h"
 #include "mojo/public/cpp/bindings/receiver.h"
 #include "net/http/http_status_code.h"
@@ -564,7 +565,16 @@ void InterceptedRequest::Restart() {
        request_.method != net::HttpRequestHeaders::kGetMethod &&
        request_.method != net::HttpRequestHeaders::kHeadMethod);
 
-  if (should_add_origin_header) {
+  // Leave the Origin header for extension-initiated requests to
+  // CorsURLLoader, which applies the extension's CORS origin access list.
+  // Referrer sanitization would turn the chrome-extension initiator into an
+  // opaque origin and send "Origin: null" (issue #4309).
+  const bool is_extension_initiated =
+      request_.mode != network::mojom::RequestMode::kNavigate &&
+      request_.request_initiator &&
+      request_.request_initiator->scheme() == extensions::kExtensionScheme;
+
+  if (should_add_origin_header && !is_extension_initiated) {
     // Match logic in navigation_request.cc AddAdditionalRequestHeaders.
     url::Origin origin_header_value =
         request_.request_initiator.value_or(url::Origin());
