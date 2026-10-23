@@ -963,6 +963,17 @@ bool ClientHandler::OnSetFocus(CefRefPtr<CefBrowser> browser,
   return false;
 }
 
+#if CEF_API_ADDED(CEF_NEXT)
+bool ClientHandler::OnPreGestureEvent(CefRefPtr<CefBrowser> browser,
+                                      const CefTouchEvent& event,
+                                      cef_gesture_type_t gesture_type,
+                                      int tap_count) {
+  CEF_REQUIRE_UI_THREAD();
+
+  return false;
+}
+#endif
+
 bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
                                   const CefKeyEvent& event,
                                   CefEventHandle os_event,
@@ -984,6 +995,18 @@ bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
 
   return false;
 }
+
+#if CEF_API_ADDED(CEF_NEXT)
+bool ClientHandler::OnPreMouseEvent(CefRefPtr<CefBrowser> browser,
+                                    const CefMouseEvent& event,
+                                    cef_mouse_event_type_t event_type,
+                                    cef_mouse_button_type_t button_type,
+                                    int click_count) {
+  CEF_REQUIRE_UI_THREAD();
+
+  return false;
+}
+#endif
 
 bool ClientHandler::OnBeforePopup(
     CefRefPtr<CefBrowser> browser,

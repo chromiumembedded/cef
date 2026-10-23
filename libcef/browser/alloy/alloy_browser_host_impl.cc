@@ -978,6 +978,18 @@ KeyboardEventProcessingResult AlloyBrowserHostImpl::PreHandleKeyboardEvent(
   return contents_delegate_.PreHandleKeyboardEvent(source, event);
 }
 
+bool AlloyBrowserHostImpl::PreHandleMouseEvent(
+    WebContents* source,
+    const blink::WebMouseEvent& event) {
+  return contents_delegate_.PreHandleMouseEvent(source, event);
+}
+
+bool AlloyBrowserHostImpl::PreHandleGestureEvent(
+    WebContents* source,
+    const blink::WebGestureEvent& event) {
+  return contents_delegate_.PreHandleGestureEvent(source, event);
+}
+
 bool AlloyBrowserHostImpl::HandleKeyboardEvent(
     content::WebContents* source,
     const input::NativeWebKeyboardEvent& event) {

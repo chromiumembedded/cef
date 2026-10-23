@@ -605,6 +605,12 @@ int CefBrowserPlatformDelegate::TranslateWebEventModifiers(
   if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
     result |= blink::WebInputEvent::kRightButtonDown;
   }
+  if (cef_modifiers & EVENTFLAG_X1_MOUSE_BUTTON) {
+    result |= blink::WebInputEvent::kBackButtonDown;
+  }
+  if (cef_modifiers & EVENTFLAG_X2_MOUSE_BUTTON) {
+    result |= blink::WebInputEvent::kForwardButtonDown;
+  }
   if (cef_modifiers & EVENTFLAG_COMMAND_DOWN) {
     result |= blink::WebInputEvent::kMetaKey;
   }

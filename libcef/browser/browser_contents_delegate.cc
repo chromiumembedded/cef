@@ -288,6 +288,42 @@ CefBrowserContentsDelegate::PreHandleKeyboardEvent(
   return KeyboardEventProcessingResult::NOT_HANDLED;
 }
 
+bool CefBrowserContentsDelegate::PreHandleMouseEvent(
+    content::WebContents* source,
+    const blink::WebMouseEvent& event) {
+  if (auto delegate = platform_delegate()) {
+    if (auto c = client()) {
+      if (auto handler = c->GetMouseHandler()) {
+        if (CefMouseEvent cef_event; GetCefMouseEvent(event, cef_event)) {
+          return handler->OnPreMouseEvent(
+              browser(), cef_event, GetCefMouseEventType(event),
+              GetCefMouseButtonType(event), event.ClickCount());
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+bool CefBrowserContentsDelegate::PreHandleGestureEvent(
+    content::WebContents* source,
+    const blink::WebGestureEvent& event) {
+  if (auto delegate = platform_delegate()) {
+    if (auto c = client()) {
+      if (auto handler = c->GetTouchHandler()) {
+        if (CefTouchEvent cef_event; GetCefTouchEvent(event, cef_event)) {
+          return handler->OnPreGestureEvent(browser(), cef_event,
+                                            GetCefGestureType(event),
+                                            GetTapCount(event));
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
 bool CefBrowserContentsDelegate::HandleKeyboardEvent(
     content::WebContents* source,
     const input::NativeWebKeyboardEvent& event) {

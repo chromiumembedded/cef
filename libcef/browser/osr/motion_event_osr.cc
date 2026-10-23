@@ -72,16 +72,14 @@ bool CefMotionEventOSR::OnTouch(const CefTouchEvent& touch) {
       }
       break;
 
-    case CEF_TET_MOVED: {
+    case CEF_TET_MOVED:
       // Discard if touch is stationary.
-      int index = FindPointerIndexOfId(id);
-      if (IsValidIndex(index) &&
+      if (const int index = FindPointerIndexOfId(id);
+          IsValidIndex(index) &&
           (touch.x == GetX(index) && touch.y == GetY(index))) {
         return false;
       }
-    }
       [[fallthrough]];
-    // No break.
     case CEF_TET_RELEASED:
     case CEF_TET_CANCELLED:
       // Removing these touch points needs to be postponed until after the
@@ -89,6 +87,9 @@ bool CefMotionEventOSR::OnTouch(const CefTouchEvent& touch) {
       // CleanupRemovedTouchPoints.
       UpdateTouch(touch, id);
       break;
+
+    default:
+      return false;
   }
 
   UpdateCachedAction(touch, id);
@@ -212,6 +213,8 @@ void CefMotionEventOSR::UpdateCachedAction(const CefTouchEvent& touch, int id) {
       break;
     case CEF_TET_MOVED:
       set_action(ui::MotionEvent::Action::MOVE);
+      break;
+    default:
       break;
   }
 }
