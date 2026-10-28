@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/BUILD.gn chrome/browser/extensions/BUILD.gn
-index 2acb4ecd06cd42f46a473bfa3cef87b1ce153baa..b7dc4ef71fc43d8c7c60001565a2cb10174105d4 100644
+index bd3a172183d755d0ba68d5e863c6c8156f504d8f..ec9be84ca1b449b9b4c5cf09330e2c4ac97d7dc4 100644
 --- chrome/browser/extensions/BUILD.gn
 +++ chrome/browser/extensions/BUILD.gn
 @@ -3173,10 +3173,10 @@ source_set("browser_tests") {
