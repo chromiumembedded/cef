@@ -142,6 +142,7 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void DidFinishLoad(content::RenderFrameHost* render_frame_host,
                      const GURL& validated_url) override;
   void TitleWasSet(content::NavigationEntry* entry) override;
+  void OnAudioStateChanged(bool audible) override;
   void DidUpdateFaviconURL(
       content::RenderFrameHost* render_frame_host,
       const std::vector<blink::mojom::FaviconURLPtr>& candidates,
