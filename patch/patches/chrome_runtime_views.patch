@@ -858,7 +858,7 @@ index d384a2c99a1c1d8f160de20ea8518a6a4cc5ab71..39937dca7434763b3baa82600c7c9e73
    // regenerated.
    bool RegenerateFrameOnThemeChange(BrowserThemeChangeType theme_change_type);
 diff --git chrome/browser/ui/views/frame/contents_web_view.cc chrome/browser/ui/views/frame/contents_web_view.cc
-index 8f29bb4291546ddec1643d46e52c21b8c3b31128..5b360537b4583ff75388280d35646c407cd4bc69 100644
+index e1d30f930bf7481658fde7320a575ef2ebaec52d..eb77629e1494888a2d9ebe6eea1d28db350f28a5 100644
 --- chrome/browser/ui/views/frame/contents_web_view.cc
 +++ chrome/browser/ui/views/frame/contents_web_view.cc
 @@ -6,7 +6,9 @@
@@ -871,7 +871,7 @@ index 8f29bb4291546ddec1643d46e52c21b8c3b31128..5b360537b4583ff75388280d35646c40
  #include "chrome/browser/ui/views/frame/safe_invoke/safe_invoke.h"
  #include "chrome/browser/ui/views/frame/web_contents_close_handler.h"
  #include "chrome/browser/ui/views/status_bubble_views.h"
-@@ -157,6 +159,14 @@ void ContentsWebView::SetWebContents(content::WebContents* web_contents) {
+@@ -158,6 +160,14 @@ void ContentsWebView::SetWebContents(content::WebContents* web_contents) {
  
    UpdateIsBlockedByModal();
  
@@ -886,7 +886,7 @@ index 8f29bb4291546ddec1643d46e52c21b8c3b31128..5b360537b4583ff75388280d35646c40
    if (!status_bubble_) {
      status_bubble_ = std::make_unique<StatusBubbleViews>(this);
      status_bubble_->Reposition();
-@@ -186,6 +196,19 @@ void ContentsWebView::DidGetUserInteraction(const blink::WebInputEvent& event) {
+@@ -187,6 +197,19 @@ void ContentsWebView::DidGetUserInteraction(const blink::WebInputEvent& event) {
  #endif
  
  void ContentsWebView::UpdateBackgroundColor() {
