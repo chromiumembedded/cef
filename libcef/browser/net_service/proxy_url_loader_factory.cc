@@ -369,6 +369,9 @@ class InterceptedRequest : public network::mojom::URLLoader,
   bool request_was_redirected_ = false;
   int redirect_limit_ = net::URLRequest::kMaxRedirects;
   bool redirect_in_progress_ = false;
+  // The target loader issued an internal chrome-extension:// redirect
+  // that it must follow itself (see FollowRedirect).
+  bool follow_redirect_on_target_ = false;
 
   // To avoid sending multiple OnReceivedError callbacks.
   bool sent_error_callback_ = false;
@@ -802,6 +805,15 @@ void InterceptedRequest::FollowRedirect(
     return;
   }
 
+  if (follow_redirect_on_target_ && target_loader_) {
+    // See ContinueToBeforeRedirect.
+    follow_redirect_on_target_ = false;
+    headers_update_params.removed_headers = std::move(removed_headers);
+    headers_update_params.modified_headers = std::move(modified_headers);
+    target_loader_->FollowRedirect(std::move(headers_update_params), new_url);
+    return;
+  }
+
   // Normally we would call FollowRedirect on the target loader and it would
   // begin loading the redirected request. However, the client might want to
   // intercept that request so restart the job instead.
@@ -1074,6 +1086,16 @@ void InterceptedRequest::ContinueToBeforeRedirect(
     new_redirect_info.new_site_for_cookies =
         net::SiteForCookies::FromUrl(redirect_url);
   }
+
+  // Chromium's extension loader serves a dynamic web_accessible_resources
+  // URL (session GUID host) with an internal redirect to the static-ID URL and
+  // admits the resource only on the same loader, which remembers the original
+  // URL. A restarted loader lacks it and the load is denied. Only when the
+  // client kept the redirect target (|redirect_url_| is set to it by default).
+  follow_redirect_on_target_ =
+      (!redirect_url.is_valid() || redirect_url == redirect_info.new_url) &&
+      target_loader_ && original_url.SchemeIs("chrome-extension") &&
+      new_redirect_info.new_url.SchemeIs("chrome-extension");
 
   target_client_->OnReceiveRedirect(new_redirect_info,
                                     std::move(current_response_));

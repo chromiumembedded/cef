@@ -32,6 +32,11 @@ void CreateBrowserDelegates(ClientAppBrowser::DelegateSet& delegates) {
       ClientAppBrowser::DelegateSet & delegates);
   CreateDocumentPictureInPictureBrowserTests(delegates);
 
+  // Bring in the extension resources tests.
+  extern void CreateExtensionResourcesBrowserTests(
+      ClientAppBrowser::DelegateSet & delegates);
+  CreateExtensionResourcesBrowserTests(delegates);
+
   // Bring in URLRequest tests.
   extern void CreateURLRequestBrowserTests(ClientAppBrowser::DelegateSet &
                                            delegates);
