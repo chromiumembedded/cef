@@ -810,6 +810,7 @@ const char kAudioOutputTestUrl[] = "https://tests/audiooutputtest";
 const char kAudioCloseBrowserTestUrl[] = "https://tests/audioclosebrowsertest";
 const char kAudioTogglePlaybackTestUrl[] =
     "https://tests/audiotoggleplaybacktest";
+const char kAudioStateChangeTestUrl[] = "https://tests/audiostatechangetest";
 
 std::string GetTestHtml() {
   return "<!DOCTYPE html><html><head><meta "
@@ -1066,6 +1067,54 @@ class AudioTogglePlaybackTest : public AudioTestHandler {
   IMPLEMENT_REFCOUNTING(AudioTogglePlaybackTest);
 };
 
+// Tests that the display handler hears the browser start and stop producing
+// sound. No audio handler is installed, so the audio plays out unchanged.
+class AudioStateChangeTest : public TestHandler {
+ public:
+  explicit AudioStateChangeTest(bool muted) : muted_(muted) {}
+
+  void RunTest() override {
+    AddResource(kAudioStateChangeTestUrl, GetTestHtml(), "text/html");
+    CreateBrowser(kAudioStateChangeTestUrl);
+    SetTestTimeout();
+  }
+
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
+    TestHandler::OnAfterCreated(browser);
+    if (muted_) {
+      browser->GetHost()->SetAudioMuted(true);
+    }
+  }
+
+  void OnAudioStateChange(CefRefPtr<CefBrowser> browser,
+                          bool audible) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    EXPECT_TRUE(GetBrowser()->IsSame(browser));
+    if (audible) {
+      got_audible_.yes();
+      return;
+    }
+    // A browser is never inaudible before it was audible.
+    EXPECT_TRUE(got_audible_);
+    if (!got_inaudible_) {
+      got_inaudible_.yes();
+      DestroyTest();
+    }
+  }
+
+ protected:
+  void DestroyTest() override {
+    EXPECT_TRUE(got_audible_);
+    EXPECT_TRUE(got_inaudible_);
+    TestHandler::DestroyTest();
+  }
+
+  const bool muted_;
+  TrackCallback got_audible_;
+  TrackCallback got_inaudible_;
+  IMPLEMENT_REFCOUNTING(AudioStateChangeTest);
+};
+
 }  // namespace
 
 // Test audio output callbacks called on valid threads.
@@ -1094,6 +1143,21 @@ TEST(AudioOutputTest, AudioTogglePlaybackTest) {
     return;
   }
   CefRefPtr<AudioTogglePlaybackTest> handler = new AudioTogglePlaybackTest();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Test the display handler hears a playing browser become audible, then
+// inaudible when its media ends.
+TEST(AudioOutputTest, AudioStateChangeTest) {
+  CefRefPtr<AudioStateChangeTest> handler = new AudioStateChangeTest(false);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Test a muted browser still reports the sound it produces.
+TEST(AudioOutputTest, AudioStateChangeMutedTest) {
+  CefRefPtr<AudioStateChangeTest> handler = new AudioStateChangeTest(true);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }

@@ -203,6 +203,19 @@ class CefDisplayHandler : public virtual CefBaseRefCounted {
     return false;
   }
 #endif
+
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+  ///
+  /// Called when the browser starts or stops producing audible sound.
+  /// |audible| is true while the browser produces sound, including while its
+  /// audio is muted with CefBrowserHost::SetAudioMuted. It turns false at the
+  /// first silence of playing media; clients that show a tab audio indicator
+  /// may keep it on for a short while (Chrome holds it for 2 seconds).
+  ///
+  /*--cef(added=experimental)--*/
+  virtual void OnAudioStateChange(CefRefPtr<CefBrowser> browser, bool audible) {
+  }
+#endif
 };
 
 #endif  // CEF_INCLUDE_CEF_DISPLAY_HANDLER_H_
