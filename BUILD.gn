@@ -172,7 +172,8 @@ if (is_mac) {
       if (!use_system_xcode) {
         args += [
           "--developer_dir",
-          hermetic_xcode_path,
+          rebase_path("//build/mac_files/xcode_binaries/Contents/Developer",
+                      root_build_dir),
         ]
       }
       args += ibtool_flags
