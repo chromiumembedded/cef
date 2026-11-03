@@ -28,6 +28,9 @@ The user's task instructions take precedence over both documents.
    upstream changes between the supplied versions to understand refactoring,
    API changes, and moved or deleted code. Adapt the CEF behavior to the current
    implementation rather than mechanically copying old code.
+   For each rejected hunk, identify the original enclosing method, class,
+   namespace, or GN target and its current equivalent before editing. Record
+   that mapping, including any change in location or conditional scope.
 4. Apply fixes to the Chromium source files associated with the patch. Format
    only the files changed for the task and inspect any formatter changes.
 5. Resave each repaired patch with `patch_updater.py --resave --patch NAME`.
@@ -37,6 +40,8 @@ The user's task instructions take precedence over both documents.
    content correctness. Account for every rejected change by preserving its
    behavior or documenting why the new Chromium implementation supersedes it.
    File coverage alone does not establish content correctness.
+   Perform the placement audit below for every manual edit before proceeding
+   to the final reset/reapply cycle.
 7. Once all listed failures are resolved, rerun `patch_updater.py`, regenerate
    the analysis, and resolve any remaining failures. Inspect the final diff for
    unrelated changes and run `git diff --check` in the affected repositories.
@@ -65,11 +70,52 @@ The user's task instructions take precedence over both documents.
   calls for it.
 - Keep edits limited to the requested patch update and preserve CEF intent,
   including lifecycle, threading, and API behavior.
+- Preserve existing comments and documentation verbatim, including issue
+  references, links, historical context, and explanations in rejected hunks.
+  Do not shorten or rewrite them as incidental cleanup. Change wording only
+  when the adaptation makes it inaccurate, and explain that change.
+- Anchor edits to the intended enclosing method or GN target plus sufficient
+  local context to distinguish it from other matches. Generic anchors such as
+  `#else`, `NOTIMPLEMENTED()`, an include, or a common dependency are not
+  sufficient by themselves. If an anchor matches multiple locations, narrow
+  it before applying the edit.
+- Treat both ends of a preprocessor guard as one change. Locate the matching
+  `#endif` in the current source, even if it applied without a reject. Verify
+  that the guard encloses exactly the intended statements or definitions and
+  does not cross a method boundary unintentionally. Balanced directives alone
+  do not prove correct scope.
 - Use the actual checkout paths and build configuration. Treat example
   versions, filenames, and output directories as placeholders.
 - Continue resolving issues when source evidence supports the next step.
   Ask for input when an unresolved design choice or missing information
   prevents a correct fix; report the evidence and specific blocker.
+
+## Manual-edit placement audit
+
+For every manual insertion, deletion, or replacement:
+
+1. Compare the original patch and complete reject with the current source.
+   Verify the actual enclosing method or target from its declaration and body;
+   do not rely solely on a diff hunk's function label or nearby matching text.
+2. Read the complete edited method or target, including surrounding control
+   flow and conditional compilation. Check every guard's opening and closing
+   directives and inspect adjacent methods for accidentally captured code.
+3. Confirm execution order: initialization before use, callbacks in the intended
+   path, early returns in the intended branch, and cleanup at the intended
+   lifecycle stage. For GN changes, confirm source ownership, dependency
+   visibility, and the original platform and feature conditions.
+4. Inspect the resaved patch and confirm it changes the intended location,
+   retains the original explanation, and contains no unintended edits to
+   neighboring methods or targets. Account explicitly for upstream changes
+   that supersede rejected code.
+5. Keep a per-hunk disposition with the original and current enclosing scope,
+   the adaptation, and the evidence checked. Report unresolved placement or
+   build-graph assumptions rather than claiming they are verified.
+
+Patch application, file coverage, formatting, and whitespace checks are
+separate from this audit. A patch that applies cleanly can still modify the
+wrong method or place a guard around unrelated definitions. Completion claims
+must state which checks actually ran.
 
 ## Completion
 
