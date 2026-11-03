@@ -29,6 +29,9 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Binary
 //
 
+IDS_FRAME_ID_25FPS_WEBM BINARY "tests\\shared\\resources\\frame_id_25fps.webm"
+IDS_FRAME_ID_50FPS_WEBM BINARY "tests\\shared\\resources\\frame_id_50fps.webm"
+IDS_FRAME_ID_60FPS_WEBM BINARY "tests\\shared\\resources\\frame_id_60fps.webm"
 IDS_OSRTEST_HTML BINARY "tests\\shared\\resources\\osr_test.html"
 IDS_PDF_HTML BINARY "tests\\shared\\resources\\pdf.html"
 IDS_PDF_PDF BINARY "tests\\shared\\resources\\pdf.pdf"

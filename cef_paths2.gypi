@@ -214,6 +214,9 @@
       'tests/shared/renderer/client_app_renderer.h',
     ],
     'shared_sources_resources': [
+      'tests/shared/resources/frame_id_25fps.webm',
+      'tests/shared/resources/frame_id_50fps.webm',
+      'tests/shared/resources/frame_id_60fps.webm',
       'tests/shared/resources/osr_test.html',
       'tests/shared/resources/pdf.html',
       'tests/shared/resources/pdf.pdf',

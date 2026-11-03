@@ -60,8 +60,7 @@ class NativeSharedTexturePixelReader : public SharedTexturePixelReader {
   void Cleanup() override { renderer_.Cleanup(); }
 
   bool Read(const CefAcceleratedPaintInfo& info,
-            uint32_t* marker,
-            uint32_t* timestamp) override {
+            std::vector<uint32_t>* pixels) override {
     if (!renderer_.OnAcceleratedPaint(PET_VIEW, {}, info)) {
       return false;
     }
@@ -75,15 +74,10 @@ class NativeSharedTexturePixelReader : public SharedTexturePixelReader {
     desc.Usage = D3D11_USAGE_DEFAULT;
     desc.BindFlags = D3D11_BIND_RENDER_TARGET;
     Microsoft::WRL::ComPtr<ID3D11Texture2D> target;
-    std::vector<uint32_t> pixels;
-    if (FAILED(renderer_.device()->CreateTexture2D(&desc, nullptr, &target)) ||
-        !renderer_.Render(target.Get()) ||
-        !ReadD3D11Texture(target.Get(), &pixels)) {
-      return false;
-    }
-    *marker = pixels[0];
-    *timestamp = pixels[visible.width / 2];
-    return true;
+    return SUCCEEDED(
+               renderer_.device()->CreateTexture2D(&desc, nullptr, &target)) &&
+           renderer_.Render(target.Get()) &&
+           ReadD3D11Texture(target.Get(), pixels);
   }
 
  private:

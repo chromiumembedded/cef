@@ -129,20 +129,14 @@ class NativeSharedTexturePixelReader : public SharedTexturePixelReader {
   }
 
   bool Read(const CefAcceleratedPaintInfo& info,
-            uint32_t* marker,
-            uint32_t* timestamp) override {
+            std::vector<uint32_t>* pixels) override {
     if (!MakeCurrent()) {
       return false;
     }
     const CefRect visible = info.extra.visible_rect;
-    std::vector<uint32_t> pixels;
     const bool success =
         renderer_->OnAcceleratedPaint(PET_VIEW, {}, info) &&
-        RenderGlPixels(renderer_.get(), visible.width, visible.height, &pixels);
-    if (success) {
-      *marker = pixels[0];
-      *timestamp = pixels[visible.width / 2];
-    }
+        RenderGlPixels(renderer_.get(), visible.width, visible.height, pixels);
     ReleaseCurrent();
     return success;
   }
