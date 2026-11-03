@@ -3720,6 +3720,9 @@ typedef enum {
 #if CEF_API_ADDED(15400)
   CEF_CPAIT_WALLET_REMINDER_NOTICE,
 #endif
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CPAIT_GMAIL_OTP_OPT_IN,
+#endif
   CEF_CPAIT_NUM_VALUES,
 } cef_chrome_page_action_icon_type_t;
 

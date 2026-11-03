@@ -256,7 +256,7 @@ CefRefPtr<CefView> CefBrowserViewImpl::GetChromeToolbar() {
 void CefBrowserViewImpl::SetPreferAccelerators(bool prefer_accelerators) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   if (web_view()) {
-    web_view()->set_allow_accelerators(prefer_accelerators);
+    web_view()->set_allow_accelerators_deprecated(prefer_accelerators);
   }
 }
 

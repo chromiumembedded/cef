@@ -64,6 +64,8 @@ cef_component_update_error_t ToCefUpdateError(update_client::Error error) {
       return CEF_COMPONENT_UPDATE_ERROR_CRX_NOT_FOUND;
     case update_client::Error::INVALID_ARGUMENT:
       return CEF_COMPONENT_UPDATE_ERROR_INVALID_ARGUMENT;
+    case update_client::Error::UPDATE_DISABLED:
+      return CEF_COMPONENT_UPDATE_ERROR_UPDATE_DISABLED;
     case update_client::Error::BAD_CRX_DATA_CALLBACK:
       return CEF_COMPONENT_UPDATE_ERROR_BAD_CRX_DATA_CALLBACK;
   }

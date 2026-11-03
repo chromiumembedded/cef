@@ -6,20 +6,13 @@
 
 #include <memory>
 
-#include "base/logging.h"
+#include "base/check.h"
+#include "base/supports_user_data.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "cef/libcef/common/net/url_util.h"
-#include "chrome/browser/history/history_tab_helper.h"
-#include "chrome/browser/task_manager/web_contents_tags.h"
-#include "chrome/browser/ui/tab_helpers.h"
-#include "components/find_in_page/find_tab_helper.h"
-#include "components/find_in_page/find_types.h"
+#include "cef/libcef/browser/alloy/alloy_tab_interface.h"
 #include "components/performance_manager/embedder/performance_manager_registry.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/render_view_host.h"
-#include "extensions/browser/process_manager.h"
-#include "pdf/pdf_features.h"
-#include "third_party/blink/public/mojom/frame/find_in_page.mojom.h"
 
 namespace {
 
@@ -194,7 +187,7 @@ void CefBrowserPlatformDelegateAlloy::AttachHelpers(
   if (IsWindowless()) {
     // Logic from ChromeContentBrowserClientCef::GetWebContentsViewDelegate
     // which is not called for windowless browsers. Needs to be done before
-    // calling AttachTabHelpers.
+    // initializing tab features.
     if (auto* registry =
             performance_manager::PerformanceManagerRegistry::GetInstance()) {
       registry->MaybeCreatePageNodeForWebContents(web_contents);
@@ -202,18 +195,6 @@ void CefBrowserPlatformDelegateAlloy::AttachHelpers(
   }
 
   // Adopt the WebContents now, so all observers are in place, as the network
-  // requests for its initial navigation will start immediately
-  TabHelpers::AttachTabHelpers(web_contents);
-
-  // Make the tab show up in the task manager.
-  task_manager::WebContentsTags::CreateForTabContents(web_contents);
-
-  // Support visited links. The HistoryTabHelper object is created in
-  // TabHelpers::AttachTabHelpers.
-  if (auto* history_tab_helper =
-          HistoryTabHelper::FromWebContents(web_contents)) {
-    // Bypass the Chrome-specific check in
-    // HistoryTabHelper::DidFinishNavigation.
-    history_tab_helper->SetForceEligibleTabForTesting(true);
-  }
+  // requests for its initial navigation will start immediately.
+  AlloyTabInterface::CreateForWebContents(web_contents);
 }

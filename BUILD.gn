@@ -544,6 +544,8 @@ source_set("libcef_static") {
             gypi_paths.autogen_cpp_includes + [
     "libcef/browser/alloy/alloy_browser_host_impl.cc",
     "libcef/browser/alloy/alloy_browser_host_impl.h",
+    "libcef/browser/alloy/alloy_tab_interface.cc",
+    "libcef/browser/alloy/alloy_tab_interface.h",
     "libcef/browser/alloy/browser_platform_delegate_alloy.cc",
     "libcef/browser/alloy/browser_platform_delegate_alloy.h",
     "libcef/browser/alloy/dialogs/alloy_constrained_window_views_client.cc",

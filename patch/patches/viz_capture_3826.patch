@@ -1,10 +1,10 @@
 diff --git components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc
-index 5105b026559b6504c8cfa4296bf7c804fea8b90f..2678cd721b9c725df0ef08cbee593ae4a14359af 100644
+index 2b146c0bbc9317f01830028f92a7c22a1092a06f..e5510205bb744539cf08376ab7020abed310b99f 100644
 --- components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc
 +++ components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc
-@@ -1534,16 +1534,20 @@ void FrameSinkVideoCapturerImpl::MaybeDeliverFrame(FrameCapture frame_capture) {
+@@ -1542,16 +1542,20 @@ void FrameSinkVideoCapturerImpl::MaybeDeliverFrame(FrameCapture frame_capture) {
      // frame is desirable.)
-     if (frame_capture.frame->metadata().capture_version != capture_version()) {
+     if (frame_capture.frame->metadata().capture.version != capture_version()) {
        frame_capture.CaptureFailed(CaptureResult::kSubCaptureTargetChanged);
 -    } else if (!oracle_->CompleteCapture(frame_capture.oracle_frame_number,
 -                                         frame_capture.success(),
@@ -30,27 +30,27 @@ index 5105b026559b6504c8cfa4296bf7c804fea8b90f..2678cd721b9c725df0ef08cbee593ae4
    if (!frame_capture.success()) {
      const media::VideoFrameMetadata& metadata = frame_capture.frame_metadata();
      TRACE_EVENT_END("gpu.capture", CaptureTrack(metadata), "result",
-@@ -1654,6 +1658,8 @@ void FrameSinkVideoCapturerImpl::OnLog(const std::string& message) {
+@@ -1662,6 +1666,8 @@ void FrameSinkVideoCapturerImpl::OnLog(const std::string& message) {
  bool FrameSinkVideoCapturerImpl::ShouldMark(const media::VideoFrame& frame,
                                              int64_t content_version) const {
    return !marked_frame_ || content_version > content_version_in_marked_frame_ ||
-+         frame.metadata().capture_version >
-+             marked_frame_->metadata().capture_version ||
++         frame.metadata().capture.version >
++             marked_frame_->metadata().capture.version ||
           frame.coded_size() != marked_frame_->coded_size();
  }
  
-@@ -1667,7 +1673,8 @@ void FrameSinkVideoCapturerImpl::MarkFrame(
+@@ -1675,7 +1681,8 @@ void FrameSinkVideoCapturerImpl::MarkFrame(
  bool FrameSinkVideoCapturerImpl::CanResurrectFrame(
      const gfx::Size& size) const {
    return content_version_ == content_version_in_marked_frame_ &&
 -         marked_frame_ && marked_frame_->coded_size() == size;
 +         marked_frame_ && marked_frame_->coded_size() == size &&
-+         marked_frame_->metadata().capture_version == capture_version();
++         marked_frame_->metadata().capture.version == capture_version();
  }
  
  void FrameSinkVideoCapturerImpl::NotifyFrameReleased(
 diff --git components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc
-index 5d5ffc8544d2a1eba6fc9369c9f33c372b8ebdf3..58d56a9311c495499152998c74b9f8455036466d 100644
+index 6286294e20edd0019b93a75cbf9648e6bac2e4e2..01d5a6b6f79491a9c0de43e6bc35ab033eca4402 100644
 --- components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc
 +++ components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc
 @@ -580,6 +580,12 @@ class FakeCapturableFrameSink : public CapturableFrameSink {

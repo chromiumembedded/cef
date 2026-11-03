@@ -779,14 +779,16 @@ uint32_t CefRenderWidgetHostViewOSR::GetCaptureSequenceNumber() const {
   return latest_capture_sequence_number_;
 }
 
-void CefRenderWidgetHostViewOSR::CopyFromSurface(
+void CefRenderWidgetHostViewOSR::CopyFromSurfaceImpl(
     const gfx::Rect& src_rect,
     const gfx::Size& output_size,
+    bool is_copy_request_secure,
     base::TimeDelta timeout,
     base::OnceCallback<void(const content::CopyFromSurfaceResult&)> callback) {
   if (delegated_frame_host_) {
     delegated_frame_host_->CopyFromCompositingSurface(
-        src_rect, output_size, timeout, std::move(callback));
+        src_rect, output_size, is_copy_request_secure, timeout,
+        std::move(callback));
   }
 }
 

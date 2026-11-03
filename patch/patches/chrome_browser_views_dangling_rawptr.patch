@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/tab_search_bubble_host.cc chrome/browser/ui/views/tab_search_bubble_host.cc
-index 01a6b7e97a77293168c27ee49c6e3ee89551bd92..4377d3a49af9782c568bab9568726c0b3b8f9070 100644
+index 350220b5877df1ab2db0ed12a9e5a58028ae9836..cddd6cc50e70ee7f5ccf4ce3826b2ecc98c1dfec 100644
 --- chrome/browser/ui/views/tab_search_bubble_host.cc
 +++ chrome/browser/ui/views/tab_search_bubble_host.cc
-@@ -66,7 +66,7 @@ TabSearchOpenAction GetActionForEvent(const ui::Event& event) {
+@@ -64,7 +64,7 @@ TabSearchOpenAction GetActionForEvent(const ui::Event& event) {
  TabSearchBubbleHost::TabSearchBubbleHost(
      views::Button* button,
      BrowserWindowInterface* browser_window_interface)

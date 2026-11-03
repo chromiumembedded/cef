@@ -1,8 +1,8 @@
 diff --git chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
-index b5727472c2386f3a82cb8cf3042c808ecf9e0960..e80cc7d3c82018a3196a05fcf3cb8a5b22adc09a 100644
+index f6cd1068db7d73b12e362c8cd96ba7e6d1e39c9e..a299142b8ae3907d7ce5cb2ad3ba3176861a1750 100644
 --- chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
 +++ chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
-@@ -35,6 +35,7 @@
+@@ -36,6 +36,7 @@
  #include "base/version.h"
  #include "build/build_config.h"
  #include "build/config/compiler/compiler_buildflags.h"
@@ -10,15 +10,19 @@ index b5727472c2386f3a82cb8cf3042c808ecf9e0960..e80cc7d3c82018a3196a05fcf3cb8a5b
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/buildflags.h"
-@@ -942,9 +943,11 @@ void RecordStartupMetrics() {
-   key_credential_manager_support::ReportKeyCredentialManagerSupport();
+@@ -1181,6 +1182,7 @@ void ChromeBrowserMainExtraPartsMetrics::PostBrowserStart() {
  #endif  // BUILDFLAG(IS_WIN)
  
-+#if !BUILDFLAG(ENABLE_CEF)
  #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
-   crypto::MaybeMeasureTpmOperations(unexportable_keys::GetDefaultConfig());
- #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
++#if !BUILDFLAG(ENABLE_CEF)
+   // Deliberately delayed and sampled to avoid contending with early crypto and
+   // DBSC operations right after startup. The measurement runs slow TPM
+   // operations, which must not block shutdown.
+@@ -1194,6 +1196,7 @@ void ChromeBrowserMainExtraPartsMetrics::PostBrowserStart() {
+                        unexportable_keys::GetDefaultConfig()),
+         base::Seconds(45));
+   }
 +#endif  // !BUILDFLAG(ENABLE_CEF)
+ #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
  
-   // Record whether Chrome is the default browser or not.
-   // Disabled on Linux due to hanging browser tests, see crbug.com/40770414.
+ #if defined(ARCH_CPU_X86_FAMILY) && \

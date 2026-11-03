@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/frame/browser_native_widget_mac.h chrome/browser/ui/views/frame/browser_native_widget_mac.h
-index 2d84f6ff903e9d13ec3c1be83e3e110a12e243ef..279f38dd7f92c604a985fee79f77e9d55ea2f953 100644
+index 85a71033065d007546ca6fca256717b2ca4ef21f..a7d975532f314b34cadf84079d9419da58103818 100644
 --- chrome/browser/ui/views/frame/browser_native_widget_mac.h
 +++ chrome/browser/ui/views/frame/browser_native_widget_mac.h
 @@ -19,6 +19,7 @@
@@ -31,10 +31,10 @@ index 2d84f6ff903e9d13ec3c1be83e3e110a12e243ef..279f38dd7f92c604a985fee79f77e9d5
    ~BrowserNativeWidgetMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_native_widget_mac.mm chrome/browser/ui/views/frame/browser_native_widget_mac.mm
-index 818924fc76681c38faad1c2082b686cbf67f3cdd..b3525fab97c427258067ef3d256a95193535d646 100644
+index fd4cc9a121ef9a7bf20e1269bcb381eabf6fa055..7f91402fff7c26fc90791f65a872574657d55b20 100644
 --- chrome/browser/ui/views/frame/browser_native_widget_mac.mm
 +++ chrome/browser/ui/views/frame/browser_native_widget_mac.mm
-@@ -20,6 +20,7 @@
+@@ -22,6 +22,7 @@
  #include "chrome/browser/browsing_data/browsing_data_important_sites_util.h"
  #include "chrome/browser/global_keyboard_shortcuts_mac.h"
  #include "chrome/browser/media/router/media_router_feature.h"
@@ -42,15 +42,15 @@ index 818924fc76681c38faad1c2082b686cbf67f3cdd..b3525fab97c427258067ef3d256a9519
  #include "chrome/browser/ui/actions/chrome_action_id.h"
  #include "chrome/browser/ui/actions/chrome_action_properties.h"
  #include "chrome/browser/ui/browser_actions.h"
-@@ -46,6 +47,7 @@
- #include "chrome/browser/ui/views/frame/vertical_tab_strip_region_view.h"
+@@ -48,6 +49,7 @@
+ #include "chrome/browser/ui/views/frame/glass_frame_service.h"
  #include "chrome/browser/ui/views/web_apps/frame_toolbar/web_app_frame_toolbar_utils.h"
  #include "chrome/browser/ui/web_applications/app_browser_controller.h"
 +#include "chrome/browser/ui/window_feature_controller/window_feature_controller.h"
  #include "chrome/common/pref_names.h"
  #include "chrome/grit/generated_resources.h"
  #include "components/bookmarks/common/bookmark_pref_names.h"
-@@ -401,8 +403,15 @@ void BrowserNativeWidgetMac::OnWidgetDestroyed(views::Widget* widget) {
+@@ -411,8 +413,15 @@ void BrowserNativeWidgetMac::OnWidgetDestroyed(views::Widget* widget) {
  void BrowserNativeWidgetMac::ValidateUserInterfaceItem(
      int32_t tag,
      remote_cocoa::mojom::ValidateUserInterfaceItemResult* result) {
@@ -68,7 +68,7 @@ index 818924fc76681c38faad1c2082b686cbf67f3cdd..b3525fab97c427258067ef3d256a9519
    if (!browser || !chrome::SupportsCommand(browser, tag)) {
      result->enable = false;
      return;
-@@ -613,9 +622,16 @@ bool BrowserNativeWidgetMac::WillExecuteCommand(
+@@ -623,9 +632,16 @@ bool BrowserNativeWidgetMac::WillExecuteCommand(
    if (!browser_view_) {
      return false;
    }
@@ -87,7 +87,7 @@ index 818924fc76681c38faad1c2082b686cbf67f3cdd..b3525fab97c427258067ef3d256a9519
    if (is_before_first_responder) {
      // The specification for this private extensions API is incredibly vague.
      // For now, we avoid triggering chrome commands prior to giving the
-@@ -647,12 +663,23 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
+@@ -657,12 +673,23 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {
@@ -114,7 +114,7 @@ index 818924fc76681c38faad1c2082b686cbf67f3cdd..b3525fab97c427258067ef3d256a9519
  
    if (command == IDC_TOGGLE_VERTICAL_TABS) {
      if (auto* controller =
-@@ -699,10 +726,13 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
+@@ -709,10 +736,13 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
        return true;
      }
    } else if (command == IDC_CLEAR_BROWSING_DATA) {
@@ -132,7 +132,7 @@ index 818924fc76681c38faad1c2082b686cbf67f3cdd..b3525fab97c427258067ef3d256a9519
    }
  
    chrome::ExecuteCommandWithDisposition(browser, command,
-@@ -725,6 +755,18 @@ void BrowserNativeWidgetMac::PopulateCreateWindowParams(
+@@ -736,6 +766,18 @@ void BrowserNativeWidgetMac::PopulateCreateWindowParams(
      params->style_mask = NSWindowStyleMaskFullSizeContentView |
                           NSWindowStyleMaskTitled | NSWindowStyleMaskResizable;
      params->window_title_hidden = true;
@@ -151,7 +151,7 @@ index 818924fc76681c38faad1c2082b686cbf67f3cdd..b3525fab97c427258067ef3d256a9519
    } else if (browser_view_->GetIsNormalType() ||
               browser_view_->GetIsWebAppType()) {
      params->window_class = remote_cocoa::mojom::WindowClass::kBrowser;
-@@ -988,6 +1030,18 @@ void BrowserNativeWidgetMac::UpdateGlassEligibility(bool is_glass_eligible) {
+@@ -1046,6 +1088,18 @@ void BrowserNativeWidgetMac::UpdateGlassEligibility(bool is_glass_eligible) {
      return;
    }
  
@@ -167,6 +167,6 @@ index 818924fc76681c38faad1c2082b686cbf67f3cdd..b3525fab97c427258067ef3d256a9519
 +    return;
 +  }
 +
-   if (last_is_glass_eligible_ == is_glass_eligible) {
-     return;
-   }
+   CHECK_NE(last_is_glass_eligible_, is_glass_eligible);
+ 
+   last_is_glass_eligible_ = is_glass_eligible;

@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index e4ce6fc79e9765f5ddae974e8ac7b647d42603a7..45aba1a62846f3ec3b66d8f66e84ddc35258d749 100644
+index f0f529901a3fcde87402a508a627cdfc2419be42..7f1674a62158513af9a58e86eefe70c368f28872 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -10,22 +10,22 @@ index e4ce6fc79e9765f5ddae974e8ac7b647d42603a7..45aba1a62846f3ec3b66d8f66e84ddc3
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -2077,6 +2078,7 @@ source_set("browser") {
+@@ -2285,6 +2286,7 @@ source_set("browser") {
      ":unexpire_flags",
      "//base",
      "//cc",
 +    "//cef/libcef/features:buildflags",
      "//chrome:extra_resources",
-     "//chrome/browser/accessibility:impl",
-     "//chrome/browser/account_settings",
-@@ -2534,6 +2536,10 @@ source_set("browser") {
-     ]
-   }
+     "//chrome/app:chrome_dll_resources",
+     "//chrome/app/resources:platform_locale_settings",
+@@ -4903,6 +4905,10 @@ source_set("test_support") {
+     "//ui/shell_dialogs",
+   ]
  
 +  if (enable_cef) {
 +    configs += [ "//cef/libcef/features:config" ]
 +  }
 +
    if (is_android) {
-     deps += [
-       "//chrome/browser/android",
+     deps += [ "//chrome/browser/android" ]
+   } else {

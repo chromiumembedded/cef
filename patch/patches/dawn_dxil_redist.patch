@@ -1,8 +1,8 @@
 diff --git src/dawn/tests/BUILD.gn src/dawn/tests/BUILD.gn
-index 685133842f2c0e8ab290c75c4d721608ca27d48a..3faeb6b445d2388ccbe15d7b9905916cb9b9a0bb 100644
+index 10cf4f007c8e9443c5ab7366ca1b7f06a8caf411..e0ebfd22ae9d326b7687d36e9dde1e7faebb10f3 100644
 --- src/dawn/tests/BUILD.gn
 +++ src/dawn/tests/BUILD.gn
-@@ -104,7 +104,7 @@ if (!dawn_use_built_dxc && build_with_chromium && is_win) {
+@@ -105,7 +105,7 @@ if (!dawn_use_built_dxc && build_with_chromium && is_win) {
    # end-to-end test in Chromium.
    copy("copy_dxc_binary") {
      sources = [

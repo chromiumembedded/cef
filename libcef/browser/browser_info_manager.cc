@@ -152,7 +152,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
   // With Chrome style, we want to use default popup Browser creation
   // for document picture-in-picture.
   pending_popup->use_default_browser_creation =
-      disposition == WindowOpenDisposition::NEW_PICTURE_IN_PICTURE;
+      disposition == WindowOpenDisposition::kNewPictureInPicture;
 
   if (client.get()) {
     CefRefPtr<CefLifeSpanHandler> handler = client->GetLifeSpanHandler();

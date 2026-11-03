@@ -1,0 +1,99 @@
+diff --git chrome/browser/ui/tabs/public/tab_features.h chrome/browser/ui/tabs/public/tab_features.h
+index b31769f5a65e82e9496550af5e7dc7f61321f931..74f27d0c906955df7521862bf3049cec65d55035 100644
+--- chrome/browser/ui/tabs/public/tab_features.h
++++ chrome/browser/ui/tabs/public/tab_features.h
+@@ -537,6 +537,9 @@ class TabFeatures {
+   GetUserDataFactoryForTesting();
+ 
+  private:
++  void InitBrowserFeatures(TabInterface& tab, Profile* profile);
++  void InitWebContentsFeatures(TabInterface& tab, Profile* profile);
++
+   bool initialized_ = false;
+ 
+   // Returns the factory used to create owned components.
+diff --git chrome/browser/ui/tabs/tab_features.cc chrome/browser/ui/tabs/tab_features.cc
+index 69399182855854620c01774f62250ce870164d4a..1a47da195c5856e3b8b34985445a8da7991e2d9c 100644
+--- chrome/browser/ui/tabs/tab_features.cc
++++ chrome/browser/ui/tabs/tab_features.cc
+@@ -13,6 +13,7 @@
+ #include "base/no_destructor.h"
+ #include "base/task/sequenced_task_runner.h"
+ #include "base/time/default_tick_clock.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/actor/actor_keyed_service.h"
+ #include "chrome/browser/actor/actor_surface_tab_helper.h"
+ #include "chrome/browser/actor/actor_tab_data.h"
+@@ -424,7 +425,9 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
+ 
+   // In tests you may want to disable TabFeatures initialization.
+   // See tabs::TabModel::PreventFeatureInitializationForTesting
++#if !BUILDFLAG(ENABLE_CEF)
+   CHECK(tab.GetBrowserWindowInterface());
++#endif
+ 
+   tab_subscriptions_.push_back(
+       tab.RegisterWillDiscardContents(base::BindRepeating(
+@@ -481,6 +484,21 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
+ 
+   InitializePageLoadMetricsForWebContents(tab.GetContents());
+ 
++  file_system_access_permission_request_manager_ =
++      GetUserDataFactory()
++          .CreateInstance<FileSystemAccessPermissionRequestManager>(tab, tab);
++
++  recently_audible_helper_ =
++      GetUserDataFactory().CreateInstance<RecentlyAudibleHelper>(
++          tab, tab, tab.GetContents());
++
++  if (tab.GetBrowserWindowInterface()) {
++    InitBrowserFeatures(tab, profile);
++  }
++  InitWebContentsFeatures(tab, profile);
++}
++
++void TabFeatures::InitBrowserFeatures(TabInterface& tab, Profile* profile) {
+   // TODO(crbug.com/346148554): Do not create a SidePanelRegistry or
+   // dependencies for non-normal browsers.
+   side_panel_registry_ =
+@@ -535,9 +553,6 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
+             .CreateInstance<IntentPickerViewPageActionController>(tab, tab);
+   }
+ 
+-  file_system_access_permission_request_manager_ =
+-      GetUserDataFactory()
+-          .CreateInstance<FileSystemAccessPermissionRequestManager>(tab, tab);
+   if (page_action_controller_->ActionExists(kActionShowFileSystemAccess)) {
+     file_system_access_page_action_controller_ =
+         std::make_unique<FileSystemAccessPageActionController>(tab);
+@@ -900,8 +915,6 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
+ 
+   tab_ui_helper_ = GetUserDataFactory().CreateInstance<TabUIHelper>(tab, tab);
+ 
+-  task_manager::WebContentsTags::CreateForTabContents(tab.GetContents());
+-
+ #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
+   desktop_session_duration_observer_ =
+       metrics::DesktopSessionDurationObserver::MaybeCreate(tab.GetContents());
+@@ -993,10 +1006,6 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
+   vr_tab_helper_ =
+       GetUserDataFactory().CreateInstance<vr::VrTabHelper>(tab, tab);
+ 
+-  recently_audible_helper_ =
+-      GetUserDataFactory().CreateInstance<RecentlyAudibleHelper>(
+-          tab, tab, tab.GetContents());
+-
+   child_tab_alert_helper_ =
+       GetUserDataFactory().CreateInstance<ChildTabAlertHelper>(tab, tab);
+ 
+@@ -1132,6 +1141,10 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
+                 tab, tab, tab.GetContents());
+   }
+ #endif
++}
++
++void TabFeatures::InitWebContentsFeatures(TabInterface& tab, Profile* profile) {
++  task_manager::WebContentsTags::CreateForTabContents(tab.GetContents());
+ 
+ #if BUILDFLAG(ENABLE_CAPTIVE_PORTAL_DETECTION)
+   captive_portal::CaptivePortalTabHelper::CreateForWebContents(

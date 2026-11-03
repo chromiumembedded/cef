@@ -177,9 +177,10 @@ class CefRenderWidgetHostViewOSR
   void UpdateTooltipUnderCursor(const std::u16string& tooltip_text) override;
   input::CursorManager* GetCursorManager() override;
   gfx::Size GetCompositorViewportPixelSize() override;
-  void CopyFromSurface(
+  void CopyFromSurfaceImpl(
       const gfx::Rect& src_rect,
       const gfx::Size& output_size,
+      bool is_copy_request_secure,
       base::TimeDelta timeout,
       base::OnceCallback<void(const content::CopyFromSurfaceResult&)> callback)
       override;

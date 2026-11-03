@@ -1,5 +1,5 @@
 diff --git chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
-index b02065efac3316f6493776df979752dd9d749a14..a47c2269b582c80628ab16bb45824211f532b074 100644
+index 811bac8db0a6a391d8e6f33aec0f7c8cdd2cf753..5631c3a6b21e166daa4ebc891244e112a41123f6 100644
 --- chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
 +++ chrome/browser/picture_in_picture/picture_in_picture_window_manager.cc
 @@ -140,12 +140,22 @@ PictureInPictureWindowManager* PictureInPictureWindowManager::GetInstance() {
@@ -26,7 +26,7 @@ index b02065efac3316f6493776df979752dd9d749a14..a47c2269b582c80628ab16bb45824211
  
    pip_window_controller_ = pip_window_controller;
  
-@@ -446,7 +456,8 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
+@@ -459,7 +469,8 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
      // Ignore the result if we're asked to do so.  Note that we still have to
      // ask the cache, so that it's set up to accept position updates later for
      // this request.
@@ -36,7 +36,7 @@ index b02065efac3316f6493776df979752dd9d749a14..a47c2269b582c80628ab16bb45824211
        // Cache hit!  Just return it as the window bounds.
        return *cached_window_bounds;
      }
-@@ -500,6 +511,11 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
+@@ -513,6 +524,11 @@ gfx::Rect PictureInPictureWindowManager::CalculateOuterWindowBounds(
    }
  #endif
    // Position the window.
@@ -49,7 +49,7 @@ index b02065efac3316f6493776df979752dd9d749a14..a47c2269b582c80628ab16bb45824211
    int window_diff_height = work_area.bottom() - window_bounds.height();
  
 diff --git chrome/browser/picture_in_picture/picture_in_picture_window_manager.h chrome/browser/picture_in_picture/picture_in_picture_window_manager.h
-index 063a8f738309cbfac2b2b2e42a22170922a316fa..f9d063d64a6feeee918d5b12a0ac6f0f4f8adb33 100644
+index 2786953a872abd331d777d64231adfd3b685e85e..6ebcbd02666114ceef78fe3a304bbf686d2b3928 100644
 --- chrome/browser/picture_in_picture/picture_in_picture_window_manager.h
 +++ chrome/browser/picture_in_picture/picture_in_picture_window_manager.h
 @@ -66,6 +66,12 @@ class PictureInPictureWindowManager {
@@ -66,10 +66,10 @@ index 063a8f738309cbfac2b2b2e42a22170922a316fa..f9d063d64a6feeee918d5b12a0ac6f0f
    PictureInPictureWindowManager& operator=(
        const PictureInPictureWindowManager&) = delete;
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 8d7c579bafe1b0a9dfd9a7496246228c8bbf8730..82868d50df0d6aaae2ef79b7ea9c37d34559fcb8 100644
+index 4d740159bbf7665963ecce0afc82ef2c34a517bb..3061692b1b3ac252fdece4c6a1b4c61cdb49ae1b 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -7134,6 +7134,9 @@ WebView* RenderFrameImpl::CreateNewWindow(
+@@ -7151,6 +7151,9 @@ WebView* RenderFrameImpl::CreateNewWindow(
          pip_options->disallow_return_to_opener;
      pip_mojom_opts->prefer_initial_window_placement =
          pip_options->prefer_initial_window_placement;
@@ -149,10 +149,10 @@ index 8bd6b07c5c47f6625b24b1ee227d632bf5d97c5d..a3118931844b2b959cf3a174589a1f9b
    ~WebView() = default;
  };
 diff --git third_party/blink/renderer/bindings/generated_in_modules.gni third_party/blink/renderer/bindings/generated_in_modules.gni
-index 6d5b9b4eb49f3acbd178252563b77fe0e69e5c7b..b148b4e3d4f69eff262555d1d37d7354fe6cc1a0 100644
+index b56e9a96ebd3d598e53848fa955d02ac45628900..5da18011ab0c4bd61b11037ee635ea445882a38f 100644
 --- third_party/blink/renderer/bindings/generated_in_modules.gni
 +++ third_party/blink/renderer/bindings/generated_in_modules.gni
-@@ -392,6 +392,10 @@ generated_dictionary_sources_in_modules = [
+@@ -390,6 +390,10 @@ generated_dictionary_sources_in_modules = [
    "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_directory_picker_options.h",
    "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_display_media_stream_options.cc",
    "$root_gen_dir/third_party/blink/renderer/bindings/modules/v8/v8_display_media_stream_options.h",
@@ -199,10 +199,10 @@ index 1c4e22e2d79fe68a49fbbc660c6de1b1bb41545d..865f727e4aa54fb47ac0fd0fc479b455
    base::ObserverList<WebViewObserver> observers_;
  };
 diff --git third_party/blink/renderer/core/frame/local_dom_window.cc third_party/blink/renderer/core/frame/local_dom_window.cc
-index 8285e3768996571cdae7409078a502a8f18bda89..f8de9ac0de6dd0c3eb528e4cad46ed4a1c9f5168 100644
+index 3c8005efb96d163df749c15765bcec4d0e3be691..98dfaab626a7b9e835db735260c0244abfaf2426 100644
 --- third_party/blink/renderer/core/frame/local_dom_window.cc
 +++ third_party/blink/renderer/core/frame/local_dom_window.cc
-@@ -50,6 +50,7 @@
+@@ -51,6 +51,7 @@
  #include "third_party/blink/public/platform/task_type.h"
  #include "third_party/blink/public/platform/web_string.h"
  #include "third_party/blink/public/web/web_picture_in_picture_window_options.h"
@@ -210,7 +210,7 @@ index 8285e3768996571cdae7409078a502a8f18bda89..f8de9ac0de6dd0c3eb528e4cad46ed4a
  #include "third_party/blink/renderer/bindings/core/v8/binding_security.h"
  #include "third_party/blink/renderer/bindings/core/v8/capture_source_location.h"
  #include "third_party/blink/renderer/bindings/core/v8/isolated_world_csp.h"
-@@ -106,6 +107,7 @@
+@@ -107,6 +108,7 @@
  #include "third_party/blink/renderer/core/frame/settings.h"
  #include "third_party/blink/renderer/core/frame/viewport_data.h"
  #include "third_party/blink/renderer/core/frame/visual_viewport.h"
@@ -218,7 +218,7 @@ index 8285e3768996571cdae7409078a502a8f18bda89..f8de9ac0de6dd0c3eb528e4cad46ed4a
  #include "third_party/blink/renderer/core/html/custom/custom_element_registry.h"
  #include "third_party/blink/renderer/core/html/custom/custom_element_registry_assignment.h"
  #include "third_party/blink/renderer/core/html/forms/form_controller.h"
-@@ -2105,7 +2107,7 @@ void LocalDOMWindow::moveBy(int x, int y) const {
+@@ -2125,7 +2127,7 @@ void LocalDOMWindow::moveBy(int x, int y) const {
      return;
    }
  
@@ -227,7 +227,7 @@ index 8285e3768996571cdae7409078a502a8f18bda89..f8de9ac0de6dd0c3eb528e4cad46ed4a
      return;
    }
  
-@@ -2130,7 +2132,7 @@ void LocalDOMWindow::moveTo(int x, int y) const {
+@@ -2150,7 +2152,7 @@ void LocalDOMWindow::moveTo(int x, int y) const {
      return;
    }
  
@@ -236,7 +236,7 @@ index 8285e3768996571cdae7409078a502a8f18bda89..f8de9ac0de6dd0c3eb528e4cad46ed4a
      return;
    }
  
-@@ -2158,7 +2160,8 @@ void LocalDOMWindow::resizeBy(int x,
+@@ -2178,7 +2180,8 @@ void LocalDOMWindow::resizeBy(int x,
    }
  
    if (IsPictureInPictureWindow()) {
@@ -246,7 +246,7 @@ index 8285e3768996571cdae7409078a502a8f18bda89..f8de9ac0de6dd0c3eb528e4cad46ed4a
        exception_state.ThrowDOMException(
            DOMExceptionCode::kNotAllowedError,
            "resizeBy() requires user activation in document picture-in-picture");
-@@ -2190,7 +2193,8 @@ void LocalDOMWindow::resizeTo(int width,
+@@ -2210,7 +2213,8 @@ void LocalDOMWindow::resizeTo(int width,
    }
  
    if (IsPictureInPictureWindow()) {
@@ -256,7 +256,7 @@ index 8285e3768996571cdae7409078a502a8f18bda89..f8de9ac0de6dd0c3eb528e4cad46ed4a
        exception_state.ThrowDOMException(
            DOMExceptionCode::kNotAllowedError,
            "resizeTo() requires user activation in document picture-in-picture");
-@@ -2640,6 +2644,12 @@ DOMWindow* LocalDOMWindow::openPictureInPictureWindow(
+@@ -2666,6 +2670,12 @@ DOMWindow* LocalDOMWindow::openPictureInPictureWindow(
        To<LocalDOMWindow>(result.frame->DomWindow());
    pip_dom_window->SetIsPictureInPictureWindow();
  
@@ -270,10 +270,10 @@ index 8285e3768996571cdae7409078a502a8f18bda89..f8de9ac0de6dd0c3eb528e4cad46ed4a
    pip_dom_window->document()->SetCompatibilityMode(
        entered_window->document()->GetCompatibilityMode());
 diff --git third_party/blink/renderer/core/frame/local_dom_window.h third_party/blink/renderer/core/frame/local_dom_window.h
-index ee2c080f61b630a0b80efbe54b0ede3df7c4d657..759d768cebb15b0e202a465a776812e6df33a530 100644
+index b58d38a884db0103cccc046a0684175bd57e63ab..9945c2f4521031422ad01b8b3bffd294034a3c11 100644
 --- third_party/blink/renderer/core/frame/local_dom_window.h
 +++ third_party/blink/renderer/core/frame/local_dom_window.h
-@@ -646,6 +646,11 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
+@@ -661,6 +661,11 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
  
    void SetIsPictureInPictureWindow();
  
@@ -285,7 +285,7 @@ index ee2c080f61b630a0b80efbe54b0ede3df7c4d657..759d768cebb15b0e202a465a776812e6
    // Return the viewport size including scrollbars.
    gfx::Size GetViewportSize() const;
  
-@@ -756,6 +761,8 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
+@@ -772,6 +777,8 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
    // https://wicg.github.io/document-picture-in-picture/
    bool is_picture_in_picture_window_ = false;
  

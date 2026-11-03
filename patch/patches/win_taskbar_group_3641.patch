@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/frame/browser_window_property_manager_win.cc chrome/browser/ui/views/frame/browser_window_property_manager_win.cc
-index 00445dbee1a207264eb601d25ed8852171fb197e..ee3dda17123579f5abfe6a1f840a8247018c046d 100644
+index f81af1cfc88ba6187ca85a2eac28802c2ccbd949..ae88b9db9bd3a491fac2edce800cf217177afe3e 100644
 --- chrome/browser/ui/views/frame/browser_window_property_manager_win.cc
 +++ chrome/browser/ui/views/frame/browser_window_property_manager_win.cc
 @@ -8,6 +8,7 @@
@@ -10,14 +10,21 @@ index 00445dbee1a207264eb601d25ed8852171fb197e..ee3dda17123579f5abfe6a1f840a8247
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/profiles/profile_manager.h"
-@@ -52,6 +53,17 @@ void BrowserWindowPropertyManager::UpdateWindowProperties() {
+@@ -15,6 +16,7 @@
+ #include "chrome/browser/shell_integration_win.h"
+ #include "chrome/browser/ui/browser_init_state.h"
+ #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
++#include "chrome/browser/ui/browser_window/public/desktop_browser_window_capabilities.h"
+ #include "chrome/browser/ui/views/frame/browser_view.h"
+ #include "chrome/browser/web_applications/extensions/web_app_extension_shortcut.h"
+ #include "chrome/browser/web_applications/web_app_helpers.h"
+@@ -52,6 +54,16 @@ void BrowserWindowPropertyManager::UpdateWindowProperties() {
    const BrowserWindowInterface* browser = view_->browser();
    Profile* profile = const_cast<Profile*>(browser->GetProfile());
  
 +#if BUILDFLAG(ENABLE_CEF)
 +  if (browser->cef_delegate() &&
-+      (browser->GetType() ==
-+           BrowserWindowInterface::Type::TYPE_PICTURE_IN_PICTURE ||
++      (DesktopBrowserWindowCapabilities::IsDocumentPictureInPicture(browser) ||
 +       browser->GetType() == BrowserWindowInterface::Type::TYPE_DEVTOOLS) &&
 +      browser->cef_delegate()->HasViewsHostedOpener()) {
 +    // Don't create a separate taskbar group.

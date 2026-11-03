@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/autofill/address_bubbles_controller.cc chrome/browser/ui/autofill/address_bubbles_controller.cc
-index 86828b91de9b7e618330ded3038565ab3ff1614b..cba56ee71628529ca7b841c91803af516b3bb0b9 100644
+index f422e81db87d9c62c03651ace737f7bc6ceb05eb..84a8ec11d14b84605550a23f9b893194e88684c9 100644
 --- chrome/browser/ui/autofill/address_bubbles_controller.cc
 +++ chrome/browser/ui/autofill/address_bubbles_controller.cc
 @@ -55,11 +55,15 @@ AutofillBubbleBase* ShowSaveBubble(
@@ -56,7 +56,7 @@ index 86828b91de9b7e618330ded3038565ab3ff1614b..cba56ee71628529ca7b841c91803af51
  }
  #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
  
-@@ -244,8 +256,6 @@ void AddressBubblesController::DoShowBubble() {
+@@ -245,8 +257,6 @@ void AddressBubblesController::DoShowBubble() {
  
    SetBubbleView(*show_bubble_view_callback_.Run(
        web_contents(), shown_by_user_gesture_, GetWeakPtr()));
@@ -65,7 +65,7 @@ index 86828b91de9b7e618330ded3038565ab3ff1614b..cba56ee71628529ca7b841c91803af51
  }
  
  BubbleType AddressBubblesController::GetBubbleType() const {
-@@ -312,10 +322,13 @@ void AddressBubblesController::SetUpBubble(
+@@ -313,10 +323,13 @@ void AddressBubblesController::SetUpBubble(
  }
  
  void AddressBubblesController::MaybeShowIOSDektopAddressPromo() {
@@ -82,11 +82,24 @@ index 86828b91de9b7e618330ded3038565ab3ff1614b..cba56ee71628529ca7b841c91803af51
  
    // Verify if user is eligible for iOS promo, and attempt showing if they are.
    ios_promos_utils::VerifyIOSPromoEligibility(
+diff --git chrome/browser/ui/autofill/payments/chrome_payments_autofill_client.cc chrome/browser/ui/autofill/payments/chrome_payments_autofill_client.cc
+index e635aba6a92a43fd3132e4b746ba1ee43f6cd9c2..191f2cc060023ab25bf7591e19b1911201c13ea5 100644
+--- chrome/browser/ui/autofill/payments/chrome_payments_autofill_client.cc
++++ chrome/browser/ui/autofill/payments/chrome_payments_autofill_client.cc
+@@ -1246,7 +1246,7 @@ bool ChromePaymentsAutofillClient::IsTabModalPopup() const {
+ #if !BUILDFLAG(IS_ANDROID)
+   tabs::TabInterface* const tab_interface =
+       tabs::TabInterface::MaybeGetFromContents(web_contents());
+-  return tab_interface &&
++  return tab_interface && tab_interface->GetBrowserWindowInterface() &&
+          tab_interface->GetBrowserWindowInterface()->IsTabModalPopup();
+ #else
+   return false;
 diff --git chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
-index 2db367da2d14316abbb12cb4ffeb9cc8d0987bc1..2694cb3f2a00ff77f0bec50f9cb650639d790f33 100644
+index 668600f97c242552bd85ee14299e18a81806ae7e..d56bf4cb1c7d31b497d3ff808c9da58f8eeeab7b 100644
 --- chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
 +++ chrome/browser/ui/autofill/payments/save_card_bubble_controller_impl.cc
-@@ -830,7 +830,9 @@ SaveCardBubbleControllerImpl::GetAutofillBubbleHandler() {
+@@ -900,7 +900,9 @@ SaveCardBubbleControllerImpl::GetAutofillBubbleHandler() {
      return nullptr;
    }
    BrowserWindowInterface* browser = tab->GetBrowserWindowInterface();
@@ -97,7 +110,7 @@ index 2db367da2d14316abbb12cb4ffeb9cc8d0987bc1..2694cb3f2a00ff77f0bec50f9cb65063
    return AutofillBubbleHandler::Get(browser->GetUnownedUserDataHost());
  }
  
-@@ -840,7 +842,9 @@ void SaveCardBubbleControllerImpl::DoShowBubble() {
+@@ -910,7 +912,9 @@ void SaveCardBubbleControllerImpl::DoShowBubble() {
    }
  
    AutofillBubbleHandler* autofill_bubble_handler = GetAutofillBubbleHandler();

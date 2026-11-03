@@ -1,5 +1,5 @@
 diff --git chrome/browser/devtools/chrome_devtools_manager_delegate.cc chrome/browser/devtools/chrome_devtools_manager_delegate.cc
-index 37a83372cec45117a84b810f9b4667bcc8a26a74..3766984eb34ca77bdc99434710f59513fb4f2f0e 100644
+index 8dabdfbd314e04b2808c4a763efae677e152ce3d..9d36293950a63c426099b771d000c9d298dc7dd4 100644
 --- chrome/browser/devtools/chrome_devtools_manager_delegate.cc
 +++ chrome/browser/devtools/chrome_devtools_manager_delegate.cc
 @@ -14,6 +14,7 @@
@@ -7,10 +7,10 @@ index 37a83372cec45117a84b810f9b4667bcc8a26a74..3766984eb34ca77bdc99434710f59513
  #include "base/values.h"
  #include "build/build_config.h"
 +#include "cef/libcef/features/features.h"
+ #include "chrome/browser/browser_process.h"
  #include "chrome/browser/devtools/chrome_devtools_session.h"
  #include "chrome/browser/devtools/device/android_device_manager.h"
- #include "chrome/browser/devtools/device/tcp_device_provider.h"
-@@ -77,6 +78,10 @@
+@@ -80,6 +81,10 @@
  static_assert(!BUILDFLAG(IS_ANDROID),
                "This file should not be included in Android build");
  
@@ -21,7 +21,7 @@ index 37a83372cec45117a84b810f9b4667bcc8a26a74..3766984eb34ca77bdc99434710f59513
  using content::DevToolsAgentHost;
  
  const char ChromeDevToolsManagerDelegate::kTypeApp[] = "app";
-@@ -326,6 +331,12 @@ std::string ChromeDevToolsManagerDelegate::GetTargetType(
+@@ -329,6 +334,12 @@ std::string ChromeDevToolsManagerDelegate::GetTargetType(
      return DevToolsAgentHost::kTypePage;
    }
  

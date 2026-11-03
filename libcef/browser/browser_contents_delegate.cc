@@ -88,11 +88,19 @@ CefBrowserContentsDelegate::CefBrowserContentsDelegate(
     scoped_refptr<CefBrowserInfo> browser_info)
     : browser_info_(browser_info) {}
 
+CefBrowserContentsDelegate::~CefBrowserContentsDelegate() = default;
+
 void CefBrowserContentsDelegate::ObserveWebContents(
     content::WebContents* new_contents) {
+  find_observation_.Reset();
   WebContentsObserver::Observe(new_contents);
 
   if (new_contents) {
+    // Chrome may attach the browser host before initializing TabFeatures.
+    // Ensure the helper exists before observing its processed results.
+    find_in_page::FindTabHelper::CreateForWebContents(new_contents);
+    find_observation_.Observe(
+        find_in_page::FindTabHelper::FromWebContents(new_contents));
     // Make sure MaybeCreateFrame is called at least one time.
     // Create the frame representation before OnAfterCreated is called for a new
     // browser.
@@ -700,20 +708,19 @@ bool CefBrowserContentsDelegate::TakeFocus(content::WebContents* source,
   return false;
 }
 
-void CefBrowserContentsDelegate::FindReply(content::WebContents* web_contents,
-                                           int request_id,
-                                           int number_of_matches,
-                                           const gfx::Rect& selection_rect,
-                                           int active_match_ordinal,
-                                           bool final_update) {
+void CefBrowserContentsDelegate::OnFindTabHelperDestroyed(
+    find_in_page::FindTabHelper* helper) {
+  find_observation_.Reset();
+}
+
+void CefBrowserContentsDelegate::OnFindResultAvailable(
+    content::WebContents* web_contents) {
   auto browser_host = browser_info_->browser();
   if (!browser_host) {
     return;
   }
 
-  if (browser_host->HandleFindReply(request_id, number_of_matches,
-                                    selection_rect, active_match_ordinal,
-                                    final_update)) {
+  if (browser_host->HandleFindReply()) {
     if (auto c = client()) {
       if (auto handler = c->GetFindHandler()) {
         const auto& details = browser_host->last_search_result();

@@ -1,5 +1,5 @@
 diff --git chrome/browser/policy/BUILD.gn chrome/browser/policy/BUILD.gn
-index 6eddac1b429bd87b45925008a1ddf653ee9fc938..5a61d6aca068f1b0a6fb2e288e9dfa59d80d5a28 100644
+index 0cccae20d6c63a797a8aa7d6b2ccf267fea0eef2..b2739df522288104c9a7b1c0956416eb8581c1d5 100644
 --- chrome/browser/policy/BUILD.gn
 +++ chrome/browser/policy/BUILD.gn
 @@ -28,6 +28,7 @@ source_set("path_parser") {
@@ -114,7 +114,7 @@ index 41bb311b3399af2014bf416eb65e99cae9b8df6b..df1b1e2514990a5d5c091cae2bd9ab30
    }
  
 diff --git chrome/browser/policy/chrome_browser_policy_connector.cc chrome/browser/policy/chrome_browser_policy_connector.cc
-index 1761f93bfefa85685fe87f6ee2c8dcb3e54b9bf0..361b640b4b05b7c77cd73a60de007f1b0d7c09fd 100644
+index c8b09c3b15b455671746293967f739a9369f0382..5212dc4acda7b870591a570af7a7d9a0e0dd2f31 100644
 --- chrome/browser/policy/chrome_browser_policy_connector.cc
 +++ chrome/browser/policy/chrome_browser_policy_connector.cc
 @@ -12,10 +12,13 @@
@@ -131,7 +131,7 @@ index 1761f93bfefa85685fe87f6ee2c8dcb3e54b9bf0..361b640b4b05b7c77cd73a60de007f1b
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/enterprise/browser_management/management_service_factory.h"
  #include "chrome/browser/policy/configuration_policy_handler_list_factory.h"
-@@ -70,6 +73,11 @@
+@@ -71,6 +74,11 @@
  namespace policy {
  namespace {
  bool g_command_line_enabled_for_testing = false;
@@ -143,7 +143,7 @@ index 1761f93bfefa85685fe87f6ee2c8dcb3e54b9bf0..361b640b4b05b7c77cd73a60de007f1b
  }  // namespace
  
  ChromeBrowserPolicyConnector::ChromeBrowserPolicyConnector()
-@@ -251,6 +259,73 @@ void ChromeBrowserPolicyConnector::EnableCommandLineSupportForTesting() {
+@@ -257,6 +265,73 @@ void ChromeBrowserPolicyConnector::EnableCommandLineSupportForTesting() {
    g_command_line_enabled_for_testing = true;
  }
  
@@ -217,7 +217,7 @@ index 1761f93bfefa85685fe87f6ee2c8dcb3e54b9bf0..361b640b4b05b7c77cd73a60de007f1b
  base::flat_set<std::string>
  ChromeBrowserPolicyConnector::device_affiliation_ids() const {
    if (!device_affiliation_ids_for_testing_.empty()) {
-@@ -314,25 +389,22 @@ ChromeBrowserPolicyConnector::CreatePolicyProviders() {
+@@ -320,25 +395,22 @@ ChromeBrowserPolicyConnector::CreatePolicyProviders() {
  std::unique_ptr<ConfigurationPolicyProvider>
  ChromeBrowserPolicyConnector::CreatePlatformProvider() {
  #if BUILDFLAG(IS_WIN)
@@ -252,7 +252,7 @@ index 1761f93bfefa85685fe87f6ee2c8dcb3e54b9bf0..361b640b4b05b7c77cd73a60de007f1b
    auto loader = std::make_unique<PolicyLoaderMac>(
        base::ThreadPool::CreateSequencedTaskRunner(
            {base::MayBlock(), base::TaskPriority::BEST_EFFORT}),
-@@ -343,7 +415,7 @@ ChromeBrowserPolicyConnector::CreatePlatformProvider() {
+@@ -349,7 +421,7 @@ ChromeBrowserPolicyConnector::CreatePlatformProvider() {
                                                 std::move(loader));
  #elif BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
    base::FilePath config_dir_path;
@@ -336,7 +336,7 @@ index 1a2e78c3472ec065410699503d9695fdb21dd716..5d1bd95a15113471c01854b478570fbd
    base::apple::ScopedCFTypeRef<CFStringRef> key =
        base::SysUTF8ToCFStringRef(policy::key::kUserDataDir);
 diff --git chrome/browser/policy/policy_path_parser_win.cc chrome/browser/policy/policy_path_parser_win.cc
-index ee71a5e319c2c910d4f93a0c05c9d247acae8d12..f4f2d783bfd77e93f3a3bbeee8bfcf72ff448a41 100644
+index 21738af3b0258144425ceac7175e6a51f16028a9..51b8051656839ab9dd74abda32cb6c8c72ba6c0a 100644
 --- chrome/browser/policy/policy_path_parser_win.cc
 +++ chrome/browser/policy/policy_path_parser_win.cc
 @@ -12,6 +12,7 @@
@@ -365,10 +365,10 @@ index ee71a5e319c2c910d4f93a0c05c9d247acae8d12..f4f2d783bfd77e93f3a3bbeee8bfcf72
      *dir = base::FilePath(policy::path_parser::ExpandPathVariables(value));
      return true;
 diff --git chrome/common/chrome_paths.cc chrome/common/chrome_paths.cc
-index 32d01c008e1341eb8142cd80e1c91afe7928ed42..223112aede4b84107a732a12fa2b6c4aed49acc7 100644
+index 4448f86df86f764874539303e1c002e3c85f7e66..a3019d819f34d24fec97b1392678fc42b620d659 100644
 --- chrome/common/chrome_paths.cc
 +++ chrome/common/chrome_paths.cc
-@@ -406,7 +406,8 @@ bool PathProvider(int key, base::FilePath* result) {
+@@ -412,7 +412,8 @@ bool PathProvider(int key, base::FilePath* result) {
        break;
      }
  #endif
@@ -379,7 +379,7 @@ index 32d01c008e1341eb8142cd80e1c91afe7928ed42..223112aede4b84107a732a12fa2b6c4a
        cur = base::FilePath(policy::kPolicyPath);
        break;
 diff --git chrome/common/chrome_paths.h chrome/common/chrome_paths.h
-index e36249713bfd5c254a322c3c55fd31d129937fab..8e60ff056d2bf996e6fb84b924379f2f19efa458 100644
+index abeb4f2818e9e2444131e7ced8f1053d62e2c9ea..05bba5722cf7fafcf1753de6264b6c26f0d23500 100644
 --- chrome/common/chrome_paths.h
 +++ chrome/common/chrome_paths.h
 @@ -7,6 +7,7 @@
@@ -389,8 +389,8 @@ index e36249713bfd5c254a322c3c55fd31d129937fab..8e60ff056d2bf996e6fb84b924379f2f
 +#include "cef/libcef/features/features.h"
  #include "extensions/buildflags/buildflags.h"
  #include "third_party/widevine/cdm/buildflags.h"
- 
-@@ -49,7 +50,7 @@ enum {
+ #include "ui/webui/buildflags.h"
+@@ -50,7 +51,7 @@ enum {
  #if BUILDFLAG(IS_MAC)
    DIR_OUTER_BUNDLE,  // Directory that is the outermost Chromium bundle.
  #endif
@@ -412,10 +412,10 @@ index f724bf914a934de95d71eda0c17cc475b51a2eae..8d9bee4da75693d32ca8c99b87690382
      "//components/policy/proto:policy_common_definitions_compile_proto",
      "//third_party/protobuf:protobuf_lite",
 diff --git components/policy/tools/generate_policy_source.py components/policy/tools/generate_policy_source.py
-index 040c3e2a6d5c723f5d4e214a8a77c5906ceeb2f8..1658a008e8aa40aa74e4e3c6de654fbe3aebb86a 100755
+index bae3831eaabaf58a2cf8779bff74e581a9cd437e..5b03f4e25eab793ad4118f7d5f408a332f514efd 100755
 --- components/policy/tools/generate_policy_source.py
 +++ components/policy/tools/generate_policy_source.py
-@@ -485,6 +485,7 @@ def _WritePolicyConstantHeader(all_policies, policy_atomic_groups,
+@@ -558,6 +558,7 @@ def _WritePolicyConstantHeader(
  #include <cstdint>
  #include <string>
  
@@ -423,35 +423,31 @@ index 040c3e2a6d5c723f5d4e214a8a77c5906ceeb2f8..1658a008e8aa40aa74e4e3c6de654fbe
  #include "components/policy/core/common/policy_details.h"
  #include "components/policy/core/common/policy_map.h"
  
-@@ -507,9 +508,11 @@ namespace {namespace} {{
- ''')
+@@ -581,9 +582,11 @@ namespace {namespace} {{
  
    if target_platform == 'win':
--    f.write('// The windows registry path where Chrome policy '
-+    f.write('#if !BUILDFLAG(ENABLE_CEF)\n'
-+            '// The windows registry path where Chrome policy '
-             'configuration resides.\n'
--            'extern const wchar_t kRegistryChromePolicyKey[];\n')
-+            'extern const wchar_t kRegistryChromePolicyKey[];\n'
-+            '#endif\n')
+     f.write(
++      '#if !BUILDFLAG(ENABLE_CEF)\n'
+       '// The windows registry path where Chrome policy '
+       'configuration resides.\n'
+       'extern const wchar_t kRegistryChromePolicyKey[];\n'
++      '#endif\n'
+     )
  
    f.write('''#if BUILDFLAG(IS_CHROMEOS)
- // Sets default profile policies values for enterprise users.
-@@ -1206,7 +1209,8 @@ namespace {namespace} {{
-     f.write('}  // namespace\n\n')
+@@ -1395,6 +1398,7 @@ namespace {namespace} {{
  
    if target_platform == 'win':
--    f.write('#if BUILDFLAG(GOOGLE_CHROME_BRANDING)\n'
-+    f.write('#if !BUILDFLAG(ENABLE_CEF)\n'
-+            '#if BUILDFLAG(GOOGLE_CHROME_BRANDING)\n'
-             'const wchar_t kRegistryChromePolicyKey[] = '
-             'L"' + CHROME_POLICY_KEY + '";\n'
-             '#elif BUILDFLAG(GOOGLE_CHROME_FOR_TESTING_BRANDING)\n'
-@@ -1215,6 +1219,7 @@ namespace {namespace} {{
-             '#else\n'
-             'const wchar_t kRegistryChromePolicyKey[] = '
-             'L"' + CHROMIUM_POLICY_KEY + '";\n'
-+            '#endif\n'
-             '#endif\n\n')
+     f.write(
++      '#if !BUILDFLAG(ENABLE_CEF)\n'
+       '#if BUILDFLAG(GOOGLE_CHROME_BRANDING)\n'
+       'const wchar_t kRegistryChromePolicyKey[] = '
+       'L"' + CHROME_POLICY_KEY + '";\n'
+@@ -1404,6 +1408,7 @@ namespace {namespace} {{
+       '#else\n'
+       'const wchar_t kRegistryChromePolicyKey[] = '
+       'L"' + CHROMIUM_POLICY_KEY + '";\n'
++      '#endif\n'
+       '#endif\n\n'
+     )
  
-   # Setting enterprise defaults code generation.

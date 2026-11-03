@@ -162,7 +162,8 @@ void CefWebContentsViewOSR::StartDragging(
 
 void CefWebContentsViewOSR::UpdateDragOperation(
     ui::mojom::DragOperation operation,
-    bool document_is_handling_drag) {
+    bool document_is_handling_drag,
+    content::RenderWidgetHostImpl* source_rwh) {
   CefRefPtr<AlloyBrowserHostImpl> browser = GetBrowser();
   if (browser.get()) {
     browser->UpdateDragOperation(operation, document_is_handling_drag);

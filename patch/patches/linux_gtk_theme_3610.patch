@@ -1,8 +1,8 @@
 diff --git ui/gtk/gtk_ui.cc ui/gtk/gtk_ui.cc
-index ce43b29eb301a846c84f26811b8632d737e91a5f..9b07c156ac04d735ab90d6ef78b9050d681abe34 100644
+index f72a7adb396a2ed26bef50a9ae043f9cd47152c6..ed821e85fdd840635dcf4c4fc764a9f106751645 100644
 --- ui/gtk/gtk_ui.cc
 +++ ui/gtk/gtk_ui.cc
-@@ -33,6 +33,7 @@
+@@ -31,6 +31,7 @@
  #include "base/scoped_environment_variable_override.h"
  #include "base/strings/string_number_conversions.h"
  #include "base/strings/string_split.h"
@@ -10,10 +10,10 @@ index ce43b29eb301a846c84f26811b8632d737e91a5f..9b07c156ac04d735ab90d6ef78b9050d
  #include "chrome/browser/themes/theme_properties.h"  // nogncheck
  #include "third_party/skia/include/core/SkBitmap.h"
  #include "third_party/skia/include/core/SkColor.h"
-@@ -408,10 +409,15 @@ bool GtkUi::Initialize() {
-     connect(settings, "notify::gtk-key-theme-name",
-             &GtkUi::OnKeyThemeNameChanged);
-   }
+@@ -272,10 +273,15 @@ bool GtkUi::Initialize() {
+   };
+ 
+   GtkSettings* settings = gtk_settings_get_default();
 +  // Disable GTK theme change notifications because they are extremely slow.
 +  // Light/dark theme changes will still be detected via DarkModeManagerLinux.
 +  // See https://issues.chromium.org/issues/40280130#comment7
@@ -91,7 +91,7 @@ index 4302d96a03e6f98dafe8544ada91e1462957ec2d..d0cb3254a7716b8fba06b72829013e01
  
  #endif  // UI_OZONE_PLATFORM_WAYLAND_OZONE_PLATFORM_WAYLAND_H_
 diff --git ui/ozone/platform/x11/ozone_platform_x11.cc ui/ozone/platform/x11/ozone_platform_x11.cc
-index 33d4a4a084cf8cb57db2b7765598de93ae905fd1..1cb9e18fb4b697989dbb36bd3260674a9d67e50b 100644
+index bdcecbcfa5209182cf8108fe353f74bbb1bde14c..dbe7263b69fec14d919c7906c8d20789abac3c5f 100644
 --- ui/ozone/platform/x11/ozone_platform_x11.cc
 +++ ui/ozone/platform/x11/ozone_platform_x11.cc
 @@ -65,6 +65,8 @@ namespace ui {
@@ -103,7 +103,7 @@ index 33d4a4a084cf8cb57db2b7765598de93ae905fd1..1cb9e18fb4b697989dbb36bd3260674a
  // Singleton OzonePlatform implementation for X11 platform.
  class OzonePlatformX11 : public OzonePlatform,
                           public OSExchangeDataProviderFactoryOzone {
-@@ -274,7 +276,15 @@ class OzonePlatformX11 : public OzonePlatform,
+@@ -276,7 +278,15 @@ class OzonePlatformX11 : public OzonePlatform,
      TouchFactory::SetTouchDeviceListFromCommandLine();
  
  #if BUILDFLAG(USE_GTK)
@@ -120,7 +120,7 @@ index 33d4a4a084cf8cb57db2b7765598de93ae905fd1..1cb9e18fb4b697989dbb36bd3260674a
  #endif
  
      menu_utils_ = std::make_unique<X11MenuUtils>();
-@@ -373,4 +383,8 @@ OzonePlatform* CreateOzonePlatformX11() {
+@@ -377,4 +387,8 @@ OzonePlatform* CreateOzonePlatformX11() {
    return new OzonePlatformX11;
  }
  

@@ -1,8 +1,8 @@
 diff --git content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm
-index 5b05de02f0ca0225d6bc1be9e219bce38cbff5d3..4f11b7dc1289f6bc26bedf279884848b72db5c8d 100644
+index 53bc6fac1a8f8a287ab05438f019c5c0dd6bd767..28c6774ef7c8564ab37f2daa25602b427366bc4e 100644
 --- content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm
 +++ content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm
-@@ -193,6 +193,13 @@ void ExtractUnderlines(NSAttributedString* string,
+@@ -194,6 +194,13 @@ void ExtractUnderlines(NSAttributedString* string,
  
  // RenderWidgetHostViewCocoa ---------------------------------------------------
  
@@ -16,7 +16,7 @@ index 5b05de02f0ca0225d6bc1be9e219bce38cbff5d3..4f11b7dc1289f6bc26bedf279884848b
  // Private methods:
  @interface RenderWidgetHostViewCocoa ()
  
-@@ -855,6 +862,15 @@ static NSWindow* __weak _deferredResignKeyWindow;
+@@ -858,6 +865,15 @@ static NSWindow* __weak _deferredResignKeyWindow;
  }
  
  - (BOOL)acceptsFirstMouse:(NSEvent*)theEvent {
@@ -29,6 +29,6 @@ index 5b05de02f0ca0225d6bc1be9e219bce38cbff5d3..4f11b7dc1289f6bc26bedf279884848b
 +    }
 +  }
 +
-   // Enable "click-through" if mouse clicks are accepted in inactive windows.
-   return
-       [self acceptsMouseEventsOption] > AcceptMouseEvents::kWhenInActiveWindow;
+   // A click that another process posts straight to this process does not
+   // activate the app, unlike one the window server routes here, so treating it
+   // as an activation click would only drop it.

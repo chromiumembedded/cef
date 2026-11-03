@@ -34,10 +34,10 @@ index 08949a69415dfa9f836e00929a34330a34546ce2..e417f50fa68e274b80c0d45bdaa45c7b
    NOTREACHED();
  }
 diff --git chrome/browser/devtools/devtools_window.cc chrome/browser/devtools/devtools_window.cc
-index 7613579e79ca9afa3936ae2210e164c811d12467..4c4d286503098454abe43e5a4ac15652e9508853 100644
+index cf994792b490b3769685de6df717c2afbfa4b608..ba77837e19d9caddd5b322c8c11902fe85dc909c 100644
 --- chrome/browser/devtools/devtools_window.cc
 +++ chrome/browser/devtools/devtools_window.cc
-@@ -131,6 +131,10 @@
+@@ -134,6 +134,10 @@
  #include "components/keep_alive_registry/scoped_keep_alive.h"
  #endif
  
@@ -48,7 +48,7 @@ index 7613579e79ca9afa3936ae2210e164c811d12467..4c4d286503098454abe43e5a4ac15652
  using blink::WebInputEvent;
  using content::BrowserThread;
  using content::DevToolsAgentHost;
-@@ -862,6 +866,12 @@ Profile* DevToolsWindow::GetProfileForDevToolsWindow(
+@@ -865,6 +869,12 @@ Profile* DevToolsWindow::GetProfileForDevToolsWindow(
    if (profile->IsPrimaryOTRProfile() || profile->IsDevToolsOTRProfile()) {
      return profile;
    }
@@ -61,7 +61,7 @@ index 7613579e79ca9afa3936ae2210e164c811d12467..4c4d286503098454abe43e5a4ac15652
    return profile->GetOriginalProfile();
  }
  
-@@ -1405,6 +1415,13 @@ DevToolsWindow* DevToolsWindow::Create(
+@@ -1421,6 +1431,13 @@ DevToolsWindow* DevToolsWindow::Create(
      if (!devtools_ui_controller || !devtools_ui_controller->CanDockDevtools()) {
        can_dock = false;
      }
@@ -75,7 +75,7 @@ index 7613579e79ca9afa3936ae2210e164c811d12467..4c4d286503098454abe43e5a4ac15652
    }
  #endif  // !BUILDFLAG(IS_ANDROID)
  
-@@ -1885,7 +1902,9 @@ void DevToolsWindow::OpenInNewTab(const GURL& url) {
+@@ -1920,7 +1937,9 @@ void DevToolsWindow::OpenInNewTab(const GURL& url) {
                                         /*navigation_handle_callback=*/{})) {
  #if BUILDFLAG(IS_ANDROID)
      NOTIMPLEMENTED();
@@ -83,10 +83,10 @@ index 7613579e79ca9afa3936ae2210e164c811d12467..4c4d286503098454abe43e5a4ac15652
 +#elif !BUILDFLAG(ENABLE_CEF)
 +    // Remove default behavior when CEF handles the open via OnOpenURLFromTab.
 +    // See CEF issue #3735.
-     chrome::ScopedTabbedBrowserDisplayer displayer(profile_);
-     chrome::AddSelectedTabWithURL(displayer.browser_window_interface(),
-                                   fixed_url, ui::PAGE_TRANSITION_LINK);
-@@ -2091,12 +2110,30 @@ void DevToolsWindow::CreateDevToolsBrowser() {
+     // Either there is no inspected WebContents, or its delegate did not handle
+     // the request. Navigate through NavigateParams, which carries the
+     // attribution from `params`, rather than through AddSelectedTabWithURL(),
+@@ -2136,12 +2155,30 @@ void DevToolsWindow::CreateDevToolsBrowser() {
        BrowserWindowInterface::CreationStatus::kOk) {
      return;
    }
@@ -124,7 +124,7 @@ index 7613579e79ca9afa3936ae2210e164c811d12467..4c4d286503098454abe43e5a4ac15652
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 8f08231710621490d173d8fe83371d53e7ce1950..e40ee6a11e5e7062328edd1b5944179ba4462592 100644
+index 0772e0c6b5cd4c0577f9d89ee0820fc7fc8d7c5f..6b82b2122e454d84c546612d20e972c7d9b15cc7 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -8,6 +8,7 @@ import("//build/config/compiler/compiler.gni")
@@ -135,52 +135,45 @@ index 8f08231710621490d173d8fe83371d53e7ce1950..e40ee6a11e5e7062328edd1b5944179b
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/captive_portal/core/features.gni")
-@@ -1589,6 +1590,10 @@ static_library("ui") {
-     "//build/config/compiler:wexit_time_destructors",
-   ]
+@@ -1360,6 +1361,9 @@ if (!is_android) {
  
-+  if (enable_cef) {
-+    configs += [ "//cef/libcef/features:config" ]
-+  }
-+
-   public_deps = [
-     # WARNING WARNING WARNING
-     # New dependencies outside of //chrome/browser should be added to
-@@ -1639,6 +1644,7 @@ static_library("ui") {
-     ":ui_features",
-     ":url_identity",
-     "//base",
-+    "//cef/libcef/features:buildflags",
-     "//chrome/app:chrome_dll_resources",
-     "//chrome/app/resources:platform_locale_settings",
-     "//chrome/app/theme:chrome_unscaled_resources",
-@@ -1941,6 +1947,13 @@ static_library("ui") {
-     ]
+   source_set("core") {
+     sources = [ "browser.cc" ]
++    if (enable_cef) {
++      configs += [ "//cef/libcef/features:config" ]
++    }
+     deps = [
+       ":browser_command_controller",
+       ":browser_header",
+@@ -1378,6 +1382,7 @@ if (!is_android) {
+       ":view_ids",
+       "//base",
+       "//build:buildflag_header_h",
++      "//cef/libcef/features:buildflags",
+       "//chrome/app:branded_strings",
+       "//chrome/app:generated_resources",
+       "//chrome/browser:buildflags",
+@@ -1478,6 +1483,15 @@ if (!is_android) {
+     if (enable_captive_portal_detection) {
+       deps += [ "//components/captive_portal/content" ]
+     }
++    if (enable_printing) {
++      deps += [ "//components/printing/common:mojo_interfaces" ]
++    }
++    if (enable_cef) {
++      deps += [
++        "//cef:cef_resources",
++        "//cef/libcef/features:deps",
++      ]
++    }
    }
+ }
  
-+  if (enable_cef) {
-+    deps += [
-+      "//cef:cef_resources",
-+      "//cef/libcef/features:deps",
-+    ]
-+  }
-+
-   if (!is_android) {
-     deps += [
-       ":ui_controller_factory",
-@@ -4682,6 +4695,7 @@ static_library("ui") {
-     deps += [
-       "//chrome/browser/printing",
-       "//chrome/browser/printing:impl",
-+      "//components/printing/common:mojo_interfaces",
-     ]
-     allow_circular_includes_from += [ "//chrome/browser/printing:impl" ]
-   }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index 07de580deb67c305fdbf25ddb9c168b3cc646a4f..2a0c9a520c3d23e006f2d7ea5ef9e52df749ce14 100644
+index 4e9be10d04e981ab98120a4ede977df090ec59c8..6a6b6db55de76696c204fb1efc3a999fa2908915 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
-@@ -268,6 +268,10 @@ Browser::Browser(BrowserWindowCreateParams params)
+@@ -266,6 +266,10 @@ Browser::Browser(BrowserWindowCreateParams params)
      : type_(params.type),
        profile_(&*params.profile),
        window_(nullptr),
@@ -191,7 +184,7 @@ index 07de580deb67c305fdbf25ddb9c168b3cc646a4f..2a0c9a520c3d23e006f2d7ea5ef9e52d
        tab_strip_model_delegate_(
            std::make_unique<chrome::BrowserTabStripModelDelegate>(this)),
        tab_strip_model_(std::make_unique<TabStripModel>(
-@@ -306,9 +310,6 @@ Browser::Browser(BrowserWindowCreateParams params)
+@@ -304,9 +308,6 @@ Browser::Browser(BrowserWindowCreateParams params)
    features_ = std::make_unique<BrowserWindowFeatures>();
    features_->Init(this);
  
@@ -201,7 +194,7 @@ index 07de580deb67c305fdbf25ddb9c168b3cc646a4f..2a0c9a520c3d23e006f2d7ea5ef9e52d
    window_ =
        custom_window
            ? std::unique_ptr<BrowserWindow, BrowserWindowDeleter>(custom_window)
-@@ -326,9 +327,19 @@ Browser::Browser(BrowserWindowCreateParams params)
+@@ -324,9 +325,19 @@ Browser::Browser(BrowserWindowCreateParams params)
      session_service->WindowOpened(this);
    }
  
@@ -224,7 +217,7 @@ index 07de580deb67c305fdbf25ddb9c168b3cc646a4f..2a0c9a520c3d23e006f2d7ea5ef9e52d
  
    // All initialization is complete; after this point, the browser should be on
    // the browser list until it is marked for destruction.
-@@ -504,6 +515,10 @@ BrowserWindowInterface::Type Browser::GetType() const {
+@@ -502,6 +513,10 @@ BrowserWindowInterface::Type Browser::GetType() const {
    return type_;
  }
  
@@ -235,7 +228,7 @@ index 07de580deb67c305fdbf25ddb9c168b3cc646a4f..2a0c9a520c3d23e006f2d7ea5ef9e52d
  std::vector<tabs::TabInterface*> Browser::GetAllTabInterfaces() {
    std::vector<tabs::TabInterface*> results;
    results.reserve(tab_strip_model_->count());
-@@ -880,6 +895,12 @@ void Browser::OnTabReplacedAt(WebContents* old_contents,
+@@ -890,6 +905,12 @@ void Browser::OnTabReplacedAt(WebContents* old_contents,
  // Browser, Assorted utility functions (private):
  
  void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
@@ -364,7 +357,7 @@ index c9ca8806600c5af524c96c0d876feb203f09fdaf..390c116e9f20c3270f1bb777a382e496
  
    // If we're exiting, send out the APP_TERMINATING notification to allow other
 diff --git chrome/browser/ui/browser_tabstrip.cc chrome/browser/ui/browser_tabstrip.cc
-index 039a885a6ef00dacccfce6034b500fcf42bf9df7..15004010537c6251db14c063c010648af3d09139 100644
+index 4c0c8dd3c12c5fc80c996500e9f3ebeffb8c593a..4c190890329ef5d0a2dd2a26a5cfab0a1985180e 100644
 --- chrome/browser/ui/browser_tabstrip.cc
 +++ chrome/browser/ui/browser_tabstrip.cc
 @@ -29,6 +29,10 @@
@@ -389,12 +382,12 @@ index 039a885a6ef00dacccfce6034b500fcf42bf9df7..15004010537c6251db14c063c010648a
 +      browser, resolved_url,
 +      static_cast<ui::PageTransition>(ui::PAGE_TRANSITION_TYPED |
 +                                      ui::PAGE_TRANSITION_FROM_ADDRESS_BAR));
-   params.disposition = foreground ? WindowOpenDisposition::NEW_FOREGROUND_TAB
-                                   : WindowOpenDisposition::NEW_BACKGROUND_TAB;
+   params.disposition = foreground ? WindowOpenDisposition::kNewForegroundTab
+                                   : WindowOpenDisposition::kNewBackgroundTab;
    if (window_action) {
-@@ -109,6 +118,17 @@ content::WebContents* AddWebContents(
-   // Can't create a new contents for the current tab - invalid case.
-   DCHECK(disposition != WindowOpenDisposition::CURRENT_TAB);
+@@ -111,6 +120,17 @@ content::WebContents* AddWebContents(
+   CHECK(disposition != WindowOpenDisposition::kCurrentTab,
+         base::NotFatalUntil::M162);
  
 +#if BUILDFLAG(ENABLE_CEF)
 +  if (browser && new_contents) {
@@ -410,21 +403,24 @@ index 039a885a6ef00dacccfce6034b500fcf42bf9df7..15004010537c6251db14c063c010648a
    NavigateParams params(browser, std::move(new_contents));
    params.source_contents = source_contents;
    params.url = target_url;
-@@ -132,8 +152,6 @@ void CloseWebContents(BrowserWindowInterface* browser,
+@@ -133,8 +153,9 @@ void CloseWebContents(BrowserWindowInterface* browser,
+                       content::WebContents* contents,
                        bool add_to_history) {
    int index = browser->GetTabStripModel()->GetIndexOfWebContents(contents);
-   if (index == TabStripModel::kNoTab) {
--    DUMP_WILL_BE_NOTREACHED()
--        << "CloseWebContents called for tab not in our strip";
-     return;
-   }
+-  CHECK_NE(index, TabStripModel::kNoTab)
+-      << "CloseWebContents called for tab not in our strip";
++  if (index == TabStripModel::kNoTab) {
++    return;
++  }
  
+   uint32_t close_types = TabCloseTypes::CLOSE_NONE;
+   if (auto* data = TabCloseTypesData::FromWebContents(contents)) {
 diff --git chrome/browser/ui/browser_ui_controller/browser_ui_controller.cc chrome/browser/ui/browser_ui_controller/browser_ui_controller.cc
-index fcf93fb913dc14fdab2483706c564149fc29f333..1f15757ab52ca6944459611b69a1491756a1e506 100644
+index 1fa5dd41dece193a34a0386c67960ff40215351f..2ceb34b5ff51aa4fb2e8b6c1f843726fb7e5e9ca 100644
 --- chrome/browser/ui/browser_ui_controller/browser_ui_controller.cc
 +++ chrome/browser/ui/browser_ui_controller/browser_ui_controller.cc
-@@ -11,8 +11,10 @@
- #include "base/check_op.h"
+@@ -12,8 +12,10 @@
+ #include "base/feature_list.h"
  #include "base/task/single_thread_task_runner.h"
  #include "base/trace_event/trace_event.h"
 +#include "cef/libcef/features/features.h"
@@ -434,7 +430,7 @@ index fcf93fb913dc14fdab2483706c564149fc29f333..1f15757ab52ca6944459611b69a14917
  #include "chrome/browser/ui/browser_command_controller.h"
  #include "chrome/browser/ui/browser_window.h"
  #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-@@ -143,7 +145,11 @@ void BrowserUiController::ScheduleUIUpdate(content::WebContents* source,
+@@ -145,7 +147,11 @@ void BrowserUiController::ScheduleUIUpdate(content::WebContents* source,
      // Update the loading state synchronously. This is so the throbber will
      // immediately start/stop, which gives a more snappy feel. We want to do
      // this for any tab so they start & stop quickly.
@@ -447,7 +443,7 @@ index fcf93fb913dc14fdab2483706c564149fc29f333..1f15757ab52ca6944459611b69a14917
      // The status bubble needs to be updated during INVALIDATE_TYPE_LOAD too,
      // but we do that asynchronously by not stripping INVALIDATE_TYPE_LOAD from
      // changed_flags.
-@@ -259,9 +265,11 @@ void BrowserUiController::NotifyTabUIChanged(tabs::TabInterface* tab,
+@@ -274,9 +280,11 @@ void BrowserUiController::NotifyTabUIChanged(tabs::TabInterface* tab,
  }
  
  std::vector<StatusBubble*> BrowserUiController::GetStatusBubbles() {
@@ -460,7 +456,7 @@ index fcf93fb913dc14fdab2483706c564149fc29f333..1f15757ab52ca6944459611b69a14917
    }
  
    // We hide the status bar for web apps windows as this matches native
-@@ -271,6 +279,16 @@ std::vector<StatusBubble*> BrowserUiController::GetStatusBubbles() {
+@@ -286,6 +294,16 @@ std::vector<StatusBubble*> BrowserUiController::GetStatusBubbles() {
        web_app::AppBrowserController::From(&*browser_);
    if (app_browser_controller &&
        !app_browser_controller->HasMinimalUiButtons()) {
@@ -478,7 +474,7 @@ index fcf93fb913dc14fdab2483706c564149fc29f333..1f15757ab52ca6944459611b69a14917
    }
  
 diff --git chrome/browser/ui/browser_window/internal/browser_window_features.cc chrome/browser/ui/browser_window/internal/browser_window_features.cc
-index f51b0713750fb9775d39c252edc3f3caf4be7c52..4342bf00084aa90cf2b24ac803e4d9b46dbb8c56 100644
+index 728f2fc3520ece6d2d19c6b9c28b6f4c528ba904..a75e73157e5414d51f496a187848dac5bb6d73ac 100644
 --- chrome/browser/ui/browser_window/internal/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/internal/browser_window_features.cc
 @@ -12,6 +12,7 @@
@@ -489,7 +485,7 @@ index f51b0713750fb9775d39c252edc3f3caf4be7c52..4342bf00084aa90cf2b24ac803e4d9b4
  #include "chrome/browser/actor/ui/actor_border_view_controller.h"
  #include "chrome/browser/actor/ui/actor_ui_window_controller.h"
  #include "chrome/browser/autocomplete/aim_eligibility_service_factory.h"
-@@ -246,6 +247,17 @@
+@@ -247,6 +248,17 @@
  BrowserWindowFeatures::BrowserWindowFeatures() = default;
  BrowserWindowFeatures::~BrowserWindowFeatures() = default;
  
@@ -507,7 +503,7 @@ index f51b0713750fb9775d39c252edc3f3caf4be7c52..4342bf00084aa90cf2b24ac803e4d9b4
  void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
    // This is used only for the controllers which will be created on demand
    // later.
-@@ -318,8 +330,8 @@ void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
+@@ -315,8 +327,8 @@ void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
            *browser, *browser, *browser->GetTabStripModel());
    window_feature_controller_ =
        GetUserDataFactory().CreateInstance<WindowFeatureController>(
@@ -518,7 +514,7 @@ index f51b0713750fb9775d39c252edc3f3caf4be7c52..4342bf00084aa90cf2b24ac803e4d9b4
            BrowserInitState::From(browser)
                ->browser_window_create_params()
                .is_trusted_source,
-@@ -688,6 +700,9 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
+@@ -662,6 +674,9 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
    // Foundational state used throughout this function. Computed/assigned early
    // so the alphabetical sections below can rely on them.
    Profile* const profile = browser_->GetProfile();
@@ -528,7 +524,7 @@ index f51b0713750fb9775d39c252edc3f3caf4be7c52..4342bf00084aa90cf2b24ac803e4d9b4
    BrowserView* const browser_view =
        BrowserView::GetBrowserViewForBrowser(browser);
    WebUIBrowserWindow* const webui_browser_window =
-@@ -750,18 +765,6 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
+@@ -729,18 +744,6 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
          std::make_unique<ContentsBorderController>(browser_view);
    }
  
@@ -547,7 +543,7 @@ index f51b0713750fb9775d39c252edc3f3caf4be7c52..4342bf00084aa90cf2b24ac803e4d9b4
  #if BUILDFLAG(ENABLE_EXTENSIONS) && (BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC))
    if (browser_view) {
      if (!browser_->GetProfile()->IsOffTheRecord()) {
-@@ -812,7 +815,12 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
+@@ -791,7 +794,12 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
  
    // Must be after exclusive_access_manager_,
    // desktop_browser_window_capabilities_, and browser_ui_controller_.
@@ -560,7 +556,7 @@ index f51b0713750fb9775d39c252edc3f3caf4be7c52..4342bf00084aa90cf2b24ac803e4d9b4
        browser, *exclusive_access_manager_, *browser_command_controller_,
        *unload_controller_, app_browser_controller_.get(),
        *BrowserWindow::FromBrowser(browser),
-@@ -925,7 +933,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
+@@ -939,7 +947,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
            *browser, browser, browser->GetTabStripModel(),
            browser->GetSessionID(), browser->GetType());
  
@@ -569,7 +565,7 @@ index f51b0713750fb9775d39c252edc3f3caf4be7c52..4342bf00084aa90cf2b24ac803e4d9b4
        browser->GetType() == BrowserWindowInterface::Type::TYPE_APP) {
      toast_service_ =
          GetUserDataFactory().CreateInstance<ToastService>(*browser, browser);
-@@ -969,7 +977,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
+@@ -984,7 +992,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
    // omnibox and a tab strip). By default most new features should be
    // instantiated in this block (please keep this list ordered without taking
    // into consideration buildflags, repeating buildflags is ok):
@@ -578,7 +574,7 @@ index f51b0713750fb9775d39c252edc3f3caf4be7c52..4342bf00084aa90cf2b24ac803e4d9b4
      if (browser_view) {
        if (base::FeatureList::IsEnabled(features::kGlicActorUi)) {
          std::vector<std::pair<views::WebView*, ActorOverlayWebView*>>
-@@ -1134,6 +1142,38 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -1144,6 +1152,38 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
        browser_view);
  }
  
@@ -618,10 +614,10 @@ index f51b0713750fb9775d39c252edc3f3caf4be7c52..4342bf00084aa90cf2b24ac803e4d9b4
    // Tear down in reverse order of construction: embedder first, then
    // InitPostWindowConstruction, then Init. Within each section, members are
 diff --git chrome/browser/ui/browser_window/public/browser_window_features.h chrome/browser/ui/browser_window/public/browser_window_features.h
-index 91af7d2ac72f0f5a33de41cc0f26c427a8459128..bd6cbbeae8dadcc0d5ee21f8ed98073284cee714 100644
+index ad03f3e0b0dbe98eba8c1f41c54fc38aa023ed4e..5049d1e66b30acb579b10f68f3ca1f495b162272 100644
 --- chrome/browser/ui/browser_window/public/browser_window_features.h
 +++ chrome/browser/ui/browser_window/public/browser_window_features.h
-@@ -161,6 +161,9 @@ namespace content_settings {
+@@ -163,6 +163,9 @@ namespace content_settings {
  class CookieControlsController;
  }  // namespace content_settings
  
@@ -631,7 +627,7 @@ index 91af7d2ac72f0f5a33de41cc0f26c427a8459128..bd6cbbeae8dadcc0d5ee21f8ed980732
  namespace contextual_tasks {
  class ContextualTasksBrowserController;
  }  // namespace contextual_tasks
-@@ -282,6 +285,8 @@ class BrowserWindowFeatures {
+@@ -276,6 +279,8 @@ class BrowserWindowFeatures {
    BrowserWindowFeatures();
    ~BrowserWindowFeatures();
  
@@ -640,7 +636,7 @@ index 91af7d2ac72f0f5a33de41cc0f26c427a8459128..bd6cbbeae8dadcc0d5ee21f8ed980732
    BrowserWindowFeatures(const BrowserWindowFeatures&) = delete;
    BrowserWindowFeatures& operator=(const BrowserWindowFeatures&) = delete;
  
-@@ -298,6 +303,16 @@ class BrowserWindowFeatures {
+@@ -292,6 +297,16 @@ class BrowserWindowFeatures {
    // hierarchy in BrowserView.
    void InitPostBrowserViewConstruction(BrowserView* browser_view);
  
@@ -658,7 +654,7 @@ index 91af7d2ac72f0f5a33de41cc0f26c427a8459128..bd6cbbeae8dadcc0d5ee21f8ed980732
    void TearDownPreBrowserWindowDestruction();
  
 diff --git chrome/browser/ui/browser_window/public/browser_window_interface.h chrome/browser/ui/browser_window/public/browser_window_interface.h
-index 8a2e9f19aa3f5deba0c76f6420f9e156159509ae..9154d1a3d7fa760f27524380a2be0ca50d199230 100644
+index 823da92b1935763590e7b9fa20eef0ee6cc9453b..23959db32ce99ac4f6eeb8c3fb19c210adb87f81 100644
 --- chrome/browser/ui/browser_window/public/browser_window_interface.h
 +++ chrome/browser/ui/browser_window/public/browser_window_interface.h
 @@ -9,6 +9,7 @@
@@ -682,7 +678,7 @@ index 8a2e9f19aa3f5deba0c76f6420f9e156159509ae..9154d1a3d7fa760f27524380a2be0ca5
  namespace internal {
  class ScopedBrowserShower;
  }
-@@ -315,6 +322,14 @@ class BrowserWindowInterface : public content::PageNavigator {
+@@ -317,6 +324,14 @@ class BrowserWindowInterface : public content::PageNavigator {
    virtual base::CallbackListSubscription RegisterDidBecomeInactive(
        DidBecomeInactiveCallback callback) = 0;
  
@@ -698,7 +694,7 @@ index 8a2e9f19aa3f5deba0c76f6420f9e156159509ae..9154d1a3d7fa760f27524380a2be0ca5
    // browser window. Do not use this method to find a specific tab.
    virtual std::vector<tabs::TabInterface*> GetAllTabInterfaces() = 0;
 diff --git chrome/browser/ui/browser_window/public/create_browser_window.h chrome/browser/ui/browser_window/public/create_browser_window.h
-index 6ecba965f89fdfb9d1ebacc318d8b7470e6ffaa3..54185129fbe21b344af313702027b66e09d85d5a 100644
+index 0bf187196b16b542d99d7b26b4cdec9d554fca2c..c7f83e090ccd47f1abca683a9d0133e73e6b06ff 100644
 --- chrome/browser/ui/browser_window/public/create_browser_window.h
 +++ chrome/browser/ui/browser_window/public/create_browser_window.h
 @@ -13,10 +13,15 @@
@@ -717,7 +713,7 @@ index 6ecba965f89fdfb9d1ebacc318d8b7470e6ffaa3..54185129fbe21b344af313702027b66e
  #if !BUILDFLAG(IS_ANDROID)
  #include "components/tab_groups/tab_group_id.h"
  #include "third_party/blink/public/mojom/picture_in_picture_window_options/picture_in_picture_window_options.mojom.h"
-@@ -170,6 +175,15 @@ struct BrowserWindowCreateParams {
+@@ -175,6 +180,15 @@ struct BrowserWindowCreateParams {
    // Specifies the width for the uncollapsed Vertical Tab Strip.
    std::optional<int> vertical_tab_strip_uncollapsed_width;
  
@@ -734,7 +730,7 @@ index 6ecba965f89fdfb9d1ebacc318d8b7470e6ffaa3..54185129fbe21b344af313702027b66e
    // focused state.
    std::optional<tab_groups::TabGroupId> focused_tab_group_id;
 diff --git chrome/browser/ui/navigator/browser_navigator.cc chrome/browser/ui/navigator/browser_navigator.cc
-index b95a279fab85954d2a10c560165bd9ed1eb9c8c5..2486722112a44252997c7e8416178ca8078a8f23 100644
+index d5d5691f0b7dfdb1a8cc5671537826262c96addd..bbcc5896ee1fa191a3b0a4242aa531bbd5bf579d 100644
 --- chrome/browser/ui/navigator/browser_navigator.cc
 +++ chrome/browser/ui/navigator/browser_navigator.cc
 @@ -31,6 +31,7 @@
@@ -745,7 +741,7 @@ index b95a279fab85954d2a10c560165bd9ed1eb9c8c5..2486722112a44252997c7e8416178ca8
  #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
  #include "chrome/browser/ui/browser_window/public/create_browser_window.h"
  #include "chrome/browser/ui/browser_window/public/profile_browser_collection.h"
-@@ -333,6 +334,12 @@ std::tuple<BrowserWindowInterface*, int> GetBrowserAndTabForDisposition(
+@@ -386,6 +387,12 @@ std::tuple<BrowserWindowInterface*, int> GetBrowserAndTabForDisposition(
  
        browser_params.pip_options = pip_options;
  
@@ -758,7 +754,7 @@ index b95a279fab85954d2a10c560165bd9ed1eb9c8c5..2486722112a44252997c7e8416178ca8
        const ui::BaseWindow* const browser_window = params.browser->GetWindow();
        const gfx::NativeWindow native_window =
            browser_window ? browser_window->GetNativeWindow()
-@@ -528,7 +535,13 @@ std::unique_ptr<content::WebContents> CreateTargetContents(
+@@ -600,7 +607,13 @@ std::unique_ptr<content::WebContents> CreateTargetContents(
    }
  #endif
  
@@ -773,7 +769,7 @@ index b95a279fab85954d2a10c560165bd9ed1eb9c8c5..2486722112a44252997c7e8416178ca8
  }
  
  }  // namespace
-@@ -963,6 +976,11 @@ base::WeakPtr<content::NavigationHandle> NavigateImpl(
+@@ -1057,6 +1070,11 @@ base::WeakPtr<content::NavigationHandle> NavigateImpl(
      // navigation happens in a different tab to the link click.
      apps::SetLinkCapturingSourceDisposition(tab_to_insert->GetContents(),
                                              params->disposition);
@@ -786,10 +782,10 @@ index b95a279fab85954d2a10c560165bd9ed1eb9c8c5..2486722112a44252997c7e8416178ca8
  
    if (params->source_contents == contents_to_navigate_or_insert) {
 diff --git chrome/browser/ui/tabs/tab_strip_api/tab_strip_model_impl/tab_strip_model_adapter_impl.cc chrome/browser/ui/tabs/tab_strip_api/tab_strip_model_impl/tab_strip_model_adapter_impl.cc
-index 95823e23bd0aeb46ef96ba461c4164c7837b3694..a5599d095164c0ffa7f3f66570edcfb9e8f07d6c 100644
+index 24311c6c0b3fa53d4f49dbf5f7d4207cf127eec5..ec1cc9ce8d5fdaff173eecc7ec7c950e1b578a02 100644
 --- chrome/browser/ui/tabs/tab_strip_api/tab_strip_model_impl/tab_strip_model_adapter_impl.cc
 +++ chrome/browser/ui/tabs/tab_strip_api/tab_strip_model_impl/tab_strip_model_adapter_impl.cc
-@@ -15,6 +15,8 @@
+@@ -16,6 +16,8 @@
  #include "components/tab_groups/tab_group_visual_data.h"
  #include "components/tabs/public/split_tab_collection.h"
  #include "components/tabs/public/tab_collection.h"
@@ -798,7 +794,7 @@ index 95823e23bd0aeb46ef96ba461c4164c7837b3694..a5599d095164c0ffa7f3f66570edcfb9
  #include "components/tabs/public/tab_group.h"
  #include "components/tabs/public/tab_group_tab_collection.h"
  #include "components/tabs/public/tab_interface.h"
-@@ -70,7 +72,11 @@ types::TabStates TabStripModelAdapterImpl::GetTabStates(
+@@ -71,7 +73,11 @@ types::TabStates TabStripModelAdapterImpl::GetTabStates(
  const ui::ColorProvider& TabStripModelAdapterImpl::GetColorProvider() const {
    content::WebContents* active_contents =
        tab_strip_model_->GetActiveWebContents();
@@ -812,10 +808,10 @@ index 95823e23bd0aeb46ef96ba461c4164c7837b3694..a5599d095164c0ffa7f3f66570edcfb9
  }
  
 diff --git chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
-index d86ea93f7dd14bf5d428079982a45eecaa43c268..9adceda2dafd21da22bb5ae4e62f930b9837265a 100644
+index 1e8642e4cdf1e72846480d4458cf026309fe8b47..33f6e410b48b805e222bea246484b153e13b7fad 100644
 --- chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
 +++ chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
-@@ -203,8 +203,7 @@ HorizontalTabStripRegionViewOld::HorizontalTabStripRegionViewOld(
+@@ -183,8 +183,7 @@ HorizontalTabStripRegionViewOld::HorizontalTabStripRegionViewOld(
  
    // Add and configure the TabStripComboButton.
    std::unique_ptr<TabStripActionContainer> tab_strip_action_container;
@@ -826,7 +822,7 @@ index d86ea93f7dd14bf5d428079982a45eecaa43c268..9adceda2dafd21da22bb5ae4e62f930b
      // (e.g., sign-in status, enterprise policies, recoverable errors).
      // We instantiate the action container if the profile is eligible (even if
 diff --git chrome/browser/ui/window_feature_controller/window_feature_controller.cc chrome/browser/ui/window_feature_controller/window_feature_controller.cc
-index ec7bd3ea6cd00a5093b9bac2cfca9fe1a0bc4bfb..ec531f37cd4a3fa404f85dd98ca56451339226b7 100644
+index 438022226545d544b4485dbb525b643b517cbefe..53ad4fc09ea40ce66832104f18481d9a390b0bdf 100644
 --- chrome/browser/ui/window_feature_controller/window_feature_controller.cc
 +++ chrome/browser/ui/window_feature_controller/window_feature_controller.cc
 @@ -7,18 +7,25 @@
@@ -872,7 +868,7 @@ index ec7bd3ea6cd00a5093b9bac2cfca9fe1a0bc4bfb..ec531f37cd4a3fa404f85dd98ca56451
        SupportsWindowFeatureImpl(feature, /*check_can_support=*/false);
    // Supported features imply CanSupportWindowFeature.
 diff --git chrome/browser/ui/window_feature_controller/window_feature_controller.h chrome/browser/ui/window_feature_controller/window_feature_controller.h
-index 7c203d12c129f2a7b949c5ccb5144d04b175d58b..efcc0206789d58cda43579cd6177039834dec323 100644
+index 3e12ea5d95fe1e7a64f1bd19d959651359f9fda3..2caf00ca192668ad2939ee43cffe23786483861e 100644
 --- chrome/browser/ui/window_feature_controller/window_feature_controller.h
 +++ chrome/browser/ui/window_feature_controller/window_feature_controller.h
 @@ -34,6 +34,7 @@ class WindowFeatureController {
@@ -883,7 +879,7 @@ index 7c203d12c129f2a7b949c5ccb5144d04b175d58b..efcc0206789d58cda43579cd61770398
        BrowserWindowFullscreenController* fullscreen_controller,
        web_app::AppBrowserController* app_controller,
        BrowserWindowInterface::Type browser_type,
-@@ -85,6 +86,7 @@ class WindowFeatureController {
+@@ -84,6 +85,7 @@ class WindowFeatureController {
                                   bool check_can_support) const;
    bool IsFullscreen() const;
  
@@ -892,10 +888,10 @@ index 7c203d12c129f2a7b949c5ccb5144d04b175d58b..efcc0206789d58cda43579cd61770398
  
    // Can be null.
 diff --git chrome/browser/ui/window_metadata/window_metadata_controller.cc chrome/browser/ui/window_metadata/window_metadata_controller.cc
-index 2e7435be554da9ca3474bd8dc5db7cc2116da3a8..b04afdfa0e570232f40a4fe400304f94c59c9122 100644
+index ae89bca8fce808bf508ffc7fa4cdb0e8c183afe4..6cfd72587921925176c9f33f34daf9741deb3f49 100644
 --- chrome/browser/ui/window_metadata/window_metadata_controller.cc
 +++ chrome/browser/ui/window_metadata/window_metadata_controller.cc
-@@ -64,8 +64,13 @@ WindowMetadataController::WindowMetadataController(
+@@ -65,8 +65,12 @@ WindowMetadataController::WindowMetadataController(
  WindowMetadataController::~WindowMetadataController() = default;
  
  gfx::Image WindowMetadataController::GetCurrentPageIcon() const {
@@ -903,8 +899,7 @@ index 2e7435be554da9ca3474bd8dc5db7cc2116da3a8..b04afdfa0e570232f40a4fe400304f94
 +  // WebContents instead of the picture-in-picture WebContents itself.
    content::WebContents* web_contents =
 -      browser_->tab_strip_model()->GetActiveWebContents();
-+      (browser_->GetType() ==
-+       BrowserWindowInterface::Type::TYPE_PICTURE_IN_PICTURE)
++      DesktopBrowserWindowCapabilities::IsDocumentPictureInPicture(&*browser_)
 +          ? PictureInPictureWindowManager::GetInstance()->GetWebContents()
 +          : browser_->tab_strip_model()->GetActiveWebContents();
    // |web_contents| can be NULL since GetCurrentPageIcon() is called by the

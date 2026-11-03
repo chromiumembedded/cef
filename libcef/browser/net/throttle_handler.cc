@@ -39,7 +39,7 @@ void NavigationOnUIThread(
                                    navigation_handle->GetReferrer().policy);
 
   content::OpenURLParams open_params(navigation_handle->GetURL(), referrer,
-                                     WindowOpenDisposition::CURRENT_TAB,
+                                     WindowOpenDisposition::kCurrentTab,
                                      navigation_handle->GetPageTransition(),
                                      navigation_handle->IsRendererInitiated());
   open_params.user_gesture = navigation_handle->HasUserGesture();

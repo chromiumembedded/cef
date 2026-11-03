@@ -375,7 +375,7 @@ bool ChromeBrowserHostImpl::Navigate(const content::OpenURLParams& params) {
     nav_params.FillNavigateParamsFromOpenURLParams(params);
 
     // Always navigate in the current tab.
-    nav_params.disposition = WindowOpenDisposition::CURRENT_TAB;
+    nav_params.disposition = WindowOpenDisposition::kCurrentTab;
     nav_params.source_contents = GetWebContents();
 
     nav_params.tabstrip_add_types = AddTabTypes::ADD_NONE;

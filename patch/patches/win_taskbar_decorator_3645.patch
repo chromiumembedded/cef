@@ -1,8 +1,8 @@
 diff --git chrome/browser/taskbar/taskbar_decorator_win.cc chrome/browser/taskbar/taskbar_decorator_win.cc
-index 90969f7bb07a642d37a348d33d7220ec035d7a3f..a91b4587514165c5925e8d8632651acd0bf93a25 100644
+index 90969f7bb07a642d37a348d33d7220ec035d7a3f..67a338dfa195de180302b8439f0027f32aadd8c8 100644
 --- chrome/browser/taskbar/taskbar_decorator_win.cc
 +++ chrome/browser/taskbar/taskbar_decorator_win.cc
-@@ -20,12 +20,14 @@
+@@ -20,12 +20,15 @@
  #include "base/task/single_thread_task_runner.h"
  #include "base/task/thread_pool.h"
  #include "base/win/scoped_gdi_object.h"
@@ -13,11 +13,12 @@ index 90969f7bb07a642d37a348d33d7220ec035d7a3f..a91b4587514165c5925e8d8632651acd
  #include "chrome/browser/profiles/profile_attributes_storage.h"
  #include "chrome/browser/profiles/profile_avatar_icon_util.h"
  #include "chrome/browser/profiles/profile_manager.h"
++#include "chrome/browser/ui/browser_window/public/desktop_browser_window_capabilities.h"
 +#include "chrome/browser/ui/views/frame/browser_view.h"
  #include "skia/ext/font_utils.h"
  #include "skia/ext/image_operations.h"
  #include "skia/ext/legacy_display_globals.h"
-@@ -42,6 +44,10 @@
+@@ -42,6 +45,10 @@
  #include "ui/gfx/win/icon_util.h"
  #include "ui/views/win/hwnd_util.h"
  
@@ -28,7 +29,7 @@ index 90969f7bb07a642d37a348d33d7220ec035d7a3f..a91b4587514165c5925e8d8632651acd
  namespace taskbar {
  
  namespace {
-@@ -203,6 +209,24 @@ void UpdateTaskbarDecoration(Profile* profile, gfx::NativeWindow window) {
+@@ -203,6 +210,24 @@ void UpdateTaskbarDecoration(Profile* profile, gfx::NativeWindow window) {
      return;
    }
  
@@ -37,8 +38,8 @@ index 90969f7bb07a642d37a348d33d7220ec035d7a3f..a91b4587514165c5925e8d8632651acd
 +    if (auto browser = browser_view->browser()) {
 +      if (browser->cef_delegate() &&
 +          (browser->cef_delegate()->IsViewsHosted() ||
-+           ((browser->GetType() ==
-+                 BrowserWindowInterface::Type::TYPE_PICTURE_IN_PICTURE ||
++           ((DesktopBrowserWindowCapabilities::IsDocumentPictureInPicture(
++                 browser) ||
 +             browser->GetType() ==
 +                 BrowserWindowInterface::Type::TYPE_DEVTOOLS) &&
 +            browser->cef_delegate()->HasViewsHostedOpener()))) {

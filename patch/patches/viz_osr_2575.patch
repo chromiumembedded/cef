@@ -66,10 +66,10 @@ index 8af69cac78b7488d28f1f05ccb174793fe5148cd..9f74e511c263d147b5fbe81fe100d217
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 42fc3926fd9e3712d93d8f67e4ba7cfb3f24dbb9..c41528b9c0f7258c5b5d1383c0dc018eed34ca35 100644
+index f26d694210e94f500c8dab69eb362f52336baf07..6ace14c13960c221f0a0ef3ebfe5cca636007d99 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -284,6 +284,8 @@ viz_component("service") {
+@@ -278,6 +278,8 @@ viz_component("service") {
      "transitions/surface_animation_manager.h",
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
@@ -187,10 +187,10 @@ index 4f9e8946fa02d859e92a6896beba82721914f868..cf20c96a84c5551eba592fecfce21350
  
    TRACE_EVENT_BEGIN("viz", "SoftwareOutputDeviceWinProxy::Draw",
 diff --git components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
-index 39ebd59074a86a6ff5982bbb5e16be402726b968..74183e3b1e0decfed7fca2238339c589017df2a2 100644
+index 690de85b801847fc4ed1d43a636380302e232600..e4968fe6d492a8f5299fd3b0abe4c6659e83b6c4 100644
 --- components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
 +++ components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
-@@ -131,7 +131,8 @@ RootCompositorFrameSinkImpl::Create(
+@@ -133,7 +133,8 @@ RootCompositorFrameSinkImpl::Create(
        params->gpu_compositing, params->widget);
    auto output_surface = output_surface_provider->CreateOutputSurface(
        params->widget, params->gpu_compositing, display_client.get(),
@@ -229,10 +229,10 @@ index 399fba1a3d4e601dc2cdd5f1f4def8b7fd7a3011..e784943296025be191918397b3f4164e
    gpu::SyncPointManager* GetSyncPointManager() override;
    gpu::Scheduler* GetGpuScheduler() override;
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 7ca2539e761b40c55671b815e8403ffe59c18d0f..480d5f2665fed34a3d7a2fde209efb2db941ae2e 100644
+index 1e5c12f37a36454bc4ca7a3025b08de8ac15e0ae..0a63628cfc511fa3178aa639b192798a41469f73 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -394,8 +394,15 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -397,8 +397,15 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    mojo::AssociatedRemote<viz::mojom::DisplayPrivate> display_private;
    root_params->display_private =
        display_private.BindNewEndpointAndPassReceiver();
@@ -272,10 +272,10 @@ index e9773085029937d9192392c9ace0a85c0fcde1cb..7c7f14f6c396ef803731dcd83a51ba6d
    // For destroying the GL context/surface that draw to a platform window before
    // the platform window is destroyed.
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index f0899f2c823dd77bdff63e1f9ae1d89ce1d85caa..fb1b88b359d4caa1b1162b9e4c4200e82f0c764a 100644
+index 94528f0b45a81605a84e8e5ba5a1f8cbc3cd80f1..20468f144221f23fe5d2f52efe4b4f1b61721c38 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -124,7 +124,6 @@ interface DisplayClient {
+@@ -136,7 +136,6 @@ interface DisplayClient {
  
    // Creates a LayeredWindowUpdater implementation to draw into a layered
    // window.
@@ -284,7 +284,7 @@ index f0899f2c823dd77bdff63e1f9ae1d89ce1d85caa..fb1b88b359d4caa1b1162b9e4c4200e8
  
    // Sends the created child window to the browser process so that it can be
 diff --git services/viz/privileged/mojom/compositing/frame_sink_manager.mojom services/viz/privileged/mojom/compositing/frame_sink_manager.mojom
-index a360316b8f0b1c4de98248bf2cb44b5a7ac3c272..ecbe2129f70a52b7ac1415a6f3af68659e89004c 100644
+index bab4d6a1575d24f7ef7793f06a8c4d50b7542222..5f335c101da6d04191ba238be39d6178f4cca6c4 100644
 --- services/viz/privileged/mojom/compositing/frame_sink_manager.mojom
 +++ services/viz/privileged/mojom/compositing/frame_sink_manager.mojom
 @@ -70,6 +70,8 @@ struct RootCompositorFrameSinkParams {
@@ -308,7 +308,7 @@ index 2f462f0deb5fc8a637457243fb5d5849fc214d14..695869b83cefaa24af93a2e11b39de05
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 8a8a9d14d52d821205d7dd76e7e1df78c534e7b0..01e5d3c63e02385f0b78b9b3aeace5eb9b07d4fa 100644
+index 74d6ed453518873ac8e936c28c99ff4247fa2aa1..4f2112ae5f3798bc9cf18e613f731d06763fae0a 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -35,7 +35,9 @@
@@ -337,7 +337,7 @@ index 8a8a9d14d52d821205d7dd76e7e1df78c534e7b0..01e5d3c63e02385f0b78b9b3aeace5eb
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -191,6 +202,9 @@ class COMPOSITOR_EXPORT Compositor
+@@ -190,6 +201,9 @@ class COMPOSITOR_EXPORT Compositor
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -347,7 +347,7 @@ index 8a8a9d14d52d821205d7dd76e7e1df78c534e7b0..01e5d3c63e02385f0b78b9b3aeace5eb
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -626,6 +640,8 @@ class COMPOSITOR_EXPORT Compositor
+@@ -617,6 +631,8 @@ class COMPOSITOR_EXPORT Compositor
        simple_begin_frame_observers_;
    std::unique_ptr<ui::HostBeginFrameObserver> host_begin_frame_observer_;
  

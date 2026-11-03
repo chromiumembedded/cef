@@ -1,5 +1,5 @@
 diff --git chrome/browser/signin/account_consistency_mode_manager.cc chrome/browser/signin/account_consistency_mode_manager.cc
-index 7d4c893cbcd995c48a00631f9cbfd736fb188e63..bfca8880151207480763f6a9d1f01bfb29864600 100644
+index 04b273a20e8cfb5fd4ecf9081ba940f17848b905..5f52629953ad9fb56f0fda2a2f1c8908b15e06c9 100644
 --- chrome/browser/signin/account_consistency_mode_manager.cc
 +++ chrome/browser/signin/account_consistency_mode_manager.cc
 @@ -12,6 +12,7 @@
@@ -10,7 +10,7 @@ index 7d4c893cbcd995c48a00631f9cbfd736fb188e63..bfca8880151207480763f6a9d1f01bfb
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/profiles/profile_attributes_storage.h"
-@@ -146,7 +147,8 @@ AccountConsistencyModeManager::~AccountConsistencyModeManager() = default;
+@@ -148,7 +149,8 @@ AccountConsistencyModeManager::~AccountConsistencyModeManager() = default;
  // static
  void AccountConsistencyModeManager::RegisterProfilePrefs(
      user_prefs::PrefRegistrySyncable* registry) {
@@ -21,10 +21,10 @@ index 7d4c893cbcd995c48a00631f9cbfd736fb188e63..bfca8880151207480763f6a9d1f01bfb
  
  // static
 diff --git components/signin/internal/identity_manager/gaia_cookie_manager_service.cc components/signin/internal/identity_manager/gaia_cookie_manager_service.cc
-index db2e0266aa2200f23d47eba563dac73e96fef1c7..cb8e446b47aa714914af2a1a195384a5b06163eb 100644
+index 92b485477138bf1f69a99eee9307d15624338ba6..fa175ca5cd7afdcecf18ec6261e1c7cdbf6551cf 100644
 --- components/signin/internal/identity_manager/gaia_cookie_manager_service.cc
 +++ components/signin/internal/identity_manager/gaia_cookie_manager_service.cc
-@@ -525,6 +525,10 @@ GaiaCookieManagerService::GetCachedListAccounts() {
+@@ -527,6 +527,10 @@ GaiaCookieManagerService::GetCachedListAccounts() {
  }
  
  void GaiaCookieManagerService::TriggerListAccounts() {

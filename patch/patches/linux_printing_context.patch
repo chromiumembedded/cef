@@ -14,7 +14,7 @@ index 5c555d8768e2a1d9e6ac86fc9392420a42f5193d..9d343a47c7896569b3ba4de67fbed50e
  
    return gfx::Size();
 diff --git ui/linux/BUILD.gn ui/linux/BUILD.gn
-index 655012d45653c443bd3a769d31bcf0b4c025ac80..726cbc53babef62e92ad1f4b94d7c49e653ba933 100644
+index d189afddfd789f8f49af8aad704aea60ae6f81b0..dd9d8ab0f87329eb59a18c2d7c22ce7989c072c0 100644
 --- ui/linux/BUILD.gn
 +++ ui/linux/BUILD.gn
 @@ -4,6 +4,7 @@

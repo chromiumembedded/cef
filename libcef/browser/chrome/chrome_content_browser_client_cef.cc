@@ -191,10 +191,13 @@ ChromeContentBrowserClientCef::ChromeContentBrowserClientCef() = default;
 ChromeContentBrowserClientCef::~ChromeContentBrowserClientCef() = default;
 
 #if BUILDFLAG(IS_MAC)
-base::FilePath ChromeContentBrowserClientCef::GetChildProcessPath(int flags) {
+base::FilePath ChromeContentBrowserClientCef::GetChildProcessPath(
+    int flags,
+    content::ChildProcessId child_process_id) {
   if (flags !=
       std::to_underlying(ChildProcessHostFlags::kChildProcessHelperAlerts)) {
-    return ChromeContentBrowserClient::GetChildProcessPath(flags);
+    return ChromeContentBrowserClient::GetChildProcessPath(flags,
+                                                           child_process_id);
   }
 
   if (!base::apple::AmIBundled()) {
@@ -343,7 +346,7 @@ void ChromeContentBrowserClientCef::AllowCertificateError(
 
 base::OnceClosure ChromeContentBrowserClientCef::SelectClientCertificate(
     content::BrowserContext* browser_context,
-    int process_id,
+    content::ChildProcessId process_id,
     content::WebContents* web_contents,
     net::SSLCertRequestInfo* cert_request_info,
     net::ClientCertIdentityList client_certs,
@@ -690,6 +693,7 @@ ChromeContentBrowserClientCef::CreateLoginDelegate(
     const GURL& url,
     scoped_refptr<net::HttpResponseHeaders> response_headers,
     bool first_auth_attempt,
+    bool do_not_prompt_for_login,
     content::GuestPageHolder* guest,
     content::LoginDelegate::LoginAuthRequiredCallback auth_required_callback) {
   // |web_contents| is nullptr for CefURLRequests without an associated frame.
@@ -704,7 +708,7 @@ ChromeContentBrowserClientCef::CreateLoginDelegate(
   return ChromeContentBrowserClient::CreateLoginDelegate(
       auth_info, web_contents, browser_context, request_id,
       is_request_for_primary_main_frame_navigation, is_request_for_navigation,
-      url, response_headers, first_auth_attempt, guest,
+      url, response_headers, first_auth_attempt, do_not_prompt_for_login, guest,
       std::move(auth_required_callback));
 }
 

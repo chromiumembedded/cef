@@ -12,7 +12,7 @@ index 230b4d7c7b5c74fe374e7e26bd4df4be2faaf7fa..d78b75691402597471a2d55fdc003061
    base::File file(exe_dir.Append(path),
                    base::File::FLAG_OPEN | base::File::FLAG_READ);
 diff --git sandbox/linux/suid/client/setuid_sandbox_host.cc sandbox/linux/suid/client/setuid_sandbox_host.cc
-index baec9e404905d1ff058443689bf2b1e8fa308abf..752ca96c48b502d207d6ac40d4e823aa39c7cfb7 100644
+index 0848ecf067f6d29e1b84741d548761c62e3920d6..3c275e7f16b0266c8cb9a1795012e5436e0cbfdb 100644
 --- sandbox/linux/suid/client/setuid_sandbox_host.cc
 +++ sandbox/linux/suid/client/setuid_sandbox_host.cc
 @@ -134,7 +134,7 @@ bool SetuidSandboxHost::IsDisabledViaEnvironment() {

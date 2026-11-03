@@ -15,7 +15,6 @@
 #include "cef/libcef/browser/media_access_query.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#include "components/find_in_page/find_tab_helper.h"
 #include "components/tabs/public/split_tab_data.h"
 #include "components/tabs/public/tab_interface.h"
 #include "content/public/browser/keyboard_event_processing_result.h"
@@ -142,7 +141,7 @@ content::WebContents* ChromeBrowserWebContentsDelegate::OpenURLFromTab(
     return BrowserWebContentsDelegate::OpenURLFromTab(
         source, params, std::move(navigation_handle_callback));
   }
-  if (params.disposition == WindowOpenDisposition::NEW_SPLIT_VIEW && source) {
+  if (params.disposition == WindowOpenDisposition::kNewSplitView && source) {
     tabs::TabInterface* const source_tab =
         tabs::TabInterface::MaybeGetFromContents(source);
     if (source_tab && source_tab->IsSplit()) {
@@ -334,27 +333,6 @@ void ChromeBrowserWebContentsDelegate::ExitFullscreenModeForTab(
         render_widget_host->SynchronizeVisualProperties();
       }
     }
-  }
-}
-
-void ChromeBrowserWebContentsDelegate::FindReply(
-    content::WebContents* web_contents,
-    int request_id,
-    int number_of_matches,
-    const gfx::Rect& selection_rect,
-    int active_match_ordinal,
-    bool final_update) {
-  // Match Chrome's early return: CEF is notified only for contents with a find
-  // helper, and only after that helper has processed the reply.
-  if (!find_in_page::FindTabHelper::FromWebContents(web_contents)) {
-    return;
-  }
-  BrowserWebContentsDelegate::FindReply(web_contents, request_id,
-                                        number_of_matches, selection_rect,
-                                        active_match_ordinal, final_update);
-  if (auto delegate = GetContentsDelegate(browser_.get(), web_contents)) {
-    delegate->FindReply(web_contents, request_id, number_of_matches,
-                        selection_rect, active_match_ordinal, final_update);
   }
 }
 

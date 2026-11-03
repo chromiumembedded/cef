@@ -13,8 +13,10 @@ namespace {
 
 const char* kTestUrl = "https://tests/DialogTestHandler";
 const char* kOSRTestUrl = "https://tests/OSRFileDialogTestHandler";
-const int kOSRWidth = 100;
-const int kOSRHeight = 100;
+// Meet Chromium's 400x300 minimum window size for showing a file chooser.
+// See kMinFileChooserWindowSize in chrome/browser/file_select_helper.cc.
+const int kOSRWidth = 400;
+const int kOSRHeight = 300;
 
 class DialogTestHandler : public TestHandler {
  public:

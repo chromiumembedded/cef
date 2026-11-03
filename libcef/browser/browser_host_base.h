@@ -360,12 +360,8 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Called from CefBrowserContentsDelegate::ResizeDueToAutoResize.
   void SetAutoResizeSize(const gfx::Size& size);
 
-  // Called from CefBrowserContentsDelegate::FindReply.
-  bool HandleFindReply(int request_id,
-                       int number_of_matches,
-                       const gfx::Rect& selection_rect,
-                       int active_match_ordinal,
-                       bool final_update);
+  // Called after FindTabHelper has processed a reply.
+  bool HandleFindReply();
 
   const find_in_page::FindNotificationDetails& last_search_result() const {
     return last_search_result_;

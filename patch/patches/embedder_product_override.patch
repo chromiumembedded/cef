@@ -1,16 +1,16 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index e699a6a394fd7a41b441ff6edeb1a17bfe51bc85..0dd4dea5dfbe7f9c22a717959883a2177aeb6aa9 100644
+index 833293873f5e82151264c849bae2230c0b94904c..a4448e2b8c6880e2926a23bbe54cde280192516a 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
-@@ -26,6 +26,7 @@
- #include "base/version.h"
+@@ -25,6 +25,7 @@
+ #include "base/system/sys_info.h"
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
 +#include "cef/libcef/features/features.h"
- #include "components/embedder_support/pref_names.h"
  #include "components/embedder_support/switches.h"
- #include "components/policy/core/common/policy_pref_names.h"
-@@ -54,6 +55,10 @@
+ #include "components/version_info/version_info.h"
+ #include "net/http/http_util.h"
+@@ -50,6 +51,10 @@
  #include <sys/utsname.h>
  #endif
  
@@ -21,7 +21,7 @@ index e699a6a394fd7a41b441ff6edeb1a17bfe51bc85..0dd4dea5dfbe7f9c22a717959883a217
  namespace embedder_support {
  
  namespace {
-@@ -459,6 +464,13 @@ std::string BuildOSCpuInfo(
+@@ -464,6 +469,13 @@ std::string GetUserAgentInternal() {
  }  // namespace
  
  std::string GetProductAndVersion() {

@@ -1,8 +1,8 @@
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index e7651ec9f8b538d0eca24b74fef7cd40771da72e..ae80221a4aa3e4e7bd20d28a34a3e3f008f7e2e0 100644
+index 34be00a458a4d52808c6df3b6267c530ec82183c..f4f447f1e65d73b8a6395c6123884df9c6f8fc00 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -181,18 +181,20 @@ def _LoadToolchainEnv(cpu, toolchain_root, sdk_dir, target_store):
+@@ -180,18 +180,20 @@ def _LoadToolchainEnv(cpu, toolchain_root, sdk_dir, target_store):
                      del os.environ['LIB']
                  if 'LIBPATH' in os.environ:
                      del os.environ['LIBPATH']
@@ -31,7 +31,7 @@ index e7651ec9f8b538d0eca24b74fef7cd40771da72e..ae80221a4aa3e4e7bd20d28a34a3e3f0
          if cpu != 'x64':
              # x64 is default target CPU thus any other CPU requires a target set
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 8bcba3e3f871dfe90e4e98c8141349cea9bb3720..5bb3d746e005e2e674cf2655930a024bafd0f8d6 100755
+index 869b7649288a2f41cb27a76e091bf22a6646bda0..b818b53464fefaf9de46abfbfac9e8e9d094af35 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -145,9 +145,16 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -39,7 +39,7 @@ index 8bcba3e3f871dfe90e4e98c8141349cea9bb3720..5bb3d746e005e2e674cf2655930a024b
          os.environ['PATH'] = runtime_path + os.path.pathsep + os.environ['PATH']
      elif sys.platform == 'win32' and not depot_tools_win_toolchain:
 +        has_override_path = True
-         if not 'GYP_MSVS_OVERRIDE_PATH' in os.environ:
+         if 'GYP_MSVS_OVERRIDE_PATH' not in os.environ:
 +            has_override_path = False
              os.environ['GYP_MSVS_OVERRIDE_PATH'] = DetectVisualStudioPath()
  

@@ -142,7 +142,7 @@ CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::Create(
 
   if (!url.is_empty()) {
     content::OpenURLParams params(url, content::Referrer(),
-                                  WindowOpenDisposition::CURRENT_TAB,
+                                  WindowOpenDisposition::kCurrentTab,
                                   CefFrameHostImpl::kPageTransitionExplicit,
                                   /*is_renderer_initiated=*/false);
     browser->LoadMainFrameURL(params);
@@ -610,17 +610,6 @@ blink::mojom::DisplayMode AlloyBrowserHostImpl::GetDisplayMode(
     const content::WebContents* web_contents) {
   return is_fullscreen_ ? blink::mojom::DisplayMode::kFullscreen
                         : blink::mojom::DisplayMode::kBrowser;
-}
-
-void AlloyBrowserHostImpl::FindReply(content::WebContents* web_contents,
-                                     int request_id,
-                                     int number_of_matches,
-                                     const gfx::Rect& selection_rect,
-                                     int active_match_ordinal,
-                                     bool final_update) {
-  contents_delegate_.FindReply(web_contents, request_id, number_of_matches,
-                               selection_rect, active_match_ordinal,
-                               final_update);
 }
 
 void AlloyBrowserHostImpl::ImeSetComposition(

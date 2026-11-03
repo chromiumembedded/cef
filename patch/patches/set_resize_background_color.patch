@@ -1,5 +1,5 @@
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index 41afec12a8b37454b6e4606aeb3f1121c9f195f2..17f6cfb2d63d4d16c5275120e5a7004585b50d18 100644
+index 77c7d909232cd5fe4425821b0643215a380eae12..46b8daf066a8df5efc279cd9602146bc3c02738e 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
 @@ -223,6 +223,10 @@ const gfx::Size& WebView::AutoResizeMaxSize() const {
@@ -14,7 +14,7 @@ index 41afec12a8b37454b6e4606aeb3f1121c9f195f2..17f6cfb2d63d4d16c5275120e5a70045
      std::unique_ptr<View> crashed_overlay_view,
      ReturnCrashOverlayToOwnerCallback return_to_owner) {
 diff --git ui/views/controls/webview/webview.h ui/views/controls/webview/webview.h
-index 28aaa94abd83d47fdc5cb3c2082c0da3f1a28725..b38320797d00b6edd00bf5d013cf74854ac56803 100644
+index a10b9494504512e6744e6f42a4a6273aeebaaa8e..ba783ac32eb91f6aab517f0e41f258c0f15ef796 100644
 --- ui/views/controls/webview/webview.h
 +++ ui/views/controls/webview/webview.h
 @@ -137,6 +137,10 @@ class WEBVIEW_EXPORT WebView : public View,

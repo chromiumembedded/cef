@@ -12,7 +12,7 @@
 #include "cef/include/views/cef_view_delegate.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/browser/views/view_util.h"
-#include "ui/views/accessibility/accessibility_paint_checks.h"
+#include "ui/views/accessibility/view_accessibility.h"
 #include "ui/views/background.h"
 #include "ui/views/view.h"
 
@@ -52,9 +52,18 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   // CefViewImpl registration has completed so it is safe to call complex
   // views::View-derived methods here.
   virtual void Initialize() {
-    // TODO(crbug.com/1218186): Remove this, if this view is focusable then it
-    // needs to add a name so that the screen reader knows what to announce.
-    ParentClass::SetProperty(views::kSkipAccessibilityPaintChecks, true);
+    auto& accessibility = ParentClass::GetViewAccessibility();
+    // Plain containers may be made focusable and need a valid role.
+    if (accessibility.GetCachedRole() == ax::mojom::Role::kUnknown) {
+      accessibility.SetRole(ax::mojom::Role::kGenericContainer);
+    }
+
+    // Like Chromium's prompt field, client-defined controls may start unnamed.
+    // Mark that state explicitly without overriding a name set by the parent.
+    if (accessibility.GetCachedName().empty()) {
+      accessibility.SetName(std::u16string(),
+                            ax::mojom::NameFrom::kAttributeExplicitlyEmpty);
+    }
   }
 
   // Returns the CefViewDelegate-derived delegate associated with this view.

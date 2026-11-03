@@ -247,7 +247,7 @@ index 22bb26e31893b167a27edc23c7c6ae5a10164bf8..87c80604e5f7a78b5e134c3073f107fa
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index 072176d161de2dd9e45388daa61b67add1cbd497..0a457a65423970057a6a6e69b7d5a59f9ecadc79 100644
+index 09f676a4fe165b0db0b6d26ae3605cea85ae386c..2a5040fb562ef849d44079a04be6e78d7c03645d 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -39,6 +39,7 @@
@@ -279,7 +279,7 @@ index 072176d161de2dd9e45388daa61b67add1cbd497..0a457a65423970057a6a6e69b7d5a59f
  #if BUILDFLAG(IS_CHROMEOS)
    bool use_cros_crash_reporter = false;
    base::FilePath minidump_dir_for_tests;
-@@ -621,6 +629,9 @@ int HandlerMain(int argc,
+@@ -626,6 +634,9 @@ int HandlerMain(int argc,
      kOptionTraceParentWithException,
  #endif
      kOptionURL,
@@ -289,7 +289,7 @@ index 072176d161de2dd9e45388daa61b67add1cbd497..0a457a65423970057a6a6e69b7d5a59f
  #if BUILDFLAG(IS_CHROMEOS)
      kOptionUseCrosCrashReporter,
      kOptionMinidumpDirForTests,
-@@ -721,6 +732,9 @@ int HandlerMain(int argc,
+@@ -726,6 +737,9 @@ int HandlerMain(int argc,
  #endif  // BUILDFLAG(IS_ANDROID)
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -299,7 +299,7 @@ index 072176d161de2dd9e45388daa61b67add1cbd497..0a457a65423970057a6a6e69b7d5a59f
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -878,6 +892,27 @@ int HandlerMain(int argc,
+@@ -883,6 +897,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -327,7 +327,7 @@ index 072176d161de2dd9e45388daa61b67add1cbd497..0a457a65423970057a6a6e69b7d5a59f
  #if BUILDFLAG(IS_CHROMEOS)
        case kOptionUseCrosCrashReporter: {
          options.use_cros_crash_reporter = true;
-@@ -1027,11 +1062,20 @@ int HandlerMain(int argc,
+@@ -1032,11 +1067,20 @@ int HandlerMain(int argc,
      upload_thread_options.upload_gzip = options.upload_gzip;
      upload_thread_options.watch_pending_reports = options.periodic_tasks;
  
@@ -348,7 +348,7 @@ index 072176d161de2dd9e45388daa61b67add1cbd497..0a457a65423970057a6a6e69b7d5a59f
      upload_thread.Get()->Start();
    }
  
-@@ -1102,7 +1146,8 @@ int HandlerMain(int argc,
+@@ -1107,7 +1151,8 @@ int HandlerMain(int argc,
    ScopedStoppable prune_thread;
    if (options.periodic_tasks) {
      prune_thread.Reset(new PruneCrashReportThread(

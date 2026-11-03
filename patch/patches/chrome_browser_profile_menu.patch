@@ -1,15 +1,16 @@
 diff --git chrome/browser/ui/bookmarks/bookmark_stats.cc chrome/browser/ui/bookmarks/bookmark_stats.cc
-index 19d75a725dbcfaf100cfe2d1ec2fc551ffecde65..c325a7116c45ad68f9bd54d3e7760dd7b388b0d8 100644
+index d3dc4ca07c07ae897cacbedd757ddc904f7e2f69..9425ad8b676a2500e900d4784e5adf1bd3ea1746 100644
 --- chrome/browser/ui/bookmarks/bookmark_stats.cc
 +++ chrome/browser/ui/bookmarks/bookmark_stats.cc
-@@ -29,10 +29,14 @@ bool IsBookmarkBarLocation(BookmarkLaunchLocation location) {
+@@ -31,11 +31,15 @@ bool IsBookmarkBarLocation(BookmarkLaunchLocation location) {
  auto GetMetricProfile(const Profile* profile) {
-   DCHECK(profile);
-   DCHECK(profile->IsRegularProfile() ||
--         profile->IsPrimaryOTRProfileWithRegularParent());
-+         profile->IsPrimaryOTRProfileWithRegularParent() ||
-+         (profile->IsOffTheRecord() &&
-+          profile->GetOTRProfileID().IsUniqueForCEF()));
+   CHECK(profile, base::NotFatalUntil::M162);
+   CHECK(profile->IsRegularProfile() ||
+-            profile->IsPrimaryOTRProfileWithRegularParent(),
++            profile->IsPrimaryOTRProfileWithRegularParent() ||
++            (profile->IsOffTheRecord() &&
++             profile->GetOTRProfileID().IsUniqueForCEF()),
+         base::NotFatalUntil::M162);
    if (profile->IsRegularProfile()) {
      return profile_metrics::BrowserProfileType::kRegular;
 -  } else if (profile->IsIncognitoProfile()) {
@@ -20,27 +21,27 @@ index 19d75a725dbcfaf100cfe2d1ec2fc551ffecde65..c325a7116c45ad68f9bd54d3e7760dd7
    }
    return profile_metrics::BrowserProfileType::kEnterpriseIsolated;
 diff --git chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
-index f25b0d6283336b899d58cc83879820d2b46e9cfe..5aedb7c65fe40e40dd061156fb38625fbed24c58 100644
+index 51cd6f5fb1113e564a2fb41357a70c9e327a3e93..231c457e32ddeb7b0de8c2022028a3268b1ae478 100644
 --- chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
 +++ chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
 @@ -30,7 +30,9 @@ IncognitoClearBrowsingDataDialog::IncognitoClearBrowsingDataDialog(
        dialog_type_(type),
        incognito_profile_(incognito_profile) {
-   DCHECK(incognito_profile_);
--  DCHECK(incognito_profile_->IsPrimaryOTRProfileWithRegularParent());
-+  DCHECK(incognito_profile_->IsPrimaryOTRProfileWithRegularParent() ||
-+         (incognito_profile_->IsOffTheRecord() &&
-+          incognito_profile_->GetOTRProfileID().IsUniqueForCEF()));
+   CHECK(incognito_profile_, base::NotFatalUntil::M162);
+-  CHECK(incognito_profile_->IsPrimaryOTRProfileWithRegularParent(),
++  CHECK(incognito_profile_->IsPrimaryOTRProfileWithRegularParent() ||
++            (incognito_profile_->IsOffTheRecord() &&
++             incognito_profile_->GetOTRProfileID().IsUniqueForCEF()),
+         base::NotFatalUntil::M162);
    SetButtons(static_cast<int>(ui::mojom::DialogButton::kNone));
    SetShowCloseButton(true);
- 
 diff --git chrome/browser/ui/views/incognito_clear_browsing_data_dialog_coordinator.cc chrome/browser/ui/views/incognito_clear_browsing_data_dialog_coordinator.cc
-index e87fb564bcd043a0010788eedbc61825d005160d..7dbd5ef335945c06ab25a1400ab021080fce564e 100644
+index a25ab3f48090fa03837f18dc22d2914a43d300ae..32360fdadab30b6aa82ad3b979f6b994b041534d 100644
 --- chrome/browser/ui/views/incognito_clear_browsing_data_dialog_coordinator.cc
 +++ chrome/browser/ui/views/incognito_clear_browsing_data_dialog_coordinator.cc
 @@ -23,6 +23,10 @@ IncognitoClearBrowsingDataDialogCoordinator::
  void IncognitoClearBrowsingDataDialogCoordinator::Show(
-     IncognitoClearBrowsingDataDialogInterface::Type type,
+     IncognitoClearBrowsingDataDialog::Type type,
      views::BubbleAnchor anchor) {
 +  // The full toolbar may not be visible.
 +  if (anchor.IsNull())
@@ -65,10 +66,10 @@ index 5e34acec16e1f581d7842e4210f00fd9b107ad70..bbe3cd63f1a921d0e62ad91a60af4ee0
                                   ax::mojom::NameFrom::kAttribute);
  
 diff --git chrome/browser/ui/views/profiles/profile_menu_coordinator.cc chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-index 74ccee8d69fbf8ad8c621bcd53d8aff02e6c0671..7dcd7b25770852088c8c674982a8a739a45e6364 100644
+index 8f3d9b2cb76366808ee64587aaa943af00e323f0..e1c6ae829bb969013a4743566e7d3e2b3036959c 100644
 --- chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-@@ -99,7 +99,9 @@ void ProfileMenuCoordinator::ShowWithPromoResults(
+@@ -105,7 +105,9 @@ void ProfileMenuCoordinator::ShowWithPromoResults(
    auto avatar_toolbar_button = GetAvatarToolbarButton();
    std::unique_ptr<ProfileMenuViewBase> bubble;
    const bool is_incognito = GetProfile()->IsIncognitoProfile();

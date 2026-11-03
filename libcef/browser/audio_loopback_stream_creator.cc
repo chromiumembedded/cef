@@ -68,7 +68,8 @@ void CreateLoopbackStreamHelper(
   DCHECK_CURRENTLY_ON(content::BrowserThread::IO);
 
   const bool mute_source = true;
-  factory->CreateLoopbackStream(-1, -1, loopback_source, params, total_segments,
+  factory->CreateLoopbackStream(-1, -1, base::UnguessableToken::Create(),
+                                loopback_source, params, total_segments,
                                 mute_source, std::move(client_remote));
 }
 
@@ -82,7 +83,8 @@ void CreateSystemWideLoopbackStreamHelper(
 
   const bool enable_agc = false;
   factory->CreateInputStream(
-      -1, -1, media::AudioDeviceDescription::kLoopbackWithMuteDeviceId, params,
+      -1, -1, base::UnguessableToken::Create(),
+      media::AudioDeviceDescription::kLoopbackWithMuteDeviceId, params,
       total_segments, enable_agc, media::mojom::AudioProcessingConfigPtr(),
       std::move(client_remote));
 }

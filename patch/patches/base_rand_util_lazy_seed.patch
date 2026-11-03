@@ -35,12 +35,12 @@ index 0387c25e436c1e7d6b379fcbfcd0cb62970792c8..96503e3f54a1788394bc5a1286650d48
    // https://en.wikipedia.org/wiki/Xorshift#xorshift+ for details.
    uint64_t t = a_;
 diff --git base/rand_util.h base/rand_util.h
-index ae5425cf171e811447a5a0a82f67429b2914188f..8478bb0c18cd5f0725156288a6afa3d63e301e9a 100644
+index ff59e32c84e5766d6a811388164ce75257e2b7f0..a02239d0b293840b5ab4c8490370418f63e755ef 100644
 --- base/rand_util.h
 +++ base/rand_util.h
-@@ -39,6 +39,10 @@ namespace internal {
+@@ -37,6 +37,10 @@ namespace base {
  
- void ConfigureBoringSSLBackedRandBytesFieldTrial();
+ namespace internal {
  
 +// Fills `output` with random bytes without entering BoringSSL or allocating.
 +// For use on allocator-critical paths. Thread-safe.
@@ -49,7 +49,7 @@ index ae5425cf171e811447a5a0a82f67429b2914188f..8478bb0c18cd5f0725156288a6afa3d6
  // Returns a random double in range [0, 1). For use in allocator shim to avoid
  // infinite recursion. Thread-safe.
  BASE_EXPORT double RandDoubleAvoidAllocation();
-@@ -246,8 +250,11 @@ class MetricsSubSampler;
+@@ -244,8 +248,11 @@ class MetricsSubSampler;
  // system call to generate a new number, except to seed it.  This should *never*
  // be used for cryptographic applications, and is not thread-safe.
  //
@@ -63,7 +63,7 @@ index ae5425cf171e811447a5a0a82f67429b2914188f..8478bb0c18cd5f0725156288a6afa3d6
  // ReseedForTesting(). Its period is long enough that it should not need to be
  // re-seeded during use.
  //
-@@ -266,6 +273,10 @@ class BASE_EXPORT InsecureRandomGenerator {
+@@ -264,6 +271,10 @@ class BASE_EXPORT InsecureRandomGenerator {
    InsecureRandomGenerator();
    // State. These are mutable to allow Rand* functions to be declared as const.
    // This, in turn, enables use of `MetricsSubSampler` in const contexts.
@@ -75,10 +75,10 @@ index ae5425cf171e811447a5a0a82f67429b2914188f..8478bb0c18cd5f0725156288a6afa3d6
  
    // Before adding a new friend class, make sure that the overhead of
 diff --git base/rand_util_fuchsia.cc base/rand_util_fuchsia.cc
-index 49951ac5ffcd4d134d00264b2d9adbde38fb50f8..909e317b3188688a86f828b803d5214b36034b19 100644
+index ea3ef7a3a6d30c1c106ce89e2f3db1f7c5849289..8b857c12150b01803e23dc92875fb5ea162c393c 100644
 --- base/rand_util_fuchsia.cc
 +++ base/rand_util_fuchsia.cc
-@@ -49,6 +49,10 @@ void RandBytes(span<uint8_t> output) {
+@@ -18,6 +18,10 @@ void RandBytes(span<uint8_t> output) {
  
  namespace internal {
  
@@ -90,10 +90,10 @@ index 49951ac5ffcd4d134d00264b2d9adbde38fb50f8..909e317b3188688a86f828b803d5214b
    uint64_t number;
    zx_cprng_draw(&number, sizeof(number));
 diff --git base/rand_util_posix.cc base/rand_util_posix.cc
-index 6560a29287de45bc41c1083c272d40b6850ee8f7..dff4a24a88c133d2163e2e7f39d5650ca1df1cda 100644
+index 71bb35a2ffdefafc5e71f592865c6d86f8489bc5..a57ea0380f1264d712c867d17e69935a4e216727 100644
 --- base/rand_util_posix.cc
 +++ base/rand_util_posix.cc
-@@ -157,6 +157,10 @@ void RandBytesInternal(span<uint8_t> output, bool avoid_allocation) {
+@@ -128,6 +128,10 @@ void RandBytesInternal(span<uint8_t> output, bool avoid_allocation) {
  
  namespace internal {
  
@@ -105,10 +105,10 @@ index 6560a29287de45bc41c1083c272d40b6850ee8f7..dff4a24a88c133d2163e2e7f39d5650c
    uint64_t number;
    RandBytesInternal(byte_span_from_ref(number), /*avoid_allocation=*/true);
 diff --git base/rand_util_win.cc base/rand_util_win.cc
-index bf9a489b95f2eb4ffd43c900eeb7d3c2e3fe8b08..9631d700ff0c4f0177c8599ab8e231da292a06e3 100644
+index d4e08fec9eb24252fbae227fe267ca721b3a5a60..d87a1a3d3188371ae9b303fcf248ab899422d57b 100644
 --- base/rand_util_win.cc
 +++ base/rand_util_win.cc
-@@ -84,6 +84,10 @@ void RandBytes(span<uint8_t> output) {
+@@ -59,6 +59,10 @@ void RandBytes(span<uint8_t> output) {
  
  namespace internal {
  

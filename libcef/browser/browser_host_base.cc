@@ -1489,11 +1489,7 @@ CefBrowserHostBase::GetJavaScriptDialogManager() {
   return javascript_dialog_manager_.get();
 }
 
-bool CefBrowserHostBase::HandleFindReply(int request_id,
-                                         int number_of_matches,
-                                         const gfx::Rect& selection_rect,
-                                         int active_match_ordinal,
-                                         bool final_update) {
+bool CefBrowserHostBase::HandleFindReply() {
   auto web_contents = GetWebContents();
   if (!web_contents) {
     return false;
@@ -1502,8 +1498,9 @@ bool CefBrowserHostBase::HandleFindReply(int request_id,
   auto find_in_page =
       find_in_page::FindTabHelper::FromWebContents(web_contents);
 
-  find_in_page->HandleFindReply(request_id, number_of_matches, selection_rect,
-                                active_match_ordinal, final_update);
+  if (!find_in_page) {
+    return false;
+  }
   if (!(find_in_page->find_result() == last_search_result_)) {
     last_search_result_ = find_in_page->find_result();
     return true;

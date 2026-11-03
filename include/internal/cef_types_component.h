@@ -89,6 +89,13 @@ typedef enum {
   ///
   CEF_COMPONENT_UPDATE_ERROR_BAD_CRX_DATA_CALLBACK = 8,
 
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// Component updates are disabled.
+  ///
+  CEF_COMPONENT_UPDATE_ERROR_UPDATE_DISABLED = 9,
+#endif
+
 } cef_component_update_error_t;
 
 ///

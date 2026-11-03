@@ -25,10 +25,10 @@ index c909310d202002b724941bd4e2b4fede56b69d45..5f634313189a3a81e756431ca8e6b9cb
  
  bool URLRequestHttpJob::ShouldRecordPartitionedCookieUsage() const {
 diff --git services/network/public/cpp/resource_request.cc services/network/public/cpp/resource_request.cc
-index 8a8e9165fa604bca66ddbf48d569d277c4b6aa96..42d8c636ab7f0442d6f57ad512e83cb27e0197a7 100644
+index bcc324b65625127564d1d69a0989aedbe94e9ea4..5d2eba43217492fa7414da1c2da28ed4bbdee9f1 100644
 --- services/network/public/cpp/resource_request.cc
 +++ services/network/public/cpp/resource_request.cc
-@@ -394,7 +394,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {
+@@ -390,7 +390,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {
  }
  
  bool ResourceRequest::SendsCookies() const {
@@ -38,7 +38,7 @@ index 8a8e9165fa604bca66ddbf48d569d277c4b6aa96..42d8c636ab7f0442d6f57ad512e83cb2
  }
  
  bool ResourceRequest::SavesCookies() const {
-@@ -448,7 +449,8 @@ int GetAllowedLoadFlagsForUntrustedRequests() {
+@@ -444,7 +445,8 @@ int GetAllowedLoadFlagsForUntrustedRequests() {
           net::LOAD_DISABLE_CACHE | net::LOAD_PREFETCH |
           net::LOAD_IGNORE_LIMITS | net::LOAD_DO_NOT_USE_EMBEDDED_IDENTITY |
           net::LOAD_SUPPORT_ASYNC_REVALIDATION |

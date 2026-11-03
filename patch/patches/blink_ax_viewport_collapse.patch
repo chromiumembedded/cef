@@ -67,10 +67,10 @@ index afe27dcc12400959a3196dddbd2152b4e70b6d68..6dc53e18fb8fc6c3c746ff0f13da0d94
    virtual void SetTextTrackKindUserPreference(TextTrackKindUserPreference) = 0;
    virtual void SetTextTrackBackgroundColor(const WebString&) = 0;
 diff --git third_party/blink/renderer/core/exported/web_settings_impl.cc third_party/blink/renderer/core/exported/web_settings_impl.cc
-index 8e58be8163a9367e9216cbdd1987eb24d3f091ba..1abc46e622068f2e20a383734c82de621c1a6f76 100644
+index 573e43958041359e6dbd72f78d718220df1db2b9..85141fc6482f70c30fb5f9e63e4132b900c7ae8d 100644
 --- third_party/blink/renderer/core/exported/web_settings_impl.cc
 +++ third_party/blink/renderer/core/exported/web_settings_impl.cc
-@@ -176,6 +176,10 @@ void WebSettingsImpl::SetAccessibilityAlwaysShowFocus(bool always_show_focus) {
+@@ -169,6 +169,10 @@ void WebSettingsImpl::SetAccessibilityAlwaysShowFocus(bool always_show_focus) {
    settings_->SetAccessibilityAlwaysShowFocus(always_show_focus);
  }
  
@@ -94,10 +94,10 @@ index 3d8839154bb872db567119aae19df1cb51424de6..d5c36966d0320e927fae66046c6e70eb
    void SetTextTrackKindUserPreference(TextTrackKindUserPreference) override;
    void SetTextTrackBackgroundColor(const WebString&) override;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index cff1b40777719c569f1d8593e9407024479a5cc7..72dde7ee54782c5ca6dce524e70639952f978ccf 100644
+index 5aca41e3ac3bf62c785ee9cedd159614e9f50385..8f002ecb92d59d11f1e136c49f40c9b74a06aaa8 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -1885,6 +1885,8 @@ void WebView::ApplyWebPreferences(const web_pref::WebPreferences& prefs,
+@@ -1889,6 +1889,8 @@ void WebView::ApplyWebPreferences(const web_pref::WebPreferences& prefs,
    settings->SetForceDarkModeEnabled(prefs.force_dark_mode_enabled);
  
    settings->SetAccessibilityAlwaysShowFocus(prefs.always_show_focus);
@@ -107,10 +107,10 @@ index cff1b40777719c569f1d8593e9407024479a5cc7..72dde7ee54782c5ca6dce524e7063995
    settings->SetRequireTransientActivationForGetDisplayMedia(
        prefs.require_transient_activation_for_get_display_media);
 diff --git third_party/blink/renderer/core/frame/settings.json5 third_party/blink/renderer/core/frame/settings.json5
-index a3f7ad92d7aefa2179b1448f07d1502baa540616..502b7f3a382d8cf3364cfb1d6e99b6243ad1c35d 100644
+index 2fd38b078ec5f6dfaa76d3e62be25d09255d69dd..5ad974dea2d74a1d16930f75c4c221a92eb8c279 100644
 --- third_party/blink/renderer/core/frame/settings.json5
 +++ third_party/blink/renderer/core/frame/settings.json5
-@@ -1282,6 +1282,10 @@
+@@ -1283,6 +1283,10 @@
        name: "accessibilityIncludeSvgGElement",
        initial: false,
      },
@@ -152,13 +152,13 @@ index 12a864be8e5ea7ce04cb50e519ff5cc1847abe9a..3fd01bb2442583486ae71d8001ed9886
      defines = [ "REDUCE_AX_INLINE_TEXTBOXES" ]
    }
 diff --git third_party/blink/renderer/modules/accessibility/inspector_accessibility_agent.cc third_party/blink/renderer/modules/accessibility/inspector_accessibility_agent.cc
-index de1558867828e47bad90c2c2986675245eb2f30a..822ea1ae4933e47a5af3af03f13e7c45b2bd6359 100644
+index 9ad659cbc3189aa68865bce6ef1de55b9af5f7f5..0797dec6ebba62fa87d386612b45f4197ebdb409 100644
 --- third_party/blink/renderer/modules/accessibility/inspector_accessibility_agent.cc
 +++ third_party/blink/renderer/modules/accessibility/inspector_accessibility_agent.cc
 @@ -7,6 +7,7 @@
  #include <memory>
+ #include <ranges>
  
- #include "base/containers/adapters.h"
 +#include "cef/libcef/features/features.h"
  #include "third_party/blink/renderer/core/accessibility/ax_object_cache.h"
  #include "third_party/blink/renderer/core/dom/dom_node_ids.h"
@@ -185,7 +185,7 @@ index de1558867828e47bad90c2c2986675245eb2f30a..822ea1ae4933e47a5af3af03f13e7c45
  }  // namespace
  
  using EnabledAgentsMultimap =
-@@ -243,7 +252,14 @@ protocol::Response InspectorAccessibilityAgent::getFullAXTree(
+@@ -248,7 +257,14 @@ protocol::Response InspectorAccessibilityAgent::getFullAXTree(
    cache.UpdateAXForAllDocuments();
    ScopedFreezeAXCache freeze(cache);
  
@@ -201,7 +201,7 @@ index de1558867828e47bad90c2c2986675245eb2f30a..822ea1ae4933e47a5af3af03f13e7c45
  
    return protocol::Response::Success();
  }
-@@ -507,6 +523,15 @@ void InspectorAccessibilityAgent::AXReadyCallback(Document& document) {
+@@ -530,6 +546,16 @@ void InspectorAccessibilityAgent::AXReadyCallback(Document& document) {
  }
  
  void InspectorAccessibilityAgent::ProcessPendingDirtyNodes(Document& document) {
@@ -210,15 +210,16 @@ index de1558867828e47bad90c2c2986675245eb2f30a..822ea1ae4933e47a5af3af03f13e7c45
 +  // These events send uncollapsed data, creating an inconsistent tree.
 +  // AI agents call getFullAXTree() directly without enable(), so they
 +  // never receive these events anyway.
-+  if (cef::IsViewportCollapseEnabled(document))
++  if (cef::IsViewportCollapseEnabled(document)) {
 +    return;
++  }
 +#endif
 +
    auto now = base::Time::Now();
  
    if (!last_sync_times_.Contains(&document))
 diff --git third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.cc third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.cc
-index 1119773ff9b3e7e882aae0e1e83a81071bd6c591..2538d6b7f5c61c1f666cbf665d8261263042dcdf 100644
+index 381ff2997d99a0e4f7097581de2ad76137353ba3..d94852d8acf1df98a84226c76491c8237059c847 100644
 --- third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.cc
 +++ third_party/blink/renderer/modules/accessibility/inspector_type_builder_helper.cc
 @@ -4,6 +4,7 @@

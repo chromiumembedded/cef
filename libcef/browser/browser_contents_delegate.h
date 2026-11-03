@@ -10,7 +10,10 @@
 
 #include "base/callback_list.h"
 #include "base/observer_list.h"
+#include "base/scoped_observation.h"
 #include "cef/libcef/browser/frame_host_impl.h"
+#include "components/find_in_page/find_result_observer.h"
+#include "components/find_in_page/find_tab_helper.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
 
@@ -46,7 +49,8 @@ constexpr inline CefBrowserContentsState operator|(
 // Includes functionality that is shared by Alloy and Chrome styles. Only
 // accessed on the UI thread.
 class CefBrowserContentsDelegate : public content::WebContentsDelegate,
-                                   public content::WebContentsObserver {
+                                   public content::WebContentsObserver,
+                                   public find_in_page::FindResultObserver {
  public:
   using State = CefBrowserContentsState;
 
@@ -67,6 +71,7 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
 
   explicit CefBrowserContentsDelegate(
       scoped_refptr<CefBrowserInfo> browser_info);
+  ~CefBrowserContentsDelegate() override;
 
   CefBrowserContentsDelegate(const CefBrowserContentsDelegate&) = delete;
   CefBrowserContentsDelegate& operator=(const CefBrowserContentsDelegate&) =
@@ -151,17 +156,15 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void OnFocusChangedInPage(
       const content::FocusedNodeDetails& details) override;
   bool TakeFocus(content::WebContents* source, bool reverse) override;
-  void FindReply(content::WebContents* web_contents,
-                 int request_id,
-                 int number_of_matches,
-                 const gfx::Rect& selection_rect,
-                 int active_match_ordinal,
-                 bool final_update) override;
   void UpdatePreferredSize(content::WebContents* source,
                            const gfx::Size& pref_size) override;
   void ResizeDueToAutoResize(content::WebContents* source,
                              const gfx::Size& new_size) override;
   void WebContentsDestroyed() override;
+
+  // FindResultObserver methods:
+  void OnFindResultAvailable(content::WebContents* web_contents) override;
+  void OnFindTabHelperDestroyed(find_in_page::FindTabHelper* helper) override;
 
   // Accessors for state information. Changes will be signaled to
   // Observer::OnStateChanged.
@@ -213,6 +216,10 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
 
   // True if the focus is currently on an editable field on the page.
   bool focus_on_editable_field_ = false;
+
+  base::ScopedObservation<find_in_page::FindTabHelper,
+                          find_in_page::FindResultObserver>
+      find_observation_{this};
 };
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_CONTENTS_DELEGATE_H_

@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 4806f1ebdabc2d3bb8f57a29790ec239d40c2458..7682224acdc54b76dd17183e4ab0b303d9e59390 100644
+index 3f592ba2d538eecf63afff59f6cea44c6f84ca8c..3e60274b5002db787609a6f75fd2b59c048bec81 100644
 --- .gn
 +++ .gn
-@@ -443,6 +443,8 @@ exec_script_allowlist =
+@@ -446,6 +446,8 @@ exec_script_allowlist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,7 +12,7 @@ index 4806f1ebdabc2d3bb8f57a29790ec239d40c2458..7682224acdc54b76dd17183e4ab0b303
  
        "//google_apis/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 29478cec8041b9cb494ae14fe6e4e2115714c023..3f132445ee576d541f383414593358d5ac4d9a5d 100644
+index 48a1485e5ab6b59ad5fc5722187809ce0b0faaa9..0946635b15cbd898e85280b665bc177982832a7a 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -22,6 +22,7 @@ import("//build/config/ui.gni")
@@ -78,7 +78,7 @@ index bd411669389525e8f03eb329a4cf700ad89b62f3..fba7843d79796b903b592b69e2e1f2c7
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 12a5e53584f9f30117ba8e3e1c444974862dbd09..48960584658d336359213f5763db6f29af2fe34b 100644
+index 918f760012ed46b140791175b52cd30dde5c002b..88b13b2350376b956a9bad061fe33d4cc7f0a424 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -89,7 +89,7 @@ index 12a5e53584f9f30117ba8e3e1c444974862dbd09..48960584658d336359213f5763db6f29
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -517,6 +518,11 @@ template("chrome_extra_paks") {
+@@ -540,6 +541,11 @@ template("chrome_extra_paks") {
        deps += [ "//chrome/browser/resources/skills:resources" ]
      }
  
@@ -125,7 +125,7 @@ index 226c91dd847f533d800407fb95cf2d7b56917e6e..ad2d86dfd8a04e4a67eee7533a7289d5
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 39cbdeb5f067ba57b65bb903ff36b9f96c4d8631..10e7134cf9777c307924a6c523774d9366bfc1f8 100644
+index df9408bb1666cce96dd4fa716205b446164641de..43083862c55d7b87c0322c185032e8c8d6f23a53 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -6,6 +6,7 @@ import("//build/config/compiler/compiler.gni")

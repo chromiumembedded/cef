@@ -24,6 +24,7 @@
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_tabstrip.h"
 #include "chrome/browser/ui/browser_web_contents_delegate/browser_web_contents_delegate.h"
+#include "chrome/browser/ui/browser_window/public/desktop_browser_window_capabilities.h"
 #include "chrome/browser/ui/window_feature_controller/window_feature_controller.h"
 #include "content/public/browser/global_routing_id.h"
 #include "third_party/blink/public/mojom/page/draggable_region.mojom.h"
@@ -36,8 +37,10 @@ ChromeBrowserDelegate::ChromeBrowserDelegate(
   DCHECK(browser_);
 
   if (opener) {
-    DCHECK(browser->GetType() ==
-               BrowserWindowInterface::TYPE_PICTURE_IN_PICTURE ||
+    // Document PiP windows use TYPE_FLOATING, which also includes always-on-top
+    // popups. IsDocumentPictureInPicture() cannot be used here because Browser
+    // has not yet initialized its user-data host or BrowserInitState.
+    DCHECK(browser->GetType() == BrowserWindowInterface::TYPE_FLOATING ||
            browser->GetType() == BrowserWindowInterface::TYPE_DEVTOOLS);
     auto opener_host = ChromeBrowserHostImpl::GetBrowserForBrowser(opener);
     DCHECK(opener_host);
@@ -293,7 +296,7 @@ bool ChromeBrowserDelegate::HandleCommand(int command_id,
                                           WindowOpenDisposition disposition) {
   // Verify that our enum matches Chromium's values.
   static_assert(static_cast<int>(CEF_WOD_NUM_VALUES) - 1 ==
-                    static_cast<int>(WindowOpenDisposition::MAX_VALUE),
+                    static_cast<int>(WindowOpenDisposition::kMaxValue),
                 "Enum values in cef_window_open_disposition_t must match "
                 "WindowOpenDisposition");
 
@@ -380,7 +383,7 @@ void ChromeBrowserDelegate::UpdateDialogTopInset(int* dialog_top_y) {
 }
 
 bool ChromeBrowserDelegate::SupportsFramelessPictureInPicture() const {
-  if (browser_->GetType() != BrowserWindowInterface::TYPE_PICTURE_IN_PICTURE) {
+  if (!DesktopBrowserWindowCapabilities::IsDocumentPictureInPicture(browser_)) {
     return false;
   }
 
@@ -408,7 +411,7 @@ std::optional<bool> ChromeBrowserDelegate::SupportsWindowFeature(
   // Browser::PictureInPictureBrowserSupportsWindowFeature.
   if (static_cast<WindowFeatureController::WindowFeature>(feature) ==
           WindowFeatureController::WindowFeature::kFeatureTitleBar &&
-      browser_->GetType() == BrowserWindowInterface::TYPE_PICTURE_IN_PICTURE) {
+      DesktopBrowserWindowCapabilities::IsDocumentPictureInPicture(browser_)) {
     // Return false to hide titlebar and enable draggable regions.
     return !SupportsFramelessPictureInPicture();
   }
@@ -462,9 +465,9 @@ void ChromeBrowserDelegate::WindowFullscreenStateChanged() {
 }
 
 bool ChromeBrowserDelegate::HasViewsHostedOpener() const {
-  DCHECK(browser_->GetType() ==
-             BrowserWindowInterface::TYPE_PICTURE_IN_PICTURE ||
-         browser_->GetType() == BrowserWindowInterface::TYPE_DEVTOOLS);
+  DCHECK(
+      DesktopBrowserWindowCapabilities::IsDocumentPictureInPicture(browser_) ||
+      browser_->GetType() == BrowserWindowInterface::TYPE_DEVTOOLS);
   return opener_host_ && opener_host_->is_views_hosted();
 }
 

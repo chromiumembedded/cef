@@ -1,10 +1,10 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index d215484acb2f036cfdbfaa34c9195b29dd46f46e..6d9d750b9c549027fc07f5938116180044482704 100644
+index 2d540b7ada3e045364ebb3218d059c12bba3a786..83e0c88e247f2f39a3da7835fbd1841dc0a5d8ce 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
-@@ -151,7 +151,7 @@ bool ApplyUserAgentMetadataOverrides(
-     FrameTreeNode* frame_tree_node,
-     std::optional<blink::UserAgentMetadata>* override_out);
+@@ -177,7 +177,7 @@ bool ApplyUserAgentMetadataOverrides(
+     std::optional<blink::UserAgentMetadata>* override_out,
+     const GURL& url);
  
 -class WillCreateURLLoaderFactoryParams final {
 +class CONTENT_EXPORT WillCreateURLLoaderFactoryParams final {
@@ -46,7 +46,7 @@ index 09d80f2ba678df9ab1b9b2b74ad66d4546036fb2..5dbff44c280a145c65146279a971620f
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 0a8db62080e2e8a182467c60d1174bb40c198ec5..7c3cc3818f7b34a810247dd7a7a20185dc9cc3bf 100644
+index 2732667d0e078878c07de3e188d291dbcdc5797f..36b69028cae9789f174973170da1cbaad83b92df 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -3,6 +3,7 @@

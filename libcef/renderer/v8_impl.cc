@@ -512,7 +512,7 @@ void FunctionCallbackImpl(const v8::FunctionCallbackInfo<v8::Value>& info) {
   v8::Isolate* isolate = info.GetIsolate();
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
 
-  V8FunctionData* data = V8FunctionData::Unwrap(info.Data());
+  V8FunctionData* data = V8FunctionData::Unwrap(info.DataV2().As<v8::Value>());
   if (!data->handler()) {
     // handler has gone away, bail!
     info.GetReturnValue().SetUndefined();

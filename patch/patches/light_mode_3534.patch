@@ -93,7 +93,7 @@ index 412c163a231ba7b70930acb84e7921bffcbbda17..190b7584c45dbef5e2b5791bbeb2a37c
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index 64dc19f32a6824a251c167e1bac161d06a78d076..f564d2d5e3b9cbae455eb2c89c3d958e635cbfc5 100644
+index 5d29b7bd2d2414524d09ac89e5a4dd7d47fb6f3c..7482400cd7b092dcf6984700efdac807c1000e05 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
 @@ -385,9 +385,9 @@ class COMPONENT_EXPORT(NATIVE_THEME) NativeTheme {

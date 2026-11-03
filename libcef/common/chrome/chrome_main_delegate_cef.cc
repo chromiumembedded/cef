@@ -35,6 +35,7 @@
 #include "components/signin/public/base/signin_switches.h"
 #include "components/variations/service/buildflags.h"
 #include "content/common/features.h"
+#include "content/public/common/content_features.h"
 #include "content/public/common/content_switches.h"
 #include "net/base/features.h"
 #include "sandbox/policy/switches.h"
@@ -364,6 +365,15 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
       // to avoid shutdown crashes (see issue #3403).
       DisableFeatureByDefault(base::kEnableHangWatcher, disable_features);
     }
+
+#if BUILDFLAG(IS_MAC)
+    // Chromium enables Aperitif helpers by default, but CEF clients package
+    // the original helper variants. They initialize the sandbox through
+    // CefScopedSandboxContext before dynamically loading the CEF framework.
+    // Disable Aperitif helper selection to preserve that startup contract and
+    // avoid launching helper executables that clients do not provide.
+    DisableFeatureByDefault(features::kAperitifHelpers, disable_features);
+#endif  // BUILDFLAG(IS_MAC)
 
 #if BUILDFLAG(IS_WIN)
     // Disable TcpSocketIoCompletionPortWin which breaks embedded test servers.

@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/webui/version/version_handler.cc chrome/browser/ui/webui/version/version_handler.cc
-index 410556c4bdeadc18c7f057e2ed08e8daba21d2a0..68613ed1b25745e226887a1c8457777519d660b9 100644
+index f3cc0d64943d301461c1f83d6832723dfa8dffd2..d00b79e11a3b452a57ecdf89fa4d53c5b4822b8a 100644
 --- chrome/browser/ui/webui/version/version_handler.cc
 +++ chrome/browser/ui/webui/version/version_handler.cc
-@@ -28,12 +28,23 @@
+@@ -28,12 +28,24 @@
  #include "ui/base/l10n/l10n_util.h"
  #include "url/gurl.h"
  
@@ -20,14 +20,15 @@ index 410556c4bdeadc18c7f057e2ed08e8daba21d2a0..68613ed1b25745e226887a1c84577775
 -                  std::u16string* profile_path_out) {
 +                  std::u16string* profile_path_out
 +#if BUILDFLAG(ENABLE_CEF)
-+                  , std::u16string* module_path_out,
++                  ,
++                  std::u16string* module_path_out,
 +                  std::u16string* user_data_path_out
 +#endif
-+                  ) {
++) {
    base::ScopedBlockingCall scoped_blocking_call(FROM_HERE,
                                                  base::BlockingType::MAY_BLOCK);
  
-@@ -51,6 +62,19 @@ void GetFilePaths(const base::FilePath& profile_path,
+@@ -51,6 +63,19 @@ void GetFilePaths(const base::FilePath& profile_path,
    } else {
      *profile_path_out = l10n_util::GetStringUTF16(IDS_VERSION_UI_PATH_NOTFOUND);
    }
@@ -47,7 +48,7 @@ index 410556c4bdeadc18c7f057e2ed08e8daba21d2a0..68613ed1b25745e226887a1c84577775
  }
  
  }  // namespace
-@@ -122,23 +146,46 @@ void VersionHandler::HandleRequestPathInfo(const base::ListValue& args) {
+@@ -122,23 +147,48 @@ void VersionHandler::HandleRequestPathInfo(const base::ListValue& args) {
    // OnGotFilePaths.
    std::u16string* exec_path_buffer = new std::u16string;
    std::u16string* profile_path_buffer = new std::u16string;
@@ -60,22 +61,26 @@ index 410556c4bdeadc18c7f057e2ed08e8daba21d2a0..68613ed1b25745e226887a1c84577775
        base::BindOnce(&GetFilePaths, Profile::FromWebUI(web_ui())->GetPath(),
                       base::Unretained(exec_path_buffer),
 -                     base::Unretained(profile_path_buffer)),
+-      base::BindOnce(&VersionHandler::OnGotFilePaths,
+-                     weak_ptr_factory_.GetWeakPtr(), callback_id,
+-                     base::Owned(exec_path_buffer),
+-                     base::Owned(profile_path_buffer)));
 +                     base::Unretained(profile_path_buffer)
 +#if BUILDFLAG(ENABLE_CEF)
-+                     , base::Unretained(module_path_buffer),
++                         ,
++                     base::Unretained(module_path_buffer),
 +                     base::Unretained(user_data_path_buffer)
 +#endif
-+                     ),
-       base::BindOnce(&VersionHandler::OnGotFilePaths,
-                      weak_ptr_factory_.GetWeakPtr(), callback_id,
-                      base::Owned(exec_path_buffer),
--                     base::Owned(profile_path_buffer)));
-+                     base::Owned(profile_path_buffer)
++                         ),
++      base::BindOnce(
++          &VersionHandler::OnGotFilePaths, weak_ptr_factory_.GetWeakPtr(),
++          callback_id, base::Owned(exec_path_buffer),
++          base::Owned(profile_path_buffer)
 +#if BUILDFLAG(ENABLE_CEF)
-+                     , base::Owned(module_path_buffer),
-+                     base::Owned(user_data_path_buffer)
++              ,
++          base::Owned(module_path_buffer), base::Owned(user_data_path_buffer)
 +#endif
-+                     ));
++              ));
  }
  
  void VersionHandler::OnGotFilePaths(std::string callback_id,
@@ -83,11 +88,12 @@ index 410556c4bdeadc18c7f057e2ed08e8daba21d2a0..68613ed1b25745e226887a1c84577775
 -                                    std::u16string* profile_path_data) {
 +                                    std::u16string* profile_path_data
 +#if BUILDFLAG(ENABLE_CEF)
-+                                    , std::u16string* module_path_data,
++                                    ,
++                                    std::u16string* module_path_data,
 +                                    std::u16string* user_data_path_data
 +#endif
-+                                    ) {
-   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
++) {
+   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M162);
    base::DictValue response;
    response.Set(version_ui::kKeyExecPath, *executable_path_data);
    response.Set(version_ui::kKeyProfilePath, *profile_path_data);
@@ -124,7 +130,7 @@ index 7d1beedfffbfdd34323cfb749bec83187b54778e..d4c79e26e51deb9a32fb9649a1c21a18
    // Factory for the creating refs in callbacks.
    base::WeakPtrFactory<VersionHandler> weak_ptr_factory_{this};
 diff --git chrome/browser/ui/webui/version/version_ui.cc chrome/browser/ui/webui/version/version_ui.cc
-index 4c523d48d8f8537042a9483e4fd0c6d163c8de52..35a8e8de47893687e3a11a762c7101a358b252e0 100644
+index 7a9234630b90fce67d4e9e51f03c786355141f9d..1476e05e16eb056f0cecd622e0ccecf9bcb1d88d 100644
 --- chrome/browser/ui/webui/version/version_ui.cc
 +++ chrome/browser/ui/webui/version/version_ui.cc
 @@ -19,6 +19,7 @@

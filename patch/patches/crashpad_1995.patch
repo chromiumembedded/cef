@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index 0f2c819248a6e3e2895d17a44fd9929e8fdf9cd1..c8ab414ed114b9c65934dd62dd606bc5896f9718 100644
+index 709533bf70333eee07ca9d268b94197a8f64d956..4e80b0657a986e73f824675d94c33c83d2447bc8 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -172,11 +172,11 @@ index 0941e78cef59417f8ded359c02d8e97477908ea9..5353b701011c526d7ad9b1b5aeb6c9ea
  unsigned int CrashReporterClient::GetCrashDumpPercentage() {
    return 100;
 diff --git components/crash/core/app/crash_reporter_client.h components/crash/core/app/crash_reporter_client.h
-index 70f0b4c8d4bbf7e340c0e01d3208e64561de8f9a..521a1ba0cd3a2cdbd47393406aa7aeb38a95f856 100644
+index be5f79de63e2eaaf9e70f6cf7558ef681f6968ba..2dfa9236680a8ea2031dabf571073c72fdecc81c 100644
 --- components/crash/core/app/crash_reporter_client.h
 +++ components/crash/core/app/crash_reporter_client.h
-@@ -228,6 +228,20 @@ class CrashReporterClient {
-   // Returns true if breakpad should run in the given process type.
+@@ -230,6 +230,20 @@ class CrashReporterClient {
+   // CastOS).
    virtual bool EnableBreakpadForProcess(const std::string& process_type);
  
 +  // Populate |arguments| with additional optional arguments.
@@ -284,24 +284,25 @@ index 879b0a5d1ebbb63499a5e0e57d38d5d26b862bbf..c21345f949579d39a059b53d35b54841
                                annotations, arguments, false, false, attachments,
                                preserve_handles));
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
-index 0b236c31fdad45679ce7935ed7b685136aff3205..98ffe7470c4ac1ba68f438750d4b13a8f758208e 100644
+index 011458218a5b3b6036690c77b3741643c5bc69db..341ad96404b2e969f2d53334efb89b4db9be9684 100644
 --- components/crash/core/app/crashpad_mac.mm
 +++ components/crash/core/app/crashpad_mac.mm
-@@ -19,10 +19,13 @@
- #include "base/apple/foundation_util.h"
+@@ -21,11 +21,14 @@
  #include "base/check.h"
  #include "base/files/file_path.h"
+ #include "base/no_destructor.h"
 +#include "base/path_service.h"
  #include "base/strings/string_number_conversions.h"
  #include "base/strings/sys_string_conversions.h"
  #include "build/branding_buildflags.h"
  #include "components/crash/core/app/crash_reporter_client.h"
 +#include "components/crash/core/app/crash_switches.h"
+ #include "components/crash/core/app/shared_memory_user_stream_mach_port.h"
 +#include "content/public/common/content_paths.h"
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -40,15 +43,22 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+@@ -43,15 +46,22 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
      std::map<std::string, std::string> process_annotations;
      @autoreleasepool {
        NSBundle* outer_bundle = base::apple::OuterBundle();
@@ -330,7 +331,7 @@ index 0b236c31fdad45679ce7935ed7b685136aff3205..98ffe7470c4ac1ba68f438750d4b13a8
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
        // Empty means stable.
-@@ -79,12 +89,20 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+@@ -82,12 +92,20 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
          }
        }
  
@@ -356,7 +357,7 @@ index 0b236c31fdad45679ce7935ed7b685136aff3205..98ffe7470c4ac1ba68f438750d4b13a8
      }  // @autoreleasepool
      for (auto& [key, value] :
           GetCrashReporterClient()->GetExtraProcessAnnotations()) {
-@@ -151,10 +169,10 @@ bool PlatformCrashpadInitialization(
+@@ -156,10 +174,10 @@ bool PlatformCrashpadInitialization(
  
    if (initial_client) {
      @autoreleasepool {
@@ -371,8 +372,8 @@ index 0b236c31fdad45679ce7935ed7b685136aff3205..98ffe7470c4ac1ba68f438750d4b13a8
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -189,6 +207,12 @@ bool PlatformCrashpadInitialization(
-             "--reset-own-crash-exception-port-to-system-default");
+@@ -200,6 +218,12 @@ bool PlatformCrashpadInitialization(
+             crash_reporter_client->GetUserStreamSharedMemoryRegions());
        }
  
 +      // Since we're using the same subprocess helper exe we must specify the
@@ -383,7 +384,7 @@ index 0b236c31fdad45679ce7935ed7b685136aff3205..98ffe7470c4ac1ba68f438750d4b13a8
 +
        bool result = GetCrashpadClient().StartHandler(
            handler_path, *database_path, metrics_path, url,
-           GetProcessSimpleAnnotations(), arguments, true, false);
+           GetProcessSimpleAnnotations(), arguments, true, false, {}, {},
 diff --git components/crash/core/app/crashpad_win.cc components/crash/core/app/crashpad_win.cc
 index c5b54c43492be1d1c36af79620d1dc965534dae7..4975973cb6ad9ec5a510230c2472c1e0090e7d4e 100644
 --- components/crash/core/app/crashpad_win.cc

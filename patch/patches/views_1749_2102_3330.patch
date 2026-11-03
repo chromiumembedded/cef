@@ -1,20 +1,20 @@
 diff --git chrome/browser/ui/views/app_menu/action_app_menu.cc chrome/browser/ui/views/app_menu/action_app_menu.cc
-index 3cee0eb181af74905c6ebab5c9e56b2cc999cd46..9e997a4cecb41ab9eb2d3494f239edee88dbec76 100644
+index 892187a19bad16ef57bfc10bebf7023e2896dc69..d7551bce39316243275cc60546e952344384a911 100644
 --- chrome/browser/ui/views/app_menu/action_app_menu.cc
 +++ chrome/browser/ui/views/app_menu/action_app_menu.cc
-@@ -176,6 +176,7 @@ void ActionAppMenu::RunMenu(views::MenuButtonController* host) {
-                           views::MenuAnchorPosition::kTopRight,
-                           ui::mojom::MenuSourceType::kNone,
+@@ -267,6 +267,7 @@ void ActionAppMenu::RunMenu(views::Widget* parent,
+   menu_runner_->RunMenuAt(parent, host, anchor_screen_bounds,
+                           views::MenuAnchorPosition::kTopRight, source_type,
                            /*native_view_for_gestures=*/gfx::NativeView(),
 +                          /*parent_widget=*/gfx::kNullAcceleratedWidget,
                            /*corners=*/std::nullopt,
                            "Chrome.AppMenu.MenuHostInitToNextFramePresented");
- }
+ 
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index cca063114a579488fba80ff04835a4df094a9eb6..b97e3eea50607fbeb9ac02ce08ca0a24a6c59077 100644
+index 335290dc2dff5cd319ab43bcc54753244f2f5260..e7b60efd579dc1dd1ee36f3ca7cbc0cb8e28389d 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
-@@ -1109,6 +1109,7 @@ void AppMenu::RunMenu(views::MenuButtonController* host,
+@@ -1114,6 +1114,7 @@ void AppMenu::RunMenu(views::MenuButtonController* host,
                            host->button()->GetAnchorBoundsInScreen(),
                            views::MenuAnchorPosition::kTopRight, source_type,
                            /*native_view_for_gestures=*/gfx::NativeView(),
@@ -22,7 +22,7 @@ index cca063114a579488fba80ff04835a4df094a9eb6..b97e3eea50607fbeb9ac02ce08ca0a24
                            /*corners=*/std::nullopt,
                            "Chrome.AppMenu.MenuHostInitToNextFramePresented");
  }
-@@ -1123,6 +1124,7 @@ void AppMenu::RunMenu(views::Widget* parent,
+@@ -1128,6 +1129,7 @@ void AppMenu::RunMenu(views::Widget* parent,
    menu_runner_->RunMenuAt(parent, nullptr, anchor_screen_bounds,
                            views::MenuAnchorPosition::kTopRight, source_type,
                            /*native_view_for_gestures=*/gfx::NativeView(),
@@ -137,10 +137,10 @@ index 0a92a68b672a8b982bf51a9151bb4a8c362180f4..dc6ee6bc90cdcd01c658ec250409623c
  
  }  // namespace gfx
 diff --git ui/views/animation/ink_drop_host.h ui/views/animation/ink_drop_host.h
-index 551b709d2620d4e3c43d9ee1fa31a00c4532efb9..53875cea7f5225cb53a23c2591fbdf1810027657 100644
+index 145b9475d5df93153bdf0c03f9d438faba8acac5..b212852c248b76b29e54a2f9104efc1dfcc9e5fb 100644
 --- ui/views/animation/ink_drop_host.h
 +++ ui/views/animation/ink_drop_host.h
-@@ -195,6 +195,8 @@ class VIEWS_EXPORT InkDropHost {
+@@ -189,6 +189,8 @@ class VIEWS_EXPORT InkDropHost {
    const View* host_view() const { return host_view_; }
    bool in_attention_state_for_testing() const { return in_attention_state_; }
  
@@ -150,10 +150,10 @@ index 551b709d2620d4e3c43d9ee1fa31a00c4532efb9..53875cea7f5225cb53a23c2591fbdf18
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 6189a70ceb9a21724233b8b005ef87b1020c401b..6e58595967de923729013bf56d52c68e6d1a83fe 100644
+index 62e69d6a8cc32a0614fc78921ae405c01b215406..d156e20180ebff199384f5f33495e7c76cf0651b 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -653,6 +653,12 @@ void LabelButton::OnThemeChanged() {
+@@ -676,6 +676,12 @@ void LabelButton::OnThemeChanged() {
    }
  }
  
@@ -167,7 +167,7 @@ index 6189a70ceb9a21724233b8b005ef87b1020c401b..6e58595967de923729013bf56d52c68e
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 0177c78be91e7b51fdda6efcf7c7a9fd2f684b8a..c719b78918641abdb1e18d8b94aa93af82fde062 100644
+index 9423cffe6af6b262428585d326c60246c8ede5fc..00f24fa4f740e8bcff43e0047c927df8b69a942a 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
 @@ -186,6 +186,9 @@ class VIEWS_EXPORT LabelButton : public Button,
@@ -181,10 +181,10 @@ index 0177c78be91e7b51fdda6efcf7c7a9fd2f684b8a..c719b78918641abdb1e18d8b94aa93af
    LabelButtonImageContainer* image_container() {
      return image_container_.get();
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 5021556c784a84363029b0500977a8bc456b6d6d..fb38e7221872bfeec7a961a482c466ff4c8de100 100644
+index 5c044c673ccd219ffa84672fcbfaab1c28df8b0b..79c27fbc0237a118e4690b5dda39493afbb146bf 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
-@@ -57,12 +57,29 @@ enum LabelPropertyKey {
+@@ -59,12 +59,29 @@ enum LabelPropertyKey {
    kLabelObscured,
    kLabelAllowCharacterBreak,
    kAccessibleTextOffsets,
@@ -214,7 +214,7 @@ index 5021556c784a84363029b0500977a8bc456b6d6d..fb38e7221872bfeec7a961a482c466ff
  }  // namespace
  
  namespace views {
-@@ -544,6 +561,15 @@ gfx::DirectionalityMode Label::GetDirectionalityMode() const {
+@@ -589,6 +606,15 @@ gfx::DirectionalityMode Label::GetDirectionalityMode() const {
    return full_text_->directionality_mode();
  }
  
@@ -230,7 +230,7 @@ index 5021556c784a84363029b0500977a8bc456b6d6d..fb38e7221872bfeec7a961a482c466ff
  void Label::SetCustomTooltipText(std::u16string_view tooltip_text) {
    custom_tooltip_text_ = std::u16string(tooltip_text);
  
-@@ -888,6 +914,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -938,6 +964,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
      }
    }
  
@@ -248,10 +248,10 @@ index 5021556c784a84363029b0500977a8bc456b6d6d..fb38e7221872bfeec7a961a482c466ff
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index b1ccc704de42f1acb2ad3cdcf8102f44a5fcc547..1d0dc681104c339a48da896b580b94b32a35b062 100644
+index dc9c713a9bc77fec527229d46f7342b4a95f94a2..4faac58586e3fde385d188524b78167b683fbda5 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
-@@ -245,6 +245,10 @@ class VIEWS_EXPORT Label : public View,
+@@ -262,6 +262,10 @@ class VIEWS_EXPORT Label : public View,
    void SetDirectionalityMode(gfx::DirectionalityMode mode);
    gfx::DirectionalityMode GetDirectionalityMode() const;
  
@@ -262,7 +262,7 @@ index b1ccc704de42f1acb2ad3cdcf8102f44a5fcc547..1d0dc681104c339a48da896b580b94b3
    // Sets the custom local tooltip text.  Default behavior for a label
    // (single-line) is to show the full text if it is wider than its bounds.
    // Calling this overrides the default behavior and lets you set a custom
-@@ -556,6 +560,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -588,6 +592,7 @@ class VIEWS_EXPORT Label : public View,
    int max_width_ = 0;
    // This is used in single-line mode.
    int max_width_single_line_ = 0;
@@ -271,10 +271,10 @@ index b1ccc704de42f1acb2ad3cdcf8102f44a5fcc547..1d0dc681104c339a48da896b580b94b3
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 2c6b09e05901a08965dc692c3b823c2efa256512..7cc28d273d0610585b482e4d11512a2d7aeaa9b0 100644
+index 9b5abde427dbbf497286ddc8f4d103999dfff132..a450118ebe81c06a7c90a2a370a770115dc5ab5c 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -698,7 +698,8 @@ void MenuController::Run(Widget* parent,
+@@ -733,7 +733,8 @@ void MenuController::Run(Widget* parent,
                           ui::mojom::MenuSourceType source_type,
                           MenuType menu_type,
                           bool is_nested_drag,
@@ -284,7 +284,7 @@ index 2c6b09e05901a08965dc692c3b823c2efa256512..7cc28d273d0610585b482e4d11512a2d
    // Track stack depth to defer controller destruction during initial menu
    // display.
    ScopedDeletionGuard guard(AsWeakPtr());
-@@ -770,6 +771,7 @@ void MenuController::Run(Widget* parent,
+@@ -805,6 +806,7 @@ void MenuController::Run(Widget* parent,
      SetShowing(true);
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -292,7 +292,7 @@ index 2c6b09e05901a08965dc692c3b823c2efa256512..7cc28d273d0610585b482e4d11512a2d
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2767,6 +2769,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2830,6 +2832,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -300,7 +300,7 @@ index 2c6b09e05901a08965dc692c3b823c2efa256512..7cc28d273d0610585b482e4d11512a2d
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3529,7 +3532,12 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -3593,7 +3596,12 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
        item = button_submenu;
      }
    }
@@ -314,7 +314,7 @@ index 2c6b09e05901a08965dc692c3b823c2efa256512..7cc28d273d0610585b482e4d11512a2d
      return;
    }
  
-@@ -3560,6 +3568,7 @@ void MenuController::CloseSubmenu() {
+@@ -3625,6 +3633,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
@@ -323,7 +323,7 @@ index 2c6b09e05901a08965dc692c3b823c2efa256512..7cc28d273d0610585b482e4d11512a2d
    }
    MenuItemView* item_to_select = nullptr;
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index 512e277bacd641ae7363ad6540c89d7c79ab60d3..c1c9de7c002170d8ffe4262aaaa237faf0928b60 100644
+index ccdb48fc12254e46da9b510c7c6925a68845061f..8db0aa86dcd166b08d065c47beb5d43404912c29 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
 @@ -163,7 +163,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
@@ -336,7 +336,7 @@ index 512e277bacd641ae7363ad6540c89d7c79ab60d3..c1c9de7c002170d8ffe4262aaaa237fa
  
    bool for_drop() const { return for_drop_; }
  
-@@ -824,6 +825,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
+@@ -827,6 +828,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
    // RunType::SEND_GESTURE_EVENTS_TO_OWNER is set.
    gfx::NativeView native_view_for_gestures_ = gfx::NativeView();
  
@@ -346,7 +346,7 @@ index 512e277bacd641ae7363ad6540c89d7c79ab60d3..c1c9de7c002170d8ffe4262aaaa237fa
    bool possible_drag_ = false;
  
 diff --git ui/views/controls/menu/menu_delegate.h ui/views/controls/menu/menu_delegate.h
-index 93b78fd05676badc4f459f2100155747c85fbdb2..9aed4488068f2fb23f9f791df9b1854b468eb3ae 100644
+index 79feb1421a4c90f67f805537b26aff5cf7f7a7d0..7fb496f54ac4470b004294c277fb06d67cdcc3c9 100644
 --- ui/views/controls/menu/menu_delegate.h
 +++ ui/views/controls/menu/menu_delegate.h
 @@ -73,6 +73,22 @@ class VIEWS_EXPORT MenuDelegate {
@@ -372,7 +372,7 @@ index 93b78fd05676badc4f459f2100155747c85fbdb2..9aed4488068f2fb23f9f791df9b1854b
    // The tooltip shown for the menu item. This is invoked when the user
    // hovers over the item, and no tooltip text has been set for that item.
    virtual std::u16string GetTooltipText(int id,
-@@ -201,6 +217,11 @@ class VIEWS_EXPORT MenuDelegate {
+@@ -206,6 +222,11 @@ class VIEWS_EXPORT MenuDelegate {
                                         bool* has_mnemonics,
                                         MenuButton** button);
  
@@ -385,7 +385,7 @@ index 93b78fd05676badc4f459f2100155747c85fbdb2..9aed4488068f2fb23f9f791df9b1854b
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_host.cc ui/views/controls/menu/menu_host.cc
-index 547be87232685847ab0caf1c07e22a329d68767a..15f370f84e60dc7b004a4b22d4e4d0d03a6b081b 100644
+index 293bacaa709038df015469e46ef9390b83868194..6cae199059ddadc270ddd57eea806b982d734106 100644
 --- ui/views/controls/menu/menu_host.cc
 +++ ui/views/controls/menu/menu_host.cc
 @@ -154,6 +154,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
@@ -421,31 +421,30 @@ index 1b0dd04e1d2693c8b35e5e57306a27b09b72daab..5e1fdfb5ea832f2d67c6a2a0168adbe5
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 89ffaf3d3776d270795360f37c5869ae94587242..e84158a222e7ad7e7d55d9171aa015af2ee4d49f 100644
+index cc1b8ba3b9ceb3399ad7d06dc36d0d4e8c0399e5..7b117a4cdbc6b075a9c9fcae883fa44d1719e8c0 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1357,6 +1357,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
-     SkRRect rounded_rect;
-     rounded_rect.setRectRadii(gfx::RectFToSkRect(highlight_bounds), radii);
-     canvas->sk_canvas()->drawRRect(rounded_rect, flags);
+@@ -1480,6 +1480,14 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+       rounded_rect.setRectRadii(gfx::RectFToSkRect(highlight_bounds), radii);
+       canvas->sk_canvas()->drawRRect(rounded_rect, flags);
+     }
 +    return;
 +  }
 +
-+  MenuDelegate *delegate = GetDelegate();
++  MenuDelegate* delegate = GetDelegate();
 +  SkColor override_color;
-+  if (delegate && delegate->GetBackgroundColor(GetCommand(),
-+                                               paint_as_selected,
++  if (delegate && delegate->GetBackgroundColor(GetCommand(), paint_as_selected,
 +                                               &override_color)) {
 +    canvas->DrawColor(override_color);
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (menu_item_background_.has_value()) {
-@@ -1450,6 +1459,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1577,6 +1585,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
 +  SkColor text_color;
-+  const MenuDelegate *delegate = GetDelegate();
++  const MenuDelegate* delegate = GetDelegate();
 +  if (delegate && delegate->GetTextColor(GetCommand(), minor, paint_as_selected,
 +                                         &text_color)) {
 +    return text_color;
@@ -598,10 +597,10 @@ index e5cc2f5fcaa2012f6432b297f42280f2b157412c..2dc0b69a9869434581bd4ee7fc2b2860
                   std::optional<std::string> show_menu_host_duration_histogram =
                       std::nullopt);
 diff --git ui/views/controls/menu/menu_runner_impl.cc ui/views/controls/menu/menu_runner_impl.cc
-index 29a1113aaf9f3cfb702f447bad0354ab4b546e17..36e831397a359aa87a2e0b453cc0cc18e999e396 100644
+index 631be023e03650cdc053f051e2bb50b7c8a99ee6..0e4813e4b8d31613056adfd4ddefbd824f4496fc 100644
 --- ui/views/controls/menu/menu_runner_impl.cc
 +++ ui/views/controls/menu/menu_runner_impl.cc
-@@ -128,6 +128,7 @@ void MenuRunnerImpl::RunMenuAt(
+@@ -130,6 +130,7 @@ void MenuRunnerImpl::RunMenuAt(
      ui::mojom::MenuSourceType source_type,
      int32_t run_types,
      gfx::NativeView native_view_for_gestures,
@@ -609,7 +608,7 @@ index 29a1113aaf9f3cfb702f447bad0354ab4b546e17..36e831397a359aa87a2e0b453cc0cc18
      std::optional<gfx::RoundedCornersF> corners,
      std::optional<std::string> show_menu_host_duration_histogram) {
    closing_event_time_ = base::TimeTicks();
-@@ -211,7 +212,7 @@ void MenuRunnerImpl::RunMenuAt(
+@@ -221,7 +222,7 @@ void MenuRunnerImpl::RunMenuAt(
    controller->Run(parent, button_controller, menu_.get(), bounds, anchor,
                    source_type, menu_type,
                    (run_types & MenuRunner::NESTED_DRAG) != 0,
@@ -767,12 +766,12 @@ index fa04c9c73bba6aa9d142856d9177ad91e3f05a05..49482a32c751e2c6ac4a28bd4b162cd2
      std::optional<std::string> show_menu_host_duration_histogram) {
    RunMenu(parent, bounds.CenterPoint());
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 34760e09f796d9003877cbf0d8fbfbd8d3487d51..15a4f18d0c2b04c880a57af29ffa2f6d2966d26a 100644
+index 618177724d161b17a23f91bde22b6df0a6b6eb6f..3bd5baaf11de797dd755c9f566b813840b58ab5d 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
-@@ -276,6 +276,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
-   scroll_down_button_ = background_view_->AddChildView(
-       std::make_unique<MenuScrollButton>(content_view, false));
+@@ -448,6 +448,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
+ 
+   UpdatePinnedItems();
  
 +  SkColor override_color;
 +  MenuDelegate* delegate = content_view_->GetMenuItem()->GetDelegate();
@@ -807,18 +806,18 @@ index a19a0fa4dfd6b723d2128cb2acf3b9029de25c4a..a59a8ee1ebfc930cea1e0968e8f1d2c6
    if (root_location != root_current_location &&
        !g_ozone_ui_controls_test_helper->MustUseUiControlsForMoveCursorTo() &&
 diff --git ui/views/view.h ui/views/view.h
-index e0ce0ffb230380f8ad70a2645c1095adf6e31cf5..6a445e09b302254afcb2cf01ac41106c870a0152 100644
+index 11cdeed5625b963108149f99c874dfaa1ed9372c..209773c4d255d6da90e971c7f15d330287856c1d 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -27,6 +27,7 @@
- #include "base/memory/raw_ptr.h"
+ #include "base/memory/sanitized_object.h"
  #include "base/observer_list.h"
  #include "base/scoped_observation.h"
 +#include "base/supports_user_data.h"
  #include "base/types/pass_key.h"
  #include "build/build_config.h"
  #include "third_party/skia/include/core/SkPath.h"
-@@ -299,7 +300,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -276,7 +277,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::EventTarget,
                            public ui::EventHandler,
                            public ui::PropertyHandler,
@@ -827,8 +826,8 @@ index e0ce0ffb230380f8ad70a2645c1095adf6e31cf5..6a445e09b302254afcb2cf01ac41106c
 +                          public base::SupportsUserData {
    // Do not remove this macro!
    // The macro is maintained by the memory safety team.
-   ADVANCED_MEMORY_SAFETY_CHECKS();
-@@ -648,7 +650,7 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+   SANITIZED_OBJECT();
+@@ -625,7 +627,7 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
  
    // Return the preferred height for a specific width. It is a helper function
    // of GetPreferredSize(SizeBounds(w, SizeBound())).height().

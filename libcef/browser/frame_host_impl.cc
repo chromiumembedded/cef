@@ -375,7 +375,7 @@ void CefFrameHostImpl::LoadURLWithExtras(const std::string& url,
     auto browser = GetBrowserHostBase();
     if (browser) {
       content::OpenURLParams params(
-          gurl, referrer, WindowOpenDisposition::CURRENT_TAB, transition,
+          gurl, referrer, WindowOpenDisposition::kCurrentTab, transition,
           /*is_renderer_initiated=*/false);
       params.extra_headers = extra_headers;
       params.user_gesture = false;

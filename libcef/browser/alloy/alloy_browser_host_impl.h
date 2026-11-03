@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "base/synchronization/lock.h"
+#include "base/timer/timer.h"
 #include "cef/include/cef_browser.h"
 #include "cef/include/cef_client.h"
 #include "cef/include/cef_frame.h"
@@ -20,8 +21,8 @@
 #include "cef/libcef/browser/frame_host_impl.h"
 #include "cef/libcef/browser/menu_manager.h"
 #include "cef/libcef/browser/request_context_impl.h"
-#include "content/public/browser/web_contents.h"
 #include "content/public/browser/global_routing_id.h"
+#include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
 
@@ -241,12 +242,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
       const content::WebContents* web_contents) override;
   blink::mojom::DisplayMode GetDisplayMode(
       const content::WebContents* web_contents) override;
-  void FindReply(content::WebContents* web_contents,
-                 int request_id,
-                 int number_of_matches,
-                 const gfx::Rect& selection_rect,
-                 int active_match_ordinal,
-                 bool final_update) override;
   void UpdatePreferredSize(content::WebContents* source,
                            const gfx::Size& pref_size) override;
   void ResizeDueToAutoResize(content::WebContents* source,

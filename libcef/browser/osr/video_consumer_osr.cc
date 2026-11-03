@@ -49,16 +49,16 @@ CefVideoConsumerOSR::~CefVideoConsumerOSR() = default;
 
 void CefVideoConsumerOSR::SetActive(bool active) {
   if (active) {
-    video_capturer_->Start(
-        this,
-        use_shared_texture_
+    video_capturer_->Start(this,
+                           use_shared_texture_
 #if BUILDFLAG(IS_LINUX)
-            ? viz::mojom::BufferFormatPreference::
-                  kPreferSharedImageWithNativeHandle
+                               ? viz::mojom::BufferFormatPreference::
+                                     kPreferSharedImageWithNativeHandle
 #else
-            ? viz::mojom::BufferFormatPreference::kPreferMappableSharedImage
+                               ? viz::mojom::BufferFormatPreference::
+                                     kPreferMappableSharedImage
 #endif
-            : viz::mojom::BufferFormatPreference::kDefault);
+                               : viz::mojom::BufferFormatPreference::kDefault);
   } else {
     video_capturer_->Stop();
   }
@@ -117,8 +117,8 @@ void CefVideoConsumerOSR::OnFrameCaptured(
     // This rectangle is relative to the full frame data, i.e. [0, 0,
     // coded_size.width(), coded_size.height()]. It does not have to be
     // fully contained within visible_rect.
-    if (metadata.capture_update_rect) {
-      damage_rect = *metadata.capture_update_rect;
+    if (metadata.capture.update_rect) {
+      damage_rect = *metadata.capture.update_rect;
     }
     if (damage_rect.IsEmpty()) {
       damage_rect = gfx::Rect(info->coded_size);
@@ -150,26 +150,26 @@ void CefVideoConsumerOSR::OnFrameCaptured(
                           content_rect.width(), content_rect.height()};
     extra.timestamp = info->timestamp.InMicroseconds();
 
-    extra.has_capture_counter = info->metadata.capture_counter.has_value();
+    extra.has_capture_counter = info->metadata.capture.counter.has_value();
     extra.has_capture_update_rect =
-        info->metadata.capture_update_rect.has_value();
+        info->metadata.capture.update_rect.has_value();
     extra.has_region_capture_rect =
-        info->metadata.region_capture_rect.has_value();
-    extra.has_source_size = info->metadata.source_size.has_value();
+        info->metadata.capture.region_capture_rect.has_value();
+    extra.has_source_size = info->metadata.capture.source_size.has_value();
 
-    extra.capture_counter = info->metadata.capture_counter.value_or(0);
+    extra.capture_counter = info->metadata.capture.counter.value_or(0);
     if (extra.has_capture_update_rect) {
-      auto rect = info->metadata.capture_update_rect.value();
+      auto rect = info->metadata.capture.update_rect.value();
       extra.capture_update_rect = {rect.x(), rect.y(), rect.width(),
                                    rect.height()};
     }
     if (extra.has_region_capture_rect) {
-      auto rect = info->metadata.region_capture_rect.value();
+      auto rect = info->metadata.capture.region_capture_rect.value();
       extra.region_capture_rect = {rect.x(), rect.y(), rect.width(),
                                    rect.height()};
     }
     if (extra.has_source_size) {
-      auto size = info->metadata.source_size.value();
+      auto size = info->metadata.capture.source_size.value();
       extra.source_size = {size.width(), size.height()};
     }
 

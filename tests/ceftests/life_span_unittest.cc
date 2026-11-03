@@ -46,7 +46,10 @@ class LifeSpanTestHandler : public RoutingTestHandler {
     }
 
     page += "</script><body>Page</body></html>";
-    AddResource(kLifeSpanUrl, page, "text/html");
+    // Explicitly enable unload for these lifecycle tests, independent of
+    // Chromium's unload deprecation rollout.
+    AddResource(kLifeSpanUrl, page, "text/html",
+                {{"Permissions-Policy", "unload=(self)"}});
 
     // Create the browser.
     CreateBrowser(kLifeSpanUrl);
