@@ -1101,9 +1101,21 @@ gint BrowserWindowOsrGtk::ScrollEvent(GtkWidget* widget,
     case GDK_SCROLL_RIGHT:
       deltaX = -scrollbarPixelsPerGtkTick;
       break;
-    case GDK_SCROLL_SMOOTH:
-      NOTIMPLEMENTED();
+    case GDK_SCROLL_SMOOTH: {
+      // Touchpads and high-resolution wheels report fractional deltas in
+      // units of scroll ticks, with positive values meaning down/right.
+      gdouble dx = 0, dy = 0;
+      if (!gdk_event_get_scroll_deltas(reinterpret_cast<GdkEvent*>(event), &dx,
+                                       &dy)) {
+        return TRUE;
+      }
+      deltaX = static_cast<int>(std::lround(-dx * scrollbarPixelsPerGtkTick));
+      deltaY = static_cast<int>(std::lround(-dy * scrollbarPixelsPerGtkTick));
+      if (deltaX == 0 && deltaY == 0) {
+        return TRUE;
+      }
       break;
+    }
   }
 
   host->SendMouseWheelEvent(mouse_event, deltaX, deltaY);
