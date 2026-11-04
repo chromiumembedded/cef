@@ -977,7 +977,7 @@ bool ClientHandler::OnPreKeyboardEvent(CefRefPtr<CefBrowser> browser,
     // from being processed in the renderer. If we instead handled the event in
     // the OnKeyboardEvent() method the space key would cause the window to
     // scroll in addition to showing the alert box.
-    if (event.type == CEF_KEYEVENT_RAWKEYDOWN)
+    if (event.type == CEF_KEY_EVENT_RAWKEYDOWN)
       test_runner::Alert(browser, "You pressed the space bar!");
     return true;
   }

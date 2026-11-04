@@ -58,7 +58,7 @@ class CefTextfieldDelegate : public CefViewDelegate {
   /// the event or false to try OnKeyEvent before default handling.
   ///
   /// On macOS, native Views text interpretation may consume a printable
-  /// keydown and deliver CEF_KEYEVENT_CHAR instead. CEF_KEYEVENT_KEYUP can
+  /// keydown and deliver CEF_KEY_EVENT_CHAR instead. CEF_KEY_EVENT_KEYUP can
   /// still follow, so do not assume that every keyup has a corresponding
   /// keydown callback.
   ///

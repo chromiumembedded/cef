@@ -66,7 +66,7 @@ void MacNativeUnicodeAndDefaultStateImpl() {
         LMGetKbdLast(), explicit_state));
     EXPECT_EQ(0, std::memcmp(&detected, &explicit_state,
                              sizeof(cef_keyboard_input_event_t)));
-    EXPECT_EQ(CEF_KEYEVENT_RAWKEYDOWN, detected.type);
+    EXPECT_EQ(CEF_KEY_EVENT_RAWKEYDOWN, detected.type);
     EXPECT_EQ(CEF_DOM_CODE_US_A, detected.dom_code);
     EXPECT_EQ(CEF_DOM_KEY_UNICODE_FLAG | 0x1f600u, detected.dom_key);
     EXPECT_EQ(static_cast<uint32_t>(CEF_EVENTFLAG_SHIFT_DOWN |
@@ -110,18 +110,18 @@ void MacModifierTransitionsAndKeypadImpl() {
     };
     const Transition transitions[] = {
         {kVK_Shift, NSEventModifierFlagShift | NX_DEVICELSHIFTKEYMASK,
-         CEF_DOM_CODE_SHIFT_LEFT, CEF_KEYEVENT_RAWKEYDOWN,
+         CEF_DOM_CODE_SHIFT_LEFT, CEF_KEY_EVENT_RAWKEYDOWN,
          CEF_EVENTFLAG_SHIFT_DOWN | CEF_EVENTFLAG_IS_LEFT},
         {kVK_RightShift,
          NSEventModifierFlagShift | NX_DEVICELSHIFTKEYMASK |
              NX_DEVICERSHIFTKEYMASK,
-         CEF_DOM_CODE_SHIFT_RIGHT, CEF_KEYEVENT_RAWKEYDOWN,
+         CEF_DOM_CODE_SHIFT_RIGHT, CEF_KEY_EVENT_RAWKEYDOWN,
          CEF_EVENTFLAG_SHIFT_DOWN | CEF_EVENTFLAG_IS_RIGHT},
         // Right Shift goes up while Left Shift remains held.
         {kVK_RightShift, NSEventModifierFlagShift | NX_DEVICELSHIFTKEYMASK,
-         CEF_DOM_CODE_SHIFT_RIGHT, CEF_KEYEVENT_KEYUP,
+         CEF_DOM_CODE_SHIFT_RIGHT, CEF_KEY_EVENT_KEYUP,
          CEF_EVENTFLAG_SHIFT_DOWN | CEF_EVENTFLAG_IS_RIGHT},
-        {kVK_Shift, 0, CEF_DOM_CODE_SHIFT_LEFT, CEF_KEYEVENT_KEYUP,
+        {kVK_Shift, 0, CEF_DOM_CODE_SHIFT_LEFT, CEF_KEY_EVENT_KEYUP,
          CEF_EVENTFLAG_IS_LEFT},
     };
     for (const auto& transition : transitions) {
@@ -218,7 +218,7 @@ bool BuildNativeKeyboardInputEvents(
     }
     // AppKit insertText: supplies the CHAR insertion separately from keydown.
     events[1] = events[0];
-    events[1].type = CEF_KEYEVENT_CHAR;
+    events[1].type = CEF_KEY_EVENT_CHAR;
     events[1].windows_key_code = 'a';
     return true;
   }
@@ -271,7 +271,7 @@ bool BuildMacTextClientKeyboardInputEvents(
     if (input != MacTextClientInput::NonInsertionCommand &&
         input != MacTextClientInput::Clear) {
       CefKeyboardInputEvent character(down);
-      character.type = CEF_KEYEVENT_CHAR;
+      character.type = CEF_KEY_EVENT_CHAR;
       if (input == MacTextClientInput::Character ||
           input == MacTextClientInput::OptionCharacter) {
         character.windows_key_code = character.text[0];

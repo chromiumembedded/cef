@@ -49,11 +49,15 @@ class CefBrowserPlatformDelegateNativeAura
   // TranslateWebKeyboardInputEvent for unified keyboard input.
   input::NativeWebKeyboardEvent TranslateWebKeyEvent(
       const CefKeyEvent& key_event) const override;
+  // DEPRECATED: Retained for legacy mouse injection. Unified mouse input
+  // uses GetWebMouseInputEvent without platform conversion.
   blink::WebMouseEvent TranslateWebClickEvent(
       const CefMouseEvent& mouse_event,
       CefBrowserHost::MouseButtonType type,
       bool mouseUp,
       int clickCount) const override;
+  // DEPRECATED: Retained for legacy mouse injection. Unified mouse input
+  // uses GetWebMouseInputEvent without platform conversion.
   blink::WebMouseEvent TranslateWebMoveEvent(const CefMouseEvent& mouse_event,
                                              bool mouseLeave) const override;
   blink::WebMouseWheelEvent TranslateWebWheelEvent(
@@ -66,11 +70,15 @@ class CefBrowserPlatformDelegateNativeAura
   // Unified input uses SendKeyboardEvent with a resolved portable snapshot.
   virtual ui::KeyEvent TranslateUiKeyEvent(
       const CefKeyEvent& key_event) const = 0;
+  // DEPRECATED: Retained for the legacy mouse native-event path.
+  // Unified mouse input uses SendMouseEvent with a portable snapshot.
   virtual ui::MouseEvent TranslateUiClickEvent(
       const CefMouseEvent& mouse_event,
       CefBrowserHost::MouseButtonType type,
       bool mouseUp,
       int clickCount) const;
+  // DEPRECATED: Retained for the legacy mouse native-event path.
+  // Unified mouse input uses SendMouseEvent with a portable snapshot.
   virtual ui::MouseEvent TranslateUiMoveEvent(const CefMouseEvent& mouse_event,
                                               bool mouseLeave) const;
   virtual ui::MouseWheelEvent TranslateUiWheelEvent(

@@ -139,8 +139,8 @@ bool KeyboardInputEventsFromGdkEvent(
   auto* keymap = gdk_keymap_get_for_display(display);
   std::vector<CefKeyboardInputEvent> events;
   CefKeyboardInputEvent key_event;
-  key_event.type = event->type == GDK_KEY_PRESS ? CEF_KEYEVENT_RAWKEYDOWN
-                                                : CEF_KEYEVENT_KEYUP;
+  key_event.type = event->type == GDK_KEY_PRESS ? CEF_KEY_EVENT_RAWKEYDOWN
+                                                : CEF_KEY_EVENT_KEYUP;
   // GTK3's X11 and Wayland backends both use XKB hardware keycodes. Wayland
   // adds 8 to the protocol's evdev code before constructing GdkEventKey.
   key_event.dom_code = DomCodeFromXkbKeycode(event->hardware_keycode);
@@ -244,7 +244,7 @@ bool KeyboardInputEventsFromGdkEvent(
   SetKeyboardText(insertion, key_event.text);
   events.push_back(key_event);
   if (event->type == GDK_KEY_PRESS && insertion) {
-    key_event.type = CEF_KEYEVENT_CHAR;
+    key_event.type = CEF_KEY_EVENT_CHAR;
     key_event.modifiers &= ~CEF_EVENTFLAG_IS_REPEAT;
     key_event.windows_key_code = key_event.text[0];
     events.push_back(key_event);

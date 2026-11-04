@@ -305,10 +305,10 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
   const bool composing = hasMarkedText_ || oldHasMarkedText_;
   BOOL textInserted = NO;
   if (valid && !composing && insertion.size() < 4) {
-    keyEvent.type = CEF_KEYEVENT_RAWKEYDOWN;
+    keyEvent.type = CEF_KEY_EVENT_RAWKEYDOWN;
     browser_->GetHost()->SendKeyboardEvent(keyEvent);
     if (!insertion.empty() && keyEvent.dom_key != CEF_DOM_KEY_CLEAR) {
-      keyEvent.type = CEF_KEYEVENT_CHAR;
+      keyEvent.type = CEF_KEY_EVENT_CHAR;
       keyEvent.windows_key_code = insertion[0];
       std::fill(std::begin(keyEvent.text), std::end(keyEvent.text), 0);
       std::copy(insertion.begin(), insertion.end(), keyEvent.text);
@@ -333,7 +333,7 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
         ((keyEvent.modifiers &
           (CEF_EVENTFLAG_CONTROL_DOWN | CEF_EVENTFLAG_COMMAND_DOWN)) ||
          (hasInsertionCommand_ && !hasOtherCommand_))) {
-      keyEvent.type = CEF_KEYEVENT_CHAR;
+      keyEvent.type = CEF_KEY_EVENT_CHAR;
       browser_->GetHost()->SendKeyboardEvent(keyEvent);
     }
   } else if (!insertion.empty()) {

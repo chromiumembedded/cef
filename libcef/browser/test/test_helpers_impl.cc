@@ -175,9 +175,9 @@ bool CefSendMouseClickForTesting(CefRefPtr<CefWindow> owner,
   }
   base::AutoReset<bool> dispatching_reset(&dispatching, true);
 
-  constexpr uint32_t kModifiers = EVENTFLAG_SHIFT_DOWN |
-                                  EVENTFLAG_CONTROL_DOWN | EVENTFLAG_ALT_DOWN |
-                                  EVENTFLAG_COMMAND_DOWN;
+  constexpr uint32_t kModifiers =
+      CEF_EVENTFLAG_SHIFT_DOWN | CEF_EVENTFLAG_CONTROL_DOWN |
+      CEF_EVENTFLAG_ALT_DOWN | CEF_EVENTFLAG_COMMAND_DOWN;
   if (!owner || !owner->IsValid() || owner->IsClosed()) {
     return fail("Owner is missing, invalid or closed");
   }
@@ -236,16 +236,16 @@ bool CefSendMouseClickForTesting(CefRefPtr<CefWindow> owner,
           native_window->GetRootWindow()));
 #endif
   int flags = ui::EF_NONE;
-  if (modifiers & EVENTFLAG_SHIFT_DOWN) {
+  if (modifiers & CEF_EVENTFLAG_SHIFT_DOWN) {
     flags |= ui::EF_SHIFT_DOWN;
   }
-  if (modifiers & EVENTFLAG_CONTROL_DOWN) {
+  if (modifiers & CEF_EVENTFLAG_CONTROL_DOWN) {
     flags |= ui::EF_CONTROL_DOWN;
   }
-  if (modifiers & EVENTFLAG_ALT_DOWN) {
+  if (modifiers & CEF_EVENTFLAG_ALT_DOWN) {
     flags |= ui::EF_ALT_DOWN;
   }
-  if (modifiers & EVENTFLAG_COMMAND_DOWN) {
+  if (modifiers & CEF_EVENTFLAG_COMMAND_DOWN) {
     flags |= ui::EF_COMMAND_DOWN;
   }
   generator.set_flags(flags);

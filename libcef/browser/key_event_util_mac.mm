@@ -14,22 +14,22 @@ namespace {
 
 NSUInteger NativeModifiers(int cef_modifiers) {
   NSUInteger native_modifiers = 0;
-  if (cef_modifiers & EVENTFLAG_SHIFT_DOWN) {
+  if (cef_modifiers & CEF_EVENTFLAG_SHIFT_DOWN) {
     native_modifiers |= NSEventModifierFlagShift;
   }
-  if (cef_modifiers & EVENTFLAG_CONTROL_DOWN) {
+  if (cef_modifiers & CEF_EVENTFLAG_CONTROL_DOWN) {
     native_modifiers |= NSEventModifierFlagControl;
   }
-  if (cef_modifiers & EVENTFLAG_ALT_DOWN) {
+  if (cef_modifiers & CEF_EVENTFLAG_ALT_DOWN) {
     native_modifiers |= NSEventModifierFlagOption;
   }
-  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN) {
+  if (cef_modifiers & CEF_EVENTFLAG_COMMAND_DOWN) {
     native_modifiers |= NSEventModifierFlagCommand;
   }
-  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON) {
+  if (cef_modifiers & CEF_EVENTFLAG_CAPS_LOCK_ON) {
     native_modifiers |= NSEventModifierFlagCapsLock;
   }
-  if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON) {
+  if (cef_modifiers & CEF_EVENTFLAG_NUM_LOCK_ON) {
     native_modifiers |= NSEventModifierFlagNumericPad;
   }
 
@@ -58,12 +58,12 @@ input::NativeWebKeyboardEvent GetLegacyWebKeyEvent(const CefKeyEvent& key_event,
     event_type = NSEventTypeFlagsChanged;
   } else {
     switch (key_event.type) {
-      case KEYEVENT_RAWKEYDOWN:
-      case KEYEVENT_KEYDOWN:
-      case KEYEVENT_CHAR:
+      case CEF_KEY_EVENT_RAWKEYDOWN:
+      case CEF_KEY_EVENT_KEYDOWN:
+      case CEF_KEY_EVENT_CHAR:
         event_type = NSEventTypeKeyDown;
         break;
-      case KEYEVENT_KEYUP:
+      case CEF_KEY_EVENT_KEYUP:
         event_type = NSEventTypeKeyUp;
         break;
     }
@@ -91,7 +91,7 @@ input::NativeWebKeyboardEvent GetLegacyWebKeyEvent(const CefKeyEvent& key_event,
 
   result =
       input::NativeWebKeyboardEvent(base::apple::OwnedNSEvent(synthetic_event));
-  if (key_event.type == KEYEVENT_CHAR) {
+  if (key_event.type == CEF_KEY_EVENT_CHAR) {
     result.SetType(blink::WebInputEvent::Type::kChar);
   }
 

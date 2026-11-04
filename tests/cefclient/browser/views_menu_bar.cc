@@ -125,7 +125,7 @@ void ViewsMenuBar::SetMenuFocusable(bool focusable) {
 
 #if CEF_API_ADDED(CEF_NEXT)
 bool ViewsMenuBar::OnKeyEvent(const CefKeyboardInputEvent& event) {
-  constexpr auto kRawKeyDown = CEF_KEYEVENT_RAWKEYDOWN;
+  constexpr auto kRawKeyDown = CEF_KEY_EVENT_RAWKEYDOWN;
   constexpr auto kIgnoredModifiers =
       CEF_EVENTFLAG_ALT_DOWN | CEF_EVENTFLAG_CONTROL_DOWN;
 #else

@@ -40,8 +40,8 @@ TEST(KeyboardInputEventUtil, ViewsKeyEventPreservesResolvedLayout) {
     CefKeyboardInputEvent snapshot;
     ASSERT_TRUE(
         GetCefKeyboardInputEvent(ui::MakeWebKeyboardEvent(native), snapshot));
-    EXPECT_EQ(type == ui::EventType::kKeyPressed ? CEF_KEYEVENT_RAWKEYDOWN
-                                                 : CEF_KEYEVENT_KEYUP,
+    EXPECT_EQ(type == ui::EventType::kKeyPressed ? CEF_KEY_EVENT_RAWKEYDOWN
+                                                 : CEF_KEY_EVENT_KEYUP,
               snapshot.type);
     EXPECT_EQ(CEF_DOM_CODE_US_Z, snapshot.dom_code);
     EXPECT_EQ(CEF_DOM_KEY_UNICODE_FLAG | uint32_t{'y'}, snapshot.dom_key);
@@ -93,7 +93,7 @@ TEST(KeyboardInputEventUtil, CompleteSnapshotRoundTrip) {
 
 TEST(KeyboardInputEventUtil, UnknownPhysicalKeyAndDetectedTime) {
   CefKeyboardInputEvent snapshot;
-  snapshot.type = CEF_KEYEVENT_CHAR;
+  snapshot.type = CEF_KEY_EVENT_CHAR;
   snapshot.dom_key = CEF_DOM_KEY_UNICODE_FLAG | 0x1f600;
   snapshot.text[0] = 0xd83d;
   snapshot.text[1] = 0xde00;
@@ -111,7 +111,7 @@ TEST(KeyboardInputEventUtil, InvalidSnapshotsLeaveOutputUnchanged) {
                                  base::TimeTicks::FromInternalValue(42));
   const auto original = output;
   CefKeyboardInputEvent valid;
-  valid.type = CEF_KEYEVENT_RAWKEYDOWN;
+  valid.type = CEF_KEY_EVENT_RAWKEYDOWN;
   valid.dom_code = CEF_DOM_CODE_US_A;
   valid.dom_key = CEF_DOM_KEY_UNICODE_FLAG | 'a';
   for (int invalid = 0; invalid < 6; ++invalid) {
@@ -147,8 +147,8 @@ TEST(KeyboardInputEventUtil, InvalidSnapshotsLeaveOutputUnchanged) {
 }
 
 TEST(KeyboardInputEventUtil, TextBuffersRequireTerminators) {
-  for (const auto type : {CEF_KEYEVENT_RAWKEYDOWN, CEF_KEYEVENT_KEYDOWN,
-                          CEF_KEYEVENT_KEYUP, CEF_KEYEVENT_CHAR}) {
+  for (const auto type : {CEF_KEY_EVENT_RAWKEYDOWN, CEF_KEY_EVENT_KEYDOWN,
+                          CEF_KEY_EVENT_KEYUP, CEF_KEY_EVENT_CHAR}) {
     for (bool unmodified : {false, true}) {
       CefKeyboardInputEvent snapshot;
       snapshot.type = type;
@@ -210,13 +210,13 @@ TEST(KeyboardInputEventUtil, StructSizesAndBufferOwnership) {
     cef_key_event_type_t type;
     uint32_t modifiers;
     int64_t timestamp;
-  } older = {sizeof(Older), CEF_KEYEVENT_KEYUP, CEF_EVENTFLAG_IS_RIGHT,
+  } older = {sizeof(Older), CEF_KEY_EVENT_KEYUP, CEF_EVENTFLAG_IS_RIGHT,
              123000000};
   CefKeyboardInputEvent event;
   event.dom_key = CEF_DOM_KEY_ENTER;
   event.text[0] = 'x';
   event.Set(*reinterpret_cast<const cef_keyboard_input_event_t*>(&older), true);
-  EXPECT_EQ(CEF_KEYEVENT_KEYUP, event.type);
+  EXPECT_EQ(CEF_KEY_EVENT_KEYUP, event.type);
   EXPECT_EQ(CEF_EVENTFLAG_IS_RIGHT, event.modifiers);
   EXPECT_EQ(0U, event.dom_key);
   EXPECT_EQ(0, event.text[0]);

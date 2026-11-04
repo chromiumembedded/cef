@@ -27,7 +27,8 @@
 #endif
 
 #if !defined(OS_MAC)
-std::optional<bool> IsNativeTestBrowserResizable(CefRefPtr<CefBrowser> browser) {
+std::optional<bool> IsNativeTestBrowserResizable(
+    CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
 #if defined(OS_WIN)
   const auto window =
@@ -484,6 +485,24 @@ void SendJavaScriptClickEvent(CefRefPtr<CefBrowser> browser,
       button = 2;
       buttons = 2;
       break;
+#if CEF_API_ADDED(CEF_NEXT)
+    case CEF_MOUSE_BUTTON_NONE:
+      button = -1;
+      buttons = 0;
+      break;
+    case CEF_MOUSE_BUTTON_BACK:
+      button = 3;
+      buttons = 8;
+      break;
+    case CEF_MOUSE_BUTTON_FORWARD:
+      button = 4;
+      buttons = 16;
+      break;
+    case CEF_MOUSE_BUTTON_ERASER:
+      button = 5;
+      buttons = 32;
+      break;
+#endif
   }
 
   // Map CEF modifiers to JavaScript event modifiers

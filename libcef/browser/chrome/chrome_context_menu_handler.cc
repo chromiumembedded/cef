@@ -145,7 +145,7 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
 
   void CommandWillBeExecuted(int command_id) override {
     if (handler_->OnContextMenuCommand(browser_, GetFrame(), params_,
-                                       command_id, EVENTFLAG_NONE)) {
+                                       command_id, CEF_EVENTFLAG_NONE)) {
       // Create an ItemInfo so that we get the ExecuteCommand() callback
       // instead of the default handler.
       GetOrCreateItemInfo(command_id);

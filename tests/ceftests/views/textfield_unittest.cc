@@ -205,7 +205,7 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
     EXPECT_GT(event.timestamp, 0);
     latest_event_ = event;
     ++unified_count_;
-    if (event.type == CEF_KEYEVENT_RAWKEYDOWN &&
+    if (event.type == CEF_KEY_EVENT_RAWKEYDOWN &&
         event.windows_key_code == VKEY_RETURN) {
       EXPECT_EQ(static_cast<uint32_t>(CEF_DOM_CODE_ENTER), event.dom_code);
       EXPECT_EQ(static_cast<uint32_t>(CEF_DOM_KEY_ENTER), event.dom_key);

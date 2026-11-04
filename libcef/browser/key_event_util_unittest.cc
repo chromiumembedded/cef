@@ -48,10 +48,11 @@ TEST(KeyEventUtil, LegacyCallbackTypesAndFields) {
   const struct {
     blink::WebInputEvent::Type web;
     cef_key_event_type_t cef;
-  } types[] = {{blink::WebInputEvent::Type::kRawKeyDown, KEYEVENT_RAWKEYDOWN},
-               {blink::WebInputEvent::Type::kKeyDown, KEYEVENT_KEYDOWN},
-               {blink::WebInputEvent::Type::kKeyUp, KEYEVENT_KEYUP},
-               {blink::WebInputEvent::Type::kChar, KEYEVENT_CHAR}};
+  } types[] = {
+      {blink::WebInputEvent::Type::kRawKeyDown, CEF_KEY_EVENT_RAWKEYDOWN},
+      {blink::WebInputEvent::Type::kKeyDown, CEF_KEY_EVENT_KEYDOWN},
+      {blink::WebInputEvent::Type::kKeyUp, CEF_KEY_EVENT_KEYUP},
+      {blink::WebInputEvent::Type::kChar, CEF_KEY_EVENT_CHAR}};
   for (const auto& type : types) {
     blink::WebKeyboardEvent web(type.web, 0,
                                 base::TimeTicks::FromInternalValue(1234));
@@ -79,15 +80,15 @@ TEST(KeyEventUtil, LegacyCallbackModifierSubset) {
     int web;
     uint32_t cef;
   } flags[] = {
-      {blink::WebInputEvent::kShiftKey, EVENTFLAG_SHIFT_DOWN},
-      {blink::WebInputEvent::kControlKey, EVENTFLAG_CONTROL_DOWN},
-      {blink::WebInputEvent::kAltKey, EVENTFLAG_ALT_DOWN},
-      {blink::WebInputEvent::kMetaKey, EVENTFLAG_COMMAND_DOWN},
-      {blink::WebInputEvent::kIsKeyPad, EVENTFLAG_IS_KEY_PAD},
-      {blink::WebInputEvent::kIsLeft, EVENTFLAG_IS_LEFT},
-      {blink::WebInputEvent::kIsRight, EVENTFLAG_IS_RIGHT},
-      {blink::WebInputEvent::kAltGrKey, EVENTFLAG_ALTGR_DOWN},
-      {blink::WebInputEvent::kIsAutoRepeat, EVENTFLAG_IS_REPEAT},
+      {blink::WebInputEvent::kShiftKey, CEF_EVENTFLAG_SHIFT_DOWN},
+      {blink::WebInputEvent::kControlKey, CEF_EVENTFLAG_CONTROL_DOWN},
+      {blink::WebInputEvent::kAltKey, CEF_EVENTFLAG_ALT_DOWN},
+      {blink::WebInputEvent::kMetaKey, CEF_EVENTFLAG_COMMAND_DOWN},
+      {blink::WebInputEvent::kIsKeyPad, CEF_EVENTFLAG_IS_KEY_PAD},
+      {blink::WebInputEvent::kIsLeft, CEF_EVENTFLAG_IS_LEFT},
+      {blink::WebInputEvent::kIsRight, CEF_EVENTFLAG_IS_RIGHT},
+      {blink::WebInputEvent::kAltGrKey, CEF_EVENTFLAG_ALTGR_DOWN},
+      {blink::WebInputEvent::kIsAutoRepeat, CEF_EVENTFLAG_IS_REPEAT},
       {blink::WebInputEvent::kCapsLockOn, 0},
       {blink::WebInputEvent::kNumLockOn, 0},
       {blink::WebInputEvent::kLeftButtonDown, 0},
@@ -117,24 +118,24 @@ TEST(KeyEventUtil, UnsupportedLegacyCallbackLeavesOutputUnchanged) {
 }
 
 TEST(KeyEventUtil, LegacyAndPortableConversionsShareCallbackValues) {
-  for (const auto type :
-       {KEYEVENT_RAWKEYDOWN, KEYEVENT_KEYDOWN, KEYEVENT_KEYUP, KEYEVENT_CHAR}) {
+  for (const auto type : {CEF_KEY_EVENT_RAWKEYDOWN, CEF_KEY_EVENT_KEYDOWN,
+                          CEF_KEY_EVENT_KEYUP, CEF_KEY_EVENT_CHAR}) {
     CefKeyEvent legacy;
     legacy.type = type;
-    legacy.windows_key_code = type == KEYEVENT_CHAR ? 'a' : ui::VKEY_A;
+    legacy.windows_key_code = type == CEF_KEY_EVENT_CHAR ? 'a' : ui::VKEY_A;
     legacy.native_key_code =
         ui::KeycodeConverter::DomCodeToNativeKeycode(ui::DomCode::US_A);
     legacy.character = legacy.unmodified_character = u'a';
     const auto web = ConvertLegacy(legacy);
-    EXPECT_EQ(type == KEYEVENT_CHAR ? blink::WebInputEvent::Type::kChar
-              : type == KEYEVENT_KEYUP
+    EXPECT_EQ(type == CEF_KEY_EVENT_CHAR ? blink::WebInputEvent::Type::kChar
+              : type == CEF_KEY_EVENT_KEYUP
                   ? blink::WebInputEvent::Type::kKeyUp
                   : blink::WebInputEvent::Type::kRawKeyDown,
               web.GetType());
     EXPECT_EQ(static_cast<int>(ui::DomCode::US_A), web.dom_code);
 #if !BUILDFLAG(IS_MAC)
     // Aura legacy keydown text is derived from the platform key/layout path.
-    if (type == KEYEVENT_CHAR) {
+    if (type == CEF_KEY_EVENT_CHAR) {
       EXPECT_EQ(u'a', web.text[0]);
     }
 #else
@@ -157,7 +158,7 @@ TEST(KeyEventUtil, LegacyCharacterUnitsAreNotNarrowed) {
   for (char16_t unit :
        {u'\u0108', u'\u011b', u'\u20ac', char16_t{0xd83d}, char16_t{0xde00}}) {
     CefKeyEvent event;
-    event.type = KEYEVENT_CHAR;
+    event.type = CEF_KEY_EVENT_CHAR;
     event.native_key_code =
         ui::KeycodeConverter::DomCodeToNativeKeycode(ui::DomCode::US_A);
     event.windows_key_code = unit;
@@ -189,7 +190,7 @@ TEST(KeyEventUtil, LegacyMinimalTypingPayload) {
   for (const auto& key : keys) {
     SCOPED_TRACE(key.character);
     for (const auto type :
-         {KEYEVENT_RAWKEYDOWN, KEYEVENT_CHAR, KEYEVENT_KEYUP}) {
+         {CEF_KEY_EVENT_RAWKEYDOWN, CEF_KEY_EVENT_CHAR, CEF_KEY_EVENT_KEYUP}) {
       SCOPED_TRACE(type);
       CefKeyEvent minimal;
       minimal.type = type;
@@ -199,9 +200,10 @@ TEST(KeyEventUtil, LegacyMinimalTypingPayload) {
       // key. No character fields are supplied by the legacy OSR sender.
       const BYTE vk = LOBYTE(VkKeyScanA(key.character));
       ASSERT_EQ(virtual_key, vk);
-      minimal.windows_key_code = type == KEYEVENT_CHAR ? key.character : vk;
+      minimal.windows_key_code =
+          type == CEF_KEY_EVENT_CHAR ? key.character : vk;
       minimal.native_key_code = (MapVirtualKey(vk, MAPVK_VK_TO_VSC) << 16) | 1;
-      if (type == KEYEVENT_KEYUP) {
+      if (type == CEF_KEY_EVENT_KEYUP) {
         minimal.native_key_code |= 0xC0000000;
       }
 #elif BUILDFLAG(IS_MAC)
@@ -214,8 +216,8 @@ TEST(KeyEventUtil, LegacyMinimalTypingPayload) {
       minimal.character = minimal.unmodified_character = key.character;
 #endif
       const auto web = ConvertLegacy(minimal);
-      EXPECT_EQ(type == KEYEVENT_CHAR ? blink::WebInputEvent::Type::kChar
-                : type == KEYEVENT_KEYUP
+      EXPECT_EQ(type == CEF_KEY_EVENT_CHAR ? blink::WebInputEvent::Type::kChar
+                : type == CEF_KEY_EVENT_KEYUP
                     ? blink::WebInputEvent::Type::kKeyUp
                     : blink::WebInputEvent::Type::kRawKeyDown,
                 web.GetType());
@@ -229,11 +231,11 @@ TEST(KeyEventUtil, LegacyMinimalTypingPayload) {
 #else
       EXPECT_EQ(minimal.windows_key_code, web.windows_key_code);
 #endif
-      if (type == KEYEVENT_CHAR) {
+      if (type == CEF_KEY_EVENT_CHAR) {
         EXPECT_EQ(key.character, web.text[0]);
         CefKeyEvent callback;
         ASSERT_TRUE(GetCefKeyEvent(web, callback));
-        EXPECT_EQ(KEYEVENT_CHAR, callback.type);
+        EXPECT_EQ(CEF_KEY_EVENT_CHAR, callback.type);
         EXPECT_EQ(key.character, callback.character);
       }
 
@@ -252,11 +254,11 @@ TEST(KeyEventUtil, LegacyModifierTransitionIdentity) {
   for (const auto code : {ui::DomCode::SHIFT_LEFT, ui::DomCode::SHIFT_RIGHT}) {
     for (bool down : {false, true}) {
       CefKeyEvent event;
-      event.type = down ? KEYEVENT_RAWKEYDOWN : KEYEVENT_KEYUP;
+      event.type = down ? CEF_KEY_EVENT_RAWKEYDOWN : CEF_KEY_EVENT_KEYUP;
       event.windows_key_code = ui::VKEY_SHIFT;
       event.native_key_code =
           ui::KeycodeConverter::DomCodeToNativeKeycode(code);
-      event.modifiers = down ? EVENTFLAG_SHIFT_DOWN : 0;
+      event.modifiers = down ? CEF_EVENTFLAG_SHIFT_DOWN : 0;
       const auto web = ConvertLegacy(event);
       EXPECT_EQ(down ? blink::WebInputEvent::Type::kRawKeyDown
                      : blink::WebInputEvent::Type::kKeyUp,
@@ -278,15 +280,15 @@ TEST(KeyEventUtil, LegacyMacModifiersAndSystemKey) {
     uint32_t cef;
     int web;
   } flags[] = {
-      {EVENTFLAG_SHIFT_DOWN, blink::WebInputEvent::kShiftKey},
-      {EVENTFLAG_CONTROL_DOWN, blink::WebInputEvent::kControlKey},
-      {EVENTFLAG_ALT_DOWN, blink::WebInputEvent::kAltKey},
-      {EVENTFLAG_COMMAND_DOWN, blink::WebInputEvent::kMetaKey},
-      {EVENTFLAG_CAPS_LOCK_ON, blink::WebInputEvent::kCapsLockOn},
+      {CEF_EVENTFLAG_SHIFT_DOWN, blink::WebInputEvent::kShiftKey},
+      {CEF_EVENTFLAG_CONTROL_DOWN, blink::WebInputEvent::kControlKey},
+      {CEF_EVENTFLAG_ALT_DOWN, blink::WebInputEvent::kAltKey},
+      {CEF_EVENTFLAG_COMMAND_DOWN, blink::WebInputEvent::kMetaKey},
+      {CEF_EVENTFLAG_CAPS_LOCK_ON, blink::WebInputEvent::kCapsLockOn},
   };
   for (const auto& flag : flags) {
     CefKeyEvent event;
-    event.type = KEYEVENT_RAWKEYDOWN;
+    event.type = CEF_KEY_EVENT_RAWKEYDOWN;
     event.native_key_code =
         ui::KeycodeConverter::DomCodeToNativeKeycode(ui::DomCode::US_A);
     event.character = u'a';
@@ -301,11 +303,11 @@ TEST(KeyEventUtil, LegacyMacModifiersAndSystemKey) {
   }
   // The legacy synthetic NSEvent has isARepeat:NO regardless of this hint.
   CefKeyEvent event;
-  event.type = KEYEVENT_RAWKEYDOWN;
+  event.type = CEF_KEY_EVENT_RAWKEYDOWN;
   event.character = event.unmodified_character = u'a';
   event.native_key_code =
       ui::KeycodeConverter::DomCodeToNativeKeycode(ui::DomCode::US_A);
-  event.modifiers = EVENTFLAG_IS_REPEAT;
+  event.modifiers = CEF_EVENTFLAG_IS_REPEAT;
   EXPECT_FALSE(ConvertLegacy(event).GetModifiers() &
                blink::WebInputEvent::kIsAutoRepeat);
 }
@@ -316,23 +318,24 @@ TEST(KeyEventUtil, LegacyAuraModifierSemantics) {
     uint32_t cef;
     int ui;
   } flags[] = {
-      {EVENTFLAG_CAPS_LOCK_ON, ui::EF_CAPS_LOCK_ON},
-      {EVENTFLAG_SHIFT_DOWN, ui::EF_SHIFT_DOWN},
-      {EVENTFLAG_CONTROL_DOWN, ui::EF_CONTROL_DOWN},
-      {EVENTFLAG_ALT_DOWN, ui::EF_ALT_DOWN},
-      {EVENTFLAG_LEFT_MOUSE_BUTTON, ui::EF_LEFT_MOUSE_BUTTON},
-      {EVENTFLAG_MIDDLE_MOUSE_BUTTON, ui::EF_MIDDLE_MOUSE_BUTTON},
-      {EVENTFLAG_RIGHT_MOUSE_BUTTON, ui::EF_RIGHT_MOUSE_BUTTON},
-      {EVENTFLAG_COMMAND_DOWN, ui::EF_COMMAND_DOWN},
-      {EVENTFLAG_NUM_LOCK_ON, ui::EF_NUM_LOCK_ON},
-      {EVENTFLAG_IS_KEY_PAD, ui::EF_IS_EXTENDED_KEY},
-      {EVENTFLAG_ALTGR_DOWN, ui::EF_ALTGR_DOWN},
-      {EVENTFLAG_IS_REPEAT, ui::EF_IS_REPEAT},
-      {EVENTFLAG_PRECISION_SCROLLING_DELTA, ui::EF_PRECISION_SCROLLING_DELTA},
-      {EVENTFLAG_SCROLL_BY_PAGE, ui::EF_SCROLL_BY_PAGE},
+      {CEF_EVENTFLAG_CAPS_LOCK_ON, ui::EF_CAPS_LOCK_ON},
+      {CEF_EVENTFLAG_SHIFT_DOWN, ui::EF_SHIFT_DOWN},
+      {CEF_EVENTFLAG_CONTROL_DOWN, ui::EF_CONTROL_DOWN},
+      {CEF_EVENTFLAG_ALT_DOWN, ui::EF_ALT_DOWN},
+      {CEF_EVENTFLAG_LEFT_MOUSE_BUTTON, ui::EF_LEFT_MOUSE_BUTTON},
+      {CEF_EVENTFLAG_MIDDLE_MOUSE_BUTTON, ui::EF_MIDDLE_MOUSE_BUTTON},
+      {CEF_EVENTFLAG_RIGHT_MOUSE_BUTTON, ui::EF_RIGHT_MOUSE_BUTTON},
+      {CEF_EVENTFLAG_COMMAND_DOWN, ui::EF_COMMAND_DOWN},
+      {CEF_EVENTFLAG_NUM_LOCK_ON, ui::EF_NUM_LOCK_ON},
+      {CEF_EVENTFLAG_IS_KEY_PAD, ui::EF_IS_EXTENDED_KEY},
+      {CEF_EVENTFLAG_ALTGR_DOWN, ui::EF_ALTGR_DOWN},
+      {CEF_EVENTFLAG_IS_REPEAT, ui::EF_IS_REPEAT},
+      {CEF_EVENTFLAG_PRECISION_SCROLLING_DELTA,
+       ui::EF_PRECISION_SCROLLING_DELTA},
+      {CEF_EVENTFLAG_SCROLL_BY_PAGE, ui::EF_SCROLL_BY_PAGE},
       // Legacy Aura location comes from physical identity, not side flag hints.
-      {EVENTFLAG_IS_LEFT, 0},
-      {EVENTFLAG_IS_RIGHT, 0},
+      {CEF_EVENTFLAG_IS_LEFT, 0},
+      {CEF_EVENTFLAG_IS_RIGHT, 0},
   };
   for (const auto& flag : flags) {
     EXPECT_EQ(flag.ui, GetLegacyUiEventModifiers(flag.cef));

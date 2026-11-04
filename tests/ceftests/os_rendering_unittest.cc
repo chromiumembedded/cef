@@ -103,14 +103,10 @@ enum OSRTestType {
   OSR_TEST_TRANSPARENCY,
   // moving mouse over L02, OnCursorChange will be called
   OSR_TEST_CURSOR,
-  // moving mouse on L03, OnPaint will be called for its bounding rectangle
-  OSR_TEST_MOUSE_MOVE,
   // right clicking an element (L04), OnBeforeContextMenu should be called
   OSR_TEST_CLICK_RIGHT,
   // right clicking an element (L04), context menu will query screen point
   OSR_TEST_SCREEN_POINT,
-  // left click in text box should query repainting edit box area
-  OSR_TEST_CLICK_LEFT,
   // Resize should trigger a full repaint with the new given size
   OSR_TEST_RESIZE,
   // Invalidate should trigger repaint synchronously
@@ -175,8 +171,12 @@ class OSRTestHandler : public RoutingTestHandler,
                        public CefRenderHandler,
                        public CefContextMenuHandler {
  public:
-  OSRTestHandler(OSRTestType test_type, float scale_factor)
-      : test_type_(test_type), scale_factor_(scale_factor) {}
+  OSRTestHandler(OSRTestType test_type,
+                 float scale_factor,
+                 bool portable_mouse = false)
+      : test_type_(test_type),
+        scale_factor_(scale_factor),
+        portable_mouse_(portable_mouse) {}
 
   // TestHandler methods
   void RunTest() override {
@@ -276,10 +276,6 @@ class OSRTestHandler : public RoutingTestHandler,
         EXPECT_TRUE(StartTest());
         MoveMouseToElement(browser, "LI02");
         break;
-      case OSR_TEST_MOUSE_MOVE:
-        EXPECT_TRUE(StartTest());
-        MoveMouseToElement(browser, "LI03");
-        break;
       case OSR_TEST_CLICK_RIGHT:
       case OSR_TEST_SCREEN_POINT:
       case OSR_TEST_CONTEXT_MENU:
@@ -300,10 +296,6 @@ class OSRTestHandler : public RoutingTestHandler,
 
         SendTouchEvents(browser, std::move(touch_events));
       } break;
-      case OSR_TEST_CLICK_LEFT:
-        EXPECT_TRUE(StartTest());
-        ClickMouseOnElement(browser, "LI00");
-        break;
       case OSR_TEST_DRAG_DROP_START_DRAGGING:
       case OSR_TEST_DRAG_DROP_UPDATE_CURSOR:
       case OSR_TEST_DRAG_DROP_DROP: {
@@ -320,26 +312,23 @@ class OSRTestHandler : public RoutingTestHandler,
         // The div drag point must be visible.
         EXPECT_LT(mouse_event.y, kOsrHeight);
 
-        CefPostDelayedTask(
-            TID_UI,
-            base::BindOnce(&CefBrowserHost::SendMouseMoveEvent,
-                           browser->GetHost(), mouse_event, false),
-            100);
+        CefPostDelayedTask(TID_UI,
+                           base::BindOnce(&OSRTestHandler::MoveDragMouse, this,
+                                          browser, mouse_event),
+                           100);
         // click on the element to drag
         mouse_event.modifiers = EVENTFLAG_LEFT_MOUSE_BUTTON;
-        CefPostDelayedTask(
-            TID_UI,
-            base::BindOnce(&CefBrowserHost::SendMouseClickEvent,
-                           browser->GetHost(), mouse_event, MBT_LEFT, false, 1),
-            150);
+        CefPostDelayedTask(TID_UI,
+                           base::BindOnce(&OSRTestHandler::PressDragMouse, this,
+                                          browser, mouse_event),
+                           150);
         // move the mouse to start dragging
         mouse_event.x -= 5;
         mouse_event.y -= 5;
-        CefPostDelayedTask(
-            TID_UI,
-            base::BindOnce(&CefBrowserHost::SendMouseMoveEvent,
-                           browser->GetHost(), mouse_event, false),
-            200);
+        CefPostDelayedTask(TID_UI,
+                           base::BindOnce(&OSRTestHandler::MoveDragMouse, this,
+                                          browser, mouse_event),
+                           200);
       } break;
       case OSR_TEST_TEXT_SELECTION_CHANGE:
         EXPECT_TRUE(StartTest());
@@ -498,16 +487,6 @@ class OSRTestHandler : public RoutingTestHandler,
 #else
 #error "Unsupported platform"
 #endif
-        }
-        break;
-      case OSR_TEST_CLICK_LEFT:
-        if (messageStr == "osrclick0") {
-          DestroySucceededTestSoon();
-        }
-        break;
-      case OSR_TEST_MOUSE_MOVE:
-        if (messageStr == "osrmousemove") {
-          DestroySucceededTestSoon();
         }
         break;
       case OSR_TEST_DRAG_DROP_DROP:
@@ -1834,8 +1813,48 @@ class OSRTestHandler : public RoutingTestHandler,
            test_type_ == OSR_TEST_DRAG_TARGET_DROP_THEN_NAVIGATE;
   }
 
+  void MoveDragMouse(CefRefPtr<CefBrowser> browser,
+                     const CefMouseEvent& mouse) {
+#if CEF_API_ADDED(CEF_NEXT)
+    if (portable_mouse_) {
+      CefMouseInputEvent event;
+      event.type = CEF_MOUSE_EVENT_MOVE;
+      event.x = event.screen_x = mouse.x;
+      event.y = event.screen_y = mouse.y;
+      event.modifiers = mouse.modifiers;
+      event.button = mouse.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON
+                         ? CEF_MOUSE_BUTTON_LEFT
+                         : CEF_MOUSE_BUTTON_NONE;
+      event.pointer_type = CEF_POINTER_TYPE_MOUSE;
+      browser->GetHost()->SendMouseEvent(event);
+      return;
+    }
+#endif
+    browser->GetHost()->SendMouseMoveEvent(mouse, false);
+  }
+
+  void PressDragMouse(CefRefPtr<CefBrowser> browser,
+                      const CefMouseEvent& mouse) {
+#if CEF_API_ADDED(CEF_NEXT)
+    if (portable_mouse_) {
+      CefMouseInputEvent event;
+      event.type = CEF_MOUSE_EVENT_DOWN;
+      event.x = event.screen_x = mouse.x;
+      event.y = event.screen_y = mouse.y;
+      event.modifiers = mouse.modifiers;
+      event.button = CEF_MOUSE_BUTTON_LEFT;
+      event.click_count = 1;
+      event.pointer_type = CEF_POINTER_TYPE_MOUSE;
+      browser->GetHost()->SendMouseEvent(event);
+      return;
+    }
+#endif
+    browser->GetHost()->SendMouseClickEvent(mouse, MBT_LEFT, false, 1);
+  }
+
   const OSRTestType test_type_;
   const float scale_factor_;
+  [[maybe_unused]] const bool portable_mouse_;
 
   bool started_ = false;
   bool finished_ = false;
@@ -2312,12 +2331,8 @@ OSR_TEST(TransparentPaint, OSR_TEST_TRANSPARENCY, 1.0f)
 OSR_TEST(TransparentPaint2x, OSR_TEST_TRANSPARENCY, 2.0f)
 OSR_TEST(Cursor, OSR_TEST_CURSOR, 1.0f)
 OSR_TEST(Cursor2x, OSR_TEST_CURSOR, 2.0f)
-OSR_TEST(MouseMove, OSR_TEST_MOUSE_MOVE, 1.0f)
-OSR_TEST(MouseMove2x, OSR_TEST_MOUSE_MOVE, 2.0f)
 OSR_TEST(MouseRightClick, OSR_TEST_CLICK_RIGHT, 1.0f)
 OSR_TEST(MouseRightClick2x, OSR_TEST_CLICK_RIGHT, 2.0f)
-OSR_TEST(MouseLeftClick, OSR_TEST_CLICK_LEFT, 1.0f)
-OSR_TEST(MouseLeftClick2x, OSR_TEST_CLICK_LEFT, 2.0f)
 OSR_TEST(ScreenPoint, OSR_TEST_SCREEN_POINT, 1.0f)
 OSR_TEST(ScreenPoint2x, OSR_TEST_SCREEN_POINT, 2.0f)
 OSR_TEST(Resize, OSR_TEST_RESIZE, 1.0f)
@@ -2350,6 +2365,15 @@ OSR_TEST(PopupScrollInside, OSR_TEST_POPUP_SCROLL_INSIDE, 1.0f)
 OSR_TEST(PopupScrollInside2x, OSR_TEST_POPUP_SCROLL_INSIDE, 2.0f)
 OSR_TEST(DragDropStartDragging, OSR_TEST_DRAG_DROP_START_DRAGGING, 1.0f)
 OSR_TEST(DragDropStartDragging2x, OSR_TEST_DRAG_DROP_START_DRAGGING, 2.0f)
+#if CEF_API_ADDED(CEF_NEXT)
+TEST(OSRTest, DragDropStartDraggingPortable) {
+  CefRefPtr<OSRTestHandler> handler =
+      new OSRTestHandler(OSR_TEST_DRAG_DROP_START_DRAGGING, 1.0f, true);
+  handler->ExecuteTest();
+  EXPECT_TRUE(handler->finished());
+  ReleaseAndWaitForDestructor(handler);
+}
+#endif
 OSR_TEST(DragDropUpdateCursor, OSR_TEST_DRAG_DROP_UPDATE_CURSOR, 1.0f)
 OSR_TEST(DragDropUpdateCursor2x, OSR_TEST_DRAG_DROP_UPDATE_CURSOR, 2.0f)
 OSR_TEST(DragDropDropElement, OSR_TEST_DRAG_DROP_DROP, 1.0f)

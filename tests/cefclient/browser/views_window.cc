@@ -647,7 +647,7 @@ void ViewsWindow::ExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
 #if CEF_API_ADDED(CEF_NEXT)
 bool ViewsWindow::OnKeyboardEvent(CefRefPtr<CefTextfield> textfield,
                                   const CefKeyboardInputEvent& event) {
-  constexpr auto kRawKeyDown = CEF_KEYEVENT_RAWKEYDOWN;
+  constexpr auto kRawKeyDown = CEF_KEY_EVENT_RAWKEYDOWN;
 #else
 // DEPRECATED: Use OnKeyboardEvent(); retained for older API versions.
 bool ViewsWindow::OnKeyEvent(CefRefPtr<CefTextfield> textfield,
@@ -966,7 +966,7 @@ bool ViewsWindow::OnAccelerator(CefRefPtr<CefWindow> window, int command_id) {
 #if CEF_API_ADDED(CEF_NEXT)
 bool ViewsWindow::OnKeyboardEvent(CefRefPtr<CefWindow> window,
                                   const CefKeyboardInputEvent& event) {
-  constexpr auto kRawKeyDown = CEF_KEYEVENT_RAWKEYDOWN;
+  constexpr auto kRawKeyDown = CEF_KEY_EVENT_RAWKEYDOWN;
 #else
 // DEPRECATED: Use OnKeyboardEvent(); retained for older API versions.
 bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,

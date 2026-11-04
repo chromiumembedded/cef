@@ -1633,6 +1633,15 @@ void CefRenderWidgetHostViewOSR::ProcessAckedTouchEvent(
                                      event_consumed, false);
 }
 
+void CefRenderWidgetHostViewOSR::GestureEventAck(
+    const blink::WebGestureEvent& event,
+    blink::mojom::InputEventResultSource ack_source,
+    blink::mojom::InputEventResultState ack_result) {
+  // Like the native views, resume a touchpad zoom gesture only after its
+  // synthetic wheel event was left unhandled by the renderer.
+  ForwardTouchpadZoomEventIfNecessary(event, ack_result);
+}
+
 void CefRenderWidgetHostViewOSR::OnGestureEvent(
     const ui::GestureEventData& gesture) {
   if ((gesture.type() == ui::EventType::kGesturePinchBegin ||
@@ -1647,6 +1656,26 @@ void CefRenderWidgetHostViewOSR::OnGestureEvent(
 
   // without this check, forwarding gestures does not work!
   if (web_event.GetType() == blink::WebInputEvent::Type::kUndefined) {
+    return;
+  }
+
+  SendGestureEvent(web_event);
+}
+
+void CefRenderWidgetHostViewOSR::SendGestureEvent(
+    const blink::WebGestureEvent& web_event) {
+  if (!render_widget_host_ || !render_widget_host_->GetView()) {
+    return;
+  }
+
+  if (!IsPopupWidget() && popup_host_view_ &&
+      popup_host_view_->popup_position_.Contains(
+          web_event.PositionInWidget().x(), web_event.PositionInWidget().y())) {
+    blink::WebGestureEvent popup_event(web_event);
+    popup_event.SetPositionInWidget(
+        web_event.PositionInWidget() -
+        popup_host_view_->popup_position_.OffsetFromOrigin());
+    popup_host_view_->SendGestureEvent(popup_event);
     return;
   }
 

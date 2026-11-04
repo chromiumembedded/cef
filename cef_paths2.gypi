@@ -615,6 +615,7 @@
       'tests/ceftests/message_router_threshold_unittest.cc',
       'tests/ceftests/message_router_unittest_utils.cc',
       'tests/ceftests/message_router_unittest_utils.h',
+      'tests/ceftests/mouse_gesture_input_unittest.cc',
       'tests/ceftests/navigation_unittest.cc',
       'tests/ceftests/os_rendering_unittest.cc',
       'tests/ceftests/os_rendering_unittest_shared_texture.h',

@@ -24,46 +24,46 @@
 int GetLegacyUiEventModifiers(uint32_t cef_modifiers) {
   int result = 0;
   // Set modifiers based on key state.
-  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON) {
+  if (cef_modifiers & CEF_EVENTFLAG_CAPS_LOCK_ON) {
     result |= ui::EF_CAPS_LOCK_ON;
   }
-  if (cef_modifiers & EVENTFLAG_SHIFT_DOWN) {
+  if (cef_modifiers & CEF_EVENTFLAG_SHIFT_DOWN) {
     result |= ui::EF_SHIFT_DOWN;
   }
-  if (cef_modifiers & EVENTFLAG_CONTROL_DOWN) {
+  if (cef_modifiers & CEF_EVENTFLAG_CONTROL_DOWN) {
     result |= ui::EF_CONTROL_DOWN;
   }
-  if (cef_modifiers & EVENTFLAG_ALT_DOWN) {
+  if (cef_modifiers & CEF_EVENTFLAG_ALT_DOWN) {
     result |= ui::EF_ALT_DOWN;
   }
-  if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON) {
+  if (cef_modifiers & CEF_EVENTFLAG_LEFT_MOUSE_BUTTON) {
     result |= ui::EF_LEFT_MOUSE_BUTTON;
   }
-  if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
+  if (cef_modifiers & CEF_EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
     result |= ui::EF_MIDDLE_MOUSE_BUTTON;
   }
-  if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
+  if (cef_modifiers & CEF_EVENTFLAG_RIGHT_MOUSE_BUTTON) {
     result |= ui::EF_RIGHT_MOUSE_BUTTON;
   }
-  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN) {
+  if (cef_modifiers & CEF_EVENTFLAG_COMMAND_DOWN) {
     result |= ui::EF_COMMAND_DOWN;
   }
-  if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON) {
+  if (cef_modifiers & CEF_EVENTFLAG_NUM_LOCK_ON) {
     result |= ui::EF_NUM_LOCK_ON;
   }
-  if (cef_modifiers & EVENTFLAG_IS_KEY_PAD) {
+  if (cef_modifiers & CEF_EVENTFLAG_IS_KEY_PAD) {
     result |= ui::EF_IS_EXTENDED_KEY;
   }
-  if (cef_modifiers & EVENTFLAG_ALTGR_DOWN) {
+  if (cef_modifiers & CEF_EVENTFLAG_ALTGR_DOWN) {
     result |= ui::EF_ALTGR_DOWN;
   }
-  if (cef_modifiers & EVENTFLAG_IS_REPEAT) {
+  if (cef_modifiers & CEF_EVENTFLAG_IS_REPEAT) {
     result |= ui::EF_IS_REPEAT;
   }
-  if (cef_modifiers & EVENTFLAG_PRECISION_SCROLLING_DELTA) {
+  if (cef_modifiers & CEF_EVENTFLAG_PRECISION_SCROLLING_DELTA) {
     result |= ui::EF_PRECISION_SCROLLING_DELTA;
   }
-  if (cef_modifiers & EVENTFLAG_SCROLL_BY_PAGE) {
+  if (cef_modifiers & CEF_EVENTFLAG_SCROLL_BY_PAGE) {
     result |= ui::EF_SCROLL_BY_PAGE;
   }
 
@@ -90,7 +90,7 @@ ui::KeyEvent GetLegacyUiKeyEvent(const CefKeyEvent& key_event,
   // |windows_key_code| and ignore |character|. Legacy Linux CHAR events must
   // carry the key-down's Windows key code. The portable API has no such limit.
   int keysym = ui::XKeysymForWindowsKeyCode(
-      key_code, !!(key_event.modifiers & EVENTFLAG_SHIFT_DOWN));
+      key_code, !!(key_event.modifiers & CEF_EVENTFLAG_SHIFT_DOWN));
   char16_t character = ui::GetUnicodeCharacterFromXKeySym(keysym);
 #else
   char16_t character = key_event.character;
@@ -101,18 +101,18 @@ ui::KeyEvent GetLegacyUiKeyEvent(const CefKeyEvent& key_event,
   ui::DomCode dom_code =
       ui::KeycodeConverter::NativeKeycodeToDomCode(key_event.native_key_code);
 
-  if (key_event.type == KEYEVENT_CHAR) {
+  if (key_event.type == CEF_KEY_EVENT_CHAR) {
     return ui::KeyEvent::FromCharacter(character, key_code, dom_code, flags,
                                        time_stamp);
   }
 
   ui::EventType type = ui::EventType::kUnknown;
   switch (key_event.type) {
-    case KEYEVENT_RAWKEYDOWN:
-    case KEYEVENT_KEYDOWN:
+    case CEF_KEY_EVENT_RAWKEYDOWN:
+    case CEF_KEY_EVENT_KEYDOWN:
       type = ui::EventType::kKeyPressed;
       break;
-    case KEYEVENT_KEYUP:
+    case CEF_KEY_EVENT_KEYUP:
       type = ui::EventType::kKeyReleased;
       break;
     default:
@@ -134,7 +134,7 @@ ui::KeyEvent GetLegacyUiKeyEvent(const CefKeyEvent& key_event,
 input::NativeWebKeyboardEvent GetLegacyWebKeyEvent(const CefKeyEvent& key_event,
                                                    base::TimeTicks timestamp) {
   ui::KeyEvent ui_event = GetLegacyUiKeyEvent(key_event, timestamp);
-  if (key_event.type == KEYEVENT_CHAR) {
+  if (key_event.type == CEF_KEY_EVENT_CHAR) {
     // Preserve the complete UTF-16 unit instead of narrowing it through a
     // Windows KeyboardCode (see #4282). Linux legacy callers supply character.
 #if BUILDFLAG(IS_WIN)

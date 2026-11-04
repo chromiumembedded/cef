@@ -80,19 +80,19 @@ void LinuxNativeKeyIdentityRepeatAndCharacterLocationImpl() {
   std::vector<CefKeyboardInputEvent> events;
   ASSERT_TRUE(client::KeyboardInputEventsFromGdkEvent(&native, true, events));
   ASSERT_EQ(2U, events.size());
-  EXPECT_EQ(CEF_KEYEVENT_RAWKEYDOWN, events[0].type);
+  EXPECT_EQ(CEF_KEY_EVENT_RAWKEYDOWN, events[0].type);
   EXPECT_EQ(CEF_DOM_CODE_US_A, events[0].dom_code);
   EXPECT_EQ(CEF_DOM_KEY_UNICODE_FLAG | uint32_t{'a'}, events[0].dom_key);
   EXPECT_EQ('A', events[0].windows_key_code);
   EXPECT_TRUE(events[0].modifiers & CEF_EVENTFLAG_IS_REPEAT);
-  EXPECT_EQ(CEF_KEYEVENT_CHAR, events[1].type);
+  EXPECT_EQ(CEF_KEY_EVENT_CHAR, events[1].type);
   EXPECT_EQ('a', events[1].windows_key_code);
   EXPECT_FALSE(events[1].modifiers &
                (CEF_EVENTFLAG_IS_REPEAT | CEF_EVENTFLAG_IS_KEY_PAD));
   native.type = GDK_KEY_RELEASE;
   ASSERT_TRUE(client::KeyboardInputEventsFromGdkEvent(&native, false, events));
   ASSERT_EQ(1U, events.size());
-  EXPECT_EQ(CEF_KEYEVENT_KEYUP, events[0].type);
+  EXPECT_EQ(CEF_KEY_EVENT_KEYUP, events[0].type);
   EXPECT_EQ(CEF_DOM_CODE_US_A, events[0].dom_code);
   EXPECT_FALSE(events[0].modifiers & CEF_EVENTFLAG_IS_REPEAT);
 }
@@ -235,7 +235,7 @@ void LinuxWaylandModifierStateImpl() {
   native.type = GDK_KEY_RELEASE;
   ASSERT_TRUE(client::KeyboardInputEventsFromGdkEvent(&native, false, events));
   ASSERT_EQ(1U, events.size());
-  EXPECT_EQ(CEF_KEYEVENT_KEYUP, events[0].type);
+  EXPECT_EQ(CEF_KEY_EVENT_KEYUP, events[0].type);
   EXPECT_TRUE(events[0].modifiers & CEF_EVENTFLAG_ALTGR_DOWN);
 }
 #endif  // defined(GDK_WINDOWING_WAYLAND)

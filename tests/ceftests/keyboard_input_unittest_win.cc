@@ -142,16 +142,16 @@ TEST(KeyboardInputTest, WindowsSwedishAltGraphAndControlAlt) {
     state[VK_CONTROL] = state[VK_LCONTROL] = state[VK_MENU] = 0x80;
     state[right_alt ? VK_RMENU : VK_LMENU] = 0x80;
     for (const auto type :
-         {CEF_KEYEVENT_RAWKEYDOWN, CEF_KEYEVENT_CHAR, CEF_KEYEVENT_KEYUP}) {
-      const UINT message = type == CEF_KEYEVENT_RAWKEYDOWN ? WM_KEYDOWN
-                           : type == CEF_KEYEVENT_CHAR     ? WM_CHAR
-                                                           : WM_KEYUP;
+         {CEF_KEY_EVENT_RAWKEYDOWN, CEF_KEY_EVENT_CHAR, CEF_KEY_EVENT_KEYUP}) {
+      const UINT message = type == CEF_KEY_EVENT_RAWKEYDOWN ? WM_KEYDOWN
+                           : type == CEF_KEY_EVENT_CHAR     ? WM_CHAR
+                                                            : WM_KEYUP;
       const auto bits = static_cast<LPARAM>(
           1 | (0x03 << 16) |
-          (type == CEF_KEYEVENT_KEYUP ? (1LL << 30) | (1LL << 31) : 0));
+          (type == CEF_KEY_EVENT_KEYUP ? (1LL << 30) | (1LL << 31) : 0));
       CefKeyboardInputEvent event;
       ASSERT_TRUE(CefKeyboardInputEventFromWindowsMessageEx(
-          message, type == CEF_KEYEVENT_CHAR ? '@' : '2', bits, state,
+          message, type == CEF_KEY_EVENT_CHAR ? '@' : '2', bits, state,
           reinterpret_cast<uintptr_t>(swedish), 123000000, event));
       EXPECT_EQ(type, event.type);
       EXPECT_EQ(static_cast<uint32_t>(CEF_DOM_CODE_DIGIT2), event.dom_code);
@@ -159,7 +159,7 @@ TEST(KeyboardInputTest, WindowsSwedishAltGraphAndControlAlt) {
       EXPECT_EQ(static_cast<uint32_t>(CEF_EVENTFLAG_ALTGR_DOWN),
                 event.modifiers);
       EXPECT_FALSE(event.is_system_key);
-      if (type == CEF_KEYEVENT_CHAR) {
+      if (type == CEF_KEY_EVENT_CHAR) {
         EXPECT_EQ('@', event.text[0]);
       }
     }
@@ -194,7 +194,7 @@ TEST(KeyboardInputTest, WindowsExplicitStateAndCharacterUnits) {
     EXPECT_TRUE(CefKeyboardInputEventFromWindowsMessageEx(
         WM_CHAR, unit, 1 | (0x1e << 16), std::vector<int>(256), layout,
         123000000, event));
-    EXPECT_EQ(CEF_KEYEVENT_CHAR, event.type);
+    EXPECT_EQ(CEF_KEY_EVENT_CHAR, event.type);
     EXPECT_EQ(unit, event.text[0]);
     EXPECT_EQ(0, event.text[1]);
     EXPECT_EQ(static_cast<uint32_t>(CEF_DOM_CODE_US_A), event.dom_code);

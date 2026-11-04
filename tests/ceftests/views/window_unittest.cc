@@ -704,10 +704,10 @@ void WindowKeyboardInputImpl(CefRefPtr<CefWaitableEvent> event,
         EXPECT_GT(input.timestamp, 0);
         state->latest = input;
         ++state->unified_count;
-        const bool keydown = input.type == CEF_KEYEVENT_RAWKEYDOWN ||
-                             input.type == CEF_KEYEVENT_KEYDOWN;
-        if (keydown || input.type == CEF_KEYEVENT_CHAR ||
-            input.type == CEF_KEYEVENT_KEYUP) {
+        const bool keydown = input.type == CEF_KEY_EVENT_RAWKEYDOWN ||
+                             input.type == CEF_KEY_EVENT_KEYDOWN;
+        if (keydown || input.type == CEF_KEY_EVENT_CHAR ||
+            input.type == CEF_KEY_EVENT_KEYUP) {
           EXPECT_EQ(static_cast<uint32_t>(CEF_DOM_CODE_US_A), input.dom_code);
           EXPECT_EQ(CEF_DOM_KEY_UNICODE_FLAG | uint32_t{'a'}, input.dom_key);
           EXPECT_EQ('A', input.windows_key_code);
@@ -715,7 +715,7 @@ void WindowKeyboardInputImpl(CefRefPtr<CefWaitableEvent> event,
           EXPECT_EQ(u'a', input.unmodified_text[0]);
           if (keydown) {
             ++state->keydown_count;
-          } else if (input.type == CEF_KEYEVENT_CHAR) {
+          } else if (input.type == CEF_KEY_EVENT_CHAR) {
             ++state->character_count;
           } else {
             ++state->keyup_count;

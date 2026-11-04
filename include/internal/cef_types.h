@@ -2095,15 +2095,6 @@ typedef enum {
 } cef_menu_id_t;
 
 ///
-/// Mouse button types.
-///
-typedef enum {
-  MBT_LEFT = 0,
-  MBT_MIDDLE,
-  MBT_RIGHT,
-} cef_mouse_button_type_t;
-
-///
 /// Structure representing mouse event information.
 ///
 typedef struct _cef_mouse_event_t {
@@ -2133,17 +2124,6 @@ typedef enum {
   CEF_TET_MOVED,
   CEF_TET_CANCELLED
 } cef_touch_event_type_t;
-
-///
-/// The device type that caused the event.
-///
-typedef enum {
-  CEF_POINTER_TYPE_TOUCH = 0,
-  CEF_POINTER_TYPE_MOUSE,
-  CEF_POINTER_TYPE_PEN,
-  CEF_POINTER_TYPE_ERASER,
-  CEF_POINTER_TYPE_UNKNOWN
-} cef_pointer_type_t;
 
 ///
 /// Structure representing touch event information.

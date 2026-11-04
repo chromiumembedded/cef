@@ -14,11 +14,21 @@ struct NativeWebKeyboardEvent;
 }
 
 namespace blink {
+class WebGestureEvent;
 class WebKeyboardEvent;
-}
+class WebMouseEvent;
+}  // namespace blink
 
 // Convert between CEF event flags and Blink modifiers.
 int GetWebEventModifiers(uint32_t cef_modifiers);
+bool GetWebMouseInputEvent(const CefMouseInputEvent& event,
+                           blink::WebMouseEvent& web_event);
+bool GetCefMouseInputEvent(const blink::WebMouseEvent& event,
+                           CefMouseInputEvent& cef_event);
+bool GetWebGestureInputEvent(const CefGestureInputEvent& event,
+                             blink::WebGestureEvent& web_event);
+bool GetCefGestureInputEvent(const blink::WebGestureEvent& event,
+                             CefGestureInputEvent& cef_event);
 uint32_t GetCefEventModifiers(int web_modifiers);
 
 // Complete portable keyboard conversions. No keyboard-layout interpretation.

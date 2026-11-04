@@ -54,6 +54,35 @@ class CefInputHandler : public virtual CefBaseRefCounted {
                                const CefInputEventContext& context) {
     return false;
   }
+
+  ///
+  /// Called before a mouse event is offered to the renderer. Return true to
+  /// consume the event or false to continue normal processing. Wheel events
+  /// are not delivered here. The snapshot uses the receiving widget's DIPs;
+  /// it may differ from injected coordinates after frame or popup routing.
+  /// No native event handle is available. If consuming a down event, also
+  /// consume its corresponding up event to preserve a coherent event stream.
+  /// Keep handling simple and defer complex work to avoid re-entrancy.
+  ///
+  /*--cef()--*/
+  virtual bool OnPreMouseEvent(CefRefPtr<CefBrowser> browser,
+                               const CefMouseInputEvent& event) {
+    return false;
+  }
+
+  ///
+  /// Called before a gesture event is offered to the renderer. Return true to
+  /// consume the event or false to continue normal processing. This is a
+  /// handling opportunity, not notification of every submitted gesture.
+  /// Chromium may filter gestures before this callback. No native event handle
+  /// is available. Preserve coherent gesture sequences when consuming events
+  /// and defer complex work to avoid re-entrancy.
+  ///
+  /*--cef()--*/
+  virtual bool OnPreGestureEvent(CefRefPtr<CefBrowser> browser,
+                                 const CefGestureInputEvent& event) {
+    return false;
+  }
 };
 #endif  // CEF_API_ADDED(CEF_NEXT)
 

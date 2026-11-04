@@ -20,12 +20,16 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "components/input/native_web_keyboard_event.h"
+#include "components/input/render_widget_host_input_event_router.h"
 #include "components/prefs/pref_service.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
+#include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_view.h"
+#include "third_party/blink/public/common/input/web_gesture_event.h"
+#include "third_party/blink/public/common/input/web_mouse_event.h"
 
 namespace {
 
@@ -329,6 +333,42 @@ void CefBrowserPlatformDelegate::SendKeyEvent(const CefKeyEvent& event) {
   NOTIMPLEMENTED();
 }
 
+void CefBrowserPlatformDelegate::SendMouseEvent(
+    const CefMouseInputEvent& event) {
+  auto* view =
+      web_contents_ ? web_contents_->GetRenderWidgetHostView() : nullptr;
+  blink::WebMouseEvent web_event;
+  if (!view || !GetWebMouseInputEvent(event, web_event)) {
+    return;
+  }
+  auto* host = content::RenderWidgetHostImpl::From(view->GetRenderWidgetHost());
+  if (host->delegate() && host->delegate()->GetInputEventRouter()) {
+    host->delegate()->GetInputEventRouter()->RouteMouseEvent(
+        static_cast<content::RenderWidgetHostViewBase*>(view), &web_event,
+        ui::LatencyInfo());
+  } else {
+    host->ForwardMouseEvent(web_event);
+  }
+}
+
+void CefBrowserPlatformDelegate::SendGestureEvent(
+    const CefGestureInputEvent& event) {
+  auto* view =
+      web_contents_ ? web_contents_->GetRenderWidgetHostView() : nullptr;
+  blink::WebGestureEvent web_event;
+  if (!view || !GetWebGestureInputEvent(event, web_event)) {
+    return;
+  }
+  auto* host = content::RenderWidgetHostImpl::From(view->GetRenderWidgetHost());
+  if (host->delegate() && host->delegate()->GetInputEventRouter()) {
+    host->delegate()->GetInputEventRouter()->RouteGestureEvent(
+        static_cast<content::RenderWidgetHostViewBase*>(view), &web_event,
+        ui::LatencyInfo());
+  } else {
+    host->ForwardGestureEvent(web_event);
+  }
+}
+
 void CefBrowserPlatformDelegate::SendMouseClickEvent(
     const CefMouseEvent& event,
     CefBrowserHost::MouseButtonType type,
@@ -613,5 +653,12 @@ cef::BrowserConfig CefBrowserPlatformDelegate::GetBrowserConfig() const {
 // static
 int CefBrowserPlatformDelegate::TranslateWebEventModifiers(
     uint32_t cef_modifiers) {
-  return GetWebEventModifiers(cef_modifiers);
+  int result = GetWebEventModifiers(cef_modifiers);
+  if (cef_modifiers & CEF_EVENTFLAG_BACK_MOUSE_BUTTON) {
+    result |= blink::WebInputEvent::kBackButtonDown;
+  }
+  if (cef_modifiers & CEF_EVENTFLAG_FORWARD_MOUSE_BUTTON) {
+    result |= blink::WebInputEvent::kForwardButtonDown;
+  }
+  return result;
 }

@@ -746,6 +746,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
 
   ///
   /// Send a key event to the browser.
+  /// DEPRECATED: Use SendKeyboardEvent with CefKeyboardInputEvent instead.
   ///
   /*--cef()--*/
   virtual void SendKeyEvent(const CefKeyEvent& event) = 0;
@@ -753,6 +754,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /// Send a mouse click event to the browser. The |x| and |y| coordinates are
   /// relative to the upper-left corner of the view.
+  /// DEPRECATED: Use SendMouseEvent with CefMouseInputEvent instead.
   ///
   /*--cef()--*/
   virtual void SendMouseClickEvent(const CefMouseEvent& event,
@@ -763,6 +765,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /// Send a mouse move event to the browser. The |x| and |y| coordinates are
   /// relative to the upper-left corner of the view.
+  /// DEPRECATED: Use SendMouseEvent with CefMouseInputEvent instead.
   ///
   /*--cef()--*/
   virtual void SendMouseMoveEvent(const CefMouseEvent& event,
@@ -783,6 +786,9 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
 
   ///
   /// Send a touch event to the browser for a windowless browser.
+  /// Delivers raw touch events to web content and lets Chromium recognize
+  /// gestures. To inject an already recognized gesture, use SendGestureEvent
+  /// with CefGestureInputEvent instead.
   ///
   /*--cef()--*/
   virtual void SendTouchEvent(const CefTouchEvent& event) = 0;
@@ -1115,14 +1121,60 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /// IME processing. Browser keyboard callbacks and unhandled-event fallback
   /// handling still apply, including Views accelerator handling.
   ///
-  /// Text in CEF_KEYEVENT_RAWKEYDOWN is metadata and does not generate a
-  /// CEF_KEYEVENT_CHAR event. For ordinary portable typing, send separate
+  /// Text in CEF_KEY_EVENT_RAWKEYDOWN is metadata and does not generate a
+  /// CEF_KEY_EVENT_CHAR event. For ordinary portable typing, send separate
   /// RAWKEYDOWN, CHAR, and KEYUP events. Native key conversion alone does not
   /// perform text insertion or IME composition. For off-screen IME composition,
   /// use ImeSetComposition and related methods.
   ///
   /*--cef(added=next)--*/
   virtual void SendKeyboardEvent(const CefKeyboardInputEvent& event) = 0;
+
+  ///
+  /// Send a portable mouse snapshot to web content. Supports off-screen and
+  /// native browser views with Chromium input routing, including out-of-process
+  /// frames. Events are injected directly into web content, bypassing native
+  /// controls and OS event synthesis. Zero timestamp uses the dispatch time.
+  /// Invalid snapshots are silently ignored. May be called on any thread.
+  /// Coordinates are in DIPs; provide both widget and screen positions.
+  ///
+  /// Down/up events must specify the changed button, click count, and the
+  /// held-button modifiers appropriate for that event.
+  ///
+  /// For windowed browsers, this bypasses the native browser view's mouse-
+  /// event entry point. It does not deliver events to browser chrome or Views
+  /// controls, or perform native focus/capture handling. The caller must manage
+  /// browser focus and any required native input capture. Web-content
+  /// processing and CefInputHandler::OnPreMouseEvent still apply.
+  ///
+  /*--cef(added=next)--*/
+  virtual void SendMouseEvent(const CefMouseInputEvent& event) = 0;
+
+  ///
+  /// Send a portable gesture snapshot to web content. Supports off-screen and
+  /// native browser views with Chromium input routing, including out-of-process
+  /// frames. Events are injected directly into web content, bypassing native
+  /// controls and OS event synthesis. Zero timestamp uses the dispatch time.
+  /// Invalid snapshots are silently ignored. May be called on any thread.
+  /// Coordinates are in DIPs; provide both widget and screen positions.
+  ///
+  /// Send coherent begin/update/end sequences and populate only the fields
+  /// that apply to the gesture type. Chromium may consume or filter gestures
+  /// before the pre-handler, for example disabled pinch zoom.
+  ///
+  /// For windowed browsers, this bypasses the native browser view's gesture-
+  /// event entry point. It does not deliver events to browser chrome or Views
+  /// controls, or perform native focus/capture handling. The caller must manage
+  /// browser focus and any required native input capture. Web-content
+  /// processing and CefInputHandler::OnPreGestureEvent still apply.
+  ///
+  /// This submits an already recognized gesture without running a native
+  /// touch/trackpad recognizer or synthesizing the underlying DOM touch events.
+  /// For windowless browsers that need raw touch delivery and Chromium gesture
+  /// recognition, use SendTouchEvent instead.
+  ///
+  /*--cef(added=next)--*/
+  virtual void SendGestureEvent(const CefGestureInputEvent& event) = 0;
 #endif  // CEF_API_ADDED(CEF_NEXT)
 };
 

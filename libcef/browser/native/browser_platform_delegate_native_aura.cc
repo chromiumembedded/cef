@@ -192,14 +192,20 @@ ui::MouseEvent CefBrowserPlatformDelegateNativeAura::TranslateUiClickEvent(
 
   int changed_button_flags = 0;
   switch (type) {
-    case MBT_LEFT:
+    case CEF_MOUSE_BUTTON_LEFT:
       changed_button_flags |= ui::EF_LEFT_MOUSE_BUTTON;
       break;
-    case MBT_MIDDLE:
+    case CEF_MOUSE_BUTTON_MIDDLE:
       changed_button_flags |= ui::EF_MIDDLE_MOUSE_BUTTON;
       break;
-    case MBT_RIGHT:
+    case CEF_MOUSE_BUTTON_RIGHT:
       changed_button_flags |= ui::EF_RIGHT_MOUSE_BUTTON;
+      break;
+    case CEF_MOUSE_BUTTON_BACK:
+      changed_button_flags |= ui::EF_BACK_MOUSE_BUTTON;
+      break;
+    case CEF_MOUSE_BUTTON_FORWARD:
+      changed_button_flags |= ui::EF_FORWARD_MOUSE_BUTTON;
       break;
     default:
       DCHECK(false);
@@ -269,19 +275,30 @@ base::TimeTicks CefBrowserPlatformDelegateNativeAura::GetEventTimeStamp() {
 // static
 int CefBrowserPlatformDelegateNativeAura::TranslateUiEventModifiers(
     uint32_t cef_modifiers) {
-  return GetLegacyUiEventModifiers(cef_modifiers);
+  int result = GetLegacyUiEventModifiers(cef_modifiers);
+  if (cef_modifiers & CEF_EVENTFLAG_BACK_MOUSE_BUTTON) {
+    result |= ui::EF_BACK_MOUSE_BUTTON;
+  }
+  if (cef_modifiers & CEF_EVENTFLAG_FORWARD_MOUSE_BUTTON) {
+    result |= ui::EF_FORWARD_MOUSE_BUTTON;
+  }
+  return result;
 }
 
 // static
 int CefBrowserPlatformDelegateNativeAura::TranslateUiChangedButtonFlags(
     uint32_t cef_modifiers) {
   int result = 0;
-  if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON) {
+  if (cef_modifiers & CEF_EVENTFLAG_LEFT_MOUSE_BUTTON) {
     result |= ui::EF_LEFT_MOUSE_BUTTON;
-  } else if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
+  } else if (cef_modifiers & CEF_EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
     result |= ui::EF_MIDDLE_MOUSE_BUTTON;
-  } else if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
+  } else if (cef_modifiers & CEF_EVENTFLAG_RIGHT_MOUSE_BUTTON) {
     result |= ui::EF_RIGHT_MOUSE_BUTTON;
+  } else if (cef_modifiers & CEF_EVENTFLAG_BACK_MOUSE_BUTTON) {
+    result |= ui::EF_BACK_MOUSE_BUTTON;
+  } else if (cef_modifiers & CEF_EVENTFLAG_FORWARD_MOUSE_BUTTON) {
+    result |= ui::EF_FORWARD_MOUSE_BUTTON;
   }
   return result;
 }

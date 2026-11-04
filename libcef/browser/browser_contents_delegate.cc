@@ -314,6 +314,38 @@ CefBrowserContentsDelegate::PreHandleKeyboardEvent(
   return KeyboardEventProcessingResult::NOT_HANDLED;
 }
 
+bool CefBrowserContentsDelegate::PreHandleMouseEvent(
+    content::WebContents* source,
+    const blink::WebMouseEvent& event) {
+  if (CEF_API_IS_ADDED(CEF_NEXT)) {
+    if (auto c = client()) {
+      if (auto handler = c->GetInputHandler()) {
+        CefMouseInputEvent cef_event;
+        if (GetCefMouseInputEvent(event, cef_event)) {
+          return handler->OnPreMouseEvent(browser(), cef_event);
+        }
+      }
+    }
+  }
+  return false;
+}
+
+bool CefBrowserContentsDelegate::PreHandleGestureEvent(
+    content::WebContents* source,
+    const blink::WebGestureEvent& event) {
+  if (CEF_API_IS_ADDED(CEF_NEXT)) {
+    if (auto c = client()) {
+      if (auto handler = c->GetInputHandler()) {
+        CefGestureInputEvent cef_event;
+        if (GetCefGestureInputEvent(event, cef_event)) {
+          return handler->OnPreGestureEvent(browser(), cef_event);
+        }
+      }
+    }
+  }
+  return false;
+}
+
 bool CefBrowserContentsDelegate::HandleKeyboardEvent(
     content::WebContents* source,
     const input::NativeWebKeyboardEvent& event) {

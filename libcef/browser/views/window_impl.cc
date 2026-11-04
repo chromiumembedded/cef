@@ -718,13 +718,13 @@ void CefWindowImpl::SendKeyPress(int key_code, uint32_t event_flags) {
     }
 
     int flags = ui::EF_NONE;
-    if (event_flags & EVENTFLAG_CONTROL_DOWN) {
+    if (event_flags & CEF_EVENTFLAG_CONTROL_DOWN) {
       flags |= ui::EF_CONTROL_DOWN;
     }
-    if (event_flags & EVENTFLAG_SHIFT_DOWN) {
+    if (event_flags & CEF_EVENTFLAG_SHIFT_DOWN) {
       flags |= ui::EF_SHIFT_DOWN;
     }
-    if (event_flags & EVENTFLAG_ALT_DOWN) {
+    if (event_flags & CEF_EVENTFLAG_ALT_DOWN) {
       flags |= ui::EF_ALT_DOWN;
     }
     // Use PressAndReleaseKeyAndModifierKeys which properly presses modifier
@@ -737,9 +737,9 @@ void CefWindowImpl::SendKeyPress(int key_code, uint32_t event_flags) {
 
   ui_controls::SendKeyPress(native_window,
                             static_cast<ui::KeyboardCode>(key_code),
-                            !!(event_flags & EVENTFLAG_CONTROL_DOWN),
-                            !!(event_flags & EVENTFLAG_SHIFT_DOWN),
-                            !!(event_flags & EVENTFLAG_ALT_DOWN),
+                            !!(event_flags & CEF_EVENTFLAG_CONTROL_DOWN),
+                            !!(event_flags & CEF_EVENTFLAG_SHIFT_DOWN),
+                            !!(event_flags & CEF_EVENTFLAG_ALT_DOWN),
                             false);  // Command key is not supported by Aura.
 }
 
@@ -783,9 +783,9 @@ void CefWindowImpl::SendMouseEvents(cef_mouse_button_type_t button,
     }
 
     int flag = ui::EF_LEFT_MOUSE_BUTTON;
-    if (button == MBT_MIDDLE) {
+    if (button == CEF_MOUSE_BUTTON_MIDDLE) {
       flag = ui::EF_MIDDLE_MOUSE_BUTTON;
-    } else if (button == MBT_RIGHT) {
+    } else if (button == CEF_MOUSE_BUTTON_RIGHT) {
       flag = ui::EF_RIGHT_MOUSE_BUTTON;
     }
 
@@ -800,9 +800,9 @@ void CefWindowImpl::SendMouseEvents(cef_mouse_button_type_t button,
 #endif
 
   ui_controls::MouseButton type = ui_controls::LEFT;
-  if (button == MBT_MIDDLE) {
+  if (button == CEF_MOUSE_BUTTON_MIDDLE) {
     type = ui_controls::MIDDLE;
-  } else if (button == MBT_RIGHT) {
+  } else if (button == CEF_MOUSE_BUTTON_RIGHT) {
     type = ui_controls::RIGHT;
   }
 

@@ -94,9 +94,6 @@
   function onEventTest(event) {
     var param = 'osr' + event.type;
 
-    if (event.type == "click")
-      param += event.button;
-
     // Results in a call to the OnQuery method in os_rendering_unittest.cc.
     if (window.testQuery)
       window.testQuery({request: param});
@@ -156,7 +153,7 @@
 
   </script>
   <body onfocus='onEventTest(event)' onblur='onEventTest(event)' onload='load();'>
-  <h1 id='LI00' onclick="onEventTest(event)">
+  <h1 id='LI00'>
     OSR Testing h1 - Focus and blur
     <select id='LI11select'>
       <option value='0'>Default</option>
@@ -167,7 +164,7 @@
   <li id='LI01'>OnPaint should be called each time a page loads</li>
   <li id='LI02' style='cursor:pointer;'><span>Move mouse
       to require an OnCursorChange call</span></li>
-  <li id='LI03' onmousemove="onEventTest(event)"><span>Hover will color this with
+  <li id='LI03'><span>Hover will color this with
       red. Will trigger OnPaint once on enter and once on leave</span></li>
   <li id='LI04'>Right clicking will show contextual menu and will request
       GetScreenPoint</li>

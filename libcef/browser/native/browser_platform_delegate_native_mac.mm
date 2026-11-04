@@ -506,20 +506,30 @@ CefBrowserPlatformDelegateNativeMac::TranslateWebClickEvent(
   TranslateWebMouseEvent(result, mouse_event);
 
   switch (type) {
-    case MBT_LEFT:
+    case CEF_MOUSE_BUTTON_LEFT:
       result.SetType(mouseUp ? blink::WebInputEvent::Type::kMouseUp
                              : blink::WebInputEvent::Type::kMouseDown);
       result.button = blink::WebMouseEvent::Button::kLeft;
       break;
-    case MBT_MIDDLE:
+    case CEF_MOUSE_BUTTON_MIDDLE:
       result.SetType(mouseUp ? blink::WebInputEvent::Type::kMouseUp
                              : blink::WebInputEvent::Type::kMouseDown);
       result.button = blink::WebMouseEvent::Button::kMiddle;
       break;
-    case MBT_RIGHT:
+    case CEF_MOUSE_BUTTON_RIGHT:
       result.SetType(mouseUp ? blink::WebInputEvent::Type::kMouseUp
                              : blink::WebInputEvent::Type::kMouseDown);
       result.button = blink::WebMouseEvent::Button::kRight;
+      break;
+    case CEF_MOUSE_BUTTON_BACK:
+      result.SetType(mouseUp ? blink::WebInputEvent::Type::kMouseUp
+                             : blink::WebInputEvent::Type::kMouseDown);
+      result.button = blink::WebMouseEvent::Button::kBack;
+      break;
+    case CEF_MOUSE_BUTTON_FORWARD:
+      result.SetType(mouseUp ? blink::WebInputEvent::Type::kMouseUp
+                             : blink::WebInputEvent::Type::kMouseDown);
+      result.button = blink::WebMouseEvent::Button::kForward;
       break;
     default:
       DCHECK(false);
@@ -538,12 +548,16 @@ blink::WebMouseEvent CefBrowserPlatformDelegateNativeMac::TranslateWebMoveEvent(
 
   if (!mouseLeave) {
     result.SetType(blink::WebInputEvent::Type::kMouseMove);
-    if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON) {
+    if (mouse_event.modifiers & CEF_EVENTFLAG_LEFT_MOUSE_BUTTON) {
       result.button = blink::WebMouseEvent::Button::kLeft;
-    } else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
+    } else if (mouse_event.modifiers & CEF_EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
       result.button = blink::WebMouseEvent::Button::kMiddle;
-    } else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
+    } else if (mouse_event.modifiers & CEF_EVENTFLAG_RIGHT_MOUSE_BUTTON) {
       result.button = blink::WebMouseEvent::Button::kRight;
+    } else if (mouse_event.modifiers & CEF_EVENTFLAG_BACK_MOUSE_BUTTON) {
+      result.button = blink::WebMouseEvent::Button::kBack;
+    } else if (mouse_event.modifiers & CEF_EVENTFLAG_FORWARD_MOUSE_BUTTON) {
+      result.button = blink::WebMouseEvent::Button::kForward;
     } else {
       result.button = blink::WebMouseEvent::Button::kNoButton;
     }
@@ -574,12 +588,16 @@ CefBrowserPlatformDelegateNativeMac::TranslateWebWheelEvent(
   result.wheel_ticks_y = deltaY / scrollbarPixelsPerCocoaTick;
   result.delta_units = ui::ScrollGranularity::kScrollByPrecisePixel;
 
-  if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON) {
+  if (mouse_event.modifiers & CEF_EVENTFLAG_LEFT_MOUSE_BUTTON) {
     result.button = blink::WebMouseEvent::Button::kLeft;
-  } else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
+  } else if (mouse_event.modifiers & CEF_EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
     result.button = blink::WebMouseEvent::Button::kMiddle;
-  } else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
+  } else if (mouse_event.modifiers & CEF_EVENTFLAG_RIGHT_MOUSE_BUTTON) {
     result.button = blink::WebMouseEvent::Button::kRight;
+  } else if (mouse_event.modifiers & CEF_EVENTFLAG_BACK_MOUSE_BUTTON) {
+    result.button = blink::WebMouseEvent::Button::kBack;
+  } else if (mouse_event.modifiers & CEF_EVENTFLAG_FORWARD_MOUSE_BUTTON) {
+    result.button = blink::WebMouseEvent::Button::kForward;
   } else {
     result.button = blink::WebMouseEvent::Button::kNoButton;
   }

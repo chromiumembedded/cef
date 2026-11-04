@@ -57,16 +57,16 @@ bool GetCefKeyEventType(blink::WebInputEvent::Type type,
                         cef_key_event_type_t& cef_type) {
   switch (type) {
     case blink::WebInputEvent::Type::kRawKeyDown:
-      cef_type = CEF_KEYEVENT_RAWKEYDOWN;
+      cef_type = CEF_KEY_EVENT_RAWKEYDOWN;
       break;
     case blink::WebInputEvent::Type::kKeyDown:
-      cef_type = CEF_KEYEVENT_KEYDOWN;
+      cef_type = CEF_KEY_EVENT_KEYDOWN;
       break;
     case blink::WebInputEvent::Type::kKeyUp:
-      cef_type = CEF_KEYEVENT_KEYUP;
+      cef_type = CEF_KEY_EVENT_KEYUP;
       break;
     case blink::WebInputEvent::Type::kChar:
-      cef_type = CEF_KEYEVENT_CHAR;
+      cef_type = CEF_KEY_EVENT_CHAR;
       break;
     default:
       return false;
@@ -120,16 +120,16 @@ bool GetWebKeyboardInputEvent(const CefKeyboardInputEvent& event,
                               blink::WebKeyboardEvent& web_event) {
   blink::WebInputEvent::Type type;
   switch (event.type) {
-    case CEF_KEYEVENT_RAWKEYDOWN:
+    case CEF_KEY_EVENT_RAWKEYDOWN:
       type = blink::WebInputEvent::Type::kRawKeyDown;
       break;
-    case CEF_KEYEVENT_KEYDOWN:
+    case CEF_KEY_EVENT_KEYDOWN:
       type = blink::WebInputEvent::Type::kKeyDown;
       break;
-    case CEF_KEYEVENT_KEYUP:
+    case CEF_KEY_EVENT_KEYUP:
       type = blink::WebInputEvent::Type::kKeyUp;
       break;
-    case CEF_KEYEVENT_CHAR:
+    case CEF_KEY_EVENT_CHAR:
       type = blink::WebInputEvent::Type::kChar;
       break;
     default:
@@ -211,9 +211,11 @@ bool GetCefKeyEvent(const blink::WebKeyboardEvent& event,
 
   // Preserve the modifier subset exposed by legacy keyboard callbacks.
   constexpr uint32_t legacy_modifiers =
-      EVENTFLAG_SHIFT_DOWN | EVENTFLAG_CONTROL_DOWN | EVENTFLAG_ALT_DOWN |
-      EVENTFLAG_COMMAND_DOWN | EVENTFLAG_IS_KEY_PAD | EVENTFLAG_IS_LEFT |
-      EVENTFLAG_IS_RIGHT | EVENTFLAG_ALTGR_DOWN | EVENTFLAG_IS_REPEAT;
+      CEF_EVENTFLAG_SHIFT_DOWN | CEF_EVENTFLAG_CONTROL_DOWN |
+      CEF_EVENTFLAG_ALT_DOWN | CEF_EVENTFLAG_COMMAND_DOWN |
+      CEF_EVENTFLAG_IS_KEY_PAD | CEF_EVENTFLAG_IS_LEFT |
+      CEF_EVENTFLAG_IS_RIGHT | CEF_EVENTFLAG_ALTGR_DOWN |
+      CEF_EVENTFLAG_IS_REPEAT;
   cef_event.modifiers =
       GetCefEventModifiers(event.GetModifiers()) & legacy_modifiers;
 

@@ -1543,7 +1543,7 @@ class ImeInputTestHandler : public RoutingTestHandler,
 #if CEF_API_ADDED(CEF_NEXT)
     if (keyboard_api_ == KeyboardApi::Portable) {
       CefKeyboardInputEvent event;
-      event.type = CEF_KEYEVENT_KEYUP;
+      event.type = CEF_KEY_EVENT_KEYUP;
       event.dom_code = CEF_DOM_CODE_US_A;
       event.dom_key = CEF_DOM_KEY_UNICODE_FLAG | 'a';
       event.windows_key_code = 'A';
@@ -1766,11 +1766,11 @@ class ImeInputTestHandler : public RoutingTestHandler,
         event.dom_code = codes[i];
         event.dom_key = CEF_DOM_KEY_UNICODE_FLAG | word[i];
         event.text[0] = event.unmodified_text[0] = word[i];
-        for (const auto type :
-             {CEF_KEYEVENT_RAWKEYDOWN, CEF_KEYEVENT_CHAR, CEF_KEYEVENT_KEYUP}) {
+        for (const auto type : {CEF_KEY_EVENT_RAWKEYDOWN, CEF_KEY_EVENT_CHAR,
+                                CEF_KEY_EVENT_KEYUP}) {
           event.type = type;
           event.windows_key_code =
-              type == CEF_KEYEVENT_CHAR ? word[i] : word[i] - u'a' + 'A';
+              type == CEF_KEY_EVENT_CHAR ? word[i] : word[i] - u'a' + 'A';
           browser->GetHost()->SendKeyboardEvent(event);
         }
       }

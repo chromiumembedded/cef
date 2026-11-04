@@ -41,11 +41,15 @@ class CefBrowserPlatformDelegateNative
       const CefKeyEvent& key_event) const = 0;
   virtual input::NativeWebKeyboardEvent TranslateWebKeyboardInputEvent(
       const blink::WebKeyboardEvent& event) const;
+  // DEPRECATED: Retained for legacy mouse injection. Unified mouse input
+  // uses GetWebMouseInputEvent without platform conversion.
   virtual blink::WebMouseEvent TranslateWebClickEvent(
       const CefMouseEvent& mouse_event,
       CefBrowserHost::MouseButtonType type,
       bool mouseUp,
       int clickCount) const = 0;
+  // DEPRECATED: Retained for legacy mouse injection. Unified mouse input
+  // uses GetWebMouseInputEvent without platform conversion.
   virtual blink::WebMouseEvent TranslateWebMoveEvent(
       const CefMouseEvent& mouse_event,
       bool mouseLeave) const = 0;

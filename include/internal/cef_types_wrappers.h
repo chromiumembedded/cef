@@ -392,6 +392,10 @@ using CefKeyEvent = CefStructBaseSimple<cef_key_event_t>;
 
 using CefKeyboardInputEvent =
     CefStructBase<CefStructBaseSimpleTraits<cef_keyboard_input_event_t>>;
+using CefMouseInputEvent =
+    CefStructBase<CefStructBaseSimpleTraits<cef_mouse_input_event_t>>;
+using CefGestureInputEvent =
+    CefStructBase<CefStructBaseSimpleTraits<cef_gesture_input_event_t>>;
 using CefInputEventContext =
     CefStructBase<CefStructBaseSimpleTraits<cef_input_event_context_t>>;
 
