@@ -459,7 +459,8 @@ void CefBrowserContentsDelegate::PrimaryMainFrameRenderProcessGone(
     ts = TS_PROCESS_WAS_KILLED;
   } else if (status == base::TERMINATION_STATUS_PROCESS_CRASHED) {
     ts = TS_PROCESS_CRASHED;
-  } else if (status == base::TERMINATION_STATUS_OOM) {
+  } else if (status == base::TERMINATION_STATUS_OOM ||
+             status == base::TERMINATION_STATUS_EVICTED_FOR_MEMORY) {
     ts = TS_PROCESS_OOM;
   } else if (status == base::TERMINATION_STATUS_LAUNCH_FAILED) {
     ts = TS_LAUNCH_FAILED;
