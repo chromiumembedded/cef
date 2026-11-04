@@ -419,10 +419,10 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
       GetScreenPoint(client_pt, /*want_dip_coords=*/false);
 
   gfx::PointF transformed_pt;
+  auto* root_view = web_contents->GetRenderViewHost()->GetWidget()->GetView();
   auto* view =
       web_contents->GetInputEventRouter()->GetRenderWidgetHostViewInputAtPoint(
-          web_contents->GetRenderViewHost()->GetWidget()->GetView(),
-          gfx::PointF(client_pt), &transformed_pt);
+          root_view, gfx::PointF(client_pt), &transformed_pt);
   auto* target_rwh = content::RenderWidgetHostImpl::From(
       static_cast<content::RenderWidgetHostViewBase*>(view)
           ->GetRenderWidgetHost());
@@ -431,20 +431,12 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
     if (current_rwh_for_drag_) {
       gfx::PointF transformed_leave_point(client_pt);
       gfx::PointF transformed_screen_point(screen_pt);
-      static_cast<content::RenderWidgetHostViewBase*>(
-          web_contents->GetRenderWidgetHostView())
-          ->TransformPointToCoordSpaceForView(
-              gfx::PointF(client_pt),
-              static_cast<content::RenderWidgetHostViewBase*>(
-                  current_rwh_for_drag_->GetView()),
-              &transformed_leave_point);
-      static_cast<content::RenderWidgetHostViewBase*>(
-          web_contents->GetRenderWidgetHostView())
-          ->TransformPointToCoordSpaceForView(
-              gfx::PointF(screen_pt),
-              static_cast<content::RenderWidgetHostViewBase*>(
-                  current_rwh_for_drag_->GetView()),
-              &transformed_screen_point);
+      root_view->TransformPointToCoordSpaceForView(
+          gfx::PointF(client_pt), current_rwh_for_drag_->GetView(),
+          &transformed_leave_point);
+      root_view->TransformPointToCoordSpaceForView(
+          gfx::PointF(screen_pt), current_rwh_for_drag_->GetView(),
+          &transformed_screen_point);
       current_rwh_for_drag_->DragTargetDragLeave(transformed_leave_point,
                                                  transformed_screen_point);
     }
@@ -495,10 +487,10 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
       GetScreenPoint(client_pt, /*want_dip_coords=*/false);
 
   gfx::PointF transformed_pt;
+  auto* root_view = web_contents->GetRenderViewHost()->GetWidget()->GetView();
   auto* view =
       web_contents->GetInputEventRouter()->GetRenderWidgetHostViewInputAtPoint(
-          web_contents->GetRenderViewHost()->GetWidget()->GetView(),
-          gfx::PointF(client_pt), &transformed_pt);
+          root_view, gfx::PointF(client_pt), &transformed_pt);
   auto* target_rwh = content::RenderWidgetHostImpl::From(
       static_cast<content::RenderWidgetHostViewBase*>(view)
           ->GetRenderWidgetHost());
@@ -507,20 +499,12 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
     if (current_rwh_for_drag_) {
       gfx::PointF transformed_leave_point(client_pt);
       gfx::PointF transformed_screen_point(screen_pt);
-      static_cast<content::RenderWidgetHostViewBase*>(
-          web_contents->GetRenderWidgetHostView())
-          ->TransformPointToCoordSpaceForView(
-              gfx::PointF(client_pt),
-              static_cast<content::RenderWidgetHostViewBase*>(
-                  current_rwh_for_drag_->GetView()),
-              &transformed_leave_point);
-      static_cast<content::RenderWidgetHostViewBase*>(
-          web_contents->GetRenderWidgetHostView())
-          ->TransformPointToCoordSpaceForView(
-              gfx::PointF(screen_pt),
-              static_cast<content::RenderWidgetHostViewBase*>(
-                  current_rwh_for_drag_->GetView()),
-              &transformed_screen_point);
+      root_view->TransformPointToCoordSpaceForView(
+          gfx::PointF(client_pt), current_rwh_for_drag_->GetView(),
+          &transformed_leave_point);
+      root_view->TransformPointToCoordSpaceForView(
+          gfx::PointF(screen_pt), current_rwh_for_drag_->GetView(),
+          &transformed_screen_point);
       current_rwh_for_drag_->DragTargetDragLeave(transformed_leave_point,
                                                  transformed_screen_point);
     }
@@ -618,21 +602,15 @@ void CefBrowserPlatformDelegateOsr::DragSourceEndedAt(
   // non-root RenderWidgetHosts they need to be transformed.
   gfx::PointF transformed_point(client_loc);
   gfx::PointF transformed_screen_point(screen_loc);
-  if (source_rwh && web_contents->GetRenderWidgetHostView()) {
-    static_cast<content::RenderWidgetHostViewBase*>(
-        web_contents->GetRenderWidgetHostView())
-        ->TransformPointToCoordSpaceForView(
-            gfx::PointF(client_loc),
-            static_cast<content::RenderWidgetHostViewBase*>(
-                source_rwh->GetView()),
-            &transformed_point);
-    static_cast<content::RenderWidgetHostViewBase*>(
-        web_contents->GetRenderWidgetHostView())
-        ->TransformPointToCoordSpaceForView(
-            gfx::PointF(screen_loc),
-            static_cast<content::RenderWidgetHostViewBase*>(
-                source_rwh->GetView()),
-            &transformed_screen_point);
+  auto* render_view_host = web_contents->GetRenderViewHost();
+  auto* root_view =
+      render_view_host ? render_view_host->GetWidget()->GetView() : nullptr;
+  if (source_rwh && root_view) {
+    root_view->TransformPointToCoordSpaceForView(
+        gfx::PointF(client_loc), source_rwh->GetView(), &transformed_point);
+    root_view->TransformPointToCoordSpaceForView(gfx::PointF(screen_loc),
+                                                 source_rwh->GetView(),
+                                                 &transformed_screen_point);
   }
 
   web_contents->DragSourceEndedAt(transformed_point.x(), transformed_point.y(),

@@ -344,8 +344,7 @@ void CefBrowserPlatformDelegate::SendMouseEvent(
   auto* host = content::RenderWidgetHostImpl::From(view->GetRenderWidgetHost());
   if (host->delegate() && host->delegate()->GetInputEventRouter()) {
     host->delegate()->GetInputEventRouter()->RouteMouseEvent(
-        static_cast<content::RenderWidgetHostViewBase*>(view), &web_event,
-        ui::LatencyInfo());
+        host->GetView(), &web_event, ui::LatencyInfo());
   } else {
     host->ForwardMouseEvent(web_event);
   }
@@ -362,8 +361,7 @@ void CefBrowserPlatformDelegate::SendGestureEvent(
   auto* host = content::RenderWidgetHostImpl::From(view->GetRenderWidgetHost());
   if (host->delegate() && host->delegate()->GetInputEventRouter()) {
     host->delegate()->GetInputEventRouter()->RouteGestureEvent(
-        static_cast<content::RenderWidgetHostViewBase*>(view), &web_event,
-        ui::LatencyInfo());
+        host->GetView(), &web_event, ui::LatencyInfo());
   } else {
     host->ForwardGestureEvent(web_event);
   }

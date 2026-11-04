@@ -10,6 +10,7 @@
 #include "cef/libcef/browser/osr/render_widget_host_view_osr.h"
 #include "cef/libcef/browser/osr/touch_selection_controller_client_osr.h"
 #include "cef/libcef/common/drag_data_impl.h"
+#include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_widget_host.h"
 
@@ -102,9 +103,9 @@ gfx::Size CefWebContentsViewOSR::GetSize() const {
 
 content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
     content::RenderWidgetHost* render_widget_host) {
-  if (render_widget_host->GetView()) {
-    return static_cast<content::RenderWidgetHostViewBase*>(
-        render_widget_host->GetView());
+  if (auto* view =
+          content::RenderWidgetHostImpl::From(render_widget_host)->GetView()) {
+    return view;
   }
 
   return new CefRenderWidgetHostViewOSR(background_color_, use_shared_texture_,
