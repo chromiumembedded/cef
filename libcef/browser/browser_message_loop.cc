@@ -80,7 +80,8 @@ class MessagePumpExternal : public base::MessagePumpForUI {
       }
     }
 
-    if (!more_immediate_work && !more_delayed_work) {
+    // Future delayed tasks do not prevent the thread from being idle.
+    if (!more_immediate_work) {
       delegate->DoIdleWork();
     }
   }
