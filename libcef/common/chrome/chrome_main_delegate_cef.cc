@@ -160,18 +160,7 @@ ChromeMainDelegateCef::ChromeMainDelegateCef(CefMainRunner* runner,
 ChromeMainDelegateCef::~ChromeMainDelegateCef() = default;
 
 std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
-  // Returns no value if startup should proceed.
-  auto result = ChromeMainDelegate::BasicStartupComplete();
-  if (result.has_value()) {
-    return result;
-  }
-
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-
-#if BUILDFLAG(IS_POSIX)
-  // Read the crash configuration file. On Windows this is done from chrome_elf.
-  crash_reporting::BasicStartupComplete(command_line);
-#endif
 
   const std::string& process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
@@ -435,6 +424,18 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
                                                 commandLinePtr.get());
     std::ignore = commandLinePtr->Detach(nullptr);
   }
+
+  // Chromium's early startup checks must see settings and client modifications,
+  // including do-not-de-elevate on Windows.
+  auto result = ChromeMainDelegate::BasicStartupComplete();
+  if (result.has_value()) {
+    return result;
+  }
+
+#if BUILDFLAG(IS_POSIX)
+  // Read the crash configuration file. On Windows this is done from chrome_elf.
+  crash_reporting::BasicStartupComplete(command_line);
+#endif
 
   // Call as early as possible.
   InitLogging(command_line);
