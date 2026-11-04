@@ -540,6 +540,11 @@ class CorsTestHandler : public RoutingTestHandler {
 
     EXPECT_TRUE(expected) << "Unexpected console message: "
                           << message.ToString();
+
+    // The console message may arrive after the final query or load event.
+    if (expected) {
+      TriggerDestroyTestIfDone();
+    }
     return TestHandler::OnConsoleMessage(browser, level, message, source, line);
   }
 
