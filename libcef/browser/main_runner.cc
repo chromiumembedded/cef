@@ -85,7 +85,7 @@ bool CefMainRunner::Initialize(CefSettings* settings,
 
 void CefMainRunner::Shutdown(base::OnceClosure shutdown_on_ui_thread,
                              base::OnceClosure finalize_shutdown) {
-  if (multi_threaded_message_loop_) {
+  if (ui_thread_) {
     // Start shutdown on the UI thread. This is guaranteed to run before the
     // thread RunLoop has stopped.
     CEF_POST_TASK(CEF_UIT,
@@ -101,10 +101,9 @@ void CefMainRunner::Shutdown(base::OnceClosure shutdown_on_ui_thread,
     // Blocks until the thread has stopped.
     ui_thread_->Stop();
     ui_thread_.reset();
-  }
-
-  if (!multi_threaded_message_loop_) {
-    // Main thread and UI thread are the same.
+  } else {
+    // Main thread and UI thread are the same, or startup exited before the
+    // separate UI thread was created.
     StartShutdownOnUIThread(std::move(shutdown_on_ui_thread));
 
     // |browser_runner_| may be nullptr when shutting down after early exit.
