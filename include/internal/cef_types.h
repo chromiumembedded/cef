@@ -969,6 +969,13 @@ typedef enum {
   ///
   TS_INTEGRITY_FAILURE,
 
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// The process was proactively terminated by the browser to reclaim memory.
+  ///
+  TS_EVICTED_FOR_MEMORY,
+#endif
+
   TS_NUM_VALUES,
 } cef_termination_status_t;
 

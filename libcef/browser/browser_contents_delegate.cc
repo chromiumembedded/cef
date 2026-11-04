@@ -475,6 +475,8 @@ void CefBrowserContentsDelegate::PrimaryMainFrameRenderProcessGone(
   } else if (status == base::TERMINATION_STATUS_INTEGRITY_FAILURE) {
     ts = TS_INTEGRITY_FAILURE;
 #endif
+  } else if (status == base::TERMINATION_STATUS_EVICTED_FOR_MEMORY) {
+    ts = TS_EVICTED_FOR_MEMORY;
   } else if (status != base::TERMINATION_STATUS_ABNORMAL_TERMINATION) {
     return;
   }

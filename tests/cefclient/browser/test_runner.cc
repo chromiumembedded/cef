@@ -776,6 +776,10 @@ std::string GetErrorString(cef_termination_status_t status) {
       return "LAUNCH_FAILED";
     case TS_INTEGRITY_FAILURE:
       return "INTEGRITY_FAILURE";
+#if CEF_API_ADDED(CEF_NEXT)
+    case TS_EVICTED_FOR_MEMORY:
+      return "EVICTED_FOR_MEMORY";
+#endif
     case TS_NUM_VALUES:
       break;
   }
