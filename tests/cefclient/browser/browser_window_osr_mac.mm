@@ -24,6 +24,7 @@
 #include "tests/shared/browser/osr_accessibility_helper.h"
 #include "tests/shared/browser/osr_accessibility_node.h"
 #include "tests/shared/browser/osr_begin_frame_timer_mac.h"
+#include "tests/shared/browser/osr_input_util.h"
 #include "tests/shared/browser/osr_renderer_metal.h"
 #include "tests/shared/browser/text_input_client_osr_mac.h"
 
@@ -187,8 +188,16 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
     return;
   }
 
+#if CEF_API_ADDED(CEF_NEXT)
+  const NSPoint screen = [self getScreenPointForEvent:event];
+  browser->GetHost()->SendMouseEvent(client::MakeOsrMouseInputEvent(
+      mouseEvent, CefPoint(screen.x, screen.y),
+      isUp ? CEF_MOUSE_EVENT_UP : CEF_MOUSE_EVENT_DOWN, type,
+      static_cast<int>(event.clickCount)));
+#else
   browser->GetHost()->SendMouseClickEvent(mouseEvent, type, isUp,
                                           static_cast<int>([event clickCount]));
+#endif
 }
 
 - (void)mouseDown:(NSEvent*)event {
@@ -207,6 +216,15 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (void)otherMouseDown:(NSEvent*)event {
+#if CEF_API_ADDED(CEF_NEXT)
+  if (event.buttonNumber == 3 || event.buttonNumber == 4) {
+    [self sendMouseClick:event
+                  button:event.buttonNumber == 3 ? CEF_MOUSE_BUTTON_BACK
+                                                 : CEF_MOUSE_BUTTON_FORWARD
+                    isUp:false];
+    return;
+  }
+#endif
   [self sendMouseClick:event button:MBT_MIDDLE isUp:false];
 }
 
@@ -226,6 +244,15 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (void)otherMouseUp:(NSEvent*)event {
+#if CEF_API_ADDED(CEF_NEXT)
+  if (event.buttonNumber == 3 || event.buttonNumber == 4) {
+    [self sendMouseClick:event
+                  button:event.buttonNumber == 3 ? CEF_MOUSE_BUTTON_BACK
+                                                 : CEF_MOUSE_BUTTON_FORWARD
+                    isUp:true];
+    return;
+  }
+#endif
   [self sendMouseClick:event button:MBT_MIDDLE isUp:true];
 }
 
@@ -249,7 +276,20 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   CefMouseEvent mouseEvent;
   [self getMouseEvent:mouseEvent forEvent:event];
 
+#if CEF_API_ADDED(CEF_NEXT)
+  const NSPoint screen = [self getScreenPointForEvent:event];
+  auto input = client::MakeOsrMouseInputEvent(
+      mouseEvent, CefPoint(screen.x, screen.y),
+      event.type == NSEventTypeMouseEntered ? CEF_MOUSE_EVENT_ENTER
+                                            : CEF_MOUSE_EVENT_MOVE);
+  if (input.type == CEF_MOUSE_EVENT_MOVE) {
+    input.movement_x = static_cast<int32_t>(event.deltaX);
+    input.movement_y = static_cast<int32_t>(event.deltaY);
+  }
+  browser->GetHost()->SendMouseEvent(input);
+#else
   browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
+#endif
 }
 
 - (void)mouseDragged:(NSEvent*)event {
@@ -277,8 +317,70 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   CefMouseEvent mouseEvent;
   [self getMouseEvent:mouseEvent forEvent:event];
 
+#if CEF_API_ADDED(CEF_NEXT)
+  const NSPoint screen = [self getScreenPointForEvent:event];
+  browser->GetHost()->SendMouseEvent(client::MakeOsrMouseInputEvent(
+      mouseEvent, CefPoint(screen.x, screen.y), CEF_MOUSE_EVENT_LEAVE));
+#else
   browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
+#endif
 }
+
+#if CEF_API_ADDED(CEF_NEXT)
+- (NSPoint)getScreenPointForEvent:(NSEvent*)event {
+  return ConvertPointFromWindowToScreen(self.window, event.locationInWindow);
+}
+
+- (void)sendGesture:(NSEvent*)event smartMagnify:(bool)smart {
+  auto browser = [self getBrowser];
+  if (!browser || (client::MainContext::Get()->TouchEventsEnabled() &&
+                   (event.modifierFlags & NSEventModifierFlagCapsLock))) {
+    return;
+  }
+  CefMouseEvent mouse;
+  [self getMouseEvent:mouse forEvent:event];
+  const NSPoint screen = [self getScreenPointForEvent:event];
+  CefGestureInputEvent input;
+  input.x = mouse.x;
+  input.y = mouse.y;
+  input.screen_x = screen.x;
+  input.screen_y = screen.y;
+  input.modifiers = mouse.modifiers;
+  input.source_device = CEF_GESTURE_DEVICE_TOUCHPAD;
+  input.primary_pointer_type = CEF_POINTER_TYPE_TOUCH;
+  input.needs_wheel_event = 1;
+  if (smart) {
+    input.type = CEF_GESTURE_EVENT_DOUBLE_TAP;
+    input.tap_count = 1;
+  } else {
+    switch (event.phase) {
+      case NSEventPhaseBegan:
+        input.type = CEF_GESTURE_EVENT_PINCH_BEGIN;
+        break;
+      case NSEventPhaseChanged:
+      case NSEventPhaseStationary:
+        input.type = CEF_GESTURE_EVENT_PINCH_UPDATE;
+        input.scale = 1.0 + event.magnification;
+        break;
+      case NSEventPhaseEnded:
+      case NSEventPhaseCancelled:
+        input.type = CEF_GESTURE_EVENT_PINCH_END;
+        break;
+      default:
+        return;
+    }
+  }
+  browser->GetHost()->SendGestureEvent(input);
+}
+
+- (void)magnifyWithEvent:(NSEvent*)event {
+  [self sendGesture:event smartMagnify:false];
+}
+
+- (void)smartMagnifyWithEvent:(NSEvent*)event {
+  [self sendGesture:event smartMagnify:true];
+}
+#endif
 
 - (void)keyDown:(NSEvent*)event {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
@@ -663,7 +765,33 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   mouseEvent.x = client::DeviceToLogical(device_x, device_scale_factor);
   mouseEvent.y = client::DeviceToLogical(device_y, device_scale_factor);
 
+#if CEF_API_ADDED(CEF_NEXT)
+  mouseEvent.modifiers =
+      [self getModifiersForEvent:event] &
+      ~(CEF_EVENTFLAG_LEFT_MOUSE_BUTTON | CEF_EVENTFLAG_MIDDLE_MOUSE_BUTTON |
+        CEF_EVENTFLAG_RIGHT_MOUSE_BUTTON);
+  const NSUInteger buttons = NSEvent.pressedMouseButtons;
+  if (buttons & (1 << 0)) {
+    mouseEvent.modifiers |= CEF_EVENTFLAG_LEFT_MOUSE_BUTTON;
+  }
+  if (buttons & (1 << 1)) {
+    mouseEvent.modifiers |= CEF_EVENTFLAG_RIGHT_MOUSE_BUTTON;
+  }
+  if (buttons & (1 << 2)) {
+    mouseEvent.modifiers |= CEF_EVENTFLAG_MIDDLE_MOUSE_BUTTON;
+  }
+  if (buttons & (1 << 3)) {
+    mouseEvent.modifiers |= CEF_EVENTFLAG_BACK_MOUSE_BUTTON;
+  }
+  if (buttons & (1 << 4)) {
+    mouseEvent.modifiers |= CEF_EVENTFLAG_FORWARD_MOUSE_BUTTON;
+  }
+  if (event.modifierFlags & NSEventModifierFlagFunction) {
+    mouseEvent.modifiers |= CEF_EVENTFLAG_FN_DOWN;
+  }
+#else
   mouseEvent.modifiers = [self getModifiersForEvent:event];
+#endif
 }
 
 - (void)getMouseEvent:(CefMouseEvent&)mouseEvent

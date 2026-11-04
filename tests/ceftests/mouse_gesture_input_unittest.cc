@@ -12,6 +12,7 @@
 #include "tests/ceftests/routing_test_handler.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/browser/osr_input_util.h"
 
 namespace {
 
@@ -891,6 +892,99 @@ INPUT_TEST(LegacyTouchScrollConsumed, Mode::LegacySend, Scenario::Scroll, true)
 #undef INPUT_TEST
 
 #if CEF_API_ADDED(CEF_NEXT)
+TEST(OsrInputUtilTest, MouseButtonTransitions) {
+  CefMouseEvent mouse;
+  mouse.x = 12;
+  mouse.y = 34;
+  const CefPoint screen(112, 234);
+  for (auto button :
+       {CEF_MOUSE_BUTTON_LEFT, CEF_MOUSE_BUTTON_MIDDLE, CEF_MOUSE_BUTTON_RIGHT,
+        CEF_MOUSE_BUTTON_BACK, CEF_MOUSE_BUTTON_FORWARD}) {
+    const uint32_t flag = client::OsrMouseButtonFlag(button);
+    // GTK can report pre-transition state; other frameworks report the
+    // post-transition state. Both must produce the same portable snapshot.
+    for (bool already_changed : {false, true}) {
+      mouse.modifiers = CEF_EVENTFLAG_SHIFT_DOWN | (already_changed ? flag : 0);
+      auto down = client::MakeOsrMouseInputEvent(
+          mouse, screen, CEF_MOUSE_EVENT_DOWN, button, 2);
+      EXPECT_EQ(CEF_EVENTFLAG_SHIFT_DOWN | flag, down.modifiers);
+      EXPECT_EQ(button, down.button);
+      EXPECT_EQ(2, down.click_count);
+      EXPECT_EQ(CEF_POINTER_TYPE_MOUSE, down.pointer_type);
+      EXPECT_EQ(12, down.x);
+      EXPECT_EQ(34, down.y);
+      EXPECT_EQ(112, down.screen_x);
+      EXPECT_EQ(234, down.screen_y);
+
+      mouse.modifiers = CEF_EVENTFLAG_SHIFT_DOWN | (already_changed ? 0 : flag);
+      auto up = client::MakeOsrMouseInputEvent(mouse, screen,
+                                               CEF_MOUSE_EVENT_UP, button, 2);
+      EXPECT_EQ(static_cast<uint32_t>(CEF_EVENTFLAG_SHIFT_DOWN), up.modifiers);
+      EXPECT_EQ(button, up.button);
+    }
+  }
+  // Releasing one chord button must preserve the others, and a subsequent
+  // drag move must identify a still-held button.
+  mouse.modifiers =
+      CEF_EVENTFLAG_LEFT_MOUSE_BUTTON | CEF_EVENTFLAG_RIGHT_MOUSE_BUTTON;
+  const auto released = client::MakeOsrMouseInputEvent(
+      mouse, screen, CEF_MOUSE_EVENT_UP, CEF_MOUSE_BUTTON_RIGHT, 1);
+  EXPECT_EQ(static_cast<uint32_t>(CEF_EVENTFLAG_LEFT_MOUSE_BUTTON),
+            released.modifiers);
+  mouse.modifiers = released.modifiers;
+  const auto moved =
+      client::MakeOsrMouseInputEvent(mouse, screen, CEF_MOUSE_EVENT_MOVE);
+  EXPECT_EQ(CEF_MOUSE_BUTTON_LEFT, moved.button);
+  EXPECT_EQ(static_cast<uint32_t>(CEF_EVENTFLAG_LEFT_MOUSE_BUTTON),
+            moved.modifiers);
+}
+
+TEST(OsrInputUtilTest, WindowsZoomSequence) {
+  uint64_t distance = 0;
+  auto update = [&](uint64_t next, bool begin = false, bool end = false) {
+    return client::OsrPinchInputEventsFromWindowsZoom(next, begin, end,
+                                                      distance);
+  };
+  EXPECT_TRUE(update(100).empty());  // Ignore an update without a begin.
+  EXPECT_TRUE(update(0, true).empty());
+  const auto begin = update(100, true);
+  ASSERT_EQ(2U, begin.size());
+  EXPECT_EQ(CEF_GESTURE_EVENT_SCROLL_BEGIN, begin[0].type);
+  EXPECT_EQ(2, begin[0].pointer_count);
+  EXPECT_EQ(CEF_GESTURE_EVENT_PINCH_BEGIN, begin[1].type);
+  EXPECT_EQ(CEF_GESTURE_DEVICE_TOUCHSCREEN, begin[1].source_device);
+  EXPECT_EQ(CEF_POINTER_TYPE_TOUCH, begin[1].primary_pointer_type);
+  EXPECT_FALSE(begin[1].needs_wheel_event);
+  EXPECT_TRUE(update(100).empty());
+  EXPECT_TRUE(update(0).empty());
+  EXPECT_EQ(100U, distance);
+  const auto grow = update(150);
+  ASSERT_EQ(1U, grow.size());
+  EXPECT_EQ(CEF_GESTURE_EVENT_PINCH_UPDATE, grow[0].type);
+  EXPECT_FLOAT_EQ(1.5f, grow[0].scale);
+  // The final message can contain one last scale change before ending.
+  const auto end = update(75, false, true);
+  ASSERT_EQ(3U, end.size());
+  EXPECT_EQ(CEF_GESTURE_EVENT_PINCH_UPDATE, end[0].type);
+  EXPECT_FLOAT_EQ(0.5f, end[0].scale);
+  EXPECT_EQ(CEF_GESTURE_EVENT_PINCH_END, end[1].type);
+  EXPECT_EQ(CEF_GESTURE_EVENT_SCROLL_END, end[2].type);
+  EXPECT_EQ(0U, distance);
+  EXPECT_TRUE(update(0, false, true).empty());
+  update(100, true);
+  const auto restart = update(200, true);
+  ASSERT_EQ(4U, restart.size());
+  EXPECT_EQ(CEF_GESTURE_EVENT_PINCH_END, restart[0].type);
+  EXPECT_EQ(CEF_GESTURE_EVENT_SCROLL_END, restart[1].type);
+  EXPECT_EQ(CEF_GESTURE_EVENT_SCROLL_BEGIN, restart[2].type);
+  EXPECT_EQ(CEF_GESTURE_EVENT_PINCH_BEGIN, restart[3].type);
+  const auto zero_end = update(0, false, true);
+  ASSERT_EQ(2U, zero_end.size());
+  EXPECT_EQ(CEF_GESTURE_EVENT_PINCH_END, zero_end[0].type);
+  EXPECT_EQ(CEF_GESTURE_EVENT_SCROLL_END, zero_end[1].type);
+  EXPECT_EQ(0U, distance);
+}
+
 // These sequence tests deliberately do not use the frame/scale matrix above.
 // Each exercises a distinct renderer or browser input state machine.
 enum class InputSequence {
@@ -1064,11 +1158,19 @@ class InputSequenceTestHandler : public RoutingTestHandler,
                   count);
           }
           break;
-        case InputSequence::Pinch:
-          Gesture(browser, CEF_GESTURE_EVENT_SCROLL_BEGIN);
-          Pinch(browser, false);
-          Gesture(browser, CEF_GESTURE_EVENT_SCROLL_END);
-          break;
+        case InputSequence::Pinch: {
+          // Exercise the native Windows adapter's complete sequence through
+          // renderer zoom, without requiring Windows hardware for this test.
+          uint64_t distance = 0;
+          for (int i = 0; i < 3; ++i) {
+            for (auto& event : client::OsrPinchInputEventsFromWindowsZoom(
+                     i == 0 ? 100 : 150, i == 0, i == 2, distance)) {
+              event.x = event.screen_x = 150;
+              event.y = event.screen_y = 100;
+              browser->GetHost()->SendGestureEvent(event);
+            }
+          }
+        } break;
         case InputSequence::WheelFirst:
           Pinch(browser, true);
           break;

@@ -195,6 +195,7 @@
       'tests/shared/browser/main_message_loop_external_pump.h',
       'tests/shared/browser/main_message_loop_std.cc',
       'tests/shared/browser/main_message_loop_std.h',
+      'tests/shared/browser/osr_input_util.h',
       'tests/shared/browser/resource_util.h',
     ],
     'shared_sources_common': [

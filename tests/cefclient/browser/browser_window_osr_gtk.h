@@ -130,6 +130,12 @@ class BrowserWindowOsrGtk : public BrowserWindow,
                              BrowserWindowOsrGtk* self);
 
   void RegisterTouch();
+#if CEF_API_ADDED(CEF_NEXT)
+  static gboolean GestureEvent(GtkWidget* widget,
+                               GdkEvent* event,
+                               BrowserWindowOsrGtk* self);
+  double pinch_scale_ = 1;
+#endif
 
   bool IsOverPopupWidget(int x, int y) const;
   int GetPopupXOffset() const;

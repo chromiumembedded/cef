@@ -11,6 +11,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include "tests/shared/browser/osr_accessibility_helper.h"
+#include "tests/shared/browser/osr_input_util.h"
 
 namespace {
 
@@ -420,8 +421,22 @@ inline int MiddleY(const CefRect& rect) {
     mouse_event.y = MiddleY(rect);
 
     mouse_event.modifiers = 0;
+#if CEF_API_ADDED(CEF_NEXT)
+    NSView* view = CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(node_->GetWindowHandle());
+    const NSPoint point =
+        NSMakePoint(mouse_event.x, NSHeight(view.bounds) - mouse_event.y);
+    const NSPoint window_point = [view convertPoint:point toView:nil];
+    const NSPoint screen_point =
+        [view.window convertPointToScreen:window_point];
+    const CefPoint screen(screen_point.x, screen_point.y);
+    browser->GetHost()->SendMouseEvent(client::MakeOsrMouseInputEvent(
+        mouse_event, screen, CEF_MOUSE_EVENT_DOWN, type, 1));
+    browser->GetHost()->SendMouseEvent(client::MakeOsrMouseInputEvent(
+        mouse_event, screen, CEF_MOUSE_EVENT_UP, type, 1));
+#else
     browser->GetHost()->SendMouseClickEvent(mouse_event, type, false, 1);
     browser->GetHost()->SendMouseClickEvent(mouse_event, type, true, 1);
+#endif
   }
 }
 

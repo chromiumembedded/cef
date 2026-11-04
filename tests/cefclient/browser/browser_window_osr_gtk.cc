@@ -13,6 +13,7 @@
 #include <gtk/gtk.h>
 
 #include <algorithm>
+#include <cmath>
 
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
@@ -22,6 +23,7 @@
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
 #include "tests/shared/browser/osr_gl_linux.h"
+#include "tests/shared/browser/osr_input_util.h"
 #include "tests/shared/browser/osr_keyboard_util_gtk.h"
 
 namespace client {
@@ -815,6 +817,11 @@ void BrowserWindowOsrGtk::Create(ClientWindowHandle parent_handle) {
                    G_CALLBACK(&BrowserWindowOsrGtk::FocusEvent), this);
   g_signal_connect(G_OBJECT(widget_), "touch-event",
                    G_CALLBACK(&BrowserWindowOsrGtk::TouchEvent), this);
+#if CEF_API_ADDED(CEF_NEXT)
+  gtk_widget_add_events(widget_, GDK_TOUCHPAD_GESTURE_MASK);
+  g_signal_connect(G_OBJECT(widget_), "event",
+                   G_CALLBACK(&BrowserWindowOsrGtk::GestureEvent), this);
+#endif
 
   RegisterDragDrop();
 
@@ -894,7 +901,15 @@ gint BrowserWindowOsrGtk::ClickEvent(GtkWidget* widget,
       break;
   }
 
+#if CEF_API_ADDED(CEF_NEXT)
+  const CefPoint screen(DeviceToLogical(event->x_root, device_scale_factor),
+                        DeviceToLogical(event->y_root, device_scale_factor));
+  host->SendMouseEvent(MakeOsrMouseInputEvent(
+      mouse_event, screen, mouse_up ? CEF_MOUSE_EVENT_UP : CEF_MOUSE_EVENT_DOWN,
+      button_type, click_count));
+#else
   host->SendMouseClickEvent(mouse_event, button_type, mouse_up, click_count);
+#endif
 
   // Save mouse event that can be a possible trigger for drag.
   if (!self->drag_context_ && button_type == MBT_LEFT) {
@@ -978,13 +993,17 @@ gint BrowserWindowOsrGtk::MoveEvent(GtkWidget* widget,
 
   gint x, y;
   GdkModifierType state;
+  auto* native_event = reinterpret_cast<GdkEvent*>(event);
 
-  if (event->is_hint) {
+  if (event->type == GDK_MOTION_NOTIFY && event->is_hint) {
     gdk_window_get_pointer(event->window, &x, &y, &state);
   } else {
-    x = (gint)event->x;
-    y = (gint)event->y;
-    state = (GdkModifierType)event->state;
+    // Crossing events have a different layout from motion events.
+    gdouble event_x = 0, event_y = 0;
+    gdk_event_get_coords(native_event, &event_x, &event_y);
+    gdk_event_get_state(native_event, &state);
+    x = event_x;
+    y = event_y;
     if (x == 0 && y == 0) {
       // Invalid coordinates of (0,0) appear from time to time in
       // enter-notify-event and leave-notify-event events. Sending them may
@@ -1007,7 +1026,25 @@ gint BrowserWindowOsrGtk::MoveEvent(GtkWidget* widget,
   mouse_event.modifiers = GetCefStateModifiers(state);
 
   bool mouse_leave = (event->type == GDK_LEAVE_NOTIFY);
+#if CEF_API_ADDED(CEF_NEXT)
+  gdouble root_x = 0, root_y = 0;
+  if (event->type == GDK_MOTION_NOTIFY && event->is_hint) {
+    gint origin_x = 0, origin_y = 0;
+    gdk_window_get_origin(event->window, &origin_x, &origin_y);
+    root_x = origin_x + x;
+    root_y = origin_y + y;
+  } else {
+    gdk_event_get_root_coords(native_event, &root_x, &root_y);
+  }
+  const CefPoint screen(DeviceToLogical(root_x, device_scale_factor),
+                        DeviceToLogical(root_y, device_scale_factor));
+  const auto type = mouse_leave                       ? CEF_MOUSE_EVENT_LEAVE
+                    : event->type == GDK_ENTER_NOTIFY ? CEF_MOUSE_EVENT_ENTER
+                                                      : CEF_MOUSE_EVENT_MOVE;
+  host->SendMouseEvent(MakeOsrMouseInputEvent(mouse_event, screen, type));
+#else
   host->SendMouseMoveEvent(mouse_event, mouse_leave);
+#endif
 
   // Save mouse event that can be a possible trigger for drag.
   if (!self->drag_context_ &&
@@ -1072,6 +1109,55 @@ gint BrowserWindowOsrGtk::ScrollEvent(GtkWidget* widget,
   host->SendMouseWheelEvent(mouse_event, deltaX, deltaY);
   return TRUE;
 }
+
+#if CEF_API_ADDED(CEF_NEXT)
+// GTK reports pinch scale relative to the beginning of the sequence; Chromium
+// expects the multiplicative change for each update.
+gboolean BrowserWindowOsrGtk::GestureEvent(GtkWidget*,
+                                           GdkEvent* event,
+                                           BrowserWindowOsrGtk* self) {
+  REQUIRE_MAIN_THREAD();
+  if (event->type != GDK_TOUCHPAD_PINCH || !self->browser_) {
+    return FALSE;
+  }
+  const auto& pinch = event->touchpad_pinch;
+  CefGestureInputEvent input;
+  switch (pinch.phase) {
+    case GDK_TOUCHPAD_GESTURE_PHASE_BEGIN:
+      self->pinch_scale_ = 1;
+      input.type = CEF_GESTURE_EVENT_PINCH_BEGIN;
+      break;
+    case GDK_TOUCHPAD_GESTURE_PHASE_UPDATE:
+      if (!std::isfinite(pinch.scale) || pinch.scale <= 0) {
+        return TRUE;
+      }
+      input.type = CEF_GESTURE_EVENT_PINCH_UPDATE;
+      input.scale = pinch.scale / self->pinch_scale_;
+      self->pinch_scale_ = pinch.scale;
+      break;
+    case GDK_TOUCHPAD_GESTURE_PHASE_END:
+    case GDK_TOUCHPAD_GESTURE_PHASE_CANCEL:
+      input.type = CEF_GESTURE_EVENT_PINCH_END;
+      self->pinch_scale_ = 1;
+      break;
+    default:
+      return FALSE;
+  }
+  const float scale = self->GetDeviceScaleFactor();
+  int x = pinch.x, y = pinch.y;
+  self->ApplyPopupOffset(x, y);
+  input.x = DeviceToLogical(x, scale);
+  input.y = DeviceToLogical(y, scale);
+  input.screen_x = DeviceToLogical(pinch.x_root, scale);
+  input.screen_y = DeviceToLogical(pinch.y_root, scale);
+  input.modifiers = GetCefStateModifiers(pinch.state);
+  input.source_device = CEF_GESTURE_DEVICE_TOUCHPAD;
+  input.primary_pointer_type = CEF_POINTER_TYPE_TOUCH;
+  input.needs_wheel_event = 1;
+  self->browser_->GetHost()->SendGestureEvent(input);
+  return TRUE;
+}
+#endif
 
 // static
 gint BrowserWindowOsrGtk::FocusEvent(GtkWidget* widget,
@@ -1382,8 +1468,7 @@ gboolean BrowserWindowOsrGtk::DragMotion(GtkWidget* widget,
     device_scale_factor = self->device_scale_factor_;
   }
 
-  // MoveEvent is never called during drag & drop, so must call
-  // SendMouseMoveEvent here.
+  // MoveEvent is never called during drag & drop, so send a mouse move here.
   CefMouseEvent mouse_event;
   mouse_event.x = x;
   mouse_event.y = y;
@@ -1392,7 +1477,17 @@ gboolean BrowserWindowOsrGtk::DragMotion(GtkWidget* widget,
   DeviceToLogical(mouse_event, device_scale_factor);
   if (self->browser_) {
     bool mouse_leave = self->drag_leave_;
+#if CEF_API_ADDED(CEF_NEXT)
+    gint origin_x = 0, origin_y = 0;
+    gdk_window_get_origin(gtk_widget_get_window(widget), &origin_x, &origin_y);
+    const CefPoint screen(DeviceToLogical(origin_x + x, device_scale_factor),
+                          DeviceToLogical(origin_y + y, device_scale_factor));
+    self->browser_->GetHost()->SendMouseEvent(MakeOsrMouseInputEvent(
+        mouse_event, screen,
+        mouse_leave ? CEF_MOUSE_EVENT_LEAVE : CEF_MOUSE_EVENT_MOVE));
+#else
     self->browser_->GetHost()->SendMouseMoveEvent(mouse_event, mouse_leave);
+#endif
   }
 
   // Mouse event.

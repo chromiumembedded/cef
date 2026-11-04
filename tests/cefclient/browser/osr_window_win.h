@@ -91,6 +91,12 @@ class OsrWindowWin
 
   // WndProc message handlers.
   void OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam);
+#if CEF_API_ADDED(CEF_NEXT)
+  void SendMouseInput(const CefMouseEvent& mouse,
+                      cef_mouse_input_event_type_t type,
+                      cef_mouse_button_type_t button = CEF_MOUSE_BUTTON_NONE,
+                      int click_count = 0);
+#endif
   void OnSize();
   void OnFocus(bool setFocus);
   void OnCaptureLost();
@@ -98,6 +104,9 @@ class OsrWindowWin
   void OnPaint();
   bool OnEraseBkgnd();
   bool OnTouchEvent(UINT message, WPARAM wParam, LPARAM lParam);
+#if CEF_API_ADDED(CEF_NEXT)
+  bool OnGestureEvent(LPARAM lParam);
+#endif
 
   void OnIMESetContext(UINT message, WPARAM wParam, LPARAM lParam);
   void OnIMEStartComposition();
@@ -209,6 +218,10 @@ class OsrWindowWin
   int last_click_count_ = 1;
   double last_click_time_ = 0;
   bool last_mouse_down_on_view_ = false;
+#if CEF_API_ADDED(CEF_NEXT)
+  // Nonzero while processing a WM_GESTURE zoom sequence.
+  uint64_t pinch_distance_ = 0;
+#endif
 };
 
 }  // namespace client

@@ -16,7 +16,9 @@
 
 #include <string>
 
+#include "include/views/cef_display.h"
 #include "tests/shared/browser/osr_accessibility_helper.h"
+#include "tests/shared/browser/osr_input_util.h"
 
 namespace client {
 
@@ -634,8 +636,21 @@ STDMETHODIMP CefIAccessible::accDoDefaultAction(VARIANT varChild) {
       mouse_event.y = MiddleY(rect);
 
       mouse_event.modifiers = 0;
+#if CEF_API_ADDED(CEF_NEXT)
+      POINT origin = {0, 0};
+      ::ClientToScreen(node_->GetWindowHandle(), &origin);
+      CefPoint screen = CefDisplay::ConvertScreenPointFromPixels(
+          CefPoint(origin.x, origin.y));
+      screen.x += mouse_event.x;
+      screen.y += mouse_event.y;
+      browser->GetHost()->SendMouseEvent(MakeOsrMouseInputEvent(
+          mouse_event, screen, CEF_MOUSE_EVENT_DOWN, CEF_MOUSE_BUTTON_LEFT, 1));
+      browser->GetHost()->SendMouseEvent(MakeOsrMouseInputEvent(
+          mouse_event, screen, CEF_MOUSE_EVENT_UP, CEF_MOUSE_BUTTON_LEFT, 1));
+#else
       browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_LEFT, false, 1);
       browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_LEFT, true, 1);
+#endif
     }
   } else {
     retCode = E_INVALIDARG;
