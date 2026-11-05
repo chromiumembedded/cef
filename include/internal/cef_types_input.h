@@ -695,6 +695,124 @@ typedef struct _cef_input_event_context_t {
   cef_event_handle_t os_event;
 } cef_input_event_context_t;
 
+///
+/// Scroll sequence phases. Values are flags and may be combined when the
+/// native input source reports simultaneous transitions.
+///
+typedef enum {
+  CEF_WHEEL_PHASE_NONE = 0,
+  CEF_WHEEL_PHASE_BEGAN = 1 << 0,
+  CEF_WHEEL_PHASE_STATIONARY = 1 << 1,
+  CEF_WHEEL_PHASE_CHANGED = 1 << 2,
+  CEF_WHEEL_PHASE_ENDED = 1 << 3,
+  CEF_WHEEL_PHASE_CANCELLED = 1 << 4,
+  CEF_WHEEL_PHASE_MAY_BEGIN = 1 << 5,
+  CEF_WHEEL_PHASE_BLOCKED = 1 << 6,
+} cef_wheel_event_phase_t;
+
+///
+/// Portable wheel snapshot for mouse wheels and trackpad scrolling. Positions
+/// are in DIPs. Deltas and ticks are positive for scrolling up or left,
+/// opposite to DOM WheelEvent deltas. Initialize unused fields to zero.
+///
+typedef struct _cef_wheel_input_event_t {
+  ///
+  /// Size of this structure. Initialize to sizeof(cef_wheel_input_event_t).
+  ///
+  size_t size;
+
+  ///
+  /// Combination of cef_event_flags_t CEF_EVENTFLAG_* keyboard modifiers, lock
+  /// state, held mouse buttons and event-source attributes. Specify precision
+  /// and page scrolling with |delta_units|, not modifier flags.
+  ///
+  uint32_t modifiers;
+
+  ///
+  /// Monotonic microseconds in this process. Zero uses the dispatch time.
+  /// Negative values are invalid. This is not a wall-clock timestamp.
+  ///
+  int64_t timestamp;
+
+  ///
+  /// Horizontal position in DIPs relative to the left edge of the browser view.
+  ///
+  float x;
+
+  ///
+  /// Vertical position in DIPs relative to the top edge of the browser view.
+  ///
+  float y;
+
+  ///
+  /// Horizontal screen position in DIPs relative to the desktop origin.
+  ///
+  float screen_x;
+
+  ///
+  /// Vertical screen position in DIPs relative to the desktop origin.
+  ///
+  float screen_y;
+
+  ///
+  /// Horizontal scroll amount in |delta_units|. Preserve fractional values for
+  /// high-resolution wheels and trackpads.
+  ///
+  float delta_x;
+
+  ///
+  /// Vertical scroll amount in |delta_units|.
+  ///
+  float delta_y;
+
+  ///
+  /// Horizontal wheel rotation in ticks, independent of |delta_x|. A typical
+  /// wheel detent is one tick. Trackpads may report fractional ticks.
+  ///
+  float wheel_ticks_x;
+
+  ///
+  /// Vertical wheel rotation in ticks, independent of |delta_y|.
+  ///
+  float wheel_ticks_y;
+
+  ///
+  /// Scroll units, sharing the gesture granularity constants. Only
+  /// CEF_GESTURE_SCROLL_PRECISE_PIXEL, CEF_GESTURE_SCROLL_PIXEL and
+  /// CEF_GESTURE_SCROLL_PAGE are supported. Zero selects precise pixels.
+  ///
+  cef_gesture_scroll_units_t delta_units;
+
+  ///
+  /// Phase of direct scrolling. Use CEF_WHEEL_PHASE_NONE for a discrete mouse
+  /// wheel or when phase information is unavailable. BLOCKED is not valid.
+  ///
+  cef_wheel_event_phase_t phase;
+
+  ///
+  /// Phase of inertial scrolling after contact ends. BLOCKED indicates that
+  /// momentum will not follow. Use NONE when unavailable. Send coherent
+  /// begin/update/end transitions when providing phase information.
+  ///
+  cef_wheel_event_phase_t momentum_phase;
+
+  ///
+  /// Axis constraint: 0 for free scrolling, 1 for horizontal, 2 for vertical.
+  ///
+  int32_t rails_mode;
+
+  ///
+  /// Horizontal acceleration ratio applied by the input source. Positive
+  /// values are preserved; zero means unspecified and uses a ratio of one.
+  ///
+  float acceleration_ratio_x;
+
+  ///
+  /// Vertical acceleration ratio. Same semantics as |acceleration_ratio_x|.
+  ///
+  float acceleration_ratio_y;
+} cef_wheel_input_event_t;
+
 #endif  // CEF_API_ADDED(CEF_NEXT)
 
 #ifdef __cplusplus

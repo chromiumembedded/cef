@@ -691,6 +691,7 @@
       'tests/ceftests/views/window_unittest.cc',
       'tests/ceftests/waitable_event_unittest.cc',
       'tests/ceftests/webui_unittest.cc',
+      'tests/ceftests/wheel_input_unittest.cc',
       'tests/ceftests/xml_reader_unittest.cc',
       'tests/ceftests/zip_reader_unittest.cc',
     ],

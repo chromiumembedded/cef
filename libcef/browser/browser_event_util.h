@@ -17,10 +17,13 @@ namespace blink {
 class WebGestureEvent;
 class WebKeyboardEvent;
 class WebMouseEvent;
+class WebMouseWheelEvent;
 }  // namespace blink
 
 // Convert between CEF event flags and Blink modifiers.
 int GetWebEventModifiers(uint32_t cef_modifiers);
+bool GetWebWheelInputEvent(const CefWheelInputEvent& event,
+                           blink::WebMouseWheelEvent& web_event);
 bool GetWebMouseInputEvent(const CefMouseInputEvent& event,
                            blink::WebMouseEvent& web_event);
 bool GetCefMouseInputEvent(const blink::WebMouseEvent& event,

@@ -38,6 +38,7 @@ class CefBrowserPlatformDelegateNativeWin
   // DEPRECATED: Retained for the legacy SendKeyEvent native key/IME path.
   // Unified input uses SendKeyboardEvent with a resolved portable snapshot.
   ui::KeyEvent TranslateUiKeyEvent(const CefKeyEvent& key_event) const override;
+  // DEPRECATED: Retained for legacy wheel injection.
   gfx::Vector2d GetUiWheelEventOffset(int deltaX, int deltaY) const override;
 
  private:

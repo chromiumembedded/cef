@@ -37,6 +37,7 @@ class CefBrowserPlatformDelegateNativeMac
                            bool mouseUp,
                            int clickCount) override;
   void SendMouseMoveEvent(const CefMouseEvent& event, bool mouseLeave) override;
+  void SendWheelEvent(const CefWheelInputEvent& event) override;
   void SendMouseWheelEvent(const CefMouseEvent& event,
                            int deltaX,
                            int deltaY) override;
@@ -69,6 +70,7 @@ class CefBrowserPlatformDelegateNativeMac
   // uses GetWebMouseInputEvent without platform conversion.
   blink::WebMouseEvent TranslateWebMoveEvent(const CefMouseEvent& mouse_event,
                                              bool mouseLeave) const override;
+  // DEPRECATED: Unified wheel input uses GetWebWheelInputEvent.
   blink::WebMouseWheelEvent TranslateWebWheelEvent(
       const CefMouseEvent& mouse_event,
       int deltaX,

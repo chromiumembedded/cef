@@ -5,11 +5,15 @@
 #include "cef/libcef/browser/native/browser_platform_delegate_native_aura.h"
 
 #include "base/notimplemented.h"
+#include "cef/libcef/browser/browser_event_util.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/key_event_util.h"
 #include "cef/libcef/browser/native/menu_runner_views_aura.h"
 #include "cef/libcef/browser/views/view_util.h"
 #include "cef/libcef/common/api_version_util.h"
+#include "components/input/render_widget_host_input_event_router.h"
+#include "content/browser/renderer_host/input/mouse_wheel_phase_handler.h"
+#include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/browser/renderer_host/render_widget_host_view_aura.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
@@ -95,6 +99,35 @@ void CefBrowserPlatformDelegateNativeAura::SendMouseMoveEvent(
 
   ui::MouseEvent ui_event = TranslateUiMoveEvent(event, mouseLeave);
   view->OnMouseEvent(&ui_event);
+}
+
+void CefBrowserPlatformDelegateNativeAura::SendWheelEvent(
+    const CefWheelInputEvent& event) {
+  auto* view = GetHostView();
+  blink::WebMouseWheelEvent web_event;
+  if (!view || view->destroy_pending() ||
+      !GetWebWheelInputEvent(event, web_event)) {
+    return;
+  }
+  auto* host = content::RenderWidgetHostImpl::From(view->GetRenderWidgetHost());
+  auto* router =
+      host->delegate() ? host->delegate()->GetInputEventRouter() : nullptr;
+  auto* phases = view->GetMouseWheelPhaseHandler();
+  if (web_event.delta_units != ui::ScrollGranularity::kScrollByPrecisePixel) {
+    phases->SendWheelEndForTouchpadScrollingIfNeeded(router != nullptr);
+  }
+  phases->AddPhaseIfNeededAndScheduleEndEvent(
+      web_event, router != nullptr,
+      /*is_fling_capable=*/web_event.delta_units ==
+          ui::ScrollGranularity::kScrollByPrecisePixel);
+  if (web_event.phase == blink::WebMouseWheelEvent::kPhaseEnded) {
+    return;
+  }
+  if (router) {
+    router->RouteMouseWheelEvent(view, &web_event, ui::LatencyInfo());
+  } else {
+    host->ForwardWheelEvent(web_event);
+  }
 }
 
 void CefBrowserPlatformDelegateNativeAura::SendMouseWheelEvent(

@@ -36,6 +36,7 @@ class CefBrowserPlatformDelegateNativeAura
                            bool mouseUp,
                            int clickCount) override;
   void SendMouseMoveEvent(const CefMouseEvent& event, bool mouseLeave) override;
+  void SendWheelEvent(const CefWheelInputEvent& event) override;
   void SendMouseWheelEvent(const CefMouseEvent& event,
                            int deltaX,
                            int deltaY) override;
@@ -60,6 +61,7 @@ class CefBrowserPlatformDelegateNativeAura
   // uses GetWebMouseInputEvent without platform conversion.
   blink::WebMouseEvent TranslateWebMoveEvent(const CefMouseEvent& mouse_event,
                                              bool mouseLeave) const override;
+  // DEPRECATED: Unified wheel input uses GetWebWheelInputEvent.
   blink::WebMouseWheelEvent TranslateWebWheelEvent(
       const CefMouseEvent& mouse_event,
       int deltaX,
@@ -81,10 +83,12 @@ class CefBrowserPlatformDelegateNativeAura
   // Unified mouse input uses SendMouseEvent with a portable snapshot.
   virtual ui::MouseEvent TranslateUiMoveEvent(const CefMouseEvent& mouse_event,
                                               bool mouseLeave) const;
+  // DEPRECATED: Retained for legacy wheel injection.
   virtual ui::MouseWheelEvent TranslateUiWheelEvent(
       const CefMouseEvent& mouse_event,
       int deltaX,
       int deltaY) const;
+  // DEPRECATED: Retained for legacy wheel injection.
   virtual gfx::Vector2d GetUiWheelEventOffset(int deltaX, int deltaY) const;
 
   // Returns the root window bounds in screen DIP coordinates.

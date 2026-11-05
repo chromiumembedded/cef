@@ -53,6 +53,7 @@ class CefBrowserPlatformDelegateNative
   virtual blink::WebMouseEvent TranslateWebMoveEvent(
       const CefMouseEvent& mouse_event,
       bool mouseLeave) const = 0;
+  // DEPRECATED: Unified wheel input uses GetWebWheelInputEvent.
   virtual blink::WebMouseWheelEvent TranslateWebWheelEvent(
       const CefMouseEvent& mouse_event,
       int deltaX,

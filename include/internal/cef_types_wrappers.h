@@ -399,6 +399,8 @@ using CefGestureInputEvent =
 using CefInputEventContext =
     CefStructBase<CefStructBaseSimpleTraits<cef_input_event_context_t>>;
 
+using CefWheelInputEvent =
+    CefStructBase<CefStructBaseSimpleTraits<cef_wheel_input_event_t>>;
 #endif  // CEF_API_ADDED(CEF_NEXT)
 
 ///

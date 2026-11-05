@@ -390,6 +390,17 @@ void CefBrowserPlatformDelegateNativeMac::SendMouseMoveEvent(
   view->RouteOrProcessMouseEvent(web_event);
 }
 
+void CefBrowserPlatformDelegateNativeMac::SendWheelEvent(
+    const CefWheelInputEvent& event) {
+  auto* view = GetHostView();
+  blink::WebMouseWheelEvent web_event;
+  if (view && GetWebWheelInputEvent(event, web_event)) {
+    // Preserve Chromium's phase synthesis and momentum handoff without
+    // reconstructing a native event or losing the portable snapshot fields.
+    view->RouteOrProcessWheelEvent(web_event);
+  }
+}
+
 void CefBrowserPlatformDelegateNativeMac::SendMouseWheelEvent(
     const CefMouseEvent& event,
     int deltaX,
@@ -401,7 +412,7 @@ void CefBrowserPlatformDelegateNativeMac::SendMouseWheelEvent(
 
   blink::WebMouseWheelEvent web_event =
       TranslateWebWheelEvent(event, deltaX, deltaY);
-  view->RouteOrProcessMouseEvent(web_event);
+  view->RouteOrProcessWheelEvent(web_event);
 }
 
 void CefBrowserPlatformDelegateNativeMac::SendTouchEvent(

@@ -907,7 +907,8 @@ TEST(OsrInputUtilTest, MouseButtonTransitions) {
       mouse.modifiers = CEF_EVENTFLAG_SHIFT_DOWN | (already_changed ? flag : 0);
       auto down = client::MakeOsrMouseInputEvent(
           mouse, screen, CEF_MOUSE_EVENT_DOWN, button, 2);
-      EXPECT_EQ(CEF_EVENTFLAG_SHIFT_DOWN | flag, down.modifiers);
+      EXPECT_EQ(static_cast<uint32_t>(CEF_EVENTFLAG_SHIFT_DOWN) | flag,
+                down.modifiers);
       EXPECT_EQ(button, down.button);
       EXPECT_EQ(2, down.click_count);
       EXPECT_EQ(CEF_POINTER_TYPE_MOUSE, down.pointer_type);

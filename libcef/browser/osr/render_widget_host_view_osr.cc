@@ -1442,11 +1442,22 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
 
   ui::LatencyInfo latency_info = CreateLatencyInfo(web_event);
   if (render_widget_host_ && render_widget_host_->GetView()) {
-    mouse_wheel_phase_handler_.SendWheelEndForTouchpadScrollingIfNeeded(false);
+    const bool should_route = ShouldRouteEvents();
+    const bool precise =
+        web_event.delta_units == ui::ScrollGranularity::kScrollByPrecisePixel;
+    if (!precise) {
+      mouse_wheel_phase_handler_.SendWheelEndForTouchpadScrollingIfNeeded(
+          should_route);
+    }
     mouse_wheel_phase_handler_.AddPhaseIfNeededAndScheduleEndEvent(
-        web_event, false, /*is_fling_capable=*/false);
+        web_event, should_route, /*is_fling_capable=*/precise);
+    // Let the phase handler defer the end to allow momentum scrolling to
+    // start, or send it immediately when momentum is explicitly blocked.
+    if (web_event.phase == blink::WebMouseWheelEvent::kPhaseEnded) {
+      return;
+    }
 
-    if (ShouldRouteEvents()) {
+    if (should_route) {
       render_widget_host_->delegate()
           ->GetInputEventRouter()
           ->RouteMouseWheelEvent(this, &web_event, latency_info);

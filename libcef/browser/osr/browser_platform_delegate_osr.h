@@ -36,6 +36,7 @@ class CefBrowserPlatformDelegateOsr
   void SendKeyEvent(const CefKeyEvent& event) override;
   void SendMouseEvent(const CefMouseInputEvent& event) override;
   void SendGestureEvent(const CefGestureInputEvent& event) override;
+  void SendWheelEvent(const CefWheelInputEvent& event) override;
   void SendKeyboardEvent(const CefKeyboardInputEvent& event) override;
   void SendMouseClickEvent(const CefMouseEvent& event,
                            CefBrowserHost::MouseButtonType type,

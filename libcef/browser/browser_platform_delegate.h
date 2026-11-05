@@ -231,6 +231,7 @@ class CefBrowserPlatformDelegate {
   virtual void SendKeyEvent(const CefKeyEvent& event);
   virtual void SendMouseEvent(const CefMouseInputEvent& event);
   virtual void SendGestureEvent(const CefGestureInputEvent& event);
+  virtual void SendWheelEvent(const CefWheelInputEvent& event);
   virtual void SendKeyboardEvent(const CefKeyboardInputEvent& event);
   // DEPRECATED: Use SendMouseEvent with a portable snapshot instead.
   virtual void SendMouseClickEvent(const CefMouseEvent& event,
@@ -239,6 +240,7 @@ class CefBrowserPlatformDelegate {
                                    int clickCount);
   // DEPRECATED: Use SendMouseEvent with a portable snapshot instead.
   virtual void SendMouseMoveEvent(const CefMouseEvent& event, bool mouseLeave);
+  // DEPRECATED: Use SendWheelEvent with a portable snapshot instead.
   virtual void SendMouseWheelEvent(const CefMouseEvent& event,
                                    int deltaX,
                                    int deltaY);

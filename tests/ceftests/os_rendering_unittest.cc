@@ -40,6 +40,20 @@ namespace {
 const char kTestUrl[] = "https://tests/osrtest";
 const char kDragNavigationUrl[] = "https://other-tests/drag_target_navigation";
 
+void SendWheelInput(CefRefPtr<CefBrowser> browser, const CefMouseEvent& mouse) {
+#if CEF_API_ADDED(CEF_NEXT)
+  CefWheelInputEvent event;
+  event.x = event.screen_x = mouse.x;
+  event.y = event.screen_y = mouse.y;
+  event.modifiers = mouse.modifiers;
+  event.delta_y = -10;
+  event.wheel_ticks_y = -0.25f;
+  browser->GetHost()->SendWheelEvent(event);
+#else
+  browser->GetHost()->SendMouseWheelEvent(mouse, 0, -10);
+#endif
+}
+
 // Must be both large enough for the drag/drop region to be visible and small
 // enough for a little vertical offset with scrollbar.
 const int kOsrWidth = 600;
@@ -113,8 +127,6 @@ enum OSRTestType {
   OSR_TEST_INVALIDATE,
   // mouse over LI10 will show a tooltip
   OSR_TEST_TOOLTIP,
-  // mouse wheel will trigger a scroll event
-  OSR_TEST_SCROLLING,
   // Right click will trigger a context menu, and on destroying the test, it
   // should not crash
   OSR_TEST_CONTEXT_MENU,
@@ -891,16 +903,6 @@ class OSRTestHandler : public RoutingTestHandler,
           }
         }
         break;
-      case OSR_TEST_SCROLLING:
-        if (StartedButNotFinished()) {
-          const CefRect& expected_rect =
-              GetScaledRect(CefRect(0, 0, kOsrWidth, kOsrHeight));
-          // There may be some partial repaints before the full repaint.
-          if (dirtyRects.size() == 1U && dirtyRects[0] == expected_rect) {
-            DestroySucceededTestSoon();
-          }
-        }
-        break;
       case OSR_TEST_POPUP_PAINT:
         // Wait for the first popup paint to occur
         if (type == PET_POPUP && StartedButNotFinished()) {
@@ -981,17 +983,6 @@ class OSRTestHandler : public RoutingTestHandler,
         EXPECT_TRUE(StartTest());
         browser->GetHost()->Invalidate(PET_VIEW);
         break;
-      case OSR_TEST_SCROLLING:
-        EXPECT_TRUE(StartTest());
-        {
-          // scroll down once
-          CefMouseEvent mouse_event;
-          const CefRect& expected_rect = GetElementBounds("LI00");
-          mouse_event.x = MiddleX(expected_rect);
-          mouse_event.y = MiddleY(expected_rect);
-          browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, -10);
-        }
-        break;
       default:
         break;
     }
@@ -1025,7 +1016,7 @@ class OSRTestHandler : public RoutingTestHandler,
           CefMouseEvent mouse_event;
           mouse_event.x = 1;
           mouse_event.y = 1;
-          browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, -10);
+          SendWheelInput(browser, mouse_event);
         }
         break;
       case OSR_TEST_POPUP_HIDE_ON_BLUR:
@@ -1059,7 +1050,7 @@ class OSRTestHandler : public RoutingTestHandler,
           mouse_event.x = MiddleX(kExpandedSelectRect);
           mouse_event.y = MiddleY(kExpandedSelectRect);
           mouse_event.modifiers = 0;
-          browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, -10);
+          SendWheelInput(browser, mouse_event);
         }
         break;
       default:
@@ -2341,8 +2332,6 @@ OSR_TEST(Invalidate, OSR_TEST_INVALIDATE, 1.0f)
 OSR_TEST(Invalidate2x, OSR_TEST_INVALIDATE, 2.0f)
 OSR_TEST(Tooltip, OSR_TEST_TOOLTIP, 1.0f)
 OSR_TEST(Tooltip2x, OSR_TEST_TOOLTIP, 2.0f)
-OSR_TEST(Scrolling, OSR_TEST_SCROLLING, 1.0f)
-OSR_TEST(Scrolling2x, OSR_TEST_SCROLLING, 2.0f)
 OSR_TEST(ContextMenu, OSR_TEST_CONTEXT_MENU, 1.0f)
 OSR_TEST(ContextMenu2x, OSR_TEST_CONTEXT_MENU, 2.0f)
 OSR_TEST(QuickMenu, OSR_TEST_QUICK_MENU, 1.0f)

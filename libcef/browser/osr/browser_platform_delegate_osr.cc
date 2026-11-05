@@ -143,6 +143,15 @@ void CefBrowserPlatformDelegateOsr::SendGestureEvent(
   }
 }
 
+void CefBrowserPlatformDelegateOsr::SendWheelEvent(
+    const CefWheelInputEvent& event) {
+  auto* view = GetOSRHostView();
+  blink::WebMouseWheelEvent web_event;
+  if (view && GetWebWheelInputEvent(event, web_event)) {
+    view->SendMouseWheelEvent(web_event);
+  }
+}
+
 void CefBrowserPlatformDelegateOsr::SendMouseClickEvent(
     const CefMouseEvent& event,
     CefBrowserHost::MouseButtonType type,

@@ -8,6 +8,7 @@
 #include "cef/libcef/browser/browser_event_util.h"
 #include "third_party/blink/public/common/input/web_gesture_event.h"
 #include "third_party/blink/public/common/input/web_mouse_event.h"
+#include "third_party/blink/public/common/input/web_mouse_wheel_event.h"
 
 namespace {
 
@@ -204,6 +205,64 @@ base::TimeTicks Timestamp(int64_t value) {
 }
 
 }  // namespace
+
+bool GetWebWheelInputEvent(const CefWheelInputEvent& event,
+                           blink::WebMouseWheelEvent& web_event) {
+  constexpr int direct_phases =
+      CEF_WHEEL_PHASE_BEGAN | CEF_WHEEL_PHASE_STATIONARY |
+      CEF_WHEEL_PHASE_CHANGED | CEF_WHEEL_PHASE_ENDED |
+      CEF_WHEEL_PHASE_CANCELLED | CEF_WHEEL_PHASE_MAY_BEGIN;
+  if (!ValidCommon(event) ||
+      (event.delta_units != CEF_GESTURE_SCROLL_PRECISE_PIXEL &&
+       event.delta_units != CEF_GESTURE_SCROLL_PIXEL &&
+       event.delta_units != CEF_GESTURE_SCROLL_PAGE) ||
+      (event.phase & ~direct_phases) ||
+      (event.momentum_phase & ~(direct_phases | CEF_WHEEL_PHASE_BLOCKED)) ||
+      event.rails_mode < 0 || event.rails_mode > 2 ||
+      !std::isfinite(event.delta_x) || !std::isfinite(event.delta_y) ||
+      !std::isfinite(event.wheel_ticks_x) ||
+      !std::isfinite(event.wheel_ticks_y) ||
+      !std::isfinite(event.acceleration_ratio_x) ||
+      !std::isfinite(event.acceleration_ratio_y) ||
+      event.acceleration_ratio_x < 0 || event.acceleration_ratio_y < 0) {
+    return false;
+  }
+  blink::WebMouseWheelEvent result(Type::kMouseWheel,
+                                   GetWebMouseGestureModifiers(event.modifiers),
+                                   Timestamp(event.timestamp));
+  CopyCommonToWeb(event, result);
+  result.pointer_type = blink::WebPointerProperties::PointerType::kMouse;
+  for (auto button :
+       {CEF_MOUSE_BUTTON_LEFT, CEF_MOUSE_BUTTON_MIDDLE, CEF_MOUSE_BUTTON_RIGHT,
+        CEF_MOUSE_BUTTON_BACK, CEF_MOUSE_BUTTON_FORWARD}) {
+    constexpr uint32_t flags[] = {
+        CEF_EVENTFLAG_LEFT_MOUSE_BUTTON, CEF_EVENTFLAG_MIDDLE_MOUSE_BUTTON,
+        CEF_EVENTFLAG_RIGHT_MOUSE_BUTTON, CEF_EVENTFLAG_BACK_MOUSE_BUTTON,
+        CEF_EVENTFLAG_FORWARD_MOUSE_BUTTON};
+    if (event.modifiers & flags[static_cast<int>(button)]) {
+      result.button = static_cast<blink::WebMouseEvent::Button>(button);
+      break;
+    }
+  }
+  result.delta_x = event.delta_x;
+  result.delta_y = event.delta_y;
+  result.wheel_ticks_x = event.wheel_ticks_x;
+  result.wheel_ticks_y = event.wheel_ticks_y;
+  result.delta_units = static_cast<ui::ScrollGranularity>(event.delta_units);
+  result.phase = static_cast<blink::WebMouseWheelEvent::Phase>(event.phase);
+  result.momentum_phase =
+      static_cast<blink::WebMouseWheelEvent::Phase>(event.momentum_phase);
+  result.rails_mode =
+      static_cast<blink::WebInputEvent::RailsMode>(event.rails_mode);
+  result.acceleration_ratio_x =
+      event.acceleration_ratio_x ? event.acceleration_ratio_x : 1;
+  result.acceleration_ratio_y =
+      event.acceleration_ratio_y ? event.acceleration_ratio_y : 1;
+  result.event_action =
+      blink::WebMouseWheelEvent::GetPlatformSpecificDefaultEventAction(result);
+  web_event = result;
+  return true;
+}
 
 bool GetWebMouseInputEvent(const CefMouseInputEvent& event,
                            blink::WebMouseEvent& web_event) {

@@ -15,6 +15,216 @@
 namespace {
 using Type = blink::WebInputEvent::Type;
 
+TEST(WheelInputEventUtil, FieldsAndDefaults) {
+  CefWheelInputEvent event;
+  EXPECT_EQ(sizeof(cef_wheel_input_event_t), event.size);
+  blink::WebMouseWheelEvent web;
+  const auto before = base::TimeTicks::Now();
+  ASSERT_TRUE(GetWebWheelInputEvent(event, web));
+  EXPECT_EQ(Type::kMouseWheel, web.GetType());
+  EXPECT_GE(web.TimeStamp(), before);
+  EXPECT_LE(web.TimeStamp(), base::TimeTicks::Now());
+  EXPECT_EQ(blink::WebMouseWheelEvent::kPhaseNone, web.phase);
+  EXPECT_EQ(ui::ScrollGranularity::kScrollByPrecisePixel, web.delta_units);
+  EXPECT_FLOAT_EQ(1, web.acceleration_ratio_x);
+  EXPECT_FLOAT_EQ(1, web.acceleration_ratio_y);
+  EXPECT_EQ(blink::WebInputEvent::DispatchType::kBlocking, web.dispatch_type);
+  EXPECT_FALSE(web.has_synthetic_phase);
+
+  event.timestamp = 123456789;
+  event.modifiers = CEF_EVENTFLAG_SHIFT_DOWN | CEF_EVENTFLAG_BACK_MOUSE_BUTTON;
+  event.x = -12.25f;
+  event.y = 34.5f;
+  event.screen_x = -112.75f;
+  event.screen_y = 234.25f;
+  event.delta_x = -0.25f;
+  event.delta_y = 17.5f;
+  event.wheel_ticks_x = -0.125f;
+  event.wheel_ticks_y = 0.75f;
+  event.delta_units = CEF_GESTURE_SCROLL_PIXEL;
+  event.phase = CEF_WHEEL_PHASE_ENDED;
+  event.momentum_phase = CEF_WHEEL_PHASE_BEGAN;
+  event.rails_mode = 1;
+  event.acceleration_ratio_x = 2;
+  event.acceleration_ratio_y = 0.5f;
+  ASSERT_TRUE(GetWebWheelInputEvent(event, web));
+  EXPECT_EQ(123456789, web.TimeStamp().ToInternalValue());
+  EXPECT_EQ(
+      blink::WebInputEvent::kShiftKey | blink::WebInputEvent::kBackButtonDown,
+      web.GetModifiers());
+  EXPECT_EQ(blink::WebMouseEvent::Button::kBack, web.button);
+  EXPECT_EQ(blink::WebPointerProperties::PointerType::kMouse, web.pointer_type);
+  EXPECT_FLOAT_EQ(event.x, web.PositionInWidget().x());
+  EXPECT_FLOAT_EQ(event.y, web.PositionInWidget().y());
+  EXPECT_FLOAT_EQ(event.screen_x, web.PositionInScreen().x());
+  EXPECT_FLOAT_EQ(event.screen_y, web.PositionInScreen().y());
+  EXPECT_FLOAT_EQ(event.delta_x, web.delta_x);
+  EXPECT_FLOAT_EQ(event.delta_y, web.delta_y);
+  EXPECT_FLOAT_EQ(event.wheel_ticks_x, web.wheel_ticks_x);
+  EXPECT_FLOAT_EQ(event.wheel_ticks_y, web.wheel_ticks_y);
+  EXPECT_FLOAT_EQ(event.acceleration_ratio_x, web.acceleration_ratio_x);
+  EXPECT_FLOAT_EQ(event.acceleration_ratio_y, web.acceleration_ratio_y);
+  EXPECT_EQ(ui::ScrollGranularity::kScrollByPixel, web.delta_units);
+  EXPECT_EQ(blink::WebMouseWheelEvent::kPhaseEnded, web.phase);
+  EXPECT_EQ(blink::WebMouseWheelEvent::kPhaseBegan, web.momentum_phase);
+  EXPECT_EQ(blink::WebInputEvent::RailsMode::kRailsModeHorizontal,
+            web.rails_mode);
+  EXPECT_EQ(blink::WebMouseWheelEvent::EventAction::kScrollHorizontal,
+            web.event_action);
+}
+
+TEST(WheelInputEventUtil, PhasesUnitsAndButtons) {
+  constexpr struct {
+    cef_wheel_event_phase_t cef;
+    blink::WebMouseWheelEvent::Phase web;
+  } phases[] = {
+      {CEF_WHEEL_PHASE_NONE, blink::WebMouseWheelEvent::kPhaseNone},
+      {CEF_WHEEL_PHASE_BEGAN, blink::WebMouseWheelEvent::kPhaseBegan},
+      {CEF_WHEEL_PHASE_STATIONARY, blink::WebMouseWheelEvent::kPhaseStationary},
+      {CEF_WHEEL_PHASE_CHANGED, blink::WebMouseWheelEvent::kPhaseChanged},
+      {CEF_WHEEL_PHASE_ENDED, blink::WebMouseWheelEvent::kPhaseEnded},
+      {CEF_WHEEL_PHASE_CANCELLED, blink::WebMouseWheelEvent::kPhaseCancelled},
+      {CEF_WHEEL_PHASE_MAY_BEGIN, blink::WebMouseWheelEvent::kPhaseMayBegin},
+      {CEF_WHEEL_PHASE_BLOCKED, blink::WebMouseWheelEvent::kPhaseBlocked},
+  };
+  CefWheelInputEvent event;
+  blink::WebMouseWheelEvent web;
+  for (const auto& phase : phases) {
+    event.momentum_phase = phase.cef;
+    ASSERT_TRUE(GetWebWheelInputEvent(event, web));
+    EXPECT_EQ(phase.web, web.momentum_phase);
+    event.phase = phase.cef;
+    EXPECT_EQ(phase.cef != CEF_WHEEL_PHASE_BLOCKED,
+              GetWebWheelInputEvent(event, web));
+    if (phase.cef != CEF_WHEEL_PHASE_BLOCKED) {
+      EXPECT_EQ(phase.web, web.phase);
+    }
+    event.phase = CEF_WHEEL_PHASE_NONE;
+  }
+  event.phase = static_cast<cef_wheel_event_phase_t>(CEF_WHEEL_PHASE_CHANGED |
+                                                     CEF_WHEEL_PHASE_ENDED);
+  ASSERT_TRUE(GetWebWheelInputEvent(event, web));
+  EXPECT_EQ(blink::WebMouseWheelEvent::kPhaseChanged |
+                blink::WebMouseWheelEvent::kPhaseEnded,
+            web.phase);
+  for (auto units : {CEF_GESTURE_SCROLL_PRECISE_PIXEL, CEF_GESTURE_SCROLL_PIXEL,
+                     CEF_GESTURE_SCROLL_PAGE}) {
+    for (int rails : {0, 1, 2}) {
+      event.delta_units = units;
+      event.rails_mode = rails;
+      ASSERT_TRUE(GetWebWheelInputEvent(event, web));
+      EXPECT_EQ(static_cast<int>(units), static_cast<int>(web.delta_units));
+      EXPECT_EQ(rails, static_cast<int>(web.rails_mode));
+    }
+  }
+  constexpr struct {
+    uint32_t flag;
+    blink::WebMouseEvent::Button button;
+  } buttons[] = {
+      {0, blink::WebMouseEvent::Button::kNoButton},
+      {CEF_EVENTFLAG_LEFT_MOUSE_BUTTON, blink::WebMouseEvent::Button::kLeft},
+      {CEF_EVENTFLAG_MIDDLE_MOUSE_BUTTON,
+       blink::WebMouseEvent::Button::kMiddle},
+      {CEF_EVENTFLAG_RIGHT_MOUSE_BUTTON, blink::WebMouseEvent::Button::kRight},
+      {CEF_EVENTFLAG_BACK_MOUSE_BUTTON, blink::WebMouseEvent::Button::kBack},
+      {CEF_EVENTFLAG_FORWARD_MOUSE_BUTTON,
+       blink::WebMouseEvent::Button::kForward},
+  };
+  for (const auto& button : buttons) {
+    event.modifiers = button.flag;
+    ASSERT_TRUE(GetWebWheelInputEvent(event, web));
+    EXPECT_EQ(button.button, web.button);
+  }
+}
+
+TEST(WheelInputEventUtil, InvalidValuesPreserveOutput) {
+  const CefWheelInputEvent valid;
+  auto reject = [](const CefWheelInputEvent& event) {
+    blink::WebMouseWheelEvent web(Type::kMouseWheel, 0,
+                                  base::TimeTicks::FromInternalValue(47));
+    web.delta_y = 23;
+    EXPECT_FALSE(GetWebWheelInputEvent(event, web));
+    EXPECT_EQ(47, web.TimeStamp().ToInternalValue());
+    EXPECT_FLOAT_EQ(23, web.delta_y);
+  };
+  for (auto member :
+       {&cef_wheel_input_event_t::x, &cef_wheel_input_event_t::y,
+        &cef_wheel_input_event_t::screen_x, &cef_wheel_input_event_t::screen_y,
+        &cef_wheel_input_event_t::delta_x, &cef_wheel_input_event_t::delta_y,
+        &cef_wheel_input_event_t::wheel_ticks_x,
+        &cef_wheel_input_event_t::wheel_ticks_y,
+        &cef_wheel_input_event_t::acceleration_ratio_x,
+        &cef_wheel_input_event_t::acceleration_ratio_y}) {
+    for (float value : {std::numeric_limits<float>::quiet_NaN(),
+                        std::numeric_limits<float>::infinity(),
+                        -std::numeric_limits<float>::infinity()}) {
+      auto event = valid;
+      event.*member = value;
+      reject(event);
+    }
+  }
+  for (auto member : {&cef_wheel_input_event_t::acceleration_ratio_x,
+                      &cef_wheel_input_event_t::acceleration_ratio_y}) {
+    auto event = valid;
+    event.*member = -0.01f;
+    reject(event);
+  }
+  for (int units : {-1, 2, 4, 5}) {
+    auto event = valid;
+    event.delta_units = static_cast<cef_gesture_scroll_units_t>(units);
+    reject(event);
+  }
+  for (auto member : {&cef_wheel_input_event_t::phase,
+                      &cef_wheel_input_event_t::momentum_phase}) {
+    for (int phase : {-1, 128}) {
+      auto event = valid;
+      event.*member = static_cast<cef_wheel_event_phase_t>(phase);
+      reject(event);
+    }
+  }
+  for (int rails : {-1, 3}) {
+    auto event = valid;
+    event.rails_mode = rails;
+    reject(event);
+  }
+  auto event = valid;
+  event.timestamp = -1;
+  reject(event);
+  event = valid;
+  event.phase = CEF_WHEEL_PHASE_BLOCKED;
+  reject(event);
+}
+
+TEST(WheelInputEventUtil, VersionedCopies) {
+  struct Older {
+    size_t size;
+    uint32_t modifiers;
+    int64_t timestamp;
+  } older = {sizeof(Older), CEF_EVENTFLAG_SHIFT_DOWN, 123456789};
+  CefWheelInputEvent event;
+  event.delta_y = 47;
+  event.Set(*reinterpret_cast<const cef_wheel_input_event_t*>(&older), true);
+  EXPECT_EQ(sizeof(cef_wheel_input_event_t), event.size);
+  EXPECT_EQ(CEF_EVENTFLAG_SHIFT_DOWN, event.modifiers);
+  EXPECT_EQ(123456789, event.timestamp);
+  EXPECT_FLOAT_EQ(0, event.delta_y);
+  struct Newer {
+    cef_wheel_input_event_t event;
+    uint64_t future;
+  } newer = {};
+  newer.event.size = sizeof(newer);
+  newer.event.delta_y = 23.5f;
+  newer.future = 0xdeadbeef;
+  event = CefWheelInputEvent(newer.event);
+  EXPECT_EQ(sizeof(cef_wheel_input_event_t), event.size);
+  EXPECT_FLOAT_EQ(23.5f, event.delta_y);
+  event.AttachTo(newer.event);
+  event.delta_y = 17.25f;
+  event.DetachTo(newer.event);
+  EXPECT_FLOAT_EQ(17.25f, newer.event.delta_y);
+  EXPECT_EQ(0xdeadbeefU, newer.future);
+}
+
 template <class Event>
 void ExpectCommon(const Event& original, const Event& restored) {
   EXPECT_EQ(original.GetType(), restored.GetType());
@@ -709,6 +919,11 @@ TEST(MouseGestureInputEventUtil, IndividualModifiers) {
     EXPECT_EQ(modifier.web, web_gesture.GetModifiers());
     ASSERT_TRUE(GetCefGestureInputEvent(web_gesture, gesture));
     EXPECT_EQ(modifier.cef, gesture.modifiers);
+    CefWheelInputEvent wheel;
+    wheel.modifiers = modifier.cef;
+    blink::WebMouseWheelEvent web_wheel;
+    ASSERT_TRUE(GetWebWheelInputEvent(wheel, web_wheel));
+    EXPECT_EQ(modifier.web, web_wheel.GetModifiers());
   }
   // Reject every unexposed bit, including wheel-only CEF flags.
   for (unsigned bit = 0; bit < 32; ++bit) {
@@ -727,6 +942,10 @@ TEST(MouseGestureInputEventUtil, IndividualModifiers) {
     gesture.modifiers = modifier;
     blink::WebGestureEvent web_gesture;
     EXPECT_FALSE(GetWebGestureInputEvent(gesture, web_gesture));
+    CefWheelInputEvent wheel;
+    wheel.modifiers = modifier;
+    blink::WebMouseWheelEvent web_wheel;
+    EXPECT_FALSE(GetWebWheelInputEvent(wheel, web_wheel));
   }
 }
 

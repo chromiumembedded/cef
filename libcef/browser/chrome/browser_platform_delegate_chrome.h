@@ -35,6 +35,7 @@ class CefBrowserPlatformDelegateChrome
                            bool mouseUp,
                            int clickCount) override;
   void SendMouseMoveEvent(const CefMouseEvent& event, bool mouseLeave) override;
+  void SendWheelEvent(const CefWheelInputEvent& event) override;
   void SendMouseWheelEvent(const CefMouseEvent& event,
                            int deltaX,
                            int deltaY) override;

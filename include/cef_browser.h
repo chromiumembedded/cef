@@ -778,6 +778,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /// respectively. In order to scroll inside select popups with window
   /// rendering disabled CefRenderHandler::GetScreenPoint should be implemented
   /// properly.
+  /// DEPRECATED: Use SendWheelEvent with CefWheelInputEvent instead.
   ///
   /*--cef()--*/
   virtual void SendMouseWheelEvent(const CefMouseEvent& event,
@@ -1175,6 +1176,27 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /*--cef(added=next)--*/
   virtual void SendGestureEvent(const CefGestureInputEvent& event) = 0;
+
+  ///
+  /// Send a portable wheel snapshot to web content. Supports off-screen and
+  /// native browser views with Chromium input routing, including out-of-process
+  /// frames. Events are injected directly into web content, bypassing native
+  /// controls and OS event synthesis. Zero timestamp uses the dispatch time.
+  /// Invalid snapshots are silently ignored. May be called on any thread.
+  /// Coordinates are in DIPs; provide both widget and screen positions.
+  ///
+  /// For windowed browsers, this bypasses native OS wheel-event dispatch and
+  /// translation. It does not deliver events to browser chrome or Views
+  /// controls, or perform native focus/capture handling. The caller must manage
+  /// browser focus and any required native input capture. DOM wheel listeners
+  /// and Chromium's wheel acknowledgment, scrolling and gesture processing
+  /// still apply. There is currently no CefInputHandler callback for wheels.
+  ///
+  /// Use this method for wheel/trackpad scrolling. SendGestureEvent submits
+  /// already recognized gestures and does not replace DOM wheel delivery.
+  ///
+  /*--cef(added=next)--*/
+  virtual void SendWheelEvent(const CefWheelInputEvent& event) = 0;
 #endif  // CEF_API_ADDED(CEF_NEXT)
 };
 

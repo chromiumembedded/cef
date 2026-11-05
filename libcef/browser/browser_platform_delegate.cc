@@ -367,6 +367,11 @@ void CefBrowserPlatformDelegate::SendGestureEvent(
   }
 }
 
+void CefBrowserPlatformDelegate::SendWheelEvent(
+    const CefWheelInputEvent& event) {
+  NOTIMPLEMENTED();
+}
+
 void CefBrowserPlatformDelegate::SendMouseClickEvent(
     const CefMouseEvent& event,
     CefBrowserHost::MouseButtonType type,
