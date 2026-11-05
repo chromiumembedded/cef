@@ -15,6 +15,7 @@
 #include "tests/cefclient/browser/osr_render_handler_win.h"
 #include "tests/cefclient/browser/osr_renderer_settings.h"
 #include "tests/shared/browser/osr_accessibility_node.h"
+#include "tests/shared/browser/osr_input_util.h"
 
 namespace client {
 
@@ -206,6 +207,7 @@ class OsrWindowWin
 #endif
 
   bool hidden_ = false;
+  OsrTouchInputState touch_state_;
 
   // Mouse state tracking.
   POINT last_mouse_pos_;

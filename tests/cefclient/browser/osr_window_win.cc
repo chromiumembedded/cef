@@ -10,6 +10,7 @@
 #include <oleacc.h>
 #endif
 
+#include <cmath>
 #include <memory>
 
 #include "include/base/cef_build.h"
@@ -817,6 +818,14 @@ void OsrWindowWin::OnSize() {
 }
 
 void OsrWindowWin::OnFocus(bool setFocus) {
+  if (!setFocus) {
+    for (auto& touch : touch_state_.Cancel()) {
+      DeviceToLogical(touch, device_scale_factor_);
+      if (browser_) {
+        browser_->GetHost()->SendTouchEvent(touch);
+      }
+    }
+  }
   if (browser_) {
     browser_->GetHost()->SetFocus(setFocus);
   }
@@ -916,45 +925,43 @@ bool OsrWindowWin::OnEraseBkgnd() {
 
 bool OsrWindowWin::OnTouchEvent(UINT message, WPARAM wParam, LPARAM lParam) {
   // Handle touch events on Windows.
-  int num_points = LOWORD(wParam);
-  // Chromium only supports upto 16 touch points.
-  if (num_points < 0 || num_points > 16) {
+  const int num_points = LOWORD(wParam);
+  POINT origin = {0, 0};
+  if (!browser_ || !ClientToScreen(hwnd_, &origin)) {
     return false;
   }
   auto input = std::make_unique<TOUCHINPUT[]>(num_points);
   if (GetTouchInputInfo(reinterpret_cast<HTOUCHINPUT>(lParam), num_points,
                         input.get(), sizeof(TOUCHINPUT))) {
-    CefTouchEvent touch_event;
     for (int i = 0; i < num_points; ++i) {
-      POINT point;
-      point.x = TOUCH_COORD_TO_PIXEL(input[i].x);
-      point.y = TOUCH_COORD_TO_PIXEL(input[i].y);
-
-      ScreenToClient(hwnd_, &point);
-      touch_event.x = DeviceToLogical(point.x, device_scale_factor_);
-      touch_event.y = DeviceToLogical(point.y, device_scale_factor_);
-
-      // Touch point identifier stays consistent in a touch contact sequence
-      touch_event.id = input[i].dwID;
-
+      CefTouchEvent touch_event;
       if (input[i].dwFlags & TOUCHEVENTF_DOWN) {
         touch_event.type = CEF_TET_PRESSED;
       } else if (input[i].dwFlags & TOUCHEVENTF_MOVE) {
         touch_event.type = CEF_TET_MOVED;
       } else if (input[i].dwFlags & TOUCHEVENTF_UP) {
         touch_event.type = CEF_TET_RELEASED;
+      } else {
+        continue;
       }
 
-      touch_event.radius_x = 0;
-      touch_event.radius_y = 0;
-      touch_event.rotation_angle = 0;
-      touch_event.pressure = 0;
-      touch_event.modifiers = 0;
-
-      // Notify the browser of touch event
-      if (browser_) {
-        browser_->GetHost()->SendTouchEvent(touch_event);
+      // Native coordinates and contact dimensions are hundredths of a pixel.
+      touch_event.x = input[i].x / 100.0 - origin.x;
+      touch_event.y = input[i].y / 100.0 - origin.y;
+      if (input[i].dwMask & TOUCHINPUTMASKF_CONTACTAREA) {
+        touch_event.radius_x = input[i].cxContact / 200.f;
+        touch_event.radius_y = input[i].cyContact / 200.f;
       }
+      touch_event.modifiers = GetCefKeyboardModifiers(0, 0);
+      if (!touch_state_.Update(
+              input[i].dwID, touch_event,
+              IsOverPopupWidget(static_cast<int>(std::floor(touch_event.x)),
+                                static_cast<int>(std::floor(touch_event.y))),
+              GetPopupXOffset(), GetPopupYOffset())) {
+        continue;
+      }
+      DeviceToLogical(touch_event, device_scale_factor_);
+      browser_->GetHost()->SendTouchEvent(touch_event);
     }
     CloseTouchInputHandle(reinterpret_cast<HTOUCHINPUT>(lParam));
     return true;

@@ -9,6 +9,7 @@
 #import <QuartzCore/CAMetalLayer.h>
 #import <objc/runtime.h>
 
+#include <cmath>
 #include <optional>
 #include <utility>
 
@@ -44,6 +45,10 @@
 
   float device_scale_factor_;
 
+  client::OsrTouchInputState touch_state_;
+  NSMutableDictionary* touch_ids_;
+  uint64_t next_touch_id_;
+
   // Drag and drop.
   CefRefPtr<CefDragData> current_drag_data_;
   NSDragOperation current_drag_op_;
@@ -64,6 +69,8 @@
 
 - (void)requestDisplay;
 - (void)updateDrawableSize;
+- (void)cancelTouchEvents;
+- (void)setTouchEmulationEnabled:(BOOL)enabled;
 @end  // @interface BrowserOsrView
 
 namespace {
@@ -108,6 +115,13 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
     display_pending_ = false;
     endWheelMonitor_ = nil;
     device_scale_factor_ = 1.0f;
+    touch_ids_ = [[NSMutableDictionary alloc] init];
+    next_touch_id_ = 0;
+    // Preserve contacts when AppKit classifies a finger as resting. Otherwise
+    // it synthesizes end/begin events while the finger is still on the device.
+    self.wantsRestingTouches = YES;
+    [self setTouchEmulationEnabled:([NSEvent modifierFlags] &
+                                    NSEventModifierFlagCapsLock) != 0];
 
     tracking_area_ = [[NSTrackingArea alloc]
         initWithRect:frame
@@ -143,6 +157,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
   [self detach];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 #if !__has_feature(objc_arc)
+  [touch_ids_ release];
   if (text_input_context_osr_mac_) {
     [text_input_client_ release];
     [text_input_context_osr_mac_ release];
@@ -152,6 +167,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
 }
 
 - (void)detach {
+  [self cancelTouchEvents];
   [NSObject cancelPreviousPerformRequestsWithTarget:self];
   display_pending_ = false;
   // Clear the view's pointer before destruction notifications can reenter it.
@@ -447,14 +463,29 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
 // touch-events=enabled commandline is passed and caps lock key is on.
 - (void)toggleTouchEmulation:(NSEvent*)event {
   if ([event type] == NSEventTypeFlagsChanged && [event keyCode] == 0x39) {
-    NSUInteger flags = [event modifierFlags];
-    BOOL touch_enabled = flags & NSEventModifierFlagCapsLock ? YES : NO;
-    if (touch_enabled) {
-      self.allowedTouchTypes |= NSTouchTypeMaskDirect;
-    } else {
-      self.allowedTouchTypes &= ~NSTouchTypeMaskDirect;
+    [self setTouchEmulationEnabled:([event modifierFlags] &
+                                    NSEventModifierFlagCapsLock) != 0];
+  }
+}
+
+- (void)setTouchEmulationEnabled:(BOOL)enabled {
+  if (enabled && client::MainContext::Get()->TouchEventsEnabled()) {
+    self.allowedTouchTypes = NSTouchTypeMaskIndirect;
+  } else {
+    [self cancelTouchEvents];
+    self.allowedTouchTypes = 0;
+  }
+}
+
+- (void)cancelTouchEvents {
+  auto browser = [self getBrowser];
+  for (auto& touch : touch_state_.Cancel()) {
+    client::DeviceToLogical(touch, [self getDeviceScaleFactor]);
+    if (browser) {
+      browser->GetHost()->SendTouchEvent(touch);
     }
   }
+  [touch_ids_ removeAllObjects];
 }
 
 - (cef_touch_event_type_t)getTouchPhase:(NSTouchPhase)phase {
@@ -483,49 +514,50 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
   int modifiers = [self getModifiersForEvent:event];
   CefRefPtr<CefBrowser> browser = [self getBrowser];
 
+  if (!browser || !(self.allowedTouchTypes & NSTouchTypeMaskIndirect)) {
+    return;
+  }
   NSSet* touches = [event touchesMatchingPhase:phase inView:self];
 
   for (NSTouch* touch in touches) {
     // Convert NSTouch to CefTouchEvent.
     CefTouchEvent touch_event;
 
-    // NSTouch.identity is unique during the life of the touch
-    touch_event.id = static_cast<int>(touch.identity.hash);
+    // Identity implements NSCopying/isEqual: but its hash is not a unique ID.
+    NSNumber* native_id = [touch_ids_ objectForKey:touch.identity];
+    if (phase == NSTouchPhaseBegan && native_id) {
+      continue;
+    }
+    if (phase == NSTouchPhaseBegan && !native_id) {
+      native_id = [NSNumber numberWithUnsignedLongLong:next_touch_id_++];
+      [touch_ids_ setObject:native_id forKey:touch.identity];
+    }
+    if (!native_id) {
+      continue;
+    }
     touch_event.type = [self getTouchPhase:phase];
 
     NSPoint scaled_pos = [touch normalizedPosition];
-    NSSize view_size = [self bounds].size;
-
-    // Map point on Touch Device to View coordinates.
-    NSPoint touch_point = NSMakePoint(scaled_pos.x * view_size.width,
-                                      scaled_pos.y * view_size.height);
-
-    NSPoint contentLocal = [self convertPoint:touch_point fromView:nil];
-    NSPoint point;
-    point.x = contentLocal.x;
-    point.y = [self frame].size.height - contentLocal.y;  // Flip y.
-
-    // Convert to device coordinates.
-    point = [self convertPointToBackingInternal:point];
-
-    int device_x = point.x;
-    int device_y = point.y;
-
-    const float device_scale_factor = [self getDeviceScaleFactor];
-    // Convert to browser view coordinates.
-    touch_event.x = client::DeviceToLogical(device_x, device_scale_factor);
-    touch_event.y = client::DeviceToLogical(device_y, device_scale_factor);
-
-    touch_event.radius_x = 0;
-    touch_event.radius_y = 0;
-
-    touch_event.rotation_angle = 0;
-    touch_event.pressure = 0;
-
+    NSSize view_size = [self convertSizeToBacking:self.bounds.size];
+    // Normalized trackpad coordinates are already relative to the view;
+    // flip the lower-left origin without converting from window coordinates.
+    touch_event.x = scaled_pos.x * view_size.width;
+    touch_event.y = (1 - scaled_pos.y) * view_size.height;
     touch_event.modifiers = modifiers;
 
-    // Notify the browser of touch event.
-    browser->GetHost()->SendTouchEvent(touch_event);
+    const bool accepted = touch_state_.Update(
+        native_id.unsignedLongLongValue, touch_event,
+        [self isOverPopupWidgetX:static_cast<int>(std::floor(touch_event.x))
+                            andY:static_cast<int>(std::floor(touch_event.y))],
+        [self getPopupXOffset], [self getPopupYOffset]);
+    if (!accepted || phase == NSTouchPhaseEnded ||
+        phase == NSTouchPhaseCancelled) {
+      [touch_ids_ removeObjectForKey:touch.identity];
+    }
+    if (accepted) {
+      client::DeviceToLogical(touch_event, [self getDeviceScaleFactor]);
+      browser->GetHost()->SendTouchEvent(touch_event);
+    }
   }
 }
 
@@ -695,6 +727,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
 }
 
 - (BOOL)resignFirstResponder {
+  [self cancelTouchEvents];
   CefRefPtr<CefBrowser> browser = [self getBrowser];
   if (browser.get()) {
     browser->GetHost()->SetFocus(false);
@@ -990,6 +1023,16 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
   // This delegate method is only called on 10.7 and later, so don't worry about
   // other backing changes calling it on 10.6 or earlier
   [self resetDeviceScaleFactor:std::nullopt];
+}
+
+- (void)windowDidResignKey:(NSNotification*)notification {
+  [self cancelTouchEvents];
+}
+
+- (void)windowDidBecomeKey:(NSNotification*)notification {
+  // Caps Lock may have changed while a different window was active.
+  [self setTouchEmulationEnabled:([NSEvent modifierFlags] &
+                                  NSEventModifierFlagCapsLock) != 0];
 }
 
 - (BOOL)wantsUpdateLayer {
@@ -2174,6 +2217,16 @@ void BrowserWindowOsrMacImpl::Create(ClientWindowHandle parent_handle,
       addObserver:native_browser_view_
          selector:@selector(windowVisibilityChanged:)
              name:NSWindowDidChangeOcclusionStateNotification
+           object:native_browser_view_.window];
+  [[NSNotificationCenter defaultCenter]
+      addObserver:native_browser_view_
+         selector:@selector(windowDidResignKey:)
+             name:NSWindowDidResignKeyNotification
+           object:native_browser_view_.window];
+  [[NSNotificationCenter defaultCenter]
+      addObserver:native_browser_view_
+         selector:@selector(windowDidBecomeKey:)
+             name:NSWindowDidBecomeKeyNotification
            object:native_browser_view_.window];
 }
 

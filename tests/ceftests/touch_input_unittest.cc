@@ -11,6 +11,8 @@
 #include "tests/ceftests/routing_test_handler.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/browser/geometry_util.h"
+#include "tests/shared/browser/osr_input_util.h"
 
 namespace {
 
@@ -292,6 +294,122 @@ TEST(TouchInputTest, MultiTouchCrossOriginWindowed) {
 
 TEST(TouchInputTest, MultiTouchOsr125) {
   RunTouchTest(true, false);
+}
+
+TEST(OsrInputUtilTest, TouchFractionalCoordinates) {
+  CefTouchEvent event;
+  event.x = 10.75f;
+  event.y = -0.25f;
+  event.radius_x = 3.125f;
+  event.radius_y = 6.25f;
+  event.rotation_angle = 45;
+  event.pressure = 0.5f;
+  client::DeviceToLogical(event, 1.25f);
+  EXPECT_FLOAT_EQ(8.6f, event.x);
+  EXPECT_FLOAT_EQ(-0.2f, event.y);
+  EXPECT_FLOAT_EQ(2.5f, event.radius_x);
+  EXPECT_FLOAT_EQ(5, event.radius_y);
+  EXPECT_FLOAT_EQ(45, event.rotation_angle);
+  EXPECT_FLOAT_EQ(0.5f, event.pressure);
+}
+
+TEST(OsrInputUtilTest, TouchContactLifecycle) {
+  client::OsrTouchInputState state;
+  auto update = [&](uint64_t native_id, cef_touch_event_type_t type) {
+    CefTouchEvent event;
+    event.type = type;
+    return state.Update(native_id, event, false, 0, 0) ? event.id : -1;
+  };
+  // Native identifiers need not fit in a signed int or form a dense range.
+  constexpr uint64_t first = std::numeric_limits<uint64_t>::max();
+  const int primary = update(first, CEF_TET_PRESSED);
+  const int secondary = update(12345, CEF_TET_PRESSED);
+  EXPECT_GE(primary, 0);
+  EXPECT_GE(secondary, 0);
+  EXPECT_NE(primary, secondary);
+  EXPECT_EQ(-1, update(first, CEF_TET_PRESSED));
+  EXPECT_EQ(-1, update(67890, CEF_TET_MOVED));
+  EXPECT_EQ(primary, update(first, CEF_TET_MOVED));
+  EXPECT_EQ(primary, update(first, CEF_TET_RELEASED));
+  EXPECT_EQ(-1, update(first, CEF_TET_MOVED));
+  EXPECT_EQ(primary, update(67890, CEF_TET_PRESSED));
+  EXPECT_EQ(secondary, update(12345, CEF_TET_CANCELLED));
+  EXPECT_EQ(-1, update(12345, CEF_TET_RELEASED));
+  EXPECT_EQ(primary, update(67890, CEF_TET_RELEASED));
+  EXPECT_TRUE(state.Cancel().empty());
+}
+
+TEST(OsrInputUtilTest, TouchContactLimitAndCancellation) {
+  client::OsrTouchInputState state;
+  CefTouchEvent event;
+  event.type = CEF_TET_PRESSED;
+  for (uint64_t id = 0; id < 16; ++id) {
+    ASSERT_TRUE(state.Update(id, event, false, 0, 0));
+    EXPECT_EQ(static_cast<int>(id), event.id);
+  }
+  EXPECT_FALSE(state.Update(16, event, false, 0, 0));
+  event.type = CEF_TET_RELEASED;
+  ASSERT_TRUE(state.Update(0, event, false, 0, 0));
+  event.type = CEF_TET_PRESSED;
+  ASSERT_TRUE(state.Update(16, event, false, 0, 0));
+  EXPECT_EQ(0, event.id);
+  event.type = CEF_TET_MOVED;
+  event.x = 10.75f;
+  event.y = -0.25f;
+  event.modifiers = EVENTFLAG_SHIFT_DOWN;
+  ASSERT_TRUE(state.Update(16, event, false, 0, 0));
+  const auto cancelled = state.Cancel();
+  ASSERT_EQ(16U, cancelled.size());
+  for (const auto& touch : cancelled) {
+    EXPECT_EQ(static_cast<int>(CEF_TET_CANCELLED), touch.type);
+    if (touch.id == 0) {
+      EXPECT_FLOAT_EQ(10.75f, touch.x);
+      EXPECT_FLOAT_EQ(-0.25f, touch.y);
+      EXPECT_EQ(static_cast<uint32_t>(EVENTFLAG_SHIFT_DOWN), touch.modifiers);
+    }
+  }
+  EXPECT_TRUE(state.Cancel().empty());
+  EXPECT_FALSE(state.Update(16, event, false, 0, 0));
+  event.type = CEF_TET_PRESSED;
+  EXPECT_TRUE(state.Update(16, event, false, 0, 0));
+  EXPECT_EQ(0, event.id);
+}
+
+TEST(OsrInputUtilTest, TouchPopupSequence) {
+  client::OsrTouchInputState state;
+  auto update = [&](uint64_t native_id, cef_touch_event_type_t type,
+                    bool over_popup, int offset) {
+    CefTouchEvent event;
+    event.type = type;
+    event.x = 10.75f;
+    event.y = 20.25f;
+    EXPECT_TRUE(state.Update(native_id, event, over_popup, offset, -offset));
+    return event;
+  };
+  auto event = update(0, CEF_TET_PRESSED, true, 100);
+  EXPECT_FLOAT_EQ(110.75f, event.x);
+  EXPECT_FLOAT_EQ(-79.75f, event.y);
+  // Moving outside or changing the popup does not change the latched offset.
+  event = update(0, CEF_TET_MOVED, false, 200);
+  EXPECT_FLOAT_EQ(110.75f, event.x);
+  event = update(1, CEF_TET_PRESSED, false, 200);
+  EXPECT_FLOAT_EQ(110.75f, event.x);
+  update(0, CEF_TET_RELEASED, false, 200);
+  event = update(1, CEF_TET_MOVED, false, 200);
+  EXPECT_FLOAT_EQ(110.75f, event.x);
+  const auto cancelled = state.Cancel();
+  ASSERT_EQ(1U, cancelled.size());
+  EXPECT_FLOAT_EQ(110.75f, cancelled[0].x);
+  EXPECT_FLOAT_EQ(-79.75f, cancelled[0].y);
+  // A sequence starting on the main view stays there when entering a popup.
+  event = update(0, CEF_TET_PRESSED, false, 100);
+  EXPECT_FLOAT_EQ(10.75f, event.x);
+  event = update(1, CEF_TET_PRESSED, true, 100);
+  EXPECT_FLOAT_EQ(10.75f, event.x);
+  update(0, CEF_TET_RELEASED, true, 100);
+  update(1, CEF_TET_RELEASED, true, 100);
+  event = update(0, CEF_TET_PRESSED, true, 200);
+  EXPECT_FLOAT_EQ(210.75f, event.x);
 }
 
 }  // namespace

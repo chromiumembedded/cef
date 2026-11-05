@@ -15,6 +15,7 @@
 #include "tests/cefclient/browser/client_handler_osr.h"
 #include "tests/cefclient/browser/osr_gl_surface_gtk.h"
 #include "tests/cefclient/browser/osr_renderer_settings.h"
+#include "tests/shared/browser/osr_input_util.h"
 #include "tests/shared/browser/osr_renderer_gl_linux.h"
 
 namespace client {
@@ -204,6 +205,7 @@ class BrowserWindowOsrGtk : public BrowserWindow,
 
   // Members only accessed on the main thread.
   bool hidden_;
+  OsrTouchInputState touch_state_;
 
   // Members protected by the GDK global lock.
   std::unique_ptr<OsrGlSurfaceGtk> surface_;

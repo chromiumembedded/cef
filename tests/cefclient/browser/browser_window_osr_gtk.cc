@@ -794,7 +794,7 @@ void BrowserWindowOsrGtk::Create(ClientWindowHandle parent_handle) {
                    GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK |
                    GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK |
                    GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK |
-                   GDK_SCROLL_MASK | GDK_FOCUS_CHANGE_MASK);
+                   GDK_SCROLL_MASK | GDK_FOCUS_CHANGE_MASK | GDK_TOUCH_MASK);
   g_signal_connect(G_OBJECT(widget_), "button_press_event",
                    G_CALLBACK(&BrowserWindowOsrGtk::ClickEvent), this);
   g_signal_connect(G_OBJECT(widget_), "button_release_event",
@@ -1227,6 +1227,17 @@ gint BrowserWindowOsrGtk::FocusEvent(GtkWidget* widget,
     self->pressed_keycodes_.clear();
   }
   if (self->browser_.get()) {
+    if (!event->in) {
+      float scale;
+      {
+        base::AutoLock lock(self->lock_);
+        scale = self->device_scale_factor_;
+      }
+      for (auto& touch : self->touch_state_.Cancel()) {
+        DeviceToLogical(touch, scale);
+        self->browser_->GetHost()->SendTouchEvent(touch);
+      }
+    }
     self->browser_->GetHost()->SetFocus(event->in == TRUE);
   }
   return TRUE;
@@ -1261,6 +1272,9 @@ gboolean BrowserWindowOsrGtk::TouchEvent(GtkWidget* widget,
     case GDK_TOUCH_END:
       touch_event.type = CEF_TET_RELEASED;
       break;
+    case GDK_TOUCH_CANCEL:
+      touch_event.type = CEF_TET_CANCELLED;
+      break;
     default:
       return TRUE;
   }
@@ -1271,8 +1285,15 @@ gboolean BrowserWindowOsrGtk::TouchEvent(GtkWidget* widget,
   touch_event.radius_y = 0;
   touch_event.rotation_angle = 0;
   touch_event.pressure = 0;
-  DeviceToLogical(touch_event, device_scale_factor);
   touch_event.modifiers = GetCefStateModifiers(event->state);
+  if (!self->touch_state_.Update(
+          reinterpret_cast<uintptr_t>(event->sequence), touch_event,
+          self->IsOverPopupWidget(static_cast<int>(std::floor(event->x)),
+                                  static_cast<int>(std::floor(event->y))),
+          self->GetPopupXOffset(), self->GetPopupYOffset())) {
+    return TRUE;
+  }
+  DeviceToLogical(touch_event, device_scale_factor);
 
   host->SendTouchEvent(touch_event);
   return TRUE;

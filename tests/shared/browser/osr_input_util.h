@@ -8,11 +8,78 @@
 
 #include <initializer_list>
 #include <limits>
+#include <map>
 #include <vector>
 
 #include "include/internal/cef_types_wrappers.h"
 
 namespace client {
+
+// Map native contact identifiers to CEF's supported contacts. The first press
+// selects the popup offset for the entire sequence, including additional
+// contacts and moves outside the popup. Coordinates and offsets are in pixels;
+// convert the returned event to DIPs before sending it to the browser.
+class OsrTouchInputState {
+ public:
+  bool Update(uint64_t native_id,
+              CefTouchEvent& event,
+              bool over_popup,
+              int popup_x_offset,
+              int popup_y_offset) {
+    auto it = contacts_.find(native_id);
+    if (event.type == CEF_TET_PRESSED) {
+      if (it != contacts_.end() || contacts_.size() == 16) {
+        return false;
+      }
+      int id = 0;
+      for (;; ++id) {
+        bool used = false;
+        for (const auto& contact : contacts_) {
+          if (contact.second.id == id) {
+            used = true;
+            break;
+          }
+        }
+        if (!used) {
+          break;
+        }
+      }
+      if (contacts_.empty()) {
+        popup_x_offset_ = over_popup ? popup_x_offset : 0;
+        popup_y_offset_ = over_popup ? popup_y_offset : 0;
+      }
+      it = contacts_.emplace(native_id, CefTouchEvent()).first;
+      it->second.id = id;
+    } else if (it == contacts_.end()) {
+      return false;
+    }
+    event.id = it->second.id;
+    event.x += popup_x_offset_;
+    event.y += popup_y_offset_;
+    it->second = event;
+    if (event.type == CEF_TET_RELEASED || event.type == CEF_TET_CANCELLED) {
+      contacts_.erase(it);
+    }
+    return true;
+  }
+
+  // Cancel using the last translated position, without applying the offset
+  // again. Later native updates/releases for these contacts are ignored.
+  std::vector<CefTouchEvent> Cancel() {
+    std::vector<CefTouchEvent> events;
+    for (auto& contact : contacts_) {
+      contact.second.type = CEF_TET_CANCELLED;
+      events.push_back(contact.second);
+    }
+    contacts_.clear();
+    return events;
+  }
+
+ private:
+  std::map<uint64_t, CefTouchEvent> contacts_;
+  int popup_x_offset_ = 0;
+  int popup_y_offset_ = 0;
+};
 
 #if CEF_API_ADDED(CEF_NEXT)
 inline uint32_t OsrMouseButtonFlag(cef_mouse_button_type_t button) {

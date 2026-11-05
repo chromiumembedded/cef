@@ -38,8 +38,10 @@ void DeviceToLogical(CefMouseEvent& value, float device_scale_factor) {
 }
 
 void DeviceToLogical(CefTouchEvent& value, float device_scale_factor) {
-  value.x = DeviceToLogical(value.x, device_scale_factor);
-  value.y = DeviceToLogical(value.y, device_scale_factor);
+  value.x /= device_scale_factor;
+  value.y /= device_scale_factor;
+  value.radius_x /= device_scale_factor;
+  value.radius_y /= device_scale_factor;
 }
 
 void ConstrainWindowBounds(const CefRect& display, CefRect& window) {
