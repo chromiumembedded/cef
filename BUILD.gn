@@ -2641,6 +2641,7 @@ if (is_mac) {
       libs = [
         "comctl32.lib",
         "d3d11.lib",
+        "hid.lib",
         "imm32.lib",
         "oleacc.lib",
         "rpcrt4.lib",
@@ -2729,6 +2730,7 @@ if (is_mac) {
       libs = [
         "comctl32.lib",
         "d3d11.lib",
+        "hid.lib",
         "imm32.lib",
         "oleacc.lib",
         "rpcrt4.lib",

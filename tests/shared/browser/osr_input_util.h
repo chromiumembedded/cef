@@ -81,6 +81,17 @@ class OsrTouchInputState {
   int popup_y_offset_ = 0;
 };
 
+// Match Windows wheel settings without rounding partial detents or pixel
+// deltas. UINT_MAX is WHEEL_PAGESCROLL; zero disables scrolling on this axis.
+// Return DIPs for line/character settings, or signed pages for page scrolling.
+// The caller normalizes ticks so positive values mean up/left.
+inline float GetOsrWindowsWheelDelta(float ticks, uint32_t scroll_amount) {
+  if (scroll_amount == std::numeric_limits<uint32_t>::max()) {
+    return ticks > 0 ? 1.f : ticks < 0 ? -1.f : 0.f;
+  }
+  return ticks * static_cast<float>(scroll_amount) * (100.f / 3.f);
+}
+
 #if CEF_API_ADDED(CEF_NEXT)
 inline uint32_t OsrMouseButtonFlag(cef_mouse_button_type_t button) {
   switch (button) {
@@ -151,20 +162,15 @@ inline CefWheelInputEvent MakeOsrWheelInputEvent(const CefMouseEvent& mouse,
   return result;
 }
 
-// Match Windows wheel settings without rounding partial detents or pixel
-// deltas. UINT_MAX is WHEEL_PAGESCROLL; zero disables scrolling on this axis.
-// The caller normalizes ticks so positive values mean up/left.
+// Populate the unified wheel event using the same conversion as touch
+// emulation.
 inline void SetOsrWindowsWheelDelta(CefWheelInputEvent& event,
                                     float ticks,
                                     bool horizontal,
                                     uint32_t scroll_amount) {
   const bool page = scroll_amount == std::numeric_limits<uint32_t>::max();
   event.delta_units = page ? CEF_GESTURE_SCROLL_PAGE : CEF_GESTURE_SCROLL_PIXEL;
-  const float delta =
-      page ? (ticks > 0   ? 1.f
-              : ticks < 0 ? -1.f
-                          : 0.f)
-           : ticks * static_cast<float>(scroll_amount) * (100.f / 3.f);
+  const float delta = GetOsrWindowsWheelDelta(ticks, scroll_amount);
   event.wheel_ticks_x = horizontal ? ticks : 0;
   event.wheel_ticks_y = horizontal ? 0 : ticks;
   event.delta_x = horizontal ? delta : 0;

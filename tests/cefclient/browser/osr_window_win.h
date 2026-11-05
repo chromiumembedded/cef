@@ -16,11 +16,13 @@
 #include "tests/cefclient/browser/osr_renderer_settings.h"
 #include "tests/shared/browser/osr_accessibility_node.h"
 #include "tests/shared/browser/osr_input_util.h"
+#include "tests/shared/browser/osr_touchpad.h"
 
 namespace client {
 
 class OsrAccessibilityHelper;
 class OsrImeHandlerWin;
+class OsrTouchpadWin;
 
 // Represents the native parent window for an off-screen browser. This object
 // must live on the CEF UI thread in order to handle CefRenderHandler callbacks.
@@ -92,6 +94,8 @@ class OsrWindowWin
 
   // WndProc message handlers.
   void OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam);
+  bool OnPointerTouchEvent(UINT message, WPARAM wParam, LPARAM lParam);
+  void EndPointerTouchScroll();
 #if CEF_API_ADDED(CEF_NEXT)
   void SendMouseInput(const CefMouseEvent& mouse,
                       cef_mouse_input_event_type_t type,
@@ -105,6 +109,8 @@ class OsrWindowWin
   void OnPaint();
   bool OnEraseBkgnd();
   bool OnTouchEvent(UINT message, WPARAM wParam, LPARAM lParam);
+  void UpdateTouchpadMode();
+  void SendTouchpadEvents(const std::vector<CefTouchEvent>& events);
 #if CEF_API_ADDED(CEF_NEXT)
   bool OnGestureEvent(LPARAM lParam);
 #endif
@@ -208,6 +214,9 @@ class OsrWindowWin
 
   bool hidden_ = false;
   OsrTouchInputState touch_state_;
+  OsrTouchpadEmulator touchpad_emulator_;
+  OsrPointerTouchEmulator pointer_touch_emulator_;
+  std::unique_ptr<OsrTouchpadWin> touchpad_;
 
   // Mouse state tracking.
   POINT last_mouse_pos_;

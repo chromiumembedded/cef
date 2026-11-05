@@ -332,7 +332,7 @@ if(OS_WINDOWS)
   endif()
 
   add_dependencies(${CEF_TARGET} libcef_dll_wrapper)
-  target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} d3d11.lib imm32.lib)
+  target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} d3d11.lib hid.lib imm32.lib)
 
   if(USE_ATL)
     # Required by VS2013 to link accessibility API functions.

@@ -15,6 +15,7 @@
 #include "tests/cefclient/browser/client_handler_osr.h"
 #include "tests/cefclient/browser/osr_gl_surface_gtk.h"
 #include "tests/cefclient/browser/osr_renderer_settings.h"
+#include "tests/cefclient/browser/osr_touchpad_linux.h"
 #include "tests/shared/browser/osr_input_util.h"
 #include "tests/shared/browser/osr_renderer_gl_linux.h"
 
@@ -131,6 +132,16 @@ class BrowserWindowOsrGtk : public BrowserWindow,
                              BrowserWindowOsrGtk* self);
 
   void RegisterTouch();
+  void OnBrowserCreated(CefRefPtr<CefBrowser> browser) override;
+  void UpdateTouchpadMode(bool focused);
+  void SendTouchpadEvents(const std::vector<CefTouchEvent>& events);
+  void SendPointerTouchEvent(cef_touch_event_type_t type, double x, double y);
+  void EndPointerTouchScroll();
+  static gboolean PointerTouchScrollTimeout(gpointer data);
+  static gboolean PointerGrabBroken(GtkWidget* widget,
+                                    GdkEventGrabBroken* event,
+                                    BrowserWindowOsrGtk* self);
+  static gboolean TouchpadReady(gint fd, GIOCondition condition, gpointer data);
 #if CEF_API_ADDED(CEF_NEXT)
   static gboolean GestureEvent(GtkWidget* widget,
                                GdkEvent* event,
@@ -206,6 +217,14 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   // Members only accessed on the main thread.
   bool hidden_;
   OsrTouchInputState touch_state_;
+  OsrTouchpadEmulator touchpad_emulator_;
+  OsrPointerTouchEmulator pointer_touch_emulator_;
+  guint pointer_touch_scroll_source_ = 0;
+  std::unique_ptr<OsrTouchpadLinux> touchpad_;
+  guint touchpad_source_ = 0;
+  bool touchpad_focused_ = false;
+  bool touchpad_warning_ = false;
+  bool touchpad_attempted_ = false;
 
   // Members protected by the GDK global lock.
   std::unique_ptr<OsrGlSurfaceGtk> surface_;

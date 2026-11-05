@@ -135,6 +135,68 @@ cefclient --use-native
 
 Once running, explore the **Tests** menu to see demonstrations of various CEF features.
 
+### Touchpad touchscreen simulation (OSR)
+
+Use this mode to test touchscreen input with a touchpad. Launch cefclient with:
+
+```bash
+cefclient --off-screen-rendering-enabled --shared-texture-enabled --touch-events=enabled
+```
+
+1. Open **Tests > Other Tests > Touch Feature Tests** and choose a touch tracker.
+2. Click inside the browser view and turn **Caps Lock on**.
+3. Lift your fingers, then place them on the touchpad to begin testing.
+
+Turn **Caps Lock off** to restore normal mouse, scroll, and gesture input.
+Turning it off or moving focus away from the browser cancels active touches.
+
+cefclient uses full multitouch mode when finger contacts are available.
+Otherwise, Windows and Linux use the single-touch fallback. No extra mode flag
+is needed.
+
+#### Full multitouch mode
+
+When individual finger contacts are available, each finger controls a touch
+point across the browser view. This supports multiple simultaneous touches.
+
+- **Windows:** Uses the first detected Precision Touchpad.
+- **Linux:** Uses the first readable touchpad with full multitouch support.
+  Your account needs read access to its `/dev/input/event*` device. Devices
+  that report only approximate finger positions (semi-multitouch) are unsupported.
+- **macOS:** Uses native AppKit trackpad contacts.
+
+On Windows and Linux, this mode suppresses duplicate mouse, scroll, and gesture
+input. System shortcuts may still intercept gestures with three or more
+fingers; disable those shortcuts when testing them. Device removal cancels
+active touches. Refocus the browser view to retry detection after connecting a
+device or granting access to a Linux input device.
+
+#### Single-touch fallback (Windows and Linux)
+
+If individual finger contacts are unavailable, cefclient uses mouse and scroll
+input to simulate one touch point. This is useful over remote desktop, including
+connections from a Mac trackpad that forward mouse and scroll input only.
+
+- **Click and drag:** Hold the left button and move to drag the touch point.
+  Release the button to end the touch. Hovering does not generate touches.
+- **Two-finger scroll or mouse wheel:** Moves one touch point continuously until
+  you stop scrolling. After a short pause, the touch is cancelled without adding
+  a fling. If the point reaches the edge of the view, pause and scroll again to
+  start a new swipe. Scrolling does not interrupt a held click-and-drag.
+- **Pinch or Ctrl+wheel:** Keeps the normal zoom behavior, ending any active
+  scrolling touch first. This includes RDP clients that send pinch as Ctrl+wheel.
+  Zoom does not generate multiple touch points.
+
+Scroll direction and sensitivity follow the forwarded scroll input, rather than
+the physical position of your fingers. On Windows, sensitivity follows the
+Windows wheel settings. As with real touch input, the page decides whether a
+swipe scrolls content; touch trackers may prevent scrolling to show the touches.
+
+Smooth scrolling requires fine-grained scroll input. Some environments, such as
+Linux virtual machines, forward two-finger scrolling as a few discrete wheel
+clicks. The touch point then jumps in fixed steps and is cancelled between
+clicks, so it does not follow your fingers. Use click-and-drag instead.
+
 ## C API Version
 
 Unlike cefsimple, cefclient does **not** have a C API equivalent due to its complexity. For a C API example, see [cefsimple_capi](../cefsimple_capi/).

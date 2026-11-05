@@ -18,6 +18,7 @@
 #include "include/views/cef_display.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/osr_ime_handler_win.h"
+#include "tests/cefclient/browser/osr_touchpad_win.h"
 #include "tests/cefclient/browser/resource.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
@@ -31,6 +32,7 @@ namespace client {
 namespace {
 
 const wchar_t kWndClass[] = L"Client_OsrWindow";
+constexpr UINT_PTR kPointerTouchScrollTimer = 1;
 
 // Helper function to detect mouse messages coming from emulation of touch
 // events. These should be ignored.
@@ -306,6 +308,10 @@ void OsrWindowWin::Create(HWND parent_hwnd, const RECT& rect) {
   // input paths exclusive so Chromium does not recognize each gesture twice.
   if (client::MainContext::Get()->TouchEventsEnabled()) {
     RegisterTouchWindow(hwnd_, 0);
+    touchpad_ = std::make_unique<OsrTouchpadWin>(
+        hwnd_, [this](const std::optional<OsrTouchpadFrame>& frame) {
+          SendTouchpadEvents(touchpad_emulator_.ProcessFrame(frame));
+        });
   }
 
   // Notify the window owner.
@@ -502,6 +508,13 @@ LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd,
       self->OnSize();
       break;
 
+    case WM_TIMER:
+      if (wParam == kPointerTouchScrollTimer) {
+        self->EndPointerTouchScroll();
+        return 0;
+      }
+      break;
+
     case WM_SETFOCUS:
     case WM_KILLFOCUS:
       self->OnFocus(message == WM_SETFOCUS);
@@ -537,6 +550,11 @@ LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd,
     // intutive, complete and simpler to code.
     // https://msdn.microsoft.com/en-us/library/hh454903(v=vs.85).aspx
     case WM_TOUCH:
+      if (self->touchpad_emulator_.enabled() ||
+          self->pointer_touch_emulator_.enabled()) {
+        CloseTouchInputHandle(reinterpret_cast<HTOUCHINPUT>(lParam));
+        return 0;
+      }
       if (self->OnTouchEvent(message, wParam, lParam)) {
         return 0;
       }
@@ -550,6 +568,21 @@ LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd,
       break;
 #endif
 
+    case WM_INPUT:
+      if (self->touchpad_) {
+        self->touchpad_->OnInput(reinterpret_cast<HRAWINPUT>(lParam));
+        self->UpdateTouchpadMode();
+      }
+      // DefWindowProc must release foreground Raw Input resources.
+      break;
+
+    case WM_INPUT_DEVICE_CHANGE:
+      if (self->touchpad_ && wParam == GIDC_REMOVAL) {
+        self->touchpad_->OnDeviceRemoved(reinterpret_cast<HANDLE>(lParam));
+        self->UpdateTouchpadMode();
+      }
+      break;
+
     case WM_NCDESTROY:
       // Clear the reference to |self|.
       SetUserDataPtr(hWnd, nullptr);
@@ -561,6 +594,18 @@ LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd,
 }
 
 void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
+  if (message == WM_MOUSELEAVE) {
+    // Native leave tracking ends when this message is generated, even when
+    // touch emulation suppresses delivery to the browser.
+    mouse_tracking_ = false;
+  }
+  if (!IsMouseEventFromTouch(message) &&
+      OnPointerTouchEvent(message, wParam, lParam)) {
+    return;
+  }
+  if (touchpad_emulator_.enabled()) {
+    return;
+  }
   if (IsMouseEventFromTouch(message)) {
     return;
   }
@@ -719,16 +764,6 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     }
 
     case WM_MOUSELEAVE: {
-      if (mouse_tracking_) {
-        // Stop tracking mouse leave.
-        TRACKMOUSEEVENT tme;
-        tme.cbSize = sizeof(TRACKMOUSEEVENT);
-        tme.dwFlags = TME_LEAVE & TME_CANCEL;
-        tme.hwndTrack = hwnd_;
-        TrackMouseEvent(&tme);
-        mouse_tracking_ = false;
-      }
-
       if (browser_host) {
         // Determine the cursor position in screen coordinates.
         POINT p;
@@ -808,6 +843,86 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
   }
 }
 
+bool OsrWindowWin::OnPointerTouchEvent(UINT message,
+                                       WPARAM wParam,
+                                       LPARAM lParam) {
+  // Clicking an unfocused view must focus it before selecting the fallback.
+  if (message == WM_LBUTTONDOWN) {
+    ::SetFocus(hwnd_);
+  }
+  UpdateTouchpadMode();
+  if (!pointer_touch_emulator_.enabled()) {
+    return false;
+  }
+  // Preserve Ctrl+wheel zoom in the fallback, like explicit WM_GESTURE zoom.
+  if ((message == WM_MOUSEWHEEL || message == WM_MOUSEHWHEEL) &&
+      IsKeyDown(VK_CONTROL)) {
+    EndPointerTouchScroll();
+    return false;
+  }
+  RECT bounds = {};
+  GetClientRect(hwnd_, &bounds);
+  if (bounds.right <= 0 || bounds.bottom <= 0) {
+    return true;
+  }
+  POINT point = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+  const bool wheel = message == WM_MOUSEWHEEL || message == WM_MOUSEHWHEEL;
+  if (wheel) {
+    if (::WindowFromPoint(point) != hwnd_) {
+      return true;
+    }
+    ::ScreenToClient(hwnd_, &point);
+  }
+  const float x = static_cast<float>(point.x) / bounds.right;
+  const float y = static_cast<float>(point.y) / bounds.bottom;
+  std::vector<CefTouchEvent> events;
+  if (message == WM_LBUTTONDOWN) {
+    EndPointerTouchScroll();
+    ::SetCapture(hwnd_);
+    events = pointer_touch_emulator_.Pointer(CEF_TET_PRESSED, x, y);
+  } else if (message == WM_MOUSEMOVE) {
+    events = pointer_touch_emulator_.Pointer(CEF_TET_MOVED, x, y);
+  } else if (message == WM_LBUTTONUP) {
+    events = pointer_touch_emulator_.Pointer(CEF_TET_RELEASED, x, y);
+  } else if (wheel) {
+    // Preserve native scroll intent and sensitivity. Positive vertical wheel
+    // deltas move the finger/content down; horizontal wheel has opposite sign.
+    const bool horizontal = message == WM_MOUSEHWHEEL || IsKeyDown(VK_SHIFT);
+    UINT scroll_amount = horizontal ? 1 : 3;
+    SystemParametersInfo(
+        horizontal ? SPI_GETWHEELSCROLLCHARS : SPI_GETWHEELSCROLLLINES, 0,
+        &scroll_amount, 0);
+    const float ticks = GET_WHEEL_DELTA_WPARAM(wParam) / float(WHEEL_DELTA) *
+                        (message == WM_MOUSEHWHEEL ? -1 : 1);
+    const int extent = DeviceToLogical(
+        horizontal ? bounds.right : bounds.bottom, device_scale_factor_);
+    const float delta = GetOsrWindowsWheelDelta(ticks, scroll_amount);
+    // MapTouchpadToView uses the rounded whole-DIP view size as well.
+    const float normalized_delta = scroll_amount == WHEEL_PAGESCROLL ? delta
+                                   : extent > 0 ? delta / extent
+                                                : 0;
+    events =
+        pointer_touch_emulator_.Scroll(x, y, horizontal ? normalized_delta : 0,
+                                       horizontal ? 0 : normalized_delta);
+  }
+  SendTouchpadEvents(events);
+  if (wheel && pointer_touch_emulator_.scrolling() &&
+      !::SetTimer(hwnd_, kPointerTouchScrollTimer, kPointerTouchScrollTimeoutMs,
+                  nullptr)) {
+    EndPointerTouchScroll();
+  }
+  if (message == WM_LBUTTONUP && GetCapture() == hwnd_) {
+    ::ReleaseCapture();
+  }
+  // Hover and other buttons must not duplicate the emulated touch input.
+  return true;
+}
+
+void OsrWindowWin::EndPointerTouchScroll() {
+  ::KillTimer(hwnd_, kPointerTouchScrollTimer);
+  SendTouchpadEvents(pointer_touch_emulator_.EndScroll());
+}
+
 void OsrWindowWin::OnSize() {
   // Keep |client_rect_| up to date.
   ::GetClientRect(hwnd_, &client_rect_);
@@ -818,6 +933,24 @@ void OsrWindowWin::OnSize() {
 }
 
 void OsrWindowWin::OnFocus(bool setFocus) {
+  if (!setFocus) {
+    EndPointerTouchScroll();
+    SendTouchpadEvents(pointer_touch_emulator_.SetEnabled(false));
+    if (GetCapture() == hwnd_) {
+      ::ReleaseCapture();
+    }
+  }
+  if (touchpad_) {
+    if (!setFocus) {
+      SendTouchpadEvents(touchpad_emulator_.SetEnabled(false));
+    }
+    touchpad_->SetFocused(setFocus);
+    // WM_KILLFOCUS is delivered before focus has fully changed. Do not let
+    // GetFocus() re-enable the pointer fallback while losing focus.
+    if (setFocus) {
+      UpdateTouchpadMode();
+    }
+  }
   if (!setFocus) {
     for (auto& touch : touch_state_.Cancel()) {
       DeviceToLogical(touch, device_scale_factor_);
@@ -832,6 +965,8 @@ void OsrWindowWin::OnFocus(bool setFocus) {
 }
 
 void OsrWindowWin::OnCaptureLost() {
+  EndPointerTouchScroll();
+  SendTouchpadEvents(pointer_touch_emulator_.Cancel());
   if (mouse_rotation_) {
     return;
   }
@@ -855,6 +990,7 @@ void OsrWindowWin::SendMouseInput(const CefMouseEvent& mouse,
 #endif
 
 void OsrWindowWin::OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam) {
+  UpdateTouchpadMode();
   if (!browser_) {
     return;
   }
@@ -923,6 +1059,56 @@ bool OsrWindowWin::OnEraseBkgnd() {
   return (browser_ == nullptr);
 }
 
+void OsrWindowWin::UpdateTouchpadMode() {
+  const bool requested = browser_ && touchpad_ && GetFocus() == hwnd_ &&
+                         (GetKeyState(VK_CAPITAL) & 1);
+  const bool enabled = requested && touchpad_->available();
+  const bool fallback = requested && !enabled;
+  // Cancel the old source before enabling its replacement.
+  if (!fallback) {
+    EndPointerTouchScroll();
+    const bool was_fallback = pointer_touch_emulator_.enabled();
+    SendTouchpadEvents(pointer_touch_emulator_.SetEnabled(false));
+    if (was_fallback && GetCapture() == hwnd_) {
+      ::ReleaseCapture();
+    }
+  }
+  if (!enabled) {
+    SendTouchpadEvents(touchpad_emulator_.SetEnabled(false));
+  }
+  if ((enabled && !touchpad_emulator_.enabled()) ||
+      (fallback && !pointer_touch_emulator_.enabled())) {
+    // End any real touchscreen contacts before changing the input source.
+    for (auto& touch : touch_state_.Cancel()) {
+      DeviceToLogical(touch, device_scale_factor_);
+      browser_->GetHost()->SendTouchEvent(touch);
+    }
+  }
+  SendTouchpadEvents(touchpad_emulator_.SetEnabled(enabled));
+  SendTouchpadEvents(pointer_touch_emulator_.SetEnabled(fallback));
+}
+
+void OsrWindowWin::SendTouchpadEvents(
+    const std::vector<CefTouchEvent>& events) {
+  if (!browser_ || events.empty()) {
+    return;
+  }
+  RECT bounds = {};
+  GetClientRect(hwnd_, &bounds);
+  for (auto event : events) {
+    MapTouchpadToView(event, bounds.right, bounds.bottom, device_scale_factor_);
+    event.modifiers = GetCefKeyboardModifiers(0, 0);
+    if (touch_state_.Update(
+            event.id, event,
+            IsOverPopupWidget(static_cast<int>(std::floor(event.x)),
+                              static_cast<int>(std::floor(event.y))),
+            GetPopupXOffset(), GetPopupYOffset())) {
+      DeviceToLogical(event, device_scale_factor_);
+      browser_->GetHost()->SendTouchEvent(event);
+    }
+  }
+}
+
 bool OsrWindowWin::OnTouchEvent(UINT message, WPARAM wParam, LPARAM lParam) {
   // Handle touch events on Windows.
   const int num_points = LOWORD(wParam);
@@ -972,7 +1158,10 @@ bool OsrWindowWin::OnTouchEvent(UINT message, WPARAM wParam, LPARAM lParam) {
 
 #if CEF_API_ADDED(CEF_NEXT)
 bool OsrWindowWin::OnGestureEvent(LPARAM lParam) {
-  if (!browser_ || client::MainContext::Get()->TouchEventsEnabled()) {
+  UpdateTouchpadMode();
+  if (!browser_ || touchpad_emulator_.enabled() ||
+      (client::MainContext::Get()->TouchEventsEnabled() &&
+       !pointer_touch_emulator_.enabled())) {
     return false;
   }
   const auto handle = reinterpret_cast<HGESTUREINFO>(lParam);
@@ -982,6 +1171,8 @@ bool OsrWindowWin::OnGestureEvent(LPARAM lParam) {
     // DefWindowProc owns unhandled handles, including GID_BEGIN/GID_END.
     return false;
   }
+  EndPointerTouchScroll();
+  SendTouchpadEvents(pointer_touch_emulator_.Cancel());
 
   POINT point = {info.ptsLocation.x, info.ptsLocation.y};
   const CefPoint screen =
@@ -1037,6 +1228,10 @@ void OsrWindowWin::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     render_handler_->SetBrowser(browser);
   }
 
+  if (touchpad_ && GetFocus() == hwnd_) {
+    OnFocus(true);
+  }
+
   if (hwnd_) {
     // Show the browser window. Called asynchronously so that the browser has
     // time to create associated internal objects.
@@ -1051,6 +1246,10 @@ void OsrWindowWin::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
       ClientHandlerOsr::GetForClient(browser_->GetHost()->GetClient());
   CHECK(handler);
   handler->DetachOsrDelegate();
+  EndPointerTouchScroll();
+  SendTouchpadEvents(pointer_touch_emulator_.SetEnabled(false));
+  SendTouchpadEvents(touchpad_emulator_.SetEnabled(false));
+  touchpad_.reset();
   browser_ = nullptr;
   render_handler_->SetBrowser(nullptr);
   Destroy();

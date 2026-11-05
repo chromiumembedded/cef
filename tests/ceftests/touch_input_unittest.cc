@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <limits>
+#include <utility>
 
 #include "include/cef_parser.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -13,6 +14,7 @@
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/osr_input_util.h"
+#include "tests/shared/browser/osr_touchpad.h"
 
 namespace {
 
@@ -24,7 +26,8 @@ constexpr char kUrl[] = "https://tests/touch-input";
 class TouchInputTestHandler : public RoutingTestHandler,
                               public CefRenderHandler {
  public:
-  TouchInputTestHandler(bool osr, bool iframe) : osr_(osr), iframe_(iframe) {}
+  TouchInputTestHandler(bool osr, bool iframe, bool touchpad)
+      : osr_(osr), iframe_(iframe), touchpad_(touchpad) {}
 
   CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
 
@@ -174,7 +177,7 @@ class TouchInputTestHandler : public RoutingTestHandler,
                       tolerance);
           EXPECT_NEAR(primary ? (moved ? 62.5 : 60.25) : 100.5, number("y"),
                       tolerance);
-          EXPECT_DOUBLE_EQ(0.5, number("force"));
+          EXPECT_DOUBLE_EQ(touchpad_ ? 0 : 0.5, number("force"));
         }
       }
       if (++step_ == std::size(types)) {
@@ -228,6 +231,30 @@ class TouchInputTestHandler : public RoutingTestHandler,
     touch.pointer_type = CEF_POINTER_TYPE_TOUCH;
     touch.modifiers = EVENTFLAG_SHIFT_DOWN;
     touch.type = types[step];
+    if (touchpad_) {
+      if (step == 0) {
+        touchpad_emulator_.SetEnabled(true);
+      }
+      const auto id = static_cast<uint64_t>(ids[step]);
+      std::erase_if(touchpad_frame_,
+                    [id](const auto& point) { return point.id == id; });
+      std::vector<CefTouchEvent> events;
+      if (touch.type == CEF_TET_CANCELLED) {
+        touchpad_frame_.clear();
+        events = touchpad_emulator_.ProcessFrame(std::nullopt);
+        touchpad_emulator_.ProcessFrame(touchpad_frame_);
+      } else {
+        if (touch.type != CEF_TET_RELEASED) {
+          touchpad_frame_.push_back({id, touch.x / 400, touch.y / 300, true});
+        }
+        events = touchpad_emulator_.ProcessFrame(touchpad_frame_);
+      }
+      ASSERT_EQ(1U, events.size());
+      touch = events[0];
+      client::MapTouchpadToView(touch, 500, 375, 1.25f);
+      client::DeviceToLogical(touch, 1.25f);
+      touch.modifiers = EVENTFLAG_SHIFT_DOWN;
+    }
     if (step == 0 && !iframe_) {
       // Rejected presses must not reserve the contact ID or reach browser UI.
       auto invalid = touch;
@@ -268,6 +295,9 @@ class TouchInputTestHandler : public RoutingTestHandler,
 
   const bool osr_;
   const bool iframe_;
+  const bool touchpad_;
+  client::OsrTouchpadEmulator touchpad_emulator_;
+  client::OsrTouchpadFrame touchpad_frame_;
   std::string target_url_;
   size_t step_ = 0;
   int primary_ = -1;
@@ -277,9 +307,9 @@ class TouchInputTestHandler : public RoutingTestHandler,
   IMPLEMENT_REFCOUNTING(TouchInputTestHandler);
 };
 
-void RunTouchTest(bool osr, bool iframe) {
+void RunTouchTest(bool osr, bool iframe, bool touchpad = false) {
   CefRefPtr<TouchInputTestHandler> handler =
-      new TouchInputTestHandler(osr, iframe);
+      new TouchInputTestHandler(osr, iframe, touchpad);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
@@ -294,6 +324,366 @@ TEST(TouchInputTest, MultiTouchCrossOriginWindowed) {
 
 TEST(TouchInputTest, MultiTouchOsr125) {
   RunTouchTest(true, false);
+}
+
+TEST(TouchInputTest, TouchpadCrossOriginOsr125) {
+  RunTouchTest(true, true, true);
+}
+
+TEST(OsrInputUtilTest, PointerTouchLifecycle) {
+  client::OsrPointerTouchEmulator emulator;
+  EXPECT_TRUE(emulator.Pointer(CEF_TET_PRESSED, 0.2f, 0.3f).empty());
+  EXPECT_TRUE(emulator.SetEnabled(true).empty());
+  EXPECT_TRUE(emulator.Pointer(CEF_TET_MOVED, 0.2f, 0.3f).empty());
+  EXPECT_TRUE(emulator.Pointer(CEF_TET_RELEASED, 0.2f, 0.3f).empty());
+  auto events = emulator.Pointer(CEF_TET_PRESSED, 0.2f, 0.3f);
+  ASSERT_EQ(1U, events.size());
+  const int id = events[0].id;
+  EXPECT_EQ(CEF_TET_PRESSED, events[0].type);
+  EXPECT_EQ(CEF_POINTER_TYPE_TOUCH, events[0].pointer_type);
+  EXPECT_TRUE(emulator.Pointer(CEF_TET_PRESSED, 0.4f, 0.5f).empty());
+  EXPECT_TRUE(emulator.Pointer(CEF_TET_MOVED, 0.2f, 0.3f).empty());
+  events = emulator.Pointer(CEF_TET_MOVED, 0.4f, 0.5f);
+  ASSERT_EQ(1U, events.size());
+  EXPECT_EQ(id, events[0].id);
+  EXPECT_EQ(CEF_TET_MOVED, events[0].type);
+  events = emulator.Pointer(CEF_TET_RELEASED, 0.4f, 0.5f);
+  ASSERT_EQ(1U, events.size());
+  EXPECT_EQ(id, events[0].id);
+  EXPECT_EQ(CEF_TET_RELEASED, events[0].type);
+  EXPECT_TRUE(emulator.Cancel().empty());
+  EXPECT_TRUE(emulator.Pointer(CEF_TET_MOVED, 0.6f, 0.7f).empty());
+}
+
+TEST(OsrInputUtilTest, PointerTouchCancellation) {
+  client::OsrPointerTouchEmulator emulator;
+  emulator.SetEnabled(true);
+  emulator.Pointer(CEF_TET_PRESSED, 0.125f, 0.625f);
+  auto events = emulator.SetEnabled(false);
+  ASSERT_EQ(1U, events.size());
+  EXPECT_EQ(CEF_TET_CANCELLED, events[0].type);
+  EXPECT_FLOAT_EQ(0.125f, events[0].x);
+  EXPECT_FLOAT_EQ(0.625f, events[0].y);
+  EXPECT_TRUE(emulator.SetEnabled(false).empty());
+  emulator.SetEnabled(true);
+  EXPECT_TRUE(emulator.Pointer(CEF_TET_MOVED, 0.2f, 0.3f).empty());
+  emulator.Pointer(CEF_TET_PRESSED, 0.2f, 0.3f);
+  ASSERT_EQ(1U, emulator.Cancel().size());
+  EXPECT_TRUE(emulator.Cancel().empty());
+  // A lost capture does not disable the mode; the next press starts cleanly.
+  EXPECT_EQ(1U, emulator.Pointer(CEF_TET_PRESSED, 0.2f, 0.3f).size());
+}
+
+TEST(OsrInputUtilTest, PointerTouchScroll) {
+  client::OsrPointerTouchEmulator emulator;
+  EXPECT_TRUE(emulator.Scroll(0.5f, 0.5f, 0, -0.1f).empty());
+  emulator.SetEnabled(true);
+  EXPECT_TRUE(emulator.Scroll(0.5f, 0.5f, 0, 0).empty());
+  for (const auto& delta : {std::pair(0.f, -0.125f), std::pair(0.125f, 0.f),
+                            std::pair(-1.f, 1.f)}) {
+    auto events = emulator.Scroll(1.f, 0.f, delta.first, delta.second);
+    ASSERT_EQ(2U, events.size());
+    EXPECT_EQ(CEF_TET_PRESSED, events[0].type);
+    EXPECT_EQ(CEF_TET_MOVED, events[1].type);
+    EXPECT_FLOAT_EQ(std::clamp(delta.first, -0.25f, 0.25f),
+                    events[1].x - events[0].x);
+    EXPECT_FLOAT_EQ(std::clamp(delta.second, -0.25f, 0.25f),
+                    events[1].y - events[0].y);
+    for (const auto& event : events) {
+      EXPECT_EQ(events[0].id, event.id);
+      EXPECT_GE(event.x, 0);
+      EXPECT_LE(event.x, 1);
+      EXPECT_GE(event.y, 0);
+      EXPECT_LE(event.y, 1);
+    }
+    EXPECT_TRUE(emulator.scrolling());
+    events = emulator.EndScroll();
+    ASSERT_EQ(1U, events.size());
+    EXPECT_EQ(CEF_TET_CANCELLED, events[0].type);
+    EXPECT_FALSE(emulator.scrolling());
+    EXPECT_TRUE(emulator.EndScroll().empty());
+  }
+  emulator.Pointer(CEF_TET_PRESSED, 0.2f, 0.3f);
+  EXPECT_TRUE(emulator.Scroll(0.5f, 0.5f, 0, -0.125f).empty());
+  auto events = emulator.Pointer(CEF_TET_RELEASED, 0.2f, 0.3f);
+  ASSERT_EQ(1U, events.size());
+  EXPECT_EQ(CEF_TET_RELEASED, events[0].type);
+  EXPECT_EQ(2U, emulator.Scroll(0.5f, 0.5f, 0, -0.125f).size());
+}
+
+TEST(OsrInputUtilTest, PointerTouchWindowsWheelScale) {
+  // Partial detents must move the touch contact by the same DIPs as native
+  // scrolling, independent of display scale or the selected axis.
+  for (float scale : {1.f, 1.25f, 2.4f}) {
+    const int pixel_width = static_cast<int>(400 * scale);
+    const int pixel_height = static_cast<int>(300 * scale);
+    const int width = client::DeviceToLogical(pixel_width, scale);
+    const int height = client::DeviceToLogical(pixel_height, scale);
+    for (bool horizontal : {false, true}) {
+      client::OsrPointerTouchEmulator emulator;
+      emulator.SetEnabled(true);
+      const float delta = client::GetOsrWindowsWheelDelta(0.125f, 3);
+      for (int step = 1; step <= 2; ++step) {
+        auto events =
+            emulator.Scroll(0.5f, 0.5f, horizontal ? delta / width : 0,
+                            horizontal ? 0 : delta / height);
+        ASSERT_FALSE(events.empty());
+        auto contact = events.back();
+        client::MapTouchpadToView(contact, pixel_width, pixel_height, scale);
+        client::DeviceToLogical(contact, scale);
+        EXPECT_NEAR(width / 2.f + (horizontal ? 12.5f * step : 0), contact.x,
+                    0.001f);
+        EXPECT_NEAR(height / 2.f + (horizontal ? 0 : 12.5f * step), contact.y,
+                    0.001f);
+      }
+    }
+  }
+}
+
+TEST(OsrInputUtilTest, PointerTouchScrollBurst) {
+  client::OsrPointerTouchEmulator emulator;
+  emulator.SetEnabled(true);
+  auto events = emulator.Scroll(0.5f, 0.5f, 0, -0.001f);
+  ASSERT_EQ(2U, events.size());
+  const int id = events[0].id;
+  for (int i = 1; i < 40; ++i) {
+    // The pointer can hover elsewhere without moving or releasing the swipe.
+    EXPECT_TRUE(emulator.Pointer(CEF_TET_MOVED, 0.8f, 0.8f).empty());
+    EXPECT_TRUE(emulator.Pointer(CEF_TET_RELEASED, 0.8f, 0.8f).empty());
+    events = emulator.Scroll(0.8f, 0.8f, 0, -0.001f);
+    ASSERT_EQ(1U, events.size());
+    EXPECT_EQ(CEF_TET_MOVED, events[0].type);
+    EXPECT_EQ(id, events[0].id);
+    EXPECT_FLOAT_EQ(0.5f, events[0].x);
+  }
+  EXPECT_NEAR(0.46f, events[0].y, 0.00001f);
+  events = emulator.EndScroll();
+  ASSERT_EQ(1U, events.size());
+  EXPECT_EQ(CEF_TET_CANCELLED, events[0].type);
+  EXPECT_EQ(id, events[0].id);
+  // A later burst starts at the current pointer, not the previous endpoint.
+  events = emulator.Scroll(0.8f, 0.8f, 0.01f, 0);
+  ASSERT_EQ(2U, events.size());
+  EXPECT_EQ(CEF_TET_PRESSED, events[0].type);
+  EXPECT_FLOAT_EQ(0.8f, events[0].x);
+}
+
+TEST(OsrInputUtilTest, PointerTouchScrollInterruption) {
+  client::OsrPointerTouchEmulator emulator;
+  emulator.SetEnabled(true);
+  emulator.Scroll(0.5f, 0.5f, 0, -0.01f);
+  auto events = emulator.Pointer(CEF_TET_PRESSED, 0.2f, 0.3f);
+  ASSERT_EQ(2U, events.size());
+  EXPECT_EQ(CEF_TET_CANCELLED, events[0].type);
+  EXPECT_EQ(CEF_TET_PRESSED, events[1].type);
+  EXPECT_FLOAT_EQ(0.2f, events[1].x);
+  EXPECT_FALSE(emulator.scrolling());
+  // A stale idle callback must not cancel a replacement drag contact.
+  EXPECT_TRUE(emulator.EndScroll().empty());
+  EXPECT_TRUE(emulator.Scroll(0.5f, 0.5f, 0, -0.01f).empty());
+  EXPECT_EQ(1U, emulator.Pointer(CEF_TET_RELEASED, 0.2f, 0.3f).size());
+  emulator.Scroll(0.5f, 0.5f, 0, -0.01f);
+  events = emulator.SetEnabled(false);
+  ASSERT_EQ(1U, events.size());
+  EXPECT_EQ(CEF_TET_CANCELLED, events[0].type);
+  EXPECT_FALSE(emulator.scrolling());
+  EXPECT_TRUE(emulator.EndScroll().empty());
+}
+
+TEST(OsrInputUtilTest, PointerTouchScrollBounds) {
+  client::OsrPointerTouchEmulator emulator;
+  emulator.SetEnabled(true);
+  emulator.Scroll(0.5f, 0.5f, 0, -0.25f);
+  auto events = emulator.Scroll(0.5f, 0.5f, 0, -0.25f);
+  ASSERT_EQ(1U, events.size());
+  EXPECT_FLOAT_EQ(0, events[0].y);
+  EXPECT_TRUE(emulator.Scroll(0.5f, 0.5f, 0, -0.25f).empty());
+  EXPECT_TRUE(emulator.scrolling());
+  events = emulator.Scroll(0.5f, 0.5f, 0, 0.01f);
+  ASSERT_EQ(1U, events.size());
+  EXPECT_EQ(CEF_TET_MOVED, events[0].type);
+  EXPECT_FLOAT_EQ(0.01f, events[0].y);
+}
+
+TEST(OsrInputUtilTest, PointerTouchInvalidCoordinates) {
+  client::OsrPointerTouchEmulator emulator;
+  emulator.SetEnabled(true);
+  const float infinity = std::numeric_limits<float>::infinity();
+  EXPECT_TRUE(emulator.Pointer(CEF_TET_PRESSED, infinity, 0).empty());
+  EXPECT_TRUE(emulator.Scroll(0, 0, infinity, 0).empty());
+  auto events = emulator.Pointer(CEF_TET_PRESSED, -1, 2);
+  ASSERT_EQ(1U, events.size());
+  EXPECT_FLOAT_EQ(0, events[0].x);
+  EXPECT_FLOAT_EQ(1, events[0].y);
+}
+
+TEST(OsrInputUtilTest, TouchpadFrameAssembly) {
+  client::OsrTouchpadFrameAssembler assembler;
+  const client::OsrTouchpadContact first = {1000, 0.25f, 0.5f, true};
+  const client::OsrTouchpadContact second = {2000, 0.75f, 0.5f, true};
+  EXPECT_FALSE(assembler.AddReport(2, {first}));
+  auto frame = assembler.AddReport(0, {second});
+  ASSERT_TRUE(frame);
+  ASSERT_EQ(2U, frame->size());
+  EXPECT_EQ(first.id, (*frame)[0].id);
+  EXPECT_EQ(second.id, (*frame)[1].id);
+  // Parallel reports may reserve unused contact collections after the count.
+  frame = assembler.AddReport(1, {first, second});
+  ASSERT_TRUE(frame);
+  ASSERT_EQ(1U, frame->size());
+  EXPECT_EQ(first.id, (*frame)[0].id);
+  EXPECT_FALSE(assembler.AddReport(2, {first}));
+  // A new frame replaces an incomplete old frame.
+  frame = assembler.AddReport(1, {second});
+  ASSERT_TRUE(frame);
+  ASSERT_EQ(1U, frame->size());
+  EXPECT_EQ(second.id, (*frame)[0].id);
+  frame = assembler.AddReport(0, {});
+  ASSERT_TRUE(frame);
+  EXPECT_TRUE(frame->empty());
+  EXPECT_FALSE(assembler.AddReport(257, {first}));
+  EXPECT_TRUE(assembler.AddReport(1, {first}));
+}
+
+TEST(OsrInputUtilTest, TouchpadContactLifecycle) {
+  client::OsrTouchpadEmulator emulator;
+  EXPECT_TRUE(emulator.SetEnabled(true).empty());
+  EXPECT_TRUE(emulator.enabled());
+  client::OsrTouchpadFrame frame = {{1000, 0.25f, 0.5f, true}};
+  auto events = emulator.ProcessFrame(frame);
+  ASSERT_EQ(1U, events.size());
+  const int first_id = events[0].id;
+  EXPECT_EQ(static_cast<int>(CEF_TET_PRESSED), events[0].type);
+  frame.push_back({2000, 0.75f, 0.5f, true});
+  events = emulator.ProcessFrame(frame);
+  ASSERT_EQ(1U, events.size());
+  const int second_id = events[0].id;
+  EXPECT_NE(first_id, second_id);
+  EXPECT_TRUE(emulator.ProcessFrame(frame).empty());
+  // Reordering a native frame must not release or change either contact.
+  std::reverse(frame.begin(), frame.end());
+  EXPECT_TRUE(emulator.ProcessFrame(frame).empty());
+  frame[1].x = 0.3f;
+  events = emulator.ProcessFrame(frame);
+  ASSERT_EQ(1U, events.size());
+  EXPECT_EQ(first_id, events[0].id);
+  EXPECT_EQ(static_cast<int>(CEF_TET_MOVED), events[0].type);
+  // Explicit HID up carries a final position; evdev can omit the contact.
+  frame[0].down = false;
+  frame[0].x = 0.8f;
+  events = emulator.ProcessFrame(frame);
+  ASSERT_EQ(1U, events.size());
+  EXPECT_EQ(second_id, events[0].id);
+  EXPECT_EQ(static_cast<int>(CEF_TET_RELEASED), events[0].type);
+  EXPECT_FLOAT_EQ(0.8f, events[0].x);
+  events = emulator.ProcessFrame(client::OsrTouchpadFrame());
+  ASSERT_EQ(1U, events.size());
+  EXPECT_EQ(first_id, events[0].id);
+  EXPECT_EQ(static_cast<int>(CEF_TET_RELEASED), events[0].type);
+  EXPECT_TRUE(emulator.ProcessFrame(client::OsrTouchpadFrame()).empty());
+}
+
+TEST(OsrInputUtilTest, TouchpadActivationAndCancellation) {
+  client::OsrTouchpadEmulator emulator;
+  const client::OsrTouchpadFrame held = {{1, 0.25f, 0.5f, true},
+                                         {2, 0.75f, 0.5f, true}};
+  EXPECT_TRUE(emulator.ProcessFrame(held).empty());
+  EXPECT_TRUE(emulator.SetEnabled(true).empty());
+  EXPECT_TRUE(emulator.ProcessFrame(held).empty());
+  EXPECT_TRUE(
+      emulator.ProcessFrame(client::OsrTouchpadFrame{{1, 0.3f, 0.5f, true}})
+          .empty());
+  EXPECT_TRUE(emulator.ProcessFrame(client::OsrTouchpadFrame()).empty());
+  auto events = emulator.ProcessFrame(held);
+  ASSERT_EQ(2U, events.size());
+  events = emulator.SetEnabled(false);
+  ASSERT_EQ(2U, events.size());
+  EXPECT_FALSE(emulator.enabled());
+  for (const auto& event : events) {
+    EXPECT_EQ(static_cast<int>(CEF_TET_CANCELLED), event.type);
+  }
+  EXPECT_TRUE(emulator.SetEnabled(false).empty());
+  EXPECT_TRUE(emulator.ProcessFrame(held).empty());
+  EXPECT_TRUE(emulator.SetEnabled(true).empty());
+  EXPECT_TRUE(emulator.ProcessFrame(held).empty());
+  emulator.ProcessFrame(client::OsrTouchpadFrame());
+  EXPECT_EQ(2U, emulator.ProcessFrame(held).size());
+}
+
+TEST(OsrInputUtilTest, TouchpadLostSynchronization) {
+  client::OsrTouchpadEmulator emulator;
+  emulator.SetEnabled(true);
+  client::OsrTouchpadFrame frame = {{1, 0.25f, 0.5f, true}};
+  ASSERT_EQ(1U, emulator.ProcessFrame(frame).size());
+  auto events = emulator.ProcessFrame(std::nullopt);
+  ASSERT_EQ(1U, events.size());
+  EXPECT_EQ(static_cast<int>(CEF_TET_CANCELLED), events[0].type);
+  EXPECT_TRUE(emulator.ProcessFrame(frame).empty());
+  EXPECT_TRUE(emulator.ProcessFrame(client::OsrTouchpadFrame()).empty());
+  ASSERT_EQ(1U, emulator.ProcessFrame(frame).size());
+  frame.push_back(frame[0]);
+  events = emulator.ProcessFrame(frame);
+  ASSERT_EQ(1U, events.size());
+  EXPECT_EQ(static_cast<int>(CEF_TET_CANCELLED), events[0].type);
+  emulator.ProcessFrame(client::OsrTouchpadFrame());
+  frame.resize(1);
+  frame[0].x = std::numeric_limits<float>::infinity();
+  EXPECT_TRUE(emulator.ProcessFrame(frame).empty());
+  frame[0].x = 0.25f;
+  EXPECT_TRUE(emulator.ProcessFrame(frame).empty());
+  emulator.ProcessFrame(client::OsrTouchpadFrame());
+  EXPECT_EQ(1U, emulator.ProcessFrame(frame).size());
+}
+
+TEST(OsrInputUtilTest, TouchpadContactLimit) {
+  client::OsrTouchpadEmulator emulator;
+  emulator.SetEnabled(true);
+  client::OsrTouchpadFrame frame;
+  for (uint64_t id = 0; id < 17; ++id) {
+    frame.push_back({id, 0.5f, 0.5f, true});
+  }
+  EXPECT_EQ(16U, emulator.ProcessFrame(frame).size());
+  frame.erase(frame.begin());
+  auto events = emulator.ProcessFrame(frame);
+  ASSERT_EQ(1U, events.size());
+  EXPECT_EQ(static_cast<int>(CEF_TET_RELEASED), events[0].type);
+  // Free capacity must not turn an already-held, ignored finger into a press.
+  EXPECT_TRUE(emulator.ProcessFrame(frame).empty());
+  frame.pop_back();
+  EXPECT_TRUE(emulator.ProcessFrame(frame).empty());
+  frame.push_back({16, 0.5f, 0.5f, true});
+  events = emulator.ProcessFrame(frame);
+  ASSERT_EQ(1U, events.size());
+  EXPECT_EQ(static_cast<int>(CEF_TET_PRESSED), events[0].type);
+}
+
+TEST(OsrInputUtilTest, TouchpadFractionalCoordinates) {
+  EXPECT_FLOAT_EQ(0.375f, client::NormalizeTouchpadAxis(-25, -100, 100));
+  EXPECT_FLOAT_EQ(0, client::NormalizeTouchpadAxis(-101, -100, 100));
+  EXPECT_FLOAT_EQ(1, client::NormalizeTouchpadAxis(101, -100, 100));
+  EXPECT_FLOAT_EQ(0, client::NormalizeTouchpadAxis(1, 1, 1));
+  CefTouchEvent event;
+  event.x = client::NormalizeTouchpadAxis(-25, -100, 100);
+  event.y = client::NormalizeTouchpadAxis(25, 0, 100);
+  client::MapTouchpadToView(event, 403, 303, 1.25f);
+  client::DeviceToLogical(event, 1.25f);
+  EXPECT_FLOAT_EQ(120.75f, event.x);
+  EXPECT_FLOAT_EQ(60.5f, event.y);
+  for (float scale : {1.f, 1.1f, 1.25f, 1.5f, 1.75f, 2.f}) {
+    event.x = event.y = 1;
+    client::MapTouchpadToView(event, 403, 303, scale);
+    client::DeviceToLogical(event, scale);
+    const int width = client::DeviceToLogical(403, scale);
+    const int height = client::DeviceToLogical(303, scale);
+    EXPECT_LT(event.x, width);
+    EXPECT_LT(event.y, height);
+    EXPECT_NEAR(width, event.x, 0.001);
+    EXPECT_NEAR(height, event.y, 0.001);
+  }
+  event.x = event.y = 0;
+  client::MapTouchpadToView(event, 403, 303, 1.25f);
+  EXPECT_FLOAT_EQ(0, event.x);
+  EXPECT_FLOAT_EQ(0, event.y);
 }
 
 TEST(OsrInputUtilTest, TouchFractionalCoordinates) {
