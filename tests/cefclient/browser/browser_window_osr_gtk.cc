@@ -1081,6 +1081,51 @@ gint BrowserWindowOsrGtk::ScrollEvent(GtkWidget* widget,
   mouse_event.x = event->x;
   mouse_event.y = event->y;
   self->ApplyPopupOffset(mouse_event.x, mouse_event.y);
+#if CEF_API_ADDED(CEF_NEXT)
+  mouse_event.modifiers = GetCefStateModifiers(event->state);
+  auto input =
+      MakeOsrWheelInputEvent(mouse_event, event->x_root / device_scale_factor,
+                             event->y_root / device_scale_factor);
+  // Apply the integer popup offset while retaining the native subpixel point.
+  input.x = (event->x + mouse_event.x - static_cast<int>(event->x)) /
+            device_scale_factor;
+  input.y = (event->y + mouse_event.y - static_cast<int>(event->y)) /
+            device_scale_factor;
+  switch (event->direction) {
+    case GDK_SCROLL_UP:
+      input.wheel_ticks_y = 1;
+      break;
+    case GDK_SCROLL_DOWN:
+      input.wheel_ticks_y = -1;
+      break;
+    case GDK_SCROLL_LEFT:
+      input.wheel_ticks_x = 1;
+      break;
+    case GDK_SCROLL_RIGHT:
+      input.wheel_ticks_x = -1;
+      break;
+    case GDK_SCROLL_SMOOTH: {
+      gdouble dx = 0, dy = 0;
+      if (!gdk_event_get_scroll_deltas(reinterpret_cast<GdkEvent*>(event), &dx,
+                                       &dy)) {
+        return TRUE;
+      }
+      input.wheel_ticks_x = -dx;
+      input.wheel_ticks_y = -dy;
+      // GTK sends a zero-delta stop event for smooth scrolling sequences.
+      if (gdk_event_is_scroll_stop_event(reinterpret_cast<GdkEvent*>(event))) {
+        input.phase = CEF_WHEEL_PHASE_ENDED;
+      }
+      break;
+    }
+  }
+  input.delta_x = input.wheel_ticks_x * 40.f;
+  input.delta_y = input.wheel_ticks_y * 40.f;
+  input.delta_units = event->direction == GDK_SCROLL_SMOOTH
+                          ? CEF_GESTURE_SCROLL_PRECISE_PIXEL
+                          : CEF_GESTURE_SCROLL_PIXEL;
+  host->SendWheelEvent(input);
+#else
   DeviceToLogical(mouse_event, device_scale_factor);
   mouse_event.modifiers = GetCefStateModifiers(event->state);
   mouse_event.modifiers |= EVENTFLAG_PRECISION_SCROLLING_DELTA;
@@ -1119,6 +1164,7 @@ gint BrowserWindowOsrGtk::ScrollEvent(GtkWidget* widget,
   }
 
   host->SendMouseWheelEvent(mouse_event, deltaX, deltaY);
+#endif  // CEF_API_ADDED(CEF_NEXT)
   return TRUE;
 }
 

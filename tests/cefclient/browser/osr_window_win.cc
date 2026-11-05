@@ -493,6 +493,7 @@ LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd,
     case WM_MOUSEMOVE:
     case WM_MOUSELEAVE:
     case WM_MOUSEWHEEL:
+    case WM_MOUSEHWHEEL:
       self->OnMouseEvent(message, wParam, lParam);
       break;
 
@@ -747,6 +748,7 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     } break;
 
     case WM_MOUSEWHEEL:
+    case WM_MOUSEHWHEEL:
       if (browser_host) {
         POINT screen_point = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
         HWND scrolled_wnd = ::WindowFromPoint(screen_point);
@@ -755,19 +757,42 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         }
 
         ScreenToClient(hwnd_, &screen_point);
-        int delta = GET_WHEEL_DELTA_WPARAM(wParam);
-        int deltaX = IsKeyDown(VK_SHIFT) ? delta : 0;
-        int deltaY = !IsKeyDown(VK_SHIFT) ? delta : 0;
+        // Windows horizontal-wheel deltas are positive to the right; CEF
+        // wheel deltas are positive up/left.
+        const int delta = GET_WHEEL_DELTA_WPARAM(wParam) *
+                          (message == WM_MOUSEHWHEEL ? -1 : 1);
+        const bool horizontal =
+            message == WM_MOUSEHWHEEL || IsKeyDown(VK_SHIFT);
+#if !CEF_API_ADDED(CEF_NEXT)
+        int deltaX = horizontal ? delta : 0;
+        int deltaY = horizontal ? 0 : delta;
+#endif
 
         CefMouseEvent mouse_event;
         mouse_event.x = screen_point.x;
         mouse_event.y = screen_point.y;
         ApplyPopupOffset(mouse_event.x, mouse_event.y);
+#if CEF_API_ADDED(CEF_NEXT)
+        mouse_event.modifiers = GetCefMouseModifiers(wParam);
+        const CefPoint screen = CefDisplay::ConvertScreenPointFromPixels(
+            CefPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+        auto input = MakeOsrWheelInputEvent(mouse_event, screen.x, screen.y);
+        input.x = mouse_event.x / device_scale_factor_;
+        input.y = mouse_event.y / device_scale_factor_;
+        UINT scroll_amount = horizontal ? 1 : 3;
+        SystemParametersInfo(
+            horizontal ? SPI_GETWHEELSCROLLCHARS : SPI_GETWHEELSCROLLLINES, 0,
+            &scroll_amount, 0);
+        const float ticks = static_cast<float>(delta) / WHEEL_DELTA;
+        SetOsrWindowsWheelDelta(input, ticks, horizontal, scroll_amount);
+        browser_host->SendWheelEvent(input);
+#else
         DeviceToLogical(mouse_event, device_scale_factor_);
         mouse_event.modifiers = GetCefMouseModifiers(wParam);
 
         UINT sys_info_lines;
-        if (SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &sys_info_lines,
+        if (message == WM_MOUSEWHEEL &&
+            SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &sys_info_lines,
                                  0) &&
             sys_info_lines == WHEEL_PAGESCROLL) {
           mouse_event.modifiers |= EVENTFLAG_SCROLL_BY_PAGE;
@@ -776,6 +801,7 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         }
 
         browser_host->SendMouseWheelEvent(mouse_event, deltaX, deltaY);
+#endif  // CEF_API_ADDED(CEF_NEXT)
       }
       break;
   }

@@ -3,12 +3,14 @@
 // in the LICENSE file.
 
 #include <algorithm>
+#include <limits>
 
 #include "include/cef_parser.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/routing_test_handler.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/browser/osr_input_util.h"
 
 namespace {
 
@@ -404,6 +406,57 @@ void RunWheelTest(bool osr,
 }
 
 #if CEF_API_ADDED(CEF_NEXT)
+TEST(OsrInputUtilTest, WheelSnapshot) {
+  CefMouseEvent mouse;
+  mouse.x = 17;
+  mouse.y = 23;
+  mouse.modifiers = CEF_EVENTFLAG_SHIFT_DOWN | CEF_EVENTFLAG_LEFT_MOUSE_BUTTON |
+                    CEF_EVENTFLAG_PRECISION_SCROLLING_DELTA |
+                    CEF_EVENTFLAG_SCROLL_BY_PAGE;
+  const auto event = client::MakeOsrWheelInputEvent(mouse, -100.5f, 200.25f);
+  EXPECT_EQ(sizeof(cef_wheel_input_event_t), event.size);
+  EXPECT_FLOAT_EQ(17, event.x);
+  EXPECT_FLOAT_EQ(23, event.y);
+  EXPECT_FLOAT_EQ(-100.5f, event.screen_x);
+  EXPECT_FLOAT_EQ(200.25f, event.screen_y);
+  EXPECT_EQ(static_cast<uint32_t>(CEF_EVENTFLAG_SHIFT_DOWN |
+                                  CEF_EVENTFLAG_LEFT_MOUSE_BUTTON),
+            event.modifiers);
+  EXPECT_EQ(0, event.timestamp);
+  EXPECT_EQ(CEF_GESTURE_SCROLL_PRECISE_PIXEL, event.delta_units);
+  EXPECT_EQ(CEF_WHEEL_PHASE_NONE, event.phase);
+  EXPECT_EQ(CEF_WHEEL_PHASE_NONE, event.momentum_phase);
+}
+
+TEST(OsrInputUtilTest, WindowsWheelSettings) {
+  // Exercise both axes/signs, partial detents, line/character settings,
+  // disabled scrolling and page scrolling without a platform-specific test.
+  constexpr uint32_t page_scroll = std::numeric_limits<uint32_t>::max();
+  const struct {
+    float ticks;
+    uint32_t amount;
+    float delta;
+  } cases[] = {
+      {1, 3, 100},        {-1, 3, -100},       {1, 1, 33.333333f},
+      {.125f, 3, 12.5f},  {-.125f, 6, -25},    {1, 0, 0},
+      {0, 3, 0},          {1, page_scroll, 1}, {-.125f, page_scroll, -1},
+      {0, page_scroll, 0}};
+  for (bool horizontal : {false, true}) {
+    for (const auto& test : cases) {
+      CefWheelInputEvent event;
+      client::SetOsrWindowsWheelDelta(event, test.ticks, horizontal,
+                                      test.amount);
+      const bool page = test.amount == page_scroll;
+      EXPECT_EQ(page ? CEF_GESTURE_SCROLL_PAGE : CEF_GESTURE_SCROLL_PIXEL,
+                event.delta_units);
+      EXPECT_FLOAT_EQ(horizontal ? test.ticks : 0, event.wheel_ticks_x);
+      EXPECT_FLOAT_EQ(horizontal ? 0 : test.ticks, event.wheel_ticks_y);
+      EXPECT_FLOAT_EQ(horizontal ? test.delta : 0, event.delta_x);
+      EXPECT_FLOAT_EQ(horizontal ? 0 : test.delta, event.delta_y);
+    }
+  }
+}
+
 TEST(WheelInputTest, FractionalDomOsr125) {
   RunWheelTest(true, Scenario::Dom, FrameMode::Main, 1.25f);
 }

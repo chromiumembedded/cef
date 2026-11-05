@@ -7,6 +7,7 @@
 #pragma once
 
 #include <initializer_list>
+#include <limits>
 #include <vector>
 
 #include "include/internal/cef_types_wrappers.h"
@@ -67,6 +68,40 @@ inline CefMouseInputEvent MakeOsrMouseInputEvent(
     }
   }
   return result;
+}
+
+inline CefWheelInputEvent MakeOsrWheelInputEvent(const CefMouseEvent& mouse,
+                                                 float screen_x,
+                                                 float screen_y) {
+  CefWheelInputEvent result;
+  result.x = mouse.x;
+  result.y = mouse.y;
+  result.screen_x = screen_x;
+  result.screen_y = screen_y;
+  result.modifiers =
+      mouse.modifiers &
+      ~(CEF_EVENTFLAG_PRECISION_SCROLLING_DELTA | CEF_EVENTFLAG_SCROLL_BY_PAGE);
+  return result;
+}
+
+// Match Windows wheel settings without rounding partial detents or pixel
+// deltas. UINT_MAX is WHEEL_PAGESCROLL; zero disables scrolling on this axis.
+// The caller normalizes ticks so positive values mean up/left.
+inline void SetOsrWindowsWheelDelta(CefWheelInputEvent& event,
+                                    float ticks,
+                                    bool horizontal,
+                                    uint32_t scroll_amount) {
+  const bool page = scroll_amount == std::numeric_limits<uint32_t>::max();
+  event.delta_units = page ? CEF_GESTURE_SCROLL_PAGE : CEF_GESTURE_SCROLL_PIXEL;
+  const float delta =
+      page ? (ticks > 0   ? 1.f
+              : ticks < 0 ? -1.f
+                          : 0.f)
+           : ticks * static_cast<float>(scroll_amount) * (100.f / 3.f);
+  event.wheel_ticks_x = horizontal ? ticks : 0;
+  event.wheel_ticks_y = horizontal ? 0 : ticks;
+  event.delta_x = horizontal ? delta : 0;
+  event.delta_y = horizontal ? 0 : delta;
 }
 
 // WM_GESTURE zoom reports absolute finger separation, including on the final

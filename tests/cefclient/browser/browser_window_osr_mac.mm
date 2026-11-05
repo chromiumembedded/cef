@@ -10,6 +10,7 @@
 #import <objc/runtime.h>
 
 #include <optional>
+#include <utility>
 
 #include "include/base/cef_logging.h"
 #include "include/cef_input_event_utils.h"
@@ -74,6 +75,24 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   NSRect point_rect = NSMakeRect(point.x, point.y, 0, 0);
   return [window convertRectToScreen:point_rect].origin;
 }
+
+#if CEF_API_ADDED(CEF_NEXT)
+cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
+  uint32_t result = CEF_WHEEL_PHASE_NONE;
+  for (const auto& entry :
+       {std::pair{NSEventPhaseBegan, CEF_WHEEL_PHASE_BEGAN},
+        std::pair{NSEventPhaseStationary, CEF_WHEEL_PHASE_STATIONARY},
+        std::pair{NSEventPhaseChanged, CEF_WHEEL_PHASE_CHANGED},
+        std::pair{NSEventPhaseEnded, CEF_WHEEL_PHASE_ENDED},
+        std::pair{NSEventPhaseCancelled, CEF_WHEEL_PHASE_CANCELLED},
+        std::pair{NSEventPhaseMayBegin, CEF_WHEEL_PHASE_MAY_BEGIN}}) {
+    if (phase & entry.first) {
+      result |= entry.second;
+    }
+  }
+  return static_cast<cef_wheel_event_phase_t>(result);
+}
+#endif
 
 }  // namespace
 
@@ -608,6 +627,41 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   CGEventRef cgEvent = [event CGEvent];
   DCHECK(cgEvent);
 
+#if CEF_API_ADDED(CEF_NEXT)
+  CefMouseEvent mouse;
+  [self getMouseEvent:mouse forEvent:event];
+  const NSPoint screen = [self getScreenPointForEvent:event];
+  auto input = client::MakeOsrWheelInputEvent(mouse, screen.x, screen.y);
+  NSPoint point = [self getClickPointForEvent:event];
+  point = [self convertPointToBackingInternal:point];
+  int device_x = point.x;
+  int device_y = point.y;
+  if ([self isOverPopupWidgetX:device_x andY:device_y]) {
+    [self applyPopupOffsetToX:device_x andY:device_y];
+  }
+  const float scale = [self getDeviceScaleFactor];
+  input.x = (point.x + device_x - static_cast<int>(point.x)) / scale;
+  input.y = (point.y + device_y - static_cast<int>(point.y)) / scale;
+  constexpr float pixels_per_tick = 40.f;
+  if (event.hasPreciseScrollingDeltas) {
+    input.delta_units = CEF_GESTURE_SCROLL_PRECISE_PIXEL;
+    input.delta_x = event.scrollingDeltaX;
+    input.delta_y = event.scrollingDeltaY;
+    input.wheel_ticks_x = input.delta_x / pixels_per_tick;
+    input.wheel_ticks_y = input.delta_y / pixels_per_tick;
+  } else {
+    input.delta_units = CEF_GESTURE_SCROLL_PIXEL;
+    input.delta_x = event.deltaX * pixels_per_tick;
+    input.delta_y = event.deltaY * pixels_per_tick;
+    input.wheel_ticks_x =
+        CGEventGetIntegerValueField(cgEvent, kCGScrollWheelEventDeltaAxis2);
+    input.wheel_ticks_y =
+        CGEventGetIntegerValueField(cgEvent, kCGScrollWheelEventDeltaAxis1);
+  }
+  input.phase = WheelPhaseFromNSEventPhase(event.phase);
+  input.momentum_phase = WheelPhaseFromNSEventPhase(event.momentumPhase);
+  browser->GetHost()->SendWheelEvent(input);
+#else
   int deltaX = static_cast<int>(
       CGEventGetIntegerValueField(cgEvent, kCGScrollWheelEventPointDeltaAxis2));
   int deltaY = static_cast<int>(
@@ -617,6 +671,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   [self getMouseEvent:mouseEvent forEvent:event];
 
   browser->GetHost()->SendMouseWheelEvent(mouseEvent, deltaX, deltaY);
+#endif  // CEF_API_ADDED(CEF_NEXT)
 }
 
 - (BOOL)canBecomeKeyView {
