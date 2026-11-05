@@ -162,12 +162,8 @@ enum OSRTestType {
   OSR_TEST_TEXT_SELECTION_CHANGE,
   // clicking on text input will call OnVirtualKeyboardRequested
   OSR_TEST_VIRTUAL_KEYBOARD,
-  // touchStart event is triggered and contains the touch point count
-  OSR_TEST_TOUCH_START,
   // touchMove event is triggered and contains the changed touch points
   OSR_TEST_TOUCH_MOVE,
-  // touchEnd is triggered on completion
-  OSR_TEST_TOUCH_END,
   // touchCancel is triggered on dismissing
   OSR_TEST_TOUCH_CANCEL,
   // CEF_POINTER_TYPE_PEN is mapped to pen pointer event
@@ -352,14 +348,12 @@ class OSRTestHandler : public RoutingTestHandler,
         EXPECT_TRUE(StartTest());
         ClickMouseOnElement(browser, "email");
         break;
-      case OSR_TEST_TOUCH_START:
       case OSR_TEST_TOUCH_MOVE:
-      case OSR_TEST_TOUCH_END:
       case OSR_TEST_TOUCH_CANCEL: {
         EXPECT_TRUE(StartTest());
 
-        // We trigger a valid Touch workflow sequence and close the tests
-        // at seperate points for the 4 cases
+        // Retain burst/coalescing coverage: both fingers must appear in one
+        // DOM touchmove. TouchInputTest covers individual touch transitions.
 
         const CefRect& touchdiv = GetElementBounds("touchdiv");
         std::vector<CefTouchEvent> touch_events;
@@ -381,15 +375,13 @@ class OSRTestHandler : public RoutingTestHandler,
         touch_event2.type = CEF_TET_PRESSED;
         touch_events.push_back(touch_event2);
 
-        if (test_type_ >= OSR_TEST_TOUCH_MOVE) {
-          // Move the Touch fingers closer
-          touch_event1.type = touch_event2.type = CEF_TET_MOVED;
-          for (size_t i = 0; i < 40; i++) {
-            touch_event1.x++;
-            touch_event2.x--;
-            touch_events.push_back(touch_event1);
-            touch_events.push_back(touch_event2);
-          }
+        // Move the Touch fingers closer.
+        touch_event1.type = touch_event2.type = CEF_TET_MOVED;
+        for (size_t i = 0; i < 40; i++) {
+          touch_event1.x++;
+          touch_event2.x--;
+          touch_events.push_back(touch_event1);
+          touch_events.push_back(touch_event2);
         }
 
         // Now release the Touch fingers or cancel them
@@ -506,9 +498,7 @@ class OSRTestHandler : public RoutingTestHandler,
           DestroySucceededTestSoon();
         }
         break;
-      case OSR_TEST_TOUCH_START:
       case OSR_TEST_TOUCH_MOVE:
-      case OSR_TEST_TOUCH_END:
       case OSR_TEST_TOUCH_CANCEL: {
         switch (touch_state_) {
           case CEF_TET_CANCELLED: {
@@ -516,13 +506,7 @@ class OSRTestHandler : public RoutingTestHandler,
             // We expect multitouch, so touches length should be 2.
             // Ignore intermediate touch start events.
             if (messageStr == "osrtouchstart2") {
-              // Close Touch Start Tests.
-              if (test_type_ == OSR_TEST_TOUCH_START) {
-                DestroySucceededTestSoon();
-                touch_state_ = CEF_TET_RELEASED;
-              } else {
-                touch_state_ = CEF_TET_PRESSED;
-              }
+              touch_state_ = CEF_TET_PRESSED;
             }
           } break;
           case CEF_TET_PRESSED: {
@@ -538,12 +522,7 @@ class OSRTestHandler : public RoutingTestHandler,
           } break;
           case CEF_TET_MOVED: {
             // There might be multiple touchmove events, ignore.
-            if (test_type_ == OSR_TEST_TOUCH_END) {
-              if (messageStr == "osrtouchend") {
-                DestroySucceededTestSoon();
-                touch_state_ = CEF_TET_RELEASED;
-              }
-            } else if (test_type_ == OSR_TEST_TOUCH_CANCEL) {
+            if (test_type_ == OSR_TEST_TOUCH_CANCEL) {
               if (messageStr == "osrtouchcancel") {
                 DestroySucceededTestSoon();
                 touch_state_ = CEF_TET_RELEASED;
@@ -1996,6 +1975,7 @@ class ExternalBeginFrameTimingTestHandler : public RoutingTestHandler,
       : accelerated_(accelerated) {}
 
   bool readback_unavailable() const { return readback_unavailable_; }
+
   bool shared_texture_unavailable() const {
     return shared_texture_unavailable_;
   }
@@ -2335,7 +2315,7 @@ OSR_TEST(Tooltip2x, OSR_TEST_TOOLTIP, 2.0f)
 OSR_TEST(ContextMenu, OSR_TEST_CONTEXT_MENU, 1.0f)
 OSR_TEST(ContextMenu2x, OSR_TEST_CONTEXT_MENU, 2.0f)
 OSR_TEST(QuickMenu, OSR_TEST_QUICK_MENU, 1.0f)
-OSR_TEST(QuickMenu2x, OSR_TEST_CONTEXT_MENU, 2.0f)
+OSR_TEST(QuickMenu2x, OSR_TEST_QUICK_MENU, 2.0f)
 OSR_TEST(PopupPaint, OSR_TEST_POPUP_PAINT, 1.0f)
 OSR_TEST(PopupPaint2x, OSR_TEST_POPUP_PAINT, 2.0f)
 OSR_TEST(PopupShow, OSR_TEST_POPUP_SHOW, 1.0f)
@@ -2376,12 +2356,8 @@ OSR_TEST(DragTargetDropThenNavigate,
 OSR_TEST(TextSelectionChanged, OSR_TEST_TEXT_SELECTION_CHANGE, 1.0f)
 OSR_TEST(TextSelectionChanged2x, OSR_TEST_TEXT_SELECTION_CHANGE, 2.0f)
 OSR_TEST(VirtualKeyboard, OSR_TEST_VIRTUAL_KEYBOARD, 1.0f)
-OSR_TEST(TouchStart, OSR_TEST_TOUCH_START, 1.0f)
-OSR_TEST(TouchStart2x, OSR_TEST_TOUCH_START, 2.0f)
 OSR_TEST(TouchMove, OSR_TEST_TOUCH_MOVE, 1.0f)
 OSR_TEST(TouchMove2x, OSR_TEST_TOUCH_MOVE, 2.0f)
-OSR_TEST(TouchEnd, OSR_TEST_TOUCH_END, 1.0f)
-OSR_TEST(TouchEnd2x, OSR_TEST_TOUCH_END, 2.0f)
 OSR_TEST(TouchCancel, OSR_TEST_TOUCH_CANCEL, 1.0f)
 OSR_TEST(TouchCancel2x, OSR_TEST_TOUCH_CANCEL, 2.0f)
 OSR_TEST(PenEvent, OSR_TEST_PEN, 1.0f)

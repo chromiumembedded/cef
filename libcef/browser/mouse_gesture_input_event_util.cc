@@ -206,6 +206,18 @@ base::TimeTicks Timestamp(int64_t value) {
 
 }  // namespace
 
+bool IsValidTouchEvent(const CefTouchEvent& event) {
+  return event.id != -1 && std::isfinite(event.x) && std::isfinite(event.y) &&
+         std::isfinite(event.radius_x) && std::isfinite(event.radius_y) &&
+         std::isfinite(event.rotation_angle) && std::isfinite(event.pressure) &&
+         event.radius_x >= 0 && event.radius_y >= 0 &&
+         event.rotation_angle >= 0 && event.rotation_angle < 180 &&
+         event.pressure >= 0 && event.pressure <= 1 &&
+         event.type >= CEF_TET_RELEASED && event.type <= CEF_TET_CANCELLED &&
+         event.pointer_type >= CEF_POINTER_TYPE_TOUCH &&
+         event.pointer_type <= CEF_POINTER_TYPE_UNKNOWN;
+}
+
 bool GetWebWheelInputEvent(const CefWheelInputEvent& event,
                            blink::WebMouseWheelEvent& web_event) {
   constexpr int direct_phases =

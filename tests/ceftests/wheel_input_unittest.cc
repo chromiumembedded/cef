@@ -33,6 +33,7 @@ class WheelInputTestHandler : public RoutingTestHandler,
       : osr_(osr), scenario_(scenario), frame_mode_(frame), scale_(scale) {}
 
   CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
+
   CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
       CefRefPtr<CefBrowser>,
       CefRefPtr<CefFrame>,
@@ -46,13 +47,16 @@ class WheelInputTestHandler : public RoutingTestHandler,
     disable_default_handling = true;
     return this;
   }
+
   void GetViewRect(CefRefPtr<CefBrowser>, CefRect& rect) override {
     rect = CefRect(0, 0, 400, 300);
   }
+
   bool GetScreenInfo(CefRefPtr<CefBrowser>, CefScreenInfo& info) override {
     info.device_scale_factor = scale_;
     return true;
   }
+
   void OnPaint(CefRefPtr<CefBrowser> browser,
                PaintElementType type,
                const RectList& dirty,
@@ -292,22 +296,27 @@ class WheelInputTestHandler : public RoutingTestHandler,
 
  private:
   bool IsIframe() const { return frame_mode_ != FrameMode::Main; }
+
   bool IsMomentum() const {
     return scenario_ == Scenario::Momentum ||
            scenario_ == Scenario::MomentumScroll;
   }
+
   bool CancelWheel() const {
     return scenario_ == Scenario::Dom || scenario_ == Scenario::Momentum;
   }
+
   bool NeedsScrollPaint() const {
     return osr_ && !IsIframe() &&
            (scenario_ == Scenario::Scroll || scenario_ == Scenario::PageScroll);
   }
+
   void MaybeFinish() {
     if (renderer_done_ && (!NeedsScrollPaint() || scroll_painted_)) {
       DestroyTest();
     }
   }
+
   void Arm(CefRefPtr<CefBrowser> browser) {
     if (started_ || finished_) {
       return;
@@ -350,6 +359,11 @@ class WheelInputTestHandler : public RoutingTestHandler,
     }
     if (scenario_ == Scenario::Dom) {
       event.modifiers = CEF_EVENTFLAG_SHIFT_DOWN;
+      if (!IsIframe()) {
+        auto invalid = event;
+        invalid.phase = CEF_WHEEL_PHASE_BLOCKED;
+        browser->GetHost()->SendWheelEvent(invalid);
+      }
       // Also exercise BrowserHost's off-UI-thread dispatch and snapshot copy.
       CefPostTask(TID_IO, base::BindOnce(&CefBrowserHost::SendWheelEvent,
                                          browser->GetHost(), event));
@@ -460,27 +474,35 @@ TEST(OsrInputUtilTest, WindowsWheelSettings) {
 TEST(WheelInputTest, FractionalDomOsr125) {
   RunWheelTest(true, Scenario::Dom, FrameMode::Main, 1.25f);
 }
+
 TEST(WheelInputTest, FractionalDomWindowed) {
   RunWheelTest(false, Scenario::Dom);
 }
+
 TEST(WheelInputTest, ScrollWindowed) {
   RunWheelTest(false, Scenario::Scroll);
 }
+
 TEST(WheelInputTest, ScrollOsr125) {
   RunWheelTest(true, Scenario::Scroll, FrameMode::Main, 1.25f);
 }
+
 TEST(WheelInputTest, ScrollCrossOriginOsr) {
   RunWheelTest(true, Scenario::Scroll, FrameMode::CrossOrigin, 1.25f);
 }
+
 TEST(WheelInputTest, CancelCrossOriginWindowed) {
   RunWheelTest(false, Scenario::Dom, FrameMode::CrossOrigin);
 }
+
 TEST(WheelInputTest, PageScrollOsr) {
   RunWheelTest(true, Scenario::PageScroll);
 }
+
 TEST(WheelInputTest, MomentumScrollSameOriginWindowed) {
   RunWheelTest(false, Scenario::MomentumScroll, FrameMode::SameOrigin);
 }
+
 TEST(WheelInputTest, MomentumCrossOriginOsr) {
   RunWheelTest(true, Scenario::Momentum, FrameMode::CrossOrigin, 1.25f);
 }
@@ -488,9 +510,11 @@ TEST(WheelInputTest, MomentumCrossOriginOsr) {
 TEST(WheelInputTest, LegacyDomOsr) {
   RunWheelTest(true, Scenario::Dom);
 }
+
 TEST(WheelInputTest, LegacyScrollWindowed) {
   RunWheelTest(false, Scenario::Scroll);
 }
+
 TEST(WheelInputTest, LegacyScrollOsr125) {
   RunWheelTest(true, Scenario::Scroll, FrameMode::Main, 1.25f);
 }

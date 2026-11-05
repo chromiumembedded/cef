@@ -89,7 +89,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   void WasHidden(bool hidden) override;
   void Invalidate(PaintElementType type) override;
   void SendExternalBeginFrame() override;
-  void SendTouchEvent(const CefTouchEvent& event) override;
   void SendCaptureLostEvent() override;
   int GetWindowlessFrameRate() override;
   void SetWindowlessFrameRate(int frame_rate) override;

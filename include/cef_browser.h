@@ -786,10 +786,26 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
                                    int deltaY) = 0;
 
   ///
-  /// Send a touch event to the browser for a windowless browser.
-  /// Delivers raw touch events to web content and lets Chromium recognize
-  /// gestures. To inject an already recognized gesture, use SendGestureEvent
-  /// with CefGestureInputEvent instead.
+  /// Send a portable touch event to web content. Supports off-screen and native
+  /// browser views with Chromium input routing, including out-of-process
+  /// frames. May be called on any thread. Coordinates are in DIPs relative to
+  /// the upper-left corner of the browser view.
+  ///
+  /// Send coherent pressed/moved/released or cancelled sequences with a unique
+  /// ID for each active contact. Delivers raw DOM touch events and lets
+  /// Chromium recognize gestures. Web-content processing and
+  /// CefInputHandler::OnPreGestureEvent apply to the generated gestures.
+  /// Invalid event data is ignored with a warning. Invalid contact sequencing
+  /// is silently ignored.
+  ///
+  /// For windowed browsers, events enter the native browser view's touch-
+  /// processing path, including gesture recognition and touch acknowledgments.
+  /// This does not synthesize native OS touch events or require a physical
+  /// touchscreen or --touch-events=enabled. The caller must manage browser
+  /// focus.
+  ///
+  /// To submit an already recognized gesture without raw touch delivery or
+  /// touch recognition, use SendGestureEvent with CefGestureInputEvent instead.
   ///
   /*--cef()--*/
   virtual void SendTouchEvent(const CefTouchEvent& event) = 0;
@@ -1110,11 +1126,11 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /// Send a complete portable keyboard snapshot. Key identity and text are
   /// preserved without consulting the receiving keyboard layout. Zero timestamp
-  /// uses the dispatch time. Invalid snapshots are silently ignored, including
-  /// unsupported types/modifier bits, invalid nonzero DOM encodings, negative
-  /// timestamps, unterminated text buffers, and is_system_key values other than
-  /// zero or one. Supports off-screen and native browser views. May be called
-  /// on any thread.
+  /// uses the dispatch time. Invalid snapshots are ignored with a warning,
+  /// including unsupported types/modifier bits, invalid nonzero DOM encodings,
+  /// negative timestamps, unterminated text buffers, and is_system_key values
+  /// other than zero or one. Supports off-screen and native browser views. May
+  /// be called on any thread.
   ///
   /// For windowed browsers, events are forwarded directly to the focused web-
   /// content renderer, bypassing the native browser view's key-event entry
@@ -1136,7 +1152,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /// native browser views with Chromium input routing, including out-of-process
   /// frames. Events are injected directly into web content, bypassing native
   /// controls and OS event synthesis. Zero timestamp uses the dispatch time.
-  /// Invalid snapshots are silently ignored. May be called on any thread.
+  /// Invalid snapshots are ignored with a warning. May be called on any thread.
   /// Coordinates are in DIPs; provide both widget and screen positions.
   ///
   /// Down/up events must specify the changed button, click count, and the
@@ -1156,7 +1172,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /// native browser views with Chromium input routing, including out-of-process
   /// frames. Events are injected directly into web content, bypassing native
   /// controls and OS event synthesis. Zero timestamp uses the dispatch time.
-  /// Invalid snapshots are silently ignored. May be called on any thread.
+  /// Invalid snapshots are ignored with a warning. May be called on any thread.
   /// Coordinates are in DIPs; provide both widget and screen positions.
   ///
   /// Send coherent begin/update/end sequences and populate only the fields
@@ -1171,8 +1187,8 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /// This submits an already recognized gesture without running a native
   /// touch/trackpad recognizer or synthesizing the underlying DOM touch events.
-  /// For windowless browsers that need raw touch delivery and Chromium gesture
-  /// recognition, use SendTouchEvent instead.
+  /// For raw touch delivery and Chromium gesture recognition, use
+  /// SendTouchEvent instead.
   ///
   /*--cef(added=next)--*/
   virtual void SendGestureEvent(const CefGestureInputEvent& event) = 0;
@@ -1182,7 +1198,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /// native browser views with Chromium input routing, including out-of-process
   /// frames. Events are injected directly into web content, bypassing native
   /// controls and OS event synthesis. Zero timestamp uses the dispatch time.
-  /// Invalid snapshots are silently ignored. May be called on any thread.
+  /// Invalid snapshots are ignored with a warning. May be called on any thread.
   /// Coordinates are in DIPs; provide both widget and screen positions.
   ///
   /// For windowed browsers, this bypasses native OS wheel-event dispatch and

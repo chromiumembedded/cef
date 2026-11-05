@@ -674,6 +674,7 @@
       'tests/ceftests/thread_helper.cc',
       'tests/ceftests/thread_helper.h',
       'tests/ceftests/thread_unittest.cc',
+      'tests/ceftests/touch_input_unittest.cc',
       'tests/ceftests/tracing_unittest.cc',
       'tests/ceftests/track_callback.h',
       'tests/ceftests/translator_unittest.cc',

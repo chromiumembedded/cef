@@ -22,6 +22,8 @@ class WebMouseWheelEvent;
 
 // Convert between CEF event flags and Blink modifiers.
 int GetWebEventModifiers(uint32_t cef_modifiers);
+// Validate touch payload fields. Contact sequencing is checked separately.
+bool IsValidTouchEvent(const CefTouchEvent& event);
 bool GetWebWheelInputEvent(const CefWheelInputEvent& event,
                            blink::WebMouseWheelEvent& web_event);
 bool GetWebMouseInputEvent(const CefMouseInputEvent& event,

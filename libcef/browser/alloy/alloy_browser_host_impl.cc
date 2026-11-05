@@ -409,23 +409,6 @@ void AlloyBrowserHostImpl::SendExternalBeginFrame() {
   }
 }
 
-void AlloyBrowserHostImpl::SendTouchEvent(const CefTouchEvent& event) {
-  if (!IsWindowless()) {
-    DCHECK(false) << "Window rendering is not disabled";
-    return;
-  }
-
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(&AlloyBrowserHostImpl::SendTouchEvent,
-                                          this, event));
-    return;
-  }
-
-  if (platform_delegate_) {
-    platform_delegate_->SendTouchEvent(event);
-  }
-}
-
 void AlloyBrowserHostImpl::SendCaptureLostEvent() {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(

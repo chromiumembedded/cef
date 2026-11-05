@@ -15,6 +15,67 @@
 namespace {
 using Type = blink::WebInputEvent::Type;
 
+TEST(TouchInputEventUtil, PayloadValidation) {
+  CefTouchEvent valid;
+  valid.type = CEF_TET_PRESSED;
+  valid.x = 12.5f;
+  valid.y = 34.25f;
+  valid.pressure = 0.5f;
+  EXPECT_TRUE(IsValidTouchEvent(valid));
+  for (auto type :
+       {CEF_TET_PRESSED, CEF_TET_MOVED, CEF_TET_RELEASED, CEF_TET_CANCELLED}) {
+    auto event = valid;
+    event.type = type;
+    // Finite positions outside the view are valid payloads for an ongoing
+    // contact. Bounds and contact sequencing are handled by the input path.
+    event.x = -12.5f;
+    EXPECT_TRUE(IsValidTouchEvent(event));
+  }
+  for (auto field :
+       {&cef_touch_event_t::x, &cef_touch_event_t::y,
+        &cef_touch_event_t::radius_x, &cef_touch_event_t::radius_y,
+        &cef_touch_event_t::rotation_angle, &cef_touch_event_t::pressure}) {
+    for (float value : {std::numeric_limits<float>::quiet_NaN(),
+                        std::numeric_limits<float>::infinity(),
+                        -std::numeric_limits<float>::infinity()}) {
+      auto event = valid;
+      event.*field = value;
+      EXPECT_FALSE(IsValidTouchEvent(event));
+    }
+  }
+  for (auto field :
+       {&cef_touch_event_t::radius_x, &cef_touch_event_t::radius_y,
+        &cef_touch_event_t::rotation_angle, &cef_touch_event_t::pressure}) {
+    auto event = valid;
+    event.*field = -0.01f;
+    EXPECT_FALSE(IsValidTouchEvent(event));
+  }
+  auto event = valid;
+  event.rotation_angle = 179.99f;
+  EXPECT_TRUE(IsValidTouchEvent(event));
+  event.rotation_angle = 180;
+  EXPECT_FALSE(IsValidTouchEvent(event));
+  event = valid;
+  event.pressure = 1;
+  EXPECT_TRUE(IsValidTouchEvent(event));
+  event.pressure = 1.01f;
+  EXPECT_FALSE(IsValidTouchEvent(event));
+  event = valid;
+  event.id = -1;
+  EXPECT_FALSE(IsValidTouchEvent(event));
+  for (int id :
+       {std::numeric_limits<int>::min(), std::numeric_limits<int>::max()}) {
+    event.id = id;
+    EXPECT_TRUE(IsValidTouchEvent(event));
+  }
+  event = valid;
+  event.type = static_cast<cef_touch_event_type_t>(999);
+  EXPECT_FALSE(IsValidTouchEvent(event));
+  event = valid;
+  event.pointer_type = static_cast<cef_pointer_type_t>(999);
+  EXPECT_FALSE(IsValidTouchEvent(event));
+}
+
 TEST(WheelInputEventUtil, FieldsAndDefaults) {
   CefWheelInputEvent event;
   EXPECT_EQ(sizeof(cef_wheel_input_event_t), event.size);

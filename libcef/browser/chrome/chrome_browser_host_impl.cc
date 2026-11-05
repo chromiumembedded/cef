@@ -249,10 +249,6 @@ void ChromeBrowserHostImpl::SendExternalBeginFrame() {
   NOTIMPLEMENTED();
 }
 
-void ChromeBrowserHostImpl::SendTouchEvent(const CefTouchEvent& event) {
-  NOTIMPLEMENTED();
-}
-
 void ChromeBrowserHostImpl::SendCaptureLostEvent() {
   NOTIMPLEMENTED();
 }

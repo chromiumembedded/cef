@@ -6,12 +6,21 @@
 #define CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_H_
 
 #include "base/memory/raw_ptr.h"
+#include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/alloy/browser_platform_delegate_alloy.h"
+
+class CefMotionEventOSR;
+
+namespace content {
+class RenderWidgetHostViewBase;
+}  // namespace content
 
 // Base implementation of native browser functionality.
 class CefBrowserPlatformDelegateNative
     : public CefBrowserPlatformDelegateAlloy {
  public:
+  ~CefBrowserPlatformDelegateNative() override;
+
   // Used by the windowless implementation to override specific functionality
   // when delegating to the native implementation.
   class WindowlessHandler {
@@ -33,6 +42,7 @@ class CefBrowserPlatformDelegateNative
   SkColor GetBackgroundColor() const override;
   void WasResized() override;
   void NotifyScreenInfoChanged() override;
+  void SendTouchEvent(const CefTouchEvent& event) override;
 
   // Translate CEF events to Chromium/Blink Web events.
   // DEPRECATED: Legacy SendKeyEvent conversion; use
@@ -62,6 +72,8 @@ class CefBrowserPlatformDelegateNative
   const CefWindowInfo& window_info() const { return window_info_; }
 
  protected:
+  virtual void SendWebTouchEvent(const blink::WebTouchEvent& event) = 0;
+
   // Delegates that can wrap a native delegate.
   friend class CefBrowserPlatformDelegateBackground;
   friend class CefBrowserPlatformDelegateChrome;
@@ -82,6 +94,10 @@ class CefBrowserPlatformDelegateNative
 
   // Not owned by this object.
   raw_ptr<WindowlessHandler> windowless_handler_ = nullptr;
+
+ private:
+  base::WeakPtr<content::RenderWidgetHostViewBase> touch_view_;
+  std::unique_ptr<CefMotionEventOSR> touch_state_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_H_

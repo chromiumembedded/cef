@@ -820,6 +820,13 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   }
 
   void Send(CefRefPtr<CefBrowser> browser) {
+#if CEF_API_ADDED(CEF_NEXT)
+    if (mode_ == Mode::Portable && scenario_ == Scenario::Unicode) {
+      auto invalid = expected_.front();
+      invalid.type = static_cast<cef_key_event_type_t>(999);
+      browser->GetHost()->SendKeyboardEvent(invalid);
+    }
+#endif
     for (size_t i = 0; i < expected_.size(); ++i) {
       const auto& event = expected_[i];
       if (IsLegacySend()) {

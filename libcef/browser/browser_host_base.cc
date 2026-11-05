@@ -1042,6 +1042,17 @@ void CefBrowserHostBase::AddWordToDictionary(const CefString& word) {
 #endif
 }
 
+void CefBrowserHostBase::SendTouchEvent(const CefTouchEvent& event) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostBase::SendTouchEvent,
+                                          this, event));
+    return;
+  }
+  if (platform_delegate_) {
+    platform_delegate_->SendTouchEvent(event);
+  }
+}
+
 void CefBrowserHostBase::SendMouseEvent(const CefMouseInputEvent& event) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostBase::SendMouseEvent,

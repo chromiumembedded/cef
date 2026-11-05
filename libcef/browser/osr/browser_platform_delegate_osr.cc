@@ -6,6 +6,7 @@
 
 #include <utility>
 
+#include "base/logging.h"
 #include "base/task/current_thread.h"
 #include "cef/libcef/browser/browser_event_util.h"
 #include "cef/libcef/browser/image_impl.h"
@@ -107,11 +108,16 @@ void CefBrowserPlatformDelegateOsr::WasResized() {
 void CefBrowserPlatformDelegateOsr::SendKeyboardEvent(
     const CefKeyboardInputEvent& event) {
   auto* view = GetOSRHostView();
-  blink::WebKeyboardEvent web_event;
-  if (view && GetWebKeyboardInputEvent(event, web_event)) {
-    view->SendKeyEvent(
-        native_delegate_->TranslateWebKeyboardInputEvent(web_event));
+  if (!view || view->destroy_pending()) {
+    return;
   }
+  blink::WebKeyboardEvent web_event;
+  if (!GetWebKeyboardInputEvent(event, web_event)) {
+    LOG(WARNING) << "SendKeyboardEvent: Invalid input event";
+    return;
+  }
+  view->SendKeyEvent(
+      native_delegate_->TranslateWebKeyboardInputEvent(web_event));
 }
 
 void CefBrowserPlatformDelegateOsr::SendKeyEvent(const CefKeyEvent& event) {
@@ -128,28 +134,43 @@ void CefBrowserPlatformDelegateOsr::SendKeyEvent(const CefKeyEvent& event) {
 void CefBrowserPlatformDelegateOsr::SendMouseEvent(
     const CefMouseInputEvent& event) {
   auto* view = GetOSRHostView();
-  blink::WebMouseEvent web_event;
-  if (view && GetWebMouseInputEvent(event, web_event)) {
-    view->SendMouseEvent(web_event);
+  if (!view || view->destroy_pending()) {
+    return;
   }
+  blink::WebMouseEvent web_event;
+  if (!GetWebMouseInputEvent(event, web_event)) {
+    LOG(WARNING) << "SendMouseEvent: Invalid input event";
+    return;
+  }
+  view->SendMouseEvent(web_event);
 }
 
 void CefBrowserPlatformDelegateOsr::SendGestureEvent(
     const CefGestureInputEvent& event) {
   auto* view = GetOSRHostView();
-  blink::WebGestureEvent web_event;
-  if (view && GetWebGestureInputEvent(event, web_event)) {
-    view->SendGestureEvent(web_event);
+  if (!view || view->destroy_pending()) {
+    return;
   }
+  blink::WebGestureEvent web_event;
+  if (!GetWebGestureInputEvent(event, web_event)) {
+    LOG(WARNING) << "SendGestureEvent: Invalid input event";
+    return;
+  }
+  view->SendGestureEvent(web_event);
 }
 
 void CefBrowserPlatformDelegateOsr::SendWheelEvent(
     const CefWheelInputEvent& event) {
   auto* view = GetOSRHostView();
-  blink::WebMouseWheelEvent web_event;
-  if (view && GetWebWheelInputEvent(event, web_event)) {
-    view->SendMouseWheelEvent(web_event);
+  if (!view || view->destroy_pending()) {
+    return;
   }
+  blink::WebMouseWheelEvent web_event;
+  if (!GetWebWheelInputEvent(event, web_event)) {
+    LOG(WARNING) << "SendWheelEvent: Invalid input event";
+    return;
+  }
+  view->SendMouseWheelEvent(web_event);
 }
 
 void CefBrowserPlatformDelegateOsr::SendMouseClickEvent(
@@ -195,10 +216,15 @@ void CefBrowserPlatformDelegateOsr::SendMouseWheelEvent(
 }
 
 void CefBrowserPlatformDelegateOsr::SendTouchEvent(const CefTouchEvent& event) {
-  CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view) {
-    view->SendTouchEvent(event);
+  auto* view = GetOSRHostView();
+  if (!view || view->destroy_pending()) {
+    return;
   }
+  if (!IsValidTouchEvent(event)) {
+    LOG(WARNING) << "SendTouchEvent: Invalid input event";
+    return;
+  }
+  view->SendTouchEvent(event);
 }
 
 void CefBrowserPlatformDelegateOsr::SetFocus(bool setFocus) {

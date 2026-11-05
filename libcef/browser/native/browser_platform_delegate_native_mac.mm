@@ -9,6 +9,7 @@
 
 #include "base/apple/owned_objc.h"
 #include "base/apple/scoped_nsautorelease_pool.h"
+#include "base/logging.h"
 #include "base/memory/ptr_util.h"
 #include "base/notimplemented.h"
 #include "base/threading/thread_restrictions.h"
@@ -393,12 +394,17 @@ void CefBrowserPlatformDelegateNativeMac::SendMouseMoveEvent(
 void CefBrowserPlatformDelegateNativeMac::SendWheelEvent(
     const CefWheelInputEvent& event) {
   auto* view = GetHostView();
-  blink::WebMouseWheelEvent web_event;
-  if (view && GetWebWheelInputEvent(event, web_event)) {
-    // Preserve Chromium's phase synthesis and momentum handoff without
-    // reconstructing a native event or losing the portable snapshot fields.
-    view->RouteOrProcessWheelEvent(web_event);
+  if (!view || view->destroy_pending()) {
+    return;
   }
+  blink::WebMouseWheelEvent web_event;
+  if (!GetWebWheelInputEvent(event, web_event)) {
+    LOG(WARNING) << "SendWheelEvent: Invalid input event";
+    return;
+  }
+  // Preserve Chromium's phase synthesis and momentum handoff without
+  // reconstructing a native event or losing the portable snapshot fields.
+  view->RouteOrProcessWheelEvent(web_event);
 }
 
 void CefBrowserPlatformDelegateNativeMac::SendMouseWheelEvent(
@@ -415,9 +421,11 @@ void CefBrowserPlatformDelegateNativeMac::SendMouseWheelEvent(
   view->RouteOrProcessWheelEvent(web_event);
 }
 
-void CefBrowserPlatformDelegateNativeMac::SendTouchEvent(
-    const CefTouchEvent& event) {
-  NOTIMPLEMENTED();
+void CefBrowserPlatformDelegateNativeMac::SendWebTouchEvent(
+    const blink::WebTouchEvent& event) {
+  if (auto* view = GetHostView(); view && !view->destroy_pending()) {
+    view->RouteOrProcessTouchEvent(event);
+  }
 }
 
 void CefBrowserPlatformDelegateNativeMac::SetFocus(bool setFocus) {

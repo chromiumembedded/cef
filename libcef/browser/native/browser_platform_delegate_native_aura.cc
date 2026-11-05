@@ -4,6 +4,7 @@
 
 #include "cef/libcef/browser/native/browser_platform_delegate_native_aura.h"
 
+#include "base/logging.h"
 #include "base/notimplemented.h"
 #include "cef/libcef/browser/browser_event_util.h"
 #include "cef/libcef/browser/browser_host_base.h"
@@ -17,8 +18,14 @@
 #include "content/browser/renderer_host/render_widget_host_view_aura.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
+#include "third_party/blink/public/common/input/web_touch_event.h"
+#include "ui/aura/event_injector.h"
+#include "ui/aura/window.h"
+#include "ui/aura/window_tree_host.h"
 #include "ui/events/blink/blink_event_util.h"
 #include "ui/events/blink/web_input_event.h"
+#include "ui/events/event.h"
+#include "ui/events/event_sink.h"
 #include "ui/gfx/geometry/vector2d.h"
 #include "ui/views/widget/widget.h"
 
@@ -104,9 +111,12 @@ void CefBrowserPlatformDelegateNativeAura::SendMouseMoveEvent(
 void CefBrowserPlatformDelegateNativeAura::SendWheelEvent(
     const CefWheelInputEvent& event) {
   auto* view = GetHostView();
+  if (!view || view->destroy_pending()) {
+    return;
+  }
   blink::WebMouseWheelEvent web_event;
-  if (!view || view->destroy_pending() ||
-      !GetWebWheelInputEvent(event, web_event)) {
+  if (!GetWebWheelInputEvent(event, web_event)) {
+    LOG(WARNING) << "SendWheelEvent: Invalid input event";
     return;
   }
   auto* host = content::RenderWidgetHostImpl::From(view->GetRenderWidgetHost());
@@ -143,9 +153,57 @@ void CefBrowserPlatformDelegateNativeAura::SendMouseWheelEvent(
   view->OnMouseEvent(&ui_event);
 }
 
-void CefBrowserPlatformDelegateNativeAura::SendTouchEvent(
-    const CefTouchEvent& event) {
-  NOTIMPLEMENTED();
+void CefBrowserPlatformDelegateNativeAura::SendWebTouchEvent(
+    const blink::WebTouchEvent& event) {
+  auto* view = GetHostView();
+  if (!view || view->destroy_pending()) {
+    return;
+  }
+  auto* window = view->GetNativeView();
+  auto* host = window->GetHost();
+  if (!host) {
+    return;
+  }
+  const float scale = view->host()->GetDeviceScaleFactor();
+  auto weak_this = weak_ptr_factory_.GetWeakPtr();
+  for (unsigned i = 0; i < event.touches_length; ++i) {
+    const auto& point = event.touches[i];
+    ui::EventType type;
+    switch (point.state) {
+      case blink::WebTouchPoint::State::kStatePressed:
+        type = ui::EventType::kTouchPressed;
+        break;
+      case blink::WebTouchPoint::State::kStateMoved:
+        type = ui::EventType::kTouchMoved;
+        break;
+      case blink::WebTouchPoint::State::kStateReleased:
+        type = ui::EventType::kTouchReleased;
+        break;
+      case blink::WebTouchPoint::State::kStateCancelled:
+        type = ui::EventType::kTouchCancelled;
+        break;
+      default:
+        continue;
+    }
+    // Like SyntheticGestureTargetAura, enter through the Aura dispatcher so
+    // its gesture recognizer sees the complete touch sequence and renderer
+    // acknowledgments. The dispatcher expects physical-pixel touch radii.
+    ui::TouchEvent touch(
+        type, gfx::Point(), event.TimeStamp(),
+        ui::PointerDetails(
+            ui::WebPointerTypeToEventPointerType(point.pointer_type), point.id,
+            point.radius_x * scale, point.radius_y * scale, point.force,
+            point.rotation_angle),
+        ui::WebEventModifiersToEventFlags(event.GetModifiers()));
+    touch.set_location_f(point.PositionInWidget());
+    touch.set_root_location_f(point.PositionInWidget());
+    touch.ConvertLocationToTarget(window, host->window());
+    aura::EventInjector injector;
+    const auto details = injector.Inject(host, &touch);
+    if (details.dispatcher_destroyed || !weak_this) {
+      return;
+    }
+  }
 }
 
 std::unique_ptr<CefMenuRunner>

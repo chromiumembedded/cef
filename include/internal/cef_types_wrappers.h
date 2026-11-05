@@ -405,6 +405,9 @@ using CefWheelInputEvent =
 
 ///
 /// Class representing a mouse event.
+/// Used by drag-and-drop and legacy input APIs. For input injection, use
+/// CefMouseInputEvent for mouse input or CefWheelInputEvent for wheel input
+/// instead.
 ///
 class CefMouseEvent : public cef_mouse_event_t {
  public:

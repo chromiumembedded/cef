@@ -312,11 +312,12 @@ void CefBrowserPlatformDelegate::SendKeyboardEvent(
     return;
   }
   auto* target = root->delegate()->GetFocusedRenderWidgetHost(root);
-  if (!target || !target->GetView()) {
+  if (!target || !target->GetView() || target->GetView()->destroy_pending()) {
     return;
   }
   blink::WebKeyboardEvent web_event;
   if (!GetWebKeyboardInputEvent(event, web_event)) {
+    LOG(WARNING) << "SendKeyboardEvent: Invalid input event";
     return;
   }
   // ForwardKeyboardEvent requires a NativeWebKeyboardEvent. Reconstruct its
@@ -337,11 +338,18 @@ void CefBrowserPlatformDelegate::SendMouseEvent(
     const CefMouseInputEvent& event) {
   auto* view =
       web_contents_ ? web_contents_->GetRenderWidgetHostView() : nullptr;
-  blink::WebMouseEvent web_event;
-  if (!view || !GetWebMouseInputEvent(event, web_event)) {
+  if (!view) {
     return;
   }
   auto* host = content::RenderWidgetHostImpl::From(view->GetRenderWidgetHost());
+  if (!host->GetView() || host->GetView()->destroy_pending()) {
+    return;
+  }
+  blink::WebMouseEvent web_event;
+  if (!GetWebMouseInputEvent(event, web_event)) {
+    LOG(WARNING) << "SendMouseEvent: Invalid input event";
+    return;
+  }
   if (host->delegate() && host->delegate()->GetInputEventRouter()) {
     host->delegate()->GetInputEventRouter()->RouteMouseEvent(
         host->GetView(), &web_event, ui::LatencyInfo());
@@ -354,11 +362,18 @@ void CefBrowserPlatformDelegate::SendGestureEvent(
     const CefGestureInputEvent& event) {
   auto* view =
       web_contents_ ? web_contents_->GetRenderWidgetHostView() : nullptr;
-  blink::WebGestureEvent web_event;
-  if (!view || !GetWebGestureInputEvent(event, web_event)) {
+  if (!view) {
     return;
   }
   auto* host = content::RenderWidgetHostImpl::From(view->GetRenderWidgetHost());
+  if (!host->GetView() || host->GetView()->destroy_pending()) {
+    return;
+  }
+  blink::WebGestureEvent web_event;
+  if (!GetWebGestureInputEvent(event, web_event)) {
+    LOG(WARNING) << "SendGestureEvent: Invalid input event";
+    return;
+  }
   if (host->delegate() && host->delegate()->GetInputEventRouter()) {
     host->delegate()->GetInputEventRouter()->RouteGestureEvent(
         host->GetView(), &web_event, ui::LatencyInfo());

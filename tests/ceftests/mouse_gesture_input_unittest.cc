@@ -40,7 +40,7 @@ constexpr auto kMouseMove = TestMouseEvent::Move;
 
 constexpr char kUrl[] = "https://tests/mouse-gesture-input";
 enum class Mode { Portable, LegacySend };
-enum class Scenario { Buttons, Movement, Tap, Scroll };
+enum class Scenario { Buttons, Movement, Tap, Scroll, LongPress, Pinch };
 enum class FrameMode { Main, SameOrigin, CrossOrigin };
 constexpr int kFrameX = 80;
 // Keep the iframe origin on device-pixel boundaries at fractional scales.
@@ -90,10 +90,12 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
   void GetViewRect(CefRefPtr<CefBrowser>, CefRect& rect) override {
     rect = CefRect(0, 0, 400, 300);
   }
+
   bool GetScreenInfo(CefRefPtr<CefBrowser>, CefScreenInfo& info) override {
     info.device_scale_factor = scale_;
     return true;
   }
+
   void OnPaint(CefRefPtr<CefBrowser> browser,
                PaintElementType,
                const RectList&,
@@ -321,6 +323,10 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
             }
             break;
           }
+          case Scenario::LongPress:
+          case Scenario::Pinch:
+            EXPECT_EQ(0, clicks);
+            break;
         }
       }
     }
@@ -427,6 +433,27 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
       // semantic result; incidental begin/show-press events are
       // platform-specific.
       EXPECT_EQ(CEF_GESTURE_DEVICE_TOUCHSCREEN, event.source_device);
+      if (scenario_ == Scenario::Pinch) {
+        if (event.type == CEF_GESTURE_EVENT_PINCH_BEGIN) {
+          legacy_pinch_begin_ = true;
+        } else if (event.type == CEF_GESTURE_EVENT_PINCH_UPDATE) {
+          EXPECT_TRUE(legacy_pinch_begin_);
+          EXPECT_GT(event.scale, 1);
+          legacy_pinch_update_ = true;
+        } else if (event.type == CEF_GESTURE_EVENT_PINCH_END) {
+          EXPECT_TRUE(legacy_pinch_update_);
+          legacy_gesture_finished_ = true;
+        }
+        MaybeReport(browser);
+        return consume_;
+      }
+      if (event.type == CEF_GESTURE_EVENT_LONG_PRESS &&
+          scenario_ == Scenario::LongPress) {
+        CefPostTask(TID_UI, base::BindOnce(
+                                &MouseGestureInputTestHandler::FinishLongPress,
+                                this, browser));
+        return consume_;
+      }
       if (event.type == CEF_GESTURE_EVENT_TAP) {
         EXPECT_EQ(Scenario::Tap, scenario_);
         EXPECT_EQ(1, event.tap_count);
@@ -457,11 +484,13 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
   bool IsIframe() const { return frame_mode_ != FrameMode::Main; }
   int OffsetX() const { return IsIframe() ? kFrameX : 0; }
   int OffsetY() const { return IsIframe() ? kFrameY : 0; }
+
   // Same-origin frames share the root widget. Cross-site OOPIFs receive
   // widget-local coordinates, proving that the input crossed widget routing.
   int CallbackX() const {
     return 40 + (frame_mode_ == FrameMode::SameOrigin ? kFrameX : 0);
   }
+
   int CallbackY() const {
     return 60 + (frame_mode_ == FrameMode::SameOrigin ? kFrameY : 0);
   }
@@ -587,6 +616,27 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
       touch.pointer_type = CEF_POINTER_TYPE_TOUCH;
       touch.type = CEF_TET_PRESSED;
       browser->GetHost()->SendTouchEvent(touch);
+      if (scenario_ == Scenario::Pinch) {
+        auto second = touch;
+        second.id = 2;
+        second.x = 240;
+        browser->GetHost()->SendTouchEvent(second);
+        touch.type = second.type = CEF_TET_MOVED;
+        touch.x = 20;
+        second.x = 260;
+        browser->GetHost()->SendTouchEvent(touch);
+        browser->GetHost()->SendTouchEvent(second);
+        // Cancellation must terminate a multi-contact sequence as well as
+        // the generated pinch and its enclosing touchscreen scroll.
+        touch.type = second.type = CEF_TET_CANCELLED;
+        browser->GetHost()->SendTouchEvent(touch);
+        browser->GetHost()->SendTouchEvent(second);
+        return;
+      }
+      if (scenario_ == Scenario::LongPress) {
+        // Leave the contact down until Chromium recognizes the long press.
+        return;
+      }
       if (scenario_ == Scenario::Scroll) {
         touch.y = 20 + OffsetY();
         touch.type = CEF_TET_MOVED;
@@ -640,7 +690,7 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
 #if CEF_API_ADDED(CEF_NEXT)
   void SendMouseInput(CefRefPtr<CefBrowser> browser) {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
-    if (scenario_ == Scenario::Buttons && !consume_ && !IsIframe() && osr_ &&
+    if (scenario_ == Scenario::Buttons && !consume_ && !IsIframe() &&
         scale_ == 1) {
       auto invalid = MouseEvent();
       invalid.type = static_cast<cef_mouse_input_event_type_t>(999);
@@ -656,8 +706,7 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
 
   void SendGestureInput(CefRefPtr<CefBrowser> browser) {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
-    if (scenario_ == Scenario::Tap && !consume_ && !IsIframe() && osr_ &&
-        scale_ == 1) {
+    if (scenario_ == Scenario::Tap && !consume_ && !IsIframe() && scale_ == 1) {
       CefGestureInputEvent invalid(gesture_.front());
       invalid.source_device = CEF_GESTURE_DEVICE_UNINITIALIZED;
       browser->GetHost()->SendGestureEvent(invalid);
@@ -676,6 +725,20 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
       root_event.x = -1000;
       root_event.delta_y = 999;
     }
+  }
+#endif
+
+#if CEF_API_ADDED(CEF_NEXT)
+  void FinishLongPress(CefRefPtr<CefBrowser> browser) {
+    CefTouchEvent touch;
+    touch.id = 1;
+    touch.x = 40;
+    touch.y = 60;
+    touch.pointer_type = CEF_POINTER_TYPE_TOUCH;
+    touch.type = CEF_TET_RELEASED;
+    browser->GetHost()->SendTouchEvent(touch);
+    legacy_gesture_finished_ = true;
+    MaybeReport(browser);
   }
 #endif
 
@@ -762,6 +825,8 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
   bool legacy_gesture_finished_ = false;
   bool legacy_scroll_begin_ = false;
   bool legacy_scroll_update_ = false;
+  bool legacy_pinch_begin_ = false;
+  bool legacy_pinch_update_ = false;
 #endif
   size_t mouse_callbacks_ = 0;
   size_t gesture_callbacks_ = 0;
@@ -791,6 +856,7 @@ class MouseGestureInputTestCase : public testing::Test {
     handler->ExecuteTest();
     ReleaseAndWaitForDestructor(handler);
   }
+
   const MouseGestureTestCase test_case_;
 };
 
@@ -800,11 +866,11 @@ bool RegisterInputTests(const char* name,
   for (auto frame_mode :
        {FrameMode::Main, FrameMode::SameOrigin, FrameMode::CrossOrigin}) {
     for (bool osr : {true, false}) {
-      // Raw touch injection is OSR-only; native gesture tests use the portable
-      // API.
-      if (!osr && test_case.mode == Mode::LegacySend &&
-          (test_case.scenario == Scenario::Tap ||
-           test_case.scenario == Scenario::Scroll)) {
+      // Keep one native case per additional gesture. OSRTest.QuickMenu
+      // separately covers OSR long-press/touch-selection behavior.
+      if ((test_case.scenario == Scenario::LongPress ||
+           test_case.scenario == Scenario::Pinch) &&
+          (osr || frame_mode != FrameMode::Main)) {
         continue;
       }
       for (float scale : {1.0f, 2.0f}) {
@@ -888,6 +954,11 @@ INPUT_TEST(LegacyMouseMovementConsumed,
            true)
 INPUT_TEST(LegacyTouchTapConsumed, Mode::LegacySend, Scenario::Tap, true)
 INPUT_TEST(LegacyTouchScrollConsumed, Mode::LegacySend, Scenario::Scroll, true)
+INPUT_TEST(LegacyTouchLongPressConsumed,
+           Mode::LegacySend,
+           Scenario::LongPress,
+           true)
+INPUT_TEST(LegacyTouchPinchConsumed, Mode::LegacySend, Scenario::Pinch, true)
 #endif
 #undef INPUT_TEST
 
@@ -1006,6 +1077,7 @@ class InputSequenceTestHandler : public RoutingTestHandler,
 
   CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
   CefRefPtr<CefInputHandler> GetInputHandler() override { return this; }
+
   void GetViewRect(CefRefPtr<CefBrowser>, CefRect& rect) override {
     rect = CefRect(0, 0, 400, 300);
   }
@@ -1297,6 +1369,7 @@ class InputSequenceTestHandler : public RoutingTestHandler,
   void OnPopupSize(CefRefPtr<CefBrowser>, const CefRect& rect) override {
     popup_rect_ = rect;
   }
+
   void OnPopupShow(CefRefPtr<CefBrowser>, bool show) override {
     if (!show) {
       popup_hidden_ = true;
@@ -1305,6 +1378,7 @@ class InputSequenceTestHandler : public RoutingTestHandler,
       }
     }
   }
+
   void OnPaint(CefRefPtr<CefBrowser> browser,
                PaintElementType type,
                const RectList&,
@@ -1559,24 +1633,31 @@ void RunInputSequence(InputSequence sequence, bool osr) {
 TEST(MouseGestureInputTest, MouseSequencesOsr) {
   RunInputSequence(InputSequence::Mouse, true);
 }
+
 TEST(MouseGestureInputTest, MouseSequencesWindowed) {
   RunInputSequence(InputSequence::Mouse, false);
 }
+
 TEST(MouseGestureInputTest, TouchscreenPinchOsr) {
   RunInputSequence(InputSequence::Pinch, true);
 }
+
 TEST(MouseGestureInputTest, WheelFirstPinchOsr) {
   RunInputSequence(InputSequence::WheelFirst, true);
 }
+
 TEST(MouseGestureInputTest, WheelFirstPinchWindowed) {
   RunInputSequence(InputSequence::WheelFirst, false);
 }
+
 TEST(MouseGestureInputTest, FlingCancelOsr) {
   RunInputSequence(InputSequence::Fling, true);
 }
+
 TEST(MouseGestureInputTest, PopupSelectionOsr) {
   RunInputSequence(InputSequence::Popup, true);
 }
+
 TEST(MouseGestureInputTest, PopupGestureScrollOsr) {
   RunInputSequence(InputSequence::PopupScroll, true);
 }

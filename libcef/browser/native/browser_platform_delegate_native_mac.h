@@ -41,7 +41,6 @@ class CefBrowserPlatformDelegateNativeMac
   void SendMouseWheelEvent(const CefMouseEvent& event,
                            int deltaX,
                            int deltaY) override;
-  void SendTouchEvent(const CefTouchEvent& event) override;
   void SetFocus(bool setFocus) override;
   gfx::Point GetScreenPoint(const gfx::Point& view,
                             bool want_dip_coords) const override;
@@ -55,6 +54,7 @@ class CefBrowserPlatformDelegateNativeMac
   bool IsPrintPreviewSupported() const override;
 
   // CefBrowserPlatformDelegateNative methods:
+  void SendWebTouchEvent(const blink::WebTouchEvent& event) override;
   // DEPRECATED: Legacy SendKeyEvent conversion; use
   // TranslateWebKeyboardInputEvent for unified keyboard input.
   input::NativeWebKeyboardEvent TranslateWebKeyEvent(
