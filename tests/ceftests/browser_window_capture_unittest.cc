@@ -198,8 +198,10 @@ class CaptureTestHandler : public RoutingTestHandler,
     CefWindowInfo info;
     info.SetAsWindowless(kNullWindowHandle);
     info.runtime_style = CEF_RUNTIME_STYLE_ALLOY;
+    // Unsupported-window capture needs only the browser host. Do not start a
+    // resource load that would race the close in OnCaptureComplete.
     EXPECT_TRUE(CefBrowserHost::CreateBrowser(
-        info, this, kUrl, CefBrowserSettings(), nullptr, nullptr));
+        info, this, CefString(), CefBrowserSettings(), nullptr, nullptr));
   }
 
   const bool alloy_;
