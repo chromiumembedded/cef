@@ -77,7 +77,7 @@ void CefCaptureBrowserWindowForTests(
     CefRefPtr<CefBrowser> browser,
     bool native,
     CefRefPtr<CefCaptureBrowserWindowCallback> callback) {
-  CEF_API_REQUIRE_ADDED(CEF_NEXT);
+  CEF_API_REQUIRE_ADDED(15800);
   CEF_REQUIRE_UIT_RETURN_VOID();
   if (!callback) {
     return;
@@ -158,7 +158,7 @@ bool CefSendMouseClickForTesting(CefRefPtr<CefWindow> owner,
                                  int target_id,
                                  bool is_menu,
                                  uint32_t modifiers) {
-  CEF_API_REQUIRE_ADDED(CEF_NEXT);
+  CEF_API_REQUIRE_ADDED(15800);
   CEF_REQUIRE_UIT_RETURN(false);
 
   const auto fail = [target_id, is_menu, modifiers](const char* reason) {

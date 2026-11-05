@@ -79,11 +79,11 @@ void CefSetDataDirectoryForTests(const CefString& dir);
 /*--cef()--*/
 bool CefIsFeatureEnabledForTests(const CefString& feature_name);
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 ///
 /// Receives a browser-window capture on the browser process UI thread.
 ///
-/*--cef(source=client,added=next)--*/
+/*--cef(source=client,added=15800)--*/
 class CefCaptureBrowserWindowCallback : public virtual CefBaseRefCounted {
  public:
   ///
@@ -111,7 +111,7 @@ class CefCaptureBrowserWindowCallback : public virtual CefBaseRefCounted {
 /// process UI thread, including on failure. Must be called on that thread. Does
 /// not activate the window or wait for pending page updates to paint.
 ///
-/*--cef(added=next,optional_param=browser)--*/
+/*--cef(added=15800,optional_param=browser)--*/
 void CefCaptureBrowserWindowForTests(
     CefRefPtr<CefBrowser> browser,
     bool native,
@@ -129,12 +129,12 @@ void CefCaptureBrowserWindowForTests(
 /// after dispatching input; test callbacks must verify its effect. Does not
 /// activate the target window. Must be called on the browser process UI thread.
 ///
-/*--cef(added=next)--*/
+/*--cef(added=15800)--*/
 bool CefSendMouseClickForTesting(CefRefPtr<CefWindow> owner,
                                  int target_id,
                                  bool is_menu,
                                  uint32_t modifiers);
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 #if CEF_API_ADDED(CEF_EXPERIMENTAL)
 ///

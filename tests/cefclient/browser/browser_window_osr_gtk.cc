@@ -822,7 +822,7 @@ void BrowserWindowOsrGtk::Create(ClientWindowHandle parent_handle) {
                    G_CALLBACK(&BrowserWindowOsrGtk::PointerGrabBroken), this);
   g_signal_connect(G_OBJECT(widget_), "touch-event",
                    G_CALLBACK(&BrowserWindowOsrGtk::TouchEvent), this);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   gtk_widget_add_events(widget_, GDK_TOUCHPAD_GESTURE_MASK);
   g_signal_connect(G_OBJECT(widget_), "event",
                    G_CALLBACK(&BrowserWindowOsrGtk::GestureEvent), this);
@@ -924,7 +924,7 @@ gint BrowserWindowOsrGtk::ClickEvent(GtkWidget* widget,
       break;
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   const CefPoint screen(DeviceToLogical(event->x_root, device_scale_factor),
                         DeviceToLogical(event->y_root, device_scale_factor));
   host->SendMouseEvent(MakeOsrMouseInputEvent(
@@ -957,7 +957,7 @@ gint BrowserWindowOsrGtk::KeyEvent(GtkWidget* widget,
     return TRUE;
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   CefRefPtr<CefBrowserHost> host = self->browser_->GetHost();
 
   // GTK OSR supports X11 and Wayland. Keep all toolkit objects and
@@ -1001,7 +1001,7 @@ gint BrowserWindowOsrGtk::KeyEvent(GtkWidget* widget,
   // Supporting the legacy keyboard API here would require maintaining copies
   // of Chromium's key mapping tables. Use the unified API instead.
   NOTIMPLEMENTED();
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
   return TRUE;
 }
 
@@ -1062,7 +1062,7 @@ gint BrowserWindowOsrGtk::MoveEvent(GtkWidget* widget,
   mouse_event.modifiers = GetCefStateModifiers(state);
 
   bool mouse_leave = (event->type == GDK_LEAVE_NOTIFY);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   gdouble root_x = 0, root_y = 0;
   if (event->type == GDK_MOTION_NOTIFY && event->is_hint) {
     gint origin_x = 0, origin_y = 0;
@@ -1169,7 +1169,7 @@ gint BrowserWindowOsrGtk::ScrollEvent(GtkWidget* widget,
   mouse_event.x = event->x;
   mouse_event.y = event->y;
   self->ApplyPopupOffset(mouse_event.x, mouse_event.y);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   mouse_event.modifiers = GetCefStateModifiers(event->state);
   auto input =
       MakeOsrWheelInputEvent(mouse_event, event->x_root / device_scale_factor,
@@ -1252,11 +1252,11 @@ gint BrowserWindowOsrGtk::ScrollEvent(GtkWidget* widget,
   }
 
   host->SendMouseWheelEvent(mouse_event, deltaX, deltaY);
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
   return TRUE;
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 // GTK reports pinch scale relative to the beginning of the sequence; Chromium
 // expects the multiplicative change for each update.
 gboolean BrowserWindowOsrGtk::GestureEvent(GtkWidget*,
@@ -1814,7 +1814,7 @@ gboolean BrowserWindowOsrGtk::DragMotion(GtkWidget* widget,
   DeviceToLogical(mouse_event, device_scale_factor);
   if (self->browser_) {
     bool mouse_leave = self->drag_leave_;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     gint origin_x = 0, origin_y = 0;
     gdk_window_get_origin(gtk_widget_get_window(widget), &origin_x, &origin_y);
     const CefPoint screen(DeviceToLogical(origin_x + x, device_scale_factor),

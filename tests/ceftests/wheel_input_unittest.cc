@@ -131,7 +131,7 @@ class WheelInputTestHandler : public RoutingTestHandler,
     html.replace(html.find("REQUIRED_WHEELS"), 15, IsMomentum() ? "2" : "1");
     html.replace(html.find("MIN_Y"), 5,
                  scenario_ == Scenario::MomentumScroll ? "10" : "0");
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     html.replace(html.find("BOTH"), 4,
                  scenario_ == Scenario::Scroll ? "true" : "false");
 #else
@@ -227,7 +227,7 @@ class WheelInputTestHandler : public RoutingTestHandler,
       // Input and deltas are DIPs. Surface hit testing can round positions to
       // device pixels (notably at fractional DPI), and DOM wheel coordinates
       // can be integral. Allow one device pixel or half a DIP, respectively.
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
       const double tolerance = std::max(0.5, 1.0 / scale_) + 0.001;
       EXPECT_NEAR(40.5, GetNumber(data, "x"), tolerance);
       EXPECT_NEAR(40.5, GetNumber(data, "y"), tolerance);
@@ -235,7 +235,7 @@ class WheelInputTestHandler : public RoutingTestHandler,
       EXPECT_NEAR(40, GetNumber(data, "x"), 1);
       EXPECT_NEAR(40, GetNumber(data, "y"), 1);
 #endif
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
       const bool page = scenario_ == Scenario::PageScroll;
       const double dx = page ? 0 : scenario_ == Scenario::Scroll ? 4.5 : -0.5;
       // Chromium scales float deltas to device pixels and back before exposing
@@ -253,7 +253,7 @@ class WheelInputTestHandler : public RoutingTestHandler,
         EXPECT_TRUE(data->GetBool("cancelable"));
       }
       ++wheel_count_;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
       if (scenario_ != Scenario::PageScroll) {
         SendEnd(browser, wheel_count_ == 2);
       }
@@ -278,7 +278,7 @@ class WheelInputTestHandler : public RoutingTestHandler,
           EXPECT_DOUBLE_EQ(0, GetNumber(value->GetDictionary(), "x"));
         } else {
           EXPECT_GT(y, scenario_ == Scenario::MomentumScroll ? 10 : 0);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
           if (scenario_ == Scenario::Scroll) {
             EXPECT_GT(GetNumber(value->GetDictionary(), "x"), 0);
           }
@@ -334,7 +334,7 @@ class WheelInputTestHandler : public RoutingTestHandler,
   }
 
   void Send(CefRefPtr<CefBrowser> browser, bool momentum = false) {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     CefWheelInputEvent event;
     event.x = event.y = IsIframe() ? 120.5f : 40.5f;
     event.screen_x = 500.5f;
@@ -377,7 +377,7 @@ class WheelInputTestHandler : public RoutingTestHandler,
 #endif
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   void SendEnd(CefRefPtr<CefBrowser> browser, bool momentum) {
     CefWheelInputEvent event;
     event.x = event.y = IsIframe() ? 120.5f : 40.5f;
@@ -419,7 +419,7 @@ void RunWheelTest(bool osr,
   ReleaseAndWaitForDestructor(handler);
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 TEST(OsrInputUtilTest, WheelSnapshot) {
   CefMouseEvent mouse;
   mouse.x = 17;

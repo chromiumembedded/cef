@@ -11,7 +11,7 @@
 #include "include/cef_input_event_utils.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 namespace {
 
 class ScopedKeyboardLayout {
@@ -214,4 +214,4 @@ TEST(KeyboardInputTest, WindowsExplicitStateAndCharacterUnits) {
 }
 
 }  // namespace
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)

@@ -662,7 +662,7 @@ void WindowAcceleratorImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, std::move(config));
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 
 struct WindowKeyboardState {
   explicit WindowKeyboardState(bool handle) : handle_unified(handle) {}
@@ -764,7 +764,7 @@ void WindowKeyboardLegacyFallthroughImpl(CefRefPtr<CefWaitableEvent> event) {
   WindowKeyboardInputImpl(event, false);
 }
 
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 }  // namespace
 
@@ -791,10 +791,10 @@ WINDOW_TEST_ASYNC(WindowIcon)
 WINDOW_TEST_ASYNC(WindowIconFrameless)
 WINDOW_TEST_ASYNC(WindowAccelerator)
 WINDOW_TEST_ASYNC(WindowFocus)
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 WINDOW_TEST_ASYNC(WindowKeyboardEvent)
 WINDOW_TEST_ASYNC(WindowKeyboardLegacyFallthrough)
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 namespace {
 

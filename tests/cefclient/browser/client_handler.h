@@ -32,11 +32,11 @@ class ClientHandler : public BaseClientHandler,
                       public CefDisplayHandler,
                       public CefDownloadHandler,
                       public CefDragHandler,
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
                       public CefInputHandler,
 #else
                       public CefKeyboardHandler,
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
                       public CefPermissionHandler {
  public:
   // Implement this interface to receive notification of ClientHandler
@@ -126,12 +126,12 @@ class ClientHandler : public BaseClientHandler,
   CefRefPtr<CefDisplayHandler> GetDisplayHandler() override { return this; }
   CefRefPtr<CefDownloadHandler> GetDownloadHandler() override { return this; }
   CefRefPtr<CefDragHandler> GetDragHandler() override { return this; }
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   CefRefPtr<CefInputHandler> GetInputHandler() override { return this; }
 #else
   // DEPRECATED: Use GetInputHandler(); retained for older API versions.
   CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() override { return this; }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
   CefRefPtr<CefPermissionHandler> GetPermissionHandler() override {
     return this;
   }
@@ -227,7 +227,7 @@ class ClientHandler : public BaseClientHandler,
   void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) override;
   bool OnSetFocus(CefRefPtr<CefBrowser> browser, FocusSource source) override;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   // CefInputHandler methods
   bool OnPreKeyboardEvent(CefRefPtr<CefBrowser> browser,
                           const CefKeyboardInputEvent& event,
@@ -240,7 +240,7 @@ class ClientHandler : public BaseClientHandler,
                      const CefKeyEvent& event,
                      CefEventHandle os_event,
                      bool* is_keyboard_shortcut) override;
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
   // CefLifeSpanHandler methods
   bool OnBeforePopup(

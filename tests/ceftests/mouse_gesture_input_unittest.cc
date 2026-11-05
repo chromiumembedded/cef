@@ -16,7 +16,7 @@
 
 namespace {
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 using TestMouseEvent = CefMouseInputEvent;
 constexpr auto kMouseDown = CEF_MOUSE_EVENT_DOWN;
 constexpr auto kMouseUp = CEF_MOUSE_EVENT_UP;
@@ -50,7 +50,7 @@ constexpr cef_mouse_button_type_t kButtons[] = {
     MBT_LEFT,
     MBT_MIDDLE,
     MBT_RIGHT,
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     CEF_MOUSE_BUTTON_BACK,
     CEF_MOUSE_BUTTON_FORWARD,
 #endif
@@ -58,13 +58,13 @@ constexpr cef_mouse_button_type_t kButtons[] = {
 constexpr uint32_t kButtonFlags[] = {
     EVENTFLAG_LEFT_MOUSE_BUTTON,     EVENTFLAG_MIDDLE_MOUSE_BUTTON,
     EVENTFLAG_RIGHT_MOUSE_BUTTON,
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     CEF_EVENTFLAG_BACK_MOUSE_BUTTON, CEF_EVENTFLAG_FORWARD_MOUSE_BUTTON,
 #endif
 };
 
 class MouseGestureInputTestHandler : public RoutingTestHandler,
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
                                      public CefInputHandler,
 #endif
                                      public CefRenderHandler {
@@ -83,7 +83,7 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
         frame_mode_(frame_mode) {}
 
   CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   CefRefPtr<CefInputHandler> GetInputHandler() override { return this; }
 #endif
 
@@ -330,7 +330,7 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
         }
       }
     }
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     EXPECT_EQ(mouse_.size(), mouse_callbacks_);
     if (mode_ == Mode::Portable) {
       EXPECT_EQ(gesture_.size(), gesture_callbacks_);
@@ -347,7 +347,7 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
     return true;
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   bool OnPreMouseEvent(CefRefPtr<CefBrowser> browser,
                        const CefMouseInputEvent& event) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
@@ -516,7 +516,7 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
     event.x = 40;
     event.y = 60;
     event.modifiers = EVENTFLAG_SHIFT_DOWN;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     event.timestamp = 123456789;
     event.screen_x = 140;
     event.screen_y = 260;
@@ -571,7 +571,7 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
             mouse_.push_back(event);
           }
         }
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
         if (mode_ == Mode::Portable && consume_ && !IsIframe()) {
           for (auto type :
                {CEF_MOUSE_EVENT_MOVE, CEF_MOUSE_EVENT_ENTER,
@@ -586,12 +586,12 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
       } else {
         auto event = MouseEvent();
         event.type = kMouseMove;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
         event.button = CEF_MOUSE_BUTTON_NONE;
 #endif
         mouse_.push_back(event);
       }
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
       if (mode_ == Mode::Portable) {
         CefPostTask(TID_IO, base::BindOnce(
                                 &MouseGestureInputTestHandler::SendMouseInput,
@@ -646,7 +646,7 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
         touch.type = CEF_TET_RELEASED;
       }
       browser->GetHost()->SendTouchEvent(touch);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     } else {
       const std::vector<cef_gesture_input_event_type_t> types =
           scenario_ == Scenario::Tap
@@ -687,7 +687,7 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
     }
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   void SendMouseInput(CefRefPtr<CefBrowser> browser) {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
     if (scenario_ == Scenario::Buttons && !consume_ && !IsIframe() &&
@@ -728,7 +728,7 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
   }
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   void FinishLongPress(CefRefPtr<CefBrowser> browser) {
     CefTouchEvent touch;
     touch.id = 1;
@@ -743,7 +743,7 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
 #endif
 
   void SendMouse(CefRefPtr<CefBrowser> browser, const TestMouseEvent& event) {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     if (mode_ == Mode::Portable) {
       CefMouseInputEvent root_event(event);
       root_event.x += OffsetX();
@@ -772,7 +772,7 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
     if (report_posted_ || (!consume_ && !renderer_done_)) {
       return;
     }
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     if (IsMouse()) {
       if (mouse_callbacks_ != mouse_.size()) {
         return;
@@ -820,7 +820,7 @@ class MouseGestureInputTestHandler : public RoutingTestHandler,
   bool report_posted_ = false;
   bool renderer_done_ = false;
   std::vector<TestMouseEvent> mouse_;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   std::vector<CefGestureInputEvent> gesture_;
   bool legacy_gesture_finished_ = false;
   bool legacy_scroll_begin_ = false;
@@ -935,7 +935,7 @@ INPUT_TEST(LegacyMouseMovementReachesDom,
 INPUT_TEST(LegacyTouchProducesTap, Mode::LegacySend, Scenario::Tap, false)
 INPUT_TEST(LegacyTouchProducesScroll, Mode::LegacySend, Scenario::Scroll, false)
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 INPUT_TEST(MouseButtonsReachDom, Mode::Portable, Scenario::Buttons, false)
 INPUT_TEST(MouseMovementReachesDom, Mode::Portable, Scenario::Movement, false)
 INPUT_TEST(GestureTapReachesDom, Mode::Portable, Scenario::Tap, false)
@@ -962,7 +962,7 @@ INPUT_TEST(LegacyTouchPinchConsumed, Mode::LegacySend, Scenario::Pinch, true)
 #endif
 #undef INPUT_TEST
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 TEST(OsrInputUtilTest, MouseButtonTransitions) {
   CefMouseEvent mouse;
   mouse.x = 12;
@@ -1661,6 +1661,6 @@ TEST(MouseGestureInputTest, PopupSelectionOsr) {
 TEST(MouseGestureInputTest, PopupGestureScrollOsr) {
   RunInputSequence(InputSequence::PopupScroll, true);
 }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 }  // namespace

@@ -421,7 +421,7 @@ inline int MiddleY(const CefRect& rect) {
     mouse_event.y = MiddleY(rect);
 
     mouse_event.modifiers = 0;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     NSView* view = CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(node_->GetWindowHandle());
     const NSPoint point =
         NSMakePoint(mouse_event.x, NSHeight(view.bounds) - mouse_event.y);

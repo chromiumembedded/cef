@@ -41,7 +41,7 @@ const char kTestUrl[] = "https://tests/osrtest";
 const char kDragNavigationUrl[] = "https://other-tests/drag_target_navigation";
 
 void SendWheelInput(CefRefPtr<CefBrowser> browser, const CefMouseEvent& mouse) {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   CefWheelInputEvent event;
   event.x = event.screen_x = mouse.x;
   event.y = event.screen_y = mouse.y;
@@ -1785,7 +1785,7 @@ class OSRTestHandler : public RoutingTestHandler,
 
   void MoveDragMouse(CefRefPtr<CefBrowser> browser,
                      const CefMouseEvent& mouse) {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     if (portable_mouse_) {
       CefMouseInputEvent event;
       event.type = CEF_MOUSE_EVENT_MOVE;
@@ -1805,7 +1805,7 @@ class OSRTestHandler : public RoutingTestHandler,
 
   void PressDragMouse(CefRefPtr<CefBrowser> browser,
                       const CefMouseEvent& mouse) {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     if (portable_mouse_) {
       CefMouseInputEvent event;
       event.type = CEF_MOUSE_EVENT_DOWN;
@@ -2334,7 +2334,7 @@ OSR_TEST(PopupScrollInside, OSR_TEST_POPUP_SCROLL_INSIDE, 1.0f)
 OSR_TEST(PopupScrollInside2x, OSR_TEST_POPUP_SCROLL_INSIDE, 2.0f)
 OSR_TEST(DragDropStartDragging, OSR_TEST_DRAG_DROP_START_DRAGGING, 1.0f)
 OSR_TEST(DragDropStartDragging2x, OSR_TEST_DRAG_DROP_START_DRAGGING, 2.0f)
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 TEST(OSRTest, DragDropStartDraggingPortable) {
   CefRefPtr<OSRTestHandler> handler =
       new OSRTestHandler(OSR_TEST_DRAG_DROP_START_DRAGGING, 1.0f, true);

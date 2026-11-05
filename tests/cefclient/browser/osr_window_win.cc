@@ -560,7 +560,7 @@ LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd,
       }
       break;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     case WM_GESTURE:
       if (self->OnGestureEvent(lParam)) {
         return 0;
@@ -673,7 +673,7 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
           ApplyPopupOffset(mouse_event.x, mouse_event.y);
           DeviceToLogical(mouse_event, device_scale_factor_);
           mouse_event.modifiers = GetCefMouseModifiers(wParam);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
           SendMouseInput(mouse_event, CEF_MOUSE_EVENT_DOWN, btnType,
                          last_click_count_);
 #else
@@ -711,7 +711,7 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
           ApplyPopupOffset(mouse_event.x, mouse_event.y);
           DeviceToLogical(mouse_event, device_scale_factor_);
           mouse_event.modifiers = GetCefMouseModifiers(wParam);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
           SendMouseInput(mouse_event, CEF_MOUSE_EVENT_UP, btnType,
                          last_click_count_);
 #else
@@ -753,7 +753,7 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
           ApplyPopupOffset(mouse_event.x, mouse_event.y);
           DeviceToLogical(mouse_event, device_scale_factor_);
           mouse_event.modifiers = GetCefMouseModifiers(wParam);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
           SendMouseInput(mouse_event, CEF_MOUSE_EVENT_MOVE);
 #else
           browser_host->SendMouseMoveEvent(mouse_event, false);
@@ -775,7 +775,7 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         mouse_event.y = p.y;
         DeviceToLogical(mouse_event, device_scale_factor_);
         mouse_event.modifiers = GetCefMouseModifiers(wParam);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
         SendMouseInput(mouse_event, CEF_MOUSE_EVENT_LEAVE);
 #else
         browser_host->SendMouseMoveEvent(mouse_event, true);
@@ -799,7 +799,7 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
                           (message == WM_MOUSEHWHEEL ? -1 : 1);
         const bool horizontal =
             message == WM_MOUSEHWHEEL || IsKeyDown(VK_SHIFT);
-#if !CEF_API_ADDED(CEF_NEXT)
+#if !CEF_API_ADDED(15800)
         int deltaX = horizontal ? delta : 0;
         int deltaY = horizontal ? 0 : delta;
 #endif
@@ -808,7 +808,7 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         mouse_event.x = screen_point.x;
         mouse_event.y = screen_point.y;
         ApplyPopupOffset(mouse_event.x, mouse_event.y);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
         mouse_event.modifiers = GetCefMouseModifiers(wParam);
         const CefPoint screen = CefDisplay::ConvertScreenPointFromPixels(
             CefPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
@@ -837,7 +837,7 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         }
 
         browser_host->SendMouseWheelEvent(mouse_event, deltaX, deltaY);
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
       }
       break;
   }
@@ -976,7 +976,7 @@ void OsrWindowWin::OnCaptureLost() {
   }
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 void OsrWindowWin::SendMouseInput(const CefMouseEvent& mouse,
                                   cef_mouse_input_event_type_t type,
                                   cef_mouse_button_type_t button,
@@ -995,7 +995,7 @@ void OsrWindowWin::OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     return;
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   CefKeyboardInputEvent event;
   if (CefKeyboardInputEventFromWindowsMessage(message, wParam, lParam, event)) {
     browser_->GetHost()->SendKeyboardEvent(event);
@@ -1038,7 +1038,7 @@ void OsrWindowWin::OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam) {
   }
 
   browser_->GetHost()->SendKeyEvent(event);
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 }
 
 void OsrWindowWin::OnPaint() {
@@ -1156,7 +1156,7 @@ bool OsrWindowWin::OnTouchEvent(UINT message, WPARAM wParam, LPARAM lParam) {
   return false;
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 bool OsrWindowWin::OnGestureEvent(LPARAM lParam) {
   UpdateTouchpadMode();
   if (!browser_ || touchpad_emulator_.enabled() ||
@@ -1193,7 +1193,7 @@ bool OsrWindowWin::OnGestureEvent(LPARAM lParam) {
   ::CloseGestureInfoHandle(handle);
   return true;
 }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 bool OsrWindowWin::IsOverPopupWidget(int x, int y) const {
   if (!render_handler_) {

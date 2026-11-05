@@ -485,7 +485,7 @@ void SendJavaScriptClickEvent(CefRefPtr<CefBrowser> browser,
       button = 2;
       buttons = 2;
       break;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     case CEF_MOUSE_BUTTON_NONE:
       button = -1;
       buttons = 0;

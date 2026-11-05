@@ -45,11 +45,11 @@
   // event.
   BOOL unmarkTextCalled_;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   // AppKit insertion commands need a CHAR event even without insertText:.
   BOOL hasInsertionCommand_;
   BOOL hasOtherCommand_;
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
   // The selected range, cached from a message sent by the renderer.
   NSRange selectedRange_;
@@ -75,12 +75,12 @@
 - (id)initWithBrowser:(CefRefPtr<CefBrowser>)browser;
 - (void)detach;
 - (void)HandleKeyEventBeforeTextInputClient:(NSEvent*)keyEvent;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 - (void)HandleKeyEventAfterTextInputClient:(CefKeyboardInputEvent)keyEvent
                              keyEventValid:(BOOL)valid;
 #else
 - (void)HandleKeyEventAfterTextInputClient:(CefKeyEvent)keyEvent;
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 - (void)ChangeCompositionRange:(CefRange)range
               character_bounds:(const CefRenderHandler::RectList&)bounds;
 - (void)cancelComposition;

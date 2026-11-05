@@ -15,7 +15,7 @@
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/browser/text_input_client_osr_mac.h"
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 namespace {
 
 NSEvent* KeyEvent(NSEventType type,
@@ -327,4 +327,4 @@ UI_THREAD_TEST(KeyboardInputTest, MacExplicitLayoutDoesNotChangeNativeState)
 UI_THREAD_TEST(KeyboardInputTest, MacModifierTransitionsAndKeypad)
 UI_THREAD_TEST(KeyboardInputTest, MacInvalidInputLeavesOutputUnchanged)
 UI_THREAD_TEST(KeyboardInputTest, MacOffMainThreadLeavesOutputUnchanged)
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)

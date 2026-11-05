@@ -142,7 +142,7 @@ class BrowserWindowOsrGtk : public BrowserWindow,
                                     GdkEventGrabBroken* event,
                                     BrowserWindowOsrGtk* self);
   static gboolean TouchpadReady(gint fd, GIOCondition condition, gpointer data);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   static gboolean GestureEvent(GtkWidget* widget,
                                GdkEvent* event,
                                BrowserWindowOsrGtk* self);

@@ -636,7 +636,7 @@ STDMETHODIMP CefIAccessible::accDoDefaultAction(VARIANT varChild) {
       mouse_event.y = MiddleY(rect);
 
       mouse_event.modifiers = 0;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
       POINT origin = {0, 0};
       ::ClientToScreen(node_->GetWindowHandle(), &origin);
       CefPoint screen = CefDisplay::ConvertScreenPointFromPixels(

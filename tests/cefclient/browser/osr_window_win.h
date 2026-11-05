@@ -96,7 +96,7 @@ class OsrWindowWin
   void OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam);
   bool OnPointerTouchEvent(UINT message, WPARAM wParam, LPARAM lParam);
   void EndPointerTouchScroll();
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   void SendMouseInput(const CefMouseEvent& mouse,
                       cef_mouse_input_event_type_t type,
                       cef_mouse_button_type_t button = CEF_MOUSE_BUTTON_NONE,
@@ -111,7 +111,7 @@ class OsrWindowWin
   bool OnTouchEvent(UINT message, WPARAM wParam, LPARAM lParam);
   void UpdateTouchpadMode();
   void SendTouchpadEvents(const std::vector<CefTouchEvent>& events);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   bool OnGestureEvent(LPARAM lParam);
 #endif
 
@@ -229,7 +229,7 @@ class OsrWindowWin
   int last_click_count_ = 1;
   double last_click_time_ = 0;
   bool last_mouse_down_on_view_ = false;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   // Nonzero while processing a WM_GESTURE zoom sequence.
   uint64_t pinch_distance_ = 0;
 #endif

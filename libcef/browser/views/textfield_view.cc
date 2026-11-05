@@ -30,7 +30,7 @@ bool CefTextfieldView::HandleKeyEvent(views::Textfield* sender,
   }
 
   const auto web_event = ui::MakeWebKeyboardEvent(key_event);
-  if (CEF_API_IS_ADDED(CEF_NEXT)) {
+  if (CEF_API_IS_ADDED(15800)) {
     CefKeyboardInputEvent cef_event;
     if (GetCefKeyboardInputEvent(web_event, cef_event) &&
         cef_delegate()->OnKeyboardEvent(GetCefTextfield(), cef_event)) {

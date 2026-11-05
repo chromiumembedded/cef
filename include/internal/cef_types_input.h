@@ -29,7 +29,7 @@ extern "C" {
 /// Supported event bit flags.
 ///
 typedef enum {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 
   CEF_EVENTFLAG_NONE = 0,
   CEF_EVENTFLAG_CAPS_LOCK_ON = 1 << 0,
@@ -58,7 +58,7 @@ typedef enum {
   CEF_EVENTFLAG_SYMBOL_DOWN = 1 << 22,
   CEF_EVENTFLAG_SCROLL_LOCK_ON = 1 << 23,
 
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
   ///
   /// Legacy names. Values match the corresponding CEF_EVENTFLAG_* constants.
@@ -87,7 +87,7 @@ typedef enum {
 /// Key event types.
 ///
 typedef enum {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 
   ///
   /// Notification that a key transitioned from "up" to "down".
@@ -113,7 +113,7 @@ typedef enum {
   ///
   CEF_KEY_EVENT_CHAR = 3,
 
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
   ///
   /// Legacy names. Values match the corresponding CEF_KEY_EVENT_* constants.
@@ -129,7 +129,7 @@ typedef enum {
 /// Changed button for down/up, or a held button for movement.
 ///
 typedef enum {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   CEF_MOUSE_BUTTON_NONE = -1,
   CEF_MOUSE_BUTTON_LEFT = 0,
   CEF_MOUSE_BUTTON_MIDDLE,
@@ -137,7 +137,7 @@ typedef enum {
   CEF_MOUSE_BUTTON_BACK,
   CEF_MOUSE_BUTTON_FORWARD,
   CEF_MOUSE_BUTTON_ERASER,
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
   ///
   /// Legacy names. Values match the corresponding CEF_MOUSE_BUTTON_* constants.
@@ -159,7 +159,7 @@ typedef enum {
   CEF_POINTER_TYPE_UNKNOWN
 } cef_pointer_type_t;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 
 ///
 /// Mouse event types. Wheel input is a separate event family.
@@ -813,7 +813,7 @@ typedef struct _cef_wheel_input_event_t {
   float acceleration_ratio_y;
 } cef_wheel_input_event_t;
 
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 #ifdef __cplusplus
 }

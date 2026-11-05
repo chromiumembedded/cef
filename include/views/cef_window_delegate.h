@@ -226,7 +226,7 @@ class CefWindowDelegate : public CefPanelDelegate {
     return false;
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 
   ///
   /// Called after all other controls in the window have had a chance to
@@ -241,13 +241,13 @@ class CefWindowDelegate : public CefPanelDelegate {
   /// controls; BrowserView input follows the browser keyboard event dispatch
   /// path.
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=15800)--*/
   virtual bool OnKeyboardEvent(CefRefPtr<CefWindow> window,
                                const CefKeyboardInputEvent& event) {
     return false;
   }
 
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
   ///
   /// Called after all other controls in the window have had a chance to

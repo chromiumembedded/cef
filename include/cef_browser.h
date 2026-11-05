@@ -1122,7 +1122,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   virtual void SetAxViewportCollapse(bool enabled) = 0;
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   ///
   /// Send a complete portable keyboard snapshot. Key identity and text are
   /// preserved without consulting the receiving keyboard layout. Zero timestamp
@@ -1144,7 +1144,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /// perform text insertion or IME composition. For off-screen IME composition,
   /// use ImeSetComposition and related methods.
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=15800)--*/
   virtual void SendKeyboardEvent(const CefKeyboardInputEvent& event) = 0;
 
   ///
@@ -1164,7 +1164,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /// browser focus and any required native input capture. Web-content
   /// processing and CefInputHandler::OnPreMouseEvent still apply.
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=15800)--*/
   virtual void SendMouseEvent(const CefMouseInputEvent& event) = 0;
 
   ///
@@ -1190,7 +1190,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /// For raw touch delivery and Chromium gesture recognition, use
   /// SendTouchEvent instead.
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=15800)--*/
   virtual void SendGestureEvent(const CefGestureInputEvent& event) = 0;
 
   ///
@@ -1211,9 +1211,9 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /// Use this method for wheel/trackpad scrolling. SendGestureEvent submits
   /// already recognized gestures and does not replace DOM wheel delivery.
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=15800)--*/
   virtual void SendWheelEvent(const CefWheelInputEvent& event) = 0;
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

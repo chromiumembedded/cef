@@ -16,7 +16,7 @@
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 namespace {
 
 constexpr char kUrl[] = "https://tests/window-capture.html";
@@ -282,4 +282,4 @@ INSTANTIATE_TEST_SUITE_P(,
                          });
 
 }  // namespace
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)

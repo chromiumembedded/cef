@@ -34,7 +34,7 @@ const char* GetErrorName(cef_component_update_error_t error) {
       return "Invalid argument";
     case CEF_COMPONENT_UPDATE_ERROR_BAD_CRX_DATA_CALLBACK:
       return "Bad CRX data callback";
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     case CEF_COMPONENT_UPDATE_ERROR_UPDATE_DISABLED:
       return "Updates disabled";
 #endif

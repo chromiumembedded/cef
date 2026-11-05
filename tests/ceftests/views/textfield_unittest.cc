@@ -196,7 +196,7 @@ void TranslateKey(int c, int* keycode, uint32_t* modifiers) {
 class TestTextfieldDelegate : public CefTextfieldDelegate {
  public:
   TestTextfieldDelegate() = default;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   explicit TestTextfieldDelegate(bool unified) : unified_(unified) {}
 
   bool OnKeyboardEvent(CefRefPtr<CefTextfield> textfield,
@@ -220,7 +220,7 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
     }
     return false;
   }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
   TestTextfieldDelegate(const TestTextfieldDelegate&) = delete;
   TestTextfieldDelegate& operator=(const TestTextfieldDelegate&) = delete;
@@ -228,7 +228,7 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
   // DEPRECATED: Use OnKeyboardEvent(); retained to verify legacy fallthrough.
   bool OnKeyEvent(CefRefPtr<CefTextfield> textfield,
                   const CefKeyEvent& event) override {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     ++legacy_count_;
     EXPECT_EQ(legacy_count_, unified_count_ - handled_count_);
     EXPECT_EQ(latest_event_.type, event.type);
@@ -241,7 +241,7 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
     if (unified_) {
       return false;
     }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
     return HandleEvent(textfield, event.type, event.windows_key_code,
                        event.modifiers);
   }
@@ -286,11 +286,11 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
 
     // Verify the completed contents.
     EXPECT_STREQ(kTestInputMessage, textfield->GetText().ToString().c_str());
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     EXPECT_GT(unified_count_, 0U);
     EXPECT_EQ(unified_ ? 1U : 0U, handled_count_);
     EXPECT_EQ(unified_count_ - handled_count_, legacy_count_);
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
     // Close the window to end the test.
     textfield->GetWindow()->Close();
@@ -298,11 +298,11 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
 
   int index_ = 0;
   size_t after_user_action_ct_ = 0;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   bool unified_ = false;
   size_t unified_count_ = 0, legacy_count_ = 0, handled_count_ = 0;
   CefKeyboardInputEvent latest_event_;
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
   IMPLEMENT_REFCOUNTING(TestTextfieldDelegate);
 };
@@ -367,7 +367,7 @@ void TextfieldKeyEventImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, std::move(config));
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 void TextfieldKeyboardEventImpl(CefRefPtr<CefWaitableEvent> event) {
   if (IsRunningOnWayland()) {
     event->Signal();
@@ -380,7 +380,7 @@ void TextfieldKeyboardEventImpl(CefRefPtr<CefWaitableEvent> event) {
   config->close_window = false;
   TestWindowDelegate::RunTest(event, std::move(config));
 }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 }  // namespace
 
@@ -388,6 +388,6 @@ void TextfieldKeyboardEventImpl(CefRefPtr<CefWaitableEvent> event) {
 // APIs and is not intended to comprehensively test Textfield-related behavior
 // (which we presume that Chromium is testing).
 TEXTFIELD_TEST_ASYNC(TextfieldKeyEvent)
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 TEXTFIELD_TEST_ASYNC(TextfieldKeyboardEvent)
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)

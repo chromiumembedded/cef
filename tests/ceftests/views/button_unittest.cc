@@ -166,7 +166,7 @@ BUTTON_TEST_ASYNC(MenuButtonStyle)
 namespace {
 
 // Mouse click delay in MS.
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 // Targeted dispatch only needs to leave the window creation/menu callback.
 const int kClickDelayMS = 0;
 #else
@@ -179,7 +179,7 @@ const int kPopupClickDelayMS = 300;
 #else
 const int kPopupClickDelayMS = kClickDelayMS;
 #endif
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 const int kButtonID = 1;
 
@@ -222,7 +222,7 @@ void ClickButtonNative(CefRefPtr<CefWindow> window, int button_id) {
 }
 
 void ClickButton(CefRefPtr<CefWindow> window, int button_id) {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   EXPECT_TRUE(CefSendMouseClickForTesting(window, button_id, false, 0));
 #else
   ClickButtonNative(window, button_id);
@@ -372,7 +372,7 @@ namespace {
 const int kMenuItemID = 2;
 const char kMenuItemLabel[] = "My Menu Item";
 
-#if !CEF_API_ADDED(CEF_NEXT)
+#if !CEF_API_ADDED(15800)
 void ClickMenuItem(CefRefPtr<CefMenuButton> menu_button) {
   // Determine the lower-right corner of the menu button, then offset a bit to
   // hit the first menu item.
@@ -391,13 +391,13 @@ void ClickMenuItem(CefRefPtr<CefMenuButton> menu_button) {
   window->SendMouseMove(click_point.x, click_point.y);
   window->SendMouseEvents(MBT_LEFT, true, true);
 }
-#endif  // !CEF_API_ADDED(CEF_NEXT)
+#endif  // !CEF_API_ADDED(15800)
 
 class TestMenuButtonDelegate : public CefMenuButtonDelegate,
                                public CefMenuModelDelegate {
  public:
   TestMenuButtonDelegate() = default;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   explicit TestMenuButtonDelegate(uint32_t modifiers,
                                   bool test_failures = false)
       : modifiers_(modifiers), test_failures_(test_failures) {}
@@ -492,7 +492,7 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
     EXPECT_FALSE(model->SetFontListAt(4, font));
     EXPECT_FALSE(model->SetFontList(4, font));
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     CefPostTask(TID_UI, base::BindOnce(
                             [](CefRefPtr<CefWindow> window, uint32_t modifiers,
                                bool test_failures) {
@@ -532,7 +532,7 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
 
     EXPECT_TRUE(menu_model.get());
     EXPECT_EQ(command_id, kMenuItemID);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     constexpr uint32_t kModifiers = EVENTFLAG_SHIFT_DOWN |
                                     EVENTFLAG_CONTROL_DOWN |
                                     EVENTFLAG_ALT_DOWN | EVENTFLAG_COMMAND_DOWN;
@@ -546,7 +546,7 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
 
  private:
   CefRefPtr<CefWindow> window_;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   uint32_t modifiers_ = 0;
   bool test_failures_ = false;
 #endif
@@ -554,7 +554,7 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
   IMPLEMENT_REFCOUNTING(TestMenuButtonDelegate);
 };
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 void RunMouseClickFailures(CefRefPtr<CefWindow> window) {
   auto button = CefMenuButton::CreateMenuButton(
       new TestMenuButtonDelegate(0, true), kButtonText);
@@ -585,7 +585,7 @@ void MouseClickFailuresImpl(CefRefPtr<CefWaitableEvent> event) {
   config->close_window = false;
   TestWindowDelegate::RunTest(event, std::move(config));
 }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 void RunMenuButtonClick(bool with_text,
                         bool with_image,
@@ -693,7 +693,7 @@ BUTTON_TEST_ASYNC(MenuButtonClickFramelessWithTextNoImageFramelessWindow)
 BUTTON_TEST_ASYNC(MenuButtonClickFramelessNoTextWithImageFramelessWindow)
 BUTTON_TEST_ASYNC(MenuButtonClickFramelessNoTextNoImageFramelessWindow)
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 BUTTON_TEST_ASYNC(MouseClickFailures)
 
 namespace {
@@ -719,7 +719,7 @@ void MenuItemClickWithModifiersImpl(CefRefPtr<CefWaitableEvent> event) {
 }
 }  // namespace
 BUTTON_TEST_ASYNC(MenuItemClickWithModifiers)
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 namespace {
 
@@ -756,7 +756,7 @@ class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
     popup_window_->Show();
 
     // Wait a bit before trying to click the popup button.
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     CefPostTask(TID_UI, base::BindOnce(
                             [](CefRefPtr<CefWindow> popup_window) {
                               EXPECT_TRUE(CefSendMouseClickForTesting(

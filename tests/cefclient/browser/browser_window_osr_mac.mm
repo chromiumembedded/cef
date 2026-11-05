@@ -83,7 +83,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   return [window convertRectToScreen:point_rect].origin;
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
   uint32_t result = CEF_WHEEL_PHASE_NONE;
   for (const auto& entry :
@@ -223,7 +223,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
     return;
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   const NSPoint screen = [self getScreenPointForEvent:event];
   browser->GetHost()->SendMouseEvent(client::MakeOsrMouseInputEvent(
       mouseEvent, CefPoint(screen.x, screen.y),
@@ -251,7 +251,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
 }
 
 - (void)otherMouseDown:(NSEvent*)event {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   if (event.buttonNumber == 3 || event.buttonNumber == 4) {
     [self sendMouseClick:event
                   button:event.buttonNumber == 3 ? CEF_MOUSE_BUTTON_BACK
@@ -279,7 +279,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
 }
 
 - (void)otherMouseUp:(NSEvent*)event {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   if (event.buttonNumber == 3 || event.buttonNumber == 4) {
     [self sendMouseClick:event
                   button:event.buttonNumber == 3 ? CEF_MOUSE_BUTTON_BACK
@@ -311,7 +311,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
   CefMouseEvent mouseEvent;
   [self getMouseEvent:mouseEvent forEvent:event];
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   const NSPoint screen = [self getScreenPointForEvent:event];
   auto input = client::MakeOsrMouseInputEvent(
       mouseEvent, CefPoint(screen.x, screen.y),
@@ -352,7 +352,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
   CefMouseEvent mouseEvent;
   [self getMouseEvent:mouseEvent forEvent:event];
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   const NSPoint screen = [self getScreenPointForEvent:event];
   browser->GetHost()->SendMouseEvent(client::MakeOsrMouseInputEvent(
       mouseEvent, CefPoint(screen.x, screen.y), CEF_MOUSE_EVENT_LEAVE));
@@ -361,7 +361,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
 #endif
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 - (NSPoint)getScreenPointForEvent:(NSEvent*)event {
   return ConvertPointFromWindowToScreen(self.window, event.locationInWindow);
 }
@@ -431,7 +431,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
       // ignore it and ask the host view whether IME is active or not.
       [text_input_context_osr_mac_ handleEvent:event];
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
       CefKeyboardInputEvent keyEvent;
       // The text client still processes composition/oversized insertion when
       // native conversion rejects the keyboard text capacity.
@@ -440,14 +440,14 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
 #else
       CefKeyEvent keyEvent;
       [self getKeyEvent:keyEvent forEvent:event];
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
       [text_input_client_ HandleKeyEventAfterTextInputClient:keyEvent
                                                keyEventValid:keyEventValid];
 #else
       [text_input_client_ HandleKeyEventAfterTextInputClient:keyEvent];
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
     }
   }
 
@@ -583,7 +583,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
     return;
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   CefKeyboardInputEvent keyEvent;
   if (CefKeyboardInputEventFromMacEvent(CAST_NSEVENT_TO_CEF_EVENT_HANDLE(event),
                                         keyEvent)) {
@@ -595,11 +595,11 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
 
   keyEvent.type = KEYEVENT_KEYUP;
   browser->GetHost()->SendKeyEvent(keyEvent);
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 }
 
 - (void)flagsChanged:(NSEvent*)event {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   CefRefPtr<CefBrowser> browser = [self getBrowser];
   CefKeyboardInputEvent keyEvent;
   if (browser && CefKeyboardInputEventFromMacEvent(
@@ -615,7 +615,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
   } else {
     [self keyDown:event];
   }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 }
 
 - (void)shortCircuitScrollWheelEvent:(NSEvent*)event {
@@ -659,7 +659,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
   CGEventRef cgEvent = [event CGEvent];
   DCHECK(cgEvent);
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   CefMouseEvent mouse;
   [self getMouseEvent:mouse forEvent:event];
   const NSPoint screen = [self getScreenPointForEvent:event];
@@ -703,7 +703,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
   [self getMouseEvent:mouseEvent forEvent:event];
 
   browser->GetHost()->SendMouseWheelEvent(mouseEvent, deltaX, deltaY);
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 }
 
 - (BOOL)canBecomeKeyView {
@@ -853,7 +853,7 @@ cef_wheel_event_phase_t WheelPhaseFromNSEventPhase(NSEventPhase phase) {
   mouseEvent.x = client::DeviceToLogical(device_x, device_scale_factor);
   mouseEvent.y = client::DeviceToLogical(device_y, device_scale_factor);
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   mouseEvent.modifiers =
       [self getModifiersForEvent:event] &
       ~(CEF_EVENTFLAG_LEFT_MOUSE_BUTTON | CEF_EVENTFLAG_MIDDLE_MOUSE_BUTTON |

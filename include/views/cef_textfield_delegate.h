@@ -50,7 +50,7 @@ class CefTextfield;
 /*--cef(source=client)--*/
 class CefTextfieldDelegate : public CefViewDelegate {
  public:
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 
   ///
   /// Called when |textfield| receives a keyboard event. |event| contains the
@@ -62,13 +62,13 @@ class CefTextfieldDelegate : public CefViewDelegate {
   /// still follow, so do not assume that every keyup has a corresponding
   /// keydown callback.
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=15800)--*/
   virtual bool OnKeyboardEvent(CefRefPtr<CefTextfield> textfield,
                                const CefKeyboardInputEvent& event) {
     return false;
   }
 
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
   ///
   /// Called when |textfield| receives a keyboard event. |event| contains

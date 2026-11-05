@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 
 /// Physical key identities in Chromium's USB-based DomCode encoding.
 #if !defined(GENERATING_CEF_API_HASH)
@@ -46,7 +46,7 @@ typedef enum {
 #endif
 } cef_dom_key_t;
 
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 #ifdef __cplusplus
 }

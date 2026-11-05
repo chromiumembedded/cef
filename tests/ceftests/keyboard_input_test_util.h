@@ -11,7 +11,7 @@
 
 #include "include/cef_browser.h"
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 #if defined(OS_MAC) || defined(CEF_TESTS_USE_GTK)
 // Convert native source input on the UI/source thread, before injection.
 bool BuildNativeKeyboardInputEvents(
@@ -42,6 +42,6 @@ void SendMacTextClientKeyboardInput(
     MacTextClientInput input,
     const std::vector<CefKeyboardInputEvent>& events);
 #endif
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 #endif  // CEF_TESTS_CEFTESTS_KEYBOARD_INPUT_TEST_UTIL_H_

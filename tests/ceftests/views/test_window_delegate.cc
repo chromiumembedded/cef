@@ -283,7 +283,7 @@ bool TestWindowDelegate::OnKeyEvent(CefRefPtr<CefWindow> window,
   return false;
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 bool TestWindowDelegate::OnKeyboardEvent(CefRefPtr<CefWindow> window,
                                          const CefKeyboardInputEvent& event) {
   if (!config_->on_keyboard_event.is_null()) {
@@ -291,7 +291,7 @@ bool TestWindowDelegate::OnKeyboardEvent(CefRefPtr<CefWindow> window,
   }
   return false;
 }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 cef_runtime_style_t TestWindowDelegate::GetWindowRuntimeStyle() {
   return UseAlloyStyleWindowGlobal() ? CEF_RUNTIME_STYLE_ALLOY

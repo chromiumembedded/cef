@@ -48,7 +48,7 @@ int GetCefStateModifiers(guint state) {
   return modifiers;
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 namespace {
 
 uint32_t DomCodeFromXkbKeycode(uint32_t code) {
@@ -269,6 +269,6 @@ bool IsKeyboardInputSupportedForDisplay(GdkDisplay* display) {
 #endif  // defined(GDK_WINDOWING_WAYLAND)
   return false;
 }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 }  // namespace client

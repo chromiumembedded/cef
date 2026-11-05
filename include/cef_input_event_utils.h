@@ -10,7 +10,7 @@
 
 #include "include/cef_base.h"
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 
 ///
 /// Returns a Windows-equivalent key code from CEF DOM code/key values, or zero
@@ -21,7 +21,7 @@
 /// use non-located codes; their side remains represented by |dom_code|.
 /// This stateless helper neither detects a layout nor generates insertion text.
 ///
-/*--cef(added=next)--*/
+/*--cef(added=15800)--*/
 int CefWindowsKeyCodeFromDomCodeAndKey(uint32_t dom_code, uint32_t dom_key);
 
 #if defined(OS_WIN)
@@ -33,7 +33,7 @@ int CefWindowsKeyCodeFromDomCodeAndKey(uint32_t dom_code, uint32_t dom_key);
 /// success fills one event. Detects state, layout and timestamp on this thread;
 /// does not synthesize CHAR messages.
 ///
-/*--cef(added=next,platform=win)--*/
+/*--cef(added=15800,platform=win)--*/
 bool CefKeyboardInputEventFromWindowsMessage(uint32_t message,
                                              uint64_t wparam,
                                              int64_t lparam,
@@ -51,7 +51,7 @@ bool CefKeyboardInputEventFromWindowsMessage(uint32_t message,
 /// active locks; the array must have exactly 256 entries. Returns false on
 /// failure, leaving |event| unchanged.
 ///
-/*--cef(added=next,platform=win)--*/
+/*--cef(added=15800,platform=win)--*/
 bool CefKeyboardInputEventFromWindowsMessageEx(
     uint32_t message,
     uint64_t wparam,
@@ -77,7 +77,7 @@ bool CefKeyboardInputEventFromWindowsMessageEx(
 /// insertText: call occurs; see cefclient's shared macOS text-input client for
 /// an implementation of this handling.
 ///
-/*--cef(added=next,platform=mac)--*/
+/*--cef(added=15800,platform=mac)--*/
 bool CefKeyboardInputEventFromMacEvent(CefEventHandle native_event,
                                        CefKeyboardInputEvent& event);
 
@@ -91,7 +91,7 @@ bool CefKeyboardInputEventFromMacEvent(CefEventHandle native_event,
 /// by UCKeyTranslate, or -1 to detect it. Does not activate the source. Event
 /// attributes, including text, modifiers and time, come from NSEvent.
 ///
-/*--cef(added=next,platform=mac,optional_param=input_source_id)--*/
+/*--cef(added=15800,platform=mac,optional_param=input_source_id)--*/
 bool CefKeyboardInputEventFromMacEventEx(CefEventHandle native_event,
                                          const CefString& input_source_id,
                                          int keyboard_type,
@@ -106,11 +106,11 @@ bool CefKeyboardInputEventFromMacEventEx(CefEventHandle native_event,
 /// helper never accesses a display or keyboard layout. The source framework
 /// must supply printable Unicode text, including non-BMP characters.
 ///
-/*--cef(added=next,platform=linux)--*/
+/*--cef(added=15800,platform=linux)--*/
 uint32_t CefNonPrintableDomKeyFromXKeysym(uint32_t keysym);
 
 #endif  // defined(OS_LINUX)
 
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 #endif  // CEF_INCLUDE_CEF_INPUT_EVENT_UTILS_H_

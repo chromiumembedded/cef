@@ -43,7 +43,7 @@ enum class Operation {
 enum class Editor { Input, Textarea, ContentEditable };
 enum class KeyboardApi {
   Legacy,
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   Portable,
 #endif
 };
@@ -200,7 +200,7 @@ bool CompositionTextColorEnabled() {
 // installed input method, particular keyboard layout, or toolkit dependency.
 class ImeInputTestHandler : public RoutingTestHandler,
                             public CefRenderHandler,
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
                             public CefInputHandler,
 #endif
                             public CefKeyboardHandler,
@@ -230,7 +230,7 @@ class ImeInputTestHandler : public RoutingTestHandler,
   }
 
   CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   CefRefPtr<CefInputHandler> GetInputHandler() override { return this; }
 #endif
   CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() override { return this; }
@@ -253,7 +253,7 @@ class ImeInputTestHandler : public RoutingTestHandler,
     }
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   bool OnKeyboardEvent(CefRefPtr<CefBrowser> browser,
                        const CefKeyboardInputEvent& event,
                        const CefInputEventContext&) override {
@@ -1540,7 +1540,7 @@ class ImeInputTestHandler : public RoutingTestHandler,
     // unhandled key-up acknowledgement observes processing even when the IME
     // command intentionally emits no DOM event. A key-up inserts no text.
     waiting_for_ack_ = true;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     if (keyboard_api_ == KeyboardApi::Portable) {
       CefKeyboardInputEvent event;
       event.type = CEF_KEY_EVENT_KEYUP;
@@ -1756,7 +1756,7 @@ class ImeInputTestHandler : public RoutingTestHandler,
   }
 
   void SendTypedWord(CefRefPtr<CefBrowser> browser) {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     if (keyboard_api_ == KeyboardApi::Portable) {
       constexpr uint32_t codes[] = {CEF_DOM_CODE_US_D, CEF_DOM_CODE_US_O,
                                     CEF_DOM_CODE_US_N, CEF_DOM_CODE_US_E};
@@ -2049,7 +2049,7 @@ bool RegisterImeTests(const char* name, Scenario scenario, int line) {
       }
       for (const auto keyboard_api : {
                KeyboardApi::Legacy,
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
                KeyboardApi::Portable,
 #endif
            }) {

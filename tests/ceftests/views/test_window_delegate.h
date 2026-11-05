@@ -30,11 +30,11 @@ class TestWindowDelegate : public CefWindowDelegate {
       base::RepeatingCallback<bool(CefRefPtr<CefWindow>, int)>;
   using OnKeyEventCallback =
       base::RepeatingCallback<bool(CefRefPtr<CefWindow>, const CefKeyEvent&)>;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   using OnKeyboardEventCallback =
       base::RepeatingCallback<bool(CefRefPtr<CefWindow>,
                                    const CefKeyboardInputEvent&)>;
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
   struct Config {
     OnWindowCreatedCallback on_window_created;
@@ -46,9 +46,9 @@ class TestWindowDelegate : public CefWindowDelegate {
         on_window_fullscreen_transition_complete;
     OnAcceleratorCallback on_accelerator;
     OnKeyEventCallback on_key_event;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     OnKeyboardEventCallback on_keyboard_event;
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
     bool frameless = false;
     bool close_window = true;
     int window_size = kWSize;
@@ -88,10 +88,10 @@ class TestWindowDelegate : public CefWindowDelegate {
   // DEPRECATED: Use OnKeyboardEvent(); retained for legacy route tests.
   bool OnKeyEvent(CefRefPtr<CefWindow> window,
                   const CefKeyEvent& event) override;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   bool OnKeyboardEvent(CefRefPtr<CefWindow> window,
                        const CefKeyboardInputEvent& event) override;
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
   cef_runtime_style_t GetWindowRuntimeStyle() override;
 
  protected:

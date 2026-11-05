@@ -203,15 +203,15 @@ class CefClient : public virtual CefBaseRefCounted {
                                         CefRefPtr<CefProcessMessage> message) {
     return false;
   }
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   ///
   /// Return the unified input handler. Its keyboard callbacks run before
   /// CefKeyboardHandler callbacks, which are called when the unified callback
   /// is unhandled.
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=15800)--*/
   virtual CefRefPtr<CefInputHandler> GetInputHandler() { return nullptr; }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 };
 
 #endif  // CEF_INCLUDE_CEF_CLIENT_H_

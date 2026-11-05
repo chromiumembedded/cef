@@ -644,7 +644,7 @@ void ViewsWindow::ExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
   }
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 bool ViewsWindow::OnKeyboardEvent(CefRefPtr<CefTextfield> textfield,
                                   const CefKeyboardInputEvent& event) {
   constexpr auto kRawKeyDown = CEF_KEY_EVENT_RAWKEYDOWN;
@@ -653,7 +653,7 @@ bool ViewsWindow::OnKeyboardEvent(CefRefPtr<CefTextfield> textfield,
 bool ViewsWindow::OnKeyEvent(CefRefPtr<CefTextfield> textfield,
                              const CefKeyEvent& event) {
   constexpr auto kRawKeyDown = KEYEVENT_RAWKEYDOWN;
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
   CEF_REQUIRE_UI_THREAD();
   DCHECK_EQ(ID_URL_TEXTFIELD, textfield->GetID());
 
@@ -963,7 +963,7 @@ bool ViewsWindow::OnAccelerator(CefRefPtr<CefWindow> window, int command_id) {
   return false;
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 bool ViewsWindow::OnKeyboardEvent(CefRefPtr<CefWindow> window,
                                   const CefKeyboardInputEvent& event) {
   constexpr auto kRawKeyDown = CEF_KEY_EVENT_RAWKEYDOWN;
@@ -972,7 +972,7 @@ bool ViewsWindow::OnKeyboardEvent(CefRefPtr<CefWindow> window,
 bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,
                              const CefKeyEvent& event) {
   constexpr auto kRawKeyDown = KEYEVENT_RAWKEYDOWN;
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
   CEF_REQUIRE_UI_THREAD();
 
   if (!window_ || !with_controls_) {

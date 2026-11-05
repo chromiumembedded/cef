@@ -543,7 +543,7 @@ bool CefWindowImpl::CanHandleAccelerators() const {
 
 bool CefWindowImpl::OnKeyboardEvent(const blink::WebKeyboardEvent& event) {
   if (delegate()) {
-    if (CEF_API_IS_ADDED(CEF_NEXT)) {
+    if (CEF_API_IS_ADDED(15800)) {
       CefKeyboardInputEvent cef_event;
       if (GetCefKeyboardInputEvent(event, cef_event) &&
           delegate()->OnKeyboardEvent(this, cef_event)) {

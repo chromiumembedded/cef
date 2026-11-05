@@ -217,7 +217,7 @@ class TestHandlerClient : public CefClient, public CefLifeSpanHandler {
   FORWARD_HANDLER(Print)
   FORWARD_HANDLER(Render)
   FORWARD_HANDLER(Request)
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   FORWARD_HANDLER(Input)
 #endif
 #undef FORWARD_HANDLER
@@ -329,7 +329,7 @@ class ReusableBrowserClient : public TestHandlerClient,
     }
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   bool WindowKeyboardEvent(const CefKeyboardInputEvent& event) {
     EXPECT_UI_THREAD();
     auto handler = resetting_ ? nullptr : GetDelegate(true);
@@ -1063,7 +1063,7 @@ class ReusableWindowDelegate : public CefWindowDelegate {
     return allowed;
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   bool OnKeyboardEvent(CefRefPtr<CefWindow>,
                        const CefKeyboardInputEvent& event) override {
     return client_->WindowKeyboardEvent(event);
@@ -1267,12 +1267,12 @@ class TestWindowDelegate : public CefWindowDelegate {
     handler_->OnWindowActivationChanged(browser_id_, active);
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   bool OnKeyboardEvent(CefRefPtr<CefWindow> window,
                        const CefKeyboardInputEvent& event) override {
     return handler_->OnWindowKeyboardEvent(browser_id_, event);
   }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
   // DEPRECATED: Use OnKeyboardEvent(); retained for legacy route tests.
   bool OnKeyEvent(CefRefPtr<CefWindow> window,

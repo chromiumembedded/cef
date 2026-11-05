@@ -16,7 +16,7 @@
 
 namespace {
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 using TestKeyEvent = CefKeyboardInputEvent;
 #else
 // Expected values for the legacy-only fixture. This is test data, not a
@@ -67,7 +67,7 @@ enum class Mode {
   LegacyWindowHandled
 };
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 void ExpectSnapshot(const CefKeyboardInputEvent& expected,
                     const CefKeyboardInputEvent& actual,
                     bool compare_timestamp = true) {
@@ -94,7 +94,7 @@ void ExpectSnapshot(const CefKeyboardInputEvent& expected,
 
 class KeyboardInputTestHandler : public RoutingTestHandler,
                                  public CefRenderHandler,
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
                                  public CefInputHandler,
 #endif
                                  public CefKeyboardHandler {
@@ -105,13 +105,13 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
                            float scale = 1.0f)
       : mode_(mode), osr_(osr), scenario_(scenario), scale_(scale) {}
 
-#if CEF_API_ADDED(CEF_NEXT) && defined(OS_MAC)
+#if CEF_API_ADDED(15800) && defined(OS_MAC)
   void SetMacTextClientInput(MacTextClientInput input) { mac_input_ = input; }
 #endif
 
   CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   CefRefPtr<CefInputHandler> GetInputHandler() override { return this; }
 #endif
 
@@ -200,7 +200,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
         window.testQuery({request:JSON.stringify({events, value:i.value})});
       }
     </script>)";
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     if (mode_ == Mode::NativeTextClient) {
       const std::string input = "<input id='i'>";
       html.replace(html.find(input), input.size(),
@@ -365,7 +365,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
     return true;
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   bool OnPreKeyboardEvent(CefRefPtr<CefBrowser>,
                           const CefKeyboardInputEvent& event,
                           const CefInputEventContext& context,
@@ -416,7 +416,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
     }
     EXPECT_LT(index, expected_.size());
     if (index < expected_.size()) {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
       ExpectSnapshot(expected_[index], event, !IsLegacySend());
 #else
       EXPECT_EQ(expected_[index].type, event.type);
@@ -445,7 +445,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
                      const CefKeyEvent& event,
                      CefEventHandle,
                      bool* is_keyboard_shortcut) override {
-#if !CEF_API_ADDED(CEF_NEXT)
+#if !CEF_API_ADDED(15800)
     ++pre_;
     ++pre_unhandled_;
 #endif
@@ -469,7 +469,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   bool OnKeyEvent(CefRefPtr<CefBrowser> browser,
                   const CefKeyEvent& event,
                   CefEventHandle) override {
-#if !CEF_API_ADDED(CEF_NEXT)
+#if !CEF_API_ADDED(15800)
     TestKeyEvent snapshot;
     snapshot.type = event.type;
     OnPostEvent(browser, snapshot);
@@ -492,7 +492,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
     return true;
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   bool OnWindowKeyboardEvent(int browser_id,
                              const CefKeyboardInputEvent& event) override {
     EXPECT_TRUE(IsWindowTest());
@@ -565,7 +565,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
         TestKeyEvent event;
         event.type = KEYEVENT_CHAR;
         event.text[0] = event.unmodified_text[0] = *c;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
         if (!IsLegacySend()) {
           event.dom_key = CEF_DOM_KEY_UNICODE_FLAG | *c;
         }
@@ -580,14 +580,14 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
       // asynchronous send, renderer, and callback routes.
       expected_.clear();
       insertion_ = "abc";
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
       constexpr std::array codes = {CEF_DOM_CODE_US_A, CEF_DOM_CODE_US_B,
                                     CEF_DOM_CODE_US_C};
 #endif
       for (size_t i = 0; i < insertion_.size(); ++i) {
         TestKeyEvent key;
         key.type = KEYEVENT_RAWKEYDOWN;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
         key.dom_code = codes[i];
         key.dom_key = CEF_DOM_KEY_UNICODE_FLAG | insertion_[i];
 #endif
@@ -608,7 +608,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
       }
       return;
     }
-#if !CEF_API_ADDED(CEF_NEXT)
+#if !CEF_API_ADDED(15800)
     EXPECT_EQ(Scenario::Alpha, scenario_);
     TestKeyEvent key;
     key.windows_key_code = 'A';
@@ -804,13 +804,13 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
       expected_[1].windows_key_code = 'A';
     }
 #endif
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
   }
 
   void Start(CefRefPtr<CefBrowser> browser) {
     // Exercise the asynchronous public send/C API route as well as UI-thread
     // dispatch. Conversion happened synchronously before this thread hop.
-#if CEF_API_ADDED(CEF_NEXT) && defined(OS_MAC)
+#if CEF_API_ADDED(15800) && defined(OS_MAC)
     if (mode_ == Mode::NativeTextClient) {
       SendMacTextClientKeyboardInput(browser, mac_input_, expected_);
     } else
@@ -820,7 +820,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   }
 
   void Send(CefRefPtr<CefBrowser> browser) {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     if (mode_ == Mode::Portable && scenario_ == Scenario::Unicode) {
       auto invalid = expected_.front();
       invalid.type = static_cast<cef_key_event_type_t>(999);
@@ -864,7 +864,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
         }
         browser->GetHost()->SendKeyEvent(legacy);
       }
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
       else {
         browser->GetHost()->SendKeyboardEvent(event);
       }
@@ -928,7 +928,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   }
 
   bool IsLegacySend() const {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     return mode_ == Mode::LegacySend || mode_ == Mode::LegacySendPreHandled;
 #else
     return true;
@@ -958,7 +958,7 @@ class KeyboardInputTestHandler : public RoutingTestHandler,
   const bool osr_;
   const Scenario scenario_;
   const float scale_;
-#if CEF_API_ADDED(CEF_NEXT) && defined(OS_MAC)
+#if CEF_API_ADDED(15800) && defined(OS_MAC)
   MacTextClientInput mac_input_ = MacTextClientInput::Character;
 #endif
   std::vector<TestKeyEvent> expected_{3};
@@ -984,7 +984,7 @@ struct KeyboardTestCase {
   Scenario scenario;
   bool osr = true;
   float scale = 1.0f;
-#if CEF_API_ADDED(CEF_NEXT) && defined(OS_MAC)
+#if CEF_API_ADDED(15800) && defined(OS_MAC)
   MacTextClientInput mac_input = MacTextClientInput::Character;
 #endif
 };
@@ -996,7 +996,7 @@ class KeyboardInputTestCase : public testing::Test {
 
  private:
   void TestBody() override {
-#if CEF_API_ADDED(CEF_NEXT) && defined(CEF_TESTS_USE_GTK)
+#if CEF_API_ADDED(15800) && defined(CEF_TESTS_USE_GTK)
     // X11 displays require CEF_TESTS_USE_X11 for Xkb modifier resolution.
     if (test_case_.mode == Mode::Native && !IsNativeKeyboardInputSupported()) {
       GTEST_SKIP() << "GTK keyboard adapter does not support this GDK backend";
@@ -1004,7 +1004,7 @@ class KeyboardInputTestCase : public testing::Test {
 #endif
     CefRefPtr<KeyboardInputTestHandler> handler = new KeyboardInputTestHandler(
         test_case_.mode, test_case_.osr, test_case_.scenario, test_case_.scale);
-#if CEF_API_ADDED(CEF_NEXT) && defined(OS_MAC)
+#if CEF_API_ADDED(15800) && defined(OS_MAC)
     if (test_case_.mode == Mode::NativeTextClient) {
       handler->SetMacTextClientInput(test_case_.mac_input);
     }
@@ -1024,7 +1024,7 @@ bool RegisterKeyboardTests(const char* name,
   for (bool osr : {true, false}) {
     // Native-window legacy injection retains its separate view/IME entry path.
     // This comparison targets OSR, where both APIs share the same dispatcher.
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     if (!osr &&
         (mode == Mode::LegacySend || mode == Mode::LegacySendPreHandled)) {
 #else
@@ -1075,7 +1075,7 @@ KEYBOARD_TEST(LegacyCharacterOnlyPreservesUnicodeAndCallbacks,
               Mode::LegacySend,
               Scenario::CharacterOnly)
 
-#if !CEF_API_ADDED(CEF_NEXT)
+#if !CEF_API_ADDED(15800)
 KEYBOARD_TEST(LegacyPreHandlerConsumesInput,
               Mode::LegacyPreHandled,
               Scenario::Alpha)
@@ -1085,7 +1085,7 @@ KEYBOARD_TEST(LegacyShortcutSuppressesCharacter,
               Scenario::Alpha)
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 KEYBOARD_TEST(CharacterOnlyPreservesUnicodeAndCallbacks,
               Mode::Portable,
               Scenario::CharacterOnly)
@@ -1242,7 +1242,7 @@ MAC_TEXT_CLIENT_TEST(MacTextClientClearHasNoCharacter,
 #undef MAC_TEXT_CLIENT_TEST
 #endif
 
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 #undef KEYBOARD_TEST
 

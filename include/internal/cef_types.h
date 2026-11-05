@@ -969,7 +969,7 @@ typedef enum {
   ///
   TS_INTEGRITY_FAILURE,
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   ///
   /// The process was proactively terminated by the browser to reclaim memory.
   ///
@@ -3724,7 +3724,7 @@ typedef enum {
 #if CEF_API_ADDED(15400)
   CEF_CPAIT_WALLET_REMINDER_NOTICE,
 #endif
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   CEF_CPAIT_GMAIL_OTP_OPT_IN,
 #endif
   CEF_CPAIT_NUM_VALUES,

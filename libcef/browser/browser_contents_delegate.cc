@@ -275,7 +275,7 @@ CefBrowserContentsDelegate::PreHandleKeyboardEvent(
     const input::NativeWebKeyboardEvent& event) {
   if (auto delegate = platform_delegate()) {
     if (auto c = client()) {
-      if (CEF_API_IS_ADDED(CEF_NEXT)) {
+      if (CEF_API_IS_ADDED(15800)) {
         if (auto handler = c->GetInputHandler()) {
           CefKeyboardInputEvent cef_event;
           if (GetCefKeyboardInputEvent(event, cef_event)) {
@@ -317,7 +317,7 @@ CefBrowserContentsDelegate::PreHandleKeyboardEvent(
 bool CefBrowserContentsDelegate::PreHandleMouseEvent(
     content::WebContents* source,
     const blink::WebMouseEvent& event) {
-  if (CEF_API_IS_ADDED(CEF_NEXT)) {
+  if (CEF_API_IS_ADDED(15800)) {
     if (auto c = client()) {
       if (auto handler = c->GetInputHandler()) {
         CefMouseInputEvent cef_event;
@@ -333,7 +333,7 @@ bool CefBrowserContentsDelegate::PreHandleMouseEvent(
 bool CefBrowserContentsDelegate::PreHandleGestureEvent(
     content::WebContents* source,
     const blink::WebGestureEvent& event) {
-  if (CEF_API_IS_ADDED(CEF_NEXT)) {
+  if (CEF_API_IS_ADDED(15800)) {
     if (auto c = client()) {
       if (auto handler = c->GetInputHandler()) {
         CefGestureInputEvent cef_event;
@@ -356,7 +356,7 @@ bool CefBrowserContentsDelegate::HandleKeyboardEvent(
 
   if (auto delegate = platform_delegate()) {
     if (auto c = client()) {
-      if (CEF_API_IS_ADDED(CEF_NEXT)) {
+      if (CEF_API_IS_ADDED(15800)) {
         if (auto handler = c->GetInputHandler()) {
           CefKeyboardInputEvent cef_event;
           if (GetCefKeyboardInputEvent(event, cef_event)) {

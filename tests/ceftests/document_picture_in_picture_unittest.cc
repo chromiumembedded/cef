@@ -184,7 +184,7 @@ class PipTestHandler : public TestHandler {
     IMPLEMENT_REFCOUNTING(Observer);
   };
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   class CaptureComplete : public CefCaptureBrowserWindowCallback {
    public:
     explicit CaptureComplete(base::OnceCallback<void(CefRefPtr<CefImage>)> done)
@@ -197,7 +197,7 @@ class PipTestHandler : public TestHandler {
     base::OnceCallback<void(CefRefPtr<CefImage>)> done_;
     IMPLEMENT_REFCOUNTING(CaptureComplete);
   };
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
   class ViewDelegate : public CefBrowserViewDelegate {
    public:
@@ -626,12 +626,12 @@ class PipTestHandler : public TestHandler {
   }
 
   void CaptureEdgeWindow(bool native) {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
     CefCaptureBrowserWindowForTests(
         pip_, native,
         new CaptureComplete(
             base::BindOnce(&PipTestHandler::EdgeWindowSaved, this, native)));
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
   }
 
   void EdgeWindowSaved(bool native, CefRefPtr<CefImage> image) {
@@ -910,7 +910,7 @@ TEST_F(DocumentPictureInPictureTest, TransparencyReopenIsolation) {
   Run({TestMode::kReopen, true});
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 TEST_F(DocumentPictureInPictureTest, TransparentFramelessMoveAndResize) {
   if (IsRunningOnWayland()) {
     GTEST_SKIP()

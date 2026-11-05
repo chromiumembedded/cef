@@ -15,7 +15,7 @@
 namespace client {
 int GetCefStateModifiers(guint state);
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 // Sample-local adapter for GTK3's X11 and Wayland backends. Toolkit/display
 // objects never cross the CEF API.
 // Failure leaves |events| unchanged. Repeat is tracked by the owning widget.
@@ -26,7 +26,7 @@ bool KeyboardInputEventsFromGdkEvent(
 
 // Returns true if the adapter supports |display|'s GDK backend.
 bool IsKeyboardInputSupportedForDisplay(GdkDisplay* display);
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 }  // namespace client
 
 #endif  // CEF_TESTS_SHARED_BROWSER_OSR_KEYBOARD_UTIL_GTK_H_

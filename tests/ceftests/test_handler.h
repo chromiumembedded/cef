@@ -286,12 +286,12 @@ class TestHandler : public CefClient,
   void OnWindowCreated(int browser_id);
   virtual void OnWindowDestroyed(int browser_id);
   virtual void OnWindowActivationChanged(int browser_id, bool active) {}
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   virtual bool OnWindowKeyboardEvent(int browser_id,
                                      const CefKeyboardInputEvent& event) {
     return false;
   }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
   // DEPRECATED: Use OnWindowKeyboardEvent(); retained for legacy route tests.
   virtual bool OnWindowKeyEvent(int browser_id, const CefKeyEvent& event) {

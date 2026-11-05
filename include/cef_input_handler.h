@@ -9,12 +9,12 @@
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 ///
 /// Handles portable input events on the UI thread. Keyboard callbacks run
 /// before the corresponding CefKeyboardHandler callbacks.
 ///
-/*--cef(source=client,added=next)--*/
+/*--cef(source=client,added=15800)--*/
 class CefInputHandler : public virtual CefBaseRefCounted {
  public:
   ///
@@ -84,6 +84,6 @@ class CefInputHandler : public virtual CefBaseRefCounted {
     return false;
   }
 };
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 #endif  // CEF_INCLUDE_CEF_INPUT_HANDLER_H_

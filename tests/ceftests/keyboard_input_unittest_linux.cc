@@ -4,7 +4,7 @@
 
 #include "tests/ceftests/keyboard_input_test_util.h"
 
-#if CEF_API_ADDED(CEF_NEXT) && defined(CEF_TESTS_USE_GTK)
+#if CEF_API_ADDED(15800) && defined(CEF_TESTS_USE_GTK)
 #include <gdk/gdkkeysyms-compat.h>
 #include <gtk/gtk.h>
 
@@ -311,4 +311,4 @@ UI_THREAD_TEST(KeyboardInputTest, LinuxNativeShortcutAndReturnText)
 #if defined(GDK_WINDOWING_WAYLAND)
 UI_THREAD_TEST(KeyboardInputTest, LinuxWaylandModifierState)
 #endif  // defined(GDK_WINDOWING_WAYLAND)
-#endif  // CEF_API_ADDED(CEF_NEXT) && defined(CEF_TESTS_USE_GTK)
+#endif  // CEF_API_ADDED(15800) && defined(CEF_TESTS_USE_GTK)

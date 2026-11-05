@@ -123,7 +123,7 @@ void ViewsMenuBar::SetMenuFocusable(bool focusable) {
   }
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 bool ViewsMenuBar::OnKeyEvent(const CefKeyboardInputEvent& event) {
   constexpr auto kRawKeyDown = CEF_KEY_EVENT_RAWKEYDOWN;
   constexpr auto kIgnoredModifiers =
@@ -134,7 +134,7 @@ bool ViewsMenuBar::OnKeyEvent(const CefKeyEvent& event) {
   constexpr auto kRawKeyDown = KEYEVENT_RAWKEYDOWN;
   constexpr auto kIgnoredModifiers =
       EVENTFLAG_ALT_DOWN | EVENTFLAG_CONTROL_DOWN;
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
   if (!panel_) {
     return false;
   }
@@ -149,11 +149,11 @@ bool ViewsMenuBar::OnKeyEvent(const CefKeyEvent& event) {
     return false;
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
   const auto character = event.text[0];
 #else
   const auto character = event.character;
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
   MnemonicMap::const_iterator it = mnemonics_.find(ToLower(character));
   if (it == mnemonics_.end()) {
     return false;

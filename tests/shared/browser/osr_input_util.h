@@ -92,7 +92,7 @@ inline float GetOsrWindowsWheelDelta(float ticks, uint32_t scroll_amount) {
   return ticks * static_cast<float>(scroll_amount) * (100.f / 3.f);
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(15800)
 inline uint32_t OsrMouseButtonFlag(cef_mouse_button_type_t button) {
   switch (button) {
     case CEF_MOUSE_BUTTON_LEFT:
@@ -220,7 +220,7 @@ inline std::vector<CefGestureInputEvent> OsrPinchInputEventsFromWindowsZoom(
   }
   return events;
 }
-#endif  // CEF_API_ADDED(CEF_NEXT)
+#endif  // CEF_API_ADDED(15800)
 
 }  // namespace client
 
