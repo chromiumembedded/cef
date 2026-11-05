@@ -2067,6 +2067,12 @@ void CefRenderWidgetHostViewOSR::OnImeCompositionRangeChanged(
       updated_view->host() != GetFocusedWidgetForIme()) {
     return;
   }
+  // Focus and text-input state updates can arrive independently. The getter
+  // below returns the active widget's cached bounds, which may still belong
+  // to the previously focused widget. Do not forward them as a child update.
+  if (text_input_manager->GetActiveWidget() != updated_view->host()) {
+    return;
+  }
   if (const auto* info = text_input_manager->GetCompositionRangeInfo()) {
     NotifyImeCompositionRangeChanged(
         info->range, character_bounds_changed
