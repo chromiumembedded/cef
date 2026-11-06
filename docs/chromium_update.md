@@ -221,9 +221,14 @@ On Windows:
 ```
 :: Disabled tests:
 :: - AudioOutputTest.AudioOutputTest, AudioCloseBrowserTest: Flaky
-:: - ViewsTextfieldTest.TextfieldKeyEvent: Flaky
+:: - ViewsButtonTest.LabelButtonNativeMouseClickFramed, LabelButtonNativeMouseClickFrameless:
+::   Use SendInput through CEF window APIs; unreliable on Windows CI agents
+:: - ViewsTextfieldTest.TextfieldKeyEvent, TextfieldKeyboardEvent: Same as above
+:: - ViewsWindowTest.WindowAccelerator, WindowKeyboardEvent,
+::   WindowKeyboardLegacyFallthrough: Same as above
 ceftests --use-views [--use-alloy-style] ^
-  --gtest_filter=-AudioOutputTest.AudioOutputTest:AudioOutputTest.AudioCloseBrowserTest:ViewsTextfieldTest.TextfieldKeyEvent
+  --disable-backgrounding-occluded-windows ^
+  --gtest_filter=-AudioOutputTest.AudioOutputTest:AudioOutputTest.AudioCloseBrowserTest:ViewsButtonTest.LabelButtonNativeMouseClickFramed:ViewsButtonTest.LabelButtonNativeMouseClickFrameless:ViewsTextfieldTest.TextfieldKeyEvent:ViewsTextfieldTest.TextfieldKeyboardEvent:ViewsWindowTest.WindowAccelerator:ViewsWindowTest.WindowKeyboardEvent:ViewsWindowTest.WindowKeyboardLegacyFallthrough
 ```
 
 On macOS:
@@ -231,8 +236,10 @@ On macOS:
 ```sh
 # Disabled tests:
 # - ViewsWindowTest.Window*Fullscreen*: Fails/crashes on headless agents
+# - ViewsWindowTest.WindowFocus: Focus/blur callbacks are unreliable on macOS agents
+# - ViewsButtonTest.MenuButtonCustomPopupActivate: Popup activation is unreliable on macOS agents
 ./ceftests.app/Contents/MacOS/ceftests --use-views [--use-alloy-style] \
-  --gtest_filter=-ViewsWindowTest.Window\*Fullscreen\*
+  --gtest_filter=-ViewsWindowTest.Window\*Fullscreen\*:ViewsWindowTest.WindowFocus:ViewsButtonTest.MenuButtonCustomPopupActivate
 ```
 
 On Linux:
