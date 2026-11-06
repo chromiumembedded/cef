@@ -304,9 +304,14 @@ class DownloadSchemeHandlerFactory : public CefSchemeHandlerFactory {
                                        CefRefPtr<CefFrame> frame,
                                        const CefString& scheme_name,
                                        CefRefPtr<CefRequest> request) override {
-    return new DownloadSchemeHandler(delay_callback_vendor_.is_null()
-                                         ? base::NullCallback()
-                                         : delay_callback_vendor_.Run(),
+    // Only the download consumes this callback. Ignored requests can outlive
+    // the test in a reused browser and must not retain its handler.
+    DelayCallback delay_callback;
+    if (request->GetURL() == download_url_ &&
+        !delay_callback_vendor_.is_null()) {
+      delay_callback = delay_callback_vendor_.Run();
+    }
+    return new DownloadSchemeHandler(std::move(delay_callback),
                                      got_download_request_, download_url_);
   }
 
@@ -947,6 +952,36 @@ TEST(DownloadTest, SharedClientRejectsRetiredUpdates) {
   CefRefPtr<DownloadClientTestHandler> handler = new DownloadClientTestHandler;
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(DownloadTest, IgnoredRequestDoesNotRetainDelayCallback) {
+  // The delay callback retains the test handler in navigated/pending tests.
+  // An ignored request (e.g. a favicon) must not keep that owner alive while
+  // the browser is retained for reuse.
+  auto owner = std::make_shared<int>(0);
+  std::weak_ptr<int> weak_owner = owner;
+  TrackCallback got_download_request;
+  CefRefPtr<DownloadSchemeHandlerFactory> factory =
+      new DownloadSchemeHandlerFactory(
+          base::BindRepeating(
+              [](std::shared_ptr<int> owner) -> DelayCallback {
+                return base::BindOnce(
+                    [](std::shared_ptr<int>, base::OnceClosure) {}, owner);
+              },
+              owner),
+          &got_download_request);
+  auto request = CefRequest::Create();
+  request->SetURL("https://test-download.com/favicon.ico");
+  auto ignored = factory->Create(nullptr, nullptr, "https", request);
+  ASSERT_TRUE(ignored);
+  request->SetURL(kTestDownloadUrl);
+  auto download = factory->Create(nullptr, nullptr, "https", request);
+  ASSERT_TRUE(download);
+  factory = nullptr;
+  owner.reset();
+  EXPECT_FALSE(weak_owner.expired());
+  download = nullptr;
+  EXPECT_TRUE(weak_owner.expired());
 }
 
 namespace {
