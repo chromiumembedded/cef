@@ -414,6 +414,7 @@ if (is_win) {
 # that is limited in scope (e.g. utility classes/methods).
 source_set("libcef_static_unittested") {
   sources = [
+    "libcef/browser/browser_info_request_state.h",
     "libcef/browser/devtools/devtools_util.cc",
     "libcef/browser/devtools/devtools_util.h",
     "libcef/browser/geometry_util.cc",
@@ -456,6 +457,7 @@ test("libcef_static_unittests") {
   testonly = true
 
   sources = [
+    "libcef/browser/browser_info_request_state_unittest.cc",
     "libcef/browser/devtools/devtools_util_unittest.cc",
     "libcef/browser/geometry_util_unittest.cc",
     "libcef/browser/key_event_util_unittest.cc",
@@ -467,6 +469,7 @@ test("libcef_static_unittests") {
   deps = [
     ":libcef_static_unittested",
     "//base/test:run_all_unittests",
+    "//base/test:test_support",
     "//components/input",
     "//testing/gtest",
     "//third_party/blink/public/common",

@@ -7,6 +7,7 @@
 #include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/browser_event_util.h"
 #include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/browser_info_manager.h"
 #include "cef/libcef/browser/browser_platform_delegate.h"
 #include "cef/libcef/browser/native/cursor_util.h"
 #include "cef/libcef/common/api_version_util.h"
@@ -446,6 +447,12 @@ void CefBrowserContentsDelegate::RenderFrameHostStateChanged(
 void CefBrowserContentsDelegate::RenderFrameDeleted(
     content::RenderFrameHost* render_frame_host) {
   browser_info_->RemoveFrame(render_frame_host);
+
+  // Resolve pending lookups even when the frame was discarded before CEF
+  // registered it. RemoveFrame has released its notification lock here.
+  if (auto* manager = CefBrowserInfoManager::GetInstance()) {
+    manager->OnFrameDeleted(render_frame_host->GetGlobalFrameToken());
+  }
 
   if (focused_frame_ && focused_frame_->IsSameFrame(render_frame_host)) {
     focused_frame_ = nullptr;

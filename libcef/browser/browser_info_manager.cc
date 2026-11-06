@@ -374,24 +374,21 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
   if (browser_info) {
     // Send the response immediately.
     SendNewBrowserInfoResponse(browser_info, /*is_excluded=*/false,
-                               std::move(callback), callback_runner);
+                               std::move(callback));
     return;
   }
 
-  // Verify that no request for the same route is currently queued.
-  DCHECK(pending_new_browser_info_map_.find(global_token) ==
-         pending_new_browser_info_map_.end());
-
-  const int timeout_id = ++next_timeout_id_;
-
   // Queue the request.
-  auto pending = std::make_unique<PendingNewBrowserInfo>();
-  pending->global_token = global_token;
-  pending->timeout_id = timeout_id;
-  pending->callback = std::move(callback);
-  pending->callback_runner = callback_runner;
-  pending_new_browser_info_map_.insert(
-      std::make_pair(global_token, std::move(pending)));
+  const auto timeout_id = pending_new_browser_info_.Queue(
+      global_token,
+      base::BindOnce(
+          [](cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback,
+             scoped_refptr<CefBrowserInfo> browser_info, bool is_excluded) {
+            SendNewBrowserInfoResponse(browser_info, is_excluded,
+                                       std::move(callback));
+          },
+          std::move(callback)),
+      std::move(callback_runner));
 
   // Register a timeout for the pending response so that the renderer process
   // doesn't hang forever. With Chrome style, timeouts may occur in cases
@@ -406,15 +403,15 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
         kNewBrowserInfoResponseTimeoutMs);
   }
 
-  // Check for excluded content (Chrome UI, PDF viewer or print preview).
+  // Check for discarded frames or excluded content (Chrome UI, PDF viewer or
+  // print preview). Deletion may have preceded this request on the IO thread.
   CEF_POST_TASK(
       CEF_UIT,
-      base::BindOnce(
-          &CefBrowserInfoManager::CheckExcludedNewBrowserInfoOnUIThread,
-          global_token));
+      base::BindOnce(&CefBrowserInfoManager::CheckNewBrowserInfoOnUIThread,
+                     global_token));
 }
 
-void CefBrowserInfoManager::OnMainFrameCreated(
+void CefBrowserInfoManager::OnFrameCreated(
     const content::GlobalRenderFrameHostToken& global_token,
     scoped_refptr<CefBrowserInfo> browser_info) {
   DCHECK(frame_util::IsValidGlobalToken(global_token));
@@ -423,17 +420,27 @@ void CefBrowserInfoManager::OnMainFrameCreated(
   ContinueNewBrowserInfo(global_token, browser_info, /*is_excluded=*/false);
 }
 
+void CefBrowserInfoManager::OnFrameDeleted(
+    const content::GlobalRenderFrameHostToken& global_token) {
+  CEF_REQUIRE_UIT();
+  base::AutoLock lock_scope(browser_info_lock_);
+  pending_new_browser_info_.Cancel(global_token);
+}
+
 // static
-void CefBrowserInfoManager::CheckExcludedNewBrowserInfoOnUIThread(
+void CefBrowserInfoManager::CheckNewBrowserInfoOnUIThread(
     const content::GlobalRenderFrameHostToken& global_token) {
   CEF_REQUIRE_UIT();
   if (!g_info_manager) {
     return;
   }
 
-  // May return nullptr for PDF renderer process.
+  // A missing RFH may indicate a discarded frame or the PDF renderer loaded in
+  // the print preview dialog. Complete missing-RFH lookups immediately with a
+  // negative response instead of waiting for the timeout.
   auto* rfh = content::RenderFrameHost::FromFrameToken(global_token);
   if (!rfh) {
+    g_info_manager->OnFrameDeleted(global_token);
     return;
   }
 
@@ -458,14 +465,8 @@ void CefBrowserInfoManager::ContinueNewBrowserInfo(
     bool is_excluded) {
   base::AutoLock lock_scope(browser_info_lock_);
 
-  // Continue any pending NewBrowserInfo request.
-  auto it = pending_new_browser_info_map_.find(global_token);
-  if (it != pending_new_browser_info_map_.end()) {
-    SendNewBrowserInfoResponse(browser_info, is_excluded,
-                               std::move(it->second->callback),
-                               it->second->callback_runner);
-    pending_new_browser_info_map_.erase(it);
-  }
+  // Complete any pending NewBrowserInfo request on its calling sequence.
+  pending_new_browser_info_.Complete(global_token, browser_info, is_excluded);
 }
 
 void CefBrowserInfoManager::RemoveBrowserInfo(
@@ -670,23 +671,16 @@ void CefBrowserInfoManager::RenderProcessHostDestroyed(
   const content::ChildProcessId render_process_id = host->GetID();
   DCHECK(!render_process_id.is_null());
 
-  // Remove all pending requests that reference the destroyed host.
+  // Cancel all pending requests from the destroyed renderer process.
   {
     base::AutoLock lock_scope(browser_info_lock_);
 
-    PendingNewBrowserInfoMap::iterator it =
-        pending_new_browser_info_map_.begin();
-    while (it != pending_new_browser_info_map_.end()) {
-      const auto& info = it->second;
-      // TODO(crbug.com/379869738): Remove GetUnsafeValue() once
-      // GlobalRenderFrameHostToken is migrated to use ChildProcessId.
-      if (info->global_token.child_id == render_process_id.GetUnsafeValue()) {
-        CancelNewBrowserInfoResponse(info.get());
-        it = pending_new_browser_info_map_.erase(it);
-      } else {
-        ++it;
-      }
-    }
+    pending_new_browser_info_.CancelMatching(
+        [render_process_id](const auto& token) {
+          // TODO(crbug.com/379869738): Remove GetUnsafeValue() once
+          // GlobalRenderFrameHostToken is migrated to use ChildProcessId.
+          return token.child_id == render_process_id.GetUnsafeValue();
+        });
   }
 
   // Remove all pending popups that reference the destroyed host as the opener.
@@ -797,17 +791,7 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfoInternal(
 void CefBrowserInfoManager::SendNewBrowserInfoResponse(
     scoped_refptr<CefBrowserInfo> browser_info,
     bool is_excluded,
-    cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback,
-    scoped_refptr<base::SequencedTaskRunner> callback_runner) {
-  if (!callback_runner->RunsTasksInCurrentSequence()) {
-    callback_runner->PostTask(
-        FROM_HERE,
-        base::BindOnce(&CefBrowserInfoManager::SendNewBrowserInfoResponse,
-                       browser_info, is_excluded, std::move(callback),
-                       callback_runner));
-    return;
-  }
-
+    cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback) {
   auto params = cef::mojom::NewBrowserInfo::New();
   params->is_excluded = is_excluded;
 
@@ -841,17 +825,9 @@ void CefBrowserInfoManager::SendNewBrowserInfoResponse(
 }
 
 // static
-void CefBrowserInfoManager::CancelNewBrowserInfoResponse(
-    PendingNewBrowserInfo* pending_info) {
-  SendNewBrowserInfoResponse(/*browser_info=*/nullptr, /*is_excluded=*/false,
-                             std::move(pending_info->callback),
-                             pending_info->callback_runner);
-}
-
-// static
 void CefBrowserInfoManager::TimeoutNewBrowserInfoResponse(
     const content::GlobalRenderFrameHostToken& global_token,
-    int timeout_id) {
+    BrowserInfoRequestState::TimeoutId timeout_id) {
   CEF_REQUIRE_UIT();
   if (!g_info_manager) {
     return;
@@ -859,32 +835,23 @@ void CefBrowserInfoManager::TimeoutNewBrowserInfoResponse(
 
   base::AutoLock lock_scope(g_info_manager->browser_info_lock_);
 
-  // Continue the NewBrowserInfo request if it's still pending.
-  auto it = g_info_manager->pending_new_browser_info_map_.find(global_token);
-  if (it != g_info_manager->pending_new_browser_info_map_.end()) {
-    const auto& pending_info = it->second;
-    // Don't accidentally timeout a new request for the same frame.
-    if (pending_info->timeout_id != timeout_id) {
-      return;
-    }
-
-    // Cases where we expect to time out are:
-    // - With Chrome style when chrome::AddWebContents or WebContents::Create
-    //   are called directly from the Chrome UI (profile settings, etc). A RFH
-    //   will exist without a matching CefBrowserHost.
-    // - When the PDF renderer is loaded in the print preview dialog. There will
-    //   be no RFH in this case.
-    // Any additional cases should be debugged and, if possible,
-    // GetOwnerForGuestContents should be improved to find the associated
-    // CefBrowserHost.
+  // Cancel only the matching request; an old timeout must not cancel a newer
+  // request for the same frame token.
+  if (g_info_manager->pending_new_browser_info_.Timeout(global_token,
+                                                        timeout_id)) {
+    // Timeouts may still occur with Chrome style when chrome::AddWebContents
+    // or WebContents::Create are called directly from the Chrome UI (profile
+    // settings, etc). An RFH can exist without a matching CefBrowserHost.
+    // If CheckNewBrowserInfoOnUIThread finds no RFH (including the PDF renderer
+    // case in the print preview dialog), it cancels the request without waiting
+    // for this timeout. Additional timeouts should be investigated. For guest
+    // contents, GetOwnerForGuestContents may need to be improved to find the
+    // associated CefBrowserHost.
     const bool has_rfh =
         !!content::RenderFrameHost::FromFrameToken(global_token);
 
     LOG(ERROR) << "Timeout of new browser info response for frame "
                << frame_util::GetFrameDebugString(global_token)
                << " (has_rfh=" << has_rfh << ")";
-
-    CancelNewBrowserInfoResponse(pending_info.get());
-    g_info_manager->pending_new_browser_info_map_.erase(it);
   }
 }

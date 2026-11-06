@@ -72,10 +72,11 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   // Called from CefBrowserHostBase::DestroyBrowser.
   void BrowserDestroyed();
 
-  // Ensure that a frame record exists for |host|. Called for the main frame
-  // when the RenderView is created, or for a sub-frame when the associated
-  // RenderFrame is created in the renderer process.
-  // Called from CefBrowserContentsDelegate::RenderFrameCreated.
+  // Ensure that a frame record exists for a non-excluded |host|. Called when
+  // CefBrowserContentsDelegate attaches to existing contents or observes
+  // RenderFrameCreated or RenderFrameHostChanged. Newly registered main frames
+  // and subframes resolve any pending browser-info lookup after releasing the
+  // notification lock.
   void MaybeCreateFrame(content::RenderFrameHost* host);
 
   // Used to track state changes such as entering/exiting the BackForwardCache.
