@@ -7,15 +7,14 @@
 #pragma once
 
 #include <list>
-#include <map>
 #include <memory>
 #include <vector>
 
 #include "base/memory/raw_ptr.h"
 #include "base/synchronization/lock.h"
-#include "base/task/sequenced_task_runner.h"
 #include "cef/include/cef_client.h"
 #include "cef/libcef/browser/browser_info.h"
+#include "cef/libcef/browser/browser_info_request_state.h"
 #include "cef/libcef/common/mojom/cef.mojom.h"
 #include "content/public/browser/global_routing_id.h"
 #include "content/public/browser/render_process_host_observer.h"
@@ -107,14 +106,13 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // PendingPopup for more information. Returns true for custom handling.
   bool AddWebContents(content::WebContents* source_contents);
 
-  // Called from CefBrowserManager::GetNewBrowserInfo for delivering browser
-  // info to the renderer process. If the browser info already exists the
-  // response will be sent immediately. Otherwise, the response will be sent
-  // either when CreatePopupBrowserInfo creates the browser info or when
-  // OnMainFrameCreated is called. The info may already exist for explicitly
-  // created browsers, and it may also be available for traditional popups
-  // depending on timing. See comments on PendingPopup and OnMainFrameCreated
-  // for further details.
+  // Called from CefBrowserManager::GetNewBrowserInfo to deliver browser info
+  // to the renderer process. Responds immediately if the frame is registered;
+  // otherwise queues the request until CreatePopupBrowserInfo or OnFrameCreated
+  // supplies the info, the UI-thread check identifies excluded content or a
+  // missing RFH, the frame or renderer process is deleted, or the request times
+  // out (unless the timeout is disabled). Responses run on the calling
+  // sequence. See PendingPopup for popup creation ordering.
   void OnGetNewBrowserInfo(
       const content::GlobalRenderFrameHostToken& global_token,
       cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback);
@@ -126,12 +124,15 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // Called from CefContext::FinishShutdownOnUIThread() to destroy all browsers.
   void DestroyAllBrowsers();
 
-  // Called from CefBrowserInfo::MaybeCreateFrame when a frame is created.
-  // In rare cases this may be called after OnGetNewBrowserInfo and complete a
-  // pending request.
-  void OnMainFrameCreated(
-      const content::GlobalRenderFrameHostToken& global_token,
-      scoped_refptr<CefBrowserInfo> browser_info);
+  // Called by CefBrowserInfo::MaybeCreateFrame after registering a main frame
+  // or subframe and releasing its notification lock. Completes any pending
+  // lookup for that frame.
+  void OnFrameCreated(const content::GlobalRenderFrameHostToken& global_token,
+                      scoped_refptr<CefBrowserInfo> browser_info);
+
+  // Cancels a pending lookup after RenderFrameDeleted, even if CEF never
+  // registered the frame, or when the UI-thread check finds no RFH.
+  void OnFrameDeleted(const content::GlobalRenderFrameHostToken& global_token);
 
   // Returns the CefBrowserInfo matching the specified ID/token or nullptr if no
   // match is found. It is allowed to add new callers of this method but
@@ -256,37 +257,33 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   scoped_refptr<CefBrowserInfo> GetBrowserInfoInternal(
       const content::GlobalRenderFrameHostToken& global_token);
 
-  // Check for excluded frames that can be responded to immediately.
-  static void CheckExcludedNewBrowserInfoOnUIThread(
+  // On the UI thread, cancels lookups with no RFH and completes lookups for
+  // excluded content. Other lookups remain pending.
+  static void CheckNewBrowserInfoOnUIThread(
       const content::GlobalRenderFrameHostToken& global_token);
 
+  // Completes a pending lookup, delivering the response on its calling
+  // sequence.
   void ContinueNewBrowserInfo(
       const content::GlobalRenderFrameHostToken& global_token,
       scoped_refptr<CefBrowserInfo> browser_info,
       bool is_excluded);
 
-  // Send the response for a pending OnGetNewBrowserInfo request.
+  // Builds and sends a response on the current sequence. Pending requests reach
+  // this method on their calling sequence via BrowserInfoRequestState.
   static void SendNewBrowserInfoResponse(
       scoped_refptr<CefBrowserInfo> browser_info,
       bool is_excluded,
-      cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback,
-      scoped_refptr<base::SequencedTaskRunner> callback_runner);
+      cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback);
 
-  // Pending request for OnGetNewBrowserInfo.
-  struct PendingNewBrowserInfo {
-    content::GlobalRenderFrameHostToken global_token;
-    int timeout_id;
-    cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback;
-    scoped_refptr<base::SequencedTaskRunner> callback_runner;
-  };
+  using BrowserInfoRequestState =
+      CefBrowserInfoRequestState<content::GlobalRenderFrameHostToken,
+                                 scoped_refptr<CefBrowserInfo>>;
 
-  // Cancel a response that is still pending.
-  static void CancelNewBrowserInfoResponse(PendingNewBrowserInfo* pending_info);
-
-  // Time out a response if it's still pending.
+  // Cancels and logs a lookup only if it is still pending with this timeout ID.
   static void TimeoutNewBrowserInfoResponse(
       const content::GlobalRenderFrameHostToken& global_token,
-      int timeout_id);
+      BrowserInfoRequestState::TimeoutId timeout_id);
 
   mutable base::Lock browser_info_lock_;
 
@@ -295,13 +292,8 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   BrowserInfoList browser_info_list_;
   int next_browser_id_ = 0;
 
-  // Map of global ID to info. These IDs are guaranteed to uniquely
-  // identify a RFH for its complete lifespan. See documentation on
-  // RenderFrameHost::GetFrameTreeNodeId() for background.
-  using PendingNewBrowserInfoMap =
-      std::map<content::GlobalRenderFrameHostToken,
-               std::unique_ptr<PendingNewBrowserInfo>>;
-  PendingNewBrowserInfoMap pending_new_browser_info_map_;
+  // Tokens uniquely identify a RFH for its complete lifespan.
+  BrowserInfoRequestState pending_new_browser_info_;
 
   // Only accessed on the UI thread.
   using PendingPopupList = std::vector<std::unique_ptr<PendingPopup>>;
@@ -311,8 +303,6 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // execution (valid from CanCreateWindow returning true to WebContentsCreated
   // or CreateWindowResult being called). Only accessed on the UI thread.
   raw_ptr<PendingPopup> pending_create_popup_ = nullptr;
-
-  int next_timeout_id_ = 0;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_INFO_H_

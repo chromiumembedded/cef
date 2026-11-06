@@ -135,9 +135,8 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host) {
   const auto global_id = host->GetGlobalId();
   const bool is_main_frame = (host->GetParent() == nullptr);
 
-  // A speculative RFH will be created in response to a browser-initiated
-  // cross-origin navigation (e.g. via LoadURL) and eventually either discarded
-  // or swapped in based on whether the navigation is committed. We'll create a
+  // A navigation may create a speculative RFH that is eventually discarded or
+  // swapped in based on whether the navigation is committed. We'll create a
   // frame object for the speculative RFH so that it can be found by
   // frame/routing ID. However, we won't replace the main frame with a
   // speculative RFH until after it's swapped in, and we'll generally prefer to
@@ -204,12 +203,11 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host) {
     frame_info_set_.insert(base::WrapUnique(frame_info));
   }
 
-  // Don't call this under NotificationStateLockas it may cause a deadlock.
-  if (is_main_frame) {
-    if (auto* manager = CefBrowserInfoManager::GetInstance()) {
-      manager->OnMainFrameCreated(host->GetGlobalFrameToken(),
-                                  scoped_refptr<CefBrowserInfo>(this));
-    }
+  // Don't call this under NotificationStateLock as it may cause a deadlock.
+  // Subframe lookups may also arrive before registration (e.g. new OOPIFs).
+  if (auto* manager = CefBrowserInfoManager::GetInstance()) {
+    manager->OnFrameCreated(host->GetGlobalFrameToken(),
+                            scoped_refptr<CefBrowserInfo>(this));
   }
 }
 
