@@ -169,8 +169,8 @@ class TestSchemeHandler : public TestHandler {
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefCallback> callback) override {
-    if (request->GetResourceType() == RT_FAVICON) {
-      // Ignore favicon requests.
+    if (TestHandler::OnBeforeResourceLoad(browser, frame, request, callback) ==
+        RV_CANCEL) {
       return RV_CANCEL;
     }
 

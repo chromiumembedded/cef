@@ -646,8 +646,8 @@ class BasicResponseTest : public TestHandler {
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefCallback> callback) override {
     EXPECT_IO_THREAD();
-    if (request->GetResourceType() == RT_FAVICON) {
-      // Ignore favicon requests.
+    if (TestHandler::OnBeforeResourceLoad(browser, frame, request, callback) ==
+        RV_CANCEL) {
       return RV_CANCEL;
     }
 
@@ -1724,8 +1724,8 @@ class SubresourceResponseTest : public RoutingTestHandler {
       CefRefPtr<CefCallback> callback) override {
     EXPECT_IO_THREAD();
 
-    if (request->GetResourceType() == RT_FAVICON) {
-      // Ignore favicon requests.
+    if (TestHandler::OnBeforeResourceLoad(browser, frame, request, callback) ==
+        RV_CANCEL) {
       return RV_CANCEL;
     }
 
@@ -3167,8 +3167,8 @@ class RedirectResponseTest : public TestHandler {
         CefRefPtr<CefCallback> callback) override {
       EXPECT_IO_THREAD();
 
-      if (request->GetResourceType() == RT_FAVICON) {
-        // Ignore favicon requests.
+      if (test_->TestHandler::OnBeforeResourceLoad(browser, frame, request,
+                                                   callback) == RV_CANCEL) {
         return RV_CANCEL;
       }
 
@@ -3399,8 +3399,8 @@ class BeforeResourceLoadTest : public TestHandler {
       CefRefPtr<CefCallback> callback) override {
     EXPECT_IO_THREAD();
 
-    if (request->GetResourceType() == RT_FAVICON) {
-      // Ignore favicon requests.
+    if (TestHandler::OnBeforeResourceLoad(browser, frame, request, callback) ==
+        RV_CANCEL) {
       return RV_CANCEL;
     }
 

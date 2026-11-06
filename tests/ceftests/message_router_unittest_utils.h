@@ -75,14 +75,6 @@ class MRTestHandler : public TestHandler {
   void RunTest() override;
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
-  CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request,
-      bool is_navigation,
-      bool is_download,
-      const CefString& request_initiator,
-      bool& disable_default_handling) override;
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                  TerminationStatus status,
                                  int error_code,

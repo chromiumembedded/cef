@@ -1668,6 +1668,20 @@ CefResponse::HeaderMap ToCefHeaderMap(
 
 }  // namespace
 
+cef_return_value_t TestHandler::OnBeforeResourceLoad(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefCallback> callback) {
+  EXPECT_IO_THREAD();
+  // Favicon requests do not always have the correct resource type.
+  if (request->GetResourceType() == RT_FAVICON ||
+      IgnoreURL(request->GetURL())) {
+    return RV_CANCEL;
+  }
+  return RV_CONTINUE;
+}
+
 CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,

@@ -247,6 +247,14 @@ class TestHandler : public CefClient,
   }
 
   // CefResourceRequestHandler methods
+  // Cancel ignored requests so they cannot retain a completed test handler.
+  // Overrides should call this implementation before handling other requests.
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefCallback> callback) override;
+
   CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,

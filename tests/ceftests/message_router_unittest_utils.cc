@@ -162,25 +162,6 @@ void MRTestHandler::RunTest() {
   SetTestTimeout(10000);
 }
 
-CefRefPtr<CefResourceRequestHandler> MRTestHandler::GetResourceRequestHandler(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request,
-    bool is_navigation,
-    bool is_download,
-    const CefString& request_initiator,
-    bool& disable_default_handling) {
-  if (request->GetResourceType() == RT_FAVICON) {
-    // Favicons are unrelated to message routing. Avoid network requests that
-    // retain this handler after a reused browser's lease has ended.
-    disable_default_handling = true;
-    return nullptr;
-  }
-  return TestHandler::GetResourceRequestHandler(
-      browser, frame, request, is_navigation, is_download, request_initiator,
-      disable_default_handling);
-}
-
 void MRTestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   InitializeRouter();
   TestHandler::OnAfterCreated(browser);
