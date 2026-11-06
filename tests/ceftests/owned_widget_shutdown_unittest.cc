@@ -338,7 +338,9 @@ class SyntheticOwnedWindowTestHandler : public TestHandler,
     main_window_destroyed_.yes();
     main_window_ = nullptr;
 
-    if (owned_window_destroyed_) {
+    // Timeout can close the main window before activation creates the owned
+    // window. There is no owned-window callback to wait for in that case.
+    if (!owned_window_created_ || owned_window_destroyed_) {
       TestHandler::OnWindowDestroyed(browser_id);
       return;
     }
