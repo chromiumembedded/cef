@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/chrome_download_manager_delegate.cc chrome/browser/download/chrome_download_manager_delegate.cc
-index 1e323811054b6cc72288574abd0208d8e2e60228..7e07e4d18ca36512d65cf9a9d0c2fcb92e6fca1d 100644
+index ef34eed137be91832621cb607e4e0925ba7bbba6..c793f40f385f2f73e4baed7b054d9779778ffb2c 100644
 --- chrome/browser/download/chrome_download_manager_delegate.cc
 +++ chrome/browser/download/chrome_download_manager_delegate.cc
 @@ -32,6 +32,7 @@
@@ -55,7 +55,7 @@ index 1e323811054b6cc72288574abd0208d8e2e60228..7e07e4d18ca36512d65cf9a9d0c2fcb9
    DownloadTargetDeterminer::CompletionCallback target_determined_callback =
        base::BindOnce(&ChromeDownloadManagerDelegate::OnDownloadTargetDetermined,
                       weak_ptr_factory_.GetWeakPtr(), download->GetId(),
-@@ -1470,9 +1488,12 @@ void ChromeDownloadManagerDelegate::OpenDownload(DownloadItem* download) {
+@@ -1497,9 +1515,12 @@ void ChromeDownloadManagerDelegate::OpenDownload(DownloadItem* download) {
  
    BrowserWindowInterface* browser =
        chrome::ScopedTabbedBrowserDisplayer(profile_).browser_window_interface();
@@ -72,7 +72,7 @@ index 1e323811054b6cc72288574abd0208d8e2e60228..7e07e4d18ca36512d65cf9a9d0c2fcb9
        content::OpenURLParams::CreateBrowserInitiated(
            net::FilePathToFileURL(download->GetTargetFilePath()),
 diff --git chrome/browser/download/chrome_download_manager_delegate.h chrome/browser/download/chrome_download_manager_delegate.h
-index ab23017a78615744a608d48192e673ad5aad8028..4a50471e9e2f2913c3f1fd6adee54beba05d608e 100644
+index 40633b1f14ca36b9380834a0fdd606b10eb2e1b1..24f8593cb84ca49ee7bf36497eaaef45ff9656d3 100644
 --- chrome/browser/download/chrome_download_manager_delegate.h
 +++ chrome/browser/download/chrome_download_manager_delegate.h
 @@ -21,6 +21,7 @@
@@ -96,7 +96,7 @@ index ab23017a78615744a608d48192e673ad5aad8028..4a50471e9e2f2913c3f1fd6adee54beb
  // This is the Chrome side helper for the download system.
  class ChromeDownloadManagerDelegate
      : public content::DownloadManagerDelegate,
-@@ -463,6 +470,10 @@ class ChromeDownloadManagerDelegate
+@@ -471,6 +478,10 @@ class ChromeDownloadManagerDelegate
    // Whether a file picker dialog is showing.
    bool is_file_picker_showing_ = false;
  

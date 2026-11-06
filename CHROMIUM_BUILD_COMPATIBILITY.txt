@@ -7,6 +7,6 @@
 # https://chromiumembedded.github.io/cef/branches_and_building
 
 {
-  'chromium_checkout': 'refs/tags/158.0.8127.0',
+  'chromium_checkout': 'refs/tags/158.0.8127.18',
   'depot_tools_checkout': '132599ebbd8d22d1b1bd5ea703a6d3bc493edd71'
 }

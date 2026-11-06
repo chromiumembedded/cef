@@ -124,7 +124,7 @@ index cf994792b490b3769685de6df717c2afbfa4b608..ba77837e19d9caddd5b322c8c11902fe
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 0772e0c6b5cd4c0577f9d89ee0820fc7fc8d7c5f..6b82b2122e454d84c546612d20e972c7d9b15cc7 100644
+index 88668a0b3e98099a62afc4cd0e9858ed7f4676e4..194c164806c59f500fc3b408f3bc33dce6ae68de 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -8,6 +8,7 @@ import("//build/config/compiler/compiler.gni")
@@ -135,7 +135,7 @@ index 0772e0c6b5cd4c0577f9d89ee0820fc7fc8d7c5f..6b82b2122e454d84c546612d20e972c7
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/captive_portal/core/features.gni")
-@@ -1360,6 +1361,9 @@ if (!is_android) {
+@@ -1361,6 +1362,9 @@ if (!is_android) {
  
    source_set("core") {
      sources = [ "browser.cc" ]
@@ -145,7 +145,7 @@ index 0772e0c6b5cd4c0577f9d89ee0820fc7fc8d7c5f..6b82b2122e454d84c546612d20e972c7
      deps = [
        ":browser_command_controller",
        ":browser_header",
-@@ -1378,6 +1382,7 @@ if (!is_android) {
+@@ -1379,6 +1383,7 @@ if (!is_android) {
        ":view_ids",
        "//base",
        "//build:buildflag_header_h",
@@ -153,7 +153,7 @@ index 0772e0c6b5cd4c0577f9d89ee0820fc7fc8d7c5f..6b82b2122e454d84c546612d20e972c7
        "//chrome/app:branded_strings",
        "//chrome/app:generated_resources",
        "//chrome/browser:buildflags",
-@@ -1478,6 +1483,15 @@ if (!is_android) {
+@@ -1479,6 +1484,15 @@ if (!is_android) {
      if (enable_captive_portal_detection) {
        deps += [ "//components/captive_portal/content" ]
      }

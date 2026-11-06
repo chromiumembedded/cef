@@ -507,7 +507,7 @@ index 77844751fad6de3fec9e1103176e29a994d1b24c..b29dcca44766a858148b7b3f2399eb5b
  }
 -
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 03111c8cb7cd0786314a448d01c358ae1b06a858..54dfcd769073ab32836a5cc39b5b7d3150d7216f 100644
+index 565bd580ba6172469d31079a4e455eb05020488c..a513b7eabfb66e3f878b950a08c36cc444107484 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -57,6 +57,7 @@
@@ -518,7 +518,7 @@ index 03111c8cb7cd0786314a448d01c358ae1b06a858..54dfcd769073ab32836a5cc39b5b7d31
  #include "chrome/browser/accessibility/caption_settings_dialog.h"
  #include "chrome/browser/accessibility/page_colors_controller.h"
  #include "chrome/browser/actor/actor_commit_deferring_condition.h"
-@@ -1577,6 +1578,8 @@ ChromeContentBrowserClient::GetPopupNavigationDelegateFactoryForTesting() {
+@@ -1576,6 +1577,8 @@ ChromeContentBrowserClient::GetPopupNavigationDelegateFactoryForTesting() {
  }
  
  ChromeContentBrowserClient::ChromeContentBrowserClient() {
@@ -527,7 +527,7 @@ index 03111c8cb7cd0786314a448d01c358ae1b06a858..54dfcd769073ab32836a5cc39b5b7d31
  #if BUILDFLAG(ENABLE_PLUGINS)
    extra_parts_.push_back(
        std::make_unique<ChromeContentBrowserClientPluginsPart>());
-@@ -1617,6 +1620,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
+@@ -1616,6 +1619,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
    }
  }
  
@@ -539,7 +539,7 @@ index 03111c8cb7cd0786314a448d01c358ae1b06a858..54dfcd769073ab32836a5cc39b5b7d31
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -5254,9 +5262,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -5251,9 +5259,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -551,7 +551,7 @@ index 03111c8cb7cd0786314a448d01c358ae1b06a858..54dfcd769073ab32836a5cc39b5b7d31
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -7239,7 +7249,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -7236,7 +7246,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
                                                         local_state);
  }
  
@@ -560,7 +560,7 @@ index 03111c8cb7cd0786314a448d01c358ae1b06a858..54dfcd769073ab32836a5cc39b5b7d31
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -7257,6 +7267,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -7254,6 +7264,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgent();
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -569,7 +569,7 @@ index 03111c8cb7cd0786314a448d01c358ae1b06a858..54dfcd769073ab32836a5cc39b5b7d31
  }
  
  std::vector<base::FilePath>
-@@ -8627,12 +8639,12 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -8638,12 +8650,12 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -584,7 +584,7 @@ index 03111c8cb7cd0786314a448d01c358ae1b06a858..54dfcd769073ab32836a5cc39b5b7d31
            FROM_HERE, keepalive_deadline_ - now,
            base::BindOnce(
                &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -8654,7 +8666,9 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -8665,7 +8677,9 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -595,7 +595,7 @@ index 03111c8cb7cd0786314a448d01c358ae1b06a858..54dfcd769073ab32836a5cc39b5b7d31
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -8876,7 +8890,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -8887,7 +8901,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -605,7 +605,7 @@ index 03111c8cb7cd0786314a448d01c358ae1b06a858..54dfcd769073ab32836a5cc39b5b7d31
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index 1c5f713e20fc6623cf705a42d1f85c67687c25a6..90d1a6e5539cfb61321c69d82fcea2fa60b0a604 100644
+index f363c71769f87ad341d1755f564635a9c7f65d09..24693b9caff96d587de5e74b558f37f9a04a4184 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -176,6 +176,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
@@ -626,7 +626,7 @@ index 1c5f713e20fc6623cf705a42d1f85c67687c25a6..90d1a6e5539cfb61321c69d82fcea2fa
        content::BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -1034,7 +1036,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -1037,7 +1039,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
    static base::TimeDelta GetKeepaliveTimerTimeout(
        content::BrowserContext* context);
    bool IsKeepaliveTimerRunningForTesting() const {
@@ -635,7 +635,7 @@ index 1c5f713e20fc6623cf705a42d1f85c67687c25a6..90d1a6e5539cfb61321c69d82fcea2fa
    }
  #endif  // !BUILDFLAG(IS_ANDROID)
  
-@@ -1447,7 +1449,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -1450,7 +1452,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
  
  #if !BUILDFLAG(IS_ANDROID)
    uint64_t num_keepalive_requests_ = 0;

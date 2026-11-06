@@ -1354,7 +1354,7 @@ index f3468b8df860303d49052587004ca1e0f501d4fd..44c59704cad310c5f577470eb3b0e2c4
      CHECK(location_bar);
      if (location_bar->ShouldCloseOmniboxPopup(event)) {
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 80b0e24263170de768a6684c8aabf106018710e7..e1445ae6d89abb641f0cb6ce76d032d9d7abe160 100644
+index 7f404c6864ec9434f14400daddbd571ae18c617c..5eb2407c0aa4735483dd203c0634d408bb20d533 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -43,6 +43,7 @@
@@ -1376,7 +1376,7 @@ index 80b0e24263170de768a6684c8aabf106018710e7..e1445ae6d89abb641f0cb6ce76d032d9
  using base::UserMetricsAction;
  using content::WebContents;
  
-@@ -270,12 +275,13 @@ void SetRefreshMargins(views::View* button, bool expanded) {
+@@ -274,12 +279,13 @@ void SetRefreshMargins(views::View* button, bool expanded) {
  DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(ToolbarView, kToolbarElementId);
  
  ToolbarView::ToolbarView(BrowserWindowInterface* browser,
@@ -1392,7 +1392,7 @@ index 80b0e24263170de768a6684c8aabf106018710e7..e1445ae6d89abb641f0cb6ce76d032d9
    // WebApp type-browsers set their own ToolbarButtonProvider.
    if (!web_app::AppBrowserController::IsWebApp(browser)) {
      scoped_unowned_user_data_.emplace(browser_->GetUnownedUserDataHost(),
-@@ -315,6 +321,8 @@ ToolbarView::~ToolbarView() {
+@@ -319,6 +325,8 @@ ToolbarView::~ToolbarView() {
    for (const auto& view_and_command : GetViewCommandMap()) {
      chrome::RemoveCommandObserver(browser_, view_and_command.second, this);
    }
@@ -1401,7 +1401,7 @@ index 80b0e24263170de768a6684c8aabf106018710e7..e1445ae6d89abb641f0cb6ce76d032d9
  }
  
  // Forwards the early teardown request to the WebUI toolbar web view to stop
-@@ -326,6 +334,19 @@ void ToolbarView::DestroyWebUIToolbarWebContents() {
+@@ -330,6 +338,19 @@ void ToolbarView::DestroyWebUIToolbarWebContents() {
  }
  
  void ToolbarView::Init() {
@@ -1421,7 +1421,7 @@ index 80b0e24263170de768a6684c8aabf106018710e7..e1445ae6d89abb641f0cb6ce76d032d9
  #if defined(USE_AURA)
    // Avoid generating too many occlusion tracking calculation events before this
    // function returns. The occlusion status will be computed only once once this
-@@ -346,7 +367,8 @@ void ToolbarView::Init() {
+@@ -350,7 +371,8 @@ void ToolbarView::Init() {
      location_bar_view = std::make_unique<LocationBarView>(
          browser_, browser_->GetProfile(),
          chrome::BrowserCommandController::From(browser_), this,
@@ -1431,7 +1431,7 @@ index 80b0e24263170de768a6684c8aabf106018710e7..e1445ae6d89abb641f0cb6ce76d032d9
    }
  
    // Make sure the toolbar shows by default.
-@@ -419,7 +441,7 @@ void ToolbarView::Init() {
+@@ -423,7 +445,7 @@ void ToolbarView::Init() {
  
    std::unique_ptr<MediaToolbarButtonView> media_button;
  #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
@@ -1440,7 +1440,7 @@ index 80b0e24263170de768a6684c8aabf106018710e7..e1445ae6d89abb641f0cb6ce76d032d9
      media_button = std::make_unique<MediaToolbarButtonView>(
          browser_view_, std::make_unique<MediaToolbarButtonContextualMenu>(
                             browser_->GetProfile()));
-@@ -545,7 +567,8 @@ void ToolbarView::Init() {
+@@ -549,7 +571,8 @@ void ToolbarView::Init() {
    // Only show the Battery Saver button when it is not controlled by the OS. On
    // ChromeOS the battery icon in the shelf shows the same information.
    if (!performance_manager::user_tuning::IsBatterySaverModeManagedByOS() &&
@@ -1450,7 +1450,7 @@ index 80b0e24263170de768a6684c8aabf106018710e7..e1445ae6d89abb641f0cb6ce76d032d9
      battery_saver_button_ =
          AddChildView(std::make_unique<BatterySaverButton>(browser_));
    }
-@@ -603,7 +626,7 @@ void ToolbarView::Init() {
+@@ -607,7 +630,7 @@ void ToolbarView::Init() {
      avatar_ = AddChildView(std::make_unique<AvatarToolbarButton>(browser_));
      bool show_avatar_toolbar_button =
          AvatarToolbarButtonInterface::CanShowForProfile(browser_->GetProfile());
@@ -1460,7 +1460,7 @@ index 80b0e24263170de768a6684c8aabf106018710e7..e1445ae6d89abb641f0cb6ce76d032d9
  
    // Only manage the overflow button when there are at least some views
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.h chrome/browser/ui/views/toolbar/toolbar_view.h
-index 7f1f5b7df703579934d7503ab4b9816de37d649f..1154b0848d1c58420ab5f79a16714f86327c7f20 100644
+index e38c93e2c6631afd002349a85ce288f72c33e453..b2af461e529ef6bf4e150c3d83783784a3c06462 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.h
 +++ chrome/browser/ui/views/toolbar/toolbar_view.h
 @@ -113,7 +113,9 @@ class ToolbarView : public views::AccessiblePaneView,

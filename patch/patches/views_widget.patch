@@ -293,10 +293,10 @@ index 077855979045d4862abd099ec16befa0fcecff65..69f369b06c29e65dead98a52cc8b743e
    return host ? host->GetAcceleratedWidget() : nullptr;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
-index 3b6e7c0b55b8cfdbad42237dfd7082e520976bb3..834633ffc64dc9135e661d5f574e0d9dcc514094 100644
+index d9cbbeb0449c27600de1a96fcdcd06a48091ba10..f244b3ca03e66b44499ea0388267d446c5d98689 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
-@@ -31,6 +31,7 @@
+@@ -34,6 +34,7 @@
  #include "ui/linux/linux_ui.h"
  #include "ui/linux/window_frame_provider.h"
  #include "ui/native_theme/native_theme.h"
@@ -304,7 +304,7 @@ index 3b6e7c0b55b8cfdbad42237dfd7082e520976bb3..834633ffc64dc9135e661d5f574e0d9d
  #include "ui/platform_window/extensions/wayland_extension.h"
  #include "ui/platform_window/extensions/x11_extension.h"
  #include "ui/platform_window/platform_window.h"
-@@ -373,6 +374,20 @@ Widget::MoveLoopResult DesktopWindowTreeHostLinux::RunMoveLoop(
+@@ -389,6 +390,20 @@ Widget::MoveLoopResult DesktopWindowTreeHostLinux::RunMoveLoop(
    return result;
  }
  
@@ -325,7 +325,7 @@ index 3b6e7c0b55b8cfdbad42237dfd7082e520976bb3..834633ffc64dc9135e661d5f574e0d9d
  void DesktopWindowTreeHostLinux::DispatchEvent(ui::Event* event) {
    // In Windows, the native events sent to chrome are separated into client
    // and non-client versions of events, which we record on our LocatedEvent
-@@ -430,6 +445,12 @@ void DesktopWindowTreeHostLinux::DispatchEvent(ui::Event* event) {
+@@ -446,6 +461,12 @@ void DesktopWindowTreeHostLinux::DispatchEvent(ui::Event* event) {
    }
  }
  
@@ -338,7 +338,7 @@ index 3b6e7c0b55b8cfdbad42237dfd7082e520976bb3..834633ffc64dc9135e661d5f574e0d9d
  void DesktopWindowTreeHostLinux::OnClosed() {
    DestroyNonClientEventFilter();
    DesktopWindowTreeHostPlatform::OnClosed();
-@@ -514,6 +535,15 @@ void DesktopWindowTreeHostLinux::AddAdditionalInitProperties(
+@@ -530,6 +551,15 @@ void DesktopWindowTreeHostLinux::AddAdditionalInitProperties(
    properties->wayland_app_id = params.wayland_app_id;
    properties->startup_id = params.startup_id;
  
@@ -355,10 +355,10 @@ index 3b6e7c0b55b8cfdbad42237dfd7082e520976bb3..834633ffc64dc9135e661d5f574e0d9d
    properties->x11_extension_delegate = this;
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
-index dd3e7213be52440427f87b0cdd17353a6a1382f5..b355e443a6bb1bbb5738993e229512267cc7e523 100644
+index 8c23004072634e4a8b846dc00684c6f3c46a3700..3536322c4536edc2f5d98244335753894b4f0456 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
-@@ -69,6 +69,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
+@@ -70,6 +70,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
    // Sets hints for the WM/compositor that reflect the extents of the
    // client-drawn shadow.
    virtual void UpdateFrameHints();
@@ -368,7 +368,7 @@ index dd3e7213be52440427f87b0cdd17353a6a1382f5..b355e443a6bb1bbb5738993e22951226
  
   protected:
    // Overridden from DesktopWindowTreeHost:
-@@ -81,6 +84,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
+@@ -82,6 +85,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
        const gfx::Vector2d& drag_offset,
        Widget::MoveLoopSource source,
        Widget::MoveLoopEscapeBehavior escape_behavior) override;
@@ -377,7 +377,7 @@ index dd3e7213be52440427f87b0cdd17353a6a1382f5..b355e443a6bb1bbb5738993e22951226
  
    // PlatformWindowDelegate:
    gfx::Insets CalculateInsetsInDIP(
-@@ -156,6 +161,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
+@@ -157,6 +162,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
    base::ScopedObservation<ui::NativeTheme, ui::NativeThemeObserver>
        theme_observation_{this};
  

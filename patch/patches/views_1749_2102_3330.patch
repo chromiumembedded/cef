@@ -11,10 +11,10 @@ index 892187a19bad16ef57bfc10bebf7023e2896dc69..d7551bce39316243275cc60546e95234
                            "Chrome.AppMenu.MenuHostInitToNextFramePresented");
  
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index 335290dc2dff5cd319ab43bcc54753244f2f5260..e7b60efd579dc1dd1ee36f3ca7cbc0cb8e28389d 100644
+index 3f5a2e9c3411e95b446e283ae67163b1b917560e..90a15350e52d144a33e501db98a79547eb95e664 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
-@@ -1114,6 +1114,7 @@ void AppMenu::RunMenu(views::MenuButtonController* host,
+@@ -1124,6 +1124,7 @@ void AppMenu::RunMenu(views::MenuButtonController* host,
                            host->button()->GetAnchorBoundsInScreen(),
                            views::MenuAnchorPosition::kTopRight, source_type,
                            /*native_view_for_gestures=*/gfx::NativeView(),
@@ -22,7 +22,7 @@ index 335290dc2dff5cd319ab43bcc54753244f2f5260..e7b60efd579dc1dd1ee36f3ca7cbc0cb
                            /*corners=*/std::nullopt,
                            "Chrome.AppMenu.MenuHostInitToNextFramePresented");
  }
-@@ -1128,6 +1129,7 @@ void AppMenu::RunMenu(views::Widget* parent,
+@@ -1138,6 +1139,7 @@ void AppMenu::RunMenu(views::Widget* parent,
    menu_runner_->RunMenuAt(parent, nullptr, anchor_screen_bounds,
                            views::MenuAnchorPosition::kTopRight, source_type,
                            /*native_view_for_gestures=*/gfx::NativeView(),
@@ -421,10 +421,10 @@ index 1b0dd04e1d2693c8b35e5e57306a27b09b72daab..5e1fdfb5ea832f2d67c6a2a0168adbe5
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index cc1b8ba3b9ceb3399ad7d06dc36d0d4e8c0399e5..7b117a4cdbc6b075a9c9fcae883fa44d1719e8c0 100644
+index bd1502167012081b83f0fd11e3727317e8fcd48d..ef567984ceb425bae9ae626e35e084c27c1a4df5 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1480,6 +1480,14 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1478,6 +1478,14 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
        rounded_rect.setRectRadii(gfx::RectFToSkRect(highlight_bounds), radii);
        canvas->sk_canvas()->drawRRect(rounded_rect, flags);
      }
@@ -439,7 +439,7 @@ index cc1b8ba3b9ceb3399ad7d06dc36d0d4e8c0399e5..7b117a4cdbc6b075a9c9fcae883fa44d
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (menu_item_background_.has_value()) {
-@@ -1577,6 +1585,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1575,6 +1583,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -454,7 +454,7 @@ index cc1b8ba3b9ceb3399ad7d06dc36d0d4e8c0399e5..7b117a4cdbc6b075a9c9fcae883fa44d
    // use the default color.
    if (!paint_as_selected && foreground_color_id_.has_value()) {
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index f44b1db5d0635fd84651efc00f30e11fcac46864..bedfbc0dff977de53ec66ee74a7fd7d5ed1aeb0f 100644
+index 265145d30ee8d2bb5324a957f1ddd5de1c3c54b8..7fd827f5dd19bf9f6363443163b5e279572d3238 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
 @@ -4,6 +4,7 @@
@@ -465,7 +465,7 @@ index f44b1db5d0635fd84651efc00f30e11fcac46864..bedfbc0dff977de53ec66ee74a7fd7d5
  #include <list>
  #include <memory>
  #include <utility>
-@@ -284,6 +285,71 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
+@@ -286,6 +287,71 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
    return model->IsItemCheckedAt(index);
  }
  

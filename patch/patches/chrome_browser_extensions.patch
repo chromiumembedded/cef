@@ -34,10 +34,10 @@ index 28532d6e0da81831cf9da5f4e9dd40ca3ed91208..1469887ffc201ec6262530dd4e8fdd08
  #endif
  
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index a63c3270bfb16a7eeb613d9e5d1cc41803ed693a..592ab43ee87680da81eb915906172a4074ef1af8 100644
+index de78a212cda49cdaedb23674e30ceec3db56807f..fa19033bde525e0d29b3d9c06166c419c16506b3 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
-@@ -1392,32 +1392,30 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1398,32 +1398,30 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  
    // GetTabById may return a null window for prerender tabs.
@@ -89,7 +89,7 @@ index a63c3270bfb16a7eeb613d9e5d1cc41803ed693a..592ab43ee87680da81eb915906172a40
    if (params->update_properties.muted &&
        !SetTabAudioMuted(contents, *params->update_properties.muted,
                          TabMutedReason::kExtension, extension()->id())) {
-@@ -1426,6 +1424,10 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1432,6 +1430,10 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  
    if (params->update_properties.opener_tab_id) {
@@ -100,7 +100,7 @@ index a63c3270bfb16a7eeb613d9e5d1cc41803ed693a..592ab43ee87680da81eb915906172a40
      int opener_id = *params->update_properties.opener_tab_id;
      content::WebContents* opener_contents = nullptr;
      if (opener_id == tab_id) {
-@@ -1443,7 +1445,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1449,7 +1451,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
      if (!opener_tab) {
        return RespondNow(Error(kTabOpenerMustBeInSameWindowError));
      }
@@ -110,7 +110,7 @@ index a63c3270bfb16a7eeb613d9e5d1cc41803ed693a..592ab43ee87680da81eb915906172a40
        return RespondNow(Error(std::move(error)));
      }
    }
-@@ -1451,14 +1454,19 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1457,14 +1460,19 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // TODO(https://crbug.com/505306735): Support on desktop android.
  #if !BUILDFLAG(IS_ANDROID)
    if (params->update_properties.auto_discardable) {
@@ -135,7 +135,7 @@ index a63c3270bfb16a7eeb613d9e5d1cc41803ed693a..592ab43ee87680da81eb915906172a40
      bool pinned = *params->update_properties.pinned;
  
      if (target_tab->IsPinned() != pinned) {
-@@ -1488,7 +1496,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1494,7 +1502,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
