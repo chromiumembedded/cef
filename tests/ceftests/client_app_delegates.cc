@@ -9,6 +9,11 @@ using client::ClientAppBrowser;
 using client::ClientAppRenderer;
 
 void CreateBrowserDelegates(ClientAppBrowser::DelegateSet& delegates) {
+  // Bring in print preview tests.
+  extern void CreatePrintPreviewBrowserTests(ClientAppBrowser::DelegateSet &
+                                             delegates);
+  CreatePrintPreviewBrowserTests(delegates);
+
   // Bring in audio output tests.
   extern void CreateAudioOutputTests(ClientAppBrowser::DelegateSet & delegates);
   CreateAudioOutputTests(delegates);

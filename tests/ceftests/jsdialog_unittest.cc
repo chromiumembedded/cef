@@ -2,16 +2,389 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <map>
+
 #include "include/base/cef_callback.h"
+#include "include/cef_devtools_message_observer.h"
+#include "include/cef_parser.h"
 #include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
 namespace {
 
 const char* kStartUrl = "https://tests/JSDialogTestHandler.Start";
 const char* kEndUrl = "https://tests/JSDialogTestHandler.End?r=";
+const char* kDialogNavigationUrl =
+    "https://tests/JSDialogTestHandler.Navigated";
+
+// Exercise the default Views dialog implementation instead of handling or
+// suppressing the dialog in CefJSDialogHandler. In Alloy, these dialogs share
+// the TabInterface modal UI scope used by print preview.
+class DefaultJSDialogTestHandler : public TestHandler,
+                                   public CefDevToolsMessageObserver {
+ public:
+  DefaultJSDialogTestHandler(JSDialogType type, bool accept, bool navigate)
+      : type_(type), accept_(accept), navigate_(navigate) {}
+
+  void RunTest() override {
+    SetUseViews(true);
+    AddResource(kStartUrl,
+                "<!doctype html><title>Default JS dialog test</title>",
+                "text/html");
+    AddResource(kDialogNavigationUrl,
+                "<!doctype html><title>Navigated JS dialog test</title>",
+                "text/html");
+    SetTestTimeout();
+    CreateReusableBrowser(kStartUrl);
+  }
+
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool is_loading,
+                            bool can_go_back,
+                            bool can_go_forward) override {
+    if (is_loading) {
+      return;
+    }
+    const auto url = browser->GetMainFrame()->GetURL();
+    if (navigate_ && url == kDialogNavigationUrl) {
+      navigation_loaded_ = true;
+      MaybeCompleteRound();
+      return;
+    }
+    if (started_ || url != kStartUrl) {
+      return;
+    }
+    started_ = true;
+    registration_ = browser->GetHost()->AddDevToolsMessageObserver(this);
+    enable_id_ = Execute("Page.enable", nullptr);
+  }
+
+  bool OnJSDialog(CefRefPtr<CefBrowser> browser,
+                  const CefString& origin_url,
+                  JSDialogType dialog_type,
+                  const CefString& message_text,
+                  const CefString& default_prompt_text,
+                  CefRefPtr<CefJSDialogCallback> callback,
+                  bool& suppress_message) override {
+    EXPECT_EQ(type_, dialog_type);
+    EXPECT_EQ(navigation_loaded_ ? kDialogNavigationUrl : kStartUrl,
+              origin_url.ToString());
+    EXPECT_EQ("Default dialog test", message_text.ToString());
+    EXPECT_EQ(type_ == JSDIALOGTYPE_PROMPT ? "default input" : "",
+              default_prompt_text.ToString());
+    EXPECT_FALSE(suppress_message);
+    ++default_dialog_count_;
+    // Do not execute or retain the callback. Let Chromium create the dialog.
+    return false;
+  }
+
+  void OnDevToolsEvent(CefRefPtr<CefBrowser> browser,
+                       const CefString& method,
+                       const void* params,
+                       size_t params_size) override {
+    if (finishing_ || (method != "Page.javascriptDialogOpening" &&
+                       method != "Page.javascriptDialogClosed")) {
+      return;
+    }
+    auto value = Parse(params, params_size);
+    ASSERT_TRUE(value);
+    if (method == "Page.javascriptDialogOpening") {
+      EXPECT_EQ(TypeName(), value->GetString("type").ToString());
+      EXPECT_TRUE(value->GetBool("hasBrowserHandler"));
+      ++opening_count_;
+      if (navigate_ && completed_count_ == 0) {
+        navigation_script_id_ = script_id_;
+        CefPostTask(TID_UI, base::BindOnce(
+                                &DefaultJSDialogTestHandler::Navigate, this));
+        return;
+      }
+      auto handle = CefDictionaryValue::Create();
+      handle->SetBool("accept", accept_);
+      if (type_ == JSDIALOGTYPE_PROMPT && accept_) {
+        handle->SetString("promptText", "entered input");
+      }
+      // The opening event precedes creation of the default dialog. Execute
+      // on a later UI task, after the manager has shown it. If the dialog was
+      // suppressed, this command fails with "No dialog is showing".
+      handle_id_ = Execute("Page.handleJavaScriptDialog", handle);
+    } else {
+      const bool navigation_dismissal = navigate_ && completed_count_ == 0;
+      if (navigation_dismissal) {
+        // Suppression before the posted navigation must not pass this test.
+        EXPECT_TRUE(navigation_started_);
+      }
+      EXPECT_EQ(navigation_dismissal ? false : accept_,
+                value->GetBool("result"));
+      ++closed_count_;
+      MaybeCompleteRound();
+    }
+  }
+
+  void OnDevToolsMethodResult(CefRefPtr<CefBrowser> browser,
+                              int message_id,
+                              bool success,
+                              const void* result,
+                              size_t result_size) override {
+    // Commands can respond synchronously, before Execute returns the allocated
+    // ID. Process results after recording that ID below.
+    CefPostTask(TID_UI,
+                base::BindOnce(&DefaultJSDialogTestHandler::ProcessMethodResult,
+                               this, message_id, success,
+                               std::string(static_cast<const char*>(result),
+                                           result_size)));
+  }
+
+  void ProcessMethodResult(int message_id,
+                           bool success,
+                           const std::string& result) {
+    if (timed_out_) {
+      return;
+    }
+    if (finishing_) {
+      if (message_id == cleanup_id_) {
+        EXPECT_TRUE(success) << result;
+        registration_ = nullptr;
+        TestHandler::DestroyTest();
+      }
+      return;
+    }
+    auto entry = message_ids_.find(message_id);
+    if (entry == message_ids_.end()) {
+      return;
+    }
+    message_id = entry->second;
+    message_ids_.erase(entry);
+    if (message_id == navigation_script_id_) {
+      // Navigation may destroy the old execution context before its pending
+      // Runtime.evaluate completes. The new document load is the liveness
+      // check for this round.
+      return;
+    }
+    ASSERT_TRUE(success) << result;
+    if (message_id == enable_id_) {
+      OpenDialog();
+      return;
+    }
+    if (message_id == script_id_) {
+      auto value = Parse(result.data(), result.size());
+      ASSERT_TRUE(value);
+      ASSERT_FALSE(value->HasKey("exceptionDetails"));
+      EXPECT_EQ(ExpectedResult(),
+                value->GetDictionary("result")->GetString("value").ToString());
+      got_script_result_ = true;
+    } else if (message_id == handle_id_) {
+      got_handle_result_ = true;
+    }
+    MaybeCompleteRound();
+  }
+
+  void MaybeCompleteRound() {
+    const bool round_complete = navigate_ && completed_count_ == 0
+                                    ? navigation_loaded_ && closed_count_ == 1
+                                    : got_script_result_ && got_handle_result_;
+    if (round_complete && !finishing_) {
+      ++completed_count_;
+      EXPECT_EQ(completed_count_, opening_count_);
+      EXPECT_EQ(completed_count_, default_dialog_count_);
+      EXPECT_EQ(completed_count_, closed_count_);
+      if (completed_count_ == 2) {
+        DestroyTest();
+      } else {
+        // A second dialog verifies that dismissal releases the modal scope.
+        OpenDialog();
+      }
+    }
+  }
+
+  void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
+                                 TerminationStatus status,
+                                 int error_code,
+                                 const CefString& error_string) override {
+    ADD_FAILURE() << "Default dialog renderer crashed: " << status << " "
+                  << error_string.ToString();
+    DestroyTest();
+  }
+
+  void OnTestTimeout(int timeout_ms, bool treat_as_error) override {
+    timed_out_ = true;
+    TestHandler::OnTestTimeout(timeout_ms, treat_as_error);
+  }
+
+  void DestroyTest() override {
+    if (timed_out_) {
+      // A failed cleanup must discard the lease instead of stranding the
+      // shared pool while waiting for another protocol response.
+      finishing_ = true;
+      registration_ = nullptr;
+      TestHandler::DestroyTest();
+      return;
+    }
+    if (finishing_) {
+      return;
+    }
+    finishing_ = true;
+    EXPECT_EQ(2, completed_count_);
+    CefPostTask(TID_UI, base::BindOnce(
+                            &DefaultJSDialogTestHandler::CompleteTest, this));
+  }
+
+ private:
+  void Navigate() {
+    if (!finishing_) {
+      navigation_started_ = true;
+      GetBrowser()->GetMainFrame()->LoadURL(kDialogNavigationUrl);
+    }
+  }
+
+  const char* TypeName() const {
+    switch (type_) {
+      case JSDIALOGTYPE_ALERT:
+        return "alert";
+      case JSDIALOGTYPE_CONFIRM:
+        return "confirm";
+      case JSDIALOGTYPE_PROMPT:
+        return "prompt";
+      case JSDIALOGTYPE_NUM_VALUES:
+        break;
+    }
+    NOTREACHED();
+    return "";
+  }
+
+  std::string ExpectedResult() const {
+    if (type_ == JSDIALOGTYPE_ALERT) {
+      return "undefined";
+    }
+    if (type_ == JSDIALOGTYPE_CONFIRM) {
+      return accept_ ? "true" : "false";
+    }
+    return accept_ ? "entered input" : "null";
+  }
+
+  void OpenDialog() {
+    got_script_result_ = false;
+    got_handle_result_ = false;
+    auto params = CefDictionaryValue::Create();
+    params->SetString(
+        "expression",
+        std::string("String(") + TypeName() + "('Default dialog test'" +
+            (type_ == JSDIALOGTYPE_PROMPT ? ", 'default input'" : "") + "))");
+    params->SetBool("userGesture", true);
+    script_id_ = Execute("Runtime.evaluate", params);
+  }
+
+  static CefRefPtr<CefDictionaryValue> Parse(const void* data, size_t size) {
+    auto value = CefParseJSON(data, size, JSON_PARSER_RFC);
+    return value && value->GetType() == VTYPE_DICTIONARY
+               ? value->GetDictionary()
+               : nullptr;
+  }
+
+  int Execute(const std::string& method, CefRefPtr<CefDictionaryValue> params) {
+    const int id = next_id_++;
+    // Avoid synchronously reentering the DevTools observer from a callback.
+    CefPostTask(TID_UI, base::BindOnce(&DefaultJSDialogTestHandler::ExecuteOnUI,
+                                       this, id, method, params));
+    return id;
+  }
+
+  void ExecuteOnUI(int id,
+                   const std::string& method,
+                   CefRefPtr<CefDictionaryValue> params) {
+    if (!finishing_) {
+      // The browser's DevTools session and ID allocator survive pool leases.
+      const int actual_id =
+          GetBrowser()->GetHost()->ExecuteDevToolsMethod(0, method, params);
+      EXPECT_GT(actual_id, 0);
+      message_ids_[actual_id] = id;
+    }
+  }
+
+  void CompleteTest() {
+    if (timed_out_) {
+      return;
+    }
+    if (!registration_) {
+      TestHandler::DestroyTest();
+      return;
+    }
+    // Stop dialog notifications and wait for the acknowledgement before
+    // releasing the observer and returning this browser to the shared pool.
+    cleanup_id_ = GetBrowser()->GetHost()->ExecuteDevToolsMethod(
+        0, "Page.disable", nullptr);
+    EXPECT_GT(cleanup_id_, 0);
+  }
+
+  const JSDialogType type_;
+  const bool accept_;
+  const bool navigate_;
+  bool navigation_started_ = false;
+  bool navigation_loaded_ = false;
+  bool started_ = false;
+  bool finishing_ = false;
+  bool timed_out_ = false;
+  bool got_script_result_ = false;
+  bool got_handle_result_ = false;
+  int next_id_ = 1;
+  int enable_id_ = 0;
+  int cleanup_id_ = 0;
+  std::map<int, int> message_ids_;
+  int script_id_ = 0;
+  int navigation_script_id_ = 0;
+  int handle_id_ = 0;
+  int opening_count_ = 0;
+  int default_dialog_count_ = 0;
+  int closed_count_ = 0;
+  int completed_count_ = 0;
+  CefRefPtr<CefRegistration> registration_;
+
+  IMPLEMENT_REFCOUNTING(DefaultJSDialogTestHandler);
+};
+
+class DefaultJSDialogTest : public testing::Test {
+ protected:
+  void Run(cef_jsdialog_type_t type, bool accept, bool navigate = false) {
+    CefRefPtr<DefaultJSDialogTestHandler> handler =
+        new DefaultJSDialogTestHandler(type, accept, navigate);
+    handler->ExecuteTest();
+    ReleaseAndWaitForDestructor(handler);
+  }
+};
+
+TEST_F(DefaultJSDialogTest, Alert) {
+  Run(JSDIALOGTYPE_ALERT, true);
+}
+
+TEST_F(DefaultJSDialogTest, ConfirmAccept) {
+  Run(JSDIALOGTYPE_CONFIRM, true);
+}
+
+TEST_F(DefaultJSDialogTest, ConfirmCancel) {
+  Run(JSDIALOGTYPE_CONFIRM, false);
+}
+
+TEST_F(DefaultJSDialogTest, PromptAccept) {
+  Run(JSDIALOGTYPE_PROMPT, true);
+}
+
+TEST_F(DefaultJSDialogTest, PromptCancel) {
+  Run(JSDIALOGTYPE_PROMPT, false);
+}
+
+TEST_F(DefaultJSDialogTest, AlertDismissOnNavigation) {
+  Run(JSDIALOGTYPE_ALERT, true, true);
+}
+
+TEST_F(DefaultJSDialogTest, ConfirmDismissOnNavigation) {
+  Run(JSDIALOGTYPE_CONFIRM, true, true);
+}
+
+TEST_F(DefaultJSDialogTest, PromptDismissOnNavigation) {
+  Run(JSDIALOGTYPE_PROMPT, true, true);
+}
 
 class JSDialogTestHandler : public TestHandler {
  public:

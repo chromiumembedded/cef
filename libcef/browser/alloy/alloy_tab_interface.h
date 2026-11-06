@@ -13,9 +13,9 @@
 
 // WebContents-owned adapter for Chromium's shared tab features. Alloy has one
 // permanently selected tab per browser, without a Chrome browser window, tab
-// strip, contents discarding, or Chrome tab-modal UI. Callbacks for those
-// unsupported transitions never fire. Window visibility is independent of tab
-// selection/visibility, as it is for TabInterface in Chrome.
+// strip, or contents discarding. Callbacks for those unsupported transitions
+// never fire. Window visibility is independent of tab selection/visibility,
+// as it is for TabInterface in Chrome.
 class AlloyTabInterface
     : public tabs::TabInterface,
       public content::WebContentsObserver,
@@ -56,7 +56,7 @@ class AlloyTabInterface
       GroupChangedCallback callback) override;
   base::CallbackListSubscription RegisterBlockedStateChanged(
       BlockedStateChangedCallback callback) override;
-  bool CanShowModalUI() const override { return false; }
+  bool CanShowModalUI() const override;
   std::unique_ptr<tabs::ScopedTabModalUI> ShowModalUI() override;
   base::CallbackListSubscription RegisterModalUIChanged(
       TabInterfaceCallback callback) override;
@@ -86,6 +86,17 @@ class AlloyTabInterface
   const ui::UnownedUserDataHost& GetUnownedUserDataHost() const override;
 
  private:
+  // Tracks modal UI independently of the dialog's native presentation. The
+  // scope may outlive the WebContents that owns this adapter.
+  class ScopedTabModalUIImpl : public tabs::ScopedTabModalUI {
+   public:
+    explicit ScopedTabModalUIImpl(AlloyTabInterface* tab);
+    ~ScopedTabModalUIImpl() override;
+
+   private:
+    base::WeakPtr<AlloyTabInterface> tab_;
+  };
+
   friend content::WebContentsUserData<AlloyTabInterface>;
   explicit AlloyTabInterface(content::WebContents* contents);
 
@@ -96,6 +107,9 @@ class AlloyTabInterface
   ui::UnownedUserDataHost unowned_user_data_host_;
   base::RepeatingCallbackList<void(tabs::TabInterface*, DetachReason)>
       will_detach_callbacks_;
+  base::RepeatingCallbackList<void(tabs::TabInterface*)>
+      modal_ui_changed_callbacks_;
+  bool showing_modal_ui_ = false;
   std::unique_ptr<tabs::TabFeatures> tab_features_;
   base::WeakPtrFactory<AlloyTabInterface> weak_ptr_factory_{this};
 

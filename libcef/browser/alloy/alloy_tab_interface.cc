@@ -134,13 +134,32 @@ base::CallbackListSubscription AlloyTabInterface::RegisterBlockedStateChanged(
   return {};
 }
 
+bool AlloyTabInterface::CanShowModalUI() const {
+  return !showing_modal_ui_;
+}
+
 std::unique_ptr<tabs::ScopedTabModalUI> AlloyTabInterface::ShowModalUI() {
-  NOTREACHED();
+  return std::make_unique<ScopedTabModalUIImpl>(this);
 }
 
 base::CallbackListSubscription AlloyTabInterface::RegisterModalUIChanged(
     TabInterfaceCallback callback) {
-  return {};
+  return modal_ui_changed_callbacks_.Add(std::move(callback));
+}
+
+AlloyTabInterface::ScopedTabModalUIImpl::ScopedTabModalUIImpl(
+    AlloyTabInterface* tab)
+    : tab_(tab->weak_ptr_factory_.GetWeakPtr()) {
+  CHECK(tab_->CanShowModalUI());
+  tab_->showing_modal_ui_ = true;
+  tab_->modal_ui_changed_callbacks_.Notify(tab_.get());
+}
+
+AlloyTabInterface::ScopedTabModalUIImpl::~ScopedTabModalUIImpl() {
+  if (tab_) {
+    tab_->showing_modal_ui_ = false;
+    tab_->modal_ui_changed_callbacks_.Notify(tab_.get());
+  }
 }
 
 std::optional<tab_groups::TabGroupId> AlloyTabInterface::GetGroup() const {
