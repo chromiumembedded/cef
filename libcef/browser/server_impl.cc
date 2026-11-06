@@ -493,9 +493,11 @@ void CefServerImpl::OnHttpRequest(
   DCHECK(!info->is_websocket);
 
   if (request_info.peer.address().empty()) {
-    LOG(ERROR) << "HTTP request has no peer address: connection_id="
-               << connection_id << ", method=" << request_info.method
-               << ", path=" << request_info.path;
+    // The client may disconnect after the request is read but before
+    // HttpServer retrieves the peer address. Don't pass an empty client address
+    // to the handler.
+    server_->Close(connection_id);
+    return;
   }
 
   handler_->OnHttpRequest(this, connection_id, request_info.peer.ToString(),
@@ -514,6 +516,13 @@ void CefServerImpl::OnWebSocketRequest(
   }
 
   DCHECK(!info->is_websocket);
+
+  if (request_info.peer.address().empty()) {
+    // See the corresponding check in OnHttpRequest.
+    server_->Close(connection_id);
+    return;
+  }
+
   info->is_websocket = true;
   info->is_websocket_pending = true;
 
