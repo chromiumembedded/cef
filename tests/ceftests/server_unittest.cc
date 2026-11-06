@@ -8,7 +8,9 @@
 #include <set>
 #include <sstream>
 
+#include "include/base/cef_build.h"
 #include "include/base/cef_callback.h"
+#include "include/base/cef_callback_helpers.h"
 #include "include/base/cef_ref_counted.h"
 #include "include/cef_command_line.h"
 #include "include/cef_server.h"
@@ -18,6 +20,12 @@
 #include "tests/ceftests/routing_test_handler.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
+
+#if defined(OS_POSIX)
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
 
 namespace {
 
@@ -1483,3 +1491,159 @@ TEST(ServerTest, WebSocketMultipleConnectionsMultipleMessagesInSerial) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
+
+#if defined(OS_POSIX)
+namespace {
+
+// POSIX GetPeerAddress checks whether the socket is still connected. A client
+// FIN queued after the request makes this check fail once the request is read.
+class HalfClosedClientTestHandler : public CefServerHandler {
+ public:
+  void ExecuteTest(bool websocket) {
+    CefServer::CreateServer(kTestServerAddress, kTestServerPort, 1, this);
+    ASSERT_TRUE(created_->TimedWait(kTestTimeout));
+    auto server = server_;
+
+    SendRequest(websocket);
+
+    // Also unblock the server if socket setup or sending failed.
+    request_sent_->Signal();
+    server->Shutdown();
+    EXPECT_TRUE(destroyed_->TimedWait(kTestTimeout));
+  }
+
+  void SetDestroyEvent(CefRefPtr<CefWaitableEvent> event) {
+    destroy_event_ = event;
+  }
+
+  void OnServerCreated(CefRefPtr<CefServer> server) override {
+    EXPECT_TRUE(server->IsRunning());
+    server_ = server;
+    created_->Signal();
+
+    // HttpServer posts its accept loop before calling OnServerCreated. Keep
+    // that loop blocked until the entire request and FIN have been sent.
+    if (!request_sent_->TimedWait(kTestTimeout)) {
+      ADD_FAILURE() << "Timed out waiting for the client request";
+      server->Shutdown();
+    }
+  }
+
+  void OnServerDestroyed(CefRefPtr<CefServer> server) override {
+    EXPECT_FALSE(server->HasConnection());
+    EXPECT_EQ(1, connected_count_);
+    EXPECT_EQ(1, disconnected_count_);
+    server_ = nullptr;
+    destroyed_->Signal();
+  }
+
+  void OnClientConnected(CefRefPtr<CefServer> server,
+                         int connection_id) override {
+    EXPECT_TRUE(server->IsValidConnection(connection_id));
+    ++connected_count_;
+  }
+
+  void OnClientDisconnected(CefRefPtr<CefServer> server,
+                            int connection_id) override {
+    EXPECT_FALSE(server->IsValidConnection(connection_id));
+    ++disconnected_count_;
+    disconnected_->Signal();
+  }
+
+  void OnHttpRequest(CefRefPtr<CefServer> server,
+                     int connection_id,
+                     const CefString& client_address,
+                     CefRefPtr<CefRequest> request) override {
+    ADD_FAILURE() << "Delivered an HTTP request from a half-closed client";
+    server->CloseConnection(connection_id);
+  }
+
+  void OnWebSocketRequest(CefRefPtr<CefServer> server,
+                          int connection_id,
+                          const CefString& client_address,
+                          CefRefPtr<CefRequest> request,
+                          CefRefPtr<CefCallback> callback) override {
+    ADD_FAILURE() << "Delivered a WebSocket request from a half-closed client";
+    callback->Cancel();
+  }
+
+  void OnWebSocketConnected(CefRefPtr<CefServer>, int) override {
+    ADD_FAILURE() << "Unexpected WebSocket connection";
+  }
+
+  void OnWebSocketMessage(CefRefPtr<CefServer>,
+                          int,
+                          const void*,
+                          size_t) override {
+    ADD_FAILURE() << "Unexpected WebSocket message";
+  }
+
+ private:
+  ~HalfClosedClientTestHandler() override {
+    if (destroy_event_) {
+      destroy_event_->Signal();
+    }
+  }
+
+  void SendRequest(bool websocket) {
+    const int fd = socket(AF_INET, SOCK_STREAM, 0);
+    ASSERT_GE(fd, 0);
+    base::ScopedClosureRunner close_socket(
+        base::BindOnce([](int fd) { close(fd); }, fd));
+
+    sockaddr_in address = {};
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    address.sin_port = htons(kTestServerPort);
+    ASSERT_EQ(
+        0, connect(fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)));
+
+    std::string request = "GET / HTTP/1.1\r\nHost: localhost\r\n";
+    if (websocket) {
+      request +=
+          "Connection: Upgrade\r\nUpgrade: websocket\r\n"
+          "Sec-WebSocket-Version: 13\r\n"
+          "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n";
+    }
+    request += "\r\n";
+    ASSERT_EQ(static_cast<ssize_t>(request.size()),
+              send(fd, request.data(), request.size(), 0));
+    ASSERT_EQ(0, shutdown(fd, SHUT_WR));
+    request_sent_->Signal();
+
+    // Keep the receiving side open until the server closes the connection.
+    EXPECT_TRUE(disconnected_->TimedWait(kTestTimeout));
+  }
+
+  CefRefPtr<CefServer> server_;
+  CefRefPtr<CefWaitableEvent> created_ =
+      CefWaitableEvent::CreateWaitableEvent(false, false);
+  CefRefPtr<CefWaitableEvent> request_sent_ =
+      CefWaitableEvent::CreateWaitableEvent(false, false);
+  CefRefPtr<CefWaitableEvent> disconnected_ =
+      CefWaitableEvent::CreateWaitableEvent(false, false);
+  CefRefPtr<CefWaitableEvent> destroyed_ =
+      CefWaitableEvent::CreateWaitableEvent(false, false);
+  CefRefPtr<CefWaitableEvent> destroy_event_;
+  int connected_count_ = 0;
+  int disconnected_count_ = 0;
+
+  IMPLEMENT_REFCOUNTING(HalfClosedClientTestHandler);
+};
+
+}  // namespace
+
+TEST(ServerTest, HttpHalfClosedClient) {
+  CefRefPtr<HalfClosedClientTestHandler> handler =
+      new HalfClosedClientTestHandler();
+  handler->ExecuteTest(false);
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(ServerTest, WebSocketHalfClosedClient) {
+  CefRefPtr<HalfClosedClientTestHandler> handler =
+      new HalfClosedClientTestHandler();
+  handler->ExecuteTest(true);
+  ReleaseAndWaitForDestructor(handler);
+}
+#endif  // defined(OS_POSIX)
