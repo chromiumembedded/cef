@@ -9,6 +9,7 @@
 #include "base/files/file_path.h"
 #include "base/functional/bind.h"
 #include "base/logging.h"
+#include "base/memory/weak_ptr.h"
 #include "base/path_service.h"
 #include "base/task/bind_post_task.h"
 #include "cef/include/test/cef_test_helpers.h"
@@ -51,9 +52,66 @@
 #include "ui/aura/window_tree_host.h"
 #endif
 
-#if !BUILDFLAG(IS_MAC)
 namespace {
 
+void CaptureCompositorWindow(base::WeakPtr<views::Widget> widget,
+                             base::OnceCallback<void(CefRefPtr<CefImage>)> done,
+                             int retry_count) {
+  CEF_REQUIRE_UIT_RETURN_VOID();
+  if (!widget || widget->IsClosed() || !widget->IsVisible() ||
+      !widget->GetCompositor() || !widget->GetCompositor()->root_layer()) {
+    std::move(done).Run(nullptr);
+    return;
+  }
+
+  const float scale = widget->GetCompositor()->device_scale_factor();
+  auto request = std::make_unique<viz::CopyOutputRequest>(
+      viz::CopyOutputResult::Format::RGBA,
+      viz::CopyOutputResult::Destination::kSystemMemory,
+      base::BindOnce(
+          [](base::WeakPtr<views::Widget> widget,
+             base::OnceCallback<void(CefRefPtr<CefImage>)> done, float scale,
+             int retry_count, std::unique_ptr<viz::CopyOutputResult> result) {
+            // Like Chromium's Aura snapshot helper, retry transient copy
+            // failures while the source window remains available. Each attempt
+            // rechecks the widget and uses its current compositor and geometry.
+            constexpr int kMaxRetries = 5;
+            if (result->IsEmpty() && retry_count < kMaxRetries) {
+              CaptureCompositorWindow(widget, std::move(done), retry_count + 1);
+              return;
+            }
+            CefRefPtr<CefImage> image;
+            if (!result->IsEmpty()) {
+              auto bitmap = result->ScopedAccessSkBitmap();
+              if (!bitmap.bitmap().drawsNothing()) {
+                auto image_skia = gfx::ImageSkia::CreateFromBitmap(
+                    bitmap.GetOutScopedBitmap(), scale);
+                image_skia.MakeThreadSafe();
+                image = new CefImageImpl(image_skia);
+              }
+            } else {
+              LOG(WARNING)
+                  << "CefCaptureBrowserWindowForTests: compositor copy "
+                     "failed after "
+                  << retry_count
+                  << " retries (error=" << static_cast<int>(result->error())
+                  << ")";
+            }
+            std::move(done).Run(image);
+          },
+          widget, std::move(done), scale, retry_count));
+  // Exclude any frame that Views draws into the compositor (e.g. on Linux).
+  if (auto* non_client_view = widget->non_client_view();
+      non_client_view && non_client_view->frame_view()) {
+    request->set_area(gfx::ScaleToEnclosingRect(
+        non_client_view->frame_view()->GetBoundsForClientView(), scale));
+  }
+  widget->GetCompositor()->root_layer()->RequestCopyOfOutput(
+      std::move(request));
+  widget->GetCompositor()->ScheduleFullRedraw();
+}
+
+#if !BUILDFLAG(IS_MAC)
 class CefEventGeneratorDelegateAura
     : public aura::test::DefaultEventGeneratorDelegate {
  public:
@@ -69,9 +127,9 @@ class CefEventGeneratorDelegateAura
         point);
   }
 };
+#endif  // !BUILDFLAG(IS_MAC)
 
 }  // namespace
-#endif  // !BUILDFLAG(IS_MAC)
 
 void CefCaptureBrowserWindowForTests(
     CefRefPtr<CefBrowser> browser,
@@ -124,34 +182,7 @@ void CefCaptureBrowserWindowForTests(
             std::move(done), scale));
     return;
   }
-  auto request = std::make_unique<viz::CopyOutputRequest>(
-      viz::CopyOutputResult::Format::RGBA,
-      viz::CopyOutputResult::Destination::kSystemMemory,
-      base::BindOnce(
-          [](base::OnceCallback<void(CefRefPtr<CefImage>)> done, float scale,
-             std::unique_ptr<viz::CopyOutputResult> result) {
-            CefRefPtr<CefImage> image;
-            if (!result->IsEmpty()) {
-              auto bitmap = result->ScopedAccessSkBitmap();
-              if (!bitmap.bitmap().drawsNothing()) {
-                auto image_skia = gfx::ImageSkia::CreateFromBitmap(
-                    bitmap.GetOutScopedBitmap(), scale);
-                image_skia.MakeThreadSafe();
-                image = new CefImageImpl(image_skia);
-              }
-            }
-            std::move(done).Run(image);
-          },
-          std::move(done), scale));
-  // Exclude any frame that Views draws into the compositor (e.g. on Linux).
-  if (auto* non_client_view = widget->non_client_view();
-      non_client_view && non_client_view->frame_view()) {
-    request->set_area(gfx::ScaleToEnclosingRect(
-        non_client_view->frame_view()->GetBoundsForClientView(), scale));
-  }
-  widget->GetCompositor()->root_layer()->RequestCopyOfOutput(
-      std::move(request));
-  widget->GetCompositor()->ScheduleFullRedraw();
+  CaptureCompositorWindow(widget->GetWeakPtr(), std::move(done), 0);
 }
 
 bool CefSendMouseClickForTesting(CefRefPtr<CefWindow> owner,
