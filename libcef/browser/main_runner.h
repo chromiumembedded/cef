@@ -45,6 +45,7 @@ class CefMainRunner final {
   void Shutdown(base::OnceClosure shutdown_on_ui_thread,
                 base::OnceClosure finalize_shutdown);
 
+  void DoMessageLoopWork();
   void RunMessageLoop();
   void QuitMessageLoop();
 
@@ -103,6 +104,7 @@ class CefMainRunner final {
   std::unique_ptr<ChromeMainDelegateCef> main_delegate_;
 
   std::unique_ptr<ScopedKeepAlive> keep_alive_;
+  bool do_message_loop_work_called_ = false;
 
   raw_ptr<CefSettings> settings_ = nullptr;
   CefRefPtr<CefApp> application_;

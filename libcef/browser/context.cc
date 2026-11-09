@@ -9,7 +9,6 @@
 #include "base/files/file_util.h"
 #include "base/functional/bind.h"
 #include "base/notimplemented.h"
-#include "base/run_loop.h"
 #include "base/task/current_thread.h"
 #include "base/threading/thread_restrictions.h"
 #include "cef/libcef/browser/browser_info_manager.h"
@@ -280,8 +279,7 @@ void CefDoMessageLoopWork() {
     return;
   }
 
-  base::RunLoop run_loop;
-  run_loop.RunUntilIdle();
+  g_context->DoMessageLoopWork();
 }
 
 void CefRunMessageLoop() {
@@ -410,6 +408,13 @@ bool CefContext::Initialize(const CefMainArgs& args,
   }
 
   return true;
+}
+
+void CefContext::DoMessageLoopWork() {
+  // Must always be called on the same thread as Initialize.
+  DCHECK(OnInitThread());
+
+  main_runner_->DoMessageLoopWork();
 }
 
 void CefContext::RunMessageLoop() {

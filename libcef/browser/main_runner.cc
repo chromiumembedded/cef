@@ -128,6 +128,21 @@ void CefMainRunner::Shutdown(base::OnceClosure shutdown_on_ui_thread,
   application_ = nullptr;
 }
 
+void CefMainRunner::DoMessageLoopWork() {
+  CEF_REQUIRE_UIT();
+
+  if (!do_message_loop_work_called_) {
+    do_message_loop_work_called_ = true;
+    // Prevent closing the last Chrome browser window from starting shutdown
+    // while the application is driving the message loop.
+    keep_alive_ = std::make_unique<ScopedKeepAlive>(
+        KeepAliveOrigin::APP_CONTROLLER, KeepAliveRestartOption::DISABLED);
+  }
+
+  base::RunLoop run_loop;
+  run_loop.RunUntilIdle();
+}
+
 void CefMainRunner::RunMessageLoop() {
   base::RunLoop run_loop;
 
@@ -434,6 +449,9 @@ void CefMainRunner::StartShutdownOnUIThread(
   }
 
   std::move(shutdown_on_ui_thread).Run();
+  if (do_message_loop_work_called_) {
+    keep_alive_.reset();
+  }
   BeforeUIThreadShutdown();
 }
 
