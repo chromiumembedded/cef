@@ -629,8 +629,6 @@ bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) {
   EXPECT_EQ(kCloseWindowId, command_id);
   got_accelerator = true;
 
-  window->Close();
-
   return true;
 }
 
@@ -652,6 +650,18 @@ void WindowAcceleratorImpl(CefRefPtr<CefWaitableEvent> event) {
   config->on_window_created = base::BindOnce(RunWindowAccelerator);
   config->on_window_destroyed = base::BindOnce(VerifyWindowAccelerator);
   config->on_accelerator = base::BindRepeating(OnAccelerator);
+  config->on_key_event = base::BindRepeating(
+      [](CefRefPtr<CefWindow> window, const CefKeyEvent& input) {
+        if (input.type == KEYEVENT_KEYUP &&
+            input.windows_key_code == VK_MENU) {
+          // Alt is released last. Keep the window alive until the complete
+          // synthetic sequence has been dispatched so that pending releases
+          // cannot reach the next test's window on macOS.
+          EXPECT_TRUE(got_accelerator);
+          CefPostTask(TID_UI, base::BindOnce(&CefWindow::Close, window));
+        }
+        return false;
+      });
   config->on_focus = base::BindRepeating([](CefRefPtr<CefView> view) {
     EXPECT_TRUE(view->HasFocus());
     // Dispatch after the focus notification finishes, without guessing timing.
@@ -700,6 +710,9 @@ void WindowKeyboardInputImpl(CefRefPtr<CefWaitableEvent> event,
   config->on_keyboard_event = base::BindRepeating(
       [](std::shared_ptr<WindowKeyboardState> state,
          CefRefPtr<CefWindow> window, const CefKeyboardInputEvent& input) {
+        if (input.windows_key_code != 'A') {
+          return false;
+        }
         EXPECT_EQ(sizeof(cef_keyboard_input_event_t), input.size);
         EXPECT_GT(input.timestamp, 0);
         state->latest = input;
@@ -728,6 +741,9 @@ void WindowKeyboardInputImpl(CefRefPtr<CefWaitableEvent> event,
   config->on_key_event = base::BindRepeating(
       [](std::shared_ptr<WindowKeyboardState> state,
          CefRefPtr<CefWindow> window, const CefKeyEvent& input) {
+        if (input.windows_key_code != 'A') {
+          return false;
+        }
         EXPECT_FALSE(state->handle_unified);
         ++state->legacy_count;
         EXPECT_EQ(state->unified_count, state->legacy_count);
