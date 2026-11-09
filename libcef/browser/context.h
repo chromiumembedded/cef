@@ -49,6 +49,7 @@ class CefContext {
                   const CefSettings& settings,
                   CefRefPtr<CefApp> application,
                   void* windows_sandbox_info);
+  void DoMessageLoopWork();
   void RunMessageLoop();
   void QuitMessageLoop();
   void Shutdown();
