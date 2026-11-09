@@ -927,8 +927,7 @@ class ReusableBrowserClient : public TestHandlerClient,
   }
 
   std::chrono::steady_clock::time_point timing_start_;
-  const bool trace_timing_ = CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-      "reuse-test-browsers-timing");
+  const bool trace_timing_ = IsBrowserReuseTimingEnabled();
   CefRefPtr<TestHandler> GetDelegate(bool committed_only = false) {
     std::lock_guard<std::mutex> guard(lock_);
     return committed_only && awaiting_commit_ ? nullptr : delegate_;
@@ -1146,8 +1145,7 @@ struct ReusableContextEntry {
   std::chrono::steady_clock::time_point last_used;
   size_t uses = 1;
   bool initialized = false;
-  const bool trace_timing = CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-      "reuse-test-browsers-timing");
+  const bool trace_timing = IsBrowserReuseTimingEnabled();
   std::vector<base::OnceCallback<void(TestHandler::ReusableRequestContext)>>
       callbacks;
 };

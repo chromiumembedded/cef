@@ -321,6 +321,7 @@ class TestHandler : public CefClient,
   // --reuse-test-browsers enables reuse; without it this creates an ordinary
   // browser. Test selection is unchanged.
   // --reuse-test-browsers-timing adds lease/navigation timing logs.
+  // BrowserReuseTest also enables lifecycle/shutdown and progress logs with it.
   // --reuse-test-browsers-max limits all pool-owned browsers (default 4; zero
   // forces isolated execution). Leased and closing browsers count toward the
   // limit. A full pool evicts its least recently released idle browser and

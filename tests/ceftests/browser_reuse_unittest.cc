@@ -421,7 +421,8 @@ class BrowserReuseTest : public testing::Test {
 
  protected:
   void SetUp() override {
-    TestHandler::SetReusableBrowserLoggingForTesting(true);
+    TestHandler::SetReusableBrowserLoggingForTesting(
+        IsBrowserReuseTimingEnabled());
     TestHandler::ShutdownReusableBrowsers();
     original_options_ = TestHandler::GetReusableBrowserStats();
     TestHandler::SetReusableBrowserOptionsForTesting(options_);
@@ -740,7 +741,9 @@ void BrowserReuseTest::WindowedCapabilities() {
             " width=" + std::to_string(width) +
             " lease=" + std::to_string(lease);
         SCOPED_TRACE(label);
-        LOG(INFO) << "WindowedCapabilities starting " << label;
+        if (IsBrowserReuseTimingEnabled()) {
+          LOG(INFO) << "WindowedCapabilities starting " << label;
+        }
         CefRefPtr<ReuseTestHandler> handler = new ReuseTestHandler(
             width, "windowed" + std::to_string(lease), false, nullptr, true,
             config.views, config.alloy, config.chrome_window);
@@ -755,7 +758,9 @@ void BrowserReuseTest::WindowedCapabilities() {
         }
         previous_id = id;
         ReleaseAndWaitForDestructor(handler);
-        LOG(INFO) << "WindowedCapabilities completed " << label;
+        if (IsBrowserReuseTimingEnabled()) {
+          LOG(INFO) << "WindowedCapabilities completed " << label;
+        }
       }
     }
   }
@@ -989,14 +994,13 @@ bool RegisterBrowserReuseTests() {
           (!mode.options.enabled || mode.options.max_browsers == 0)) {
         continue;
       }
-      const bool single_mode =
-          scenario.scenario == Scenario::Windowed ||
-          scenario.scenario == Scenario::Frames ||
-          scenario.scenario == Scenario::InitialRedirect ||
-          scenario.scenario == Scenario::IdleRequests ||
-          scenario.scenario == Scenario::IdleOsr ||
-          scenario.scenario == Scenario::IdleViews ||
-          scenario.scenario == Scenario::IdleNative;
+      const bool single_mode = scenario.scenario == Scenario::Windowed ||
+                               scenario.scenario == Scenario::Frames ||
+                               scenario.scenario == Scenario::InitialRedirect ||
+                               scenario.scenario == Scenario::IdleRequests ||
+                               scenario.scenario == Scenario::IdleOsr ||
+                               scenario.scenario == Scenario::IdleViews ||
+                               scenario.scenario == Scenario::IdleNative;
       if (single_mode &&
           mode.options.max_browsers !=
               TestHandler::ReusableBrowserOptions().max_browsers) {

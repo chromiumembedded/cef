@@ -106,6 +106,10 @@ bool UseAlloyStyleBrowserGlobal();
 // Only used in combination with Views.
 bool UseAlloyStyleWindowGlobal();
 
+// Returns true if --reuse-test-browsers-timing enables browser reuse
+// diagnostics.
+bool IsBrowserReuseTimingEnabled();
+
 // Returns the current GoogleTest name as Suite.Test, or empty outside a test.
 std::string GetCurrentTestName();
 

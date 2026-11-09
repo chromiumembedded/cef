@@ -368,6 +368,14 @@ bool UseAlloyStyleWindowGlobal() {
   return use_alloy_style;
 }
 
+bool IsBrowserReuseTimingEnabled() {
+  static const bool enabled = []() {
+    return CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+        "reuse-test-browsers-timing");
+  }();
+  return enabled;
+}
+
 bool IsRunningOnWayland() {
 #if defined(OS_LINUX)
   static bool is_wayland =
