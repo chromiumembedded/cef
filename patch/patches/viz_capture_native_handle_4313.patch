@@ -1,0 +1,61 @@
+diff --git components/viz/common/frame_sinks/blit_request.h components/viz/common/frame_sinks/blit_request.h
+index a248ed15e0ccce7124fbdde089448d8dc761c059..18ebadcac4374107420dc43a6372806bbc4a88a3 100644
+--- components/viz/common/frame_sinks/blit_request.h
++++ components/viz/common/frame_sinks/blit_request.h
+@@ -136,9 +136,10 @@ class VIZ_COMMON_EXPORT BlitRequest {
+   // SyncToken to wait on before accessing `shared_image_`;
+   gpu::SyncToken sync_token_;
+ 
+-  // True if `shared_image_` is mappable. In this case, the `CopyOutputResult`
+-  // needs to be sent out only after it's safe to map the SharedImage to
+-  // system memory.
++  // True if the `CopyOutputResult` must be sent only after the GPU work
++  // populating the SharedImage has completed. Required for consumers that
++  // access the image outside the SharedImage synchronization system, including
++  // CPU mapping and native-handle capture.
+   bool populates_mappable_shared_image_;
+ 
+   // Collection of bitmaps that will be blended onto the texture.
+diff --git components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc
+index 5105b026559b6504c8cfa4296bf7c804fea8b90f..8a0054732cedbdeabcd9b2c6aa65f14c963d07f9 100644
+--- components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc
++++ components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl.cc
+@@ -1181,10 +1181,17 @@ void FrameSinkVideoCapturerImpl::MaybeCaptureFrame(
+ 
+     // TODO(crbug.com/41350322): change the capturer to only request the
+     // parts of the frame that have changed whenever possible.
+-    blit_request = BlitRequest(
+-        content_rect.origin(), LetterboxingBehavior::kLetterbox,
+-        frame_capture.frame->shared_image(), sync_token,
+-        /*populates_mappable_shared_image=*/prefer_mappable_shared_image);
++    // Consumers read the frame outside of the shared image system, either by
++    // mapping it or by importing its native handle, so they can't wait on the
++    // write fence. Deliver it only once the GPU work populating it is done.
++    CHECK(buffer_format_preference_ ==
++              mojom::BufferFormatPreference::kPreferMappableSharedImage ||
++          buffer_format_preference_ ==
++              mojom::BufferFormatPreference::kPreferSharedImageWithNativeHandle);
++    blit_request =
++        BlitRequest(content_rect.origin(), LetterboxingBehavior::kLetterbox,
++                    frame_capture.frame->shared_image(), sync_token,
++                    /*populates_mappable_shared_image=*/true);
+ 
+     // We haven't captured the frame yet, but let's pretend that we did for
+     // the sake of blend information computation. We will be asking for an
+diff --git components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc
+index 5d5ffc8544d2a1eba6fc9369c9f33c372b8ebdf3..2ca689f990c7a78598a3c44ae5b186db4ba3fe27 100644
+--- components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc
++++ components/viz/service/frame_sinks/video_capture/frame_sink_video_capturer_impl_unittest.cc
+@@ -2445,11 +2445,7 @@ TEST_P(FrameSinkVideoCapturerTest, ConfiguresSharedImageBlitRequest) {
+ 
+   ASSERT_TRUE(frame_sink_.last_blit_request_populates_mappable_shared_image()
+                   .has_value());
+-  const bool expect_mappable =
+-      buffer_format_preference_ ==
+-      mojom::BufferFormatPreference::kPreferMappableSharedImage;
+-  EXPECT_EQ(expect_mappable,
+-            *frame_sink_.last_blit_request_populates_mappable_shared_image());
++  EXPECT_TRUE(*frame_sink_.last_blit_request_populates_mappable_shared_image());
+ 
+   StopCapture();
+ }
