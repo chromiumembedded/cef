@@ -3,7 +3,10 @@
 // in the LICENSE file.
 
 #include <array>
+#include <chrono>
 #include <cmath>
+#include <deque>
+#include <sstream>
 #include <vector>
 
 #include "include/cef_input_handler.h"
@@ -1199,6 +1202,7 @@ class InputSequenceTestHandler : public RoutingTestHandler,
 
   void DestroyTest() override {
     waiting_ = false;
+    RecordPopupEvent("DestroyTest");
     RoutingTestHandler::DestroyTest();
   }
 
@@ -1211,6 +1215,7 @@ class InputSequenceTestHandler : public RoutingTestHandler,
     callback->Success("");
     EXPECT_TRUE(frame->IsMain());
     const auto text = request.ToString();
+    RecordPopupEvent("query=" + text);
     if (text.rfind("ready:", 0) == 0) {
       EXPECT_EQ("ready:1", text);
       waiting_ = true;
@@ -1301,6 +1306,7 @@ class InputSequenceTestHandler : public RoutingTestHandler,
       EXPECT_EQ(1, popup_downs_);
       EXPECT_TRUE(popup_painted_);
       popup_selected_ = true;
+      RecordPopupEvent("selection confirmed");
       if (popup_hidden_) {
         FinishPopup();
       }
@@ -1324,6 +1330,14 @@ class InputSequenceTestHandler : public RoutingTestHandler,
   bool OnPreMouseEvent(CefRefPtr<CefBrowser>,
                        const CefMouseInputEvent& event) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    if (IsPopupSequence() && event.type != CEF_MOUSE_EVENT_MOVE) {
+      std::ostringstream details;
+      details << "OnPreMouseEvent type=" << event.type << " local=" << event.x
+              << "," << event.y << " screen=" << event.screen_x << ","
+              << event.screen_y << " pointer_id=" << event.pointer_id
+              << " button=" << event.button << " modifiers=" << event.modifiers;
+      RecordPopupEvent(details.str());
+    }
     if (sequence_ == InputSequence::Popup && popup_clicked_ &&
         event.pointer_id == 17 && event.type == CEF_MOUSE_EVENT_DOWN) {
       ++popup_downs_;
@@ -1343,6 +1357,14 @@ class InputSequenceTestHandler : public RoutingTestHandler,
     EXPECT_TRUE(started_);
     if (resetting_) {
       return false;
+    }
+    if (IsPopupSequence()) {
+      std::ostringstream details;
+      details << "OnPreGestureEvent type=" << event.type << " local=" << event.x
+              << "," << event.y << " screen=" << event.screen_x << ","
+              << event.screen_y << " delta=" << event.delta_x << ","
+              << event.delta_y << " source=" << event.source_device;
+      RecordPopupEvent(details.str());
     }
     if (sequence_ == InputSequence::PopupScroll && popup_clicked_ &&
         event.type == CEF_GESTURE_EVENT_SCROLL_UPDATE) {
@@ -1368,9 +1390,14 @@ class InputSequenceTestHandler : public RoutingTestHandler,
 
   void OnPopupSize(CefRefPtr<CefBrowser>, const CefRect& rect) override {
     popup_rect_ = rect;
+    std::ostringstream details;
+    details << "OnPopupSize rect=" << rect.x << "," << rect.y << ","
+            << rect.width << "," << rect.height;
+    RecordPopupEvent(details.str());
   }
 
   void OnPopupShow(CefRefPtr<CefBrowser>, bool show) override {
+    RecordPopupEvent(show ? "OnPopupShow true" : "OnPopupShow false");
     if (!show) {
       popup_hidden_ = true;
       if (popup_selected_ || popup_scrolled_) {
@@ -1381,29 +1408,32 @@ class InputSequenceTestHandler : public RoutingTestHandler,
 
   void OnPaint(CefRefPtr<CefBrowser> browser,
                PaintElementType type,
-               const RectList&,
+               const RectList& dirty_rects,
                const void* buffer,
                int width,
                int height) override {
-    if ((sequence_ == InputSequence::Popup ||
-         sequence_ == InputSequence::PopupScroll) &&
-        type == PET_POPUP && !popup_clicked_) {
+    // Inspect even frames excluded by the completion gate below, so the
+    // timeout history distinguishes skipped paints from unchanged pixels.
+    RecordPopupPaint(type, dirty_rects, buffer, width, height);
+    if (IsPopupSequence() && type == PET_POPUP && !popup_clicked_) {
       popup_painted_ = true;
       popup_clicked_ = true;
-      if (sequence_ == InputSequence::PopupScroll) {
-        const auto* pixels = static_cast<const uint32_t*>(buffer);
-        popup_pixels_.assign(pixels, pixels + width * height);
-      }
+      const auto* pixels = static_cast<const uint32_t*>(buffer);
+      popup_pixels_.assign(pixels, pixels + width * height);
+      popup_baseline_width_ = width;
+      popup_baseline_height_ = height;
       EXPECT_GT(popup_rect_.x, 0);
       EXPECT_GT(popup_rect_.height, 40);
       CefPostTask(TID_UI, base::BindOnce(&InputSequenceTestHandler::SelectPopup,
                                          this, browser));
+      RecordPopupEvent("posted SelectPopup");
     } else if (sequence_ == InputSequence::PopupScroll && type == PET_POPUP &&
                popup_updates_ == 1 && !popup_scrolled_) {
       const auto* pixels = static_cast<const uint32_t*>(buffer);
       const std::vector<uint32_t> current(pixels, pixels + width * height);
       if (current != popup_pixels_) {
         popup_scrolled_ = true;
+        RecordPopupEvent("changed pixels accepted; posting ClosePopup");
         // Close the widget after the repaint, before returning this browser
         // to the reusable pool.
         CefPostTask(TID_UI,
@@ -1500,7 +1530,17 @@ class InputSequenceTestHandler : public RoutingTestHandler,
     event.click_count = count;
     event.pointer_type = CEF_POINTER_TYPE_MOUSE;
     event.pointer_id = 17;
+    if (IsPopupSequence()) {
+      std::ostringstream details;
+      details << "SendMouseEvent type=" << type << " position=" << x << "," << y
+              << " button=" << button << " modifiers=" << modifiers
+              << " click_count=" << count;
+      RecordPopupEvent(details.str());
+    }
     browser->GetHost()->SendMouseEvent(event);
+    if (IsPopupSequence()) {
+      RecordPopupEvent("SendMouseEvent returned type=" + std::to_string(type));
+    }
   }
 
   void Gesture(CefRefPtr<CefBrowser> browser,
@@ -1539,6 +1579,7 @@ class InputSequenceTestHandler : public RoutingTestHandler,
   }
 
   void SelectPopup(CefRefPtr<CefBrowser> browser) {
+    RecordPopupEvent("SelectPopup task entered");
     const int x = popup_rect_.x + 10;
     const int y = popup_rect_.y + popup_rect_.height / 2;
     if (sequence_ == InputSequence::PopupScroll) {
@@ -1557,7 +1598,14 @@ class InputSequenceTestHandler : public RoutingTestHandler,
         } else if (type == CEF_GESTURE_EVENT_SCROLL_UPDATE) {
           event.delta_y = event.delta_y_unconstrained = -80;
         }
+        std::ostringstream details;
+        details << "SendGestureEvent type=" << type << " position=" << x << ","
+                << y << " delta_y=" << event.delta_y
+                << " pointers=" << event.pointer_count;
+        RecordPopupEvent(details.str());
         browser->GetHost()->SendGestureEvent(event);
+        RecordPopupEvent("SendGestureEvent returned type=" +
+                         std::to_string(type));
       }
       return;
     }
@@ -1568,12 +1616,14 @@ class InputSequenceTestHandler : public RoutingTestHandler,
   }
 
   void ClosePopup(CefRefPtr<CefBrowser> browser) {
+    RecordPopupEvent("ClosePopup task entered");
     Mouse(browser, CEF_MOUSE_EVENT_DOWN, 1, 1, CEF_MOUSE_BUTTON_LEFT,
           CEF_EVENTFLAG_LEFT_MOUSE_BUTTON);
     Mouse(browser, CEF_MOUSE_EVENT_UP, 1, 1, CEF_MOUSE_BUTTON_LEFT, 0);
   }
 
   void FinishPopup() {
+    RecordPopupEvent("FinishPopup");
     if (!popup_finish_posted_) {
       popup_finish_posted_ = true;
       // OnPopupShow can run inside popup widget destruction. Let that finish
@@ -1585,19 +1635,175 @@ class InputSequenceTestHandler : public RoutingTestHandler,
 
   void OnTestTimeout(int timeout_ms, bool treat_as_error) override {
     waiting_ = false;
-    ADD_FAILURE() << "sequence=" << static_cast<int>(sequence_)
-                  << " started=" << started_
-                  << " pinches=" << forwarded_pinches_
-                  << " fling=" << fling_starts_ << "/" << fling_cancels_
-                  << " popup_downs=" << popup_downs_
-                  << " popup_updates=" << popup_updates_
-                  << " popup_painted=" << popup_painted_
-                  << " popup_scrolled=" << popup_scrolled_
-                  << " popup_selected=" << popup_selected_
-                  << " popup_hidden=" << popup_hidden_
-                  << " popup_rect=" << popup_rect_.x << "," << popup_rect_.y
-                  << "," << popup_rect_.width << "," << popup_rect_.height;
+    std::ostringstream details;
+    details << "sequence=" << static_cast<int>(sequence_)
+            << " started=" << started_ << " pinches=" << forwarded_pinches_
+            << " fling=" << fling_starts_ << "/" << fling_cancels_
+            << " popup_downs=" << popup_downs_
+            << " popup_updates=" << popup_updates_
+            << " popup_painted=" << popup_painted_
+            << " popup_scrolled=" << popup_scrolled_
+            << " popup_selected=" << popup_selected_
+            << " popup_hidden=" << popup_hidden_
+            << " popup_rect=" << popup_rect_.x << "," << popup_rect_.y << ","
+            << popup_rect_.width << "," << popup_rect_.height;
+    if (IsPopupSequence()) {
+      details << "\nPopup browser-side history (steady-clock us; input "
+                 "callbacks precede renderer handling):"
+              << "\nview_paints=" << view_paints_
+              << " view_paints_after_input=" << view_paints_after_input_
+              << " popup_paints=" << popup_paints_
+              << " paints_before_input=" << paints_before_input_
+              << " paints_after_input=" << paints_after_input_
+              << " changed_before_input=" << changed_before_input_
+              << " unchanged_after_input=" << unchanged_after_input_
+              << " skipped_update_count=" << skipped_update_count_
+              << "\nevents=" << popup_event_count_;
+      for (const auto& entry : popup_events_) {
+        details << "\n" << entry;
+      }
+      if (popup_event_count_ >
+          popup_events_.size() + popup_recent_events_.size()) {
+        details << "\n... omitted "
+                << popup_event_count_ - popup_events_.size() -
+                       popup_recent_events_.size()
+                << " middle events ...";
+      }
+      for (const auto& entry : popup_recent_events_) {
+        details << "\n" << entry;
+      }
+    }
+    ADD_FAILURE() << details.str();
     RoutingTestHandler::OnTestTimeout(timeout_ms, treat_as_error);
+  }
+
+  bool IsPopupSequence() const {
+    return sequence_ == InputSequence::Popup ||
+           sequence_ == InputSequence::PopupScroll;
+  }
+
+  // Opening the select also generates mouse callbacks. Count only the input
+  // directed into the painted popup: a selection mouse-down or scroll update.
+  bool GotPopupInput() const {
+    return sequence_ == InputSequence::Popup ? popup_downs_ != 0
+                                             : popup_updates_ != 0;
+  }
+
+  // Keep the first and last events so an animated popup cannot exhaust memory
+  // or obscure setup/dispatch in the timeout log. Successful runs stay quiet.
+  void RecordPopupEvent(const std::string& event) {
+    if (!IsPopupSequence()) {
+      return;
+    }
+    const auto elapsed =
+        std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now() - popup_log_start_)
+            .count();
+    std::ostringstream entry;
+    entry << "#" << ++popup_event_count_ << " +" << elapsed << "us " << event
+          << " [clicked=" << popup_clicked_ << " updates=" << popup_updates_
+          << " downs=" << popup_downs_ << " selected=" << popup_selected_
+          << " scrolled=" << popup_scrolled_ << " hidden=" << popup_hidden_
+          << "]";
+    constexpr size_t kRetainedEvents = 32;
+    if (popup_events_.size() < kRetainedEvents) {
+      popup_events_.push_back(entry.str());
+    } else {
+      if (popup_recent_events_.size() == kRetainedEvents) {
+        popup_recent_events_.pop_front();
+      }
+      popup_recent_events_.push_back(entry.str());
+    }
+  }
+
+  void RecordPopupPaint(PaintElementType type,
+                        const RectList& dirty_rects,
+                        const void* buffer,
+                        int width,
+                        int height) {
+    if (!IsPopupSequence()) {
+      return;
+    }
+    if (type != PET_POPUP) {
+      ++view_paints_;
+      if (GotPopupInput()) {
+        ++view_paints_after_input_;
+      }
+      if (view_paints_ == 1 || view_paints_after_input_ == 1) {
+        RecordPopupEvent("PET_VIEW paint size=" + std::to_string(width) + "," +
+                         std::to_string(height));
+      }
+      return;
+    }
+    ++popup_paints_;
+    if (!GotPopupInput()) {
+      ++paints_before_input_;
+    } else {
+      ++paints_after_input_;
+    }
+    const auto* pixels = static_cast<const uint32_t*>(buffer);
+    const size_t count = static_cast<size_t>(width) * height;
+    const bool same_size = count == popup_pixels_.size();
+    size_t different = 0;
+    size_t first_difference = 0;
+    uint64_t hash = 14695981039346656037ULL;
+    for (size_t i = 0; i < count; ++i) {
+      hash = (hash ^ pixels[i]) * 1099511628211ULL;
+      if (same_size && pixels[i] != popup_pixels_[i]) {
+        if (different++ == 0) {
+          first_difference = i;
+        }
+      }
+    }
+    const bool changed = !same_size || different != 0;
+    const char* disposition = "baseline";
+    if (popup_clicked_) {
+      if (!GotPopupInput() && changed) {
+        ++changed_before_input_;
+      } else if (GotPopupInput() && !changed) {
+        ++unchanged_after_input_;
+      }
+      if (sequence_ == InputSequence::Popup) {
+        if (popup_selected_) {
+          disposition = "selection confirmed";
+        } else if (GotPopupInput()) {
+          disposition = "awaiting selection query";
+        } else {
+          disposition = "awaiting popup mouse-down";
+        }
+      } else if (popup_updates_ == 0) {
+        disposition = "ignored: no update callback yet";
+      } else if (popup_updates_ != 1) {
+        disposition = "ignored: update count != 1";
+        ++skipped_update_count_;
+      } else if (popup_scrolled_) {
+        disposition = "ignored: already scrolled";
+      } else {
+        disposition = changed ? "comparison: changed" : "comparison: equal";
+      }
+    }
+    std::ostringstream details;
+    details << "PET_POPUP paint=" << popup_paints_ << " size=" << width << ","
+            << height << " rect=" << popup_rect_.x << "," << popup_rect_.y
+            << "," << popup_rect_.width << "," << popup_rect_.height
+            << " baseline_size=" << popup_baseline_width_ << ","
+            << popup_baseline_height_
+            << " baseline_pixels=" << popup_pixels_.size() << " hash=" << hash
+            << " same_pixel_count=" << same_size
+            << " different_pixels=" << different
+            << " disposition=" << disposition;
+    if (different) {
+      details << " first_difference=" << first_difference % width << ","
+              << first_difference / width
+              << " old=" << popup_pixels_[first_difference]
+              << " new=" << pixels[first_difference];
+    }
+    details << " dirty_rects=";
+    for (const auto& rect : dirty_rects) {
+      details << "(" << rect.x << "," << rect.y << "," << rect.width << ","
+              << rect.height << ")";
+    }
+    RecordPopupEvent(details.str());
   }
 
   static constexpr char kSequenceUrl[] = "https://tests/input-sequence";
@@ -1620,6 +1826,24 @@ class InputSequenceTestHandler : public RoutingTestHandler,
   int forwarded_pinches_ = 0;
   int fling_starts_ = 0;
   int fling_cancels_ = 0;
+
+  // Logging-only state for popup timeout diagnostics.
+  const std::chrono::steady_clock::time_point popup_log_start_ =
+      std::chrono::steady_clock::now();
+  size_t popup_event_count_ = 0;
+  std::vector<std::string> popup_events_;
+  std::deque<std::string> popup_recent_events_;
+  int view_paints_ = 0;
+  int view_paints_after_input_ = 0;
+  int popup_paints_ = 0;
+  int popup_baseline_width_ = 0;
+  int popup_baseline_height_ = 0;
+  int paints_before_input_ = 0;
+  int paints_after_input_ = 0;
+  int changed_before_input_ = 0;
+  int unchanged_after_input_ = 0;
+  int skipped_update_count_ = 0;
+
   IMPLEMENT_REFCOUNTING(InputSequenceTestHandler);
 };
 
