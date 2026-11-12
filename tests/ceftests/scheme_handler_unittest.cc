@@ -208,6 +208,12 @@ class TestSchemeHandler : public TestHandler {
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
+    // StopLoad() during cleanup may abort a committed error page and generate
+    // additional load callbacks. Test results are final once cleanup begins.
+    if (cleanup_pending_) {
+      return;
+    }
+
     const std::string& url = frame->GetURL();
     if (url == test_results_->url) {
       test_results_->got_output.yes();
@@ -230,6 +236,12 @@ class TestSchemeHandler : public TestHandler {
                    ErrorCode errorCode,
                    const CefString& errorText,
                    const CefString& failedUrl) override {
+    // Ignore errors caused by StopLoad() during cleanup, including an aborted
+    // chrome-error://chromewebdata/ load after the expected navigation error.
+    if (cleanup_pending_) {
+      return;
+    }
+
     const std::string& url = failedUrl;
     if (url == test_results_->url) {
       test_results_->got_error.yes();
