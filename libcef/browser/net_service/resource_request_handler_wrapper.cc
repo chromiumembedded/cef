@@ -794,10 +794,14 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     DCHECK(state->handler_ || state->scheme_factory_);
     DCHECK(state->pending_request_);
 
+    bool request_modified = false;
+
     if (state->handler_) {
       if (allow) {
         // Apply any |requestPtr| changes to |request|.
         state->pending_request_->Get(state->request_, true /* changed_only */);
+        request_modified = state->pending_request_->GetChanges() !=
+                           CefRequestImpl::kChangedNone;
       }
 
       const bool redirect =
@@ -820,7 +824,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
       if (redirect) {
         // Performing a redirect.
-        std::move(callback).Run(nullptr);
+        std::move(callback).Run(nullptr, request_modified);
         return;
       }
     }
@@ -855,7 +859,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     }
 
     // Continue the request.
-    std::move(callback).Run(std::move(resource_response));
+    std::move(callback).Run(std::move(resource_response), request_modified);
   }
 
   void ProcessResponseHeaders(int32_t request_id,

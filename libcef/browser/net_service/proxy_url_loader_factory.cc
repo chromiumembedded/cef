@@ -308,12 +308,23 @@ class InterceptedRequest : public network::mojom::URLLoader,
   int32_t id() const { return id_; }
 
  private:
+  // Release the target loader, any stream loader and their bound endpoints.
+  void ResetTargetLoader();
+
+  // Start evaluating |request_| with the request handler. Called from
+  // Restart() and when a redirect will be followed on the target loader.
+  void StartRequest();
+
+  // Release the target loader if it was kept to follow a redirect.
+  void CancelFollowRedirectOnTarget();
+
   // Helpers for determining the request handler.
   void BeforeRequestReceived(const GURL& original_url,
                              bool intercept_request,
                              bool intercept_only);
   void InterceptResponseReceived(const GURL& original_url,
-                                 std::unique_ptr<ResourceResponse> response);
+                                 std::unique_ptr<ResourceResponse> response,
+                                 bool request_modified);
   void ContinueAfterIntercept();
   void ContinueAfterInterceptWithOverride(
       std::unique_ptr<ResourceResponse> response);
@@ -369,6 +380,14 @@ class InterceptedRequest : public network::mojom::URLLoader,
   bool request_was_redirected_ = false;
   int redirect_limit_ = net::URLRequest::kMaxRedirects;
   bool redirect_in_progress_ = false;
+  // The target loader issued an internal chrome-extension:// redirect that
+  // only it can complete (see ContinueToBeforeRedirect).
+  bool can_follow_redirect_on_target_ = false;
+  // The redirected request is being evaluated while the target loader is kept
+  // to follow the redirect (see FollowRedirect).
+  bool follow_redirect_on_target_ = false;
+  // Header changes passed to FollowRedirect, forwarded to the target loader.
+  network::HttpRequestHeadersUpdateParams redirect_headers_update_params_;
 
   // To avoid sending multiple OnReceivedError callbacks.
   bool sent_error_callback_ = false;
@@ -493,6 +512,14 @@ InterceptedRequest::~InterceptedRequest() {
 }
 
 void InterceptedRequest::Restart() {
+  ResetTargetLoader();
+  StartRequest();
+}
+
+void InterceptedRequest::ResetTargetLoader() {
+  follow_redirect_on_target_ = false;
+  redirect_headers_update_params_ = network::HttpRequestHeadersUpdateParams();
+
   // May exist if the previous stream resulted in a redirect.
   if (stream_loader_) {
     stream_loader_.reset();
@@ -506,7 +533,9 @@ void InterceptedRequest::Restart() {
   if (header_client_receiver_.is_bound()) {
     std::ignore = header_client_receiver_.Unbind();
   }
+}
 
+void InterceptedRequest::StartRequest() {
   current_request_uses_header_client_ =
       factory_->url_loader_header_client_receiver_.is_bound();
 
@@ -802,6 +831,25 @@ void InterceptedRequest::FollowRedirect(
     return;
   }
 
+  const bool can_follow_redirect_on_target =
+      can_follow_redirect_on_target_ && target_loader_ && !new_url;
+  can_follow_redirect_on_target_ = false;
+
+  if (can_follow_redirect_on_target) {
+    // Only the target loader can complete this redirect (see
+    // ContinueToBeforeRedirect). Keep it while the client evaluates the
+    // redirected request. ContinueAfterIntercept follows the redirect on it if
+    // the request is unchanged and uses default handling. Otherwise it is
+    // released, like Restart() would.
+    follow_redirect_on_target_ = true;
+    redirect_headers_update_params_.removed_headers =
+        std::move(removed_headers);
+    redirect_headers_update_params_.modified_headers =
+        std::move(modified_headers);
+    StartRequest();
+    return;
+  }
+
   // Normally we would call FollowRedirect on the target loader and it would
   // begin loading the redirected request. However, the client might want to
   // intercept that request so restart the job instead.
@@ -825,7 +873,8 @@ void InterceptedRequest::BeforeRequestReceived(const GURL& original_url,
 
   if (!intercept_request_) {
     // Equivalent to no interception.
-    InterceptResponseReceived(original_url, nullptr);
+    InterceptResponseReceived(original_url, nullptr,
+                              /*request_modified=*/false);
   } else {
     // TODO(network): Verify the case when WebContents::RenderFrameDeleted is
     // called before network request is intercepted (i.e. if that's possible
@@ -839,10 +888,14 @@ void InterceptedRequest::BeforeRequestReceived(const GURL& original_url,
 
 void InterceptedRequest::InterceptResponseReceived(
     const GURL& original_url,
-    std::unique_ptr<ResourceResponse> response) {
+    std::unique_ptr<ResourceResponse> response,
+    bool request_modified) {
   if (request_.url != original_url) {
     // A response object shouldn't be created if we're redirecting.
     DCHECK(!response);
+
+    // The client replaced the redirect target.
+    CancelFollowRedirectOnTarget();
 
     // Perform the redirect.
     current_response_ = network::mojom::URLResponseHead::New();
@@ -887,6 +940,7 @@ void InterceptedRequest::InterceptResponseReceived(
   if (response) {
     // Non-null response: make sure to use it as an override for the
     // normal network data.
+    CancelFollowRedirectOnTarget();
     ContinueAfterInterceptWithOverride(std::move(response));
   } else {
     // Request was not intercepted/overridden. Proceed with loading
@@ -896,12 +950,32 @@ void InterceptedRequest::InterceptResponseReceived(
       SendErrorAndCompleteImmediately(net::ERR_UNKNOWN_URL_SCHEME);
       return;
     }
+    if (request_modified) {
+      // The target loader can't apply request changes when following the
+      // redirect (ExtensionURLLoader ignores |headers_update_params|), so load
+      // the modified request with a new loader instead. Chromium then checks
+      // it without the original URL.
+      CancelFollowRedirectOnTarget();
+    }
     ContinueAfterIntercept();
   }
 }
 
+void InterceptedRequest::CancelFollowRedirectOnTarget() {
+  if (follow_redirect_on_target_) {
+    ResetTargetLoader();
+  }
+}
+
 void InterceptedRequest::ContinueAfterIntercept() {
-  if (!target_loader_ && target_factory_) {
+  if (follow_redirect_on_target_) {
+    // Follow the redirect on the existing loader (see FollowRedirect).
+    DCHECK(target_loader_);
+    follow_redirect_on_target_ = false;
+    target_loader_->FollowRedirect(std::move(redirect_headers_update_params_),
+                                   /*new_url=*/std::nullopt);
+    redirect_headers_update_params_ = network::HttpRequestHeadersUpdateParams();
+  } else if (!target_loader_ && target_factory_) {
     // Even if this request does not use the header client, future redirects
     // might, so we need to set the option on the loader.
     uint32_t options = options_ | network::mojom::kURLLoadOptionUseHeaderClient;
@@ -909,14 +983,17 @@ void InterceptedRequest::ContinueAfterIntercept() {
         target_loader_.BindNewPipeAndPassReceiver(), id_, options, request_,
         proxied_client_receiver_.BindNewPipeAndPassRemote(),
         traffic_annotation_);
-    if (original_crendentials_mode_) {
-      // Restore the original |credentials_mode| value after calling
-      // CreateLoaderAndStart. This matches the logic in CorsURLLoader::
-      // StartNetworkRequest and allows InterceptedRequest::Restart to compute
-      // the correct |credentials_mode| during a fetch request redirect.
-      request_.credentials_mode = *original_crendentials_mode_;
-      original_crendentials_mode_.reset();
-    }
+  } else {
+    return;
+  }
+
+  if (original_crendentials_mode_) {
+    // Restore the original |credentials_mode| value after starting the
+    // request. This matches the logic in CorsURLLoader::StartNetworkRequest and
+    // allows InterceptedRequest::Restart to compute the correct
+    // |credentials_mode| during a fetch request redirect.
+    request_.credentials_mode = *original_crendentials_mode_;
+    original_crendentials_mode_.reset();
   }
 }
 
@@ -1074,6 +1151,16 @@ void InterceptedRequest::ContinueToBeforeRedirect(
     new_redirect_info.new_site_for_cookies =
         net::SiteForCookies::FromUrl(redirect_url);
   }
+
+  // Chromium's extension loader serves a dynamic web_accessible_resources
+  // URL (session GUID host) with an internal redirect to the static-ID URL and
+  // admits the resource only on the same loader, which remembers the original
+  // URL. A restarted loader lacks it and the load is denied. Only when the
+  // client kept the redirect target (|redirect_url_| is set to it by default).
+  can_follow_redirect_on_target_ =
+      (!redirect_url.is_valid() || redirect_url == redirect_info.new_url) &&
+      target_loader_ && original_url.SchemeIs(extensions::kExtensionScheme) &&
+      new_redirect_info.new_url.SchemeIs(extensions::kExtensionScheme);
 
   target_client_->OnReceiveRedirect(new_redirect_info,
                                     std::move(current_response_));
@@ -1356,7 +1443,7 @@ void InterceptedRequestHandler::ShouldInterceptRequest(
     int32_t request_id,
     network::ResourceRequest* request,
     ShouldInterceptRequestResultCallback callback) {
-  std::move(callback).Run(nullptr);
+  std::move(callback).Run(nullptr, /*request_modified=*/false);
 }
 
 void InterceptedRequestHandler::OnRequestResponse(
