@@ -212,9 +212,13 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
     return crashpad_runner::RunAsCrashpadHandler(command_line);
   }
 
+  // Initialize the global command line before the delegate constructor calls
+  // TimeTicks::Now(). On Windows, clock selection must read
+  // --force-high-res-timeticks on the first call to match the browser process.
+  BeforeMainInitialize(args);
+
   auto main_delegate = std::make_unique<ChromeMainDelegateCef>(
       /*runner=*/nullptr, /*settings=*/nullptr, application);
-  BeforeMainInitialize(args);
 
   // Execute the secondary process.
   content::ContentMainParams main_params(main_delegate.get());
