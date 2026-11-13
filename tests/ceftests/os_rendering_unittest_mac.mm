@@ -79,8 +79,7 @@ class NativeSharedTexturePixelReader : public SharedTexturePixelReader {
   void Cleanup() override { renderer_.Cleanup(); }
 
   bool Read(const CefAcceleratedPaintInfo& info,
-            uint32_t* marker,
-            uint32_t* timestamp) override {
+            std::vector<uint32_t>* pixels) override {
     @autoreleasepool {
       if (!renderer_.OnAcceleratedPaint(PET_VIEW, {}, info)) {
         return false;
@@ -97,14 +96,9 @@ class NativeSharedTexturePixelReader : public SharedTexturePixelReader {
           [renderer_.device() newTextureWithDescriptor:descriptor];
       id<MTLCommandBuffer> render = renderer_.Render(target);
       [render waitUntilCompleted];
-      std::vector<uint32_t> pixels;
       const bool success = render &&
                            render.status == MTLCommandBufferStatusCompleted &&
-                           ReadMetalTexture(target, &pixels);
-      if (success) {
-        *marker = pixels[0];
-        *timestamp = pixels[visible.width / 2];
-      }
+                           ReadMetalTexture(target, pixels);
 #if !__has_feature(objc_arc)
       [target release];
 #endif
