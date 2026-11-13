@@ -62,6 +62,10 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
   bool TopLevelAlwaysOnTop() const;
 
  private:
+  // Give input focus to the child DesktopWindowTreeHostLinux, if any, or
+  // otherwise to this window.
+  void SetInputFocus(x11::Time time);
+
   void ContinueFocus();
 
   void ProcessXEvent(const x11::Event& xev);
@@ -85,6 +89,10 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
   gfx::Rect bounds_;
 
   bool focus_pending_ = false;
+
+  // The WM_TAKE_FOCUS atom if this window uses the "Globally Active" input
+  // model, or None otherwise.
+  x11::Atom wm_take_focus_atom_ = x11::Atom::None;
 
   // Must always be the last member.
   base::WeakPtrFactory<CefWindowX11> weak_ptr_factory_;
