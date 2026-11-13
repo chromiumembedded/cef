@@ -5,6 +5,7 @@
 
 #include "base/functional/callback.h"
 #include "base/memory/raw_ptr.h"
+#include "base/memory/weak_ptr.h"
 #include "components/viz/host/client_frame_sink_video_capturer.h"
 #include "media/capture/mojom/video_capture_types.mojom.h"
 
@@ -39,6 +40,8 @@ class CefVideoConsumerOSR : public viz::mojom::FrameSinkVideoConsumer {
   void OnNewCaptureVersion(
       const media::CaptureVersion& capture_version) override {}
 
+  void OnFrameReleased();
+
   const bool use_shared_texture_;
 
   const raw_ptr<CefRenderWidgetHostViewOSR> view_;
@@ -46,6 +49,13 @@ class CefVideoConsumerOSR : public viz::mojom::FrameSinkVideoConsumer {
 
   gfx::Size size_in_pixels_;
   std::optional<gfx::Rect> bounds_in_pixels_;
+
+  // Shared texture frames delivered and not yet released by the client. Not
+  // reset by capture restarts.
+  int held_frames_ = 0;
+  bool repaint_on_release_ = false;
+
+  base::WeakPtrFactory<CefVideoConsumerOSR> weak_ptr_factory_{this};
 };
 
 #endif  // LIBCEF_BROWSER_OSR_VIDEO_CONSUMER_OSR_H_

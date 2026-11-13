@@ -4,8 +4,13 @@
 
 #include "cef/libcef/browser/osr/video_consumer_osr.h"
 
+#include <utility>
+
+#include "base/functional/callback_helpers.h"
 #include "build/build_config.h"
+#include "cef/include/cef_callback.h"
 #include "cef/libcef/browser/osr/render_widget_host_view_osr.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "media/base/video_frame_metadata.h"
 #include "media/capture/mojom/video_capture_buffer.mojom.h"
 #include "media/capture/mojom/video_capture_types.mojom.h"
@@ -13,17 +18,51 @@
 
 namespace {
 
-// Helper to always call Done() at the end of OnFrameCaptured().
-class ScopedVideoFrameDone {
+// The capturer redelivers unchanged frames without taking a buffer from its
+// pool, so the pool does not bound how many frames a client holds.
+constexpr int kMaxHeldFrames = 4;
+
+// Holds a shared texture frame and its handles until executed or destroyed.
+// Releases on the UI thread, where |on_released_| reaches the consumer, and in
+// a later task when executed so that the frame outlives the paint call. Closing
+// |callbacks_| releases the frame like Done() (see viz::InFlightFrameDelivery).
+class CefAcceleratedPaintCallbackImpl : public CefCallback {
  public:
-  explicit ScopedVideoFrameDone(
+  CefAcceleratedPaintCallbackImpl(
+      media::mojom::VideoBufferHandlePtr data,
       mojo::PendingRemote<viz::mojom::FrameSinkVideoConsumerFrameCallbacks>
-          callbacks)
-      : callbacks_(std::move(callbacks)) {}
-  ~ScopedVideoFrameDone() { callbacks_->Done(); }
+          callbacks,
+      base::OnceClosure on_released)
+      : on_released_(std::move(on_released)),
+        data_(std::move(data)),
+        callbacks_(std::move(callbacks)) {}
+
+  CefAcceleratedPaintCallbackImpl(const CefAcceleratedPaintCallbackImpl&) =
+      delete;
+  CefAcceleratedPaintCallbackImpl& operator=(
+      const CefAcceleratedPaintCallbackImpl&) = delete;
+
+  void Continue() override {
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::BindOnce(&CefAcceleratedPaintCallbackImpl::ReleaseFrame, this));
+  }
+
+  void Cancel() override { Continue(); }
 
  private:
-  mojo::Remote<viz::mojom::FrameSinkVideoConsumerFrameCallbacks> callbacks_;
+  void ReleaseFrame() {
+    data_.reset();
+    callbacks_.reset();
+    on_released_.RunAndReset();
+  }
+
+  base::ScopedClosureRunner on_released_;
+  media::mojom::VideoBufferHandlePtr data_;
+  mojo::PendingRemote<viz::mojom::FrameSinkVideoConsumerFrameCallbacks>
+      callbacks_;
+
+  IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefAcceleratedPaintCallbackImpl);
 };
 
 }  // namespace
@@ -85,6 +124,14 @@ void CefVideoConsumerOSR::RequestRefreshFrame(
   video_capturer_->RequestRefreshFrame();
 }
 
+void CefVideoConsumerOSR::OnFrameReleased() {
+  --held_frames_;
+  if (std::exchange(repaint_on_release_, false)) {
+    // Frames were dropped with their damage, so repaint the whole view.
+    RequestRefreshFrame(gfx::Rect(size_in_pixels_));
+  }
+}
+
 // Frame size values are as follows:
 //   info->coded_size = Width and height of the video frame. Not all pixels in
 //   this region are valid.
@@ -99,8 +146,7 @@ void CefVideoConsumerOSR::OnFrameCaptured(
     const gfx::Rect& content_rect,
     mojo::PendingRemote<viz::mojom::FrameSinkVideoConsumerFrameCallbacks>
         callbacks) {
-  ScopedVideoFrameDone scoped_done(std::move(callbacks));
-
+  // Destroying |callbacks| returns the frame to the capturer's pool.
   media::VideoFrameMetadata metadata = info->metadata;
   gfx::Rect damage_rect;
 
@@ -127,6 +173,11 @@ void CefVideoConsumerOSR::OnFrameCaptured(
 
   // If it is GPU Texture OSR.
   if (use_shared_texture_) {
+    if (held_frames_ == kMaxHeldFrames) {
+      repaint_on_release_ = true;
+      return;
+    }
+
     CHECK(data->is_gpu_memory_buffer_handle() &&
           (info->pixel_format == media::PIXEL_FORMAT_ARGB ||
            info->pixel_format == media::PIXEL_FORMAT_ABGR));
@@ -180,7 +231,6 @@ void CefVideoConsumerOSR::OnFrameCaptured(
     paint_info.extra = extra;
     paint_info.shared_texture_handle = gmb_handle.dxgi_handle().buffer_handle();
     paint_info.format = pixel_format;
-    view_->OnAcceleratedPaint(damage_rect, info->coded_size, paint_info);
 #elif BUILDFLAG(IS_APPLE)
     auto& gmb_handle = data->get_gpu_memory_buffer_handle();
     cef_accelerated_paint_info_t paint_info = {
@@ -188,7 +238,6 @@ void CefVideoConsumerOSR::OnFrameCaptured(
     paint_info.extra = extra;
     paint_info.shared_texture_io_surface = gmb_handle.io_surface().get();
     paint_info.format = pixel_format;
-    view_->OnAcceleratedPaint(damage_rect, info->coded_size, paint_info);
 #elif BUILDFLAG(IS_LINUX)
     auto& gmb_handle = data->get_gpu_memory_buffer_handle();
     auto& native_pixmap = gmb_handle.native_pixmap_handle();
@@ -210,8 +259,14 @@ void CefVideoConsumerOSR::OnFrameCaptured(
       cef_plane.fd = plane.fd.get();
       paint_info.planes[cef_plain_index++] = cef_plane;
     }
-    view_->OnAcceleratedPaint(damage_rect, info->coded_size, paint_info);
 #endif
+    ++held_frames_;
+    view_->OnAcceleratedPaint(
+        damage_rect, info->coded_size, paint_info,
+        new CefAcceleratedPaintCallbackImpl(
+            std::move(data), std::move(callbacks),
+            base::BindOnce(&CefVideoConsumerOSR::OnFrameReleased,
+                           weak_ptr_factory_.GetWeakPtr())));
     return;
   }
 

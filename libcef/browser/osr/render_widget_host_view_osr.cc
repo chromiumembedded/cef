@@ -24,6 +24,7 @@
 #include "cef/libcef/browser/osr/touch_selection_controller_client_osr.h"
 #include "cef/libcef/browser/osr/video_consumer_osr.h"
 #include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/api_version_util.h"
 #include "components/input/cursor_manager.h"
 #include "components/input/render_widget_host_input_event_router.h"
 #include "components/input/switches.h"
@@ -1792,7 +1793,8 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
 void CefRenderWidgetHostViewOSR::OnAcceleratedPaint(
     const gfx::Rect& damage_rect,
     const gfx::Size& pixel_size,
-    const CefAcceleratedPaintInfo& info) {
+    const CefAcceleratedPaintInfo& info,
+    CefRefPtr<CefCallback> callback) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::OnAcceleratedPaint");
 
   // Workaround for https://github.com/chromiumembedded/cef/issues/2817
@@ -1814,9 +1816,12 @@ void CefRenderWidgetHostViewOSR::OnAcceleratedPaint(
   // The client may close the browser and destroy this object from within the
   // callback.
   auto weak_this = weak_ptr_factory_.GetWeakPtr();
-  handler->OnAcceleratedPaint(browser_impl_.get(),
-                              IsPopupWidget() ? PET_POPUP : PET_VIEW, rcList,
-                              info);
+  CefRefPtr<CefBrowser> browser = browser_impl_.get();
+  const auto type = IsPopupWidget() ? PET_POPUP : PET_VIEW;
+  if (!CEF_API_IS_ADDED(CEF_EXPERIMENTAL) ||
+      !handler->OnAcceleratedPaint(browser, type, rcList, info, callback)) {
+    handler->OnAcceleratedPaint(browser, type, rcList, info);
+  }
   if (!weak_this) {
     return;
   }

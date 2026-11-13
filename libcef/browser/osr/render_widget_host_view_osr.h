@@ -18,6 +18,7 @@
 #include "cc/layers/deadline_policy.h"
 #include "cef/include/cef_base.h"
 #include "cef/include/cef_browser.h"
+#include "cef/include/cef_callback.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "cef/libcef/browser/osr/external_begin_frame_request_state.h"
 #include "cef/libcef/browser/osr/host_display_client_osr.h"
@@ -277,7 +278,8 @@ class CefRenderWidgetHostViewOSR
                const void* pixels);
   void OnAcceleratedPaint(const gfx::Rect& damage_rect,
                           const gfx::Size& pixel_size,
-                          const CefAcceleratedPaintInfo& info);
+                          const CefAcceleratedPaintInfo& info,
+                          CefRefPtr<CefCallback> callback);
 
   void OnBeginFame(base::TimeTicks frame_time);
 
