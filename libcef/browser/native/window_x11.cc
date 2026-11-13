@@ -474,7 +474,7 @@ void CefWindowX11::ProcessXEvent(const x11::Event& event) {
       } else if (wm_take_focus_atom_ != x11::Atom::None &&
                  protocol == wm_take_focus_atom_) {
         // The window manager wants us to take focus. Use the timestamp from
-        // the message as required by the ICCCM (it may be CurrentTime).
+        // the message as required by the ICCCM.
         SetInputFocus(static_cast<x11::Time>(client->data.data32[1]));
       }
     }
