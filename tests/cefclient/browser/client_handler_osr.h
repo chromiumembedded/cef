@@ -6,6 +6,8 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_CLIENT_HANDLER_OSR_H_
 #pragma once
 
+#include <deque>
+
 #include "tests/cefclient/browser/client_handler.h"
 
 namespace client {
@@ -91,6 +93,11 @@ class ClientHandlerOsr : public ClientHandler,
   // OsrDelegate to detach itself before destruction.
   void DetachOsrDelegate();
 
+  // Holds the |count| most recent shared texture frames after painting them,
+  // releasing older ones. Zero releases each frame when its paint returns.
+  void SetFramesToHold(size_t count);
+  size_t frames_to_hold() const { return frames_to_hold_; }
+
   // CefClient methods.
   CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
   CefRefPtr<CefAccessibilityHandler> GetAccessibilityHandler() override {
@@ -123,6 +130,13 @@ class ClientHandlerOsr : public ClientHandler,
                           CefRenderHandler::PaintElementType type,
                           const CefRenderHandler::RectList& dirtyRects,
                           const CefAcceleratedPaintInfo& info) override;
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+  bool OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
+                          CefRenderHandler::PaintElementType type,
+                          const CefRenderHandler::RectList& dirtyRects,
+                          const CefAcceleratedPaintInfo& info,
+                          CefRefPtr<CefCallback> callback) override;
+#endif  // CEF_API_ADDED(CEF_EXPERIMENTAL)
   bool StartDragging(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefDragData> drag_data,
                      CefRenderHandler::DragOperationsMask allowed_ops,
@@ -152,6 +166,8 @@ class ClientHandlerOsr : public ClientHandler,
 
   // Only accessed on the UI thread.
   OsrDelegate* osr_delegate_;
+  size_t frames_to_hold_ = 0;
+  std::deque<CefRefPtr<CefCallback>> held_frames_;
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientHandlerOsr);

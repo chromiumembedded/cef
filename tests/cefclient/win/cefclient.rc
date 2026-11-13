@@ -100,6 +100,7 @@ BEGIN
         MENUITEM "Zoom Reset",                  ID_TESTS_ZOOM_RESET
         MENUITEM "Set FPS",                     ID_TESTS_OSR_FPS
         MENUITEM "Set Scale Factor",            ID_TESTS_OSR_DSF
+        MENUITEM "Hold Frames",                 ID_TESTS_OSR_HOLD_FRAMES
         MENUITEM "Begin Tracing",               ID_TESTS_TRACING_BEGIN
         MENUITEM "End Tracing",                 ID_TESTS_TRACING_END
         MENUITEM "Print",                       ID_TESTS_PRINT

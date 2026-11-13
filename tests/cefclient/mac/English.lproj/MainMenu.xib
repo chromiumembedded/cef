@@ -404,6 +404,12 @@
                                     <action selector="menuTestsSetScaleFactor:" target="-2" id="S47-BI-RtO"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Hold Frames" id="hFr-Ho-ld1">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="menuTestsHoldFrames:" target="-2" id="hFr-Ac-tn1"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Begin Tracing" id="na7-bM-yBE">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>

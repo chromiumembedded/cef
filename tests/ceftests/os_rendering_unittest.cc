@@ -2235,6 +2235,277 @@ class ExternalBeginFrameTimingTestHandler : public RoutingTestHandler,
   IMPLEMENT_REFCOUNTING(ExternalBeginFrameTimingTestHandler);
 };
 
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+// Matches the limit documented for OnAcceleratedPaint with a callback.
+constexpr size_t kMaxHeldFrames = 4;
+
+// A green marker shows that the page has loaded, and each frame paints a
+// different background color.
+constexpr char kAnimatedPage[] = R"(
+  <html><body>
+  <div style="position:fixed;left:0;top:0;width:4px;height:4px;
+              background:#00ff00"></div><script>
+  let frame = 0;
+  function animate() {
+    ++frame;
+    document.documentElement.style.backgroundColor =
+        'rgb(' + (frame & 255) + ',' + ((frame >> 8) & 255) + ',128)';
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+  </script></body></html>)";
+
+// A static page until a small square starts animating, so that paints dropped
+// at the limit carry less damage than the whole view.
+constexpr char kSquarePage[] = R"(
+  <html><body>
+  <div id="square" style="position:fixed;left:0;top:0;width:4px;height:4px">
+  </div><script>
+  let frame = 0;
+  function animate() {
+    ++frame;
+    document.getElementById('square').style.background =
+        'rgb(' + (frame & 255) + ',0,0)';
+    requestAnimationFrame(animate);
+  }
+  </script></body></html>)";
+
+// Both tests release the frames still held once the browser is gone.
+enum class HoldTest {
+  // Held frames keep their pixels across a capture restart while frames
+  // released from another thread outnumber the capturer's pool.
+  kPixels,
+  // Unchanged frames redelivered by Invalidate() count toward the limit, paints
+  // are dropped at the limit, and dropping the last reference to a held
+  // callback on another thread repaints the whole view.
+  kLimit,
+};
+
+class AcceleratedPaintCallbackTestHandler : public TestHandler,
+                                            public CefRenderHandler {
+ public:
+  explicit AcceleratedPaintCallbackTestHandler(HoldTest test) : test_(test) {}
+
+  bool readback_unavailable() const { return readback_unavailable_; }
+
+  bool shared_texture_unavailable() const {
+    return shared_texture_unavailable_;
+  }
+
+  void ReleaseHeldFrames() {
+    for (const auto& frame : held_frames_) {
+      frame.callback->Continue();
+    }
+    held_frames_.clear();
+  }
+
+  void RunTest() override {
+    SetTestTimeout(15000);
+    if (test_ == HoldTest::kPixels) {
+      pixel_reader_ = osr_unittests::CreateSharedTexturePixelReader();
+      if (!pixel_reader_->Initialize()) {
+        readback_unavailable_ = true;
+        DestroyTest();
+        return;
+      }
+    }
+    const char kUrl[] = "https://tests/accelerated_paint_callback";
+    AddResource(kUrl, test_ == HoldTest::kPixels ? kAnimatedPage : kSquarePage,
+                "text/html");
+    CefWindowInfo window_info;
+    window_info.SetAsWindowless(kNullWindowHandle);
+    window_info.shared_texture_enabled = true;
+    CefBrowserSettings settings;
+    settings.windowless_frame_rate = 60;
+    CefBrowserHost::CreateBrowser(window_info, this, kUrl, settings, nullptr,
+                                  nullptr);
+  }
+
+  CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
+
+  void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override {
+    rect = CefRect(0, 0, kViewWidth, kViewHeight);
+  }
+
+  void OnPaint(CefRefPtr<CefBrowser> browser,
+               PaintElementType type,
+               const RectList& dirty_rects,
+               const void* buffer,
+               int width,
+               int height) override {
+    // Chromium delivers OnPaint when GPU compositing is unavailable.
+    if (!shared_texture_unavailable_) {
+      shared_texture_unavailable_ = true;
+      DestroyTest();
+    }
+  }
+
+  void OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
+                          PaintElementType type,
+                          const RectList& dirty_rects,
+                          const CefAcceleratedPaintInfo& info) override {
+    ++fallback_paints_;
+    if (pixel_reader_) {
+      uint32_t marker = 0;
+      uint32_t background = 0;
+      EXPECT_TRUE(pixel_reader_->Read(info, &marker, &background));
+    }
+  }
+
+  bool OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
+                          PaintElementType type,
+                          const RectList& dirty_rects,
+                          const CefAcceleratedPaintInfo& info,
+                          CefRefPtr<CefCallback> callback) override {
+    if (type != PET_VIEW || finished_) {
+      return true;
+    }
+    if (fallback_paints_ == 0) {
+      // A static page paints again only when invalidated.
+      browser->GetHost()->Invalidate(PET_VIEW);
+      // Declining still leaves the frame to the variant without |callback|.
+      callback->Cancel();
+      return false;
+    }
+    if (test_ == HoldTest::kPixels) {
+      OnPixelsPaint(browser, info, callback);
+    } else {
+      OnLimitPaint(browser, dirty_rects, info, callback);
+    }
+    return true;
+  }
+
+  void DestroyTest() override {
+    finished_ = true;
+    if (!readback_unavailable_ && !shared_texture_unavailable_) {
+      EXPECT_EQ(1, fallback_paints_);
+      EXPECT_EQ(test_ == HoldTest::kPixels ? kExecutedFrames : 0U,
+                executed_callbacks_.size());
+    }
+    executed_callbacks_.clear();
+    if (pixel_reader_) {
+      pixel_reader_->Cleanup();
+      pixel_reader_.reset();
+    }
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  struct HeldFrame {
+    CefAcceleratedPaintInfo info;
+    CefRefPtr<CefCallback> callback;
+    uint32_t background = 0;
+  };
+
+  void OnPixelsPaint(CefRefPtr<CefBrowser> browser,
+                     const CefAcceleratedPaintInfo& info,
+                     CefRefPtr<CefCallback> callback) {
+    uint32_t marker = 0;
+    uint32_t background = 0;
+    EXPECT_TRUE(pixel_reader_->Read(info, &marker, &background));
+    if (marker != 0xff00ff00U) {
+      // The page has not loaded yet.
+      return;
+    }
+    if (held_frames_.size() < kHeldFrames) {
+      held_frames_.push_back({info, callback, background});
+      if (held_frames_.size() == kHeldFrames) {
+        // Restarting capture replaces the capturer's pool.
+        CefPostTask(TID_UI, base::BindOnce(
+                                [](CefRefPtr<CefBrowser> browser) {
+                                  browser->GetHost()->WasHidden(true);
+                                  browser->GetHost()->WasHidden(false);
+                                },
+                                browser));
+      }
+      return;
+    }
+    // Keep a reference so that only executing the callback releases the frame.
+    executed_callbacks_.push_back(callback);
+    CefPostTask(TID_FILE_USER_VISIBLE,
+                base::BindOnce(&CefCallback::Continue, callback));
+    if (executed_callbacks_.size() == kExecutedFrames) {
+      for (const auto& frame : held_frames_) {
+        EXPECT_TRUE(pixel_reader_->Read(frame.info, &marker, &background));
+        EXPECT_EQ(frame.background, background);
+      }
+      EXPECT_NE(held_frames_.front().background,
+                held_frames_.back().background);
+      DestroyTest();
+    }
+  }
+
+  void OnLimitPaint(CefRefPtr<CefBrowser> browser,
+                    const RectList& dirty_rects,
+                    const CefAcceleratedPaintInfo& info,
+                    CefRefPtr<CefCallback> callback) {
+    if (released_one_) {
+      EXPECT_EQ(RectList{CefRect(0, 0, kViewWidth, kViewHeight)}, dirty_rects);
+      DestroyTest();
+      return;
+    }
+    EXPECT_LT(held_frames_.size(), kMaxHeldFrames);
+    held_frames_.push_back({info, callback});
+    // Invalidating redelivers the same frame, which is dropped at the limit.
+    browser->GetHost()->Invalidate(PET_VIEW);
+    if (held_frames_.size() == kMaxHeldFrames) {
+      browser->GetMainFrame()->ExecuteJavaScript("animate()", "", 0);
+      CefPostDelayedTask(
+          TID_UI,
+          base::BindOnce(&AcceleratedPaintCallbackTestHandler::ReleaseOne,
+                         this),
+          500);
+    }
+  }
+
+  void ReleaseOne() {
+    EXPECT_EQ(kMaxHeldFrames, held_frames_.size());
+    released_one_ = true;
+    CefPostTask(TID_FILE_USER_VISIBLE,
+                base::BindOnce([](CefRefPtr<CefCallback> callback) {},
+                               std::move(held_frames_.back().callback)));
+    held_frames_.pop_back();
+  }
+
+  static constexpr int kViewWidth = 160;
+  static constexpr int kViewHeight = 120;
+  static constexpr size_t kHeldFrames = 3;
+  // Well above the capturer's pool size.
+  static constexpr size_t kExecutedFrames = 32;
+
+  const HoldTest test_;
+  bool readback_unavailable_ = false;
+  bool shared_texture_unavailable_ = false;
+  bool finished_ = false;
+  bool released_one_ = false;
+  int fallback_paints_ = 0;
+  std::unique_ptr<osr_unittests::SharedTexturePixelReader> pixel_reader_;
+  std::vector<HeldFrame> held_frames_;
+  std::vector<CefRefPtr<CefCallback>> executed_callbacks_;
+
+  IMPLEMENT_REFCOUNTING(AcceleratedPaintCallbackTestHandler);
+};
+
+void RunAcceleratedPaintCallbackTest(HoldTest test) {
+  if (CefCommandLine::GetGlobalCommandLine()->HasSwitch("disable-gpu")) {
+    GTEST_SKIP() << "GPU is disabled";
+  }
+  CefRefPtr<AcceleratedPaintCallbackTestHandler> handler =
+      new AcceleratedPaintCallbackTestHandler(test);
+  handler->ExecuteTest();
+  handler->ReleaseHeldFrames();
+  const bool readback_unavailable = handler->readback_unavailable();
+  const bool shared_texture_unavailable = handler->shared_texture_unavailable();
+  ReleaseAndWaitForDestructor(handler);
+  if (readback_unavailable) {
+    GTEST_SKIP() << "Shared texture readback is unavailable";
+  }
+  if (shared_texture_unavailable) {
+    GTEST_SKIP() << "Shared texture painting is unavailable";
+  }
+}
+#endif  // CEF_API_ADDED(CEF_EXPERIMENTAL)
+
 }  // namespace
 
 TEST(OSRTest, SingleFramePaint) {
@@ -2276,6 +2547,16 @@ TEST(OSRTest, DISABLED_ExternalBeginFrameTimingAccelerated) {
     GTEST_SKIP() << "Shared texture painting is unavailable";
   }
 }
+
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+TEST(OSRTest, AcceleratedPaintCallbackPixels) {
+  RunAcceleratedPaintCallbackTest(HoldTest::kPixels);
+}
+
+TEST(OSRTest, AcceleratedPaintCallbackLimit) {
+  RunAcceleratedPaintCallbackTest(HoldTest::kLimit);
+}
+#endif  // CEF_API_ADDED(CEF_EXPERIMENTAL)
 
 // generic test
 #define OSR_TEST(name, test_mode, scale_factor)      \

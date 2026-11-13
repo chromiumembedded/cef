@@ -140,6 +140,35 @@ void ClientHandlerOsr::OnAcceleratedPaint(
   osr_delegate_->OnAcceleratedPaint(browser, type, dirtyRects, info);
 }
 
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+bool ClientHandlerOsr::OnAcceleratedPaint(
+    CefRefPtr<CefBrowser> browser,
+    CefRenderHandler::PaintElementType type,
+    const CefRenderHandler::RectList& dirtyRects,
+    const CefAcceleratedPaintInfo& info,
+    CefRefPtr<CefCallback> callback) {
+  CEF_REQUIRE_UI_THREAD();
+  if (frames_to_hold_ == 0) {
+    return false;
+  }
+  // The delegate draws synchronously, so holding drawn frames only exercises
+  // retention: releasing them at once would also be safe.
+  OnAcceleratedPaint(browser, type, dirtyRects, info);
+  held_frames_.push_back(callback);
+  SetFramesToHold(frames_to_hold_);
+  return true;
+}
+#endif  // CEF_API_ADDED(CEF_EXPERIMENTAL)
+
+void ClientHandlerOsr::SetFramesToHold(size_t count) {
+  CEF_REQUIRE_UI_THREAD();
+  frames_to_hold_ = count;
+  while (held_frames_.size() > count) {
+    held_frames_.front()->Continue();
+    held_frames_.pop_front();
+  }
+}
+
 bool ClientHandlerOsr::StartDragging(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDragData> drag_data,
