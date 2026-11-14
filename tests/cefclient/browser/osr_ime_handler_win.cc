@@ -78,12 +78,13 @@ void GetCompositionUnderlines(
     ::ImmGetCompositionString(imc, GCS_COMPCLAUSE, &clause_data[0],
                               clause_size);
     for (int i = 0; i < clause_length - 1; ++i) {
-      cef_composition_underline_t underline = {};
-      underline.range.from = clause_data[i];
-      underline.range.to = clause_data[i + 1];
-      underline.color = ColorUNDERLINE;
-      underline.background_color = ColorBKCOLOR;
-      underline.thick = 0;
+      cef_composition_underline_t underline = {
+          .size = sizeof(cef_composition_underline_t),
+          .range = {.from = clause_data[i], .to = clause_data[i + 1]},
+          .color = ColorUNDERLINE,
+          .background_color = ColorBKCOLOR,
+          .thick = 0,
+      };
 
       // Use thick underline for the target clause.
       if (underline.range.from >= target_start &&
