@@ -34,3 +34,16 @@ bool SetNativeTestBrowserVisible(CefRefPtr<CefBrowser> browser, bool visible) {
   }
   return true;
 }
+
+std::optional<bool> HasVisibleNativeModalDialog() {
+  CEF_REQUIRE_UI_THREAD();
+  if ([NSApp modalWindow]) {
+    return true;
+  }
+  for (NSWindow* window in [NSApp windows]) {
+    if (window.visible && window.modalPanel) {
+      return true;
+    }
+  }
+  return false;
+}

@@ -30,6 +30,10 @@ bool SetNativeTestBrowserVisible(CefRefPtr<CefBrowser> browser, bool visible);
 // this query is unavailable. Call on the UI thread with a visible browser.
 std::optional<bool> IsNativeTestBrowserResizable(CefRefPtr<CefBrowser> browser);
 
+// Returns true if the application is showing a native modal dialog, or nullopt
+// on platforms where this query is unavailable. Call on the UI thread.
+std::optional<bool> HasVisibleNativeModalDialog();
+
 // Test that CefRequest::HeaderMap objects are equal. Multiple values with the
 // same key are allowed, but not duplicate entries with the same key/value. If
 // |allowExtras| is true then additional header fields will be allowed in
