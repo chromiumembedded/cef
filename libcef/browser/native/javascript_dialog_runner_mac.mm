@@ -171,6 +171,9 @@ void CefJavaScriptDialogRunnerMac::Handle(
     bool accept,
     const std::u16string* prompt_override) {
   if (helper_) {
+    // Dismiss the alert before releasing |helper_|. Otherwise the alert stays on
+    // screen with a dangling modal delegate and crashes when a button is clicked.
+    [helper_ cancel];
     DialogClosed(accept, prompt_override ? *prompt_override : std::u16string());
   }
 }
