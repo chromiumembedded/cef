@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index 410948963a049c056bc605867a9fa5866347c435..e80365c1b3cff6de0cd5dd0dd788b5f816bdc962 100644
+index a1bf7b4fada2f65e6568ba4c945a1bdf6a34624e..7fb352880695a5c253f499f88329504b7517348a 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
 @@ -10664,6 +10664,16 @@ void RenderFrameHostImpl::CreateNewWindow(
@@ -19,7 +19,7 @@ index 410948963a049c056bc605867a9fa5866347c435..e80365c1b3cff6de0cd5dd0dd788b5f8
    // Otherwise, consume user activation before we proceed. In particular, it is
    // important to do this before we return from the |opener_suppressed| case
    // below.
-@@ -12778,6 +12788,7 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -12774,6 +12784,7 @@ void RenderFrameHostImpl::CommitNavigation(
        ProcessLock::FromSiteInfo(GetSiteInstance()->GetSiteInfo());
    auto browser_calc_origin_to_commit = navigation_request->GetOriginToCommit();
    if (!process_lock.is_error_page() && !is_mhtml_subframe &&
