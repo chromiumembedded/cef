@@ -64,9 +64,11 @@ class InterceptedRequestHandler {
                                CancelRequestCallback cancel_callback);
 
   // Optionally modify |request| and execute |callback| after determining if the
-  // request hould be intercepted.
+  // request hould be intercepted. Set |request_modified| to true if the client
+  // modified |request|.
   using ShouldInterceptRequestResultCallback =
-      base::OnceCallback<void(std::unique_ptr<ResourceResponse>)>;
+      base::OnceCallback<void(std::unique_ptr<ResourceResponse>,
+                              bool /* request_modified */)>;
   virtual void ShouldInterceptRequest(
       int32_t request_id,
       network::ResourceRequest* request,
