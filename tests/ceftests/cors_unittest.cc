@@ -515,7 +515,8 @@ class CorsTestHandler : public RoutingTestHandler {
       } else {
         resource->failure_query_ct++;
       }
-      TriggerDestroyTestIfDone();
+      TriggerDestroyTestIfDone(resource->failure_query_ct >
+                               resource->expected_failure_query_ct);
       return true;
     }
     return false;
@@ -562,18 +563,20 @@ class CorsTestHandler : public RoutingTestHandler {
     }
   }
 
-  void TriggerDestroyTestIfDone() {
-    CefPostTask(TID_UI,
-                base::BindOnce(&CorsTestHandler::DestroyTestIfDone, this));
+  void TriggerDestroyTestIfDone(bool unexpected_failure = false) {
+    CefPostTask(TID_UI, base::BindOnce(&CorsTestHandler::DestroyTestIfDone,
+                                       this, unexpected_failure));
   }
 
-  void DestroyTestIfDone() {
+  void DestroyTestIfDone(bool unexpected_failure) {
     CEF_REQUIRE_UI_THREAD();
     if (shutting_down_) {
       return;
     }
 
-    if (setup_->IsDone()) {
+    // Unexpected failure queries make the success expectations unreachable.
+    // Report the unmet expectations during cleanup instead of timing out.
+    if (unexpected_failure || setup_->IsDone()) {
       DestroyTest();
     }
   }
