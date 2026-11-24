@@ -16,10 +16,10 @@ index 2db770cbfe706f4f1c3a7baf6e60f154f6211c05..599e46abb54963b419fef16cb8732e77
        ui::SelectFileDialog::SELECT_SAVEAS_FILE, std::u16string(), path,
        &file_type_info, 0, kPdfExtension,
 diff --git components/remote_cocoa/app_shim/native_widget_mac_nswindow.mm components/remote_cocoa/app_shim/native_widget_mac_nswindow.mm
-index 0e5d0e59d926ecd0ea53ef7c3eaaada1af40a044..2924dc78c639223b9ec629cf1f8e09a8486805f6 100644
+index 90395e39e3051aa177fbf20ef95b84184c4e3712..227f42e6829a77a362af6f7833b7cc1c492de1cd 100644
 --- components/remote_cocoa/app_shim/native_widget_mac_nswindow.mm
 +++ components/remote_cocoa/app_shim/native_widget_mac_nswindow.mm
-@@ -778,6 +778,12 @@ struct NSEdgeAndCornerThicknesses {
+@@ -803,6 +803,12 @@ struct NSEdgeAndCornerThicknesses {
      // window, swallow the event to prevent the web contents from processing it
      // (and potentially triggering new dialogs).
      if (is_blocked_by_modal && child_modal_window) {

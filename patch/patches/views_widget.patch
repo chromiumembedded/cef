@@ -61,7 +61,7 @@ index 3b7a1b253b72011225e754a959b87c9dec518c0b..9a058951efe0b6988113ba556947857c
      case ui::mojom::WindowShowState::kMaximized:
        return kSerializedShowStateMaximized;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index 2250e02a3713c5345da35f4bf9e57f9fbf1379ba..b8c73947b8061d0d6f95485f4261a0474d7b53a2 100644
+index bf8351302045e233b73960d0fda6293a7e8a02cc..b158f8c75ccc9561743f0e72d2859a9848de350c 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -747,6 +747,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
@@ -80,7 +80,7 @@ index 2250e02a3713c5345da35f4bf9e57f9fbf1379ba..b8c73947b8061d0d6f95485f4261a047
    if (!GetMouseWheelPhaseHandler())
      return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index db992bfe928ed8ed944fea7ccbd43074b256ea8a..3c1e06e57846c97aa1bfb997f9c828c1638ed804 100644
+index 7f61d2a806de80c031e847a75831787a778ee1eb..3d2c0e547a673d752791ea0a51262a1cc29c44af 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -91,6 +91,7 @@ namespace content {
@@ -125,7 +125,7 @@ index db992bfe928ed8ed944fea7ccbd43074b256ea8a..3c1e06e57846c97aa1bfb997f9c828c1
    // Indicates whether the page has finished loading.
    virtual void SetIsLoading(bool is_loading) = 0;
  
-@@ -760,6 +774,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -766,6 +780,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // to all displays.
    gfx::Size system_cursor_size_;
  
@@ -136,7 +136,7 @@ index db992bfe928ed8ed944fea7ccbd43074b256ea8a..3c1e06e57846c97aa1bfb997f9c828c1
   private:
    FRIEND_TEST_ALL_PREFIXES(
        BrowserSideFlingBrowserTest,
-@@ -781,10 +799,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -787,10 +805,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
  
    void SynchronizeVisualProperties();
  
@@ -215,10 +215,10 @@ index 3647b788db993b821ff46814559173d3ebab03a3..ebae81511fcca16cde467f2b01b20d1a
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
 diff --git third_party/blink/renderer/core/frame/web_frame_widget_impl.cc third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
-index 15820a2f69d994027ba95534c7ec863dd3b05bb7..d075de6344d410dd3e680d7a94548621ffe9eb79 100644
+index eb087d36427c20d75fabb7ed68a5cc22db53a475..f60023dbf8b580576e2edf167f5148da47fffdae 100644
 --- third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
 +++ third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
-@@ -6147,6 +6147,7 @@ void WebFrameWidgetImpl::OnWindowShowStateChanged(
+@@ -6191,6 +6191,7 @@ void WebFrameWidgetImpl::OnWindowShowStateChanged(
        break;
      case WindowShowState::kInactive:
      case WindowShowState::kFullscreen:
@@ -227,22 +227,28 @@ index 15820a2f69d994027ba95534c7ec863dd3b05bb7..d075de6344d410dd3e680d7a94548621
        break;
    }
 diff --git ui/aura/native_window_occlusion_tracker_win.cc ui/aura/native_window_occlusion_tracker_win.cc
-index e8b31f08fd5d3a412bca8772c963f891e44b0cf7..1adbd775838dd79aca347a47b392baf2ffe29ce2 100644
+index b766d71a332f0d0cb32b5ed7cebeba5553fb2f0a..11741f4623357897327afe2836585e59c2c5a227 100644
 --- ui/aura/native_window_occlusion_tracker_win.cc
 +++ ui/aura/native_window_occlusion_tracker_win.cc
-@@ -116,6 +116,12 @@ void NativeWindowOcclusionTrackerWin::Enable(Window* window) {
-   HWND widget_hwnd = window->GetHost()->GetAcceleratedWidget();
-   HWND root_window_hwnd = ::GetAncestor(widget_hwnd, GA_ROOT);
- 
+@@ -103,6 +103,18 @@ void NativeWindowOcclusionTrackerWin::Enable(Window* window) {
+   // when it's no longer true that all windows are minimized, and when the
+   // window is destroyed.
+   HWND root_window_hwnd = window->GetHost()->GetAcceleratedWidget();
++
++  // Native occlusion tracking only supports top-level HWNDs.
++  if (root_window_hwnd != ::GetAncestor(root_window_hwnd, GA_ROOT)) {
++    return;
++  }
++
 +  // Delay occlusion tracking for initially-minimized windows.
 +  // See CEF issue #3638.
 +  if (IsIconic(root_window_hwnd)) {
 +    return;
 +  }
 +
-   // Remember the mapping from this window back to the real root hwnd.
-   hwnd_widget_to_app_root_map_[window] = root_window_hwnd;
- 
+   window->AddObserver(this);
+   // Remember this mapping from hwnd to Window*.
+   hwnd_root_window_map_[root_window_hwnd] = window;
 diff --git ui/base/mojom/window_show_state.mojom ui/base/mojom/window_show_state.mojom
 index aeaf8e35f7eda89598149117fe8508d197bf2610..4b7cc3f03d3cf9c91ac8efe11ae820cf2b34b8b0 100644
 --- ui/base/mojom/window_show_state.mojom
@@ -403,7 +409,7 @@ index 01f1b39556a98adaa5aa522d8bad41b4c2dfdf3d..5c587b74b5403277899d6e9aa4819f07
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index bc8e826e5e3fbab4b1ad7a9839c3a3878ec7691f..bd508c63ce252da5c627fa03cdcabf27c262fbaf 100644
+index d0baabf2291287f1f38f9c5137c9b021f89c9c4f..5500d1fdee5b63753d6f782cc148314b7084f143 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -32,6 +32,7 @@
@@ -464,7 +470,7 @@ index bc8e826e5e3fbab4b1ad7a9839c3a3878ec7691f..bd508c63ce252da5c627fa03cdcabf27
    // Stack immediately above its parent so that it does not cover other
    // root-level windows, with the exception of menus and security surfaces, to
    // allow them to be displayed on top of other windows.
-@@ -1375,6 +1396,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
+@@ -1378,6 +1399,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
  
    if (restored) {
      window()->Show();
@@ -483,7 +489,7 @@ index bc8e826e5e3fbab4b1ad7a9839c3a3878ec7691f..bd508c63ce252da5c627fa03cdcabf27
    } else {
      window()->Hide();
    }
-@@ -1396,11 +1429,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -1399,11 +1432,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -503,7 +509,7 @@ index bc8e826e5e3fbab4b1ad7a9839c3a3878ec7691f..bd508c63ce252da5c627fa03cdcabf27
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
-@@ -1409,6 +1448,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+@@ -1412,6 +1451,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
      return true;
    }
  
@@ -516,7 +522,7 @@ index bc8e826e5e3fbab4b1ad7a9839c3a3878ec7691f..bd508c63ce252da5c627fa03cdcabf27
    SendEventToSink(event);
    return event->handled();
  }
-@@ -1615,9 +1660,18 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
+@@ -1618,9 +1663,18 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
    // positions in variable-DPI situations. See https://crbug.com/1224715 for
    // details.
    aura::Window* root = nullptr;
@@ -689,10 +695,10 @@ index 2365f88bddec11d282940f32255b79b4e4ede583..25d51bbfb49e94e1ac873c3defb093c6
    bool enable_arrow_key_traversal() const {
      return params_.enable_arrow_key_traversal;
 diff --git ui/views/widget/widget_hwnd_utils.cc ui/views/widget/widget_hwnd_utils.cc
-index 56ed7cad8652cf57e597bb7f369e9e659ea6ed4d..e5f68885fa41fc9da62e746ca790816b901b4321 100644
+index a41fce989a4223c764ce599bb56762348e9f4043..5afd016a1a5d9a22eaf70db9498188d810beac89 100644
 --- ui/views/widget/widget_hwnd_utils.cc
 +++ ui/views/widget/widget_hwnd_utils.cc
-@@ -80,7 +80,8 @@ WindowStyles CalculateWindowStylesFromInitParams(
+@@ -81,7 +81,8 @@ WindowStyles CalculateWindowStylesFromInitParams(
          styles.style &= static_cast<DWORD>(~(WS_THICKFRAME | WS_MAXIMIZEBOX));
        }
        if (params.remove_standard_frame) {

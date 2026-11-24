@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 72949081c78e0cced496c1f32cdaf96223c2133d..b6732a41f17cc90334436629f8abddb005935404 100644
+index a6a1c7e68801c56fce88cc6d9676148f125cfd05..feee481e6801afa898000dd0cd1b25166bd34ea2 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -8,6 +8,7 @@
@@ -18,7 +18,7 @@ index 72949081c78e0cced496c1f32cdaf96223c2133d..b6732a41f17cc90334436629f8abddb0
  #include "content/public/common/content_features.h"
  #include "content/public/common/page_visibility_state.h"
  #include "services/service_manager/public/cpp/interface_provider.h"
-@@ -885,6 +887,9 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBoundsWithoutTransform() {
+@@ -900,6 +902,9 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBoundsWithoutTransform() {
  void RenderWidgetHostViewAura::UpdateBackgroundColor() {
    CHECK(GetBackgroundColor());
  
@@ -28,7 +28,7 @@ index 72949081c78e0cced496c1f32cdaf96223c2133d..b6732a41f17cc90334436629f8abddb0
    SkColor4f background_color =
        SkColor4f::FromColor(GetBackgroundColor().value());
    window_->SetTransparent(!background_color.isOpaque());
-@@ -1316,6 +1321,12 @@ void RenderWidgetHostViewAura::TransformPointToRootSurface(gfx::PointF* point) {
+@@ -1334,6 +1339,12 @@ void RenderWidgetHostViewAura::TransformPointToRootSurface(gfx::PointF* point) {
  }
  
  gfx::Rect RenderWidgetHostViewAura::GetBoundsInScreen() {
@@ -41,7 +41,7 @@ index 72949081c78e0cced496c1f32cdaf96223c2133d..b6732a41f17cc90334436629f8abddb0
    aura::Window* top_level = window_->GetToplevelWindow();
    gfx::Rect bounds(top_level->GetBoundsInScreen());
  
-@@ -3144,6 +3155,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -3162,6 +3173,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    window_->SetTransparent(!background_color.isOpaque());
    window_->layer()->AsSurface()->SetFallbackBackgroundColor(background_color);
    UpdateFrameSinkIdRegistration();
@@ -59,7 +59,7 @@ index 72949081c78e0cced496c1f32cdaf96223c2133d..b6732a41f17cc90334436629f8abddb0
  
  void RenderWidgetHostViewAura::UpdateFrameSinkIdRegistration() {
 diff --git content/browser/renderer_host/render_widget_host_view_aura.h content/browser/renderer_host/render_widget_host_view_aura.h
-index 0ccc352cad46a27fc3b9d64a2e15e15239851d1d..d7595f15223c70ee65d4a82a59dde1130c0bf863 100644
+index 16150b4a1764cb91deffdee314ba73960c7dc14a..7be142d0c79a19e813e7510e24d21f347048cf16 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.h
 +++ content/browser/renderer_host/render_widget_host_view_aura.h
 @@ -482,6 +482,12 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
@@ -75,7 +75,7 @@ index 0ccc352cad46a27fc3b9d64a2e15e15239851d1d..d7595f15223c70ee65d4a82a59dde113
   protected:
    ~RenderWidgetHostViewAura() override;
  
-@@ -935,6 +941,8 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
+@@ -946,6 +952,8 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
  
    bool use_default_deadline_on_resize_ = false;
  

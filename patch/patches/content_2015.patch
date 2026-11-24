@@ -12,10 +12,10 @@ index b1a097466d126e5c9cb5aed3c96dd6c5ad80728d..86302df3fb4a721f2de35d8d8dfa10c9
      version.Set("User-Agent", GetContentClient()->browser()->GetUserAgent());
      version.Set("V8-Version", V8_VERSION_STRING);
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index b6cca8069223bb37bbd11f49d70986112b398d5b..5ecabb0a8624b3b091b749701490ac39b4e2f8db 100644
+index b9cc368692d5880104f03642a270356af2decf34..cf6a6dde00b7c2d76c91ff733d47ef3ed2f68d6c 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -1307,7 +1307,7 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
+@@ -1309,7 +1309,7 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
    mojo::PendingRemote<network::mojom::URLLoaderFactory>
        terminal_external_protocol;
    bool handled = GetContentClient()->browser()->HandleExternalProtocol(
@@ -24,7 +24,7 @@ index b6cca8069223bb37bbd11f49d70986112b398d5b..5ecabb0a8624b3b091b749701490ac39
        frame_tree_node->frame_tree_node_id(), navigation_ui_data,
        request_info.is_primary_main_frame,
        frame_tree_node->IsInFencedFrameTree(), request_info.sandbox_flags,
-@@ -1319,6 +1319,21 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
+@@ -1321,6 +1321,21 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
                  *request_info.initiator_document_token)
            : nullptr,
        request_info.isolation_info, &terminal_external_protocol);

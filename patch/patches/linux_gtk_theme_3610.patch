@@ -27,7 +27,7 @@ index f72a7adb396a2ed26bef50a9ae043f9cd47152c6..ed821e85fdd840635dcf4c4fc764a9f1
            &GtkUi::OnCursorThemeNameChanged);
    connect(settings, "notify::gtk-cursor-theme-size",
 diff --git ui/ozone/platform/wayland/ozone_platform_wayland.cc ui/ozone/platform/wayland/ozone_platform_wayland.cc
-index 39b1aa814c252a103f775898151feedffade5c3d..d0ccc89658b820b6ea6bf659e006fb7c0275bd70 100644
+index 9e0af3dfcc8dec8728b4a60bd314258de8519870..2aaf1acd0a7bcd2e3ec47bfcbba7f99cbc4ac8a1 100644
 --- ui/ozone/platform/wayland/ozone_platform_wayland.cc
 +++ ui/ozone/platform/wayland/ozone_platform_wayland.cc
 @@ -82,6 +82,8 @@ namespace ui {
@@ -58,7 +58,7 @@ index 39b1aa814c252a103f775898151feedffade5c3d..d0ccc89658b820b6ea6bf659e006fb7c
  
      menu_utils_ = std::make_unique<WaylandMenuUtils>(connection_.get());
      wayland_utils_ = std::make_unique<WaylandUtils>(connection_.get());
-@@ -571,4 +581,8 @@ OzonePlatform* CreateOzonePlatformWayland() {
+@@ -575,4 +585,8 @@ OzonePlatform* CreateOzonePlatformWayland() {
    return new OzonePlatformWayland;
  }
  

@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index afc3f64a97c6a8676a656fca1a3ede18eb23b1fb..ac4fd7c7c83e4c504265654df04f996345820e19 100644
+index e12e43ef640a903410e359182094cd53f66f119e..158f27b71db2192c2e23c4d9f2f7fb53231a6c5c 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
 @@ -206,6 +206,10 @@
@@ -305,7 +305,7 @@ index 234e7a390abf8ea6129503181a9f682767e87c6e..8998b8de6dc86a727b487085cf654089
  }
  
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 7b568f6de760af21d6e9d2aa44415a7cef617c51..3b916a9cb704e9acf6a4629c4f1e2ba2f94a7633 100644
+index 764e2952938b4755319b7c30ac1ed3be0905dd75..27abeb767a3248a4f4a70064c8bd934d7a4b5d72 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -55,6 +55,7 @@
@@ -457,7 +457,7 @@ index 7b568f6de760af21d6e9d2aa44415a7cef617c51..3b916a9cb704e9acf6a4629c4f1e2ba2
  bool BrowserView::IsLoadingAnimationRunning() const {
    return !loading_animation_start_.is_null();
  }
-@@ -3188,6 +3250,9 @@ ShowTranslateBubbleResult BrowserView::ShowTranslateBubble(
+@@ -3202,6 +3264,9 @@ ShowTranslateBubbleResult BrowserView::ShowTranslateBubble(
  
  DownloadBubbleUIController* BrowserView::GetDownloadBubbleUIController() {
  #if !BUILDFLAG(IS_CHROMEOS)
@@ -467,7 +467,7 @@ index 7b568f6de760af21d6e9d2aa44415a7cef617c51..3b916a9cb704e9acf6a4629c4f1e2ba2
    if (auto* download_controller =
            DownloadToolbarUIController::From(browser_.get())) {
      return download_controller->bubble_controller();
-@@ -4112,7 +4177,10 @@ bool BrowserView::GetSavedWindowPlacement(
+@@ -4126,7 +4191,10 @@ bool BrowserView::GetSavedWindowPlacement(
  }
  
  views::View* BrowserView::GetContentsView() {
@@ -479,7 +479,7 @@ index 7b568f6de760af21d6e9d2aa44415a7cef617c51..3b916a9cb704e9acf6a4629c4f1e2ba2
  }
  
  views::ClientView* BrowserView::CreateClientView(views::Widget* widget) {
-@@ -4290,9 +4358,22 @@ void BrowserView::DeleteBrowserWindow() {
+@@ -4304,9 +4372,22 @@ void BrowserView::DeleteBrowserWindow() {
    // before the frame is destroyed to mitigate UAF risk.
    browser_widget_->SaveWindowPlacementIfNeeded();
  
@@ -505,7 +505,7 @@ index 7b568f6de760af21d6e9d2aa44415a7cef617c51..3b916a9cb704e9acf6a4629c4f1e2ba2
  }
  
  void BrowserView::SetForceShowBookmarkBarFlag(
-@@ -4535,12 +4616,39 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+@@ -4549,12 +4630,39 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
  bool BrowserView::ShouldDescendIntoChildForEventHandling(
      gfx::NativeView child,
      const gfx::Point& location) {
@@ -547,7 +547,7 @@ index 7b568f6de760af21d6e9d2aa44415a7cef617c51..3b916a9cb704e9acf6a4629c4f1e2ba2
      gfx::Point point_in_browser_view_coords(location);
      views::View::ConvertPointToTarget(GetWidget()->GetRootView(), this,
                                        &point_in_browser_view_coords);
-@@ -4553,9 +4661,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+@@ -4567,9 +4675,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
  
      // Draggable regions should be ignored for clicks into any browser view's
      // owned widgets, for example alerts, permission prompts or find bar.
@@ -559,7 +559,7 @@ index 7b568f6de760af21d6e9d2aa44415a7cef617c51..3b916a9cb704e9acf6a4629c4f1e2ba2
             WidgetOwnedByAnchorContainsPoint(point_in_browser_view_coords);
    }
  
-@@ -4910,7 +5017,9 @@ void BrowserView::Layout(PassKey) {
+@@ -4924,7 +5031,9 @@ void BrowserView::Layout(PassKey) {
    LayoutSuperclass<views::View>(this);
  
    // TODO(jamescook): Why was this in the middle of layout code?
@@ -570,7 +570,7 @@ index 7b568f6de760af21d6e9d2aa44415a7cef617c51..3b916a9cb704e9acf6a4629c4f1e2ba2
    GetFrameView()->UpdateMinimumSize();
  
    if (omnibox::IsWebUIOmniboxInBrowserViewEnabled()) {
-@@ -5196,6 +5305,16 @@ void BrowserView::AddedToWidget() {
+@@ -5217,6 +5326,16 @@ void BrowserView::AddedToWidget() {
    fallback_popup_anchor_ = std::make_unique<views::ViewSubregionAnchor>(
        kFallbackPopupAnchorElementId, *this);
  
@@ -587,7 +587,7 @@ index 7b568f6de760af21d6e9d2aa44415a7cef617c51..3b916a9cb704e9acf6a4629c4f1e2ba2
    initialized_ = true;
  }
  
-@@ -6110,6 +6229,13 @@ void BrowserView::FrameColorsChanged() {
+@@ -6138,6 +6257,13 @@ void BrowserView::FrameColorsChanged() {
      web_app_window_title_->SetBackgroundColor(frame_color);
      web_app_window_title_->SetEnabledColor(caption_color);
    }
@@ -1282,10 +1282,10 @@ index b694cb70ba68adc15d37c4e6cd0bb7e048a0846d..edc3c8c06d79e6daccac0bbe4d158943
    // PictureInPictureBrowserFrameView:
    gfx::Insets ResizeBorderInsets() const override;
 diff --git chrome/browser/ui/views/location_bar/location_bar_view.cc chrome/browser/ui/views/location_bar/location_bar_view.cc
-index 972bd7bc04d240f23d4c527bdb6faa81272421e5..2c1813a0047a9de130486fc36a4784f918ae15ae 100644
+index 5a4f8681856d82278a33dc77e344be2ec0b74771..a000e1e1c51c07aa09a320b6ff42e257c0f213c4 100644
 --- chrome/browser/ui/views/location_bar/location_bar_view.cc
 +++ chrome/browser/ui/views/location_bar/location_bar_view.cc
-@@ -170,6 +170,10 @@
+@@ -171,6 +171,10 @@
  #include "chrome/browser/web_applications/web_app_tab_helper.h"
  #endif
  
@@ -1296,7 +1296,7 @@ index 972bd7bc04d240f23d4c527bdb6faa81272421e5..2c1813a0047a9de130486fc36a4784f9
  namespace {
  
  int IncrementalMinimumWidth(const views::View* view) {
-@@ -196,6 +200,14 @@ bool CanHostWebUIOmnibox(BrowserWindowInterface* browser, bool is_popup_mode) {
+@@ -197,6 +201,14 @@ bool CanHostWebUIOmnibox(BrowserWindowInterface* browser, bool is_popup_mode) {
    if (!browser) {
      return true;
    }
@@ -1311,7 +1311,7 @@ index 972bd7bc04d240f23d4c527bdb6faa81272421e5..2c1813a0047a9de130486fc36a4784f9
    return !web_app::AppBrowserController::IsWebApp(browser) &&
           browser->GetType() != BrowserWindowInterface::Type::TYPE_DEVTOOLS;
  }
-@@ -393,7 +405,7 @@ void LocationBarView::Init() {
+@@ -394,7 +406,7 @@ void LocationBarView::Init() {
      }
    }
  
@@ -1320,7 +1320,7 @@ index 972bd7bc04d240f23d4c527bdb6faa81272421e5..2c1813a0047a9de130486fc36a4784f9
    // When the legacy `OmniboxPopupViewViews` is deprecated we will need to
    // ensure that a null `omnibox_popup_view_` doesn't cause any issues (or aim
    // for a cleaner solution).
-@@ -476,6 +488,18 @@ void LocationBarView::Init() {
+@@ -477,6 +489,18 @@ void LocationBarView::Init() {
      page_action_items = page_actions::GetActivePageActionItems(*browser_);
    }
  

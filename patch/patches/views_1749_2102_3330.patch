@@ -271,10 +271,10 @@ index dc9c713a9bc77fec527229d46f7342b4a95f94a2..4faac58586e3fde385d188524b78167b
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 9b5abde427dbbf497286ddc8f4d103999dfff132..a450118ebe81c06a7c90a2a370a770115dc5ab5c 100644
+index 20ad3d05bb0e8eb1493f302bd73337bb5da39207..097384d55c9190391c87744b4423492067f7eb55 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -733,7 +733,8 @@ void MenuController::Run(Widget* parent,
+@@ -746,7 +746,8 @@ void MenuController::Run(Widget* parent,
                           ui::mojom::MenuSourceType source_type,
                           MenuType menu_type,
                           bool is_nested_drag,
@@ -284,7 +284,7 @@ index 9b5abde427dbbf497286ddc8f4d103999dfff132..a450118ebe81c06a7c90a2a370a77011
    // Track stack depth to defer controller destruction during initial menu
    // display.
    ScopedDeletionGuard guard(AsWeakPtr());
-@@ -805,6 +806,7 @@ void MenuController::Run(Widget* parent,
+@@ -818,6 +819,7 @@ void MenuController::Run(Widget* parent,
      SetShowing(true);
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -292,7 +292,7 @@ index 9b5abde427dbbf497286ddc8f4d103999dfff132..a450118ebe81c06a7c90a2a370a77011
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2830,6 +2832,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2840,6 +2842,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -300,7 +300,7 @@ index 9b5abde427dbbf497286ddc8f4d103999dfff132..a450118ebe81c06a7c90a2a370a77011
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3593,7 +3596,12 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -3597,7 +3600,12 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
        item = button_submenu;
      }
    }
@@ -314,7 +314,7 @@ index 9b5abde427dbbf497286ddc8f4d103999dfff132..a450118ebe81c06a7c90a2a370a77011
      return;
    }
  
-@@ -3625,6 +3633,7 @@ void MenuController::CloseSubmenu() {
+@@ -3629,6 +3637,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
@@ -323,7 +323,7 @@ index 9b5abde427dbbf497286ddc8f4d103999dfff132..a450118ebe81c06a7c90a2a370a77011
    }
    MenuItemView* item_to_select = nullptr;
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index ccdb48fc12254e46da9b510c7c6925a68845061f..8db0aa86dcd166b08d065c47beb5d43404912c29 100644
+index 655814df01abdb2bad254f8bf80d8db3116bb616..3f271c5a948ea292c1f55b1d8990417e25ce569f 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
 @@ -163,7 +163,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
@@ -336,7 +336,7 @@ index ccdb48fc12254e46da9b510c7c6925a68845061f..8db0aa86dcd166b08d065c47beb5d434
  
    bool for_drop() const { return for_drop_; }
  
-@@ -827,6 +828,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
+@@ -834,6 +835,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
    // RunType::SEND_GESTURE_EVENTS_TO_OWNER is set.
    gfx::NativeView native_view_for_gestures_ = gfx::NativeView();
  
@@ -421,10 +421,10 @@ index 1b0dd04e1d2693c8b35e5e57306a27b09b72daab..5e1fdfb5ea832f2d67c6a2a0168adbe5
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index bd1502167012081b83f0fd11e3727317e8fcd48d..ef567984ceb425bae9ae626e35e084c27c1a4df5 100644
+index 27daaff05f109caf54a1c371b4c8f5c4ca8f838d..7a22b6881ccbd1797d28e545ef9b3bccb66de862 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1478,6 +1478,14 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1479,6 +1479,14 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
        rounded_rect.setRectRadii(gfx::RectFToSkRect(highlight_bounds), radii);
        canvas->sk_canvas()->drawRRect(rounded_rect, flags);
      }
@@ -438,8 +438,8 @@ index bd1502167012081b83f0fd11e3727317e8fcd48d..ef567984ceb425bae9ae626e35e084c2
 +    canvas->DrawColor(override_color);
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
-     if (menu_item_background_.has_value()) {
-@@ -1575,6 +1583,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+     item_bounds.Inset(GetHighlightInsets());
+@@ -1569,6 +1577,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {

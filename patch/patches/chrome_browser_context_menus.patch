@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index bd858271b91ef4be9ca63e10b79789ad1407a4d4..6e772b279ca4aa7ef65e85cb824ad5363d131ea5 100644
+index 28b124adca563e16b9074df207276f699c0f14f4..3f8d291aad7d3b160b58cb785954281ae03773ce 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -504,6 +504,18 @@ ui::ImageModel GetLensContextMenuIcon() {
@@ -47,7 +47,7 @@ index bd858271b91ef4be9ca63e10b79789ad1407a4d4..6e772b279ca4aa7ef65e85cb824ad536
    observers_.AddObserver(&autofill_context_menu_manager_);
  }
  
-@@ -1633,6 +1657,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1622,6 +1646,12 @@ void RenderViewContextMenu::InitMenu() {
        AppendReadAnythingItem();
      }
    }
@@ -60,7 +60,7 @@ index bd858271b91ef4be9ca63e10b79789ad1407a4d4..6e772b279ca4aa7ef65e85cb824ad536
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -4528,6 +4558,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
+@@ -4522,6 +4552,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
    observers_.RemoveObserver(observer);
  }
  
@@ -88,7 +88,7 @@ index bd858271b91ef4be9ca63e10b79789ad1407a4d4..6e772b279ca4aa7ef65e85cb824ad536
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index dd4c095249334dcaef9328eedb2c30e1ea4b4968..95a01257a959d429e4d00781bd3cc3e43b4ad4f4 100644
+index 545bcad55239a0ac34f22958d1a3209306c944f3..b851533d5eec4e5c5aacd691eb0f0eac97300564 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
 @@ -183,7 +183,21 @@ class RenderViewContextMenu
@@ -113,7 +113,7 @@ index dd4c095249334dcaef9328eedb2c30e1ea4b4968..95a01257a959d429e4d00781bd3cc3e4
    Profile* GetProfile() const;
  
    // This may return nullptr (e.g. for WebUI dialogs). Virtual to allow tests to
-@@ -585,6 +599,9 @@ class RenderViewContextMenu
+@@ -584,6 +598,9 @@ class RenderViewContextMenu
    // Video frame sub-menu handling.
    ui::SimpleMenuModel video_frame_submenu_model_;
  
