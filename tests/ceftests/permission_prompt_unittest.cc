@@ -102,7 +102,7 @@ class PermissionPromptTestHandler : public TestHandler,
       return RV_CANCEL;
     }
 
-    return RV_CONTINUE;
+    return TestHandler::OnBeforeResourceLoad(browser, frame, request, callback);
   }
 
   void RunTest() override {

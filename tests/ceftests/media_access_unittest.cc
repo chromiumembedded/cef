@@ -124,7 +124,7 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
       return RV_CANCEL;
     }
 
-    return RV_CONTINUE;
+    return TestHandler::OnBeforeResourceLoad(browser, frame, request, callback);
   }
 
   void RunTest() override {
