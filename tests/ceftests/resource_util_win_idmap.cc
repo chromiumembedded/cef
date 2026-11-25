@@ -14,6 +14,9 @@ int GetResourceId(const char* resource_name) {
     const char* name;
     int id;
   } resource_map[] = {
+      {"frame_id_25fps.webm", IDS_FRAME_ID_25FPS_WEBM},
+      {"frame_id_50fps.webm", IDS_FRAME_ID_50FPS_WEBM},
+      {"frame_id_60fps.webm", IDS_FRAME_ID_60FPS_WEBM},
       {"osr_test.html", IDS_OSRTEST_HTML},
       {"pdf.html", IDS_PDF_HTML},
       {"pdf.pdf", IDS_PDF_PDF},

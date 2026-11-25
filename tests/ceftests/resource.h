@@ -14,6 +14,9 @@
 #define IDS_PDF_PDF 1002
 #define IDS_WINDOW_ICON_1X_PNG 1003
 #define IDS_WINDOW_ICON_2X_PNG 1004
+#define IDS_FRAME_ID_25FPS_WEBM 1005
+#define IDS_FRAME_ID_50FPS_WEBM 1006
+#define IDS_FRAME_ID_60FPS_WEBM 1007
 
 // Next default values for new objects
 //
