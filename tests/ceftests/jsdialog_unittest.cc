@@ -26,11 +26,21 @@ const char* kDialogNavigationUrl =
 class DefaultJSDialogTestHandler : public TestHandler,
                                    public CefDevToolsMessageObserver {
  public:
-  DefaultJSDialogTestHandler(JSDialogType type, bool accept, bool navigate)
-      : type_(type), accept_(accept), navigate_(navigate) {}
+  DefaultJSDialogTestHandler(JSDialogType type,
+                             bool accept,
+                             bool navigate,
+                             bool use_views)
+      : type_(type),
+        accept_(accept),
+        navigate_(navigate),
+        use_views_(use_views) {}
 
   void RunTest() override {
-    SetUseViews(true);
+    SetUseViews(use_views_);
+    if (!use_views_) {
+      // Native-hosted Alloy browsers use the platform dialog runner.
+      SetUseAlloyStyle(true, true);
+    }
     AddResource(kStartUrl,
                 "<!doctype html><title>Default JS dialog test</title>",
                 "text/html");
@@ -190,6 +200,13 @@ class DefaultJSDialogTestHandler : public TestHandler,
       EXPECT_EQ(completed_count_, opening_count_);
       EXPECT_EQ(completed_count_, default_dialog_count_);
       EXPECT_EQ(completed_count_, closed_count_);
+      if (!use_views_) {
+        // Handling the dialog through DevTools must also dismiss its native UI.
+        const auto visible = HasVisibleNativeModalDialog();
+        if (visible) {
+          EXPECT_FALSE(*visible);
+        }
+      }
       if (completed_count_ == 2) {
         DestroyTest();
       } else {
@@ -321,6 +338,7 @@ class DefaultJSDialogTestHandler : public TestHandler,
   const JSDialogType type_;
   const bool accept_;
   const bool navigate_;
+  const bool use_views_;
   bool navigation_started_ = false;
   bool navigation_loaded_ = false;
   bool started_ = false;
@@ -346,9 +364,12 @@ class DefaultJSDialogTestHandler : public TestHandler,
 
 class DefaultJSDialogTest : public testing::Test {
  protected:
-  void Run(cef_jsdialog_type_t type, bool accept, bool navigate = false) {
+  void Run(cef_jsdialog_type_t type,
+           bool accept,
+           bool navigate = false,
+           bool use_views = true) {
     CefRefPtr<DefaultJSDialogTestHandler> handler =
-        new DefaultJSDialogTestHandler(type, accept, navigate);
+        new DefaultJSDialogTestHandler(type, accept, navigate, use_views);
     handler->ExecuteTest();
     ReleaseAndWaitForDestructor(handler);
   }
@@ -385,6 +406,21 @@ TEST_F(DefaultJSDialogTest, ConfirmDismissOnNavigation) {
 TEST_F(DefaultJSDialogTest, PromptDismissOnNavigation) {
   Run(JSDIALOGTYPE_PROMPT, true, true);
 }
+
+#if defined(OS_MAC)
+// Native-hosted Alloy browsers show these dialogs with NSAlert.
+TEST_F(DefaultJSDialogTest, NativeAlert) {
+  Run(JSDIALOGTYPE_ALERT, true, false, false);
+}
+
+TEST_F(DefaultJSDialogTest, NativeConfirmCancel) {
+  Run(JSDIALOGTYPE_CONFIRM, false, false, false);
+}
+
+TEST_F(DefaultJSDialogTest, NativePromptAccept) {
+  Run(JSDIALOGTYPE_PROMPT, true, false, false);
+}
+#endif  // defined(OS_MAC)
 
 class JSDialogTestHandler : public TestHandler {
  public:

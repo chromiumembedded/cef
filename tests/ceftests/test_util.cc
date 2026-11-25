@@ -51,6 +51,11 @@ std::optional<bool> IsNativeTestBrowserResizable(
   return std::nullopt;
 }
 
+std::optional<bool> HasVisibleNativeModalDialog() {
+  CEF_REQUIRE_UI_THREAD();
+  return std::nullopt;
+}
+
 bool SetNativeTestBrowserVisible(CefRefPtr<CefBrowser> browser, bool visible) {
   CEF_REQUIRE_UI_THREAD();
 #if defined(OS_WIN)
