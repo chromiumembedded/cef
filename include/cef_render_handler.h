@@ -43,6 +43,7 @@
 #include "include/cef_accessibility_handler.h"
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
+#include "include/cef_callback.h"
 #include "include/cef_drag_data.h"
 
 ///
@@ -171,6 +172,31 @@ class CefRenderHandler : public virtual CefBaseRefCounted {
                                   PaintElementType type,
                                   const RectList& dirtyRects,
                                   const CefAcceleratedPaintInfo& info) {}
+
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+  ///
+  /// Called when an element has been rendered to the shared texture handle.
+  /// Same as the variant without |callback|, except that the resource described
+  /// by |info|, including its handles, stays valid and unmodified until the
+  /// frame is released. Executing |callback| (Continue or Cancel) or releasing
+  /// its last reference releases the frame once this call returns; do either on
+  /// any thread once all GPU work that reads the resource has completed. |info|
+  /// itself is only valid during this call, so copy any values needed later. At
+  /// most 4 frames are held per popup or page, and a new popup or page, such as
+  /// after a cross-site navigation, starts a new count. Further paints are
+  /// dropped until one is released, and the popup or page is then repainted
+  /// whole. Return true to handle the paint, or false to call the variant
+  /// without |callback| instead.
+  ///
+  /*--cef(added=experimental,capi_name=on_accelerated_paint2)--*/
+  virtual bool OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
+                                  PaintElementType type,
+                                  const RectList& dirtyRects,
+                                  const CefAcceleratedPaintInfo& info,
+                                  CefRefPtr<CefCallback> callback) {
+    return false;
+  }
+#endif  // CEF_API_ADDED(CEF_EXPERIMENTAL)
 
   ///
   /// Called to retrieve the size of the touch handle for the specified

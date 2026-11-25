@@ -1192,6 +1192,7 @@ GtkWidget* RootWindowGtk::CreateMenuBar() {
   if (with_osr_) {
     AddMenuEntry(test_menu, "Set FPS", ID_TESTS_OSR_FPS);
     AddMenuEntry(test_menu, "Set Scale Factor", ID_TESTS_OSR_DSF);
+    AddMenuEntry(test_menu, "Hold Frames", ID_TESTS_OSR_HOLD_FRAMES);
   }
   AddMenuEntry(test_menu, "Begin Tracing", ID_TESTS_TRACING_BEGIN);
   AddMenuEntry(test_menu, "End Tracing", ID_TESTS_TRACING_END);

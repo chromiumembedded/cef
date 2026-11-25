@@ -71,6 +71,7 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
 - (IBAction)menuTestsZoomReset:(id)sender;
 - (IBAction)menuTestsSetFPS:(id)sender;
 - (IBAction)menuTestsSetScaleFactor:(id)sender;
+- (IBAction)menuTestsHoldFrames:(id)sender;
 - (IBAction)menuTestsTracingBegin:(id)sender;
 - (IBAction)menuTestsTracingEnd:(id)sender;
 - (IBAction)menuTestsPrint:(id)sender;
@@ -222,6 +223,7 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
       // Remove the OSR-related menu items when not using OSR.
       RemoveMenuItem(tests_menu.submenu, @selector(menuTestsSetFPS:));
       RemoveMenuItem(tests_menu.submenu, @selector(menuTestsSetScaleFactor:));
+      RemoveMenuItem(tests_menu.submenu, @selector(menuTestsHoldFrames:));
     }
     if (!main_context->UseViewsGlobal()) {
       // Remove the Views-related menu items when not using Views.
@@ -293,6 +295,10 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
 
 - (IBAction)menuTestsSetScaleFactor:(id)sender {
   [self testsItemSelected:ID_TESTS_OSR_DSF];
+}
+
+- (IBAction)menuTestsHoldFrames:(id)sender {
+  [self testsItemSelected:ID_TESTS_OSR_HOLD_FRAMES];
 }
 
 - (IBAction)menuTestsTracingBegin:(id)sender {

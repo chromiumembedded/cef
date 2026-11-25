@@ -21,6 +21,7 @@
 #include "tests/cefclient/browser/base_client_handler.h"
 #include "tests/cefclient/browser/binary_transfer_test.h"
 #include "tests/cefclient/browser/binding_test.h"
+#include "tests/cefclient/browser/client_handler_osr.h"
 #include "tests/cefclient/browser/component_test.h"
 #include "tests/cefclient/browser/config_test.h"
 #include "tests/cefclient/browser/dialog_test.h"
@@ -169,6 +170,7 @@ void RunDialogWindowTest(CefRefPtr<CefBrowser> browser) {
 const char kPrompt[] = "Prompt.";
 const char kPromptFPS[] = "FPS";
 const char kPromptDSF[] = "DSF";
+const char kPromptHoldFrames[] = "HoldFrames";
 
 // Handles execution of prompt results.
 class PromptHandler : public CefMessageRouterBrowserSide::Handler {
@@ -203,6 +205,11 @@ class PromptHandler : public CefMessageRouterBrowserSide::Handler {
         SetFPS(browser, atoi(value.c_str()));
       } else if (type == kPromptDSF) {
         SetDSF(browser, static_cast<float>(atof(value.c_str())));
+      } else if (type == kPromptHoldFrames) {
+        if (auto handler = ClientHandlerOsr::GetForClient(
+                browser->GetHost()->GetClient())) {
+          handler->SetFramesToHold(std::max(atoi(value.c_str()), 0));
+        }
       }
     }
 
@@ -261,6 +268,20 @@ void PromptFPS(CefRefPtr<CefBrowser> browser) {
   ss << browser->GetHost()->GetWindowlessFrameRate();
 
   Prompt(browser, kPromptFPS, "Enter FPS", ss.str());
+}
+
+void PromptHoldFrames(CefRefPtr<CefBrowser> browser) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    // Execute on the UI thread.
+    CefPostTask(TID_UI, base::BindOnce(&PromptHoldFrames, browser));
+    return;
+  }
+
+  const size_t frames_to_hold =
+      ClientHandlerOsr::GetForClient(browser->GetHost()->GetClient())
+          ->frames_to_hold();
+  Prompt(browser, kPromptHoldFrames, "Enter frames to hold, 0 to release all",
+         std::to_string(frames_to_hold));
 }
 
 void PromptDSF(CefRefPtr<CefBrowser> browser) {
@@ -581,6 +602,9 @@ void RunTest(CefRefPtr<CefBrowser> browser, int id) {
       break;
     case ID_TESTS_OSR_DSF:
       PromptDSF(browser);
+      break;
+    case ID_TESTS_OSR_HOLD_FRAMES:
+      PromptHoldFrames(browser);
       break;
     case ID_TESTS_TRACING_BEGIN:
       BeginTracing();

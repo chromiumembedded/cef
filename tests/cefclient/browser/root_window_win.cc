@@ -1193,6 +1193,7 @@ void RootWindowWin::OnCreate(LPCREATESTRUCT lpCreateStruct) {
         if (hTestMenu) {
           ::RemoveMenu(hTestMenu, ID_TESTS_OSR_FPS, MF_BYCOMMAND);
           ::RemoveMenu(hTestMenu, ID_TESTS_OSR_DSF, MF_BYCOMMAND);
+          ::RemoveMenu(hTestMenu, ID_TESTS_OSR_HOLD_FRAMES, MF_BYCOMMAND);
         }
       }
     }
