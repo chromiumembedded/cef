@@ -22,6 +22,7 @@
 #include "net/url_request/referrer_policy.h"
 #include "net/url_request/url_request.h"
 #include "services/network/public/cpp/resource_request.h"
+#include "services/network/public/mojom/url_response_head.mojom.h"
 
 namespace net_service {
 
@@ -163,6 +164,23 @@ scoped_refptr<net::HttpResponseHeaders> MakeResponseHeaders(
   }
 
   return headers;
+}
+
+void UpdateResponseHeadMimeType(network::mojom::URLResponseHead* head) {
+  if (!head->headers) {
+    return;
+  }
+
+  if (head->headers->IsRedirect(nullptr)) {
+    // Don't report Content-Type header values for redirects.
+    head->mime_type = head->charset = std::string();
+    return;
+  }
+
+  std::string mime_type, charset;
+  head->headers->GetMimeTypeAndCharset(&mime_type, &charset);
+  head->mime_type = mime_type;
+  head->charset = charset;
 }
 
 net::RedirectInfo MakeRedirectInfo(const network::ResourceRequest& request,

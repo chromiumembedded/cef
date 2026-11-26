@@ -156,11 +156,17 @@ void CefResponseImpl::SetHeaderMap(const HeaderMap& headerMap) {
   header_map_ = headerMap;
 }
 
-scoped_refptr<net::HttpResponseHeaders> CefResponseImpl::GetResponseHeaders() {
+scoped_refptr<net::HttpResponseHeaders> CefResponseImpl::GetResponseHeaders(
+    bool default_mime_type) {
   base::AutoLock lock_scope(lock_);
 
+  // The Content-Type header is generated from |mime_type_| and |charset_|, so
+  // an empty MIME type omits the header. A default is only applied for
+  // responses created by CefResponse::Create() that never had a MIME type
+  // assigned, unless |default_mime_type| is false (e.g. when serializing an
+  // intercepted response where the header is genuinely absent).
   std::string mime_type = mime_type_;
-  if (mime_type.empty()) {
+  if (mime_type.empty() && default_mime_type) {
     mime_type = "text/html";
   }
 
