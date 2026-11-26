@@ -31,6 +31,7 @@ const char kNetWMState[] = "_NET_WM_STATE";
 const char kNetWMStateKeepAbove[] = "_NET_WM_STATE_KEEP_ABOVE";
 const char kWMDeleteWindow[] = "WM_DELETE_WINDOW";
 const char kWMProtocols[] = "WM_PROTOCOLS";
+const char kWMTakeFocus[] = "WM_TAKE_FOCUS";
 const char kXdndProxy[] = "XdndProxy";
 
 // Return true if |window| has any property with |property_name|.
@@ -167,6 +168,32 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,
       x11::GetAtom(kWMDeleteWindow),
       x11::GetAtom(kNetWMPing),
   };
+
+  if (parent_xwindow_ == ui::GetX11RootWindow()) {
+    // Use the ICCCM "Globally Active" input model (input=False plus
+    // WM_TAKE_FOCUS) so that the window manager doesn't focus this window
+    // directly. Some window managers focus the top-level window on every button
+    // press, which takes focus from the child DesktopWindowTreeHostLinux and
+    // closes context menus and <select> popups. See issue #4329.
+    //
+    // WM_TAKE_FOCUS is not in Chromium's atom cache, so intern it directly to
+    // avoid x11::GetAtom() logging an error.
+    if (auto reply = connection_
+                         ->InternAtom(x11::InternAtomRequest{
+                             .name = kWMTakeFocus,
+                         })
+                         .Sync()) {
+      wm_take_focus_atom_ = reply->atom;
+      protocols.push_back(wm_take_focus_atom_);
+
+      x11::WmHints wm_hints{
+          .flags = x11::WM_HINT_INPUT,
+          .input = false,
+      };
+      connection_->SetWmHints(xwindow_, wm_hints);
+    }
+  }
+
   connection_->SetArrayProperty(xwindow_, x11::GetAtom(kWMProtocols),
                                 x11::Atom::ATOM, protocols);
 
@@ -277,6 +304,10 @@ void CefWindowX11::Hide() {
 }
 
 void CefWindowX11::Focus() {
+  SetInputFocus(x11::Time::CurrentTime);
+}
+
+void CefWindowX11::SetInputFocus(x11::Time time) {
   if (xwindow_ == x11::Window::None || !window_mapped_) {
     return;
   }
@@ -293,9 +324,7 @@ void CefWindowX11::Focus() {
 
   // Directly ask the X server to give focus to the window. Note that the call
   // would have raised an X error if the window is not mapped.
-  connection_
-      ->SetInputFocus(
-          {x11::InputFocus::Parent, focus_target, x11::Time::CurrentTime})
+  connection_->SetInputFocus({x11::InputFocus::Parent, focus_target, time})
       .IgnoreError();
 }
 
@@ -442,6 +471,11 @@ void CefWindowX11::ProcessXEvent(const x11::Event& event) {
         connection_->SendEvent(reply_event, reply_event.window,
                                x11::EventMask::SubstructureNotify |
                                    x11::EventMask::SubstructureRedirect);
+      } else if (wm_take_focus_atom_ != x11::Atom::None &&
+                 protocol == wm_take_focus_atom_) {
+        // The window manager wants us to take focus. Use the timestamp from
+        // the message as required by the ICCCM.
+        SetInputFocus(static_cast<x11::Time>(client->data.data32[1]));
       }
     }
   } else if (auto* focus = event.As<x11::FocusEvent>()) {
