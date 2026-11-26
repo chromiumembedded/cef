@@ -51,6 +51,12 @@
 
 namespace {
 
+#if BUILDFLAG(IS_OZONE)
+bool IsRunningOnWayland() {
+  return ui::OzonePlatform::GetPlatformNameForTest() == "wayland";
+}
+#endif
+
 // Specialize ClientView to handle Widget-related events.
 class ClientViewEx : public views::ClientView {
   METADATA_HEADER(ClientViewEx, views::ClientView)
@@ -658,6 +664,11 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
   if (is_frameless_) {
     // Don't show the native window caption. Setting this value on Linux will
     // result in window resize artifacts.
+    params.remove_standard_frame = true;
+  }
+#elif BUILDFLAG(IS_OZONE)
+  if (is_frameless_ && IsRunningOnWayland()) {
+    // Request client-side decorations for frameless Wayland windows.
     params.remove_standard_frame = true;
   }
 #endif
